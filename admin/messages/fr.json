@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "KPB Admin",
+    "tagline": "Demandes étudiants, accompagnement, contenus et suivi opérationnel."
+  },
+  "shell": {
+    "loading": "Chargement de l'espace admin…",
+    "description": "Contenus mobiles, gestion des dossiers et workflows équipe depuis cet espace.",
+    "logout": "Se déconnecter",
+    "language": "Langue"
+  },
+  "nav": {
+    "overview": "Tableau de bord",
+    "cases": "Dossiers",
+    "content": "Contenus",
+    "community": "Communauté",
+    "notifications": "Notifications",
+    "users": "Utilisateurs",
+    "reports": "Rapports"
+  },
+  "login": {
+    "title": "Connexion",
+    "subtitle": "Utilisez votre email KPB pour accéder à l'espace d'opérations.",
+    "emailLabel": "Email",
+    "submit": "Se connecter",
+    "loading": "Connexion en cours…",
+    "error": "Email introuvable ou inactif."
+  },
+  "overview": {
+    "title": "Tableau de bord",
+    "casesInProgress": "Dossiers en cours",
+    "casesPending": "En attente",
+    "newThisWeek": "Nouveaux cette semaine",
+    "activeStudents": "Étudiants actifs",
+    "recentCases": "Dossiers récents",
+    "noRecent": "Aucun dossier récent."
+  }
+}

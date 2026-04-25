@@ -1,0 +1,430 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../core/repositories/app_api_client.dart';
+
+/// Salon KPB Virtuel — annual 2-day in-app event (Phase 3).
+///
+/// Universities from Canada / France / Morocco answer questions live. This
+/// screen lists upcoming editions, their sessions, and lets a student RSVP
+/// so we can push reminder notifications 24h and 1h before the session.
+///
+/// Video is hosted externally (Jitsi / Meet / Zoom) — the "Rejoindre" button
+/// just opens `joinUrl` in the browser. We don't bake a WebRTC stack into
+/// the app; universities keep their own recording and platform of choice.
+class SalonScreen extends StatefulWidget {
+  const SalonScreen({super.key});
+
+  @override
+  State<SalonScreen> createState() => _SalonScreenState();
+}
+
+class _SalonScreenState extends State<SalonScreen> {
+  final AppApiClient _api = AppApiClient();
+  bool _loading = true;
+  String? _error;
+  List<dynamic> _events = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final items = await _api.listSalonEvents();
+      if (!mounted) return;
+      setState(() {
+        _events = items;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Impossible de charger le Salon. Vérifie ta connexion.';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _openEvent(Map<String, dynamic> event) async {
+    final slug = event['slug'] as String?;
+    if (slug == null) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _SalonEventScreen(slug: slug),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Salon KPB Virtuel')),
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(_error!, textAlign: TextAlign.center),
+          ),
+        ],
+      );
+    }
+    if (_events.isEmpty) {
+      return ListView(
+        children: const [
+          Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              "Pas d'édition programmée pour l'instant. "
+              'Reviens bientôt — la prochaine édition sera annoncée dans les notifications.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _events.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, i) {
+        final e = _events[i] as Map<String, dynamic>;
+        return _EventCard(event: e, onTap: () => _openEvent(e));
+      },
+    );
+  }
+}
+
+class _EventCard extends StatelessWidget {
+  const _EventCard({required this.event, required this.onTap});
+
+  final Map<String, dynamic> event;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = (event['nameFr'] as String?) ?? '';
+    final year = event['year']?.toString() ?? '';
+    final start = event['startAt'] as String?;
+    final end = event['endAt'] as String?;
+    final desc = (event['descriptionFr'] as String?) ?? '';
+    final status = (event['status'] as String?) ?? '';
+
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '$name $year',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  if (status == 'live')
+                    const Chip(
+                      label: Text('En direct'),
+                      backgroundColor: Color(0xFFE53935),
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatRange(start, end),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              if (desc.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(desc, maxLines: 3, overflow: TextOverflow.ellipsis),
+              ],
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: onTap,
+                  icon: const Icon(Icons.chevron_right),
+                  label: const Text('Voir les sessions'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _formatRange(String? startIso, String? endIso) {
+    if (startIso == null) return '';
+    final start = DateTime.tryParse(startIso)?.toLocal();
+    final end = endIso != null ? DateTime.tryParse(endIso)?.toLocal() : null;
+    if (start == null) return '';
+    if (end == null) return _fmt(start);
+    final sameDay = start.year == end.year &&
+        start.month == end.month &&
+        start.day == end.day;
+    return sameDay
+        ? '${_fmt(start)} — ${_fmtTime(end)}'
+        : '${_fmt(start)} → ${_fmt(end)}';
+  }
+
+  static String _fmt(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} ${_fmtTime(d)}';
+
+  static String _fmtTime(DateTime d) =>
+      '${d.hour.toString().padLeft(2, '0')}h${d.minute.toString().padLeft(2, '0')}';
+}
+
+/// Detail view — lists sessions for the selected event and lets the student
+/// register / unregister.
+class _SalonEventScreen extends StatefulWidget {
+  const _SalonEventScreen({required this.slug});
+
+  final String slug;
+
+  @override
+  State<_SalonEventScreen> createState() => _SalonEventScreenState();
+}
+
+class _SalonEventScreenState extends State<_SalonEventScreen> {
+  final AppApiClient _api = AppApiClient();
+  bool _loading = true;
+  String? _error;
+  Map<String, dynamic> _event = const {};
+  Set<String> _registeredSessionIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final results = await Future.wait([
+        _api.getSalonEvent(widget.slug),
+        _api.listMySalonRegistrations(),
+      ]);
+      if (!mounted) return;
+      final regs = results[1] as List<dynamic>;
+      setState(() {
+        _event = results[0] as Map<String, dynamic>;
+        _registeredSessionIds = regs
+            .map((r) =>
+                ((r as Map<String, dynamic>)['sessionId'] as String?) ?? '')
+            .where((id) => id.isNotEmpty)
+            .toSet();
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Impossible de charger le programme.';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleRegister(Map<String, dynamic> session) async {
+    final id = session['id'] as String?;
+    if (id == null) return;
+    final isRegistered = _registeredSessionIds.contains(id);
+    try {
+      if (isRegistered) {
+        await _api.cancelSalonRegistration(id);
+        setState(() => _registeredSessionIds.remove(id));
+      } else {
+        await _api.registerForSalonSession(id);
+        setState(() => _registeredSessionIds.add(id));
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Impossible de mettre à jour l'inscription.")),
+      );
+    }
+  }
+
+  Future<void> _join(String? joinUrl) async {
+    if (joinUrl == null || joinUrl.isEmpty) return;
+    await launchUrl(Uri.parse(joinUrl), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final name = (_event['nameFr'] as String?) ?? 'Salon KPB';
+    return Scaffold(
+      appBar: AppBar(title: Text(name)),
+      body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(_error!, textAlign: TextAlign.center),
+          ),
+        ],
+      );
+    }
+    final sessions = (_event['sessions'] as List<dynamic>? ?? const [])
+        .cast<Map<String, dynamic>>();
+    if (sessions.isEmpty) {
+      return ListView(
+        children: const [
+          Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              "Le programme n'est pas encore publié. Reviens bientôt.",
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: sessions.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, i) {
+        final s = sessions[i];
+        final id = s['id'] as String? ?? '';
+        final isRegistered = _registeredSessionIds.contains(id);
+        return _SessionCard(
+          session: s,
+          isRegistered: isRegistered,
+          onToggleRegister: () => _toggleRegister(s),
+          onJoin: () => _join(s['joinUrl'] as String?),
+        );
+      },
+    );
+  }
+}
+
+class _SessionCard extends StatelessWidget {
+  const _SessionCard({
+    required this.session,
+    required this.isRegistered,
+    required this.onToggleRegister,
+    required this.onJoin,
+  });
+
+  final Map<String, dynamic> session;
+  final bool isRegistered;
+  final VoidCallback onToggleRegister;
+  final VoidCallback onJoin;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = (session['titleFr'] as String?) ?? '';
+    final host = (session['hostName'] as String?) ?? '';
+    final desc = (session['descriptionFr'] as String?) ?? '';
+    final startIso = session['startAt'] as String?;
+    final duration = session['durationMinutes'] as int? ?? 45;
+    final status = (session['status'] as String?) ?? 'scheduled';
+    final joinUrl = (session['joinUrl'] as String?) ?? '';
+
+    final start = startIso != null ? DateTime.tryParse(startIso)?.toLocal() : null;
+    final isLive = status == 'live';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(title,
+                      style: Theme.of(context).textTheme.titleMedium),
+                ),
+                if (isLive)
+                  const Chip(
+                    label: Text('Live'),
+                    backgroundColor: Color(0xFFE53935),
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+              ],
+            ),
+            if (host.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text('Avec $host',
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+            if (start != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                '${start.day.toString().padLeft(2, '0')}/${start.month.toString().padLeft(2, '0')} '
+                '${start.hour.toString().padLeft(2, '0')}h${start.minute.toString().padLeft(2, '0')} · $duration min',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (desc.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(desc),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (isLive && joinUrl.isNotEmpty)
+                  Expanded(
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.video_call),
+                      label: const Text('Rejoindre'),
+                      onPressed: onJoin,
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: Icon(isRegistered
+                          ? Icons.check_circle
+                          : Icons.event_available),
+                      label: Text(isRegistered
+                          ? 'Inscription confirmée'
+                          : "M'inscrire"),
+                      onPressed: onToggleRegister,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

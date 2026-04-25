@@ -1,0 +1,143 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+
+import { Roles } from '../../common/decorators/roles.decorator';
+import { InternalRole } from '../../common/enums/internal-role.enum';
+import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { ContentService } from './content.service';
+
+@Controller()
+export class ContentController {
+  constructor(private readonly contentService: ContentService) {}
+
+  @Get('content/service-offers')
+  listServiceOffers() {
+    return this.contentService.listServiceOffers();
+  }
+
+  @Get('content/support-destinations')
+  listSupportDestinations() {
+    return this.contentService.listSupportDestinations();
+  }
+
+  @Get('content/articles')
+  listArticles() {
+    return this.contentService.listArticles();
+  }
+
+  @Get('admin/service-offers')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  adminListServiceOffers() {
+    return this.contentService.listServiceOffers();
+  }
+
+  @Post('admin/service-offers')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  createServiceOffer(@Body() input: Record<string, unknown>) {
+    return this.contentService.createServiceOffer(input);
+  }
+
+  @Patch('admin/service-offers/:id')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  updateServiceOffer(
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.contentService.updateServiceOffer(id, input);
+  }
+
+  @Get('admin/support-destinations')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  adminListSupportDestinations() {
+    return this.contentService.listSupportDestinations();
+  }
+
+  @Post('admin/support-destinations')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  createSupportDestination(@Body() input: Record<string, unknown>) {
+    return this.contentService.createSupportDestination(input);
+  }
+
+  @Patch('admin/support-destinations/:id')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  updateSupportDestination(
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.contentService.updateSupportDestination(id, input);
+  }
+
+  @Get('admin/articles')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  adminListArticles() {
+    return this.contentService.listArticles();
+  }
+
+  @Post('admin/articles')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  createArticle(@Body() input: Record<string, unknown>) {
+    return this.contentService.createArticle(input);
+  }
+
+  @Patch('admin/articles/:id')
+  @UseGuards(AdminAuthGuard, RolesGuard)
+  @Roles(
+    InternalRole.ContentManager,
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+  )
+  updateArticle(
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.contentService.updateArticle(id, input);
+  }
+}
