@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -529,7 +530,7 @@ class _AdmissionHook extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context); // Close detail
-                Get.toNamed('/cases/create', arguments: {
+                Get.toNamed(AppRoutes.caseCreate, arguments: {
                   'type': CaseType.scholarshipSupport,
                   'title': 'Analyse Boost : $scholarshipName',
                 });

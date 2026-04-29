@@ -36,6 +36,8 @@ class LocalAppRepository implements AppRepository {
       localeCode: json['localeCode'] as String? ?? 'fr',
       hasCompletedOnboarding:
           json['hasCompletedOnboarding'] as bool? ?? false,
+      hasSeenIntro: json['hasSeenIntro'] as bool? ?? false,
+      isAppLockEnabled: json['isAppLockEnabled'] as bool? ?? false,
       themeMode: _themeModeFromString(json['themeMode'] as String?),
       profile: _userProfileFromJson(json['profile'] as Map<String, dynamic>?),
       savedItems: ((json['savedItems'] as List<dynamic>?) ?? <dynamic>[])
@@ -86,6 +88,8 @@ class LocalAppRepository implements AppRepository {
     final json = <String, dynamic>{
       'localeCode': snapshot.localeCode,
       'hasCompletedOnboarding': snapshot.hasCompletedOnboarding,
+      'hasSeenIntro': snapshot.hasSeenIntro,
+      'isAppLockEnabled': snapshot.isAppLockEnabled,
       'themeMode': snapshot.themeMode.name,
       'profile': _userProfileToJson(snapshot.profile),
       'savedItems': snapshot.savedItems.map(_savedItemToJson).toList(),

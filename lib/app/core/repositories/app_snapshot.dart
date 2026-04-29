@@ -6,6 +6,8 @@ class AppSnapshot {
   const AppSnapshot({
     required this.localeCode,
     required this.hasCompletedOnboarding,
+    this.hasSeenIntro = false,
+    this.isAppLockEnabled = false,
     this.themeMode = ThemeMode.system,
     this.profile,
     this.savedItems = const [],
@@ -25,6 +27,8 @@ class AppSnapshot {
 
   final String localeCode;
   final bool hasCompletedOnboarding;
+  final bool hasSeenIntro;
+  final bool isAppLockEnabled;
   final ThemeMode themeMode;
   final UserProfile? profile;
   final List<SavedItem> savedItems;
@@ -45,6 +49,8 @@ class AppSnapshot {
     return const AppSnapshot(
       localeCode: 'fr',
       hasCompletedOnboarding: false,
+      hasSeenIntro: false,
+      isAppLockEnabled: false,
     );
   }
 }

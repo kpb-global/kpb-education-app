@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app/core/controllers/app_controller.dart';
+import 'app/core/config/app_routes.dart';
 import 'app/core/repositories/app_api_client.dart';
 import 'app/core/repositories/local_app_repository.dart';
 import 'app/core/services/analytics_service.dart';
@@ -17,8 +18,12 @@ import 'app/core/services/catalog_cache_service.dart';
 import 'app/core/services/connectivity_service.dart';
 import 'app/core/translations/app_translations.dart';
 import 'app/core/ui/app_theme.dart';
+import 'app/features/onboarding/intro_slideshow_screen.dart';
 import 'app/features/onboarding/onboarding_screen.dart';
 import 'app/features/shell/app_shell.dart';
+import 'app/core/services/security_service.dart';
+import 'app/core/services/push_notification_service.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -51,6 +56,9 @@ Future<void> main() async {
     await controller.hydrate();
     Get.put(controller, permanent: true);
     
+    Get.put(SecurityService());
+    Get.put(PushNotificationService());
+    
     ConnectivityService.instance.startMonitoring();
     ConnectivityService.instance.onConnectivityChanged.listen((online) async {
       if (online) {
@@ -62,6 +70,31 @@ Future<void> main() async {
         }
       }
     });
+
+    // ── Quick Actions ────────────────────────────────────────────────────────
+    const QuickActions quickActions = QuickActions();
+    quickActions.initialize((String shortcutType) {
+      if (shortcutType == 'action_cases') {
+        // Reset stack to shell + Dossiers tab (named `/cases` was never registered).
+        Get.offAllNamed(AppRoutes.home);
+        Future.microtask(() => Get.find<AppController>().goToTab(2));
+      } else if (shortcutType == 'action_search') {
+        Get.toNamed(AppRoutes.search);
+      }
+    });
+
+    quickActions.setShortcutItems(<ShortcutItem>[
+      const ShortcutItem(
+        type: 'action_cases',
+        localizedTitle: 'Mes Dossiers',
+        icon: 'icon_cases',
+      ),
+      const ShortcutItem(
+        type: 'action_search',
+        localizedTitle: 'Nouvelle Recherche',
+        icon: 'icon_search',
+      ),
+    ]);
 
     runApp(const KpbEducationApp());
   } catch (error, stack) {
@@ -133,10 +166,13 @@ class KpbEducationApp extends StatelessWidget {
           themeMode: controller.themeMode,
           defaultTransition: Transition.cupertino,
           transitionDuration: const Duration(milliseconds: 280),
+          getPages: AppRoutes.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
           home: controller.hasCompletedOnboarding
               ? const AppShell()
-              : const OnboardingScreen(),
+              : (controller.hasSeenIntro
+                  ? const OnboardingScreen()
+                  : const IntroSlideshowScreen()),
         );
       },
     );

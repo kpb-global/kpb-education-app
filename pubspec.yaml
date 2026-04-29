@@ -83,6 +83,12 @@ dependencies:
   hive_flutter: ^1.1.0
 
   collection: any
+  syncfusion_flutter_pdfviewer: ^33.2.3
+  local_auth: ^3.0.1
+  firebase_messaging: ^16.2.0
+  lottie: ^3.3.3
+  shimmer: ^3.0.0
+  quick_actions: ^1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

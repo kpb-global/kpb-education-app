@@ -39,6 +39,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Cette application utilise Face ID pour protéger vos documents et informations personnelles.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Cette application a besoin d'accéder à votre caméra</string>
 	<key>NSDocumentsDirectoryUsageDescription</key>
@@ -95,6 +97,19 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.kpbeducation.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kpb</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -5,9 +5,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/connectivity_service.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import 'case_timeline_stepper.dart';
 
 // Fallback group link used when the case has no assigned advisor yet.
 const _kKpbWhatsappGroup = 'https://chat.whatsapp.com/KPBEducation';
@@ -134,11 +137,40 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
               ),
             ],
             body: ListView(
-              padding:
-                  const EdgeInsets.fromLTRB(KpbSpacing.pagePad, KpbSpacing.md,
-                      KpbSpacing.pagePad, 100),
+              padding: const EdgeInsets.only(bottom: 100),
               children: [
-                // ── Prochaine étape ──────────────────────────────────────────
+                // ── Offline Banner ───────────────────────────────────────────
+                if (!ConnectivityService.instance.isOnline)
+                  Container(
+                    width: double.infinity,
+                    color: KpbColors.warning.withValues(alpha: 0.1),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.wifi_off_rounded, color: KpbColors.warning, size: 16),
+                        SizedBox(width: 8),
+                        Text(
+                          'Mode hors ligne. Affichage des données en cache.',
+                          style: TextStyle(color: KpbColors.warning, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_ctrl.isSyncing && _ctrl.cases.isEmpty) ...[
+                        SkeletonLoader.card(height: 120),
+                        const SizedBox(height: 16),
+                        SkeletonLoader.card(height: 200),
+                        const SizedBox(height: 16),
+                        SkeletonLoader.card(height: 150),
+                      ] else ...[
+                        // ── Prochaine étape ──────────────────────────────────────────
                 KpbCard(
                   color: KpbColors.blue.withValues(alpha: 0.06),
                   border: Border.all(
@@ -192,6 +224,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: KpbSpacing.md),
+                
+                // ── Stepper visuel ───────────────────────────────────────────
+                CaseTimelineStepper(currentStatus: c.status),
                 const SizedBox(height: KpbSpacing.md),
 
                 // ── Conseiller ───────────────────────────────────────────────
@@ -522,13 +558,17 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     ],
                   ),
                 ),
+                ],
               ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ],
+      ),
+    ),
+  );
+},
+);
+}
 
   ({String label, Color color}) _statusInfo(CaseStatus status) {
     switch (status) {

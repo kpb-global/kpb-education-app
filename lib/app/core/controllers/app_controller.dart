@@ -32,6 +32,8 @@ class AppController extends GetxController {
   final AppApiClient _apiClient;
 
   String localeCode = 'fr';
+  bool hasSeenIntro = false;
+  bool isAppLockEnabled = false;
   bool hasCompletedOnboarding = false;
   ThemeMode themeMode = ThemeMode.system;
   int shellIndex = 0;
@@ -110,6 +112,8 @@ class AppController extends GetxController {
   Future<void> hydrate() async {
     final snapshot = await _repository.loadSnapshot();
     localeCode = snapshot.localeCode;
+    hasSeenIntro = snapshot.hasSeenIntro;
+    isAppLockEnabled = snapshot.isAppLockEnabled;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
     profile = snapshot.profile;
     _savedItems
@@ -154,6 +158,18 @@ class AppController extends GetxController {
     }
     _pushProfileUpdate();
     _persist();
+    update();
+  }
+
+  void toggleAppLock(bool enable) {
+    isAppLockEnabled = enable;
+    _repository.saveSnapshot(_snapshot);
+    update();
+  }
+
+  void completeIntro() {
+    hasSeenIntro = true;
+    _repository.saveSnapshot(_snapshot);
     update();
   }
 
@@ -830,7 +846,16 @@ class AppController extends GetxController {
     );
     _persist();
     update();
-    unawaited(_createRemoteCaseMessage(caseId, text));
+    
+    if (ConnectivityService.instance.isOnline) {
+      unawaited(_createRemoteCaseMessage(caseId, text));
+    } else {
+      unawaited(CaseMessageOutbox.instance.enqueue(
+        caseId: caseId,
+        body: text,
+        senderName: profile?.fullName ?? 'Student',
+      ));
+    }
   }
 
   void markDocumentProvided(String caseId, String documentId) {
@@ -863,6 +888,9 @@ class AppController extends GetxController {
     }
 
     try {
+      // Flush any messages typed while offline
+      await flushPendingCaseMessages();
+
       final profileJson = await _apiClient.getProfile();
       profile = _userProfileFromApi(profileJson);
       localeCode = profile?.preferredLanguage ?? localeCode;
@@ -974,6 +1002,8 @@ class AppController extends GetxController {
 
   AppSnapshot get _snapshot => AppSnapshot(
         localeCode: localeCode,
+        hasSeenIntro: hasSeenIntro,
+        isAppLockEnabled: isAppLockEnabled,
         hasCompletedOnboarding: hasCompletedOnboarding,
         themeMode: themeMode,
         profile: profile,

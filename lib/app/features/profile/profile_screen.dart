@@ -202,6 +202,45 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: KpbSpacing.md),
+                    
+                    // ── Sécurité ──────────────────────────────────────
+                    KpbCard(
+                      padding: const EdgeInsets.all(KpbSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Sécurité', style: KpbTextStyles.titleMd),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.face_unlock_outlined, color: KpbColors.blue, size: 24),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Verrouillage biométrique', style: TextStyle(fontWeight: FontWeight.w600)),
+                                      Text(
+                                        'Protéger l\'accès à l\'application',
+                                        style: TextStyle(fontSize: 12, color: context.kpb.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Switch.adaptive(
+                                value: controller.isAppLockEnabled,
+                                activeTrackColor: KpbColors.blue,
+                                onChanged: (val) => controller.toggleAppLock(val),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: KpbSpacing.md),
 
                     // ── Infos académiques ─────────────────────────────
                     const Text('Informations académiques',
