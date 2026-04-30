@@ -84,26 +84,12 @@ class PushNotificationService extends GetxService {
   /// Unknown routes are ignored to avoid GetX navigation exceptions.
   void _handleMessageRouting(RemoteMessage message) {
     final raw = message.data['route'];
-    if (raw is! String || raw.isEmpty || !raw.startsWith('/')) return;
+    if (raw is! String) return;
 
     try {
-      if (raw.startsWith('/cases/') && raw != '/cases/create') {
-        final segments = raw.split('/');
-        if (segments.length >= 3) {
-          final id = segments[2];
-          if (id.isEmpty) return;
-          Get.toNamed('/cases/$id');
-          return;
-        }
-      }
-
-      final known = <String>{
-        AppRoutes.home,
-        AppRoutes.search,
-        AppRoutes.caseCreate,
-      };
-      if (known.contains(raw)) {
-        Get.toNamed(raw);
+      final targetRoute = AppRoutes.normalizeExternalRoute(raw);
+      if (targetRoute != null) {
+        Get.toNamed(targetRoute);
         return;
       }
 
