@@ -15,6 +15,26 @@ class AppRoutes {
   /// Intentionally not under `/cases/...` so it never collides with `/cases/:id` (e.g. id "create").
   static const String caseCreate = '/new-case';
   static const String caseDetail = '/cases/:id';
+  static const String _casePrefix = '/cases/';
+
+  /// Normalizes external route payloads (quick actions, deep links, FCM).
+  /// Returns null when route is unsupported/invalid.
+  static String? normalizeExternalRoute(String? rawRoute) {
+    if (rawRoute == null || rawRoute.isEmpty || !rawRoute.startsWith('/')) {
+      return null;
+    }
+
+    if (rawRoute.startsWith(_casePrefix)) {
+      final caseId = rawRoute.substring(_casePrefix.length);
+      // Reject empty or nested ids (`/cases/` or `/cases/a/b`).
+      if (caseId.isEmpty || caseId.contains('/')) return null;
+      return '/cases/$caseId';
+    }
+
+    const known = <String>{home, search, caseCreate};
+    if (known.contains(rawRoute)) return rawRoute;
+    return null;
+  }
 
   static final List<GetPage> pages = [
     GetPage(
