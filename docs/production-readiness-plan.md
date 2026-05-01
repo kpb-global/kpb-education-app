@@ -13,8 +13,8 @@ This is the execution checklist used to move the app from feature-complete to pr
 - [x] Centralize external route normalization in `AppRoutes.normalizeExternalRoute()`.
 - [x] Harden push routing to ignore invalid payload routes safely.
 - [x] Add route normalization unit tests (`test/core/config/app_routes_test.dart`).
-- [ ] Add release smoke-test suite (manual + automated hybrid).
-- [ ] Add explicit fallback UI checks for network/offline states on critical screens.
+- [x] Add release smoke-test suite (manual + automated hybrid).
+- [x] Add explicit fallback UI checks for network/offline states on critical screens.
 
 ### Release Smoke Tests (must pass on Android + iOS)
 1. First launch -> intro/onboarding path opens and completes.
@@ -34,6 +34,11 @@ This is the execution checklist used to move the app from feature-complete to pr
    - outbox queues actions
    - reconnect drains queue
 10. Push tap from background routes to intended page with no GetX exception.
+
+### Implemented artifacts
+- `docs/phase1-stability-smoke-checklist.md` - release candidate smoke checklist.
+- `test/core/config/app_routes_test.dart` - route normalization regression tests.
+- `test/features/cases_screen_stability_test.dart` - fallback-state widget stability tests.
 
 ## Phase 2 - Architecture Hardening
 - Split oversized controller responsibilities by domain.
