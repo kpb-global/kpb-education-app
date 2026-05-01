@@ -25,6 +25,20 @@ void main() {
       );
     });
 
+    test('maps legacy create route to current route', () {
+      expect(
+        AppRoutes.normalizeExternalRoute('/cases/create'),
+        AppRoutes.caseCreate,
+      );
+    });
+
+    test('accepts surrounding whitespace from payloads', () {
+      expect(
+        AppRoutes.normalizeExternalRoute('   /search   '),
+        AppRoutes.search,
+      );
+    });
+
     test('rejects invalid or unsupported routes', () {
       expect(AppRoutes.normalizeExternalRoute(null), isNull);
       expect(AppRoutes.normalizeExternalRoute(''), isNull);
