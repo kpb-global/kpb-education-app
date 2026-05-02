@@ -20,6 +20,7 @@ import '../models/app_models.dart';
 import '../repositories/app_api_client.dart';
 import '../repositories/app_repository.dart';
 import '../repositories/app_snapshot.dart';
+import '../utils/user_facing_sync_error.dart';
 
 class AppController extends GetxController {
   AppController({
@@ -941,8 +942,13 @@ class AppController extends GetxController {
       lastSyncedAt = DateTime.now();
       syncError = null;
       _persist();
-    } catch (error) {
-      syncError = error.toString();
+    } catch (error, stack) {
+      syncError = userFacingSyncError(error, localeCode);
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        stack,
+        reason: 'syncRemoteData',
+      );
     } finally {
       isSyncing = false;
       update();
