@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:collection/collection.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import '../services/analytics_service.dart';
 import '../services/case_message_outbox.dart';
+import '../services/safe_crashlytics.dart';
 import '../services/connectivity_service.dart';
 
 import '../config/app_config.dart';
@@ -950,11 +950,7 @@ class AppController extends GetxController {
       _persist();
     } catch (error, stack) {
       syncError = userFacingSyncError(error, localeCode);
-      FirebaseCrashlytics.instance.recordError(
-        error,
-        stack,
-        reason: 'syncRemoteData',
-      );
+      safeRecordError(error, stack, reason: 'syncRemoteData');
     } finally {
       isSyncing = false;
       update();
@@ -1020,7 +1016,7 @@ class AppController extends GetxController {
     try {
       await _apiClient.updateProfile(_userProfilePayload(profile!));
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'pushProfileUpdate');
+      safeRecordError(e, s, reason: 'pushProfileUpdate');
     }
   }
 
@@ -1031,7 +1027,7 @@ class AppController extends GetxController {
         'answers': answers,
       });
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'pushOrientationSession');
+      safeRecordError(e, s, reason: 'pushOrientationSession');
     }
   }
 
@@ -1052,7 +1048,7 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'createRemoteCase');
+      safeRecordError(e, s, reason: 'createRemoteCase');
     }
   }
 
@@ -1082,7 +1078,7 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'createRemoteCaseMessage');
+      safeRecordError(e, s, reason: 'createRemoteCaseMessage');
       // Network blip — queue it. The connectivity listener will retry.
       await CaseMessageOutbox.instance.enqueue(
         caseId: caseId,
@@ -1107,7 +1103,7 @@ class AppController extends GetxController {
         await outbox.remove(entry.key);
         touched.add(entry.caseId);
       } catch (e, s) {
-        FirebaseCrashlytics.instance.recordError(e, s, reason: 'flushPendingCaseMessages');
+        safeRecordError(e, s, reason: 'flushPendingCaseMessages');
         await outbox.markFailure(entry.key, entry);
       }
     }
@@ -1116,7 +1112,7 @@ class AppController extends GetxController {
         final response = await _apiClient.getCase(caseId);
         _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       } catch (e, s) {
-        FirebaseCrashlytics.instance.recordError(e, s, reason: 'flushPendingCaseMessages.getCase');
+        safeRecordError(e, s, reason: 'flushPendingCaseMessages.getCase');
       }
     }
     if (touched.isNotEmpty) {
@@ -1145,7 +1141,7 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'uploadRemoteCaseDocument');
+      safeRecordError(e, s, reason: 'uploadRemoteCaseDocument');
     }
   }
 
@@ -1161,7 +1157,7 @@ class AppController extends GetxController {
         _remoteSavedItemIds[_savedItemKey(item.type, item.itemId)] = savedId;
       }
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'createRemoteSavedItem');
+      safeRecordError(e, s, reason: 'createRemoteSavedItem');
     }
   }
 
@@ -1175,7 +1171,7 @@ class AppController extends GetxController {
         _remoteSavedItemIds.remove(key);
       }
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'deleteRemoteSavedItem');
+      safeRecordError(e, s, reason: 'deleteRemoteSavedItem');
     }
   }
 
