@@ -7,6 +7,7 @@ import '../config/app_config.dart';
 import '../models/app_models.dart';
 import 'app_repository.dart';
 import 'app_snapshot.dart';
+import 'app_snapshot_format.dart';
 
 class LocalAppRepository implements AppRepository {
   LocalAppRepository._(this._preferences);
@@ -31,6 +32,8 @@ class LocalAppRepository implements AppRepository {
     if (json is! Map<String, dynamic>) {
       return AppSnapshot.initial();
     }
+
+    migrateAppSnapshotJson(json);
 
     return AppSnapshot(
       localeCode: json['localeCode'] as String? ?? 'fr',
@@ -80,12 +83,14 @@ class LocalAppRepository implements AppRepository {
           json['pendingOrientationQuestionIndex'] as int? ?? 0,
       purchasedCourseIds: _stringList(json['purchasedCourseIds']),
       completedRoadmapSteps: _stringListMap(json['completedRoadmapSteps']),
+      profileNeedsPush: json['profileNeedsPush'] as bool? ?? false,
     );
   }
 
   @override
   Future<void> saveSnapshot(AppSnapshot snapshot) async {
     final json = <String, dynamic>{
+      'snapshotFormatVersion': kAppSnapshotFormatVersion,
       'localeCode': snapshot.localeCode,
       'hasCompletedOnboarding': snapshot.hasCompletedOnboarding,
       'hasSeenIntro': snapshot.hasSeenIntro,
@@ -107,6 +112,7 @@ class LocalAppRepository implements AppRepository {
           snapshot.pendingOrientationQuestionIndex,
       'purchasedCourseIds': snapshot.purchasedCourseIds,
       'completedRoadmapSteps': snapshot.completedRoadmapSteps,
+      'profileNeedsPush': snapshot.profileNeedsPush,
     };
     await _preferences.setString(_storageKey, jsonEncode(json));
   }

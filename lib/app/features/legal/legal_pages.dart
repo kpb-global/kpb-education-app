@@ -50,7 +50,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
                   '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
                   '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
-                  '• Données techniques : identifiant de l\'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics',
+                  '• Données techniques : identifiant de l\'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics\n'
+                  '• Diagnostics : rapports d\'incidents et erreurs techniques via Firebase Crashlytics ; métriques agrégées de synchronisation des contenus (succès ou échec, durée, source locale/cache)',
             ),
             const _LegalSection(
               title: '3. Finalités du traitement',
@@ -76,7 +77,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   'Elles peuvent être partagées avec :\n'
                   '• Nos conseillers internes pour le suivi de vos dossiers\n'
                   '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
-                  '• Firebase (Google) pour l\'analytique anonymisée et les notifications push\n'
+                  '• Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l\'analytique, la stabilité et les notifications push\n'
                   '• Les autorités compétentes si la loi l\'exige',
             ),
             const _LegalSection(

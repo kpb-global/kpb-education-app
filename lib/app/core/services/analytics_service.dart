@@ -220,4 +220,59 @@ class AnalyticsService {
       AppLogger.error('logThemeToggled', error: e, stackTrace: s, tag: 'analytics');
     }
   }
+
+  // ── Sync telemetry (Phase 3 data reliability) ─────────────────────────────
+
+  Future<void> logFullSyncResult({
+    required bool success,
+    required int elapsedMs,
+    required int catalogHiveFallbackCount,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: 'sync_full_complete',
+        parameters: {
+          'success': success ? 1 : 0,
+          'elapsed_ms': elapsedMs,
+          'catalog_hive_fallback_count': catalogHiveFallbackCount,
+        },
+      );
+    } catch (e, s) {
+      AppLogger.error('logFullSyncResult', error: e, stackTrace: s, tag: 'analytics');
+    }
+  }
+
+  Future<void> logSyncConflict({
+    required String domain,
+    required String resolution,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: 'sync_conflict_resolved',
+        parameters: {
+          'domain': domain,
+          'resolution': resolution,
+        },
+      );
+    } catch (e, s) {
+      AppLogger.error('logSyncConflict', error: e, stackTrace: s, tag: 'analytics');
+    }
+  }
+
+  Future<void> logCatalogSyncFallback({
+    required String resource,
+    required int attempts,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: 'sync_catalog_hive_fallback',
+        parameters: {
+          'resource': resource,
+          'attempts': attempts,
+        },
+      );
+    } catch (e, s) {
+      AppLogger.error('logCatalogSyncFallback', error: e, stackTrace: s, tag: 'analytics');
+    }
+  }
 }

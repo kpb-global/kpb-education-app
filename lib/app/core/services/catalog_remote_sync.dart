@@ -1,24 +1,44 @@
 import '../repositories/app_api_client.dart';
 import 'catalog_cache_service.dart';
 
-/// Loads catalog lists from API with Hive fallback (offline cache).
+const _maxCatalogSyncAttempts = 3;
+
+typedef CatalogHiveFallbackFn = void Function(String resource, int attempts);
+
+/// Loads catalog lists from API with bounded retries, then Hive fallback (offline cache).
+///
+/// [onHiveFallback] is invoked when API retries are exhausted but cached rows exist.
 Future<void> syncCatalogResource<T>(
   AppApiClient api,
   String resource,
   List<T> target,
-  T Function(Map<String, dynamic>) fromJson,
-) async {
-  try {
-    final raw = await api.listCatalog(resource);
-    target
-      ..clear()
-      ..addAll(raw.whereType<Map<String, dynamic>>().map(fromJson));
-    await CatalogCacheService.instance.write(resource, raw);
-  } catch (error) {
-    final cached = CatalogCacheService.instance.read(resource);
-    if (cached.isEmpty) rethrow;
-    target
-      ..clear()
-      ..addAll(cached.whereType<Map<String, dynamic>>().map(fromJson));
+  T Function(Map<String, dynamic>) fromJson, {
+  CatalogHiveFallbackFn? onHiveFallback,
+}) async {
+  Object? lastError;
+  for (var attempt = 0; attempt < _maxCatalogSyncAttempts; attempt++) {
+    try {
+      final raw = await api.listCatalog(resource);
+      target
+        ..clear()
+        ..addAll(raw.whereType<Map<String, dynamic>>().map(fromJson));
+      await CatalogCacheService.instance.write(resource, raw);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < _maxCatalogSyncAttempts - 1) {
+        await Future<void>.delayed(
+          Duration(milliseconds: 120 * (1 << attempt)),
+        );
+      }
+    }
   }
+  final cached = CatalogCacheService.instance.read(resource);
+  if (cached.isEmpty) {
+    throw lastError ?? StateError('catalog sync failed for $resource');
+  }
+  onHiveFallback?.call(resource, _maxCatalogSyncAttempts);
+  target
+    ..clear()
+    ..addAll(cached.whereType<Map<String, dynamic>>().map(fromJson));
 }
