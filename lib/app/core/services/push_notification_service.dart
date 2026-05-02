@@ -3,7 +3,7 @@ import 'dart:developer' as dev;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 
-import '../config/app_routes.dart';
+import '../navigation/app_navigation.dart';
 
 /// Background handler must be a top-level function.
 @pragma('vm:entry-point')
@@ -83,20 +83,7 @@ class PushNotificationService extends GetxService {
   /// Expects a `route` key in the data payload (e.g. `route`: `/cases/abc123`).
   /// Unknown routes are ignored to avoid GetX navigation exceptions.
   void _handleMessageRouting(RemoteMessage message) {
-    final raw = message.data['route'];
-    if (raw is! String) return;
-
-    try {
-      final targetRoute = AppRoutes.normalizeExternalRoute(raw);
-      if (targetRoute != null) {
-        Get.toNamed(targetRoute);
-        return;
-      }
-
-      dev.log('Push: unhandled route "$raw"');
-    } catch (e, st) {
-      dev.log('Push navigation failed: $e', stackTrace: st);
-    }
+    AppNavigation.toExternalRoute(message.data['route']);
   }
 
   /// Retrieves the FCM token to save it to the backend.
