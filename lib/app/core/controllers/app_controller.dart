@@ -9,7 +9,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import '../services/analytics_service.dart';
 import '../services/case_message_outbox.dart';
-import '../services/catalog_cache_service.dart';
 import '../services/connectivity_service.dart';
 
 import '../config/app_config.dart';
@@ -21,6 +20,10 @@ import '../repositories/app_api_client.dart';
 import '../repositories/app_repository.dart';
 import '../repositories/app_snapshot.dart';
 import '../utils/user_facing_sync_error.dart';
+import '../data/case_api_codec.dart';
+import '../data/profile_api_codec.dart';
+import '../data/saved_item_api_codec.dart';
+import '../services/catalog_remote_sync.dart';
 
 class AppController extends GetxController {
   AppController({
@@ -893,33 +896,36 @@ class AppController extends GetxController {
       await flushPendingCaseMessages();
 
       final profileJson = await _apiClient.getProfile();
-      profile = _userProfileFromApi(profileJson);
+      profile = ProfileApiCodec.userProfileFromApi(
+        profileJson,
+        fallbackLocale: localeCode,
+      );
       localeCode = profile?.preferredLanguage ?? localeCode;
 
       final remoteCases = await _apiClient.listCases();
       _cases
         ..clear()
-        ..addAll(remoteCases.map(_studentCaseFromApi));
+        ..addAll(remoteCases.map(CaseApiCodec.studentCaseFromApi));
 
       final remoteSavedItems = await _apiClient.listSavedItems();
       _savedItems
         ..clear()
-        ..addAll(remoteSavedItems.map(_savedItemFromApi));
+        ..addAll(remoteSavedItems.map(SavedItemApiCodec.fromApi));
 
-      await _syncCatalogResource<FieldModel>(
-        'fields', fields, FieldModel.fromJson,
+      await syncCatalogResource<FieldModel>(
+        _apiClient, 'fields', fields, FieldModel.fromJson,
       );
-      await _syncCatalogResource<CountryModel>(
-        'countries', countries, CountryModel.fromJson,
+      await syncCatalogResource<CountryModel>(
+        _apiClient, 'countries', countries, CountryModel.fromJson,
       );
-      await _syncCatalogResource<InstitutionModel>(
-        'institutions', institutions, InstitutionModel.fromJson,
+      await syncCatalogResource<InstitutionModel>(
+        _apiClient, 'institutions', institutions, InstitutionModel.fromJson,
       );
-      await _syncCatalogResource<ProgramModel>(
-        'programs', programs, ProgramModel.fromJson,
+      await syncCatalogResource<ProgramModel>(
+        _apiClient, 'programs', programs, ProgramModel.fromJson,
       );
-      await _syncCatalogResource<ScholarshipModel>(
-        'scholarships', scholarships, ScholarshipModel.fromJson,
+      await syncCatalogResource<ScholarshipModel>(
+        _apiClient, 'scholarships', scholarships, ScholarshipModel.fromJson,
       );
 
       _remoteSavedItemIds
@@ -930,7 +936,7 @@ class AppController extends GetxController {
               .map(
                 (item) => MapEntry(
                   _savedItemKey(
-                    _parseSavedItemType(item['type'] as String?) ??
+                    SavedItemApiCodec.parseType(item['type'] as String?) ??
                         SavedItemType.field,
                     item['itemId'] as String? ?? '',
                   ),
@@ -952,29 +958,6 @@ class AppController extends GetxController {
     } finally {
       isSyncing = false;
       update();
-    }
-  }
-
-  Future<void> _syncCatalogResource<T>(
-    String resource,
-    List<T> target,
-    T Function(Map<String, dynamic>) fromJson,
-  ) async {
-    try {
-      final raw = await _apiClient.listCatalog(resource);
-      target
-        ..clear()
-        ..addAll(raw.whereType<Map<String, dynamic>>().map(fromJson));
-      await CatalogCacheService.instance.write(resource, raw);
-    } catch (error) {
-      // Network or server down — hydrate from Hive cache so airtime-sensitive
-      // users still see the last-known-good catalog. Rethrow only if no cache
-      // is available either.
-      final cached = CatalogCacheService.instance.read(resource);
-      if (cached.isEmpty) rethrow;
-      target
-        ..clear()
-        ..addAll(cached.whereType<Map<String, dynamic>>().map(fromJson));
     }
   }
 
@@ -1056,15 +1039,16 @@ class AppController extends GetxController {
     if (!AppConfig.enableRemoteSync) return;
     try {
       final response = await _apiClient.createCase(<String, dynamic>{
-        'type': _apiCaseType(localCase.type),
+        'type': CaseApiCodec.encodeCaseType(localCase.type),
         'title': resolve(localCase.title),
         'description': resolve(localCase.description),
         'contextLabel': resolve(localCase.contextLabel),
-        'preferredContactMethod':
-            _apiContactMethod(localCase.preferredContactMethod),
+        'preferredContactMethod': CaseApiCodec.encodeContactMethod(
+          localCase.preferredContactMethod,
+        ),
       });
       _cases.removeWhere((item) => item.id == localCase.id);
-      _upsertCase(_studentCaseFromApi(response));
+      _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       _persist();
       update();
     } catch (e, s) {
@@ -1094,7 +1078,7 @@ class AppController extends GetxController {
         'body': text,
       });
       final response = await _apiClient.getCase(caseId);
-      _upsertCase(_studentCaseFromApi(response));
+      _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       _persist();
       update();
     } catch (e, s) {
@@ -1130,7 +1114,7 @@ class AppController extends GetxController {
     for (final caseId in touched) {
       try {
         final response = await _apiClient.getCase(caseId);
-        _upsertCase(_studentCaseFromApi(response));
+        _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       } catch (e, s) {
         FirebaseCrashlytics.instance.recordError(e, s, reason: 'flushPendingCaseMessages.getCase');
       }
@@ -1157,7 +1141,7 @@ class AppController extends GetxController {
         'title': resolve(document.title),
       });
       final response = await _apiClient.getCase(caseId);
-      _upsertCase(_studentCaseFromApi(response));
+      _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       _persist();
       update();
     } catch (e, s) {
@@ -1222,221 +1206,6 @@ class AppController extends GetxController {
       _cases[index] = caseItem;
     } else {
       _cases.insert(0, caseItem);
-    }
-  }
-
-  UserProfile _userProfileFromApi(Map<String, dynamic> json) {
-    return UserProfile(
-      id: json['id'] as String? ?? 'demo-user',
-      accountType:
-          _parseAccountType(json['accountType'] as String?) ?? AccountType.student,
-      fullName: json['fullName'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      phone: json['phone'] as String? ?? '',
-      whatsApp: json['whatsApp'] as String? ?? '',
-      countryOfResidence: json['countryOfResidence'] as String? ?? '',
-      preferredLanguage: json['preferredLanguage'] as String? ?? localeCode,
-      currentLevel: json['currentLevel'] as String?,
-      targetLevel: json['targetLevel'] as String?,
-      languageLevel: json['languageLevel'] as String?,
-      fieldIds: _stringList(json['fieldIds']),
-      targetCountryIds: _stringList(json['targetCountryIds']),
-      gradeRange: json['gradeRange'] as String?,
-      wantsScholarshipSupport:
-          json['wantsScholarshipSupport'] as bool? ??
-              json['wantsScholarship'] as bool? ??
-              false,
-      availableDocuments: _stringList(json['availableDocuments']),
-    );
-  }
-
-  SavedItem _savedItemFromApi(dynamic raw) {
-    final json = raw as Map<String, dynamic>;
-    return SavedItem(
-      type: _parseSavedItemType(json['type'] as String?) ?? SavedItemType.field,
-      itemId: json['itemId'] as String? ?? '',
-    );
-  }
-
-  StudentCase _studentCaseFromApi(dynamic raw) {
-    final json = raw as Map<String, dynamic>;
-    return StudentCase(
-      id: json['id'] as String? ?? '',
-      referenceCode: json['referenceCode'] as String? ?? '',
-      type: _parseCaseType(json['type'] as String?) ?? CaseType.consultation,
-      title: _text(json['title'] as String? ?? ''),
-      description: _text(json['description'] as String? ?? ''),
-      contextLabel: _text(json['contextLabel'] as String? ?? ''),
-      status: _parseCaseStatus(json['status'] as String?) ?? CaseStatus.submitted,
-      preferredContactMethod:
-          _parseContactMethod(json['preferredContactMethod'] as String?) ??
-              ContactMethod.inApp,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
-          DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
-          DateTime.now(),
-      nextStepTitle: _text(json['nextStepTitle'] as String? ?? ''),
-      nextStepDescription:
-          _text(json['nextStepDescription'] as String? ?? ''),
-      timeline: ((json['timeline'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(
-            (event) => CaseTimelineEvent(
-              id: event['id'] as String? ?? '',
-              title: _text(event['title'] as String? ?? ''),
-              description: _text(event['description'] as String? ?? ''),
-              createdAt:
-                  DateTime.tryParse(event['createdAt'] as String? ?? '') ??
-                      DateTime.now(),
-              status: _parseCaseStatus(event['status'] as String?) ??
-                  CaseStatus.submitted,
-            ),
-          )
-          .toList(),
-      messages: ((json['messages'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(
-            (message) => CaseMessage(
-              id: message['id'] as String? ?? '',
-              senderName: message['senderName'] as String? ?? 'KPB',
-              senderRole: message['senderRole'] as String? ?? 'system',
-              body: _text(message['body'] as String? ?? ''),
-              createdAt:
-                  DateTime.tryParse(message['createdAt'] as String? ?? '') ??
-                      DateTime.now(),
-            ),
-          )
-          .toList(),
-      documentRequests:
-          ((json['documentRequests'] as List<dynamic>?) ?? <dynamic>[])
-              .whereType<Map<String, dynamic>>()
-              .map(
-                (document) => DocumentRequest(
-                  id: document['id'] as String? ?? '',
-                  title: _text(document['title'] as String? ?? ''),
-                  isProvided: document['isProvided'] as bool? ?? false,
-                ),
-              )
-              .toList(),
-      assignedAdvisorName: json['assignedAdvisorName'] as String?,
-      advisorPhone: json['assignedAdvisorPhone'] as String? ??
-          json['advisorPhone'] as String?,
-      advisorWhatsapp: json['assignedAdvisorWhatsapp'] as String? ??
-          json['advisorWhatsapp'] as String?,
-      scheduledAt: DateTime.tryParse(json['scheduledAt'] as String? ?? ''),
-    );
-  }
-
-  LocalizedText _text(String value) => LocalizedText(fr: value, en: value);
-
-  List<String> _stringList(Object? raw) {
-    if (raw is List<dynamic>) {
-      return raw.whereType<String>().toList();
-    }
-    return const <String>[];
-  }
-
-  AccountType? _parseAccountType(String? value) {
-    return _firstWhereOrNull(
-      AccountType.values,
-      (item) => item.name == value,
-    );
-  }
-
-  SavedItemType? _parseSavedItemType(String? value) {
-    return _firstWhereOrNull(
-      SavedItemType.values,
-      (item) => item.name == value,
-    );
-  }
-
-  CaseType? _parseCaseType(String? value) {
-    return _firstWhereOrNull(
-      CaseType.values,
-      (item) => _apiCaseType(item) == value,
-    );
-  }
-
-  CaseStatus? _parseCaseStatus(String? value) {
-    return _firstWhereOrNull(
-      CaseStatus.values,
-      (item) => _apiCaseStatus(item) == value,
-    );
-  }
-
-  ContactMethod? _parseContactMethod(String? value) {
-    return _firstWhereOrNull(
-      ContactMethod.values,
-      (item) => _apiContactMethod(item) == value,
-    );
-  }
-
-  T? _firstWhereOrNull<T>(
-    Iterable<T> values,
-    bool Function(T item) predicate,
-  ) {
-    for (final value in values) {
-      if (predicate(value)) return value;
-    }
-    return null;
-  }
-
-  String _apiCaseType(CaseType type) {
-    switch (type) {
-      case CaseType.consultation:
-        return 'consultation';
-      case CaseType.applicationSupport:
-        return 'application_support';
-      case CaseType.scholarshipSupport:
-        return 'scholarship_support';
-      case CaseType.housingSupport:
-        return 'housing_support';
-      case CaseType.mentorship:
-        return 'mentorship';
-    }
-  }
-
-  String _apiCaseStatus(CaseStatus status) {
-    switch (status) {
-      case CaseStatus.draft:
-        return 'draft';
-      case CaseStatus.submitted:
-        return 'submitted';
-      case CaseStatus.underReview:
-        return 'under_review';
-      case CaseStatus.documentsNeeded:
-        return 'documents_needed';
-      case CaseStatus.counselorAssigned:
-        return 'counselor_assigned';
-      case CaseStatus.awaitingStudent:
-        return 'awaiting_student';
-      case CaseStatus.scheduled:
-        return 'scheduled';
-      case CaseStatus.inProgress:
-        return 'in_progress';
-      case CaseStatus.applicationSubmitted:
-        return 'application_submitted';
-      case CaseStatus.waitingDecision:
-        return 'waiting_decision';
-      case CaseStatus.awaitingPayment:
-        return 'awaiting_payment';
-      case CaseStatus.completed:
-        return 'completed';
-      case CaseStatus.rejected:
-        return 'rejected';
-      case CaseStatus.cancelled:
-        return 'cancelled';
-    }
-  }
-
-  String _apiContactMethod(ContactMethod method) {
-    switch (method) {
-      case ContactMethod.inApp:
-        return 'in_app';
-      case ContactMethod.whatsapp:
-        return 'whatsapp';
-      case ContactMethod.phone:
-        return 'phone';
     }
   }
 
