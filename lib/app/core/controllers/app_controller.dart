@@ -9,6 +9,7 @@ import '../services/case_message_outbox.dart';
 import '../services/safe_crashlytics.dart';
 import '../services/connectivity_service.dart';
 
+import '../observability/crashlytics_observability.dart';
 import '../config/app_config.dart';
 import '../data/mock_catalog.dart';
 import '../data/orientation_engine.dart';
@@ -780,7 +781,13 @@ class AppController extends GetxController {
       );
     } catch (error, stack) {
       syncError = userFacingSyncError(error, localeCode);
-      safeRecordError(error, stack, reason: 'syncRemoteData');
+      safeRecordError(
+        error,
+        stack,
+        reason: 'syncRemoteData',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'sync_remote_data',
+      );
       SyncTelemetry.fullSyncFinished(
         success: false,
         elapsed: DateTime.now().difference(syncStarted),
@@ -863,7 +870,13 @@ class AppController extends GetxController {
       _profileNeedsPush = false;
       _persist();
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'pushProfileUpdate');
+      safeRecordError(
+        e,
+        s,
+        reason: 'pushProfileUpdate',
+        domain: CrashlyticsObsDomain.profile,
+        operation: 'push_profile_update',
+      );
       _profileNeedsPush = true;
       _persist();
     }
@@ -876,7 +889,13 @@ class AppController extends GetxController {
         'answers': answers,
       });
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'pushOrientationSession');
+      safeRecordError(
+        e,
+        s,
+        reason: 'pushOrientationSession',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'push_orientation_session',
+      );
     }
   }
 
@@ -897,7 +916,13 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'createRemoteCase');
+      safeRecordError(
+        e,
+        s,
+        reason: 'createRemoteCase',
+        domain: CrashlyticsObsDomain.cases,
+        operation: 'create_remote_case',
+      );
     }
   }
 
@@ -927,7 +952,13 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'createRemoteCaseMessage');
+      safeRecordError(
+        e,
+        s,
+        reason: 'createRemoteCaseMessage',
+        domain: CrashlyticsObsDomain.cases,
+        operation: 'create_remote_case_message',
+      );
       // Network blip — queue it. The connectivity listener will retry.
       await CaseMessageOutbox.instance.enqueue(
         caseId: caseId,
@@ -952,7 +983,13 @@ class AppController extends GetxController {
         await outbox.remove(entry.key);
         touched.add(entry.caseId);
       } catch (e, s) {
-        safeRecordError(e, s, reason: 'flushPendingCaseMessages');
+        safeRecordError(
+          e,
+          s,
+          reason: 'flushPendingCaseMessages',
+          domain: CrashlyticsObsDomain.cases,
+          operation: 'flush_pending_case_messages',
+        );
         await outbox.markFailure(entry.key, entry);
       }
     }
@@ -961,7 +998,13 @@ class AppController extends GetxController {
         final response = await _apiClient.getCase(caseId);
         _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       } catch (e, s) {
-        safeRecordError(e, s, reason: 'flushPendingCaseMessages.getCase');
+        safeRecordError(
+          e,
+          s,
+          reason: 'flushPendingCaseMessages.getCase',
+          domain: CrashlyticsObsDomain.cases,
+          operation: 'flush_pending_case_messages_get_case',
+        );
       }
     }
     if (touched.isNotEmpty) {
@@ -990,7 +1033,13 @@ class AppController extends GetxController {
       _persist();
       update();
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'uploadRemoteCaseDocument');
+      safeRecordError(
+        e,
+        s,
+        reason: 'uploadRemoteCaseDocument',
+        domain: CrashlyticsObsDomain.cases,
+        operation: 'upload_remote_case_document',
+      );
     }
   }
 
@@ -1006,7 +1055,13 @@ class AppController extends GetxController {
         _remoteSavedItemIds[_savedItemKey(item.type, item.itemId)] = savedId;
       }
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'createRemoteSavedItem');
+      safeRecordError(
+        e,
+        s,
+        reason: 'createRemoteSavedItem',
+        domain: CrashlyticsObsDomain.savedItems,
+        operation: 'create_remote_saved_item',
+      );
     }
   }
 
@@ -1020,7 +1075,13 @@ class AppController extends GetxController {
         _remoteSavedItemIds.remove(key);
       }
     } catch (e, s) {
-      safeRecordError(e, s, reason: 'deleteRemoteSavedItem');
+      safeRecordError(
+        e,
+        s,
+        reason: 'deleteRemoteSavedItem',
+        domain: CrashlyticsObsDomain.savedItems,
+        operation: 'delete_remote_saved_item',
+      );
     }
   }
 

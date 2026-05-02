@@ -70,10 +70,13 @@ This is the execution checklist used to move the app from feature-complete to pr
 ### Phase 4 artifacts
 - [`docs/security-compliance.md`](security-compliance.md) — credential storage, permissions table, review triggers.
 
-## Phase 5 - Observability
-- Analytics event contract for key funnels.
-- Crashlytics custom keys and non-fatal classification.
-- Release dashboards (crash-free rate, startup time, sync failure rate).
+## Phase 5 - Observability (Complete)
+- [x] Analytics event contract — [`analytics-event-contract.md`](analytics-event-contract.md); canonical names in [`analytics_event_contract.dart`](../lib/app/core/observability/analytics_event_contract.dart); [`AnalyticsService`](../lib/app/core/services/analytics_service.dart) uses constants.
+- [x] Crashlytics non-fatal classification — [`safe_crashlytics.dart`](../lib/app/core/services/safe_crashlytics.dart) sets `obs_domain`, `obs_operation`, `obs_report_kind`; [`AppController`](../lib/app/core/controllers/app_controller.dart) passes domains for sync/cases/saved items/profile; [`SyncTelemetry`](../lib/app/core/services/sync_telemetry.dart) tags sync custom keys.
+- [x] Dashboard guidance — [`observability-dashboards.md`](observability-dashboards.md) (crash-free rate, GA4 sync KPIs, Crashlytics filters).
+
+### Phase 5 artifacts
+- [`docs/analytics-event-contract.md`](analytics-event-contract.md), [`docs/observability-dashboards.md`](observability-dashboards.md).
 
 ## Phase 6 - Performance & UX
 - Startup and screen render budget measurements.
