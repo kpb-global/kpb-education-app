@@ -21,8 +21,8 @@ import '../utils/user_facing_sync_error.dart';
 import '../data/case_api_codec.dart';
 import '../data/profile_api_codec.dart';
 import '../data/saved_item_api_codec.dart';
-import '../services/catalog_remote_sync.dart';
 import '../services/app_search_service.dart';
+import '../services/catalog_remote_sync.dart';
 
 class AppController extends GetxController {
   AppController({
