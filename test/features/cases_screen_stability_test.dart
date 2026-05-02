@@ -1,6 +1,12 @@
+// Widget tests call `AppController.hydrate()`, which runs remote sync when
+// `KPB_ENABLE_REMOTE_SYNC` is true (compile-time default). Run locally with:
+//   flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
+// (matches CI) to avoid sync/network side effects.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
@@ -12,6 +18,11 @@ import 'package:karatou/app/features/cases/cases_screen.dart';
 import '../widget_test_helpers.dart';
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await initializeDateFormatting('fr');
+  });
+
   group('CasesScreen Stability', () {
     setUp(() {
       resetGetxSingleton();
@@ -28,14 +39,13 @@ void main() {
         profile: createTestProfile(),
       );
 
-      await _pumpCasesScreen(tester, snapshot);
-
-      final controller = Get.find<AppController>();
-      controller
-        ..isSyncing = true
-        ..syncError = null
-        ..update();
-      await tester.pump();
+      await _pumpCasesScreen(
+        tester,
+        snapshot,
+        afterHydrate: (c) => c
+          ..isSyncing = true
+          ..syncError = null,
+      );
 
       expect(find.byType(CasesScreenSkeleton), findsOneWidget);
       expect(find.byType(KpbErrorState), findsNothing);
@@ -49,14 +59,13 @@ void main() {
         profile: createTestProfile(),
       );
 
-      await _pumpCasesScreen(tester, snapshot);
-
-      final controller = Get.find<AppController>();
-      controller
-        ..isSyncing = false
-        ..syncError = 'network timeout'
-        ..update();
-      await tester.pump();
+      await _pumpCasesScreen(
+        tester,
+        snapshot,
+        afterHydrate: (c) => c
+          ..isSyncing = false
+          ..syncError = 'network timeout',
+      );
 
       expect(find.byType(KpbErrorState), findsOneWidget);
       expect(find.byType(CasesScreenSkeleton), findsNothing);
@@ -88,7 +97,11 @@ void main() {
   });
 }
 
-Future<void> _pumpCasesScreen(WidgetTester tester, AppSnapshot snapshot) async {
+Future<void> _pumpCasesScreen(
+  WidgetTester tester,
+  AppSnapshot snapshot, {
+  void Function(AppController c)? afterHydrate,
+}) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupPlatformChannelMocks();
 
@@ -98,6 +111,7 @@ Future<void> _pumpCasesScreen(WidgetTester tester, AppSnapshot snapshot) async {
     apiClient: MockApiClient(),
   );
   await controller.hydrate();
+  afterHydrate?.call(controller);
   Get.put<AppController>(controller, permanent: true);
 
   await tester.pumpWidget(

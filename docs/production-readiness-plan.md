@@ -78,6 +78,7 @@ This is the execution checklist used to move the app from feature-complete to pr
 ## Phase 7 - Test & CI Gates
 - Unit/widget/integration coverage for critical paths.
 - CI: analyze + test + build checks as required merge gate.
+- **Local test runs:** use `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` (and the same for targeted test files) so `AppController.hydrate()` does not start remote catalog sync; the default `KPB_ENABLE_REMOTE_SYNC` is `true` in non-CI runs and can cause network I/O during widget tests.
 
 ## Phase 8 - Release Operations
 - Flavor/env separation (`dev`, `staging`, `prod`).

@@ -23,10 +23,8 @@ class _CasesScreenState extends State<CasesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<AppController>();
-
     return GetBuilder<AppController>(
-      builder: (_) {
+      builder: (controller) {
         if (controller.isSyncing && controller.cases.isEmpty) {
           return const CasesScreenSkeleton();
         }

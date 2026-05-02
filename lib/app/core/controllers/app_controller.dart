@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:collection/collection.dart';
 
 import '../services/analytics_service.dart';
 import '../services/case_message_outbox.dart';
