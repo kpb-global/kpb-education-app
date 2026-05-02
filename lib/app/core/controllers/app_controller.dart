@@ -23,6 +23,8 @@ import '../data/profile_api_codec.dart';
 import '../data/saved_item_api_codec.dart';
 import '../services/app_search_service.dart';
 import '../services/catalog_remote_sync.dart';
+import '../services/sync_conflict_merge.dart';
+import '../services/sync_telemetry.dart';
 
 class AppController extends GetxController {
   AppController({
@@ -67,6 +69,8 @@ class AppController extends GetxController {
   final List<StudentCase> _cases = <StudentCase>[];
   final List<OrientationSession> _orientationHistory = <OrientationSession>[];
   final Map<String, String> _remoteSavedItemIds = <String, String>{};
+  /// True after local profile edits until PATCH `/profiles/me` succeeds (offline sync conflict avoidance).
+  bool _profileNeedsPush = false;
   final List<String> _searchHistory = <String>[];
   Map<String, List<String>> _pendingOrientationAnswers = {};
   final List<String> _purchasedCourseIds = <String>[];
@@ -141,6 +145,7 @@ class AppController extends GetxController {
         : null;
     _pendingOrientationAnswers = Map.of(snapshot.pendingOrientationAnswers);
     pendingOrientationQuestionIndex = snapshot.pendingOrientationQuestionIndex;
+    _profileNeedsPush = snapshot.profileNeedsPush;
     fields..clear()..addAll(snapshot.fields.isNotEmpty ? snapshot.fields : MockCatalog.fields);
     countries..clear()..addAll(snapshot.countries.isNotEmpty ? snapshot.countries : MockCatalog.countries);
     institutions..clear()..addAll(snapshot.institutions.isNotEmpty ? snapshot.institutions : MockCatalog.institutions);
@@ -159,7 +164,8 @@ class AppController extends GetxController {
     if (p != null) {
       profile = p.copyWith(preferredLanguage: newLocaleCode);
     }
-    _pushProfileUpdate();
+    _profileNeedsPush = true;
+    unawaited(_pushProfileUpdate());
     _persist();
     update();
   }
@@ -185,7 +191,8 @@ class AppController extends GetxController {
       ..addAll(newProfile.accountType == AccountType.student
           ? MockCatalog.starterCases()
           : <StudentCase>[]);
-    _pushProfileUpdate();
+    _profileNeedsPush = true;
+    unawaited(_pushProfileUpdate());
     _persist();
     update();
   }
@@ -200,6 +207,7 @@ class AppController extends GetxController {
   void logout() {
     AnalyticsService.instance.logLogout();
     profile = null;
+    _profileNeedsPush = false;
     hasCompletedOnboarding = false;
     latestOrientationSession = null;
     _savedItems.clear();
@@ -422,7 +430,8 @@ class AppController extends GetxController {
 
   void updateProfile(UserProfile newProfile) {
     profile = newProfile;
-    _pushProfileUpdate();
+    _profileNeedsPush = true;
+    unawaited(_pushProfileUpdate());
     _persist();
     update();
   }
@@ -646,41 +655,94 @@ class AppController extends GetxController {
       update();
     }
 
+    final syncStarted = DateTime.now();
+    var catalogHiveFallbackCount = 0;
+    void onCatalogHiveFallback(String resource, int attempts) {
+      catalogHiveFallbackCount++;
+      SyncTelemetry.catalogHiveFallback(resource: resource, attempts: attempts);
+    }
+
+    SyncTelemetry.fullSyncStarted();
+
     try {
       // Flush any messages typed while offline
       await flushPendingCaseMessages();
 
-      final profileJson = await _apiClient.getProfile();
-      profile = ProfileApiCodec.userProfileFromApi(
-        profileJson,
-        fallbackLocale: localeCode,
-      );
-      localeCode = profile?.preferredLanguage ?? localeCode;
+      await _pushProfileUpdate();
 
-      final remoteCases = await _apiClient.listCases();
+      if (!_profileNeedsPush) {
+        final profileJson = await _apiClient.getProfile();
+        profile = ProfileApiCodec.userProfileFromApi(
+          profileJson,
+          fallbackLocale: localeCode,
+        );
+        localeCode = profile?.preferredLanguage ?? localeCode;
+      } else {
+        SyncTelemetry.profileSkippedRemotePull(
+          reason: 'pending_local_patch',
+        );
+      }
+
+      final remoteCasesRaw = await _apiClient.listCases();
+      final remoteCases =
+          remoteCasesRaw.map(CaseApiCodec.studentCaseFromApi).toList();
+      final (mergedCases, caseStats) =
+          mergeCasesRemoteWithLocal(remoteCases, List<StudentCase>.of(_cases));
+      SyncTelemetry.casesMerged(
+        remoteCount: caseStats.remoteCount,
+        localWinCount: caseStats.localWinCount,
+        keptLocalOnlyCount: caseStats.keptLocalOnlyCount,
+      );
       _cases
         ..clear()
-        ..addAll(remoteCases.map(CaseApiCodec.studentCaseFromApi));
+        ..addAll(mergedCases);
 
       final remoteSavedItems = await _apiClient.listSavedItems();
+      final remoteSavedParsed =
+          remoteSavedItems.map(SavedItemApiCodec.fromApi).toList();
+      final (mergedSaved, unionExtraLocals) = mergeSavedItemsUnion(
+        remoteSavedParsed,
+        List<SavedItem>.of(_savedItems),
+      );
+      SyncTelemetry.savedItemsMerged(unionExtraLocals: unionExtraLocals);
       _savedItems
         ..clear()
-        ..addAll(remoteSavedItems.map(SavedItemApiCodec.fromApi));
+        ..addAll(mergedSaved);
 
       await syncCatalogResource<FieldModel>(
-        _apiClient, 'fields', fields, FieldModel.fromJson,
+        _apiClient,
+        'fields',
+        fields,
+        FieldModel.fromJson,
+        onHiveFallback: onCatalogHiveFallback,
       );
       await syncCatalogResource<CountryModel>(
-        _apiClient, 'countries', countries, CountryModel.fromJson,
+        _apiClient,
+        'countries',
+        countries,
+        CountryModel.fromJson,
+        onHiveFallback: onCatalogHiveFallback,
       );
       await syncCatalogResource<InstitutionModel>(
-        _apiClient, 'institutions', institutions, InstitutionModel.fromJson,
+        _apiClient,
+        'institutions',
+        institutions,
+        InstitutionModel.fromJson,
+        onHiveFallback: onCatalogHiveFallback,
       );
       await syncCatalogResource<ProgramModel>(
-        _apiClient, 'programs', programs, ProgramModel.fromJson,
+        _apiClient,
+        'programs',
+        programs,
+        ProgramModel.fromJson,
+        onHiveFallback: onCatalogHiveFallback,
       );
       await syncCatalogResource<ScholarshipModel>(
-        _apiClient, 'scholarships', scholarships, ScholarshipModel.fromJson,
+        _apiClient,
+        'scholarships',
+        scholarships,
+        ScholarshipModel.fromJson,
+        onHiveFallback: onCatalogHiveFallback,
       );
 
       _remoteSavedItemIds
@@ -700,12 +762,30 @@ class AppController extends GetxController {
               ),
         );
 
+      for (final item in _savedItems) {
+        final key = _savedItemKey(item.type, item.itemId);
+        final id = _remoteSavedItemIds[key];
+        if (id == null || id.isEmpty) {
+          unawaited(_createRemoteSavedItem(item));
+        }
+      }
+
       lastSyncedAt = DateTime.now();
       syncError = null;
       _persist();
+      SyncTelemetry.fullSyncFinished(
+        success: true,
+        elapsed: DateTime.now().difference(syncStarted),
+        catalogHiveFallbackCount: catalogHiveFallbackCount,
+      );
     } catch (error, stack) {
       syncError = userFacingSyncError(error, localeCode);
       safeRecordError(error, stack, reason: 'syncRemoteData');
+      SyncTelemetry.fullSyncFinished(
+        success: false,
+        elapsed: DateTime.now().difference(syncStarted),
+        catalogHiveFallbackCount: catalogHiveFallbackCount,
+      );
     } finally {
       isSyncing = false;
       update();
@@ -760,6 +840,7 @@ class AppController extends GetxController {
         scholarships: scholarships,
         purchasedCourseIds: _purchasedCourseIds,
         completedRoadmapSteps: _completedRoadmapSteps,
+        profileNeedsPush: _profileNeedsPush,
       );
 
   void _persist() {
@@ -767,11 +848,24 @@ class AppController extends GetxController {
   }
 
   Future<void> _pushProfileUpdate() async {
-    if (!AppConfig.enableRemoteSync || profile == null) return;
+    if (!AppConfig.enableRemoteSync) {
+      _profileNeedsPush = false;
+      return;
+    }
+    if (profile == null) return;
+    if (!ConnectivityService.instance.isOnline) {
+      _profileNeedsPush = true;
+      _persist();
+      return;
+    }
     try {
       await _apiClient.updateProfile(_userProfilePayload(profile!));
+      _profileNeedsPush = false;
+      _persist();
     } catch (e, s) {
       safeRecordError(e, s, reason: 'pushProfileUpdate');
+      _profileNeedsPush = true;
+      _persist();
     }
   }
 

@@ -42,17 +42,9 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Cette application utilise Face ID pour protéger vos documents et informations personnelles.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre caméra</string>
-	<key>NSDocumentsDirectoryUsageDescription</key>
-	<string>Cette application a besoin d'accéder à vos documents</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre localisation en arrière-plan</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre localisation</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre microphone</string>
+	<string>KPB Education utilise la caméra pour photographier vos pièces jointes de dossier lorsque vous choisissez cette option.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Cette application a besoin d'accéder à vos photos</string>
+	<string>KPB Education accède à vos photos uniquement lorsque vous sélectionnez une image pour un document ou une pièce jointe.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

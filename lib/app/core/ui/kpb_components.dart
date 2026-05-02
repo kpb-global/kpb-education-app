@@ -724,12 +724,35 @@ class InstitutionMiniCard extends StatelessWidget {
             Row(
               children: [
                 Text(countryFlag, style: const TextStyle(fontSize: 22)),
-                const Spacer(),
-                AdmissionMeter(score: score, size: 28, strokeWidth: 3, showLabel: false),
-                if (isPartner) ...[
-                   const SizedBox(width: 8),
-                   const KpbBadge(label: 'Partenaire', color: KpbColors.stitchDeepPurple, small: true),
-                ]
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          AdmissionMeter(
+                            score: score,
+                            size: 28,
+                            strokeWidth: 3,
+                            showLabel: false,
+                          ),
+                          if (isPartner) ...[
+                            const SizedBox(width: 8),
+                            const KpbBadge(
+                              label: 'Partenaire',
+                              color: KpbColors.stitchDeepPurple,
+                              small: true,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),

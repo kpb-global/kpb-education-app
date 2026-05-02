@@ -17,6 +17,9 @@ class CatalogCacheService {
 
   static const _boxName = 'kpb.catalog.cache';
   static const _lastSyncKey = '__last_synced_at';
+  static const _formatVersionKey = '__cache_format_version';
+  /// Bumped when JSON shape or semantics under each resource key change materially.
+  static const _currentFormatVersion = 1;
   static const _staleAfter = Duration(days: 14);
 
   final Box<String> _box;
@@ -33,6 +36,17 @@ class CatalogCacheService {
   static Future<CatalogCacheService> init() async {
     if (_instance != null) return _instance!;
     final box = await Hive.openBox<String>(_boxName);
+    final stored = box.get(_formatVersionKey);
+    if (stored == null) {
+      // First app version with a format key: keep existing cache, stamp current.
+      await box.put(_formatVersionKey, '$_currentFormatVersion');
+    } else {
+      final version = int.tryParse(stored) ?? 0;
+      if (version != _currentFormatVersion) {
+        await box.clear();
+        await box.put(_formatVersionKey, '$_currentFormatVersion');
+      }
+    }
     return _instance = CatalogCacheService._(box);
   }
 

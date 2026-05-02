@@ -7,8 +7,13 @@ import 'package:local_auth/local_auth.dart';
 import '../controllers/app_controller.dart';
 import '../../features/auth/app_lock_screen.dart';
 
-/// Service responsible for managing app-level security, particularly
-/// biometric authentication when the app resumes from the background.
+/// App lock when [AppController.isAppLockEnabled]: on each [AppLifecycleState.resumed],
+/// pushes [AppLockScreen]. Unlock uses [LocalAuthentication] (biometrics and/or device PIN).
+///
+/// **Threat model (short):** Protection against casual shoulder-surfing and unattended device
+/// while the app is backgrounded — not a substitute for OS-level encryption or server auth.
+/// If the device reports no biometric/PIN capability, [authenticate] allows access so users
+/// are not locked out (documented product trade-off).
 class SecurityService extends GetxService with WidgetsBindingObserver {
   static SecurityService get instance => Get.find<SecurityService>();
 
@@ -62,6 +67,7 @@ class SecurityService extends GetxService with WidgetsBindingObserver {
 
       final authenticated = await _auth.authenticate(
         localizedReason: 'Déverrouillez pour accéder à vos documents sécurisés KPB',
+        persistAcrossBackgrounding: true,
       );
       
       _isAuthenticating = false;

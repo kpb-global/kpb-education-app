@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../config/app_config.dart';
+import '../config/kpb_secure_storage.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -513,7 +513,7 @@ class _AuthInterceptor extends Interceptor {
 
   static const _keyAccessToken = 'kpb.auth.accessToken';
   static const _keyRefreshToken = 'kpb.auth.refreshToken';
-  static const _storage = FlutterSecureStorage();
+  static const _storage = kpbFlutterSecureStorage;
 
   @override
   void onRequest(

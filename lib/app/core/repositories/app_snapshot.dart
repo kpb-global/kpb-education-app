@@ -23,7 +23,11 @@ class AppSnapshot {
     this.scholarships = const [],
     this.purchasedCourseIds = const [],
     this.completedRoadmapSteps = const {},
+    this.profileNeedsPush = false,
   });
+
+  /// Local profile edits not yet confirmed by PATCH `/profiles/me`; avoids overwriting on sync.
+  final bool profileNeedsPush;
 
   final String localeCode;
   final bool hasCompletedOnboarding;

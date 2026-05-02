@@ -55,15 +55,20 @@ This is the execution checklist used to move the app from feature-complete to pr
 - `test/core/utils/user_facing_sync_error_test.dart` — regression tests for error mapping.
 
 ## Phase 3 - Data & Offline Reliability
-- Snapshot schema versioning + migrations.
-- Conflict resolution strategy for offline-to-online sync.
-- Retries/backoff and sync telemetry.
+- [x] Snapshot JSON format version + in-place migration hook (`app_snapshot_format.dart`, wired in `LocalAppRepository` load/save).
+- [x] Hive catalog cache format version (clears box on mismatch; `CatalogCacheService`).
+- [x] Bounded retries with exponential backoff for catalog API fetch before Hive fallback (`catalog_remote_sync.dart`).
+- [x] Conflict resolution strategy for offline-to-online sync (`AppController.syncRemoteData`, `sync_conflict_merge.dart`): profile — skip overwriting from GET while `profileNeedsPush` (PATCH not yet confirmed); cases — merge by id with newer `updatedAt` wins and retain local-only ids; saved items — union of remote + local-only pairs; optional push of unsynced saves after merge.
+- [x] Sync telemetry (`sync_telemetry.dart`, `AnalyticsService` `sync_*` events, Crashlytics custom keys on full sync): full sync success/failure + duration + catalog Hive fallback count; conflict resolutions logged as `sync_conflict_resolved`; catalog fallback as `sync_catalog_hive_fallback`.
 
-## Phase 4 - Security & Compliance
-- Secure storage review for sensitive values.
-- Biometric/app-lock threat-model pass.
-- Minimal permission audit (Android/iOS).
-- Privacy policy/data disclosure alignment.
+## Phase 4 - Security & Compliance (Complete)
+- [x] Secure storage review for sensitive values — tokens centralized in [`kpb_secure_storage.dart`](./security-compliance.md); snapshot excludes email/phone/WhatsApp from persistence.
+- [x] Biometric/app-lock threat-model pass — documented on [`SecurityService`](../lib/app/core/services/security_service.dart); `persistAcrossBackgrounding` on unlock prompt.
+- [x] Minimal permission audit (Android/iOS) — [`docs/security-compliance.md`](security-compliance.md); Android `POST_NOTIFICATIONS`; iOS plist trimmed to camera/photos + Face ID.
+- [x] Privacy policy/data disclosure alignment — Crashlytics + sync telemetry called out in-app (`legal_pages.dart`) and in engineering doc above.
+
+### Phase 4 artifacts
+- [`docs/security-compliance.md`](security-compliance.md) — credential storage, permissions table, review triggers.
 
 ## Phase 5 - Observability
 - Analytics event contract for key funnels.

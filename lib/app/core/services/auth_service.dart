@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../config/kpb_secure_storage.dart';
 import '../repositories/app_api_client.dart';
 
 class AuthService {
@@ -17,7 +18,7 @@ class AuthService {
   String? _cachedUserId;
 
   static Future<AuthService> create(AppApiClient apiClient) async {
-    const storage = FlutterSecureStorage();
+    const storage = kpbFlutterSecureStorage;
     final service = AuthService._(storage, apiClient);
     // Pre-load tokens into memory for synchronous access
     service._cachedAccessToken = await storage.read(key: _keyAccessToken);
