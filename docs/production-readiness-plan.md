@@ -2,7 +2,7 @@
 
 This is the execution checklist used to move the app from feature-complete to production-ready.
 
-## Phase 1 - Stability (In Progress)
+## Phase 1 - Stability (Complete in repo; device smoke still required per release)
 
 ### Goals
 - Ensure critical flows do not crash or dead-end.
@@ -40,10 +40,15 @@ This is the execution checklist used to move the app from feature-complete to pr
 - `test/core/config/app_routes_test.dart` - route normalization regression tests.
 - `test/features/cases_screen_stability_test.dart` - fallback-state widget stability tests.
 
-## Phase 2 - Architecture Hardening
-- Split oversized controller responsibilities by domain.
-- Standardize error handling + user messaging boundaries.
-- Keep navigation as one source of truth.
+## Phase 2 - Architecture Hardening (In Progress)
+- [ ] Split oversized controller responsibilities by domain.
+- [x] Standardize error handling + user messaging boundaries (sync errors: `user_facing_sync_error.dart`, Crashlytics on sync failure).
+- [x] Centralize untrusted external navigation (`AppNavigation` + `AppRoutes.normalizeExternalRoute`).
+
+### Phase 2 artifacts
+- `lib/app/core/navigation/app_navigation.dart` - single entry for FCM / deep-link navigation.
+- `lib/app/core/utils/user_facing_sync_error.dart` - locale-aware sync error copy for `AppController.syncError`.
+- `test/core/utils/user_facing_sync_error_test.dart` - regression tests for error mapping.
 
 ## Phase 3 - Data & Offline Reliability
 - Snapshot schema versioning + migrations.
