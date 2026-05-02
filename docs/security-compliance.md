@@ -4,10 +4,10 @@ Companion to **Phase 4** in [`production-readiness-plan.md`](production-readines
 
 ## Credential storage
 
-| Data | Where | Notes |
-|------|--------|--------|
-| Access token, refresh token, user id | `FlutterSecureStorage` via [`kpbFlutterSecureStorage`](../lib/app/core/config/kpb_secure_storage.dart) | Android: Keystore + AES-GCM (package defaults). iOS: Keychain, `first_unlock_this_device`, not iCloud-synced. |
-| REST calls | `AppApiClient` + `_AuthInterceptor` | Same storage instance as [`AuthService`](../lib/app/core/services/auth_service.dart) — identical options so reads/writes stay consistent. |
+| Data                                 | Where                                                                                                  | Notes                                                                                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Access token, refresh token, user id | `FlutterSecureStorage` via [`kpbFlutterSecureStorage`](../lib/app/core/config/kpb_secure_storage.dart) | Android: Keystore + AES-GCM (package defaults). iOS: Keychain, `first_unlock_this_device`, not iCloud-synced.                             |
+| REST calls                           | `AppApiClient` + `_AuthInterceptor`                                                                    | Same storage instance as [`AuthService`](../lib/app/core/services/auth_service.dart) — identical options so reads/writes stay consistent. |
 
 Passwords are never stored locally beyond OS-level secure credential flows during login.
 
@@ -27,12 +27,12 @@ Biometric / device PIN unlock after resume — see class doc on [`SecurityServic
 
 ### Android (`AndroidManifest.xml`)
 
-| Permission | Purpose |
-|------------|---------|
-| `INTERNET` | API, Firebase |
-| `ACCESS_NETWORK_STATE` | Connectivity checks |
-| `POST_NOTIFICATIONS` | Show FCM notifications (Android 13+); requested at runtime in [`push_notification_service.dart`](../lib/app/core/services/push_notification_service.dart) |
-| `USE_BIOMETRIC` | Local auth for app lock |
+| Permission             | Purpose                                                                                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `INTERNET`             | API, Firebase                                                                                                                                             |
+| `ACCESS_NETWORK_STATE` | Connectivity checks                                                                                                                                       |
+| `POST_NOTIFICATIONS`   | Show FCM notifications (Android 13+); requested at runtime in [`push_notification_service.dart`](../lib/app/core/services/push_notification_service.dart) |
+| `USE_BIOMETRIC`        | Local auth for app lock                                                                                                                                   |
 
 ### iOS (`Info.plist`)
 
