@@ -1,7 +1,9 @@
 import 'dart:developer' as dev;
+import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../navigation/app_navigation.dart';
 
@@ -26,7 +28,15 @@ class PushNotificationService extends GetxService {
 
   Future<void> _initPushNotifications() async {
     try {
-      // 1. Request Permission
+      // Android 13+: POST_NOTIFICATIONS must be granted for heads-up / shade delivery.
+      if (Platform.isAndroid) {
+        final status = await Permission.notification.status;
+        if (!status.isGranted) {
+          await Permission.notification.request();
+        }
+      }
+
+      // 1. Request Permission (APNs on iOS; no-op on Android for system dialog)
       final settings = await _fcm.requestPermission(
         alert: true,
         announcement: false,
