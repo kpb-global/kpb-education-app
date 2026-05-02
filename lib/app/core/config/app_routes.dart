@@ -16,23 +16,30 @@ class AppRoutes {
   static const String caseCreate = '/new-case';
   static const String caseDetail = '/cases/:id';
   static const String _casePrefix = '/cases/';
+  static const String _legacyCaseCreate = '/cases/create';
 
   /// Normalizes external route payloads (quick actions, deep links, FCM).
   /// Returns null when route is unsupported/invalid.
   static String? normalizeExternalRoute(String? rawRoute) {
-    if (rawRoute == null || rawRoute.isEmpty || !rawRoute.startsWith('/')) {
+    final route = rawRoute?.trim();
+    if (route == null || route.isEmpty || !route.startsWith('/')) {
       return null;
     }
 
-    if (rawRoute.startsWith(_casePrefix)) {
-      final caseId = rawRoute.substring(_casePrefix.length);
+    // Backward-compatibility for older payloads sent before case-create route rename.
+    if (route == _legacyCaseCreate) {
+      return caseCreate;
+    }
+
+    if (route.startsWith(_casePrefix)) {
+      final caseId = route.substring(_casePrefix.length);
       // Reject empty or nested ids (`/cases/` or `/cases/a/b`).
       if (caseId.isEmpty || caseId.contains('/')) return null;
       return '/cases/$caseId';
     }
 
     const known = <String>{home, search, caseCreate};
-    if (known.contains(rawRoute)) return rawRoute;
+    if (known.contains(route)) return route;
     return null;
   }
 
