@@ -41,14 +41,17 @@ This is the execution checklist used to move the app from feature-complete to pr
 - `test/features/cases_screen_stability_test.dart` - fallback-state widget stability tests.
 
 ## Phase 2 - Architecture Hardening (In Progress)
-- [ ] Split oversized controller responsibilities by domain.
-- [x] Standardize error handling + user messaging boundaries (sync errors: `user_facing_sync_error.dart`, Crashlytics on sync failure).
+- [ ] Split oversized controller responsibilities by domain (partial: remote DTO parsing + catalog sync extracted from `AppController`).
+- [x] Standardize error handling + user messaging boundaries (sync errors: `user_facing_sync_error.dart`, Crashlytics on sync failure via `safe_crashlytics.dart` so tests run without Firebase init).
 - [x] Centralize untrusted external navigation (`AppNavigation` + `AppRoutes.normalizeExternalRoute`).
 
 ### Phase 2 artifacts
-- `lib/app/core/navigation/app_navigation.dart` - single entry for FCM / deep-link navigation.
-- `lib/app/core/utils/user_facing_sync_error.dart` - locale-aware sync error copy for `AppController.syncError`.
-- `test/core/utils/user_facing_sync_error_test.dart` - regression tests for error mapping.
+- `lib/app/core/navigation/app_navigation.dart` — single entry for FCM / deep-link navigation.
+- `lib/app/core/utils/user_facing_sync_error.dart` — locale-aware sync error copy for `AppController.syncError`.
+- `lib/app/core/services/safe_crashlytics.dart` — wraps Crashlytics recording when no default Firebase app (unit/widget tests).
+- `lib/app/core/data/case_api_codec.dart`, `profile_api_codec.dart`, `saved_item_api_codec.dart`, `json_parse_utils.dart` — REST ↔ domain mapping isolated from `AppController`.
+- `lib/app/core/services/catalog_remote_sync.dart` — catalog fetch + Hive fallback shared helper.
+- `test/core/utils/user_facing_sync_error_test.dart` — regression tests for error mapping.
 
 ## Phase 3 - Data & Offline Reliability
 - Snapshot schema versioning + migrations.
