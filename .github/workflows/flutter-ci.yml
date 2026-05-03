@@ -95,6 +95,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Pod install (fresh resolve)
+        run: cd ios && rm -f Podfile.lock && pod install --repo-update
+
       - name: Build iOS
         run: flutter build ios --release --no-codesign --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
 
