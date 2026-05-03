@@ -1,49 +1,79 @@
-name: Flutter CI/CD
+name: Flutter CI
 
+# Phase 7 merge gate: analyze + tests on every PR; full builds on pushes to default branches.
 on:
   push:
-    branches: [ main ]
+    branches: [master, main]
     paths:
       - 'lib/**'
+      - 'test/**'
       - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'analysis_options.yaml'
       - 'android/**'
       - 'ios/**'
+      - '.github/workflows/flutter-ci.yml'
   pull_request:
-    branches: [ main ]
+    branches: [master, main]
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'analysis_options.yaml'
+      - 'android/**'
+      - 'ios/**'
+      - '.github/workflows/flutter-ci.yml'
+
+concurrency:
+  group: flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-android:
-    name: Build Android APK
+  quality:
+    name: Analyze & test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-          
-      - name: Install Dependencies
-        run: flutter pub get
-        
-      - name: Format
-        run: dart format --set-exit-if-changed .
 
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Optional follow-up: add `dart format --set-exit-if-changed lib test` after a one-time format pass.
       - name: Analyze
         run: flutter analyze
 
-      - name: Tests
+      - name: Test (no remote catalog sync)
         run: flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
-        
+
+  build-android:
+    name: Build Android APK
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Build APK
-        # Change this URL to your PlanetHoster VPS IP or Domain
         run: flutter build apk --release --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
-        
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -51,30 +81,24 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
   build-ios:
-    name: Build iOS App
+    name: Build iOS (no codesign)
+    needs: quality
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-          
-      - name: Install Dependencies
+
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze
-        run: flutter analyze
-
-      - name: Tests
-        run: flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
-        
-      - name: Build iOS (No Codesign for CI tests)
-        # Note: True CD requires Provisioning Profiles injection
+      - name: Build iOS
         run: flutter build ios --release --no-codesign --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
-        
-      - name: Upload iOS Build
+
+      - name: Upload iOS build
         uses: actions/upload-artifact@v4
         with:
           name: app-release-ios

@@ -83,9 +83,9 @@ This is the execution checklist used to move the app from feature-complete to pr
 - Jank hotspot optimization.
 - Consistent loading/empty/error state quality.
 
-## Phase 7 - Test & CI Gates
-- Unit/widget/integration coverage for critical paths.
-- CI: analyze + test + build checks as required merge gate.
+## Phase 7 - Test & CI Gates (In progress)
+- [ ] Unit/widget/integration coverage for critical paths (expand over time).
+- [x] CI merge gate — GitHub Actions [`.github/workflows/flutter-ci.yml`](../.github/workflows/flutter-ci.yml): `flutter analyze`, `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` on PRs/pushes to **`master`** / **`main`**; Android APK + iOS (no codesign) build after the quality job succeeds. (Optional: add `dart format --set-exit-if-changed lib test` after a repo-wide format commit.)
 - **Local test runs:** use `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` (and the same for targeted test files) so `AppController.hydrate()` does not start remote catalog sync; the default `KPB_ENABLE_REMOTE_SYNC` is `true` in non-CI runs and can cause network I/O during widget tests.
 
 ## Phase 8 - Release Operations
