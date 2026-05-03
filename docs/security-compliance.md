@@ -40,7 +40,7 @@ Usage descriptions are limited to **camera** and **photo library** (document upl
 
 ## Privacy disclosure alignment
 
-In-app policy screens ([`legal_pages.dart`](../lib/app/features/legal/legal_pages.dart)) mention Firebase Analytics, push messaging, and — after Phase 4 — **Crashlytics** and **aggregated sync telemetry** (Analytics events), consistent with [`AnalyticsService`](../lib/app/core/services/analytics_service.dart) / [`sync_telemetry.dart`](../lib/app/core/services/sync_telemetry.dart).
+In-app policy screens ([`legal_pages.dart`](../lib/app/features/legal/legal_pages.dart)) mention Firebase Analytics, push messaging, and — after Phase 4 — **Crashlytics** and **aggregated sync telemetry** (Analytics events), consistent with [`AnalyticsService`](../lib/app/core/services/analytics_service.dart) / [`sync_telemetry.dart`](../lib/app/core/services/sync_telemetry.dart). For dashboard and event naming details, see [`observability-dashboards.md`](observability-dashboards.md) and [`analytics-event-contract.md`](analytics-event-contract.md).
 
 ## Periodic review
 
