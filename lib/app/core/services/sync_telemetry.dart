@@ -1,5 +1,6 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
+import '../observability/crashlytics_observability.dart';
 import '../utils/app_logger.dart';
 import 'analytics_service.dart';
 
@@ -10,6 +11,7 @@ abstract final class SyncTelemetry {
   static void fullSyncStarted() {
     AppLogger.info('full_sync_started', tag: _tag);
     _safeSetKeys(<String, Object>{
+      CrashlyticsObsKey.domain: CrashlyticsObsDomain.sync,
       'sync_full_last_started_ms': DateTime.now().millisecondsSinceEpoch,
     });
   }
@@ -25,6 +27,7 @@ abstract final class SyncTelemetry {
       tag: _tag,
     );
     _safeSetKeys(<String, Object>{
+      CrashlyticsObsKey.domain: CrashlyticsObsDomain.sync,
       'sync_full_last_finished_ms': DateTime.now().millisecondsSinceEpoch,
       'sync_full_last_success': success,
       'sync_full_last_elapsed_ms': elapsed.inMilliseconds,

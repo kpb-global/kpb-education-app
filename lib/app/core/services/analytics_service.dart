@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 
+import '../observability/analytics_event_contract.dart';
 import '../utils/app_logger.dart';
 
 /// Thin wrapper around FirebaseAnalytics with typed event helpers.
@@ -46,7 +47,7 @@ class AnalyticsService {
 
   Future<void> logLogout() async {
     try {
-      await _analytics.logEvent(name: 'logout');
+      await _analytics.logEvent(name: AnalyticsEventName.logout);
     } catch (e, s) {
       AppLogger.error('logLogout', error: e, stackTrace: s, tag: 'analytics');
     }
@@ -56,7 +57,7 @@ class AnalyticsService {
 
   Future<void> logOrientationStart() async {
     try {
-      await _analytics.logEvent(name: 'orientation_start');
+      await _analytics.logEvent(name: AnalyticsEventName.orientationStart);
     } catch (e, s) {
       AppLogger.error('logOrientationStart', error: e, stackTrace: s, tag: 'analytics');
     }
@@ -68,10 +69,10 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'orientation_complete',
+        name: AnalyticsEventName.orientationComplete,
         parameters: {
-          'total_questions': totalQuestions,
-          'match_count': matchCount,
+          AnalyticsParamKey.totalQuestions: totalQuestions,
+          AnalyticsParamKey.matchCount: matchCount,
         },
       );
     } catch (e, s) {
@@ -97,8 +98,11 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'save_item',
-        parameters: {'item_id': itemId, 'item_type': itemType},
+        name: AnalyticsEventName.saveItem,
+        parameters: {
+          AnalyticsParamKey.itemId: itemId,
+          AnalyticsParamKey.itemType: itemType,
+        },
       );
     } catch (e, s) {
       AppLogger.error('logSaveItem', error: e, stackTrace: s, tag: 'analytics');
@@ -111,8 +115,11 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'unsave_item',
-        parameters: {'item_id': itemId, 'item_type': itemType},
+        name: AnalyticsEventName.unsaveItem,
+        parameters: {
+          AnalyticsParamKey.itemId: itemId,
+          AnalyticsParamKey.itemType: itemType,
+        },
       );
     } catch (e, s) {
       AppLogger.error('logUnsaveItem', error: e, stackTrace: s, tag: 'analytics');
@@ -146,8 +153,11 @@ class AnalyticsService {
   Future<void> logCompareInstitutions(List<String> ids) async {
     try {
       await _analytics.logEvent(
-        name: 'compare_institutions',
-        parameters: {'count': ids.length, 'ids': ids.join(',')},
+        name: AnalyticsEventName.compareInstitutions,
+        parameters: {
+          AnalyticsParamKey.count: ids.length,
+          AnalyticsParamKey.ids: ids.join(','),
+        },
       );
     } catch (e, s) {
       AppLogger.error('logCompareInstitutions', error: e, stackTrace: s, tag: 'analytics');
@@ -159,8 +169,8 @@ class AnalyticsService {
   Future<void> logCaseCreated({required String caseType}) async {
     try {
       await _analytics.logEvent(
-        name: 'case_created',
-        parameters: {'case_type': caseType},
+        name: AnalyticsEventName.caseCreated,
+        parameters: {AnalyticsParamKey.caseType: caseType},
       );
     } catch (e, s) {
       AppLogger.error('logCaseCreated', error: e, stackTrace: s, tag: 'analytics');
@@ -170,8 +180,8 @@ class AnalyticsService {
   Future<void> logCaseViewed(String caseId) async {
     try {
       await _analytics.logEvent(
-        name: 'case_viewed',
-        parameters: {'case_id': caseId},
+        name: AnalyticsEventName.caseViewed,
+        parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
       AppLogger.error('logCaseViewed', error: e, stackTrace: s, tag: 'analytics');
@@ -181,8 +191,8 @@ class AnalyticsService {
   Future<void> logDocumentUploaded({required String caseId}) async {
     try {
       await _analytics.logEvent(
-        name: 'document_uploaded',
-        parameters: {'case_id': caseId},
+        name: AnalyticsEventName.documentUploaded,
+        parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
       AppLogger.error('logDocumentUploaded', error: e, stackTrace: s, tag: 'analytics');
@@ -192,8 +202,8 @@ class AnalyticsService {
   Future<void> logMessageSent({required String caseId}) async {
     try {
       await _analytics.logEvent(
-        name: 'case_message_sent',
-        parameters: {'case_id': caseId},
+        name: AnalyticsEventName.caseMessageSent,
+        parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
       AppLogger.error('logMessageSent', error: e, stackTrace: s, tag: 'analytics');
@@ -204,7 +214,7 @@ class AnalyticsService {
 
   Future<void> logProfileUpdated() async {
     try {
-      await _analytics.logEvent(name: 'profile_updated');
+      await _analytics.logEvent(name: AnalyticsEventName.profileUpdated);
     } catch (e, s) {
       AppLogger.error('logProfileUpdated', error: e, stackTrace: s, tag: 'analytics');
     }
@@ -213,8 +223,8 @@ class AnalyticsService {
   Future<void> logThemeToggled(bool isDark) async {
     try {
       await _analytics.logEvent(
-        name: 'theme_toggled',
-        parameters: {'theme': isDark ? 'dark' : 'light'},
+        name: AnalyticsEventName.themeToggled,
+        parameters: {AnalyticsParamKey.theme: isDark ? 'dark' : 'light'},
       );
     } catch (e, s) {
       AppLogger.error('logThemeToggled', error: e, stackTrace: s, tag: 'analytics');
@@ -230,11 +240,11 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'sync_full_complete',
+        name: AnalyticsEventName.syncFullComplete,
         parameters: {
-          'success': success ? 1 : 0,
-          'elapsed_ms': elapsedMs,
-          'catalog_hive_fallback_count': catalogHiveFallbackCount,
+          AnalyticsParamKey.success: success ? 1 : 0,
+          AnalyticsParamKey.elapsedMs: elapsedMs,
+          AnalyticsParamKey.catalogHiveFallbackCount: catalogHiveFallbackCount,
         },
       );
     } catch (e, s) {
@@ -248,10 +258,10 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'sync_conflict_resolved',
+        name: AnalyticsEventName.syncConflictResolved,
         parameters: {
-          'domain': domain,
-          'resolution': resolution,
+          AnalyticsParamKey.domain: domain,
+          AnalyticsParamKey.resolution: resolution,
         },
       );
     } catch (e, s) {
@@ -265,10 +275,10 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: 'sync_catalog_hive_fallback',
+        name: AnalyticsEventName.syncCatalogHiveFallback,
         parameters: {
-          'resource': resource,
-          'attempts': attempts,
+          AnalyticsParamKey.resource: resource,
+          AnalyticsParamKey.attempts: attempts,
         },
       );
     } catch (e, s) {
