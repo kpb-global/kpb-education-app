@@ -51,6 +51,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 android/key.properties
+# CI may decode a keystore here locally; never commit real keys
+android/upload-keystore.jks
 
 # Coverage reports
 coverage/
