@@ -105,6 +105,8 @@ dependency_overrides:
   # connectivity_plus 7.1.x uses NWPath.isUltraConstrained (iOS 18.4 SDK / Xcode 26.1.1).
   # Pin to 6.x until CI runners ship that Xcode version.
   connectivity_plus: ^6.1.0
+  # device_info_plus 12.x uses isiOSAppOnVision (requires Xcode 15.2+ SDK not yet on CI).
+  device_info_plus: ^11.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
