@@ -76,14 +76,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK (debug — no signing secrets on CI)
-        run: flutter build apk --debug --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
+      - name: Build release APK
+        # Signs with play upload keystore when key.properties is present; otherwise uses
+        # default debug keystore (see android/app/build.gradle) so CI needs no secrets.
+        run: flutter build apk --release --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-android
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: app-release-android
+          path: build/app/outputs/flutter-apk/app-release.apk
 
   build-ios:
     name: Build iOS (no codesign)

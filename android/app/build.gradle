@@ -30,6 +30,11 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+def keystoreStoreFile = keystoreProperties['storeFile'] != null
+        ? file(keystoreProperties['storeFile'])
+        : null
+def hasReleaseKeystore = keystoreStoreFile != null && keystoreStoreFile.exists()
+
 android {
     namespace "com.karatou.android"
     compileSdk 36
@@ -61,28 +66,23 @@ android {
     }
 
     signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-
+        if (hasReleaseKeystore) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreStoreFile
+                storePassword keystoreProperties['storePassword']
+            }
         }
-        debug {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-
-        }
+        // Do not override debug signing: without key.properties, CI and local dev need the
+        // default debug keystore (custom debug {} previously forced null storeFile and broke CI).
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.release
-            // signingConfig signingConfigs.release
+            // Production: key.properties + release keystore. Otherwise fall back to debug keystore
+            // so `flutter build apk --release` and CI still produce a signed APK.
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
