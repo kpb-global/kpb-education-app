@@ -76,14 +76,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
+      - name: Build APK (debug — no signing secrets on CI)
+        run: flutter build apk --debug --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-android
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-debug-android
+          path: build/app/outputs/flutter-apk/app-debug.apk
 
   build-ios:
     name: Build iOS (no codesign)
