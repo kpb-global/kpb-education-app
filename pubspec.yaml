@@ -101,6 +101,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+dependency_overrides:
+  # connectivity_plus 7.1.x uses NWPath.isUltraConstrained (iOS 18.4 SDK / Xcode 26.1.1).
+  # Pin to 6.x until CI runners ship that Xcode version.
+  connectivity_plus: ^6.1.0
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
