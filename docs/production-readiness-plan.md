@@ -78,10 +78,13 @@ This is the execution checklist used to move the app from feature-complete to pr
 ### Phase 5 artifacts
 - [`docs/analytics-event-contract.md`](analytics-event-contract.md), [`docs/observability-dashboards.md`](observability-dashboards.md).
 
-## Phase 6 - Performance & UX
-- Startup and screen render budget measurements.
-- Jank hotspot optimization.
-- Consistent loading/empty/error state quality.
+## Phase 6 - Performance & UX (Complete)
+- [x] Startup and screen render budget targets + measurement procedure — [`phase6-performance-ux.md`](phase6-performance-ux.md) §1–2.
+- [x] Jank hotspot hygiene (build-phase rules, lists, images, selective `RepaintBoundary`) — same doc §3.
+- [x] Consistent loading/empty/error patterns — documented canonical use of `KpbEmptyState`, `KpbErrorState`, `KpbSyncErrorBanner`, skeletons, and `AlwaysScrollableScrollPhysics` for refresh; Salon screens aligned as a reference for standalone API-driven flows.
+
+### Phase 6 artifacts
+- [`docs/phase6-performance-ux.md`](phase6-performance-ux.md) — budgets, DevTools workflow, UX state patterns, pre-release manual pass.
 
 ## Phase 7 - Test & CI Gates (In progress)
 - [ ] Unit/widget/integration coverage for critical paths (expand over time).

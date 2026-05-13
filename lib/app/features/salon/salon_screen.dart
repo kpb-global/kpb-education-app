@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/repositories/app_api_client.dart';
+import '../../core/ui/kpb_components.dart';
 
 /// Salon KPB Virtuel — annual 2-day in-app event (Phase 3).
 ///
@@ -73,35 +74,53 @@ class _SalonScreenState extends State<SalonScreen> {
     );
   }
 
+  static const _scrollPhysics =
+      AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics());
+
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return ListView(
+        physics: _scrollPhysics,
+        children: const [
+          SizedBox(height: 160),
+          Center(child: CircularProgressIndicator()),
+          SizedBox(height: 160),
+        ],
+      );
     }
     if (_error != null) {
       return ListView(
+        physics: _scrollPhysics,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(_error!, textAlign: TextAlign.center),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.65,
+            child: KpbErrorState(
+              title: 'Salon indisponible',
+              subtitle: _error!,
+              onRetry: _load,
+            ),
           ),
         ],
       );
     }
     if (_events.isEmpty) {
       return ListView(
-        children: const [
-          Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-              "Pas d'édition programmée pour l'instant. "
-              'Reviens bientôt — la prochaine édition sera annoncée dans les notifications.',
-              textAlign: TextAlign.center,
+        physics: _scrollPhysics,
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.65,
+            child: const KpbEmptyState(
+              icon: Icons.event_available_outlined,
+              title: 'Pas d\'édition programmée',
+              subtitle:
+                  'Reviens bientôt — la prochaine édition sera annoncée dans les notifications.',
             ),
           ),
         ],
       );
     }
     return ListView.separated(
+      physics: _scrollPhysics,
       padding: const EdgeInsets.all(16),
       itemCount: _events.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -216,6 +235,9 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
   Map<String, dynamic> _event = const {};
   Set<String> _registeredSessionIds = <String>{};
 
+  static const _scrollPhysics =
+      AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics());
+
   @override
   void initState() {
     super.initState();
@@ -288,14 +310,26 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return ListView(
+        physics: _scrollPhysics,
+        children: const [
+          SizedBox(height: 160),
+          Center(child: CircularProgressIndicator()),
+          SizedBox(height: 160),
+        ],
+      );
     }
     if (_error != null) {
       return ListView(
+        physics: _scrollPhysics,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(_error!, textAlign: TextAlign.center),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.65,
+            child: KpbErrorState(
+              title: 'Programme indisponible',
+              subtitle: _error!,
+              onRetry: _load,
+            ),
           ),
         ],
       );
@@ -304,18 +338,22 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
         .cast<Map<String, dynamic>>();
     if (sessions.isEmpty) {
       return ListView(
-        children: const [
-          Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-              "Le programme n'est pas encore publié. Reviens bientôt.",
-              textAlign: TextAlign.center,
+        physics: _scrollPhysics,
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.65,
+            child: const KpbEmptyState(
+              icon: Icons.schedule_outlined,
+              title: 'Programme à venir',
+              subtitle:
+                  "Le programme n'est pas encore publié. Reviens bientôt.",
             ),
           ),
         ],
       );
     }
     return ListView.separated(
+      physics: _scrollPhysics,
       padding: const EdgeInsets.all(16),
       itemCount: sessions.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
