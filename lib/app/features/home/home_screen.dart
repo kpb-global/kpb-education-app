@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -10,7 +11,7 @@ import '../cases/case_composer_sheet.dart';
 import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
 import '../orientation/orientation_screen.dart';
-import '../scholarships/scholarships_screen.dart';
+import '../saved/saved_screen.dart';
 import '../search/search_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +133,20 @@ class HomeScreen extends StatelessWidget {
                           size: 20, color: Colors.white),
                     ),
                     onPressed: () => Get.to(() => const SearchScreen()),
+                  ),
+                  // Saved items
+                  IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: KpbColors.glassBg,
+                        border: Border.all(color: KpbColors.glassBorder),
+                        borderRadius: KpbRadius.pillBr,
+                      ),
+                      child: const Icon(Icons.bookmark_border_rounded,
+                          size: 20, color: Colors.white),
+                    ),
+                    onPressed: () => Get.to(() => const SavedScreen()),
                   ),
                   // Profile
                   Padding(
@@ -272,7 +287,7 @@ class HomeScreen extends StatelessWidget {
                     title: 'scholarships_for_you'.tr,
                     actionLabel: 'Voir tout',
                     onAction: () =>
-                        Get.to(() => const ScholarshipsScreen()),
+                        Get.toNamed(AppRoutes.scholarships),
                     textColor: Colors.white,
                     itemCount: scholarships.length,
                     height: 160,
@@ -285,7 +300,7 @@ class HomeScreen extends StatelessWidget {
                         amount: controller.resolve(s.typeOfFunding),
                         matchScore: controller.scholarshipMatch(s),
                         onTap: () =>
-                            Get.to(() => const ScholarshipsScreen()),
+                            Get.toNamed(AppRoutes.scholarships),
                         width: 200,
                       );
                     },
@@ -865,7 +880,7 @@ class _QuickActions extends StatelessWidget {
         Icons.workspace_premium_outlined,
         'Bourses',
         KpbColors.gold,
-        () => Get.to(() => const ScholarshipsScreen()),
+        () => Get.toNamed(AppRoutes.scholarships),
       ),
       (
         Icons.folder_copy_outlined,
@@ -1087,7 +1102,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
           const SizedBox(width: 10),
           GestureDetector(
             onTap: () =>
-                Get.to(() => const ScholarshipsScreen()),
+                Get.toNamed(AppRoutes.scholarships),
             child: Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 8),

@@ -90,6 +90,9 @@ export default function ContentPage() {
     authorName: 'KPB Editorial',
     status: 'draft',
   });
+  const [editingOfferId, setEditingOfferId] = useState<string | null>(null);
+  const [editingDestinationId, setEditingDestinationId] = useState<string | null>(null);
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
 
   async function loadContent() {
     setErrorMessage(null);
@@ -122,28 +125,56 @@ export default function ContentPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/service-offers', {
-        method: 'POST',
-        body: {
-          name: { fr: offerForm.nameFr, en: offerForm.nameEn },
-          offerType: offerForm.offerType,
-          destinationIds: splitList(offerForm.destinationIds),
-          studyLevels: splitList(offerForm.studyLevels),
-          priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
-          benefits: {
-            fr: offerForm.benefitsFr
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean),
-            en: offerForm.benefitsEn
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean),
+      if (editingOfferId) {
+        await apiFetch(`/admin/service-offers/${editingOfferId}`, {
+          method: 'PATCH',
+          body: {
+            name: { fr: offerForm.nameFr, en: offerForm.nameEn },
+            offerType: offerForm.offerType,
+            destinationIds: splitList(offerForm.destinationIds),
+            studyLevels: splitList(offerForm.studyLevels),
+            priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
+            benefits: {
+              fr: offerForm.benefitsFr
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+              en: offerForm.benefitsEn
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            },
+            ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
+            status: offerForm.status,
           },
-          ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
-          status: offerForm.status,
-        },
-      });
+        });
+        setStatusMessage('Service offer updated successfully.');
+      } else {
+        await apiFetch('/admin/service-offers', {
+          method: 'POST',
+          body: {
+            name: { fr: offerForm.nameFr, en: offerForm.nameEn },
+            offerType: offerForm.offerType,
+            destinationIds: splitList(offerForm.destinationIds),
+            studyLevels: splitList(offerForm.studyLevels),
+            priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
+            benefits: {
+              fr: offerForm.benefitsFr
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+              en: offerForm.benefitsEn
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            },
+            ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
+            status: offerForm.status,
+          },
+        });
+        setStatusMessage('Service offer published to the operations catalog.');
+      }
+
       setOfferForm({
         nameFr: '',
         nameEn: '',
@@ -158,7 +189,7 @@ export default function ContentPage() {
         ctaEn: 'Learn more',
         status: 'draft',
       });
-      setStatusMessage('Service offer published to the operations catalog.');
+      setEditingOfferId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
@@ -173,31 +204,62 @@ export default function ContentPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/support-destinations', {
-        method: 'POST',
-        body: {
-          countryId: destinationForm.countryId,
-          countryName: {
-            fr: destinationForm.countryFr,
-            en: destinationForm.countryEn,
+      if (editingDestinationId) {
+        await apiFetch(`/admin/support-destinations/${editingDestinationId}`, {
+          method: 'PATCH',
+          body: {
+            countryId: destinationForm.countryId,
+            countryName: {
+              fr: destinationForm.countryFr,
+              en: destinationForm.countryEn,
+            },
+            supportLanguages: splitList(destinationForm.supportLanguages),
+            availableServiceTypes: splitList(destinationForm.serviceTypes),
+            conditions: {
+              fr: destinationForm.conditionsFr
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+              en: destinationForm.conditionsEn
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            },
+            counselorNames: splitList(destinationForm.counselors),
+            isVisible: destinationForm.isVisible,
+            status: destinationForm.status,
           },
-          supportLanguages: splitList(destinationForm.supportLanguages),
-          availableServiceTypes: splitList(destinationForm.serviceTypes),
-          conditions: {
-            fr: destinationForm.conditionsFr
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean),
-            en: destinationForm.conditionsEn
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean),
+        });
+        setStatusMessage('Support destination updated successfully.');
+      } else {
+        await apiFetch('/admin/support-destinations', {
+          method: 'POST',
+          body: {
+            countryId: destinationForm.countryId,
+            countryName: {
+              fr: destinationForm.countryFr,
+              en: destinationForm.countryEn,
+            },
+            supportLanguages: splitList(destinationForm.supportLanguages),
+            availableServiceTypes: splitList(destinationForm.serviceTypes),
+            conditions: {
+              fr: destinationForm.conditionsFr
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+              en: destinationForm.conditionsEn
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            },
+            counselorNames: splitList(destinationForm.counselors),
+            isVisible: destinationForm.isVisible,
+            status: destinationForm.status,
           },
-          counselorNames: splitList(destinationForm.counselors),
-          isVisible: destinationForm.isVisible,
-          status: destinationForm.status,
-        },
-      });
+        });
+        setStatusMessage('Support destination added successfully.');
+      }
+
       setDestinationForm({
         countryId: '',
         countryFr: '',
@@ -210,7 +272,7 @@ export default function ContentPage() {
         isVisible: true,
         status: 'draft',
       });
-      setStatusMessage('Support destination added successfully.');
+      setEditingDestinationId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
@@ -227,23 +289,46 @@ export default function ContentPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/articles', {
-        method: 'POST',
-        body: {
-          slug: articleForm.slug,
-          category: articleForm.category,
-          title: { fr: articleForm.titleFr, en: articleForm.titleEn },
-          summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
-          content: { fr: articleForm.contentFr, en: articleForm.contentEn },
-          tags: splitList(articleForm.tags),
-          authorName: articleForm.authorName,
-          status: articleForm.status,
-          publishedAt:
-            articleForm.status === 'published'
-              ? new Date().toISOString()
-              : null,
-        },
-      });
+      if (editingArticleId) {
+        await apiFetch(`/admin/articles/${editingArticleId}`, {
+          method: 'PATCH',
+          body: {
+            slug: articleForm.slug,
+            category: articleForm.category,
+            title: { fr: articleForm.titleFr, en: articleForm.titleEn },
+            summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
+            content: { fr: articleForm.contentFr, en: articleForm.contentEn },
+            tags: splitList(articleForm.tags),
+            authorName: articleForm.authorName,
+            status: articleForm.status,
+            publishedAt:
+              articleForm.status === 'published'
+                ? new Date().toISOString()
+                : null,
+          },
+        });
+        setStatusMessage('Article updated successfully.');
+      } else {
+        await apiFetch('/admin/articles', {
+          method: 'POST',
+          body: {
+            slug: articleForm.slug,
+            category: articleForm.category,
+            title: { fr: articleForm.titleFr, en: articleForm.titleEn },
+            summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
+            content: { fr: articleForm.contentFr, en: articleForm.contentEn },
+            tags: splitList(articleForm.tags),
+            authorName: articleForm.authorName,
+            status: articleForm.status,
+            publishedAt:
+              articleForm.status === 'published'
+                ? new Date().toISOString()
+                : null,
+          },
+        });
+        setStatusMessage('Article added to the editorial queue.');
+      }
+
       setArticleForm({
         slug: '',
         category: 'guides',
@@ -257,7 +342,7 @@ export default function ContentPage() {
         authorName: 'KPB Editorial',
         status: 'draft',
       });
-      setStatusMessage('Article added to the editorial queue.');
+      setEditingArticleId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
@@ -455,12 +540,64 @@ export default function ContentPage() {
               />
             </label>
             <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              Add service offer
+              {editingOfferId ? 'Update service offer' : 'Add service offer'}
             </button>
+            {editingOfferId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingOfferId(null);
+                  setOfferForm({
+                    nameFr: '',
+                    nameEn: '',
+                    offerType: 'consultation',
+                    destinationIds: '',
+                    studyLevels: '',
+                    priceFr: 'Sur devis',
+                    priceEn: 'Quoted on request',
+                    benefitsFr: '',
+                    benefitsEn: '',
+                    ctaFr: 'En savoir plus',
+                    ctaEn: 'Learn more',
+                    status: 'draft',
+                  });
+                }}
+                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
+              >
+                Cancel
+              </button>
+            )}
           </form>
           <div style={{ display: 'grid', gap: 12 }}>
             {serviceOffers.map((offer) => (
-              <div key={offer.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+              <div 
+                key={offer.id} 
+                onClick={() => {
+                  setEditingOfferId(offer.id);
+                  setOfferForm({
+                    nameFr: offer.name.fr,
+                    nameEn: offer.name.en,
+                    offerType: offer.offerType,
+                    destinationIds: offer.destinationIds.join(','),
+                    studyLevels: offer.studyLevels.join(','),
+                    priceFr: offer.priceLabel.fr,
+                    priceEn: offer.priceLabel.en,
+                    benefitsFr: 'fr' in (offer as any).benefits ? (offer as any).benefits.fr.join('\n') : '',
+                    benefitsEn: 'en' in (offer as any).benefits ? (offer as any).benefits.en.join('\n') : '',
+                    ctaFr: 'fr' in (offer as any).ctaLabel ? (offer as any).ctaLabel.fr : '',
+                    ctaEn: 'en' in (offer as any).ctaLabel ? (offer as any).ctaLabel.en : '',
+                    status: offer.status,
+                  });
+                }}
+                style={{ 
+                  borderTop: '1px solid #E2E8F0', 
+                  paddingTop: 12,
+                  cursor: 'pointer',
+                  background: editingOfferId === offer.id ? '#f1f5f9' : 'transparent',
+                  padding: '12px 8px',
+                  borderRadius: 8,
+                }}
+              >
                 <strong>{offer.name.fr}</strong>
                 <p style={{ margin: '6px 0' }}>
                   {offer.offerType} • {offer.destinationIds.join(', ') || 'global'}
@@ -619,14 +756,59 @@ export default function ContentPage() {
               />
             </label>
             <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              Add support destination
+              {editingDestinationId ? 'Update support destination' : 'Add support destination'}
             </button>
+            {editingDestinationId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingDestinationId(null);
+                  setDestinationForm({
+                    countryId: '',
+                    countryFr: '',
+                    countryEn: '',
+                    supportLanguages: 'fr,en',
+                    serviceTypes: 'consultation',
+                    conditionsFr: '',
+                    conditionsEn: '',
+                    counselors: '',
+                    isVisible: true,
+                    status: 'draft',
+                  });
+                }}
+                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
+              >
+                Cancel
+              </button>
+            )}
           </form>
           <div style={{ display: 'grid', gap: 12 }}>
             {supportDestinations.map((destination) => (
               <div
                 key={destination.id}
-                style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}
+                onClick={() => {
+                  setEditingDestinationId(destination.id);
+                  setDestinationForm({
+                    countryId: (destination as any).countryId || '',
+                    countryFr: destination.countryName.fr,
+                    countryEn: destination.countryName.en,
+                    supportLanguages: destination.supportLanguages.join(','),
+                    serviceTypes: destination.availableServiceTypes.join(','),
+                    conditionsFr: 'fr' in (destination as any).conditions ? (destination as any).conditions.fr.join('\n') : '',
+                    conditionsEn: 'en' in (destination as any).conditions ? (destination as any).conditions.en.join('\n') : '',
+                    counselors: destination.counselorNames.join(','),
+                    isVisible: destination.isVisible,
+                    status: destination.status,
+                  });
+                }}
+                style={{ 
+                  borderTop: '1px solid #E2E8F0', 
+                  paddingTop: 12,
+                  cursor: 'pointer',
+                  background: editingDestinationId === destination.id ? '#f1f5f9' : 'transparent',
+                  padding: '12px 8px',
+                  borderRadius: 8,
+                }}
               >
                 <strong>{destination.countryName.fr}</strong>
                 <p style={{ margin: '6px 0' }}>
@@ -801,12 +983,62 @@ export default function ContentPage() {
               </select>
             </label>
             <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              Add article
+              {editingArticleId ? 'Update article' : 'Add article'}
             </button>
+            {editingArticleId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingArticleId(null);
+                  setArticleForm({
+                    slug: '',
+                    category: 'guides',
+                    titleFr: '',
+                    titleEn: '',
+                    summaryFr: '',
+                    summaryEn: '',
+                    contentFr: '',
+                    contentEn: '',
+                    tags: '',
+                    authorName: 'KPB Editorial',
+                    status: 'draft',
+                  });
+                }}
+                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
+              >
+                Cancel
+              </button>
+            )}
           </form>
           <div style={{ display: 'grid', gap: 12 }}>
             {articles.map((article) => (
-              <div key={article.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+              <div 
+                key={article.id} 
+                onClick={() => {
+                  setEditingArticleId(article.id);
+                  setArticleForm({
+                    slug: (article as any).slug || '',
+                    category: article.category,
+                    titleFr: article.title.fr,
+                    titleEn: article.title.en,
+                    summaryFr: 'fr' in (article as any).summary ? (article as any).summary.fr : '',
+                    summaryEn: 'en' in (article as any).summary ? (article as any).summary.en : '',
+                    contentFr: 'fr' in (article as any).content ? (article as any).content.fr : '',
+                    contentEn: 'en' in (article as any).content ? (article as any).content.en : '',
+                    tags: (article as any).tags ? (article as any).tags.join(',') : '',
+                    authorName: article.authorName,
+                    status: article.status,
+                  });
+                }}
+                style={{ 
+                  borderTop: '1px solid #E2E8F0', 
+                  paddingTop: 12,
+                  cursor: 'pointer',
+                  background: editingArticleId === article.id ? '#f1f5f9' : 'transparent',
+                  padding: '12px 8px',
+                  borderRadius: 8,
+                }}
+              >
                 <strong>{article.title.fr}</strong>
                 <p style={{ margin: '6px 0' }}>
                   {article.category} • {article.authorName}

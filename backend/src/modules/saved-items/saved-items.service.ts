@@ -19,7 +19,7 @@ export class SavedItemsService {
     }
   }
 
-  async findAll(userId = 'demo-user') {
+  async findAll(userId: string) {
     this.assertDb();
     const items = await this.prismaService.execute((prisma) =>
       prisma.savedItem.findMany({
@@ -36,7 +36,7 @@ export class SavedItemsService {
     }));
   }
 
-  async create(input: CreateSavedItemDto, userId = 'demo-user') {
+  async create(input: CreateSavedItemDto, userId: string) {
     this.assertDb();
     const created = await this.prismaService.execute(async (prisma) => {
       const existing = await prisma.savedItem.findUnique({

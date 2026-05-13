@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/config/app_routes.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../explore/country_detail_screen.dart';
-import '../scholarships/scholarships_screen.dart';
 import 'match_explanation_sheet.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -76,7 +76,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Get.back();
       case SearchResultType.scholarship:
         Get.back();
-        Get.to(() => const ScholarshipsScreen());
+        Get.toNamed(AppRoutes.scholarships);
     }
   }
 

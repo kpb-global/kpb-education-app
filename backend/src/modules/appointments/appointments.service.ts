@@ -15,10 +15,13 @@ export class AppointmentsService {
     }
   }
 
-  async findAll() {
+  async findAll(userId: string) {
     this.assertDb();
     const items = await this.prismaService.execute((prisma) =>
-      prisma.appointment.findMany({ orderBy: { createdAt: 'desc' } }),
+      prisma.appointment.findMany({ 
+        where: { userId },
+        orderBy: { createdAt: 'desc' } 
+      }),
     );
     return (items ?? []).map((item) => ({
       id: item.id,
@@ -30,12 +33,12 @@ export class AppointmentsService {
     }));
   }
 
-  async create(input: CreateAppointmentDto) {
+  async create(input: CreateAppointmentDto, userId: string) {
     this.assertDb();
     const created = await this.prismaService.execute((prisma) =>
       prisma.appointment.create({
         data: {
-          userId: 'demo-user',
+          userId,
           caseId: input.caseId ?? null,
           title: input.title,
           goal: input.title,

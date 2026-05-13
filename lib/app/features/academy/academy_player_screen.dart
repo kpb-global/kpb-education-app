@@ -5,6 +5,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_theme_ext.dart';
 
 class AcademyPlayerScreen extends StatefulWidget {
   const AcademyPlayerScreen({
@@ -70,18 +71,19 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final ytController = _ytController;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (ytController == null) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: context.kpb.pageBg,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: const Center(
+        body: Center(
           child: Text(
-            'No lessons available',
-            style: TextStyle(color: Colors.white),
+            'Aucune session disponible',
+            style: KpbTextStyles.body.copyWith(color: context.kpb.textPrimary),
           ),
         ),
       );
@@ -94,100 +96,97 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
       player: YoutubePlayer(
         controller: ytController,
         showVideoProgressIndicator: true,
-        progressIndicatorColor: KpbColors.blue,
+        progressIndicatorColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
         onReady: () => ytController.addListener(() {}),
       ),
       builder: (context, player) {
         return Scaffold(
-          backgroundColor: Colors.black,
+          backgroundColor: context.kpb.pageBg,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Colors.black, // Keep video header black for cinematic feel
             elevation: 0,
-            title: const Text(
-              'Formation KPB',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            title: Text(
+              controller.resolve(widget.course.title),
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Video Player Area
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: player,
+              // Video Player Area - always on black background
+              Container(
+                color: Colors.black,
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: player,
+                ),
               ),
               
               // Lesson Info
-              Padding(
+              Container(
+                color: context.kpb.surfaceBg,
                 padding: const EdgeInsets.all(KpbSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       controller.resolve(currentLesson.title),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       'Session ${_currentIndex + 1} sur ${_lessons.length}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 13,
-                      ),
+                      style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
                     ),
                   ],
                 ),
               ),
               
-              const Divider(color: Colors.white10, height: 1),
+              Divider(color: context.kpb.gray100, height: 1),
               
               // Lessons List
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _lessons.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 1),
+                  separatorBuilder: (_, __) => Divider(color: context.kpb.gray100, height: 1, indent: 70),
                   itemBuilder: (context, index) {
                     final lesson = _lessons[index];
                     final isCurrent = index == _currentIndex;
+                    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
                     
                     return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg, vertical: 4),
                       onTap: () => _onLessonTap(index),
-                      tileColor: isCurrent ? KpbColors.blue.withValues(alpha: 0.1) : null,
+                      tileColor: isCurrent ? activeColor.withValues(alpha: 0.05) : Colors.transparent,
                       leading: Container(
-                        width: 40,
-                        height: 40,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
-                          color: isCurrent ? KpbColors.blue : Colors.white10,
+                          color: isCurrent ? activeColor : context.kpb.surfaceBg,
                           borderRadius: KpbRadius.mdBr,
+                          border: isCurrent ? null : Border.all(color: context.kpb.gray200),
                         ),
                         child: Center(
                           child: Icon(
-                            isCurrent ? Icons.play_arrow_rounded : Icons.lock_outline_rounded, // or play icon if purchased
-                            color: Colors.white,
-                            size: 20,
+                            isCurrent ? Icons.play_arrow_rounded : Icons.check_circle_outline_rounded,
+                            color: isCurrent ? Colors.white : context.kpb.gray400,
+                            size: 24,
                           ),
                         ),
                       ),
                       title: Text(
                         controller.resolve(lesson.title),
                         style: TextStyle(
-                          color: isCurrent ? Colors.white : Colors.white70,
+                          color: isCurrent ? activeColor : context.kpb.textPrimary,
                           fontSize: 15,
                           fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                       subtitle: Text(
                         '${(lesson.durationSeconds / 60).floor()} min',
-                        style: const TextStyle(
-                          color: Colors.white30,
-                          fontSize: 12,
-                        ),
+                        style: KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
                       ),
                     );
                   },

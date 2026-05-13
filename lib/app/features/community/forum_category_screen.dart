@@ -32,6 +32,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
@@ -44,8 +45,8 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 180,
-                backgroundColor: widget.accentColor,
+                expandedHeight: 200,
+                backgroundColor: isDark ? context.kpb.cardBg : widget.accentColor,
                 foregroundColor: Colors.white,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -56,7 +57,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     controller.resolve(widget.category.label),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   background: Container(
@@ -64,15 +65,17 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [widget.accentColor, widget.accentColor.withValues(alpha: 0.7)],
+                        colors: isDark 
+                           ? [widget.accentColor.withValues(alpha: 0.8), widget.accentColor.withValues(alpha: 0.3)]
+                           : [widget.accentColor, widget.accentColor.withValues(alpha: 0.7)],
                       ),
                     ),
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
                         child: Icon(widget.icon,
-                            size: 80, color: Colors.white.withValues(alpha: 0.20)),
+                            size: 96, color: Colors.white.withValues(alpha: 0.15)),
                       ),
                     ),
                   ),
@@ -87,12 +90,13 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     children: [
                       Text(
                         controller.resolve(widget.category.description),
-                        style: KpbTextStyles.body,
+                        style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary, height: 1.5),
                       ),
-                      const SizedBox(height: KpbSpacing.md),
+                      const SizedBox(height: KpbSpacing.xl),
                       _JoinCtaCard(
                         accent: widget.accentColor,
                         onWhatsApp: _launchWhatsApp,
+                        isDark: isDark,
                       ),
                     ],
                   ),
@@ -108,13 +112,13 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       Get.locale?.languageCode == 'en'
                           ? 'Filter by topic'
                           : 'Filtrer par sujet',
-                      style: KpbTextStyles.titleMd,
+                      style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
                     ),
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: SizedBox(
-                    height: 44,
+                    height: 48,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(
@@ -129,6 +133,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                                 : 'Tous',
                             selected: _selectedTag == null,
                             accent: widget.accentColor,
+                            isDark: isDark,
                             onTap: () => setState(() => _selectedTag = null),
                           );
                         }
@@ -137,6 +142,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                           label: controller.resolve(tag.label),
                           selected: _selectedTag == tag.id,
                           accent: widget.accentColor,
+                          isDark: isDark,
                           onTap: () =>
                               setState(() => _selectedTag = tag.id),
                         );
@@ -145,7 +151,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                   ),
                 ),
                 const SliverToBoxAdapter(
-                    child: SizedBox(height: KpbSpacing.md)),
+                    child: SizedBox(height: KpbSpacing.lg)),
               ],
 
               SliverToBoxAdapter(
@@ -156,7 +162,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     Get.locale?.languageCode == 'en'
                         ? 'Related articles'
                         : 'Articles liés',
-                    style: KpbTextStyles.titleMd,
+                    style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
                   ),
                 ),
               ),
@@ -169,13 +175,13 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       child: Column(
                         children: [
                           Icon(Icons.article_outlined,
-                              size: 40, color: context.kpb.gray300),
-                          const SizedBox(height: 8),
+                              size: 48, color: context.kpb.gray300),
+                          const SizedBox(height: 12),
                           Text(
                             Get.locale?.languageCode == 'en'
                                 ? 'No articles tagged yet. Join the WhatsApp group to ask questions.'
                                 : 'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
-                            style: KpbTextStyles.caption,
+                            style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -237,28 +243,35 @@ Future<void> _launchWhatsApp() async {
 }
 
 class _JoinCtaCard extends StatelessWidget {
-  const _JoinCtaCard({required this.accent, required this.onWhatsApp});
+  const _JoinCtaCard({required this.accent, required this.onWhatsApp, required this.isDark});
   final Color accent;
   final Future<void> Function() onWhatsApp;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return KpbCard(
-      padding: const EdgeInsets.all(16),
+    final resolvedAccent = isDark ? KpbColors.stitchCyberCyan : accent;
+    return Container(
+      padding: const EdgeInsets.all(KpbSpacing.lg),
+      decoration: BoxDecoration(
+        color: resolvedAccent.withValues(alpha: 0.10),
+        borderRadius: KpbRadius.xlBr,
+        border: Border.all(color: resolvedAccent.withValues(alpha: 0.2)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.10),
-                  borderRadius: KpbRadius.mdBr,
+                  color: resolvedAccent.withValues(alpha: 0.20),
+                  shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.forum_rounded, color: accent),
+                child: Icon(Icons.forum_rounded, color: resolvedAccent),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,36 +280,26 @@ class _JoinCtaCard extends StatelessWidget {
                       Get.locale?.languageCode == 'en'
                           ? 'Join the conversation'
                           : 'Rejoins la conversation',
-                      style: KpbTextStyles.titleMd,
+                      style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       Get.locale?.languageCode == 'en'
                           ? 'The in-app forum is launching soon. Connect on WhatsApp to discuss with other students and KPB counselors now.'
                           : "Le forum in-app arrive bientôt. Rejoins WhatsApp pour discuter avec d'autres étudiants et les conseillers KPB dès maintenant.",
-                      style: KpbTextStyles.caption,
+                      style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary, height: 1.4),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: onWhatsApp,
-              icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-              label: Text(
-                Get.locale?.languageCode == 'en'
-                    ? 'Open WhatsApp group'
-                    : 'Ouvrir le groupe WhatsApp',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: accent,
-                foregroundColor: Colors.white,
-              ),
-            ),
+          const SizedBox(height: 16),
+          KpbButton(
+            text: Get.locale?.languageCode == 'en' ? 'Open WhatsApp group' : 'Ouvrir le groupe WhatsApp',
+            onPressed: onWhatsApp,
+            bgColor: resolvedAccent,
+            icon: Icons.chat_bubble_rounded,
           ),
         ],
       ),
@@ -309,32 +312,37 @@ class _TagChip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.accent,
+    required this.isDark,
     required this.onTap,
   });
   final String label;
   final bool selected;
   final Color accent;
+  final bool isDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedAccent = isDark ? KpbColors.stitchCyberCyan : accent;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? accent : context.kpb.cardBg,
+          color: selected ? resolvedAccent : context.kpb.cardBg,
           borderRadius: KpbRadius.pillBr,
           border: Border.all(
-            color: selected ? accent : context.kpb.gray200,
+            color: selected ? resolvedAccent : context.kpb.gray200,
           ),
+          boxShadow: selected ? (isDark ? null : KpbShadow.soft) : null,
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
             color: selected ? Colors.white : context.kpb.textPrimary,
           ),
         ),
@@ -360,36 +368,37 @@ class _ArticleRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.10),
               borderRadius: KpbRadius.mdBr,
             ),
-            child: Icon(Icons.article_rounded, color: accent),
+            child: Icon(Icons.article_rounded, color: accent, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   controller.resolve(article.title),
-                  style: KpbTextStyles.titleMd,
+                  style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 Text(
                   controller.resolve(article.summary),
-                  style: KpbTextStyles.caption,
+                  style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          Icon(Icons.chevron_right_rounded, color: context.kpb.gray300),
+          const SizedBox(width: 8),
+          Icon(Icons.chevron_right_rounded, color: context.kpb.gray300, size: 22),
         ],
       ),
     );

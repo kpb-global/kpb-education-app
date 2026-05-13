@@ -999,7 +999,6 @@ class KpbDivider extends StatelessWidget {
   }
 }
 
-// ── Empty State ───────────────────────────────────────────────────────────────
 // ── Pull-to-refresh wrapper ───────────────────────────────────────────────────
 /// Wraps a scrollable child with a styled RefreshIndicator.
 class KpbRefresh extends StatelessWidget {
@@ -1096,9 +1095,9 @@ class KpbErrorState extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // KpbSyncErrorBanner — subtle top banner for connectivity issues
 //
-// Use when: catalog data is always available (MockCatalog) but remote
-// sync failed. User can still use the screen; banner informs them that
-// personalised data may be outdated.
+// Use when: cached catalog data is still available (so the screen renders)
+// but a live sync against the backend failed. The user can still browse;
+// the banner informs them that personalised or real-time data may be stale.
 // ─────────────────────────────────────────────────────────────────────────────
 class KpbSyncErrorBanner extends StatelessWidget {
   const KpbSyncErrorBanner({super.key, required this.onRetry});
@@ -1185,7 +1184,9 @@ class AdmissionMeter extends StatelessWidget {
               CircularProgressIndicator(
                 value: 1.0,
                 strokeWidth: strokeWidth,
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.06),
               ),
               CircularProgressIndicator(
                 value: value / 100,
@@ -1211,14 +1212,15 @@ class AdmissionMeter extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Staggered Slide Animation — Jobs Edition
+// Staggered Slide Animation
+// Correctly delays each item by index * delayMs before animating in.
 // ─────────────────────────────────────────────────────────────────────────────
-class StaggeredSlide extends StatelessWidget {
+class StaggeredSlide extends StatefulWidget {
   const StaggeredSlide({
-    super.key, 
-    required this.child, 
+    super.key,
+    required this.child,
     this.index = 0,
-    this.delayMs = 80,
+    this.delayMs = 70,
   });
 
   final Widget child;
@@ -1226,22 +1228,48 @@ class StaggeredSlide extends StatelessWidget {
   final int delayMs;
 
   @override
+  State<StaggeredSlide> createState() => _StaggeredSlideState();
+}
+
+class _StaggeredSlideState extends State<StaggeredSlide>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 550),
+    );
+    _opacity = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+
+    final delay = Duration(milliseconds: widget.index * widget.delayMs);
+    Future.delayed(delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeOutExpo,
-      tween: Tween(begin: 0.0, end: 1.0),
-      // Logic for staggered delay
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 30 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: child,
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
+      ),
     );
   }
 }
@@ -1262,6 +1290,7 @@ class KpbButton extends StatelessWidget {
     this.loading = false,
     this.backgroundColor,
     this.bgColor,
+    this.textColor,
   });
 
   final String? label;
@@ -1274,13 +1303,14 @@ class KpbButton extends StatelessWidget {
   final bool loading;
   final Color? backgroundColor;
   final Color? bgColor;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
     final effectiveLabel = label ?? text ?? '';
     final effectiveOnTap = onTap ?? onPressed;
     final effectiveBg = backgroundColor ?? bgColor ?? (secondary ? context.kpb.surfaceBg : KpbColors.blue);
-    final effectiveFg = secondary ? KpbColors.blue : Colors.white;
+    final effectiveFg = textColor ?? (secondary ? KpbColors.blue : Colors.white);
 
     Widget content = Row(
       mainAxisSize: MainAxisSize.min,

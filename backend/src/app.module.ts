@@ -30,6 +30,7 @@ import { NotificationsController } from './modules/notifications/notifications.c
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { FirebasePushService } from './modules/notifications/firebase-push.service';
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
+import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
 import { OrientationController } from './modules/orientation/orientation.controller';
 import { OrientationService } from './modules/orientation/orientation.service';
@@ -57,17 +58,10 @@ import { CinetpayAdapter } from './modules/payments/cinetpay.adapter';
 import { PaydunyaAdapter } from './modules/payments/paydunya.adapter';
 import { ParentLinksController } from './modules/parent-links/parent-links.controller';
 import { ParentLinksService } from './modules/parent-links/parent-links.service';
-import { AdminScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
+import { AdminScholarshipsController, ScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
 import { ScholarshipsIndexService } from './modules/scholarships-index/scholarships-index.service';
-import { AlgeriaScraper } from './modules/scholarships-index/scrapers/algeria.scraper';
-import { AufEiffelScraper } from './modules/scholarships-index/scrapers/auf-eiffel.scraper';
-import { BgmMarocScraper } from './modules/scholarships-index/scrapers/bgm-maroc.scraper';
-import { ChineseMofcomScraper } from './modules/scholarships-index/scrapers/chinese-mofcom.scraper';
-import { DaadScraper } from './modules/scholarships-index/scrapers/daad.scraper';
-import { RussianQuotaScraper } from './modules/scholarships-index/scrapers/russian-quota.scraper';
-import { TunisiaScraper } from './modules/scholarships-index/scrapers/tunisia.scraper';
-import { TurkiyeBurslariScraper } from './modules/scholarships-index/scrapers/turkiye-burslari.scraper';
-import { TurkiyeMevlanaScraper } from './modules/scholarships-index/scrapers/turkiye-mevlana.scraper';
+import { GreatYopScraper } from './modules/scholarships-index/scrapers/greatyop.scraper';
+import { MastereTnScraper } from './modules/scholarships-index/scrapers/mastereTn.scraper';
 import { VisaAvailabilityController } from './modules/visa-availability/visa-availability.controller';
 import { VisaAvailabilityService } from './modules/visa-availability/visa-availability.service';
 import {
@@ -93,13 +87,7 @@ import {
   SalonController,
 } from './modules/salon/salon.controller';
 import { SalonService } from './modules/salon/salon.service';
-import { CanadaAbidjanFetcher } from './modules/visa-availability/fetchers/canada-abidjan.fetcher';
-import { CanadaDakarFetcher } from './modules/visa-availability/fetchers/canada-dakar.fetcher';
-import { FranceAbidjanFetcher } from './modules/visa-availability/fetchers/france-abidjan.fetcher';
-import { FranceBamakoFetcher } from './modules/visa-availability/fetchers/france-bamako.fetcher';
-import { FranceCotonouFetcher } from './modules/visa-availability/fetchers/france-cotonou.fetcher';
-import { FranceDakarFetcher } from './modules/visa-availability/fetchers/france-dakar.fetcher';
-import { GermanyOuagadougouFetcher } from './modules/visa-availability/fetchers/germany-ouagadougou.fetcher';
+
 
 @Module({
   imports: [
@@ -143,6 +131,7 @@ import { GermanyOuagadougouFetcher } from './modules/visa-availability/fetchers/
     AdminPaymentsController,
     ParentLinksController,
     AdminScholarshipsController,
+    ScholarshipsController,
     VisaAvailabilityController,
     ServicePackagesController,
     MyPurchasesController,
@@ -173,6 +162,7 @@ import { GermanyOuagadougouFetcher } from './modules/visa-availability/fetchers/
     ContentService,
     FirebasePushService,
     CampaignExecutorService,
+    CampaignCronService,
     NotificationsService,
     OrientationService,
     PartnerLeadsService,
@@ -187,23 +177,9 @@ import { GermanyOuagadougouFetcher } from './modules/visa-availability/fetchers/
     PaydunyaAdapter,
     ParentLinksService,
     ScholarshipsIndexService,
-    BgmMarocScraper,
-    AufEiffelScraper,
-    DaadScraper,
-    TurkiyeBurslariScraper,
-    ChineseMofcomScraper,
-    RussianQuotaScraper,
-    TunisiaScraper,
-    AlgeriaScraper,
-    TurkiyeMevlanaScraper,
+    GreatYopScraper,
+    MastereTnScraper,
     VisaAvailabilityService,
-    CanadaAbidjanFetcher,
-    CanadaDakarFetcher,
-    FranceAbidjanFetcher,
-    FranceDakarFetcher,
-    FranceCotonouFetcher,
-    FranceBamakoFetcher,
-    GermanyOuagadougouFetcher,
     ServicePackagesService,
     AlumniService,
     PartnersService,

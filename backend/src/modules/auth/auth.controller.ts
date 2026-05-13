@@ -12,7 +12,18 @@ export class AuthController {
   @Post('login')
   @Throttle({ auth: { limit: 10, ttl: 60000 } })
   login(@Body() input: AdminLoginDto) {
-    return this.authService.login(input.email);
+    return this.authService.login(input.email, input.password);
+  }
+
+  @Post('refresh')
+  refresh(@Body() input: { refreshToken: string }) {
+    return this.authService.refresh(input.refreshToken);
+  }
+
+  @Post('set-password')
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
+  setPassword(@Body() input: { email: string; password: string }) {
+    return this.authService.setInitialPassword(input.email, input.password);
   }
 
   @Get('session')

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
@@ -9,6 +9,7 @@ import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
 import { CreateCaseTaskDto } from './dto/create-case-task.dto';
 import { CreateCaseTimelineEventDto } from './dto/create-case-timeline-event.dto';
+import { UpdateCaseDto } from './dto/update-case.dto';
 
 @Controller('admin/cases')
 @UseGuards(AdminAuthGuard, RolesGuard)
@@ -24,6 +25,11 @@ export class AdminCasesController {
   @Get()
   findAll() {
     return this.casesService.findAllForAdmin();
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() input: UpdateCaseDto) {
+    return this.casesService.update(id, input);
   }
 
   @Post(':id/assign')

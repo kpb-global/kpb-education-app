@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -9,11 +10,11 @@ import '../../core/ui/kpb_components.dart';
 import '../community/community_screen.dart';
 import '../legal/legal_pages.dart';
 import '../orientation/orientation_screen.dart';
-import '../scholarships/scholarships_screen.dart';
 import '../budget/budget_calculator_screen.dart';
 import '../travel/flight_estimator_screen.dart';
 import '../housing/housing_estimator_screen.dart';
 import '../parent/parent_dashboard_screen.dart';
+import '../saved/saved_screen.dart';
 import '../services/service_packages_screen.dart';
 import '../alumni/alumni_directory_screen.dart';
 import '../alumni/alumni_apply_screen.dart';
@@ -406,7 +407,15 @@ class ProfileScreen extends StatelessWidget {
                               label: 'Bourses disponibles',
                               color: KpbColors.gold,
                               onTap: () =>
-                                  Get.to(() => const ScholarshipsScreen()),
+                                  Get.toNamed(AppRoutes.scholarships),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.bookmark_outlined,
+                              label: 'Éléments sauvegardés',
+                              color: KpbColors.sky,
+                              onTap: () =>
+                                  Get.to(() => const SavedScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(

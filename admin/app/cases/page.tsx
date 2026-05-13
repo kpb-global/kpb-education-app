@@ -57,7 +57,14 @@ interface AdminCaseItem {
   timeline: CaseTimelineItem[];
 }
 
-const visibleStatuses = ['submitted', 'documents_needed', 'counselor_assigned', 'in_progress'];
+const visibleStatuses = ['submitted', 'documents_needed', 'counselor_assigned', 'in_progress', 'application_submitted', 'completed'];
+
+const allStatuses = [
+  'draft', 'submitted', 'under_review', 'documents_needed', 
+  'counselor_assigned', 'awaiting_student', 'scheduled', 
+  'in_progress', 'application_submitted', 'waiting_decision', 
+  'awaiting_payment', 'completed', 'rejected', 'cancelled'
+];
 
 export default function CasesPage() {
   const { session } = useAdminAuth();
@@ -82,6 +89,9 @@ export default function CasesPage() {
   });
   const [noteForm, setNoteForm] = useState({
     body: '',
+  });
+  const [statusForm, setStatusForm] = useState({
+    status: '',
   });
 
   async function loadCases() {
@@ -120,6 +130,9 @@ export default function CasesPage() {
       nextStepDescription: selectedCase.nextStepDescription,
       scheduledAt: '',
     });
+    setStatusForm({
+      status: selectedCase.status,
+    });
   }, [selectedCase]);
 
   async function submitAssignment(event: FormEvent<HTMLFormElement>) {
@@ -150,6 +163,30 @@ export default function CasesPage() {
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to assign case.',
+      );
+    }
+  }
+
+  async function submitStatus(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedCase) {
+      return;
+    }
+
+    setStatusMessage(null);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/cases/${selectedCase.id}`, {
+        method: 'PATCH',
+        body: {
+          status: statusForm.status,
+        },
+      });
+      setStatusMessage('Case status updated successfully.');
+      await loadCases();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to update case status.',
       );
     }
   }
@@ -318,6 +355,31 @@ export default function CasesPage() {
             </section>
 
             <div style={{ display: 'grid', gap: 18 }}>
+              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+                <h3 style={{ marginTop: 0 }}>Update Status</h3>
+                <form onSubmit={submitStatus} style={{ display: 'grid', gap: 12 }}>
+                  <label style={labelStyle}>
+                    Status
+                    <select
+                      value={statusForm.status}
+                      onChange={(event) =>
+                        setStatusForm({ status: event.target.value })
+                      }
+                      style={inputStyle}
+                    >
+                      {allStatuses.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replaceAll('_', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button type="submit" style={buttonStyle}>
+                    Update status
+                  </button>
+                </form>
+              </section>
+
               <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
                 <h3 style={{ marginTop: 0 }}>Assign counselor</h3>
                 <form onSubmit={submitAssignment} style={{ display: 'grid', gap: 12 }}>

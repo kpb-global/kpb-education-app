@@ -95,6 +95,28 @@ export class CampaignExecutorService {
       );
     }
 
+    if (campaign.channels.includes('email') && template) {
+      let emailDelivered = 0;
+      for (const user of recipients) {
+        if (!user.email) continue;
+        
+        const title = user.preferredLanguage === 'en' ? template.titleEn : template.titleFr;
+        const body = user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
+        
+        // TODO: Integrate actual email provider (e.g., SendGrid, AWS SES) here
+        this.logger.log(`[MOCK EMAIL] Sending to ${user.email}: Subject: "${title}" Body: "${body.substring(0, 30)}..."`);
+        emailDelivered += 1;
+      }
+
+      await this.prismaService.execute((prisma) =>
+        prisma.notificationDelivery.updateMany({
+          where: { campaignId, channel: 'email', status: 'queued' },
+          data: { status: 'delivered', deliveredAt: new Date() },
+        }),
+      );
+      this.logger.log(`Mock-delivered ${emailDelivered} emails for campaign ${campaignId}`);
+    }
+
     await this.prismaService.execute((prisma) =>
       prisma.notificationCampaign.update({
         where: { id: campaignId },

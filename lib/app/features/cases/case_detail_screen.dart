@@ -10,6 +10,7 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/services/document_upload_service.dart';
 import 'case_timeline_stepper.dart';
 
 // Fallback group link used when the case has no assigned advisor yet.
@@ -66,6 +67,62 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _promptUpload(String caseId, DocumentRequest doc) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded),
+                title: const Text('Prendre une photo'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final file = await DocumentUploadService.captureFromCamera();
+                  if (file != null) {
+                    _ctrl.uploadDocument(caseId, doc.id, file.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded),
+                title: const Text('Choisir de la galerie'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final file = await DocumentUploadService.pickFromGallery();
+                  if (file != null) {
+                    _ctrl.uploadDocument(caseId, doc.id, file.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf_rounded),
+                title: const Text('Choisir un fichier (PDF)'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  try {
+                    final file = await DocumentUploadService.pickPdf();
+                    if (file != null) {
+                      _ctrl.uploadDocument(caseId, doc.id, file.path);
+                    }
+                  } catch (e) {
+                    Get.snackbar(
+                      'Erreur',
+                      e.toString(),
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -358,8 +415,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                   ),
                                   if (!doc.isProvided)
                                     GestureDetector(
-                                      onTap: () => _ctrl
-                                          .markDocumentProvided(c.id, doc.id),
+                                      onTap: () => _promptUpload(c.id, doc),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),

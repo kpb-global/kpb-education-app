@@ -73,6 +73,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
     final now = DateTime.now();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
@@ -85,11 +86,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
         ),
         title: Text(
           'Calendrier deadlines',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: context.kpb.textPrimary,
-          ),
+          style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -151,34 +148,36 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                     KpbSpacing.pagePad,
                     KpbSpacing.lg,
                     KpbSpacing.pagePad,
-                    KpbSpacing.sm,
+                    KpbSpacing.md,
                   ),
-                  child: _StatsBanner(stats: stats),
+                  child: _StatsBanner(stats: stats, isDark: isDark),
                 ),
               ),
 
               // ── Filter chips ───────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, 0),
+                  padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
                   child: Row(
                     children: [
                       _FilterChip(
                         label: 'Toutes',
                         active: _filter == _DeadlineFilter.all,
+                        isDark: isDark,
                         onTap: () => setState(() => _filter = _DeadlineFilter.all),
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
                         label: 'Sauvegardées',
                         active: _filter == _DeadlineFilter.saved,
+                        isDark: isDark,
                         onTap: () => setState(() => _filter = _DeadlineFilter.saved),
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
                         label: 'À venir',
                         active: _filter == _DeadlineFilter.upcoming,
+                        isDark: isDark,
                         onTap: () => setState(() => _filter = _DeadlineFilter.upcoming),
                       ),
                     ],
@@ -189,10 +188,13 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
               // ── Empty state ─────────────────────────────────────────────
               if (filtered.isEmpty)
                 const SliverFillRemaining(
-                  child: KpbEmptyState(
-                    icon: Icons.event_busy_outlined,
-                    title: 'Aucune deadline',
-                    subtitle: 'Sauvegardez des bourses pour les suivre ici.',
+                  hasScrollBody: false,
+                  child: Center(
+                    child: KpbEmptyState(
+                      icon: Icons.event_busy_outlined,
+                      title: 'Aucune deadline',
+                      subtitle: 'Sauvegardez des éléments pour les suivre ici.',
+                    ),
                   ),
                 )
               else
@@ -200,7 +202,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(
                     KpbSpacing.pagePad,
-                    KpbSpacing.md,
+                    KpbSpacing.lg,
                     KpbSpacing.pagePad,
                     100,
                   ),
@@ -215,6 +217,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                           entries: groupEntries,
                           controller: controller,
                           now: now,
+                          isDark: isDark,
                         );
                       },
                       childCount: grouped.length,
@@ -245,19 +248,26 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
 // Stats banner
 // ─────────────────────────────────────────────────────────────────────────────
 class _StatsBanner extends StatelessWidget {
-  const _StatsBanner({required this.stats});
+  const _StatsBanner({required this.stats, required this.isDark});
   final Map<String, int> stats;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return KpbCard(
-      padding: const EdgeInsets.all(KpbSpacing.md),
+    return Container(
+      padding: const EdgeInsets.all(KpbSpacing.lg),
+      decoration: BoxDecoration(
+        color: context.kpb.cardBg,
+        borderRadius: KpbRadius.xlBr,
+        border: Border.all(color: context.kpb.gray100),
+        boxShadow: KpbShadow.soft,
+      ),
       child: Row(
         children: [
           _StatItem(
             count: stats['upcoming']!,
             label: 'À venir',
-            color: KpbColors.blue,
+            color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
             icon: Icons.upcoming_outlined,
           ),
           _StatDivider(),
@@ -271,7 +281,7 @@ class _StatsBanner extends StatelessWidget {
           _StatItem(
             count: stats['expired']!,
             label: 'Passées',
-            color: context.kpb.gray400,
+            color: context.kpb.textMuted,
             icon: Icons.event_busy_outlined,
           ),
         ],
@@ -297,17 +307,24 @@ class _StatItem extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(height: 8),
           Text(
             '$count',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
               color: color,
             ),
           ),
-          Text(label, style: KpbTextStyles.caption, textAlign: TextAlign.center),
+          Text(label, style: KpbTextStyles.labelSm.copyWith(color: context.kpb.textSecondary), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -319,8 +336,9 @@ class _StatDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 1,
-      height: 48,
+      height: 50,
       color: context.kpb.gray100,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
     );
   }
 }
@@ -332,31 +350,33 @@ class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,
     required this.active,
+    required this.isDark,
     required this.onTap,
   });
   final String label;
   final bool active;
+  final bool isDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? KpbColors.blue : context.kpb.cardBg,
+          color: active ? activeColor : context.kpb.cardBg,
           borderRadius: KpbRadius.pillBr,
-          boxShadow: active ? null : KpbShadow.soft,
-          border: active
-              ? null
-              : Border.all(color: context.kpb.gray200),
+          border: Border.all(color: active ? activeColor : context.kpb.gray200),
+          boxShadow: active ? (isDark ? null : KpbShadow.soft) : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w600,
             color: active ? Colors.white : context.kpb.textSecondary,
           ),
         ),
@@ -374,11 +394,13 @@ class _MonthGroup extends StatelessWidget {
     required this.entries,
     required this.controller,
     required this.now,
+    required this.isDark,
   });
   final String monthLabel;
   final List<_DeadlineEntry> entries;
   final AppController controller;
   final DateTime now;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -387,30 +409,28 @@ class _MonthGroup extends StatelessWidget {
       children: [
         // Month header
         Padding(
-          padding: const EdgeInsets.only(bottom: KpbSpacing.sm, top: KpbSpacing.sm),
+          padding: const EdgeInsets.only(bottom: KpbSpacing.md, top: KpbSpacing.sm),
           child: Row(
             children: [
               Container(
                 width: 4,
                 height: 16,
-                decoration: const BoxDecoration(
-                  color: KpbColors.blue,
+                decoration: BoxDecoration(
+                  color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
                   borderRadius: KpbRadius.pillBr,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
-                monthLabel,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                monthLabel.toUpperCase(),
+                style: KpbTextStyles.label.copyWith(
                   color: context.kpb.textSecondary,
-                  letterSpacing: 0.3,
+                  letterSpacing: 1.0,
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: context.kpb.surfaceBg,
                   borderRadius: KpbRadius.pillBr,
@@ -419,7 +439,7 @@ class _MonthGroup extends StatelessWidget {
                   '${entries.length}',
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: context.kpb.textMuted,
                   ),
                 ),
@@ -427,8 +447,12 @@ class _MonthGroup extends StatelessWidget {
             ],
           ),
         ),
-        KpbCard(
-          padding: EdgeInsets.zero,
+        Container(
+          decoration: BoxDecoration(
+            color: context.kpb.cardBg,
+            borderRadius: KpbRadius.lgBr,
+            border: Border.all(color: context.kpb.gray100),
+          ),
           child: Column(
             children: entries.asMap().entries.map((e) {
               final i = e.key;
@@ -451,7 +475,7 @@ class _MonthGroup extends StatelessWidget {
             }).toList(),
           ),
         ),
-        const SizedBox(height: KpbSpacing.md),
+        const SizedBox(height: KpbSpacing.xl),
       ],
     );
   }
@@ -485,76 +509,83 @@ class _DeadlineTile extends StatelessWidget {
     final funding = controller.resolve(scholarship.typeOfFunding);
     final deadlineText = controller.resolve(scholarship.deadlineLabel);
     final status = _status;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: () => showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => CaseComposerSheet(
-          caseType: CaseType.scholarshipSupport,
-          title: name,
-          contextLabel: funding,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: KpbRadius.lgBr,
+        onTap: () => showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => CaseComposerSheet(
+            caseType: CaseType.scholarshipSupport,
+            title: name,
+            contextLabel: funding,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: KpbSpacing.md, vertical: 12),
-        child: Row(
-          children: [
-            // Status indicator
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: status.bgColor(context),
-                borderRadius: KpbRadius.mdBr,
-              ),
-              child: Center(
-                child: Text(
-                  _flags[scholarship.countryId] ?? '🌍',
-                  style: const TextStyle(fontSize: 20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: KpbSpacing.lg, vertical: KpbSpacing.md),
+          child: Row(
+            children: [
+              // Status indicator
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: status.bgColor(context, isDark),
+                  borderRadius: KpbRadius.mdBr,
+                  border: Border.all(color: status.borderColor(context, isDark)),
+                ),
+                child: Center(
+                  child: Text(
+                    _flags[scholarship.countryId] ?? '🌍',
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: KpbTextStyles.titleMd, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  Text(funding, style: KpbTextStyles.caption, maxLines: 1),
-                ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text(funding, style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: status.bgColor(context),
-                    borderRadius: KpbRadius.pillBr,
-                  ),
-                  child: Text(
-                    status.label(entry.deadline, now),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: status.textColor(context),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: status.bgColor(context, isDark),
+                      borderRadius: KpbRadius.pillBr,
+                    ),
+                    child: Text(
+                      status.label(entry.deadline, now),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: status.textColor(context, isDark),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  deadlineText,
-                  style: KpbTextStyles.caption,
-                  maxLines: 1,
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 6),
+                  Text(
+                    deadlineText,
+                    style: KpbTextStyles.labelSm.copyWith(color: context.kpb.textSecondary),
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -567,27 +598,40 @@ class _DeadlineTile extends StatelessWidget {
 enum _DeadlineStatus { expired, urgent, upcoming, unknown }
 
 extension _DeadlineStatusExt on _DeadlineStatus {
-  Color bgColor(BuildContext context) {
+  Color bgColor(BuildContext context, bool isDark) {
+    switch (this) {
+      case _DeadlineStatus.expired:
+        return context.kpb.surfaceBg;
+      case _DeadlineStatus.urgent:
+        return KpbColors.warning.withValues(alpha: 0.15);
+      case _DeadlineStatus.upcoming:
+        return (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.1);
+      case _DeadlineStatus.unknown:
+        return context.kpb.surfaceBg;
+    }
+  }
+
+  Color borderColor(BuildContext context, bool isDark) {
     switch (this) {
       case _DeadlineStatus.expired:
         return context.kpb.gray100;
       case _DeadlineStatus.urgent:
-        return KpbColors.warningLight;
+        return KpbColors.warning.withValues(alpha: 0.3);
       case _DeadlineStatus.upcoming:
-        return KpbColors.skyLight;
+        return (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.2);
       case _DeadlineStatus.unknown:
-        return KpbColors.bgMuted;
+        return context.kpb.gray100;
     }
   }
 
-  Color textColor(BuildContext context) {
+  Color textColor(BuildContext context, bool isDark) {
     switch (this) {
       case _DeadlineStatus.expired:
-        return context.kpb.gray400;
+        return context.kpb.textMuted;
       case _DeadlineStatus.urgent:
         return KpbColors.warning;
       case _DeadlineStatus.upcoming:
-        return KpbColors.blue;
+        return isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
       case _DeadlineStatus.unknown:
         return context.kpb.textMuted;
     }

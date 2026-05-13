@@ -90,6 +90,33 @@ class AppApiClient {
     return (data['items'] as List<dynamic>? ?? <dynamic>[]);
   }
 
+  /// Fetch live scraped scholarships, filtered and scored by the user's profile.
+  Future<List<dynamic>> fetchLiveScholarships({
+    required String lang,
+    String? level,
+    List<String>? fieldIds,
+    String? countryId,
+    String? fundingType,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'lang': lang,
+      'limit': limit,
+      'offset': offset,
+      if (level != null) 'level': level,
+      if (fieldIds != null && fieldIds.isNotEmpty) 'fields': fieldIds.join(','),
+      if (countryId != null) 'countryId': countryId,
+      if (fundingType != null) 'fundingType': fundingType,
+    };
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/scholarships',
+      queryParameters: queryParams,
+    );
+    final data = response.data ?? <String, dynamic>{};
+    return (data['items'] as List<dynamic>? ?? <dynamic>[]);
+  }
+
   Future<List<dynamic>> listContent(String resource) async {
     final response = await _dio.get<Map<String, dynamic>>('/content/$resource');
     final data = response.data ?? <String, dynamic>{};

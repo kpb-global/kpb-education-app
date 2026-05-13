@@ -11,6 +11,7 @@ export default function LoginPage() {
   const { isReady, login, session } = useAdminAuth();
   const { t } = useLocale();
   const [email, setEmail] = useState('fatou@kpb.education');
+  const [password, setPassword] = useState('password');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,7 +27,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(email);
+      await login(email, password);
       router.replace('/');
     } catch (submissionError) {
       setError(
@@ -73,6 +74,21 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="fatou@kpb.education"
+              style={{
+                border: '1px solid #CBD5E1',
+                borderRadius: 14,
+                padding: '13px 14px',
+                fontSize: 15,
+              }}
+            />
+          </label>
+          <label style={{ display: 'grid', gap: 8 }}>
+            <span style={{ fontWeight: 600 }}>Password</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
               style={{
                 border: '1px solid #CBD5E1',
                 borderRadius: 14,

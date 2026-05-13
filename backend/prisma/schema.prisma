@@ -74,6 +74,12 @@ enum VisaAvailabilityStatus {
   error
 }
 
+enum FundingType {
+  fully_funded
+  partially_funded
+  unknown
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Phase 3 — Value proposition enums
 // ─────────────────────────────────────────────────────────────────────────────
@@ -363,6 +369,8 @@ model AdminUser {
   id            String       @id @default(cuid())
   fullName      String
   email         String       @unique
+  passwordHash  String?
+  refreshToken  String?
   role          InternalRole
   isActive      Boolean      @default(true)
   languageScope String[]
@@ -600,20 +608,29 @@ model Scholarship {
   nameFr            String
   nameEn            String
   countryId         String
+  countryNameFr     String         @default("")
+  countryNameEn     String         @default("")
   levelEligibleFr   String
   levelEligibleEn   String
   typeOfFundingFr   String
   typeOfFundingEn   String
+  fundingType       FundingType    @default(unknown)
   deadlineLabelFr   String
   deadlineLabelEn   String
+  descriptionFr     String         @default("")
+  descriptionEn     String         @default("")
+  advantagesFr      String[]       @default([])
+  advantagesEn      String[]       @default([])
+  eligibilityFr     String[]       @default([])
+  eligibilityEn     String[]       @default([])
   keyRequirementsFr String[]
   keyRequirementsEn String[]
   relatedFieldIds   String[]
   baseMatch         Int            @default(30)
   academyCourseId   String?
   // ── Live-index fields (Track A1) ────────────────────────────────────────
-  // Populated by the weekly refresh job; null for legacy seed data.
-  sourceKey         String?        @unique // e.g. "bgm-maroc-2026", "auf-eiffel-2026"
+  // Populated by the 48h refresh job; null for legacy seed data.
+  sourceKey         String?        @unique // e.g. "greatyop-ajinomoto-2026"
   sourceUrl         String?
   applicationUrl    String?
   deadlineAt        DateTime?
@@ -627,6 +644,7 @@ model Scholarship {
   @@index([countryId])
   @@index([deadlineAt])
   @@index([isActive])
+  @@index([fundingType])
 }
 
 model AcademyCourse {

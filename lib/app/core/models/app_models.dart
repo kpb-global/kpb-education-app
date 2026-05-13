@@ -568,6 +568,67 @@ class ScholarshipModel {
       };
 }
 
+/// Scraped scholarship from the live index (GreatYop + Mastere.tn).
+/// This is a separate model from [ScholarshipModel] which is the curated,
+/// seed-based catalog. Live scholarships come from the /scholarships endpoint.
+class LiveScholarshipModel {
+  const LiveScholarshipModel({
+    required this.id,
+    required this.title,
+    required this.countryName,
+    required this.fundingType,
+    required this.description,
+    required this.advantages,
+    required this.eligibility,
+    required this.level,
+    required this.deadlineLabel,
+    this.deadlineAt,
+    required this.applicationUrl,
+    this.sourceUrl,
+    required this.tags,
+    required this.matchScore,
+  });
+
+  final String id;
+  final String title;
+  final String countryName;
+  final String fundingType; // 'fully_funded' | 'partially_funded' | 'unknown'
+  final String description;
+  final List<String> advantages;
+  final List<String> eligibility;
+  final String level;
+  final String deadlineLabel;
+  final DateTime? deadlineAt;
+  final String applicationUrl;
+  final String? sourceUrl;
+  final List<String> tags;
+  final int matchScore;
+
+  bool get isFullyFunded => fundingType == 'fully_funded';
+  bool get isPartiallyFunded => fundingType == 'partially_funded';
+
+  factory LiveScholarshipModel.fromJson(Map<String, dynamic> json) {
+    return LiveScholarshipModel(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      countryName: json['countryName'] as String? ?? '',
+      fundingType: json['fundingType'] as String? ?? 'unknown',
+      description: json['description'] as String? ?? '',
+      advantages: (json['advantages'] as List<dynamic>?)?.cast<String>() ?? [],
+      eligibility: (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
+      level: json['level'] as String? ?? '',
+      deadlineLabel: json['deadlineLabel'] as String? ?? '',
+      deadlineAt: json['deadlineAt'] != null
+          ? DateTime.tryParse(json['deadlineAt'] as String)
+          : null,
+      applicationUrl: json['applicationUrl'] as String? ?? '',
+      sourceUrl: json['sourceUrl'] as String?,
+      tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
+      matchScore: json['matchScore'] as int? ?? 0,
+    );
+  }
+}
+
 class AcademyCourseModel {
   const AcademyCourseModel({
     required this.id,

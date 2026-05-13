@@ -187,15 +187,14 @@ class AppController extends GetxController {
     profile = newProfile;
     localeCode = newProfile.preferredLanguage;
     hasCompletedOnboarding = true;
-    _cases
-      ..clear()
-      ..addAll(newProfile.accountType == AccountType.student
-          ? MockCatalog.starterCases()
-          : <StudentCase>[]);
+    _cases.clear();
     _profileNeedsPush = true;
     unawaited(_pushProfileUpdate());
     _persist();
     update();
+    if (AppConfig.enableRemoteSync) {
+      unawaited(syncRemoteData(silent: true));
+    }
   }
 
   void setThemeMode(ThemeMode mode) {
@@ -627,7 +626,7 @@ class AppController extends GetxController {
     }
   }
 
-  void markDocumentProvided(String caseId, String documentId) {
+  void uploadDocument(String caseId, String documentId, String filePath) {
     final index = _cases.indexWhere((item) => item.id == caseId);
     if (index < 0) return;
     final caseItem = _cases[index];
@@ -642,7 +641,7 @@ class AppController extends GetxController {
     update();
     final document = updatedDocs.firstWhereOrNull((item) => item.id == documentId);
     if (document != null) {
-      unawaited(_uploadRemoteCaseDocument(caseId, document));
+      unawaited(_uploadRemoteCaseDocument(caseId, document, filePath));
     }
   }
 
@@ -1022,12 +1021,15 @@ class AppController extends GetxController {
   Future<void> _uploadRemoteCaseDocument(
     String caseId,
     DocumentRequest document,
+    String filePath,
   ) async {
     if (!AppConfig.enableRemoteSync) return;
     try {
-      await _apiClient.uploadCaseDocument(caseId, <String, dynamic>{
-        'title': resolve(document.title),
-      });
+      await _apiClient.uploadCaseDocumentFile(
+        caseId: caseId,
+        filePath: filePath,
+        title: resolve(document.title),
+      );
       final response = await _apiClient.getCase(caseId);
       _upsertCase(CaseApiCodec.studentCaseFromApi(response));
       _persist();

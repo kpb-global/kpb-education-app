@@ -53,10 +53,10 @@ export function clearStoredSession() {
   }
 }
 
-export async function loginAdmin(email: string): Promise<AdminSession> {
+export async function loginAdmin(email: string, password?: string): Promise<AdminSession> {
   return apiFetch<AdminSession>('/auth/admin/login', {
     method: 'POST',
-    body: { email },
+    body: { email, password },
   });
 }
 

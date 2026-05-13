@@ -64,6 +64,26 @@ export class AdminUsersService {
     );
   }
 
+  async findActiveUserByEmailWithCredentials(email: string) {
+    return this.prismaService.execute((prisma) =>
+      prisma.adminUser.findFirst({
+        where: {
+          email: { equals: email, mode: 'insensitive' },
+          isActive: true,
+        },
+      }),
+    );
+  }
+
+  async updateRefreshToken(id: string, refreshToken: string | null) {
+    return this.prismaService.execute((prisma) =>
+      prisma.adminUser.update({
+        where: { id },
+        data: { refreshToken },
+      }),
+    );
+  }
+
   async createUser(input: Record<string, unknown>) {
     const record: AdminUserRecord = {
       id: `admin-user-${Date.now()}`,
@@ -86,6 +106,7 @@ export class AdminUsersService {
           isActive: record.isActive,
           languageScope: record.languageScope,
           workload: record.workload,
+          ...(input['passwordHash'] ? { passwordHash: input['passwordHash'] as string } : {}),
         },
       }),
     );

@@ -20,7 +20,7 @@ import {
 interface AdminAuthContextValue {
   isReady: boolean;
   session: AdminSession | null;
-  login: (email: string) => Promise<AdminSession>;
+  login: (email: string, password?: string) => Promise<AdminSession>;
   logout: () => void;
 }
 
@@ -72,8 +72,8 @@ export function AdminAuthProvider({
     () => ({
       isReady,
       session,
-      async login(email: string) {
-        const nextSession = await loginAdmin(email);
+      async login(email: string, password?: string) {
+        const nextSession = await loginAdmin(email, password);
         storeSession(nextSession);
         setSession(nextSession);
         return nextSession;

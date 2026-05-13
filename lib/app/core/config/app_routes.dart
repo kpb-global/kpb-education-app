@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
+import '../../features/scholarships/live_scholarships_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/shell/app_shell.dart';
 
@@ -12,6 +13,7 @@ import '../../features/shell/app_shell.dart';
 class AppRoutes {
   static const String home = '/';
   static const String search = '/search';
+  static const String scholarships = '/scholarships';
   /// Intentionally not under `/cases/...` so it never collides with `/cases/:id` (e.g. id "create").
   static const String caseCreate = '/new-case';
   static const String caseDetail = '/cases/:id';
@@ -38,7 +40,7 @@ class AppRoutes {
       return '/cases/$caseId';
     }
 
-    const known = <String>{home, search, caseCreate};
+    const known = <String>{home, search, caseCreate, scholarships};
     if (known.contains(route)) return route;
     return null;
   }
@@ -51,6 +53,10 @@ class AppRoutes {
     GetPage(
       name: search,
       page: () => const SearchScreen(),
+    ),
+    GetPage(
+      name: scholarships,
+      page: () => const LiveScholarshipsScreen(),
     ),
     GetPage(
       name: caseCreate,

@@ -62,6 +62,8 @@ export default function CommunityPage() {
     displayOrder: '1',
     status: 'draft',
   });
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingTagId, setEditingTagId] = useState<string | null>(null);
 
   async function loadCommunity() {
     setErrorMessage(null);
@@ -92,18 +94,36 @@ export default function CommunityPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/forum-categories', {
-        method: 'POST',
-        body: {
-          label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
-          description: {
-            fr: categoryForm.descriptionFr,
-            en: categoryForm.descriptionEn,
+      if (editingCategoryId) {
+        await apiFetch(`/admin/forum-categories/${editingCategoryId}`, {
+          method: 'PATCH',
+          body: {
+            label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
+            description: {
+              fr: categoryForm.descriptionFr,
+              en: categoryForm.descriptionEn,
+            },
+            displayOrder: Number(categoryForm.displayOrder),
+            status: categoryForm.status,
           },
-          displayOrder: Number(categoryForm.displayOrder),
-          status: categoryForm.status,
-        },
-      });
+        });
+        setStatusMessage('Forum category updated successfully.');
+      } else {
+        await apiFetch('/admin/forum-categories', {
+          method: 'POST',
+          body: {
+            label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
+            description: {
+              fr: categoryForm.descriptionFr,
+              en: categoryForm.descriptionEn,
+            },
+            displayOrder: Number(categoryForm.displayOrder),
+            status: categoryForm.status,
+          },
+        });
+        setStatusMessage('Forum category created successfully.');
+      }
+
       setCategoryForm({
         labelFr: '',
         labelEn: '',
@@ -112,7 +132,7 @@ export default function CommunityPage() {
         displayOrder: '1',
         status: 'draft',
       });
-      setStatusMessage('Forum category created successfully.');
+      setEditingCategoryId(null);
       await loadCommunity();
     } catch (error) {
       setErrorMessage(
@@ -127,15 +147,30 @@ export default function CommunityPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/forum-tags', {
-        method: 'POST',
-        body: {
-          label: { fr: tagForm.labelFr, en: tagForm.labelEn },
-          description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
-          displayOrder: Number(tagForm.displayOrder),
-          status: tagForm.status,
-        },
-      });
+      if (editingTagId) {
+        await apiFetch(`/admin/forum-tags/${editingTagId}`, {
+          method: 'PATCH',
+          body: {
+            label: { fr: tagForm.labelFr, en: tagForm.labelEn },
+            description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
+            displayOrder: Number(tagForm.displayOrder),
+            status: tagForm.status,
+          },
+        });
+        setStatusMessage('Forum topic tag updated successfully.');
+      } else {
+        await apiFetch('/admin/forum-tags', {
+          method: 'POST',
+          body: {
+            label: { fr: tagForm.labelFr, en: tagForm.labelEn },
+            description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
+            displayOrder: Number(tagForm.displayOrder),
+            status: tagForm.status,
+          },
+        });
+        setStatusMessage('Forum topic tag created successfully.');
+      }
+
       setTagForm({
         labelFr: '',
         labelEn: '',
@@ -144,7 +179,7 @@ export default function CommunityPage() {
         displayOrder: '1',
         status: 'draft',
       });
-      setStatusMessage('Forum topic tag created successfully.');
+      setEditingTagId(null);
       await loadCommunity();
     } catch (error) {
       setErrorMessage(
@@ -261,12 +296,52 @@ export default function CommunityPage() {
                 </label>
               </div>
               <button type="submit" style={buttonStyle}>
-                Add category
+                {editingCategoryId ? 'Update category' : 'Add category'}
               </button>
+              {editingCategoryId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCategoryId(null);
+                    setCategoryForm({
+                      labelFr: '',
+                      labelEn: '',
+                      descriptionFr: '',
+                      descriptionEn: '',
+                      displayOrder: '1',
+                      status: 'draft',
+                    });
+                  }}
+                  style={{ ...buttonStyle, background: '#64748b' }}
+                >
+                  Cancel
+                </button>
+              )}
             </form>
             <div style={{ display: 'grid', gap: 12 }}>
               {forumCategories.map((category) => (
-                <div key={category.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                <div 
+                  key={category.id} 
+                  onClick={() => {
+                    setEditingCategoryId(category.id);
+                    setCategoryForm({
+                      labelFr: category.label.fr,
+                      labelEn: category.label.en,
+                      descriptionFr: category.description.fr,
+                      descriptionEn: category.description.en,
+                      displayOrder: String(category.displayOrder),
+                      status: category.status,
+                    });
+                  }}
+                  style={{ 
+                    borderTop: '1px solid #E2E8F0', 
+                    paddingTop: 12,
+                    cursor: 'pointer',
+                    background: editingCategoryId === category.id ? '#f1f5f9' : 'transparent',
+                    padding: '12px 8px',
+                    borderRadius: 8,
+                  }}
+                >
                   <strong>{category.label.fr}</strong>
                   <p style={{ margin: '6px 0' }}>{category.description.fr}</p>
                   <span style={badgeStyle}>
@@ -370,12 +445,52 @@ export default function CommunityPage() {
                 </label>
               </div>
               <button type="submit" style={buttonStyle}>
-                Add topic tag
+                {editingTagId ? 'Update topic tag' : 'Add topic tag'}
               </button>
+              {editingTagId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingTagId(null);
+                    setTagForm({
+                      labelFr: '',
+                      labelEn: '',
+                      descriptionFr: '',
+                      descriptionEn: '',
+                      displayOrder: '1',
+                      status: 'draft',
+                    });
+                  }}
+                  style={{ ...buttonStyle, background: '#64748b' }}
+                >
+                  Cancel
+                </button>
+              )}
             </form>
             <div style={{ display: 'grid', gap: 12 }}>
               {forumTags.map((tag) => (
-                <div key={tag.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                <div 
+                  key={tag.id} 
+                  onClick={() => {
+                    setEditingTagId(tag.id);
+                    setTagForm({
+                      labelFr: tag.label.fr,
+                      labelEn: tag.label.en,
+                      descriptionFr: tag.description.fr,
+                      descriptionEn: tag.description.en,
+                      displayOrder: String(tag.displayOrder),
+                      status: tag.status,
+                    });
+                  }}
+                  style={{ 
+                    borderTop: '1px solid #E2E8F0', 
+                    paddingTop: 12,
+                    cursor: 'pointer',
+                    background: editingTagId === tag.id ? '#f1f5f9' : 'transparent',
+                    padding: '12px 8px',
+                    borderRadius: 8,
+                  }}
+                >
                   <strong>{tag.label.fr}</strong>
                   <p style={{ margin: '6px 0' }}>{tag.description.fr}</p>
                   <span style={badgeStyle}>

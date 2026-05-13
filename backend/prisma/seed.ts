@@ -11,6 +11,7 @@ import {
 
 import { mockAdminData } from '../src/common/data/mock-admin';
 import { mockCatalog } from '../src/common/data/mock-catalog';
+import * as bcrypt from 'bcrypt';
 
 loadEnvFile?.('.env');
 
@@ -236,6 +237,8 @@ async function main() {
     });
   }
 
+  const defaultAdminPasswordHash = await bcrypt.hash('password', 12);
+
   for (const user of mockAdminData.adminUsers) {
     await prisma.adminUser.upsert({
       where: { email: user.email },
@@ -245,6 +248,7 @@ async function main() {
         isActive: user.isActive,
         languageScope: user.languageScope,
         workload: user.workload,
+        passwordHash: defaultAdminPasswordHash,
       },
       create: {
         id: user.id,
@@ -254,6 +258,7 @@ async function main() {
         isActive: user.isActive,
         languageScope: user.languageScope,
         workload: user.workload,
+        passwordHash: defaultAdminPasswordHash,
       },
     });
   }

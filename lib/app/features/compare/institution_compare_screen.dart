@@ -43,6 +43,7 @@ class InstitutionCompareScreen extends StatelessWidget {
     final inst2 = controller.institutionById(institutionId2);
     final score1 = controller.institutionMatch(inst1);
     final score2 = controller.institutionMatch(inst2);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
@@ -55,16 +56,12 @@ class InstitutionCompareScreen extends StatelessWidget {
         ),
         title: Text(
           'Comparaison',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: context.kpb.textPrimary,
-          ),
+          style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.share_outlined, color: context.kpb.textSecondary),
+            icon: Icon(Icons.ios_share_rounded, color: isDark ? KpbColors.sky : KpbColors.blue),
             onPressed: () => _shareComparison(controller, inst1, inst2),
           ),
         ],
@@ -80,16 +77,18 @@ class InstitutionCompareScreen extends StatelessWidget {
                   institution: inst1,
                   score: score1,
                   controller: controller,
+                  isDark: isDark,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 _InstitutionHeader(
                   institution: inst2,
                   score: score2,
                   controller: controller,
+                  isDark: isDark,
                 ),
               ],
             ),
-            const SizedBox(height: KpbSpacing.md),
+            const SizedBox(height: KpbSpacing.lg),
 
             // ── Comparison table ────────────────────────────────────────
             KpbCard(
@@ -100,8 +99,8 @@ class InstitutionCompareScreen extends StatelessWidget {
                     label: 'Compatibilité',
                     icon: Icons.auto_awesome_rounded,
                     iconColor: KpbColors.gold,
-                    value1: _ScoreWidget(score: score1),
-                    value2: _ScoreWidget(score: score2),
+                    value1: _ScoreWidget(score: score1, isDark: isDark),
+                    value2: _ScoreWidget(score: score2, isDark: isDark),
                   ),
                   const _RowDivider(),
                   _CompareRow(
@@ -145,7 +144,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   _CompareRow(
                     label: 'Niveaux',
                     icon: Icons.school_outlined,
-                    iconColor: KpbColors.blue,
+                    iconColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
                     value1: _TagsCell(inst1.studyLevels),
                     value2: _TagsCell(inst2.studyLevels),
                   ),
@@ -176,55 +175,57 @@ class InstitutionCompareScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: KpbSpacing.lg),
+            const SizedBox(height: KpbSpacing.xl),
 
             // ── CTA ─────────────────────────────────────────────────────
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: KpbButton(
+                    text: 'Dossier ${controller.resolve(inst1.name)}',
                     onPressed: () => showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
                       builder: (_) => CaseComposerSheet(
                         caseType: CaseType.applicationSupport,
                         title: controller.resolve(inst1.name),
                         contextLabel: controller.resolve(inst1.location),
                       ),
                     ),
-                    child: Text(
-                      controller.resolve(inst1.name),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    bgColor: Colors.transparent,
+                    textColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    icon: Icons.folder_open_rounded,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: OutlinedButton(
+                  child: KpbButton(
+                    text: 'Dossier ${controller.resolve(inst2.name)}',
                     onPressed: () => showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
                       builder: (_) => CaseComposerSheet(
                         caseType: CaseType.applicationSupport,
                         title: controller.resolve(inst2.name),
                         contextLabel: controller.resolve(inst2.location),
                       ),
                     ),
-                    child: Text(
-                      controller.resolve(inst2.name),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    bgColor: Colors.transparent,
+                    textColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    icon: Icons.folder_open_rounded,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: KpbSpacing.sm),
-            FilledButton(
+            const SizedBox(height: KpbSpacing.md),
+            KpbButton(
+              text: 'Besoin d\'aide au choix ?',
               onPressed: () => showModalBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
+                backgroundColor: Colors.transparent,
                 builder: (_) => CaseComposerSheet(
                   caseType: CaseType.consultation,
                   title: 'Aide au choix d\'université',
@@ -232,7 +233,8 @@ class InstitutionCompareScreen extends StatelessWidget {
                       '${controller.resolve(inst1.name)} vs ${controller.resolve(inst2.name)}',
                 ),
               ),
-              child: const Text('Aide au choix'),
+              bgColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+              icon: Icons.support_agent_rounded,
             ),
             const SizedBox(height: KpbSpacing.xl),
           ],
@@ -279,79 +281,87 @@ class _InstitutionHeader extends StatelessWidget {
     required this.institution,
     required this.score,
     required this.controller,
+    required this.isDark,
   });
 
   final InstitutionModel institution;
   final int score;
   final AppController controller;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(KpbSpacing.md),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [KpbColors.navy, KpbColors.blue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: KpbRadius.lgBr,
-          boxShadow: KpbShadow.blue,
+        decoration: BoxDecoration(
+          gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+          borderRadius: KpbRadius.xlBr,
+          boxShadow: isDark ? null : KpbShadow.blue,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: KpbRadius.mdBr,
               ),
               child: Center(
                 child: Text(
                   _flag(institution.countryId),
-                  style: const TextStyle(fontSize: 22),
+                  style: const TextStyle(fontSize: 24),
                 ),
               ),
             ),
-            const SizedBox(height: KpbSpacing.sm),
+            const SizedBox(height: KpbSpacing.md),
             Text(
               controller.resolve(institution.name),
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                height: 1.3,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
               ),
               maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Text(
               controller.resolve(institution.location),
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.75),
-                fontSize: 11,
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             if (institution.isPartner) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: KpbColors.gold.withValues(alpha: 0.25),
                   borderRadius: KpbRadius.pillBr,
+                  border: Border.all(color: KpbColors.gold.withValues(alpha: 0.5)),
                 ),
-                child: const Text(
-                  'Partenaire',
-                  style: TextStyle(
-                    color: KpbColors.gold,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star_rounded, color: KpbColors.gold, size: 12),
+                    SizedBox(width: 4),
+                    Text(
+                      'Partenaire',
+                      style: TextStyle(
+                        color: KpbColors.gold,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -384,29 +394,29 @@ class _CompareRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: KpbSpacing.md, vertical: KpbSpacing.sm),
+          horizontal: KpbSpacing.lg, vertical: KpbSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 14, color: iconColor),
-              const SizedBox(width: 6),
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 8),
               Text(
-                label,
+                label.toUpperCase(),
                 style: KpbTextStyles.label.copyWith(
                   color: context.kpb.textMuted,
-                  letterSpacing: 0.5,
+                  letterSpacing: 1.0,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: value1),
-              const SizedBox(width: 10),
+              const SizedBox(width: 16),
               Expanded(child: value2),
             ],
           ),
@@ -422,7 +432,7 @@ class _RowDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Divider(
-        height: 1, color: context.kpb.gray100, indent: 16, endIndent: 16);
+        height: 1, color: context.kpb.gray100, indent: KpbSpacing.lg, endIndent: KpbSpacing.lg);
   }
 }
 
@@ -437,9 +447,7 @@ class _TextCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
+      style: KpbTextStyles.titleMd.copyWith(
         color: context.kpb.textPrimary,
         height: 1.4,
       ),
@@ -454,25 +462,23 @@ class _TagsCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tags.isEmpty) {
-      return Text('—',
-          style: TextStyle(color: context.kpb.textMuted, fontSize: 13));
+      return Text('—', style: TextStyle(color: context.kpb.textMuted, fontSize: 13));
     }
     return Wrap(
-      spacing: 4,
-      runSpacing: 4,
+      spacing: 6,
+      runSpacing: 6,
       children: tags
           .map(
             (t) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: context.kpb.surfaceBg,
                 borderRadius: KpbRadius.pillBr,
+                border: Border.all(color: context.kpb.gray100),
               ),
               child: Text(
                 t,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                style: KpbTextStyles.labelSm.copyWith(
                   color: context.kpb.textSecondary,
                 ),
               ),
@@ -494,15 +500,13 @@ class _BoolCell extends StatelessWidget {
       children: [
         Icon(
           value ? Icons.check_circle_rounded : Icons.cancel_outlined,
-          size: 16,
+          size: 18,
           color: value ? KpbColors.success : context.kpb.gray300,
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 6),
         Text(
           value ? 'Oui' : 'Non',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+          style: KpbTextStyles.titleMd.copyWith(
             color: value ? KpbColors.success : context.kpb.textMuted,
           ),
         ),
@@ -512,12 +516,13 @@ class _BoolCell extends StatelessWidget {
 }
 
 class _ScoreWidget extends StatelessWidget {
-  const _ScoreWidget({required this.score});
+  const _ScoreWidget({required this.score, required this.isDark});
   final int score;
+  final bool isDark;
 
   Color _color(BuildContext context) {
     if (score >= 85) return KpbColors.success;
-    if (score >= 70) return KpbColors.blue;
+    if (score >= 70) return isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
     if (score >= 50) return KpbColors.gold;
     return context.kpb.gray400;
   }
@@ -525,19 +530,22 @@ class _ScoreWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _color(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: KpbRadius.pillBr,
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        '$score%',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w800,
-          color: color,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: KpbRadius.pillBr,
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          '$score%',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: color,
+          ),
         ),
       ),
     );
