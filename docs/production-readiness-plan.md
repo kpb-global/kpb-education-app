@@ -95,7 +95,12 @@ This is the execution checklist used to move the app from feature-complete to pr
 ### Phase 7 artifacts
 - [`docs/phase7-test-ci.md`](phase7-test-ci.md) — CI matrix, local parity commands, coverage backlog.
 
-## Phase 8 - Release Operations
-- Flavor/env separation (`dev`, `staging`, `prod`).
-- Signing and store metadata readiness.
-- Staged rollout + rollback criteria.
+## Phase 8 - Release Operations (Complete)
+- [x] Flavor/env separation — `KPB_APP_ENV` (`dev` \| `staging` \| `prod`) + optional `KPB_API_BASE_URL` override; default API hosts in [`AppConfig`](../lib/app/core/config/app_config.dart); documented in [`phase8-release-operations.md`](phase8-release-operations.md).
+- [x] Signing and store metadata readiness — consolidated checklist (Android upload key / CI secrets, iOS signing + APNs production, Play / ASC metadata, privacy alignment) in same doc §2–4.
+- [x] Staged rollout + rollback criteria — documented gates and rollback actions in same doc §3.
+
+### Phase 8 artifacts
+- [`docs/phase8-release-operations.md`](phase8-release-operations.md) — dart-defines, store readiness, rollout/rollback.
+- [`test/core/config/app_config_test.dart`](../test/core/config/app_config_test.dart) — URL resolution for env overrides.
+
