@@ -80,6 +80,7 @@ class _KpbFloatingNavBar extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
+              key: const ValueKey('kpb_shell_nav_bar'),
               height: 68,
               decoration: BoxDecoration(
                 color: isDark

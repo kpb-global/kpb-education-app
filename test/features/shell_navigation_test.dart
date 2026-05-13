@@ -32,12 +32,13 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Verify NavigationBar is present
-      expect(find.byType(NavigationBar), findsOneWidget);
-
-      // Verify 5 navigation destinations
+      expect(find.byKey(const ValueKey('kpb_shell_nav_bar')), findsOneWidget);
+      // One icon per tab in the floating bar (5 tabs).
       expect(
-        find.byType(NavigationDestination),
+        find.descendant(
+          of: find.byKey(const ValueKey('kpb_shell_nav_bar')),
+          matching: find.byType(Icon),
+        ),
         findsNWidgets(5),
       );
 
@@ -80,9 +81,11 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Find and tap the Explore tab (second destination)
-      final exploreTab = find.byType(NavigationDestination).at(1);
-      await tester.tap(exploreTab);
+      // Tap Explore (second tab) — scope to nav bar so Explore screen icons don't match.
+      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
+      await tester.tap(
+        find.descendant(of: bar, matching: find.byIcon(Icons.explore_outlined)),
+      );
       await tester.pumpAndSettle();
 
       // Verify shellIndex updated
@@ -104,9 +107,10 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Find and tap the Cases tab (third destination)
-      final casesTab = find.byType(NavigationDestination).at(2);
-      await tester.tap(casesTab);
+      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
+      await tester.tap(
+        find.descendant(of: bar, matching: find.byIcon(Icons.folder_copy_outlined)),
+      );
       await tester.pumpAndSettle();
 
       // Verify shellIndex updated
@@ -114,7 +118,8 @@ void main() {
       expect(controller.shellIndex, equals(2));
     });
 
-    testWidgets('navigates to Saved tab when tapped (index 3)', (tester) async {
+    testWidgets('navigates to Scholarships tab when tapped (index 3)',
+        (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
         localeCode: 'fr',
@@ -128,9 +133,13 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Find and tap the Saved tab (fourth destination)
-      final savedTab = find.byType(NavigationDestination).at(3);
-      await tester.tap(savedTab);
+      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
+      await tester.tap(
+        find.descendant(
+          of: bar,
+          matching: find.byIcon(Icons.workspace_premium_outlined),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Verify shellIndex updated
@@ -153,9 +162,10 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Find and tap the Profile tab (fifth destination)
-      final profileTab = find.byType(NavigationDestination).at(4);
-      await tester.tap(profileTab);
+      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
+      await tester.tap(
+        find.descendant(of: bar, matching: find.byIcon(Icons.person_outline_rounded)),
+      );
       await tester.pumpAndSettle();
 
       // Verify shellIndex updated
@@ -236,7 +246,6 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Verify icons are rendered in the NavigationBar
       expect(find.byType(Icon), findsWidgets);
 
       // Verify tab switching updates controller
@@ -331,13 +340,10 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Find NavigationBar and verify it has correct height
-      final navBar = find.byType(NavigationBar);
+      final navBar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       expect(navBar, findsOneWidget);
-
-      // The NavigationBar in AppShell has height: 68
-      final widget = tester.widget<NavigationBar>(navBar);
-      expect(widget.height, equals(68));
+      final container = tester.widget<Container>(navBar);
+      expect(container.constraints!.maxHeight, equals(68));
     });
   });
 }

@@ -123,10 +123,10 @@ void main() {
       expect(controller.localeCode, 'en');
     });
 
-    test('populates starter cases for student accounts', () {
+    test('clears cases on onboarding complete (cases come from API when sync runs)', () {
       controller.completeOnboarding(_studentProfile());
 
-      expect(controller.cases, isNotEmpty);
+      expect(controller.cases, isEmpty);
     });
   });
 

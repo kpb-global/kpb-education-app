@@ -14,14 +14,17 @@ import '../../core/ui/kpb_components.dart';
 /// just opens `joinUrl` in the browser. We don't bake a WebRTC stack into
 /// the app; universities keep their own recording and platform of choice.
 class SalonScreen extends StatefulWidget {
-  const SalonScreen({super.key});
+  /// Optional [apiClient] for tests; production uses [AppApiClient] when null.
+  const SalonScreen({super.key, this.apiClient});
+
+  final AppApiClient? apiClient;
 
   @override
   State<SalonScreen> createState() => _SalonScreenState();
 }
 
 class _SalonScreenState extends State<SalonScreen> {
-  final AppApiClient _api = AppApiClient();
+  late final AppApiClient _api = widget.apiClient ?? AppApiClient();
   bool _loading = true;
   String? _error;
   List<dynamic> _events = const [];
@@ -58,7 +61,7 @@ class _SalonScreenState extends State<SalonScreen> {
     if (slug == null) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _SalonEventScreen(slug: slug),
+        builder: (_) => _SalonEventScreen(slug: slug, apiClient: _api),
       ),
     );
   }
@@ -220,16 +223,17 @@ class _EventCard extends StatelessWidget {
 /// Detail view — lists sessions for the selected event and lets the student
 /// register / unregister.
 class _SalonEventScreen extends StatefulWidget {
-  const _SalonEventScreen({required this.slug});
+  const _SalonEventScreen({required this.slug, this.apiClient});
 
   final String slug;
+  final AppApiClient? apiClient;
 
   @override
   State<_SalonEventScreen> createState() => _SalonEventScreenState();
 }
 
 class _SalonEventScreenState extends State<_SalonEventScreen> {
-  final AppApiClient _api = AppApiClient();
+  late final AppApiClient _api = widget.apiClient ?? AppApiClient();
   bool _loading = true;
   String? _error;
   Map<String, dynamic> _event = const {};

@@ -87,9 +87,13 @@ This is the execution checklist used to move the app from feature-complete to pr
 - [`docs/phase6-performance-ux.md`](phase6-performance-ux.md) — budgets, DevTools workflow, UX state patterns, pre-release manual pass.
 
 ## Phase 7 - Test & CI Gates (In progress)
-- [ ] Unit/widget/integration coverage for critical paths (expand over time).
+- [x] Phase 7 baseline — [`phase7-test-ci.md`](phase7-test-ci.md): CI jobs, local commands, test inventory; widget tests for Salon list (error / empty / data / retry) with injectable [`SalonScreen.apiClient`](../lib/app/features/salon/salon_screen.dart); workflow triggers include `docs/**`.
+- [ ] Expand unit/widget/integration coverage on additional async screens and optional E2E (Patrol) when you want device-farm gates — tracked in same doc §4.
 - [x] CI merge gate — GitHub Actions [`.github/workflows/flutter-ci.yml`](../.github/workflows/flutter-ci.yml): `flutter analyze`, `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` on PRs/pushes to **`master`** / **`main`**; Android APK + iOS (no codesign) build after the quality job succeeds. (Optional: add `dart format --set-exit-if-changed lib test` after a repo-wide format commit.)
 - **Local test runs:** use `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` (and the same for targeted test files) so `AppController.hydrate()` does not start remote catalog sync; the default `KPB_ENABLE_REMOTE_SYNC` is `true` in non-CI runs and can cause network I/O during widget tests.
+
+### Phase 7 artifacts
+- [`docs/phase7-test-ci.md`](phase7-test-ci.md) — CI matrix, local parity commands, coverage backlog.
 
 ## Phase 8 - Release Operations
 - Flavor/env separation (`dev`, `staging`, `prod`).
