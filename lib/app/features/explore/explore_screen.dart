@@ -1492,11 +1492,15 @@ class _InstitutionDetailSheet extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Get.to(() => CaseComposerSheet(
-                            caseType: CaseType.consultation,
-                            title: 'Expert KPB',
-                            contextLabel: controller.resolve(institution.name),
-                          )),
+                      onPressed: () => showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => CaseComposerSheet(
+                          caseType: CaseType.consultation,
+                          title: 'Expert KPB',
+                          contextLabel: controller.resolve(institution.name),
+                        ),
+                      ),
                       child: const Text('Parler à un expert'),
                     ),
                   ),
@@ -1507,13 +1511,17 @@ class _InstitutionDetailSheet extends StatelessWidget {
                       label: institution.isPartner
                           ? 'S\'inscrire via KPB'
                           : 'En savoir plus',
-                      onTap: () => Get.to(() => CaseComposerSheet(
-                            caseType: CaseType.applicationSupport,
-                            title: controller.resolve(institution.name),
-                            contextLabel: institution.isPartner
-                                ? 'Accompagnement Premium Garanti'
-                                : 'Accompagnement Premium',
-                          )),
+                      onTap: () => showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => CaseComposerSheet(
+                          caseType: CaseType.applicationSupport,
+                          title: controller.resolve(institution.name),
+                          contextLabel: institution.isPartner
+                              ? 'Accompagnement Premium Garanti'
+                              : 'Accompagnement Premium',
+                        ),
+                      ),
                     ),
                   ),
                 ],

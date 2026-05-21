@@ -59,26 +59,11 @@ class LocalAppRepository implements AppRepository {
       searchHistory: _stringList(json['searchHistory']),
       pendingOrientationAnswers:
           _stringListMap(json['pendingOrientationAnswers']),
-      fields: ((json['fields'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(FieldModel.fromJson)
-          .toList(),
-      countries: ((json['countries'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(CountryModel.fromJson)
-          .toList(),
-      institutions: ((json['institutions'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(InstitutionModel.fromJson)
-          .toList(),
-      programs: ((json['programs'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(ProgramModel.fromJson)
-          .toList(),
-      scholarships: ((json['scholarships'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(ScholarshipModel.fromJson)
-          .toList(),
+      fields: const [],
+      countries: const [],
+      institutions: const [],
+      programs: const [],
+      scholarships: const [],
       pendingOrientationQuestionIndex:
           json['pendingOrientationQuestionIndex'] as int? ?? 0,
       purchasedCourseIds: _stringList(json['purchasedCourseIds']),
@@ -103,11 +88,11 @@ class LocalAppRepository implements AppRepository {
           snapshot.orientationHistory.map(_orientationSessionToJson).toList(),
       'searchHistory': snapshot.searchHistory,
       'pendingOrientationAnswers': snapshot.pendingOrientationAnswers,
-            'fields': snapshot.fields.map((e) => e.toJson()).toList(),
-      'countries': snapshot.countries.map((e) => e.toJson()).toList(),
-      'institutions': snapshot.institutions.map((e) => e.toJson()).toList(),
-      'programs': snapshot.programs.map((e) => e.toJson()).toList(),
-      'scholarships': snapshot.scholarships.map((e) => e.toJson()).toList(),
+            'fields': const [],
+      'countries': const [],
+      'institutions': const [],
+      'programs': const [],
+      'scholarships': const [],
       'pendingOrientationQuestionIndex':
           snapshot.pendingOrientationQuestionIndex,
       'purchasedCourseIds': snapshot.purchasedCourseIds,

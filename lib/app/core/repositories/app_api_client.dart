@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart' show Color, EdgeInsets;
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 
 import '../config/app_config.dart';
+import '../config/app_routes.dart';
 import '../config/kpb_secure_storage.dart';
+import '../controllers/app_controller.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -582,6 +586,7 @@ class _AuthInterceptor extends Interceptor {
       final refresh = await _storage.read(key: _keyRefreshToken);
       if (refresh == null || refresh.isEmpty) {
         _refreshCompleter!.complete(false);
+        await _handlePermanentFailure();
         return handler.next(err);
       }
 
@@ -603,14 +608,40 @@ class _AuthInterceptor extends Interceptor {
         return handler.resolve(await _retryRequest(err.requestOptions));
       }
       _refreshCompleter!.complete(false);
+      await _handlePermanentFailure();
       handler.next(err);
     } catch (_) {
       _refreshCompleter!.complete(false);
+      await _handlePermanentFailure();
       handler.next(err);
     } finally {
       _isRefreshing = false;
       _refreshCompleter = null;
     }
+  }
+
+  Future<void> _handlePermanentFailure() async {
+    await _storage.delete(key: _keyAccessToken);
+    await _storage.delete(key: _keyRefreshToken);
+    await _storage.delete(key: 'kpb.auth.userId');
+    try {
+      if (Get.isRegistered<AppController>()) {
+        final controller = Get.find<AppController>();
+        if (controller.profile != null) {
+          controller.logout();
+          Get.offAllNamed(AppRoutes.home);
+          Get.snackbar(
+            'Session Expirée',
+            'Votre session a expiré. Veuillez vous reconnecter.',
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+            backgroundColor: const Color(0xFFFEE2E2), // soft red
+            colorText: const Color(0xFF991B1B), // dark red
+            duration: const Duration(seconds: 4),
+          );
+        }
+      }
+    } catch (_) {}
   }
 
   Future<Response<dynamic>> _retryRequest(RequestOptions options) async {

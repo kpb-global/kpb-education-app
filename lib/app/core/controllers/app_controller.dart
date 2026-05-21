@@ -24,10 +24,13 @@ import '../data/profile_api_codec.dart';
 import '../data/saved_item_api_codec.dart';
 import '../services/app_search_service.dart';
 import '../services/catalog_remote_sync.dart';
+import '../services/catalog_cache_service.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 
 class AppController extends GetxController {
+  static const int shellTabCount = 5;
+
   AppController({
     required AppRepository repository,
     AppApiClient? apiClient,
@@ -58,11 +61,16 @@ class AppController extends GetxController {
   final List<ProgramModel> programs = <ProgramModel>[];
   final List<ScholarshipModel> scholarships = <ScholarshipModel>[];
   final List<AcademyCourseModel> academyCourses = <AcademyCourseModel>[];
-  final List<ServiceOffer> serviceOffers = List<ServiceOffer>.of(MockCatalog.serviceOffers);
-  final List<SupportDestination> supportDestinations = List<SupportDestination>.of(MockCatalog.supportDestinations);
-  final List<ArticleModel> articles = List<ArticleModel>.of(MockCatalog.articles);
-  final List<ForumCategoryModel> forumCategories = List<ForumCategoryModel>.of(MockCatalog.forumCategories);
-  final List<ForumTopicTagModel> forumTopicTags = List<ForumTopicTagModel>.of(MockCatalog.forumTopicTags);
+  final List<ServiceOffer> serviceOffers =
+      List<ServiceOffer>.of(MockCatalog.serviceOffers);
+  final List<SupportDestination> supportDestinations =
+      List<SupportDestination>.of(MockCatalog.supportDestinations);
+  final List<ArticleModel> articles =
+      List<ArticleModel>.of(MockCatalog.articles);
+  final List<ForumCategoryModel> forumCategories =
+      List<ForumCategoryModel>.of(MockCatalog.forumCategories);
+  final List<ForumTopicTagModel> forumTopicTags =
+      List<ForumTopicTagModel>.of(MockCatalog.forumTopicTags);
   final List<OrientationQuestion> orientationQuestions =
       MockCatalog.orientationQuestions;
 
@@ -70,6 +78,7 @@ class AppController extends GetxController {
   final List<StudentCase> _cases = <StudentCase>[];
   final List<OrientationSession> _orientationHistory = <OrientationSession>[];
   final Map<String, String> _remoteSavedItemIds = <String, String>{};
+
   /// True after local profile edits until PATCH `/profiles/me` succeeds (offline sync conflict avoidance).
   bool _profileNeedsPush = false;
   final List<String> _searchHistory = <String>[];
@@ -93,19 +102,20 @@ class AppController extends GetxController {
   List<ServiceOffer> get publishedServiceOffers => serviceOffers
       .where((item) => item.status == PublicationStatus.published)
       .toList();
-  List<SupportDestination> get visibleSupportDestinations =>
-      supportDestinations
-          .where(
-            (item) =>
-                item.status == PublicationStatus.published && item.isVisible,
-          )
-          .toList();
-  List<ArticleModel> get publishedArticles =>
-      articles.where((item) => item.status == PublicationStatus.published).toList()
-        ..sort(
-          (left, right) => (right.publishedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-              .compareTo(left.publishedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
-        );
+  List<SupportDestination> get visibleSupportDestinations => supportDestinations
+      .where(
+        (item) => item.status == PublicationStatus.published && item.isVisible,
+      )
+      .toList();
+  List<ArticleModel> get publishedArticles => articles
+      .where((item) => item.status == PublicationStatus.published)
+      .toList()
+    ..sort(
+      (left, right) =>
+          (right.publishedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(
+                  left.publishedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
+    );
   List<ForumCategoryModel> get visibleForumCategories => forumCategories
       .where((item) => item.status == PublicationStatus.published)
       .toList()
@@ -141,18 +151,68 @@ class AppController extends GetxController {
       ..addAll(snapshot.purchasedCourseIds);
     _completedRoadmapSteps = Map.from(snapshot.completedRoadmapSteps);
     themeMode = snapshot.themeMode;
-    latestOrientationSession = _orientationHistory.isNotEmpty
-        ? _orientationHistory.first
-        : null;
+    latestOrientationSession =
+        _orientationHistory.isNotEmpty ? _orientationHistory.first : null;
     _pendingOrientationAnswers = Map.of(snapshot.pendingOrientationAnswers);
     pendingOrientationQuestionIndex = snapshot.pendingOrientationQuestionIndex;
     _profileNeedsPush = snapshot.profileNeedsPush;
-    fields..clear()..addAll(snapshot.fields.isNotEmpty ? snapshot.fields : MockCatalog.fields);
-    countries..clear()..addAll(snapshot.countries.isNotEmpty ? snapshot.countries : MockCatalog.countries);
-    institutions..clear()..addAll(snapshot.institutions.isNotEmpty ? snapshot.institutions : MockCatalog.institutions);
-    programs..clear()..addAll(snapshot.programs.isNotEmpty ? snapshot.programs : MockCatalog.programs);
-    scholarships..clear()..addAll(snapshot.scholarships.isNotEmpty ? snapshot.scholarships : MockCatalog.scholarships);
-    academyCourses..clear()..addAll(MockCatalog.academyCourses);
+    if (CatalogCacheService.isInitialized) {
+      final cache = CatalogCacheService.instance;
+
+      final cachedFields = cache.read('fields');
+      fields
+        ..clear()
+        ..addAll(cachedFields.isNotEmpty
+            ? cachedFields.whereType<Map<String, dynamic>>().map(FieldModel.fromJson)
+            : MockCatalog.fields);
+
+      final cachedCountries = cache.read('countries');
+      countries
+        ..clear()
+        ..addAll(cachedCountries.isNotEmpty
+            ? cachedCountries.whereType<Map<String, dynamic>>().map(CountryModel.fromJson)
+            : MockCatalog.countries);
+
+      final cachedInstitutions = cache.read('institutions');
+      institutions
+        ..clear()
+        ..addAll(cachedInstitutions.isNotEmpty
+            ? cachedInstitutions.whereType<Map<String, dynamic>>().map(InstitutionModel.fromJson)
+            : MockCatalog.institutions);
+
+      final cachedPrograms = cache.read('programs');
+      programs
+        ..clear()
+        ..addAll(cachedPrograms.isNotEmpty
+            ? cachedPrograms.whereType<Map<String, dynamic>>().map(ProgramModel.fromJson)
+            : MockCatalog.programs);
+
+      final cachedScholarships = cache.read('scholarships');
+      scholarships
+        ..clear()
+        ..addAll(cachedScholarships.isNotEmpty
+            ? cachedScholarships.whereType<Map<String, dynamic>>().map(ScholarshipModel.fromJson)
+            : MockCatalog.scholarships);
+    } else {
+      fields
+        ..clear()
+        ..addAll(MockCatalog.fields);
+      countries
+        ..clear()
+        ..addAll(MockCatalog.countries);
+      institutions
+        ..clear()
+        ..addAll(MockCatalog.institutions);
+      programs
+        ..clear()
+        ..addAll(MockCatalog.programs);
+      scholarships
+        ..clear()
+        ..addAll(MockCatalog.scholarships);
+    }
+    academyCourses
+      ..clear()
+      ..addAll(MockCatalog.academyCourses);
     if (AppConfig.enableRemoteSync) {
       await syncRemoteData(silent: true);
     }
@@ -221,7 +281,8 @@ class AppController extends GetxController {
   }
 
   void goToTab(int index) {
-    shellIndex = index;
+    final safeIndex = index.clamp(0, shellTabCount - 1);
+    shellIndex = safeIndex;
     update();
   }
 
@@ -231,7 +292,8 @@ class AppController extends GetxController {
   }
 
   bool isSaved(SavedItemType type, String itemId) {
-    return _savedItems.any((item) => item.type == type && item.itemId == itemId);
+    return _savedItems
+        .any((item) => item.type == type && item.itemId == itemId);
   }
 
   void toggleSaved(SavedItemType type, String itemId) {
@@ -299,11 +361,13 @@ class AppController extends GetxController {
 
   Map<String, dynamic>? getNextUrgentMilestone() {
     // ... logic is fine ...
-    return _findNextStep(scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id)));
+    return _findNextStep(
+        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id)));
   }
 
   double getChildOverallProgressPercentage() {
-    final saved = scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
+    final saved =
+        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
     if (saved.isEmpty) return 0.0;
 
     int totalSteps = saved.length * RoadmapEngine.getSteps().length;
@@ -321,7 +385,7 @@ class AppController extends GetxController {
     final p = profile;
     double tuition = 12000; // Mock average
     double lifestyle = 8000;
-    
+
     if (p != null) {
       if (p.targetCountryIds.contains('canada')) {
         tuition = 15000;
@@ -332,8 +396,10 @@ class AppController extends GetxController {
       }
     }
 
-    final savedScholarships = scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
-    double totalSavings = savedScholarships.length * 5000.0; // Mock scholarship value
+    final savedScholarships =
+        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
+    double totalSavings =
+        savedScholarships.length * 5000.0; // Mock scholarship value
 
     return {
       'totalCost': (tuition + lifestyle),
@@ -342,26 +408,29 @@ class AppController extends GetxController {
     };
   }
 
-  Map<String, dynamic>? _findNextStep(Iterable<ScholarshipModel> savedScholarships) {
+  Map<String, dynamic>? _findNextStep(
+      Iterable<ScholarshipModel> savedScholarships) {
     final now = DateTime.now();
     Map<String, dynamic>? closest;
     DateTime? closestDate;
 
     for (final s in savedScholarships) {
-       final deadline = RoadmapEngine.calculateDate(now.add(const Duration(days: 90)), 0); 
-       final steps = RoadmapEngine.getSteps();
+      final deadline =
+          RoadmapEngine.calculateDate(now.add(const Duration(days: 90)), 0);
+      final steps = RoadmapEngine.getSteps();
 
-       for (final step in steps) {
-          if (!isStepCompleted(s.id, step.type)) {
-             final stepDate = RoadmapEngine.calculateDate(deadline, step.daysBeforeDeadline);
-             if (stepDate.isAfter(now)) {
-                if (closestDate == null || stepDate.isBefore(closestDate)) {
-                   closestDate = stepDate;
-                   closest = {'scholarship': s, 'step': step, 'date': stepDate};
-                }
-             }
+      for (final step in steps) {
+        if (!isStepCompleted(s.id, step.type)) {
+          final stepDate =
+              RoadmapEngine.calculateDate(deadline, step.daysBeforeDeadline);
+          if (stepDate.isAfter(now)) {
+            if (closestDate == null || stepDate.isBefore(closestDate)) {
+              closestDate = stepDate;
+              closest = {'scholarship': s, 'step': step, 'date': stepDate};
+            }
           }
-       }
+        }
+      }
     }
     return closest;
   }
@@ -471,14 +540,16 @@ class AppController extends GetxController {
 
   int fieldMatch(FieldModel field) => _searchService.fieldMatch(field);
 
-  int programMatch(ProgramModel program) => _searchService.programMatch(program);
+  int programMatch(ProgramModel program) =>
+      _searchService.programMatch(program);
 
   int institutionMatch(InstitutionModel institution) =>
       _searchService.institutionMatch(institution);
 
   List<FieldModel> get recommendedFields => _searchService.recommendedFields;
 
-  List<ProgramModel> get recommendedPrograms => _searchService.recommendedPrograms;
+  List<ProgramModel> get recommendedPrograms =>
+      _searchService.recommendedPrograms;
 
   List<InstitutionModel> get recommendedInstitutions =>
       _searchService.recommendedInstitutions;
@@ -523,7 +594,8 @@ class AppController extends GetxController {
       timeline: [
         CaseTimelineEvent(
           id: 'submitted-${now.millisecondsSinceEpoch}',
-          title: const LocalizedText(fr: 'Demande envoyée', en: 'Request submitted'),
+          title: const LocalizedText(
+              fr: 'Demande envoyée', en: 'Request submitted'),
           description: const LocalizedText(
             fr: 'Votre demande est visible dans My Cases et a été transmise à l’équipe KPB.',
             en: 'Your request now appears in My Cases and has been sent to the KPB team.',
@@ -547,7 +619,8 @@ class AppController extends GetxController {
       documentRequests: const [
         DocumentRequest(
           id: 'doc-profile',
-          title: LocalizedText(fr: 'Profil académique complet', en: 'Complete academic profile'),
+          title: LocalizedText(
+              fr: 'Profil académique complet', en: 'Complete academic profile'),
           isProvided: false,
         ),
       ],
@@ -614,7 +687,7 @@ class AppController extends GetxController {
     );
     _persist();
     update();
-    
+
     if (ConnectivityService.instance.isOnline) {
       unawaited(_createRemoteCaseMessage(caseId, text));
     } else {
@@ -631,7 +704,8 @@ class AppController extends GetxController {
     if (index < 0) return;
     final caseItem = _cases[index];
     final updatedDocs = caseItem.documentRequests
-        .map((doc) => doc.id == documentId ? doc.copyWith(isProvided: true) : doc)
+        .map((doc) =>
+            doc.id == documentId ? doc.copyWith(isProvided: true) : doc)
         .toList();
     _cases[index] = caseItem.copyWith(
       updatedAt: DateTime.now(),
@@ -639,7 +713,8 @@ class AppController extends GetxController {
     );
     _persist();
     update();
-    final document = updatedDocs.firstWhereOrNull((item) => item.id == documentId);
+    final document =
+        updatedDocs.firstWhereOrNull((item) => item.id == documentId);
     if (document != null) {
       unawaited(_uploadRemoteCaseDocument(caseId, document, filePath));
     }
@@ -748,9 +823,7 @@ class AppController extends GetxController {
       _remoteSavedItemIds
         ..clear()
         ..addEntries(
-          remoteSavedItems
-              .whereType<Map<String, dynamic>>()
-              .map(
+          remoteSavedItems.whereType<Map<String, dynamic>>().map(
                 (item) => MapEntry(
                   _savedItemKey(
                     SavedItemApiCodec.parseType(item['type'] as String?) ??
@@ -815,8 +888,7 @@ class AppController extends GetxController {
       scholarships.firstWhereOrNull((item) => item.id == id);
 
   /// Non-null convenience accessors — prefer the OrNull variants for new code.
-  FieldModel fieldById(String id) =>
-      fields.firstWhere((item) => item.id == id);
+  FieldModel fieldById(String id) => fields.firstWhere((item) => item.id == id);
   CountryModel countryById(String id) =>
       countries.firstWhere((item) => item.id == id);
   InstitutionModel institutionById(String id) =>
@@ -839,11 +911,11 @@ class AppController extends GetxController {
         searchHistory: _searchHistory,
         pendingOrientationAnswers: _pendingOrientationAnswers,
         pendingOrientationQuestionIndex: pendingOrientationQuestionIndex,
-        fields: fields,
-        countries: countries,
-        institutions: institutions,
-        programs: programs,
-        scholarships: scholarships,
+        fields: const [],
+        countries: const [],
+        institutions: const [],
+        programs: const [],
+        scholarships: const [],
         purchasedCourseIds: _purchasedCourseIds,
         completedRoadmapSteps: _completedRoadmapSteps,
         profileNeedsPush: _profileNeedsPush,
@@ -881,7 +953,8 @@ class AppController extends GetxController {
     }
   }
 
-  Future<void> _pushOrientationSession(Map<String, List<String>> answers) async {
+  Future<void> _pushOrientationSession(
+      Map<String, List<String>> answers) async {
     if (!AppConfig.enableRemoteSync) return;
     try {
       await _apiClient.createOrientationSession(<String, dynamic>{
@@ -1087,7 +1160,8 @@ class AppController extends GetxController {
     }
   }
 
-  String _savedItemKey(SavedItemType type, String itemId) => '${type.name}:$itemId';
+  String _savedItemKey(SavedItemType type, String itemId) =>
+      '${type.name}:$itemId';
 
   Map<String, dynamic> _userProfilePayload(UserProfile profile) {
     return <String, dynamic>{
@@ -1116,5 +1190,4 @@ class AppController extends GetxController {
       _cases.insert(0, caseItem);
     }
   }
-
 }

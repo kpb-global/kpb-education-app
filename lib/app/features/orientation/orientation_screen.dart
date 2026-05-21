@@ -79,8 +79,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                 // ── Progress header ─────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.md,
-                      KpbSpacing.pagePad, 0),
+                      KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0),
                   child: Column(
                     children: [
                       Row(
@@ -161,8 +160,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         const SizedBox(height: KpbSpacing.md),
                         // Question number badge
                         KpbBadge(
-                          label:
-                              'Question ${_questionIndex + 1}',
+                          label: 'Question ${_questionIndex + 1}',
                           color: KpbColors.blue,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
@@ -190,8 +188,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         const SizedBox(height: KpbSpacing.lg),
                         // Options
                         ...question.options.map((option) {
-                          final selected =
-                              selectedIds.contains(option.id);
+                          final selected = selectedIds.contains(option.id);
                           return Padding(
                             padding:
                                 const EdgeInsets.only(bottom: KpbSpacing.sm),
@@ -228,9 +225,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
 
                 // ── Bottom CTA ──────────────────────────────────────────
                 Container(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.sm,
-                      KpbSpacing.pagePad, KpbSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.md),
                   decoration: BoxDecoration(
                     color: context.kpb.pageBg,
                     boxShadow: KpbShadow.float,
@@ -284,17 +280,12 @@ class _OptionCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
-          color: selected
-              ? KpbColors.blue
-              : context.kpb.cardBg,
+          color: selected ? KpbColors.blue : context.kpb.cardBg,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-            color: selected
-                ? KpbColors.blue
-                : context.kpb.gray100,
+            color: selected ? KpbColors.blue : context.kpb.gray100,
             width: selected ? 2 : 1,
           ),
           boxShadow: selected ? KpbShadow.soft : KpbShadow.card,
@@ -306,14 +297,10 @@ class _OptionCard extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: selected
-                    ? Colors.white
-                    : KpbColors.bgMuted,
+                color: selected ? Colors.white : KpbColors.bgMuted,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected
-                      ? Colors.white
-                      : context.kpb.gray200,
+                  color: selected ? Colors.white : context.kpb.gray200,
                 ),
               ),
               child: selected
@@ -328,9 +315,7 @@ class _OptionCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: selected
-                      ? Colors.white
-                      : context.kpb.textPrimary,
+                  color: selected ? Colors.white : context.kpb.textPrimary,
                 ),
               ),
             ),
@@ -365,9 +350,8 @@ class _ResultsView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -400,26 +384,26 @@ class _ResultsView extends StatelessWidget {
         // ── Recommendations ────────────────────────────────────────────────
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
-              KpbSpacing.pagePad, KpbSpacing.lg,
-              KpbSpacing.pagePad, 0),
+              KpbSpacing.pagePad, KpbSpacing.lg, KpbSpacing.pagePad, 0),
           sliver: SliverList.separated(
-            itemCount:
-                (result.recommendations as List).length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: KpbSpacing.md),
+            itemCount: (result.recommendations as List).length,
+            separatorBuilder: (_, __) => const SizedBox(height: KpbSpacing.md),
             itemBuilder: (ctx, i) {
-              final rec =
-                  (result.recommendations as List)[i];
-              final field = controller.fieldById(rec.fieldId);
+              final rec = (result.recommendations as List)[i];
+              final field = controller.fieldByIdOrNull(rec.fieldId);
+              if (field == null) {
+                return const SizedBox.shrink();
+              }
               final countries = (rec.relatedCountryIds as List<String>)
-                  .map(controller.countryById)
+                  .map(controller.countryByIdOrNull)
+                  .whereType<CountryModel>()
                   .take(3)
                   .toList();
-              final scholarships =
-                  (rec.relatedScholarshipIds as List<String>)
-                      .map(controller.scholarshipById)
-                      .take(3)
-                      .toList();
+              final scholarships = (rec.relatedScholarshipIds as List<String>)
+                  .map(controller.scholarshipByIdOrNull)
+                  .whereType<ScholarshipModel>()
+                  .take(3)
+                  .toList();
               final isBest = i == 0;
 
               return _RecommendationCard(
@@ -438,9 +422,8 @@ class _ResultsView extends StatelessWidget {
         // ── Action buttons ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.sm),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -505,9 +488,9 @@ class _RecommendationCard extends StatelessWidget {
   });
 
   final dynamic rec;
-  final dynamic field;
-  final List countries;
-  final List scholarships;
+  final FieldModel field;
+  final List<CountryModel> countries;
+  final List<ScholarshipModel> scholarships;
   final AppController controller;
   final bool isBest;
   final BuildContext context;
@@ -515,8 +498,8 @@ class _RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final score = rec.score as int;
-    final accentColor = Color(field.accentColor as int);
-    final saved = controller.isSaved(SavedItemType.field, field.id as String);
+    final accentColor = field.accentColor;
+    final saved = controller.isSaved(SavedItemType.field, field.id);
 
     return KpbCard(
       border: isBest
@@ -553,8 +536,7 @@ class _RecommendationCard extends StatelessWidget {
                   children: [
                     if (isBest)
                       const KpbBadge(
-                          label: '⭐ Meilleur match',
-                          color: KpbColors.blue),
+                          label: '⭐ Meilleur match', color: KpbColors.blue),
                     if (isBest) const SizedBox(height: 4),
                     Text(controller.resolve(field.name),
                         style: KpbTextStyles.title),
@@ -562,8 +544,8 @@ class _RecommendationCard extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => controller.toggleSaved(
-                    SavedItemType.field, field.id as String),
+                onTap: () =>
+                    controller.toggleSaved(SavedItemType.field, field.id),
                 child: Icon(
                   saved
                       ? Icons.bookmark_rounded
@@ -621,11 +603,11 @@ class _RecommendationCard extends StatelessWidget {
               runSpacing: 6,
               children: countries.map<Widget>((country) {
                 return GestureDetector(
-                  onTap: () => Get.to(
-                      () => CountryDetailScreen(countryId: country.id)),
+                  onTap: () =>
+                      Get.to(() => CountryDetailScreen(countryId: country.id)),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: context.kpb.surfaceBg,
                       borderRadius: KpbRadius.pillBr,
@@ -688,15 +670,14 @@ class _RecommendationCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => controller.toggleSaved(
-                      SavedItemType.field, field.id as String),
+                  onPressed: () =>
+                      controller.toggleSaved(SavedItemType.field, field.id),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  child:
-                      Text(saved ? '✓ Sauvegardé' : 'Sauvegarder'),
+                  child: Text(saved ? '✓ Sauvegardé' : 'Sauvegarder'),
                 ),
               ),
               const SizedBox(width: 10),
@@ -743,9 +724,8 @@ class _ConsultativeView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -760,8 +740,7 @@ class _ConsultativeView extends StatelessWidget {
                   controller.isParent
                       ? 'home_for_parent'.tr
                       : 'home_for_partner'.tr,
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 15),
+                  style: const TextStyle(color: Colors.white70, fontSize: 15),
                 ),
               ],
             ),

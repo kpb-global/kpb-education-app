@@ -13,9 +13,19 @@ import 'widgets/roadmap_timeline_view.dart';
 import '../../core/data/roadmap_engine.dart';
 
 const _countryFlags = <String, String>{
-  'usa': '🇺🇸', 'canada': '🇨🇦', 'france': '🇫🇷', 'uk': '🇬🇧',
-  'morocco': '🇲🇦', 'turkey': '🇹🇷', 'germany': '🇩🇪', 'spain': '🇪🇸',
-  'china': '🇨🇳', 'belgium': '🇧🇪', 'italy': '🇮🇹', 'portugal': '🇵🇹', 'germany_de': '🇩🇪',
+  'usa': '🇺🇸',
+  'canada': '🇨🇦',
+  'france': '🇫🇷',
+  'uk': '🇬🇧',
+  'morocco': '🇲🇦',
+  'turkey': '🇹🇷',
+  'germany': '🇩🇪',
+  'spain': '🇪🇸',
+  'china': '🇨🇳',
+  'belgium': '🇧🇪',
+  'italy': '🇮🇹',
+  'portugal': '🇵🇹',
+  'germany_de': '🇩🇪',
 };
 
 class ScholarshipsScreen extends StatelessWidget {
@@ -39,12 +49,15 @@ class ScholarshipsScreen extends StatelessWidget {
                   snap: true,
                   backgroundColor: context.kpb.pageBg,
                   leading: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.kpb.textPrimary),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        size: 20, color: context.kpb.textPrimary),
                     onPressed: () => Navigator.canPop(context)
                         ? Navigator.pop(context)
                         : null,
                   ),
-                  title: Text('nav_scholarships'.tr, style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
+                  title: Text('nav_scholarships'.tr,
+                      style: KpbTextStyles.headline
+                          .copyWith(color: context.kpb.textPrimary)),
                 ),
                 if (controller.syncError != null)
                   SliverToBoxAdapter(
@@ -53,15 +66,18 @@ class ScholarshipsScreen extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.md),
+                        horizontal: KpbSpacing.pagePad,
+                        vertical: KpbSpacing.md),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('recommandations_title_sc'.tr,
-                            style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary)),
+                            style: KpbTextStyles.titleLg
+                                .copyWith(color: context.kpb.textPrimary)),
                         const SizedBox(height: 4),
                         Text('recommandations_desc_sc'.tr,
-                            style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary)),
+                            style: KpbTextStyles.body
+                                .copyWith(color: context.kpb.textSecondary)),
                       ],
                     ),
                   ),
@@ -80,17 +96,19 @@ class ScholarshipsScreen extends StatelessWidget {
                   )
                 else if (items.isNotEmpty)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: KpbSpacing.pagePad),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final s = items[index];
-                          final country = controller.countries
-                              .firstWhere((c) => c.id == s.countryId);
+                          final country =
+                              controller.countryByIdOrNull(s.countryId);
                           return StaggeredSlide(
                             index: index,
                             child: Padding(
-                              padding: const EdgeInsets.only(bottom: KpbSpacing.md),
+                              padding:
+                                  const EdgeInsets.only(bottom: KpbSpacing.md),
                               child: _ScholarshipCard(
                                 scholarship: s,
                                 country: country,
@@ -121,12 +139,15 @@ class _ScholarshipCard extends StatelessWidget {
   });
 
   final ScholarshipModel scholarship;
-  final CountryModel country;
+  final CountryModel? country;
   final AppController controller;
 
   @override
   Widget build(BuildContext context) {
     final s = scholarship;
+    final countryName = country != null
+        ? controller.resolve(country!.name)
+        : s.countryId.toUpperCase();
     final name = controller.resolve(s.name);
     final deadline = controller.resolve(s.deadlineLabel);
     final match = controller.scholarshipMatch(s);
@@ -154,7 +175,7 @@ class _ScholarshipCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      _countryFlags[country.id] ?? '🌍',
+                      _countryFlags[s.countryId] ?? '🌍',
                       style: const TextStyle(fontSize: 26),
                     ),
                   ),
@@ -166,17 +187,19 @@ class _ScholarshipCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      controller.resolve(country.name).toUpperCase(),
+                      countryName.toUpperCase(),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                        color:
+                            isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
                         letterSpacing: 0.8,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(name,
-                        style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary, height: 1.2),
+                        style: KpbTextStyles.titleMd.copyWith(
+                            color: context.kpb.textPrimary, height: 1.2),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),
                   ],
@@ -195,18 +218,25 @@ class _ScholarshipCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: controller.isSaved(SavedItemType.scholarship, s.id) 
-                            ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.1) 
-                            : Colors.transparent,
+                        color:
+                            controller.isSaved(SavedItemType.scholarship, s.id)
+                                ? (isDark
+                                        ? KpbColors.stitchCyberCyan
+                                        : KpbColors.blue)
+                                    .withValues(alpha: 0.1)
+                                : Colors.transparent,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         controller.isSaved(SavedItemType.scholarship, s.id)
                             ? Icons.bookmark_rounded
                             : Icons.bookmark_outline_rounded,
-                        color: controller.isSaved(SavedItemType.scholarship, s.id)
-                            ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
-                            : context.kpb.gray400,
+                        color:
+                            controller.isSaved(SavedItemType.scholarship, s.id)
+                                ? (isDark
+                                    ? KpbColors.stitchCyberCyan
+                                    : KpbColors.blue)
+                                : context.kpb.gray400,
                         size: 20,
                       ),
                     ),
@@ -246,7 +276,8 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+              style: KpbTextStyles.caption
+                  .copyWith(color: context.kpb.textSecondary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -263,7 +294,7 @@ class _InfoRow extends StatelessWidget {
 void _openDetail(
   BuildContext context,
   ScholarshipModel s,
-  CountryModel country,
+  CountryModel? country,
   AppController controller,
 ) {
   showModalBottomSheet<void>(
@@ -299,7 +330,7 @@ class _DetailSheetContent extends StatefulWidget {
   });
 
   final ScholarshipModel scholarship;
-  final CountryModel country;
+  final CountryModel? country;
   final AppController controller;
   final ScrollController scrollController;
 
@@ -316,10 +347,11 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
     final country = widget.country;
     final controller = widget.controller;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Parse deadline for roadmap (Mock fallback for demo)
-    final deadline = RoadmapEngine.calculateDate(DateTime.now().add(const Duration(days: 90)), 0); 
-    
+    final deadline = RoadmapEngine.calculateDate(
+        DateTime.now().add(const Duration(days: 90)), 0);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg),
       child: ListView(
@@ -337,7 +369,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             ),
           ),
           const SizedBox(height: KpbSpacing.lg),
-          
+
           // TAB SELECTOR
           Container(
             padding: const EdgeInsets.all(4),
@@ -360,7 +392,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           ] else ...[
             RoadmapTimelineView(scholarship: s, deadline: deadline),
           ],
-          
+
           const SizedBox(height: KpbSpacing.xl),
         ],
       ),
@@ -376,7 +408,9 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue) : Colors.transparent,
+            color: active
+                ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                : Colors.transparent,
             borderRadius: KpbRadius.mdBr,
             boxShadow: active ? (isDark ? null : KpbShadow.soft) : null,
           ),
@@ -394,7 +428,11 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
     );
   }
 
-  Widget _buildInfoContent(ScholarshipModel s, CountryModel country, AppController controller, bool isDark) {
+  Widget _buildInfoContent(ScholarshipModel s, CountryModel? country,
+      AppController controller, bool isDark) {
+    final countryName = country != null
+        ? controller.resolve(country.name)
+        : s.countryId.toUpperCase();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -406,13 +444,14 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   KpbBadge(
-                    label: controller.resolve(country.name).toUpperCase(),
+                    label: countryName.toUpperCase(),
                     color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     controller.resolve(s.name),
-                    style: KpbTextStyles.displaySm.copyWith(height: 1.1, color: context.kpb.textPrimary),
+                    style: KpbTextStyles.displaySm
+                        .copyWith(height: 1.1, color: context.kpb.textPrimary),
                   ),
                 ],
               ),
@@ -420,29 +459,34 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             const SizedBox(width: 12),
             Hero(
               tag: 'schol_${s.id}',
-              child: AdmissionMeter(score: controller.scholarshipMatch(s), size: 54, strokeWidth: 5),
+              child: AdmissionMeter(
+                  score: controller.scholarshipMatch(s),
+                  size: 54,
+                  strokeWidth: 5),
             ),
           ],
         ),
         const SizedBox(height: KpbSpacing.lg),
-        
         _AdmissionHook(
           score: controller.scholarshipMatch(s),
           scholarshipName: controller.resolve(s.name),
           isDark: isDark,
         ),
         const SizedBox(height: KpbSpacing.md),
-        
         if (s.academyCourseId != null) ...[
-           _AcademyCtaCard(courseId: s.academyCourseId!, isDark: isDark),
-           const SizedBox(height: KpbSpacing.md),
+          _AcademyCtaCard(courseId: s.academyCourseId!, isDark: isDark),
+          const SizedBox(height: KpbSpacing.md),
         ],
-
-        _buildDetailRow(Icons.school_outlined, 'Niveau : ', controller.resolve(s.levelEligible)),
-        _buildDetailRow(Icons.payments_outlined, 'Financement : ', controller.resolve(s.typeOfFunding)),
-        _buildDetailRow(Icons.event_outlined, 'Date limite : ', controller.resolve(s.deadlineLabel)),
+        _buildDetailRow(Icons.school_outlined, 'Niveau : ',
+            controller.resolve(s.levelEligible)),
+        _buildDetailRow(Icons.payments_outlined, 'Financement : ',
+            controller.resolve(s.typeOfFunding)),
+        _buildDetailRow(Icons.event_outlined, 'Date limite : ',
+            controller.resolve(s.deadlineLabel)),
         const SizedBox(height: KpbSpacing.xl),
-        Text('Critères clés :', style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
+        Text('Critères clés :',
+            style:
+                KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
         const SizedBox(height: 16),
         ...s.keyRequirements.map(
           (e) => Padding(
@@ -453,11 +497,14 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
                 Padding(
                   padding: const EdgeInsets.only(top: 2, right: 12),
                   child: Icon(Icons.check_circle_rounded,
-                      size: 20, color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue),
+                      size: 20,
+                      color:
+                          isDark ? KpbColors.stitchCyberCyan : KpbColors.blue),
                 ),
                 Expanded(
                   child: Text(controller.resolve(e),
-                      style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary)),
+                      style: KpbTextStyles.body
+                          .copyWith(color: context.kpb.textSecondary)),
                 ),
               ],
             ),
@@ -477,17 +524,21 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
     );
   }
 
-  void _showApplicationOptions(BuildContext context, ScholarshipModel s, CountryModel country, AppController controller) {
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => CaseComposerSheet(
-          caseType: CaseType.scholarshipSupport,
-          title: controller.resolve(s.name),
-          contextLabel: controller.resolve(country.name),
-        ),
-      );
+  void _showApplicationOptions(BuildContext context, ScholarshipModel s,
+      CountryModel? country, AppController controller) {
+    final countryLabel = country != null
+        ? controller.resolve(country.name)
+        : s.countryId.toUpperCase();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CaseComposerSheet(
+        caseType: CaseType.scholarshipSupport,
+        title: controller.resolve(s.name),
+        contextLabel: countryLabel,
+      ),
+    );
   }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
@@ -504,9 +555,14 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             child: Icon(icon, size: 20, color: context.kpb.gray400),
           ),
           const SizedBox(width: 12),
-          Text(label, style: KpbTextStyles.body.copyWith(color: context.kpb.textMuted)),
+          Text(label,
+              style: KpbTextStyles.body.copyWith(color: context.kpb.textMuted)),
           const SizedBox(width: 4),
-          Expanded(child: Text(value, style: KpbTextStyles.body.copyWith(fontWeight: FontWeight.w700, color: context.kpb.textPrimary))),
+          Expanded(
+              child: Text(value,
+                  style: KpbTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: context.kpb.textPrimary))),
         ],
       ),
     );
@@ -514,7 +570,10 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
 }
 
 class _AdmissionHook extends StatelessWidget {
-  const _AdmissionHook({required this.score, required this.scholarshipName, required this.isDark});
+  const _AdmissionHook(
+      {required this.score,
+      required this.scholarshipName,
+      required this.isDark});
   final int score;
   final String scholarshipName;
   final bool isDark;
@@ -541,7 +600,8 @@ class _AdmissionHook extends StatelessWidget {
                   color: KpbColors.warning.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.warning_amber_rounded, color: KpbColors.warning, size: 18),
+                child: const Icon(Icons.warning_amber_rounded,
+                    color: KpbColors.warning, size: 18),
               ),
               const SizedBox(width: 10),
               const Text(
@@ -557,7 +617,10 @@ class _AdmissionHook extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Ton dossier actuel est à $score%. Pour une bourse comme "$scholarshipName", le seuil de sécurité est de 85%.',
-            style: TextStyle(fontSize: 14, color: isDark ? Colors.white70 : context.kpb.textSecondary, height: 1.4),
+            style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : context.kpb.textSecondary,
+                height: 1.4),
           ),
           const SizedBox(height: 16),
           KpbButton(
@@ -627,20 +690,28 @@ class _AcademyCtaCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            isPurchased ? 'Continue ta formation' : 'Prépare ta candidature avec des experts',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: context.kpb.textPrimary),
+            isPurchased
+                ? 'Continue ta formation'
+                : 'Prépare ta candidature avec des experts',
+            style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: context.kpb.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             'Accède au pack de tutoriels vidéos exclusifs pour réussir ton dossier.',
-            style: TextStyle(color: context.kpb.textSecondary, fontSize: 13, height: 1.4),
+            style: TextStyle(
+                color: context.kpb.textSecondary, fontSize: 13, height: 1.4),
           ),
           const SizedBox(height: 16),
           KpbButton(
             text: isPurchased ? 'Ouvrir mon pack' : 'Voir le Pack Réussite',
             onPressed: () => Get.to(() => AcademyCourseScreen(course: course)),
             bgColor: isPurchased ? KpbColors.success : themeColor,
-            icon: isPurchased ? Icons.play_circle_fill_rounded : Icons.star_rounded,
+            icon: isPurchased
+                ? Icons.play_circle_fill_rounded
+                : Icons.star_rounded,
           ),
         ],
       ),

@@ -29,19 +29,24 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ── Firebase ──────────────────────────────────────────────────────────────
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // ── Crashlytics — catch all uncaught errors ──────────────────────────────
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  bool firebaseInitialized = false;
 
   try {
+    // ── Safe Firebase Booting ────────────────────────────────────────────────
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+      firebaseInitialized = true;
+    } catch (firebaseError) {
+      debugPrint('Firebase/Crashlytics boot skipped (running offline/local-only): $firebaseError');
+    }
+
     // ── Offline catalog cache (Hive) ─────────────────────────────────────────
     await Hive.initFlutter();
     await CatalogCacheService.init();
@@ -60,14 +65,20 @@ Future<void> main() async {
     Get.put(PushNotificationService());
     
     ConnectivityService.instance.startMonitoring();
-    ConnectivityService.instance.onConnectivityChanged.listen((online) async {
+    
+    Timer? connectivityDebounceTimer;
+    ConnectivityService.instance.onConnectivityChanged.listen((online) {
       if (online) {
-        // Reconnect: drain the offline message outbox and refresh remote data.
-        await Future.delayed(const Duration(seconds: 2));
-        if (ConnectivityService.instance.isOnline) {
-          controller.flushPendingCaseMessages();
-          controller.syncRemoteData(silent: true);
-        }
+        // Debounce connection changes by 3 seconds to mitigate cell signal flapping
+        connectivityDebounceTimer?.cancel();
+        connectivityDebounceTimer = Timer(const Duration(seconds: 3), () async {
+          if (ConnectivityService.instance.isOnline) {
+            controller.flushPendingCaseMessages();
+            controller.syncRemoteData(silent: true);
+          }
+        });
+      } else {
+        connectivityDebounceTimer?.cancel();
       }
     });
 
@@ -98,7 +109,11 @@ Future<void> main() async {
 
     runApp(const KpbEducationApp());
   } catch (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    if (firebaseInitialized) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    } else {
+      debugPrint('Boot critical error: $error\n$stack');
+    }
     runApp(BootstrapErrorApp(error: error));
   }
 }

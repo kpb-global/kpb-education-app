@@ -16,6 +16,10 @@ void main() {
         AppRoutes.normalizeExternalRoute(AppRoutes.caseCreate),
         AppRoutes.caseCreate,
       );
+      expect(
+        AppRoutes.normalizeExternalRoute(AppRoutes.scholarships),
+        AppRoutes.scholarships,
+      );
     });
 
     test('normalizes valid case detail route', () {
@@ -46,6 +50,19 @@ void main() {
       expect(AppRoutes.normalizeExternalRoute('/cases/'), isNull);
       expect(AppRoutes.normalizeExternalRoute('/cases/a/b'), isNull);
       expect(AppRoutes.normalizeExternalRoute('/unknown'), isNull);
+    });
+  });
+
+  group('AppRoutes.pages', () {
+    test('registers all critical named routes for external openability', () {
+      final names = AppRoutes.pages.map((page) => page.name).toSet();
+
+      expect(names, contains(AppRoutes.home));
+      expect(names, contains(AppRoutes.search));
+      expect(names, contains(AppRoutes.scholarships));
+      expect(names, contains(AppRoutes.caseCreate));
+      expect(names, contains(AppRoutes.caseDetail));
+      expect(names.length, equals(5));
     });
   });
 }

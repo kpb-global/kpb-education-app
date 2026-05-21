@@ -123,7 +123,9 @@ void main() {
       expect(controller.localeCode, 'en');
     });
 
-    test('clears cases on onboarding complete (cases come from API when sync runs)', () {
+    test(
+        'clears cases on onboarding complete (cases come from API when sync runs)',
+        () {
       controller.completeOnboarding(_studentProfile());
 
       expect(controller.cases, isEmpty);
@@ -313,6 +315,14 @@ void main() {
       controller.goToTab(3);
       controller.goToTab(0);
 
+      expect(controller.shellIndex, 0);
+    });
+
+    test('clamps out-of-range tab index for shell safety', () {
+      controller.goToTab(999);
+      expect(controller.shellIndex, AppController.shellTabCount - 1);
+
+      controller.goToTab(-10);
       expect(controller.shellIndex, 0);
     });
   });

@@ -25,6 +25,7 @@ class CatalogCacheService {
   final Box<String> _box;
 
   static CatalogCacheService? _instance;
+  static bool get isInitialized => _instance != null;
   static CatalogCacheService get instance {
     final value = _instance;
     if (value == null) {
