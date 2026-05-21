@@ -36,14 +36,22 @@ class AppShell extends StatelessWidget {
     return GetBuilder<AppController>(
       builder: (_) {
         return Scaffold(
-          extendBody: true, // Allows content to flow behind the floating nav bar
-          body: IndexedStack(
-            index: controller.shellIndex,
-            children: pages,
-          ),
-          bottomNavigationBar: _KpbFloatingNavBar(
-            currentIndex: controller.shellIndex,
-            onTap: controller.goToTab,
+          body: Stack(
+            children: [
+              IndexedStack(
+                index: controller.shellIndex,
+                children: pages,
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _KpbFloatingNavBar(
+                  currentIndex: controller.shellIndex,
+                  onTap: controller.goToTab,
+                ),
+              ),
+            ],
           ),
         );
       },

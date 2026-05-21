@@ -40,7 +40,10 @@ class _OrientationScreenState extends State<OrientationScreen> {
     return GetBuilder<AppController>(
       builder: (_) {
         if (!_ctrl.isStudent) {
-          return _ConsultativeView(controller: _ctrl);
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: _ConsultativeView(controller: _ctrl),
+          );
         }
 
         final questions = _ctrl.orientationQuestions;
@@ -49,17 +52,20 @@ class _OrientationScreenState extends State<OrientationScreen> {
 
         // Show results if test already done or user just finished
         if (_showResults && hasResult) {
-          return _ResultsView(
-            result: latestResult,
-            controller: _ctrl,
-            onRetake: () {
-              _ctrl.clearOrientationProgress();
-              setState(() {
-                _answers.clear();
-                _questionIndex = 0;
-                _showResults = false;
-              });
-            },
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: _ResultsView(
+              result: latestResult,
+              controller: _ctrl,
+              onRetake: () {
+                _ctrl.clearOrientationProgress();
+                setState(() {
+                  _answers.clear();
+                  _questionIndex = 0;
+                  _showResults = false;
+                });
+              },
+            ),
           );
         }
 
@@ -342,6 +348,7 @@ class _ResultsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top + KpbSpacing.md;
     return CustomScrollView(
       slivers: [
         // ── Hero banner ───────────────────────────────────────────────────
@@ -350,11 +357,37 @@ class _ResultsView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
-                KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.lg),
+            padding: EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                topPadding, KpbSpacing.pagePad, KpbSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: KpbRadius.mdBr,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: KpbSpacing.md),
                 const KpbBadge(
                   label: '✅ Orientation complète',
                   color: KpbColors.success,
@@ -717,6 +750,7 @@ class _ConsultativeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top + KpbSpacing.md;
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -724,11 +758,37 @@ class _ConsultativeView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
-                KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.xl),
+            padding: EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                topPadding, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: KpbRadius.mdBr,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: KpbSpacing.md),
                 Text('nav_orientation'.tr,
                     style: const TextStyle(
                       color: Colors.white,
