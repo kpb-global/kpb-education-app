@@ -514,9 +514,9 @@ class _RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) {
-    final score = rec.score as int;
-    final accentColor = Color(field.accentColor as int);
-    final saved = controller.isSaved(SavedItemType.field, field.id as String);
+    final score = rec.score; // already typed int in OrientationRecommendation
+    final accentColor = field.accentColor; // already typed Color in StudyField
+    final saved = controller.isSaved(SavedItemType.field, field.id);
 
     return KpbCard(
       border: isBest

@@ -136,6 +136,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KpbRadius.pill)),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         _currentPage == _slides.length - 1 ? "Commencer" : "Continuer",

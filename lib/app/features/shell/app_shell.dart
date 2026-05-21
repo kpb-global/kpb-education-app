@@ -79,7 +79,12 @@ class _KpbFloatingNavBar extends StatelessWidget {
           borderRadius: KpbRadius.pillBr,
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(
+            // BackdropFilter can swallow pointer events in some Flutter versions
+            // when combined with ClipRRect. A plain absorbing=false wrapper
+            // ensures the Row's GestureDetectors receive all taps.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
               key: const ValueKey('kpb_shell_nav_bar'),
               height: 68,
               decoration: BoxDecoration(
@@ -136,6 +141,7 @@ class _KpbFloatingNavBar extends StatelessWidget {
                 ],
               ),
             ),
+          ), // Material
           ),
         ),
       ),

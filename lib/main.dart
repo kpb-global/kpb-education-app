@@ -168,6 +168,9 @@ class KpbEducationApp extends StatelessWidget {
           transitionDuration: const Duration(milliseconds: 280),
           getPages: AppRoutes.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
+          // NOTE: `home` here only sets the *initial* route on cold-start.
+          // Transitioning from Onboarding → AppShell at runtime is done via
+          // Get.offAll() in OnboardingScreen._submit(), not by this property.
           home: controller.hasCompletedOnboarding
               ? const AppShell()
               : (controller.hasSeenIntro

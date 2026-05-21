@@ -7,6 +7,7 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../legal/legal_pages.dart';
+import '../shell/app_shell.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Dial codes
@@ -221,6 +222,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       consentedAt: DateTime.now(),
     );
     _ctrl.completeOnboarding(profile);
+    // GetMaterialApp's `home:` property does not trigger navigation once the app
+    // is already running — only the initial build uses it. We must navigate
+    // explicitly here to clear the onboarding stack and land on AppShell.
+    Get.offAll(() => const AppShell());
   }
 
   @override

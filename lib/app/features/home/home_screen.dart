@@ -909,13 +909,17 @@ class _QuickActions extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(a.$1, color: a.$3, size: 16),
-                          const SizedBox(width: 6),
-                          Text(
-                            a.$2,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              a.$2,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ),
                         ],
