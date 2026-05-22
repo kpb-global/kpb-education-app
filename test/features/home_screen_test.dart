@@ -61,7 +61,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.person_outline_rounded));
       await tester.pumpAndSettle();
 
-      expect(controller.shellIndex, equals(4));
+      expect(controller.shellIndex, equals(3));
 
       await tester.binding.setSurfaceSize(null);
     });

@@ -29,7 +29,7 @@ import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 
 class AppController extends GetxController {
-  static const int shellTabCount = 5;
+  static const int shellTabCount = 4;
 
   AppController({
     required AppRepository repository,

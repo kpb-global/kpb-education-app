@@ -1514,7 +1514,7 @@ class MockCatalog {
           en: 'English (GMAT or GRE required)'),
       intakePeriods: ['Septembre'],
       programIds: ['prog_s005'],
-      isPartner: false,
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'essec',
@@ -1533,7 +1533,7 @@ class MockCatalog {
           LocalizedText(fr: 'Anglais + Français', en: 'English + French'),
       intakePeriods: ['Septembre', 'Janvier'],
       programIds: ['prog_s006'],
-      isPartner: false,
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'sciences_po',
@@ -1569,7 +1569,7 @@ class MockCatalog {
           LocalizedText(fr: 'Anglais / Français', en: 'English / French'),
       intakePeriods: ['Septembre', 'Janvier'],
       programIds: ['prog_s008'],
-      isPartner: false,
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'grenoble_em',
@@ -2854,8 +2854,8 @@ class MockCatalog {
       languageRequirements:
           LocalizedText(fr: 'Anglais / Français', en: 'English / French'),
       intakePeriods: ['Septembre', 'Janvier'],
-      programIds: ['prog_fr_priv001'],
-      isPartner: false,
+      programIds: ['prog_fr_priv001', 'prog_skema_mim'],
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'edhec',
@@ -2874,8 +2874,8 @@ class MockCatalog {
           fr: 'Anglais (GMAT souvent requis pour masters)',
           en: 'English (GMAT often req. for masters)'),
       intakePeriods: ['Septembre'],
-      programIds: ['prog_fr_priv002'],
-      isPartner: false,
+      programIds: ['prog_fr_priv002', 'prog_edhec_bba'],
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'epita',
@@ -2892,8 +2892,53 @@ class MockCatalog {
           fr: 'Français (B2) / Anglais pour programmes inter',
           en: 'French (B2) / English for intl programs'),
       intakePeriods: ['Septembre'],
-      programIds: ['prog_fr_priv003'],
-      isPartner: false,
+      programIds: ['prog_fr_priv003', 'prog_epita_cs'],
+      isPartner: true,
+    ),
+    InstitutionModel(
+      id: 'epitech_paris',
+      name: LocalizedText(fr: "Epitech Paris", en: "Epitech Paris"),
+      countryId: 'france',
+      location: LocalizedText(fr: "Paris (Kremlin-Bicêtre)", en: "Paris (Kremlin-Bicêtre)"),
+      overview: LocalizedText(
+          fr: "L'école de l'expertise informatique et de l'innovation. Pédagogie active par projets, sans cours magistraux.",
+          en: "The school of IT expertise and innovation. Active project-based learning, no lectures."),
+      studyLevels: ['Bac+3', 'Bac+5'],
+      tuitionLabel: LocalizedText(fr: "8 500–10 900 EUR/an", en: "8,500–10,900 EUR/yr"),
+      languageRequirements: LocalizedText(fr: "Français / Anglais", en: "French / English"),
+      intakePeriods: ['Septembre', 'Mars'],
+      programIds: ['prog_epitech_msc'],
+      isPartner: true,
+    ),
+    InstitutionModel(
+      id: 'rubika_val',
+      name: LocalizedText(fr: "Rubika", en: "Rubika"),
+      countryId: 'france',
+      location: LocalizedText(fr: "Valenciennes / Montréal", en: "Valenciennes / Montreal"),
+      overview: LocalizedText(
+          fr: "École de référence mondiale pour le Jeu Vidéo, l'Animation 3D et le Design Industriel.",
+          en: "World reference school for Video Games, 3D Animation, and Industrial Design."),
+      studyLevels: ['Bac+3', 'Bac+5'],
+      tuitionLabel: LocalizedText(fr: "9 200–11 500 EUR/an", en: "9,200–11,500 EUR/yr"),
+      languageRequirements: LocalizedText(fr: "Français (portfolio requis)", en: "French (portfolio required)"),
+      intakePeriods: ['Septembre'],
+      programIds: ['prog_rubika_master'],
+      isPartner: true,
+    ),
+    InstitutionModel(
+      id: 'isg_paris',
+      name: LocalizedText(fr: "ISG International Business School", en: "ISG International Business School"),
+      countryId: 'france',
+      location: LocalizedText(fr: "Paris", en: "Paris"),
+      overview: LocalizedText(
+          fr: "Grande école de commerce internationale. Programmes Luxury Management, Sport Business et double diplômes.",
+          en: "International business school. Programs in Luxury Management, Sport Business and double degrees."),
+      studyLevels: ['Bac+3', 'Bac+5'],
+      tuitionLabel: LocalizedText(fr: "9 800–12 500 EUR/an", en: "9,800–12,500 EUR/yr"),
+      languageRequirements: LocalizedText(fr: "Français / Anglais", en: "French / English"),
+      intakePeriods: ['Septembre', 'Janvier'],
+      programIds: ['prog_isg_bba'],
+      isPartner: true,
     ),
     InstitutionModel(
       id: 'em_lyon_casablanca',
@@ -3794,8 +3839,8 @@ class MockCatalog {
         languageRequirements:
             LocalizedText(fr: 'Français / Anglais', en: 'French / English'),
         intakePeriods: ['Septembre'],
-        programIds: ['prog_fr_escp'],
-        isPartner: false),
+        programIds: ['prog_fr_escp', 'prog_escp_mim'],
+        isPartner: true),
     InstitutionModel(
         id: 'em_lyon',
         name: LocalizedText(
@@ -3811,8 +3856,8 @@ class MockCatalog {
         languageRequirements:
             LocalizedText(fr: 'Français / Anglais', en: 'French / English'),
         intakePeriods: ['Septembre'],
-        programIds: ['prog_fr_emlyon'],
-        isPartner: false),
+        programIds: ['prog_fr_emlyon', 'prog_s008'],
+        isPartner: true),
     InstitutionModel(
         id: 'edhec_bus',
         name: LocalizedText(
@@ -3827,8 +3872,8 @@ class MockCatalog {
         languageRequirements:
             LocalizedText(fr: 'Français / Anglais', en: 'French / English'),
         intakePeriods: ['Septembre'],
-        programIds: ['prog_fr_edhec'],
-        isPartner: false),
+        programIds: ['prog_fr_edhec', 'prog_edhec_bba'],
+        isPartner: true),
     InstitutionModel(
         id: 'audencia_bus',
         name: LocalizedText(fr: 'Audencia', en: 'Audencia'),
@@ -7973,328 +8018,262 @@ class MockCatalog {
             en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
       ],
     ),
-  ];
+      ProgramModel(
+      id: 'prog_s005',
+      institutionId: 'hec_paris',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "Master in Management (Grande École)",
+        en: "Master in Management (Grande École)",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 ans", en: "2 years"),
+      tuition: LocalizedText(
+        fr: "24 500 € / an (UE) - 29 800 € / an (Hors UE)",
+        en: "24,500 € / year (EU) - 29,800 € / year (Non-EU)",
+      ),
+      language: LocalizedText(fr: "Anglais", en: "English"),
+      requirements: [
+        LocalizedText(
+          fr: "Diplôme de Licence/Bachelor, score GMAT/GRE ou TAGE MAGE, et niveau d'anglais certifié (TOEFL/IELTS).",
+          en: "Bachelor's degree, GMAT/GRE or TAGE MAGE score, and English proficiency certificate (TOEFL/IELTS).",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_s006',
+      institutionId: 'essec',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "Global BBA (Bachelor in Business Administration)",
+        en: "Global BBA (Bachelor in Business Administration)",
+      ),
+      level: LocalizedText(fr: "Bac+4", en: "Bachelor's Degree"),
+      duration: LocalizedText(fr: "4 ans", en: "4 years"),
+      tuition: LocalizedText(
+        fr: "16 500 € / an",
+        en: "16,500 € / year",
+      ),
+      language: LocalizedText(fr: "Français & Anglais", en: "French & English"),
+      requirements: [
+        LocalizedText(
+          fr: "Diplôme de fin d'études secondaires (Baccalauréat ou équivalent) avec un excellent dossier académique.",
+          en: "High school diploma (French Baccalaureate or equivalent) with strong academic records.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_s007',
+      institutionId: 'sciences_po',
+      countryId: 'france',
+      fieldId: 'd07',
+      name: LocalizedText(
+        fr: "Master en Affaires Publiques",
+        en: "Master in Public Policy",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 ans", en: "2 years"),
+      tuition: LocalizedText(
+        fr: "Calculez selon les revenus (0 € à 14 200 € / an)",
+        en: "Income-based scaling (0 € to 14,200 € / year)",
+      ),
+      language: LocalizedText(fr: "Français ou Anglais", en: "French or English"),
+      requirements: [
+        LocalizedText(
+          fr: "Diplôme de Licence / Bachelor ou équivalent et entretien d'admission rigoureux.",
+          en: "Bachelor's degree or equivalent and a rigorous admission interview.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_s008',
+      institutionId: 'em_lyon',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "MSc in Management - Grande École",
+        en: "MSc in Management - Grande École",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 à 3 ans", en: "2 to 3 years"),
+      tuition: LocalizedText(
+        fr: "19 500 € / an",
+        en: "19,500 € / year",
+      ),
+      language: LocalizedText(fr: "Anglais & Français", en: "English & French"),
+      requirements: [
+        LocalizedText(
+          fr: "Licence/Bachelor en France ou à l'international, test de logique (GMAT/GRE/TAGE MAGE) et entretien de motivation.",
+          en: "Bachelor's degree, logic test (GMAT/GRE/TAGE MAGE), and motivation interview.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_escp_mim',
+      institutionId: 'escp_paris',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "Master in Management (Grande École)",
+        en: "Master in Management (Grande École)",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 ans", en: "2 years"),
+      tuition: LocalizedText(
+        fr: "21 800 € / an",
+        en: "21,800 € / year",
+      ),
+      language: LocalizedText(fr: "Anglais & Français", en: "English & French"),
+      requirements: [
+        LocalizedText(
+          fr: "Licence 3 ou équivalent international, score GMAT/GRE/TAGE MAGE, et excellent niveau en langues.",
+          en: "Bachelor's degree or international equivalent, GMAT/GRE/TAGE MAGE score, and excellent language skills.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_edhec_bba',
+      institutionId: 'edhec_bus',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "EDHEC International BBA",
+        en: "EDHEC International BBA",
+      ),
+      level: LocalizedText(fr: "Bac+4", en: "Bachelor's Degree"),
+      duration: LocalizedText(fr: "4 ans", en: "4 years"),
+      tuition: LocalizedText(
+        fr: "14 200 € / an",
+        en: "14,200 € / year",
+      ),
+      language: LocalizedText(fr: "100% Anglais ou Bilingue", en: "100% English or Bilingual"),
+      requirements: [
+        LocalizedText(
+          fr: "Baccalauréat ou diplôme d'études secondaires équivalent, dossier académique et test d'anglais certifié.",
+          en: "High school diploma or equivalent, academic records, and standardized English test.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_skema_mim',
+      institutionId: 'skema',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "Master in Management (Grande École)",
+        en: "Master in Management (Grande École)",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 ans", en: "2 years"),
+      tuition: LocalizedText(
+        fr: "16 000 € / an",
+        en: "16,000 € / year",
+      ),
+      language: LocalizedText(fr: "Anglais & Français", en: "English & French"),
+      requirements: [
+        LocalizedText(
+          fr: "Diplôme de niveau Licence ou équivalent, score de test d'anglais ou de français selon le parcours de spécialisation.",
+          en: "Bachelor's degree or equivalent, English or French proficiency tests depending on the track.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_epita_cs',
+      institutionId: 'epita',
+      countryId: 'france',
+      fieldId: 'd01',
+      name: LocalizedText(
+        fr: "Master of Science in Computer Science",
+        en: "Master of Science in Computer Science",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "2 ans", en: "2 years"),
+      tuition: LocalizedText(
+        fr: "10 900 € / an",
+        en: "10,900 € / year",
+      ),
+      language: LocalizedText(fr: "100% Anglais", en: "100% English"),
+      requirements: [
+        LocalizedText(
+          fr: "Bachelor en Informatique, Ingénierie ou Mathématiques avec un bon dossier, test de compétences en anglais.",
+          en: "Bachelor's degree in CS, IT, Engineering, or Math, and English test certification.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_epitech_msc',
+      institutionId: 'epitech_paris',
+      countryId: 'france',
+      fieldId: 'd01',
+      name: LocalizedText(
+        fr: "MSc Pro - Expert en Technologies de l'Information",
+        en: "MSc Pro - Expert in Information Technology",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "5 ans (post-Bac) ou 2 ans (post-Bac+3)", en: "5 years (post-HighSchool) or 2 years (post-Bachelor)"),
+      tuition: LocalizedText(
+        fr: "9 900 € / an",
+        en: "9,900 € / year",
+      ),
+      language: LocalizedText(fr: "Français & Anglais", en: "French & English"),
+      requirements: [
+        LocalizedText(
+          fr: "Passion pour le code, entretien de motivation individuel, et test d'aptitude technique.",
+          en: "Strong passion for coding, individual admission interview, and technical aptitude test.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_rubika_master',
+      institutionId: 'rubika_val',
+      countryId: 'france',
+      fieldId: 'd06',
+      name: LocalizedText(
+        fr: "Cycle Supérieur - Cinéma d'Animation 3D / VFX / Jeu Vidéo",
+        en: "Graduate Program - 3D Animation / VFX / Game Design",
+      ),
+      level: LocalizedText(fr: "Bac+5", en: "Master's Degree"),
+      duration: LocalizedText(fr: "5 ans", en: "5 years"),
+      tuition: LocalizedText(
+        fr: "9 600 € / an",
+        en: "9,600 € / year",
+      ),
+      language: LocalizedText(fr: "Français", en: "French"),
+      requirements: [
+        LocalizedText(
+          fr: "Présentation d'un portfolio artistique (dessins, modélisations) et entretien individuel de création.",
+          en: "Submission of an artistic portfolio (sketching, modeling) and creative interview.",
+        ),
+      ],
+    ),
+    ProgramModel(
+      id: 'prog_isg_bba',
+      institutionId: 'isg_paris',
+      countryId: 'france',
+      fieldId: 'd02',
+      name: LocalizedText(
+        fr: "International BBA - Luxe & Management International",
+        en: "International BBA - Luxury & International Management",
+      ),
+      level: LocalizedText(fr: "Bac+4", en: "Bachelor's Degree"),
+      duration: LocalizedText(fr: "4 ans", en: "4 years"),
+      tuition: LocalizedText(
+        fr: "10 800 € / an",
+        en: "10,800 € / year",
+      ),
+      language: LocalizedText(fr: "Anglais", en: "English"),
+      requirements: [
+        LocalizedText(
+          fr: "Baccalauréat ou équivalent international, dossier de candidature, test écrit et entretien de motivation.",
+          en: "High school graduation, application folder, written test, and motivation interview.",
+        ),
+      ],
+    ),
+];
 
-  static const scholarships = <ScholarshipModel>[
-    ScholarshipModel(
-      id: 'brs_fulbright',
-      name: LocalizedText(fr: 'Programme Fulbright', en: 'Fulbright Program'),
-      countryId: 'usa',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding: LocalizedText(
-          fr: 'Financement Complet (Voyage + Études + Vie)',
-          en: 'Full Funding (Travel + Tuition + Living)'),
-      deadlineLabel: LocalizedText(fr: 'Mai - Octobre', en: 'May - October'),
-      keyRequirements: [
-        LocalizedText(fr: 'Nationalité africaine', en: 'African citizenship'),
-        LocalizedText(
-            fr: 'Excellence académique (Mention Bien+)',
-            en: 'Academic excellence'),
-        LocalizedText(fr: 'Projet d\'études aux USA', en: 'US study project'),
-      ],
-      relatedFieldIds: [
-        'd01',
-        'd02',
-        'd03',
-        'd04',
-        'd05',
-        'd06',
-        'd07',
-        'd08',
-        'd09',
-        'd10',
-        'd11',
-        'd12'
-      ],
-      baseMatch: 40,
-      academyCourseId: 'c-fulbright',
-    ),
-    ScholarshipModel(
-      id: 'brs_001',
-      name: LocalizedText(
-          fr: 'Bourse du Gouvernement Français (BGF)',
-          en: 'Bourse du Gouvernement Français (BGF)'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding:
-          LocalizedText(fr: 'Variable selon pays', en: 'Variable selon pays'),
-      deadlineLabel: LocalizedText(
-          fr: 'Septembre–Novembre (selon pays)',
-          en: 'Septembre–Novembre (selon pays)'),
-      keyRequirements: [
-        LocalizedText(fr: 'Nationalité africaine', en: 'Nationalité africaine'),
-        LocalizedText(fr: 'excellence académique', en: 'excellence académique'),
-        LocalizedText(
-            fr: 'projet d\'études cohérent', en: 'projet d\'études cohérent'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_002',
-      name: LocalizedText(fr: 'Bourse DAAD', en: 'Bourse DAAD'),
-      countryId: 'germany',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding:
-          LocalizedText(fr: '750–1 200 EUR/mois', en: '750–1 200 EUR/mois'),
-      deadlineLabel: LocalizedText(
-          fr: 'Variable selon programme', en: 'Variable selon programme'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Excellent dossier académique',
-            en: 'Excellent dossier académique'),
-        LocalizedText(
-            fr: 'niveau B2 allemand ou C1 anglais',
-            en: 'niveau B2 allemand ou C1 anglais'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 80,
-    ),
-    ScholarshipModel(
-      id: 'brs_003',
-      name: LocalizedText(fr: 'Bourse OIF', en: 'Bourse OIF'),
-      countryId: 'france',
-      levelEligible: LocalizedText(fr: 'MASTER', en: 'MASTER'),
-      typeOfFunding:
-          LocalizedText(fr: 'Partielle (variable)', en: 'Partielle (variable)'),
-      deadlineLabel: LocalizedText(fr: 'Avril–Juin', en: 'Avril–Juin'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Ressortissant pays francophone',
-            en: 'Ressortissant pays francophone'),
-        LocalizedText(
-            fr: 'admission dans établissement francophone',
-            en: 'admission dans établissement francophone'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_004',
-      name: LocalizedText(
-          fr: 'Bourse Erasmus+ Mobilité Afrique-Europe',
-          en: 'Bourse Erasmus+ Mobilité Afrique-Europe'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'LICENCE, MASTER', en: 'LICENCE, MASTER'),
-      typeOfFunding:
-          LocalizedText(fr: '700–1 000 EUR/mois', en: '700–1 000 EUR/mois'),
-      deadlineLabel: LocalizedText(fr: 'Variable', en: 'Variable'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Via accord inter-universitaire. Nécessite inscription dans université partenaire',
-            en: 'Via accord inter-universitaire. Nécessite inscription dans université partenaire'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_005',
-      name: LocalizedText(fr: 'Bourse AUF', en: 'Bourse AUF'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding: LocalizedText(fr: 'Partielle', en: 'Partielle'),
-      deadlineLabel: LocalizedText(fr: 'Janvier–Mars', en: 'Janvier–Mars'),
-      keyRequirements: [
-        LocalizedText(fr: 'Excellence académique', en: 'Excellence académique'),
-        LocalizedText(fr: 'projet de recherche', en: 'projet de recherche'),
-        LocalizedText(fr: 'pays membres AUF', en: 'pays membres AUF'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_006',
-      name: LocalizedText(
-          fr: 'Bourses Maroc Excellence', en: 'Bourses Maroc Excellence'),
-      countryId: 'morocco',
-      levelEligible:
-          LocalizedText(fr: 'LICENCE, MASTER', en: 'LICENCE, MASTER'),
-      typeOfFunding:
-          LocalizedText(fr: 'Couverture partielle', en: 'Couverture partielle'),
-      deadlineLabel: LocalizedText(fr: 'Juillet–Août', en: 'Juillet–Août'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Étudiants africains subsahariens',
-            en: 'Étudiants africains subsahariens'),
-        LocalizedText(
-            fr: 'dossier académique solide', en: 'dossier académique solide'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_007',
-      name: LocalizedText(
-          fr: 'Bourse Türkiye Burslari', en: 'Bourse Türkiye Burslari'),
-      countryId: 'turkey',
-      levelEligible: LocalizedText(
-          fr: 'LICENCE, MASTER, DOCTORAT', en: 'LICENCE, MASTER, DOCTORAT'),
-      typeOfFunding:
-          LocalizedText(fr: 'Couverture totale', en: 'Couverture totale'),
-      deadlineLabel:
-          LocalizedText(fr: 'Janvier–Février', en: 'Janvier–Février'),
-      keyRequirements: [
-        LocalizedText(fr: 'Nationalité africaine', en: 'Nationalité africaine'),
-        LocalizedText(fr: '70%+ de notes', en: '70%+ de notes'),
-        LocalizedText(fr: 'niveau anglais requis', en: 'niveau anglais requis'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 85,
-    ),
-    ScholarshipModel(
-      id: 'brs_008',
-      name: LocalizedText(
-          fr: 'Bourse Eiffel Excellence', en: 'Bourse Eiffel Excellence'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding: LocalizedText(fr: '1 181 EUR/mois', en: '1 181 EUR/mois'),
-      deadlineLabel:
-          LocalizedText(fr: 'Octobre–Janvier', en: 'Octobre–Janvier'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Excellent dossier académique',
-            en: 'Excellent dossier académique'),
-        LocalizedText(
-            fr: 'moins de 30 ans (Master)', en: 'moins de 30 ans (Master)'),
-        LocalizedText(
-            fr: 'moins de 35 ans (Doctorat)', en: 'moins de 35 ans (Doctorat)'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd05', 'd07'],
-      baseMatch: 80,
-    ),
-    ScholarshipModel(
-      id: 'brs_009',
-      name: LocalizedText(fr: 'Bourses du Canada', en: 'Bourses du Canada'),
-      countryId: 'canada',
-      levelEligible:
-          LocalizedText(fr: 'MASTER, DOCTORAT', en: 'MASTER, DOCTORAT'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel: LocalizedText(fr: 'Variable', en: 'Variable'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Admission dans université canadienne',
-            en: 'Admission dans université canadienne'),
-        LocalizedText(fr: 'dossier académique', en: 'dossier académique'),
-        LocalizedText(fr: 'lettre de motivation', en: 'lettre de motivation'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_010',
-      name: LocalizedText(fr: 'Bourse USAID / AAUW', en: 'Bourse USAID / AAUW'),
-      countryId: 'usa',
-      levelEligible: LocalizedText(fr: 'MASTER', en: 'MASTER'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel: LocalizedText(fr: 'Variable', en: 'Variable'),
-      keyRequirements: [
-        LocalizedText(fr: 'Excellence académique', en: 'Excellence académique'),
-        LocalizedText(
-            fr: 'projet de développement', en: 'projet de développement'),
-        LocalizedText(
-            fr: 'engagement communautaire', en: 'engagement communautaire'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_011',
-      name: LocalizedText(
-          fr: 'Bourse KPB Excellence (à créer)',
-          en: 'Bourse KPB Excellence (à créer)'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'LICENCE, MASTER', en: 'LICENCE, MASTER'),
-      typeOfFunding: LocalizedText(fr: 'À définir', en: 'À définir'),
-      deadlineLabel: LocalizedText(fr: 'À définir', en: 'À définir'),
-      keyRequirements: [
-        LocalizedText(
-            fr: 'Clients KPB avec excellent dossier',
-            en: 'Clients KPB avec excellent dossier'),
-        LocalizedText(
-            fr: 'engagement parcours complet',
-            en: 'engagement parcours complet'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd06'],
-      baseMatch: 90,
-    ),
-    ScholarshipModel(
-      id: 'brs_012',
-      name: LocalizedText(
-          fr: 'Bourses OMNES Education', en: 'Bourses OMNES Education'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'LICENCE, MASTER', en: 'LICENCE, MASTER'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel: LocalizedText(
-          fr: 'Selon calendrier école', en: 'Selon calendrier école'),
-      keyRequirements: [
-        LocalizedText(fr: 'Dossier académique', en: 'Dossier académique'),
-        LocalizedText(fr: 'entretien', en: 'entretien'),
-        LocalizedText(
-            fr: 'conditions variables par école',
-            en: 'conditions variables par école'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_013',
-      name: LocalizedText(
-          fr: 'Bourses Schiller International',
-          en: 'Bourses Schiller International'),
-      countryId: 'france',
-      levelEligible:
-          LocalizedText(fr: 'LICENCE, MASTER', en: 'LICENCE, MASTER'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel: LocalizedText(
-          fr: 'Selon calendrier école', en: 'Selon calendrier école'),
-      keyRequirements: [
-        LocalizedText(fr: 'Excellence académique', en: 'Excellence académique'),
-        LocalizedText(fr: 'dossier complet', en: 'dossier complet'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_014',
-      name: LocalizedText(fr: 'Bourses GBS Dubai', en: 'Bourses GBS Dubai'),
-      countryId: 'uae',
-      levelEligible: LocalizedText(fr: 'DIPLOME, HND', en: 'DIPLOME, HND'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel:
-          LocalizedText(fr: 'Selon programme', en: 'Selon programme'),
-      keyRequirements: [
-        LocalizedText(fr: 'Dossier académique', en: 'Dossier académique'),
-        LocalizedText(
-            fr: 'conditions programme-spécifiques',
-            en: 'conditions programme-spécifiques'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd11'],
-      baseMatch: 75,
-    ),
-    ScholarshipModel(
-      id: 'brs_015',
-      name: LocalizedText(fr: 'Bourse BAU Istanbul', en: 'Bourse BAU Istanbul'),
-      countryId: 'turkey',
-      levelEligible: LocalizedText(fr: 'LICENCE', en: 'LICENCE'),
-      typeOfFunding: LocalizedText(fr: 'Variable', en: 'Variable'),
-      deadlineLabel: LocalizedText(fr: 'Fall intake', en: 'Fall intake'),
-      keyRequirements: [
-        LocalizedText(fr: 'Excellence académique', en: 'Excellence académique'),
-        LocalizedText(
-            fr: 'entretien de sélection', en: 'entretien de sélection'),
-      ],
-      relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd11', 'd12'],
-      baseMatch: 75,
-    ),
-  ];
+  static const scholarships = <ScholarshipModel>[];
 
   static const serviceOffers = <ServiceOffer>[
     ServiceOffer(

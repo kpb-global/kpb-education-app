@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -13,6 +12,8 @@ import '../community/community_screen.dart';
 import '../orientation/orientation_screen.dart';
 import '../saved/saved_screen.dart';
 import '../search/search_screen.dart';
+import '../ai_advisor/ai_chat_screen.dart';
+import '../explore/country_detail_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flag helpers
@@ -65,8 +66,6 @@ class HomeScreen extends StatelessWidget {
         // Data — limited, curated
         final institutions = 
             controller.institutions.take(4).toList();
-        final scholarships =
-            controller.recommendedScholarships.take(3).toList();
         final articles =
             controller.publishedArticles.take(2).toList();
         final activeCases = controller.cases
@@ -76,7 +75,6 @@ class HomeScreen extends StatelessWidget {
                 c.status != CaseStatus.rejected)
             .take(2)
             .toList();
-        final urgentScholarship = _findUrgentDeadline(scholarships);
 
         return Container(
           color: KpbColors.bgDarkMidnight,
@@ -152,7 +150,7 @@ class HomeScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: GestureDetector(
-                      onTap: () => controller.goToTab(4),
+                      onTap: () => controller.goToTab(3),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -201,6 +199,20 @@ class HomeScreen extends StatelessWidget {
                         index: 2,
                         child: _QuickActions(controller: controller),
                       ),
+                      const SizedBox(height: KpbSpacing.lg),
+
+                      // ── 3.5 Assistant d'Orientation IA ───────────
+                      const StaggeredSlide(
+                        index: 3,
+                        child: _AiAdvisorBanner(),
+                      ),
+                      const SizedBox(height: KpbSpacing.lg),
+
+                      // ── 3.6 Inscriptions à l'Étranger ───────────────────
+                      StaggeredSlide(
+                        index: 4,
+                        child: _AbroadEnrollmentCard(controller: controller),
+                      ),
                       const SizedBox(height: KpbSpacing.xl),
                     ],
                   ),
@@ -236,20 +248,6 @@ class HomeScreen extends StatelessWidget {
                     child: SizedBox(height: KpbSpacing.xl)),
               ],
 
-              // ── 5. Deadline urgente ───────────────────────────────
-              if (urgentScholarship != null && controller.isStudent)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        KpbSpacing.pagePad, 0,
-                        KpbSpacing.pagePad, KpbSpacing.xl),
-                    child: _UrgentDeadlineCard(
-                      scholarship: urgentScholarship,
-                      controller: controller,
-                    ),
-                  ),
-                ),
-
               // ── 5.5 Universités recommandées ───────────────────────────────
               if (institutions.isNotEmpty && (controller.isStudent || controller.isParent)) ...[
                 SliverToBoxAdapter(
@@ -271,36 +269,6 @@ class HomeScreen extends StatelessWidget {
                         isPartner: institution.isPartner,
                         score: controller.institutionMatch(institution),
                         onTap: () => controller.goToTab(1),
-                        width: 200,
-                      );
-                    },
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                    child: SizedBox(height: KpbSpacing.xl)),
-              ],
-
-              // ── 6. Bourses pour toi ───────────────────────────────
-              if (scholarships.isNotEmpty && (controller.isStudent || controller.isParent)) ...[
-                SliverToBoxAdapter(
-                  child: HScrollSection(
-                    title: 'scholarships_for_you'.tr,
-                    actionLabel: 'Voir tout',
-                    onAction: () =>
-                        Get.toNamed(AppRoutes.scholarships),
-                    textColor: Colors.white,
-                    itemCount: scholarships.length,
-                    height: 160,
-                    itemWidth: 200,
-                    itemBuilder: (ctx, i) {
-                      final s = scholarships[i];
-                      return ScholarshipMiniCard(
-                        name: controller.resolve(s.name),
-                        countryFlag: _flag(s.countryId),
-                        amount: controller.resolve(s.typeOfFunding),
-                        matchScore: controller.scholarshipMatch(s),
-                        onTap: () =>
-                            Get.toNamed(AppRoutes.scholarships),
                         width: 200,
                       );
                     },
@@ -343,43 +311,6 @@ class HomeScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  /// Find nearest scholarship with deadline within 30 days.
-  ScholarshipModel? _findUrgentDeadline(
-      List<ScholarshipModel> scholarships) {
-    final now = DateTime.now();
-    ScholarshipModel? nearest;
-    int nearestDays = 31;
-
-    for (final s in scholarships) {
-      final label = s.deadlineLabel.fr;
-      final parsed = _parseDeadline(label);
-      if (parsed != null) {
-        final days = parsed.difference(now).inDays;
-        if (days >= 0 && days <= 30 && days < nearestDays) {
-          nearestDays = days;
-          nearest = s;
-        }
-      }
-    }
-    return nearest;
-  }
-
-  DateTime? _parseDeadline(String label) {
-    // Expects format like "15 janvier 2025" or "31 mars 2024"
-    const months = {
-      'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
-      'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
-      'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12,
-    };
-    final parts = label.toLowerCase().split(' ');
-    if (parts.length < 3) return null;
-    final day = int.tryParse(parts[0]);
-    final month = months[parts[1]];
-    final year = int.tryParse(parts[2]);
-    if (day == null || month == null || year == null) return null;
-    return DateTime(year, month, day);
   }
 }
 
@@ -473,7 +404,7 @@ class _HeroCard extends StatelessWidget {
           if (controller.isStudent && pct < 100) ...[
             const SizedBox(width: KpbSpacing.md),
             GestureDetector(
-              onTap: () => controller.goToTab(4),
+              onTap: () => controller.goToTab(3),
               child: Column(
                 children: [
                   SizedBox(
@@ -745,7 +676,7 @@ class _NextStepCard extends StatelessWidget {
         iconBg: KpbColors.skyLight,
         bgColor: const Color(0xFFEFF6FF),
         borderColor: const Color(0xFFBFDBFE),
-        onTap: () => controller.goToTab(4),
+        onTap: () => controller.goToTab(3),
       );
     }
 
@@ -797,7 +728,7 @@ class _NextStepCard extends StatelessWidget {
       labelColor: KpbColors.sky,
       title: 'Découvre de nouvelles opportunités',
       subtitle:
-          'Parcours les filières, pays et bourses qui matchent ton profil',
+          'Parcours les filières, pays et grandes écoles qui matchent ton profil',
       icon: Icons.explore_outlined,
       iconColor: KpbColors.sky,
       iconBg: KpbColors.skyLight,
@@ -877,10 +808,10 @@ class _QuickActions extends StatelessWidget {
         () => controller.goToTab(1),
       ),
       (
-        Icons.workspace_premium_outlined,
-        'Bourses',
+        Icons.apartment_outlined,
+        'Écoles',
         KpbColors.gold,
-        () => Get.toNamed(AppRoutes.scholarships),
+        () => controller.goToTab(1),
       ),
       (
         Icons.folder_copy_outlined,
@@ -925,6 +856,132 @@ class _QuickActions extends StatelessWidget {
                 ),
               ))
           .toList(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Assistant d'Orientation IA Banner
+// ─────────────────────────────────────────────────────────────────────────────
+class _AiAdvisorBanner extends StatelessWidget {
+  const _AiAdvisorBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: KpbColors.bgDarkCard,
+        borderRadius: KpbRadius.lgBr,
+        border: Border.all(
+          color: KpbColors.stitchCyberCyan.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: KpbColors.stitchCyberCyan.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(KpbSpacing.md),
+      child: Row(
+        children: [
+          // Glowing AI icon
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: KpbColors.stitchHeroGradient,
+              borderRadius: KpbRadius.mdBr,
+              boxShadow: [
+                BoxShadow(
+                  color: KpbColors.stitchCyberCyan.withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.psychology_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      "Conseiller d'Orientation IA",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: KpbColors.stitchCyberCyan.withValues(alpha: 0.2),
+                        borderRadius: KpbRadius.xsBr,
+                        border: Border.all(
+                          color: KpbColors.stitchCyberCyan.withValues(alpha: 0.5),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: const Text(
+                        "Nouveau",
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: KpbColors.stitchCyberCyan,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  "Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: KpbColors.textDarkSecondary,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => Get.to(() => const AiChatScreen()),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Discuter avec l'IA",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: KpbColors.stitchCyberCyan,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 14,
+                        color: KpbColors.stitchCyberCyan,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1016,131 +1073,7 @@ class _ActiveCaseCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Urgent Deadline Card
-// ─────────────────────────────────────────────────────────────────────────────
-class _UrgentDeadlineCard extends StatelessWidget {
-  const _UrgentDeadlineCard(
-      {required this.scholarship, required this.controller});
-  final ScholarshipModel scholarship;
-  final AppController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final deadline = scholarship.deadlineLabel.fr;
-    final daysLeft = _daysLeft(deadline);
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFF7ED), Color(0xFFFEF3C7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: KpbRadius.lgBr,
-        border: Border.all(
-            color: KpbColors.gold.withValues(alpha: 0.4), width: 1.5),
-      ),
-      padding: const EdgeInsets.all(KpbSpacing.md),
-      child: Row(
-        children: [
-          // Countdown
-          Column(
-            children: [
-              Text(
-                daysLeft >= 0 ? '$daysLeft' : '!',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: KpbColors.gold,
-                  height: 1,
-                ),
-              ),
-              const Text(
-                'jours',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: KpbColors.gold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 14),
-          const VerticalDivider(
-              width: 1, thickness: 1, color: Color(0xFFFDE68A)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '⏰ DEADLINE PROCHE',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: KpbColors.gold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  controller.resolve(scholarship.name),
-                  style: KpbTextStyles.titleMd,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Clôture : $deadline',
-                  style: const TextStyle(
-                      fontSize: 12, color: KpbColors.textMuted),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () =>
-                Get.toNamed(AppRoutes.scholarships),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
-              decoration: const BoxDecoration(
-                color: KpbColors.gold,
-                borderRadius: KpbRadius.mdBr,
-              ),
-              child: const Text(
-                'Voir →',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  int _daysLeft(String label) {
-    const months = {
-      'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
-      'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
-      'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12,
-    };
-    final parts = label.toLowerCase().split(' ');
-    if (parts.length < 3) return -1;
-    final day = int.tryParse(parts[0]);
-    final month = months[parts[1]];
-    final year = int.tryParse(parts[2]);
-    if (day == null || month == null || year == null) return -1;
-    final dt = DateTime(year, month, day);
-    return dt.difference(DateTime.now()).inDays;
-  }
-}
+// ── Urgent Deadline Card removed ─────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Article Card — compact, 2-line summary
@@ -1193,4 +1126,395 @@ class _ArticleCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Inscriptions à l'Étranger — Widget & Sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AbroadEnrollmentCard extends StatelessWidget {
+  const _AbroadEnrollmentCard({required this.controller});
+  final AppController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showAbroadCountriesSheet(context, controller),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: KpbColors.bgDarkCard,
+          borderRadius: KpbRadius.lgBr,
+          border: Border.all(
+            color: KpbColors.gold.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: KpbColors.gold.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Premium World Icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: KpbColors.goldGradient,
+                    borderRadius: KpbRadius.mdBr,
+                    boxShadow: [
+                      BoxShadow(
+                        color: KpbColors.gold.withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.public_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            "Inscriptions à l'Étranger",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: KpbColors.gold.withValues(alpha: 0.15),
+                              borderRadius: KpbRadius.xsBr,
+                              border: Border.all(
+                                color: KpbColors.gold.withValues(alpha: 0.4),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: const Text(
+                              "Accompagnement",
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: KpbColors.gold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        "Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: KpbColors.textDarkSecondary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Divider
+            Container(
+              height: 0.5,
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
+            const SizedBox(height: 12),
+            // Footer with dynamic flag list & CTA
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Horizontal Row of Flags
+                Row(
+                  children: const ['canada', 'usa', 'uk', 'germany', 'morocco']
+                      .map((id) => Container(
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              borderRadius: KpbRadius.xsBr,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: Text(
+                              _flag(id),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ))
+                      .toList(),
+                ),
+                // CTA text & arrow
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Découvrir",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: KpbColors.gold,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: KpbColors.gold,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
+  final targetCountryIds = ['canada', 'usa', 'uk', 'germany', 'morocco'];
+  final countries = targetCountryIds
+      .map((id) => controller.countries.firstWhereOrNull((c) => c.id == id))
+      .whereType<CountryModel>()
+      .toList();
+
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    barrierColor: Colors.black.withValues(alpha: 0.75),
+    builder: (context) {
+      return Container(
+        decoration: BoxDecoration(
+          color: KpbColors.bgDarkMidnight,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.only(
+          left: KpbSpacing.lg,
+          right: KpbSpacing.lg,
+          top: KpbSpacing.md,
+          bottom: KpbSpacing.xl + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Grab handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: KpbRadius.pillBr,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Header Title
+            Row(
+              children: const [
+                Text(
+                  "S'inscrire à l'Étranger",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "🌍",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Découvrez les destinations d'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.",
+              style: TextStyle(
+                fontSize: 13,
+                color: KpbColors.textDarkSecondary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // List of countries
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: countries.map((country) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: KpbColors.bgDarkCard,
+                        borderRadius: KpbRadius.mdBr,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: KpbRadius.mdBr,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Get.back();
+                              Get.to(() => CountryDetailScreen(countryId: country.id));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(KpbSpacing.md),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Flag circular badge
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.06),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      _flag(country.id),
+                                      style: const TextStyle(fontSize: 24),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  // Text contents
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              controller.resolve(country.name),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            // Difficulty Badge
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(alpha: 0.05),
+                                                borderRadius: KpbRadius.xsBr,
+                                              ),
+                                              child: Text(
+                                                "Admission : ${controller.resolve(country.admissionDifficulty)}",
+                                                style: const TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: KpbColors.textDarkSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          controller.resolve(country.whyStudy),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: KpbColors.textDarkSecondary,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        // Budget Row
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.payments_outlined,
+                                              size: 14,
+                                              color: KpbColors.gold,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              "Scolarité : ",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white.withValues(alpha: 0.6),
+                                              ),
+                                            ),
+                                            Text(
+                                              controller.resolve(country.tuitionRange),
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: KpbColors.gold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Right Chevron
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 12),
+                                    child: Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Colors.white30,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

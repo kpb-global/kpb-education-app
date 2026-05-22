@@ -41,12 +41,9 @@ class CountryDetailScreen extends StatelessWidget {
     final programs = controller.programs
         .where((p) => p.countryId == countryId)
         .toList();
-    final scholarships = controller.scholarships
-        .where((s) => s.countryId == countryId)
-        .toList();
 
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         backgroundColor: context.kpb.pageBg,
         body: NestedScrollView(
@@ -101,7 +98,6 @@ class CountryDetailScreen extends StatelessWidget {
                   tabs: const [
                     Tab(text: 'Aperçu'),
                     Tab(text: 'Universités'),
-                    Tab(text: 'Bourses'),
                     Tab(text: 'Visa'),
                   ],
                 ),
@@ -114,11 +110,6 @@ class CountryDetailScreen extends StatelessWidget {
               _UniversitiesTab(
                 institutions: institutions,
                 programs: programs,
-                controller: controller,
-              ),
-              _ScholarshipsTab(
-                scholarships: scholarships,
-                country: country,
                 controller: controller,
               ),
               _VisaTab(country: country, controller: controller),
@@ -548,107 +539,7 @@ class _InstitutionCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Tab 3 — Bourses
-// ─────────────────────────────────────────────────────────────────────────────
-class _ScholarshipsTab extends StatelessWidget {
-  const _ScholarshipsTab({
-    required this.scholarships,
-    required this.country,
-    required this.controller,
-  });
-  final List<ScholarshipModel> scholarships;
-  final CountryModel country;
-  final AppController controller;
 
-  @override
-  Widget build(BuildContext context) {
-    if (scholarships.isEmpty) {
-      return const KpbEmptyState(
-        icon: Icons.workspace_premium_outlined,
-        title: 'Bourses à venir',
-        subtitle: 'Nous référençons continuellement de nouvelles bourses.',
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
-      itemCount: scholarships.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final s = scholarships[index];
-        final match = controller.scholarshipMatch(s);
-        final saved = controller.isSaved(SavedItemType.scholarship, s.id);
-
-        return KpbCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      controller.resolve(s.name),
-                      style: KpbTextStyles.titleMd,
-                    ),
-                  ),
-                  MatchBadge(score: match),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => controller.toggleSaved(
-                      SavedItemType.scholarship,
-                      s.id,
-                    ),
-                    child: Icon(
-                      saved
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_border_rounded,
-                      color: saved ? KpbColors.blue : context.kpb.gray300,
-                      size: 22,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(controller.resolve(s.typeOfFunding), style: KpbTextStyles.bodySm),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  if (s.deadlineLabel.fr.isNotEmpty)
-                    KpbBadgeLight(
-                      label: '⏳ ${controller.resolve(s.deadlineLabel)}',
-                      bgColor: KpbColors.warningLight,
-                      textColor: KpbColors.warning,
-                    ),
-                  ...s.keyRequirements
-                      .take(2)
-                      .map((e) => KpbBadgeLight(label: controller.resolve(e))),
-                ],
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => showModalBottomSheet<void>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) => CaseComposerSheet(
-                      caseType: CaseType.scholarshipSupport,
-                      title: controller.resolve(s.name),
-                      contextLabel: controller.resolve(country.name),
-                    ),
-                  ),
-                  child: const Text('Candidater avec KPB'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab 4 — Visa

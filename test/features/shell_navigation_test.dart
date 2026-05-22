@@ -18,7 +18,7 @@ void main() {
       resetGetxSingleton();
     });
 
-    testWidgets('displays bottom navigation bar with 5 tabs', (tester) async {
+    testWidgets('displays bottom navigation bar with 4 tabs', (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
         localeCode: 'fr',
@@ -33,13 +33,13 @@ void main() {
       );
 
       expect(find.byKey(const ValueKey('kpb_shell_nav_bar')), findsOneWidget);
-      // One icon per tab in the floating bar (5 tabs).
+      // One icon per tab in the floating bar (4 tabs).
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('kpb_shell_nav_bar')),
           matching: find.byType(Icon),
         ),
-        findsNWidgets(5),
+        findsNWidgets(4),
       );
 
       await tester.pumpAndSettle();
@@ -118,36 +118,7 @@ void main() {
       expect(controller.shellIndex, equals(2));
     });
 
-    testWidgets('navigates to Scholarships tab when tapped (index 3)',
-        (tester) async {
-      final profile = createTestProfile();
-      final snapshot = AppSnapshot(
-        localeCode: 'fr',
-        hasCompletedOnboarding: true,
-        profile: profile,
-      );
-
-      await pumpTestApp(
-        tester,
-        child: const AppShell(),
-        initialSnapshot: snapshot,
-      );
-
-      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
-      await tester.tap(
-        find.descendant(
-          of: bar,
-          matching: find.byIcon(Icons.workspace_premium_outlined),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Verify shellIndex updated
-      final controller = Get.find<AppController>();
-      expect(controller.shellIndex, equals(3));
-    });
-
-    testWidgets('navigates to Profile tab when tapped (index 4)',
+    testWidgets('navigates to Profile tab when tapped (index 3)',
         (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
@@ -170,7 +141,7 @@ void main() {
 
       // Verify shellIndex updated
       final controller = Get.find<AppController>();
-      expect(controller.shellIndex, equals(4));
+      expect(controller.shellIndex, equals(3));
     });
 
     testWidgets('preserves state when switching tabs', (tester) async {
@@ -222,14 +193,14 @@ void main() {
       final controller = Get.find<AppController>();
 
       // Rapidly switch tabs
-      for (int i = 0; i < 5; i++) {
-        controller.goToTab(i % 5);
+      for (int i = 0; i < 4; i++) {
+        controller.goToTab(i % 4);
         await tester.pump(const Duration(milliseconds: 50));
       }
 
       await tester.pumpAndSettle();
-      // Should end up at tab 4
-      expect(controller.shellIndex, equals(4));
+      // Should end up at tab 3
+      expect(controller.shellIndex, equals(3));
     });
 
     testWidgets('displays selected icon for active tab', (tester) async {

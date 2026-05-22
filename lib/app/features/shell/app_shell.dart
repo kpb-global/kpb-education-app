@@ -8,10 +8,9 @@ import '../cases/cases_screen.dart';
 import '../explore/explore_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
-import '../scholarships/live_scholarships_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppShell — 5-tab navigation (Home · Explorer · Dossiers · Bourses · Moi)
+// AppShell — 4-tab navigation (Home · Explorer · Dossiers · Moi)
 //
 // Uses a custom floating, frosted-glass bottom navigation bar for a premium
 // UI/UX feel. IndexedStack keeps all pages alive so state is preserved when
@@ -29,8 +28,7 @@ class AppShell extends StatelessWidget {
       HomeScreen(),              // index 0
       ExploreScreen(),           // index 1
       CasesScreen(),             // index 2
-      LiveScholarshipsScreen(),  // index 3  ← NEW: live scholarship index
-      ProfileScreen(),           // index 4
+      ProfileScreen(),           // index 3
     ];
 
     return GetBuilder<AppController>(
@@ -104,42 +102,42 @@ class _KpbFloatingNavBar extends StatelessWidget {
                 boxShadow: isDark ? null : KpbShadow.float,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _NavItem(
-                    icon: Icons.home_outlined,
-                    selectedIcon: Icons.home_rounded,
-                    label: 'nav_home'.tr,
-                    isSelected: currentIndex == 0,
-                    onTap: () => onTap(0),
+                  Expanded(
+                    child: _NavItem(
+                      icon: Icons.home_outlined,
+                      selectedIcon: Icons.home_rounded,
+                      label: 'nav_home'.tr,
+                      isSelected: currentIndex == 0,
+                      onTap: () => onTap(0),
+                    ),
                   ),
-                  _NavItem(
-                    icon: Icons.explore_outlined,
-                    selectedIcon: Icons.explore_rounded,
-                    label: 'nav_explore'.tr,
-                    isSelected: currentIndex == 1,
-                    onTap: () => onTap(1),
+                  Expanded(
+                    child: _NavItem(
+                      icon: Icons.explore_outlined,
+                      selectedIcon: Icons.explore_rounded,
+                      label: 'nav_explore'.tr,
+                      isSelected: currentIndex == 1,
+                      onTap: () => onTap(1),
+                    ),
                   ),
-                  _NavItem(
-                    icon: Icons.folder_copy_outlined,
-                    selectedIcon: Icons.folder_copy_rounded,
-                    label: 'nav_cases'.tr,
-                    isSelected: currentIndex == 2,
-                    onTap: () => onTap(2),
+                  Expanded(
+                    child: _NavItem(
+                      icon: Icons.folder_copy_outlined,
+                      selectedIcon: Icons.folder_copy_rounded,
+                      label: 'nav_cases'.tr,
+                      isSelected: currentIndex == 2,
+                      onTap: () => onTap(2),
+                    ),
                   ),
-                  _NavItem(
-                    icon: Icons.workspace_premium_outlined,
-                    selectedIcon: Icons.workspace_premium_rounded,
-                    label: 'Bourses',
-                    isSelected: currentIndex == 3,
-                    onTap: () => onTap(3),
-                  ),
-                  _NavItem(
-                    icon: Icons.person_outline_rounded,
-                    selectedIcon: Icons.person_rounded,
-                    label: 'nav_profile'.tr,
-                    isSelected: currentIndex == 4,
-                    onTap: () => onTap(4),
+                  Expanded(
+                    child: _NavItem(
+                      icon: Icons.person_outline_rounded,
+                      selectedIcon: Icons.person_rounded,
+                      label: 'nav_profile'.tr,
+                      isSelected: currentIndex == 3,
+                      onTap: () => onTap(3),
+                    ),
                   ),
                 ],
               ),
@@ -177,45 +175,54 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutQuint,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? (isDark
-                  ? KpbColors.stitchCyberCyan.withValues(alpha: 0.15)
-                  : KpbColors.skyLight)
-              : Colors.transparent,
-          borderRadius: KpbRadius.pillBr,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              child: Icon(
-                isSelected ? selectedIcon : icon,
-                key: ValueKey<bool>(isSelected),
-                color: isSelected ? activeColor : inactiveColor,
-                size: 24,
-              ),
+      child: SizedBox.expand(
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutQuint,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? (isDark
+                      ? KpbColors.stitchCyberCyan.withValues(alpha: 0.15)
+                      : KpbColors.skyLight)
+                  : Colors.transparent,
+              borderRadius: KpbRadius.pillBr,
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: activeColor,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Icon(
+                    isSelected ? selectedIcon : icon,
+                    key: ValueKey<bool>(isSelected),
+                    color: isSelected ? activeColor : inactiveColor,
+                    size: 24,
+                  ),
                 ),
-              ),
-            ],
-          ],
+                if (isSelected) ...[
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: activeColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

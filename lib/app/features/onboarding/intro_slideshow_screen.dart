@@ -23,9 +23,9 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
       description: "Découvrez des centaines de programmes d'études au Canada, en France et partout dans le monde.",
     ),
     _SlideData(
-      icon: Icons.school_rounded,
-      title: "Bourses & Accompagnement",
-      description: "Trouvez la bourse idéale et obtenez une feuille de route adaptée à votre profil académique.",
+      icon: Icons.apartment_rounded,
+      title: "Grandes Écoles Privées",
+      description: "Postulez dans les plus prestigieuses écoles de commerce, d'informatique et d'ingénierie en France.",
     ),
     _SlideData(
       icon: Icons.folder_copy_rounded,

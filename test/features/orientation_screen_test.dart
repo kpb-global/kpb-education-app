@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
 
-import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/features/orientation/orientation_screen.dart';

@@ -26,6 +26,22 @@ UserProfile _profile({
 
 void main() {
   group('OrientationEngine.evaluate', () {
+    final mockScholarships = [
+      const ScholarshipModel(
+        id: 'brs_test_1',
+        name: LocalizedText(fr: 'Bourse Test 1', en: 'Test Scholarship 1'),
+        countryId: 'france',
+        levelEligible: LocalizedText(fr: 'Master', en: 'Master'),
+        typeOfFunding: LocalizedText(fr: 'Complet', en: 'Full'),
+        deadlineLabel: LocalizedText(fr: 'Juin', en: 'June'),
+        keyRequirements: [
+          LocalizedText(fr: 'Critère 1', en: 'Requirement 1'),
+        ],
+        relatedFieldIds: ['d01'],
+        baseMatch: 0,
+      ),
+    ];
+
     test('returns ranked recommendations when answers are provided', () {
       final profile = _profile(language: 'fr');
       final answers = <String, List<String>>{
@@ -39,7 +55,7 @@ void main() {
         answers: answers,
         questions: MockCatalog.orientationQuestions,
         fields: MockCatalog.fields,
-        scholarships: MockCatalog.scholarships,
+        scholarships: mockScholarships,
       );
 
       expect(result.recommendations, isNotEmpty);
@@ -56,7 +72,7 @@ void main() {
         answers: const <String, List<String>>{},
         questions: MockCatalog.orientationQuestions,
         fields: MockCatalog.fields,
-        scholarships: MockCatalog.scholarships,
+        scholarships: mockScholarships,
       );
 
       expect(result.recommendations, isNotEmpty);
@@ -74,7 +90,7 @@ void main() {
         answers: answers,
         questions: MockCatalog.orientationQuestions,
         fields: MockCatalog.fields,
-        scholarships: MockCatalog.scholarships,
+        scholarships: mockScholarships,
       );
 
       expect(

@@ -94,8 +94,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
                             onTap: () {
                               if (_questionIndex > 0) {
                                 setState(() => _questionIndex--);
-                              } else if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
+                              } else {
+                                Get.back();
                               }
                             },
                             child: Container(
@@ -348,46 +348,44 @@ class _ResultsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top + KpbSpacing.md;
     return CustomScrollView(
       slivers: [
-        // ── Hero banner ───────────────────────────────────────────────────
+        // ── Pinned Header ──────────────────────────────────────────────────
+        SliverAppBar(
+          pinned: true,
+          floating: false,
+          backgroundColor: KpbColors.navy,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: KpbColors.heroGradient,
+            ),
+          ),
+          title: const Text(
+            'Orientation',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        // ── Hero banner content ────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Container(
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: EdgeInsets.fromLTRB(KpbSpacing.pagePad,
-                topPadding, KpbSpacing.pagePad, KpbSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(
+                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: KpbRadius.mdBr,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_rounded,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: KpbSpacing.md),
                 const KpbBadge(
                   label: '✅ Orientation complète',
                   color: KpbColors.success,
@@ -750,45 +748,44 @@ class _ConsultativeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top + KpbSpacing.md;
     return CustomScrollView(
       slivers: [
+        // ── Pinned Header ──────────────────────────────────────────────────
+        SliverAppBar(
+          pinned: true,
+          floating: false,
+          backgroundColor: KpbColors.navy,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: KpbColors.heroGradient,
+            ),
+          ),
+          title: const Text(
+            'Orientation',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        // ── Content header ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Container(
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: EdgeInsets.fromLTRB(KpbSpacing.pagePad,
-                topPadding, KpbSpacing.pagePad, KpbSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(
+                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: KpbRadius.mdBr,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_rounded,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: KpbSpacing.md),
                 Text('nav_orientation'.tr,
                     style: const TextStyle(
                       color: Colors.white,

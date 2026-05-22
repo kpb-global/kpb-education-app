@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
@@ -41,8 +40,6 @@ class SavedScreen extends StatelessWidget {
             items.where((e) => e.type == SavedItemType.institution).toList();
         final programs =
             items.where((e) => e.type == SavedItemType.program).toList();
-        final scholarships =
-            items.where((e) => e.type == SavedItemType.scholarship).toList();
 
         return KpbRefresh(
           onRefresh: controller.refresh,
@@ -120,7 +117,7 @@ class SavedScreen extends StatelessWidget {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Suivez les échéances de vos bourses',
+                                  'Suivez les échéances de vos admissions',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
@@ -147,7 +144,7 @@ class SavedScreen extends StatelessWidget {
                     icon: Icons.bookmark_border_rounded,
                     title: 'Rien de sauvegardé',
                     subtitle:
-                        'Explorez des filières, pays, bourses et universités, puis sauvegardez-les pour les retrouver ici.',
+                        'Explorez des filières, pays, universités et programmes, puis sauvegardez-les pour les retrouver ici.',
                   ),
                 )
               else ...[
@@ -275,47 +272,6 @@ class SavedScreen extends StatelessWidget {
                             '${controller.resolve(program.level)} · ${controller.resolve(program.duration)}',
                         onRemove: () =>
                             controller.toggleSaved(item.type, item.itemId),
-                      );
-                    },
-                  ),
-
-                // ── Bourses ───────────────────────────────────────────────
-                if (scholarships.isNotEmpty)
-                  _SavedGroup(
-                    icon: Icons.workspace_premium_outlined,
-                    iconColor: KpbColors.gold,
-                    label: 'Bourses',
-                    items: scholarships,
-                    controller: controller,
-                    buildItem: (item) {
-                      final scholarship =
-                          controller.scholarshipById(item.itemId);
-                      return _SavedTile(
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: context.kpb.surfaceBg,
-                            borderRadius: KpbRadius.mdBr,
-                          ),
-                          child: Center(
-                            child: Text(
-                              _countryFlags[scholarship.countryId] ?? '🌍',
-                              style: const TextStyle(fontSize: 22),
-                            ),
-                          ),
-                        ),
-                        title: controller.resolve(scholarship.name),
-                        subtitle: controller.resolve(scholarship.typeOfFunding),
-                        trailing: controller.resolve(scholarship.deadlineLabel),
-                        onRemove: () =>
-                            controller.toggleSaved(item.type, item.itemId),
-                        onShare: () => SharePlus.instance.share(ShareParams(
-                          text: '🎓 ${controller.resolve(scholarship.name)}\n'
-                              '💰 ${controller.resolve(scholarship.typeOfFunding)}\n'
-                              '📅 ${controller.resolve(scholarship.deadlineLabel)}\n\n'
-                              'Découvrez cette bourse sur KPB Education.',
-                        )),
                       );
                     },
                   ),
@@ -506,19 +462,15 @@ class _SavedTile extends StatelessWidget {
     required this.subtitle,
     required this.onRemove,
     this.badge,
-    this.trailing,
     this.onTap,
-    this.onShare,
   });
 
   final Widget leading;
   final String title;
   final String subtitle;
   final String? badge;
-  final String? trailing;
   final VoidCallback onRemove;
   final VoidCallback? onTap;
-  final VoidCallback? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -562,56 +514,18 @@ class _SavedTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (trailing != null) ...[
-                  Text(
-                    trailing!,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: context.kpb.textMuted,
-                    ),
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 4),
-                ],
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (onShare != null) ...[
-                      GestureDetector(
-                        onTap: onShare,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: context.kpb.surfaceBg,
-                            borderRadius: KpbRadius.smBr,
-                          ),
-                          child: Icon(Icons.share_outlined,
-                              color: context.kpb.gray400, size: 14),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    GestureDetector(
-                      onTap: onRemove,
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: KpbColors.error.withValues(alpha: 0.08),
-                          borderRadius: KpbRadius.smBr,
-                        ),
-                        child: const Icon(Icons.bookmark_remove_rounded,
-                            color: KpbColors.error, size: 14),
-                      ),
-                    ),
-                  ],
+            GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: KpbColors.error.withValues(alpha: 0.08),
+                  borderRadius: KpbRadius.smBr,
                 ),
-              ],
+                child: const Icon(Icons.bookmark_remove_rounded,
+                    color: KpbColors.error, size: 14),
+              ),
             ),
           ],
         ),

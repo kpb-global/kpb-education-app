@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -349,42 +348,6 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: KpbSpacing.md),
                     ],
 
-                    // ── Bourse ────────────────────────────────────────
-                    if (profile.wantsScholarshipSupport) ...[
-                      KpbCard(
-                        padding: const EdgeInsets.all(KpbSpacing.md),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: context.kpb.goldLight,
-                                borderRadius: KpbRadius.mdBr,
-                              ),
-                              child: const Icon(
-                                Icons.workspace_premium_outlined,
-                                color: KpbColors.gold,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'scholarship_interest'.tr,
-                                style: KpbTextStyles.titleMd,
-                              ),
-                            ),
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: KpbColors.success,
-                              size: 22,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
                     const SizedBox(height: KpbSpacing.lg),
 
                     // ── Accès rapide ──────────────────────────────────
@@ -401,14 +364,7 @@ class ProfileScreen extends StatelessWidget {
                               onTap: () =>
                                   Get.to(() => const OrientationScreen()),
                             ),
-                            const KpbDivider(indent: 52),
-                            _QuickAccessTile(
-                              icon: Icons.workspace_premium_outlined,
-                              label: 'Bourses disponibles',
-                              color: KpbColors.gold,
-                              onTap: () =>
-                                  Get.toNamed(AppRoutes.scholarships),
-                            ),
+
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.bookmark_outlined,
@@ -938,7 +894,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
     if ((p.gradeRange ?? '').isEmpty) {
       result.add((
         field: 'Moyenne académique',
-        impact: 'Améliore la précision de tes recommandations de bourses',
+        impact: 'Améliore la précision de tes recommandations d\'écoles',
       ));
     }
     if (p.currentLevel == null) {

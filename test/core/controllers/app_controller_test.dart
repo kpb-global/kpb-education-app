@@ -98,6 +98,35 @@ void main() {
     );
 
     await controller.hydrate();
+
+    controller.scholarships.addAll([
+      const ScholarshipModel(
+        id: 'brs_test_1',
+        name: LocalizedText(fr: 'Bourse Test 1', en: 'Test Scholarship 1'),
+        countryId: 'canada',
+        levelEligible: LocalizedText(fr: 'Master', en: 'Master'),
+        typeOfFunding: LocalizedText(fr: 'Complet', en: 'Full'),
+        deadlineLabel: LocalizedText(fr: 'Juin', en: 'June'),
+        keyRequirements: [
+          LocalizedText(fr: 'Critère 1', en: 'Requirement 1'),
+        ],
+        relatedFieldIds: ['d01'],
+        baseMatch: 0,
+      ),
+      const ScholarshipModel(
+        id: 'brs_test_2',
+        name: LocalizedText(fr: 'Bourse Test 2', en: 'Test Scholarship 2'),
+        countryId: 'france',
+        levelEligible: LocalizedText(fr: 'Licence', en: 'Bachelor'),
+        typeOfFunding: LocalizedText(fr: 'Partiel', en: 'Partial'),
+        deadlineLabel: LocalizedText(fr: 'Juillet', en: 'July'),
+        keyRequirements: [
+          LocalizedText(fr: 'Critère 2', en: 'Requirement 2'),
+        ],
+        relatedFieldIds: ['d02'],
+        baseMatch: 0,
+      ),
+    ]);
   });
 
   tearDown(() {

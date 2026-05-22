@@ -112,7 +112,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         onSubmitted: _onSubmitted,
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Rechercher une filière, un pays, une bourse...',
+                          hintText: 'Rechercher une filière, un pays, une école...',
                           hintStyle: TextStyle(
                             fontSize: 14,
                             color: context.kpb.textMuted,
@@ -228,7 +228,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               'Informatique',
               'France',
-              'Bourse',
+              'École',
               'Business',
               'Canada',
               'Ingénierie',

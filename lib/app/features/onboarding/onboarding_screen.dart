@@ -104,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _targetLevel = 'Bachelor';
   String _languageLevel = 'Intermediate';
   String _gradeRange = '12 - 14/20';
-  bool _wantsScholarship = true;
+  final bool _wantsScholarship = false;
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
   _DialCode _waCode = _dialCodes[0];
@@ -223,6 +223,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _ctrl.completeOnboarding(profile);
   }
 
+  void _skipOnboarding() {
+    final profile = UserProfile(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      accountType: AccountType.student,
+      fullName: 'Test User',
+      email: 'test@kpb-education.com',
+      phone: '+33 6 12 34 56 78',
+      whatsApp: '+33 6 12 34 56 78',
+      countryOfResidence: 'France',
+      preferredLanguage: 'fr',
+      currentLevel: 'Bachelor',
+      targetLevel: 'Master',
+      languageLevel: 'Advanced',
+      fieldIds: const ['computer_science', 'business'],
+      targetCountryIds: const ['france'],
+      gradeRange: '15+/20',
+      wantsScholarshipSupport: false,
+      availableDocuments: const ['Passport', 'CV'],
+      consentedAt: DateTime.now(),
+    );
+    _ctrl.completeOnboarding(profile);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,6 +257,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page: _page,
             total: _totalPages,
             onBack: _page > 0 ? _prev : null,
+            onSkip: _skipOnboarding,
           ),
 
           // ── Pages ────────────────────────────────────────────────
@@ -282,12 +306,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       targetLevel: _targetLevel,
                       languageLevel: _languageLevel,
                       gradeRange: _gradeRange,
-                      wantsScholarship: _wantsScholarship,
                       onCurrentLevel: (v) => setState(() => _currentLevel = v ?? _currentLevel),
                       onTargetLevel: (v) => setState(() => _targetLevel = v ?? _targetLevel),
                       onLanguageLevel: (v) => setState(() => _languageLevel = v ?? _languageLevel),
                       onGradeRange: (v) => setState(() => _gradeRange = v ?? _gradeRange),
-                      onWantsScholarship: (v) => setState(() => _wantsScholarship = v),
                     ),
                   )
                 else
@@ -356,9 +378,11 @@ class _ProgressHeader extends StatelessWidget {
     required this.page,
     required this.total,
     this.onBack,
+    this.onSkip,
   });
   final int page, total;
   final VoidCallback? onBack;
+  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +419,29 @@ class _ProgressHeader extends StatelessWidget {
                   style: KpbTextStyles.label,
                 ),
                 const Spacer(),
-                const SizedBox(width: 36),
+                if (onSkip != null)
+                  GestureDetector(
+                    onTap: onSkip,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: context.kpb.cardBg,
+                        borderRadius: KpbRadius.pillBr,
+                        boxShadow: KpbShadow.soft,
+                        border: Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
+                      ),
+                      child: const Text(
+                        'Passer',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: KpbColors.blue,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(width: 36),
               ],
             ),
             const SizedBox(height: KpbSpacing.sm),
@@ -781,19 +827,15 @@ class _PageAcademic extends StatelessWidget {
     required this.targetLevel,
     required this.languageLevel,
     required this.gradeRange,
-    required this.wantsScholarship,
     required this.onCurrentLevel,
     required this.onTargetLevel,
     required this.onLanguageLevel,
     required this.onGradeRange,
-    required this.onWantsScholarship,
   });
 
   final String currentLevel, targetLevel, languageLevel, gradeRange;
-  final bool wantsScholarship;
   final ValueChanged<String?> onCurrentLevel, onTargetLevel,
       onLanguageLevel, onGradeRange;
-  final ValueChanged<bool> onWantsScholarship;
 
   @override
   Widget build(BuildContext context) {
@@ -828,55 +870,6 @@ class _PageAcademic extends StatelessWidget {
               .map((g) => DropdownMenuItem(value: g, child: Text(g)))
               .toList(),
           onChanged: onGradeRange,
-        ),
-        const SizedBox(height: KpbSpacing.lg),
-        GestureDetector(
-          onTap: () => onWantsScholarship(!wantsScholarship),
-          child: KpbCard(
-            color: wantsScholarship
-                ? KpbColors.goldLight
-                : context.kpb.cardBg,
-            border: Border.all(
-              color: wantsScholarship ? KpbColors.gold : context.kpb.gray200,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: wantsScholarship
-                        ? KpbColors.gold.withValues(alpha: 0.2)
-                        : context.kpb.gray100,
-                    borderRadius: KpbRadius.mdBr,
-                  ),
-                  child: Icon(
-                    Icons.workspace_premium_outlined,
-                    color: wantsScholarship
-                        ? KpbColors.gold
-                        : context.kpb.gray400,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'scholarship_interest'.tr,
-                    style: KpbTextStyles.titleMd,
-                  ),
-                ),
-                Icon(
-                  wantsScholarship
-                      ? Icons.check_circle_rounded
-                      : Icons.circle_outlined,
-                  color: wantsScholarship
-                      ? KpbColors.gold
-                      : context.kpb.gray300,
-                  size: 24,
-                ),
-              ],
-            ),
-          ),
         ),
         const SizedBox(height: KpbSpacing.md),
       ],

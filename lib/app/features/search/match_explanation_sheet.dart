@@ -119,7 +119,7 @@ void showMatchExplanation(
             child: OutlinedButton.icon(
               onPressed: () {
                 Get.back();
-                controller.goToTab(4); // Moi tab
+                controller.goToTab(3); // Moi tab
               },
               icon: const Icon(Icons.tune_rounded, size: 16),
               label: const Text('Améliorer mon profil'),
