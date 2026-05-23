@@ -62,7 +62,8 @@ Future<void> main() async {
     Get.put(controller, permanent: true);
     
     Get.put(SecurityService());
-    Get.put(PushNotificationService());
+    final pushService = Get.put(PushNotificationService());
+    unawaited(controller.registerDevicePushToken(pushService));
     
     ConnectivityService.instance.startMonitoring();
     
@@ -166,7 +167,7 @@ class KpbEducationApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           translations: AppTranslations(),
           locale: Locale(controller.localeCode),
-          fallbackLocale: const Locale('en'),
+          fallbackLocale: const Locale('fr'),
           supportedLocales: const [
             Locale('fr'),
             Locale('en'),

@@ -77,38 +77,69 @@ export class CasesService {
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
+        const activeCounsellors = await tx.counsellor.findMany({
+          where: { isActive: true },
+          orderBy: { createdAt: 'asc' },
+        });
+        const nextCounsellor =
+          activeCounsellors.length > 0
+            ? activeCounsellors[count % activeCounsellors.length]
+            : null;
+
         const c = await tx.case.create({
           data: {
             referenceCode: refCode,
             userId: userId ?? 'demo-user',
             type: input.type,
-            status: CaseStatus.Submitted,
+            status: nextCounsellor
+              ? CaseStatus.CounselorAssigned
+              : CaseStatus.Submitted,
             title: input.title,
             description: input.description,
             contextLabel: input.contextLabel,
             preferredContactMethod: input.preferredContactMethod ?? 'in_app',
             source: 'mobile_app',
-            nextStepTitle: 'Your case is under review',
-            nextStepDescription:
-              'The KPB team will review your request and assign a counselor.',
+            counsellorId: nextCounsellor?.id ?? null,
+            assignedAdvisorName: nextCounsellor?.fullName ?? null,
+            assignedAdvisorPhone: nextCounsellor?.phone ?? null,
+            assignedAdvisorWhatsapp: nextCounsellor?.whatsApp ?? null,
+            nextStepTitle: nextCounsellor
+              ? 'A counselor has been assigned'
+              : 'Your case is under review',
+            nextStepDescription: nextCounsellor
+              ? `${nextCounsellor.fullName} has been assigned to your case and will contact you shortly.`
+              : 'The KPB team will review your request and assign a counselor.',
           },
         });
 
         await tx.caseTimelineEvent.create({
           data: {
             caseId: c.id,
-            status: CaseStatus.Submitted,
+            status: c.status,
             title: 'Case submitted',
             description: 'The student created a new case from the mobile app.',
           },
         });
+
+        if (nextCounsellor) {
+          await tx.caseTimelineEvent.create({
+            data: {
+              caseId: c.id,
+              status: CaseStatus.CounselorAssigned,
+              title: 'Counselor assigned',
+              description: `${nextCounsellor.fullName} was assigned automatically (round-robin).`,
+            },
+          });
+        }
 
         await tx.caseMessage.create({
           data: {
             caseId: c.id,
             senderRole: 'system',
             senderName: 'KPB Operations',
-            body: 'Thank you. Your request has been received by the KPB team.',
+            body: nextCounsellor
+              ? `Thank you. ${nextCounsellor.fullName} has been assigned to your request.`
+              : 'Thank you. Your request has been received by the KPB team.',
           },
         });
 

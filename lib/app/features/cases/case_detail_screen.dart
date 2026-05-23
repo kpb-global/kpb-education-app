@@ -11,34 +11,11 @@ import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
+import '../../core/utils/whatsapp_utils.dart';
 import 'case_timeline_stepper.dart';
 
-// Fallback group link used when the case has no assigned advisor yet.
-const _kKpbWhatsappGroup = 'https://chat.whatsapp.com/KPBEducation';
-
 Future<void> _openWhatsapp({String? phone, String? prefill}) async {
-  final Uri uri;
-  if (phone != null && phone.isNotEmpty) {
-    final cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    final normalized = cleaned.startsWith('+') ? cleaned.substring(1) : cleaned;
-    final query = prefill != null && prefill.isNotEmpty
-        ? '?text=${Uri.encodeComponent(prefill)}'
-        : '';
-    uri = Uri.parse('https://wa.me/$normalized$query');
-  } else {
-    uri = Uri.parse(_kKpbWhatsappGroup);
-  }
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
-    Get.snackbar(
-      'WhatsApp',
-      "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
-    );
-  }
+  await openWhatsAppOrToast(phone: phone, prefill: prefill);
 }
 
 Future<void> _callPhone(String phone) async {

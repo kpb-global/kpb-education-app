@@ -8,6 +8,9 @@
     "start": "node dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "seed:countries": "bash scripts/seed-countries.sh",
+    "seed:counsellors": "bash -lc 'set -a; source .env; set +a; PSQL_URL=$(printf \"%s\" \"$DATABASE_URL\" | sed -E \"s/[?&]schema=[^&]*//g\" | sed -E \"s/\\?&/?/g\"); psql \"$PSQL_URL\" -f scripts/seed-kpb-counsellors.sql'",
+    "import:omnes": "ts-node scripts/import-omnes-template.ts",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest"
   },
@@ -29,7 +32,8 @@
     "helmet": "^8.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.2",

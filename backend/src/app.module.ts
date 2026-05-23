@@ -21,6 +21,7 @@ import { AdminCasesController } from './modules/cases/admin-cases.controller';
 import { CasesController } from './modules/cases/cases.controller';
 import { CasesService } from './modules/cases/cases.service';
 import { CaseMessagingGateway } from './modules/cases/case-messaging.gateway';
+import { CaseReassignmentCronService } from './modules/cases/case-reassignment-cron.service';
 import { CommunityController } from './modules/community/community.controller';
 import { CommunityService } from './modules/community/community.service';
 import { ContentController } from './modules/content/content.controller';
@@ -157,6 +158,7 @@ import { SalonService } from './modules/salon/salon.service';
     AppointmentsService,
     CasesService,
     CaseMessagingGateway,
+    CaseReassignmentCronService,
     CatalogService,
     CommunityService,
     ContentService,

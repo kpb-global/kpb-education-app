@@ -35,6 +35,18 @@ class AppConfig {
     defaultValue: 15,
   );
 
+  /// Main KPB WhatsApp line (E.164 digits, with or without leading +).
+  static const whatsappNumber = String.fromEnvironment(
+    'KPB_WHATSAPP_NUMBER',
+    defaultValue: '',
+  );
+
+  /// Optional WhatsApp group invite fallback.
+  static const whatsappGroupInvite = String.fromEnvironment(
+    'KPB_WHATSAPP_GROUP',
+    defaultValue: 'https://chat.whatsapp.com/KPBEducation',
+  );
+
   static const storageNamespace = 'kpb_relaunch_v1';
 
   /// Pure resolver for tests and tooling.

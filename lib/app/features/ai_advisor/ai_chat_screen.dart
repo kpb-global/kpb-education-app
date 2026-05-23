@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
@@ -25,10 +26,15 @@ class AiChatScreen extends StatefulWidget {
 }
 
 class _AiChatScreenState extends State<AiChatScreen> {
+  static const _weeklyQuota = 5;
+  static const _quotaWeekKey = 'kpb.ai_coach.quota.week';
+  static const _quotaCountKey = 'kpb.ai_coach.quota.count';
+
   final List<AiMessage> _messages = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isTyping = false;
+  int _remainingMessages = _weeklyQuota;
 
   final List<String> _suggestions = [
     "Quelles écoles pour un budget de 10 000€ ?",
@@ -69,6 +75,15 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   void _sendMessage(String text) {
     if (text.trim().isEmpty) return;
+    if (_remainingMessages <= 0) {
+      Get.snackbar(
+        'Quota Coach IA atteint',
+        'Tu as atteint la limite de 5 messages cette semaine. Reviens la semaine prochaine ou passe par un conseiller humain.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
+      return;
+    }
     setState(() {
       _messages.add(AiMessage(
         text: text,
@@ -76,7 +91,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
         timestamp: DateTime.now(),
       ));
       _isTyping = true;
+      _remainingMessages -= 1;
     });
+    unawaited(_persistQuotaCount());
     _scrollToBottom();
     _textController.clear();
 
@@ -165,6 +182,43 @@ class _AiChatScreenState extends State<AiChatScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    unawaited(_loadQuotaState());
+  }
+
+  String _currentWeekKey() {
+    final now = DateTime.now();
+    final firstDay = DateTime(now.year, 1, 1);
+    final week = ((now.difference(firstDay).inDays + firstDay.weekday - 1) / 7).floor() + 1;
+    return '${now.year}-$week';
+  }
+
+  Future<void> _loadQuotaState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final weekKey = _currentWeekKey();
+    final storedWeek = prefs.getString(_quotaWeekKey);
+    if (storedWeek != weekKey) {
+      await prefs.setString(_quotaWeekKey, weekKey);
+      await prefs.setInt(_quotaCountKey, 0);
+      if (!mounted) return;
+      setState(() => _remainingMessages = _weeklyQuota);
+      return;
+    }
+    final used = prefs.getInt(_quotaCountKey) ?? 0;
+    if (!mounted) return;
+    setState(() => _remainingMessages = (_weeklyQuota - used).clamp(0, _weeklyQuota));
+  }
+
+  Future<void> _persistQuotaCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final weekKey = _currentWeekKey();
+    await prefs.setString(_quotaWeekKey, weekKey);
+    final used = (_weeklyQuota - _remainingMessages).clamp(0, _weeklyQuota);
+    await prefs.setInt(_quotaCountKey, used);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
@@ -234,11 +288,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "Conseiller IA",
                   style: TextStyle(
                     fontSize: 16,
@@ -251,7 +305,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     Icon(Icons.circle, size: 8, color: KpbColors.stitchCyberCyan),
                     SizedBox(width: 4),
                     Text(
-                      "En ligne • Réponse instantanée",
+                      "En ligne • $_remainingMessages/$_weeklyQuota restants cette semaine",
                       style: TextStyle(
                         fontSize: 11,
                         color: KpbColors.textDarkSecondary,
