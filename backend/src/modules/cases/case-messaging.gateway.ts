@@ -46,7 +46,12 @@ export class CaseMessagingGateway
       const user = await this.studentAuthService.verifyAccessToken(token);
       client.data.userId = user.id;
       client.data.email = user.email;
-      this.logger.log(`Client connected: ${user.email}`);
+      client.data.role =
+        (client.handshake.query.role as string | undefined) ?? 'student';
+      // Store the display name so messages show a friendly sender name.
+      client.data.fullName =
+        (client.handshake.query.fullName as string | undefined) ?? user.email;
+      this.logger.log(`Client connected: ${user.email} (${client.data.role})`);
     } catch {
       client.disconnect();
     }
@@ -86,9 +91,17 @@ export class CaseMessagingGateway
     @MessageBody() data: { caseId: string; body: string },
   ) {
     const userId = client.data.userId as string;
+    const role = client.data.role as string;
+    const senderRole =
+      role == 'commercial' || role == 'counselor' || role == 'advisor'
+        ? role
+        : 'student';
+    // Prefer the display name stored on connect; fall back to email.
+    const senderName =
+      (client.data.fullName as string | undefined) ?? client.data.email;
     const message = await this.casesService.createMessage(data.caseId, {
-      senderName: client.data.email,
-      senderRole: 'student',
+      senderName,
+      senderRole,
       body: data.body,
     });
 
@@ -118,5 +131,13 @@ export class CaseMessagingGateway
       userId: client.data.userId,
       isTyping: data.isTyping,
     });
+  }
+
+  emitCaseUpdated(caseId: string, payload: Record<string, unknown>) {
+    this.server.to(`case:${caseId}`).emit('caseUpdated', payload);
+  }
+
+  emitCaseMessage(caseId: string, payload: Record<string, unknown>) {
+    this.server.to(`case:${caseId}`).emit('message', payload);
   }
 }

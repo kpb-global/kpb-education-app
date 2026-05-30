@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
@@ -12,7 +14,8 @@ import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
 import '../../core/utils/whatsapp_utils.dart';
-import 'case_timeline_stepper.dart';
+import 'case_status_timeline.dart';
+import 'case_timeline_definition.dart';
 
 Future<void> _openWhatsapp({String? phone, String? prefill}) async {
   await openWhatsAppOrToast(phone: phone, prefill: prefill);
@@ -40,7 +43,19 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
   AppController get _ctrl => Get.find<AppController>();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ctrl.markCaseMessagesRead(widget.caseId);
+      if (AppConfig.enableRemoteSync) {
+        _ctrl.connectCaseDetailSocket(widget.caseId);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _ctrl.disconnectCaseDetailSocket();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -123,7 +138,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
               subtitle: 'Retourne a la liste des dossiers pour continuer.',
               actionLabel: 'Ouvrir mes dossiers',
               onAction: () {
-                _ctrl.goToTab(2);
+                _ctrl.goToTab(StudentShellTab.cases);
                 if (Get.key.currentState?.canPop() ?? false) {
                   Get.back();
                 }
@@ -296,8 +311,15 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         ),
                         const SizedBox(height: KpbSpacing.md),
 
-                        // ── Stepper visuel ───────────────────────────────────────────
-                        CaseTimelineStepper(currentStatus: c.status),
+                        // ── Timeline M14 (10 statuts) ────────────────────────────────
+                        CaseStatusTimeline(
+                          steps: buildCaseTimelineSteps(
+                            currentStatus: c.status,
+                            events: c.timeline,
+                            assignedAdvisorName: c.assignedAdvisorName,
+                          ),
+                          localeCode: _ctrl.localeCode,
+                        ),
                         const SizedBox(height: KpbSpacing.md),
 
                         // ── Conseiller ───────────────────────────────────────────────
@@ -495,7 +517,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         // ── Messages ─────────────────────────────────────────────────
                         SectionHeader(
                           title:
-                              'Messages${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}',
+                              'Messages${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} non lu(s)' : ''}',
                           padding: EdgeInsets.zero,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
@@ -590,7 +612,51 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                               );
                             }).toList(),
                           ),
-                        const SizedBox(height: KpbSpacing.md),
+                        const SizedBox(height: KpbSpacing.sm),
+
+                        // ── Typing indicator ─────────────────────────────────────────
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: _ctrl.isCaseAdvisorTyping
+                              ? Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    key: const ValueKey('typing'),
+                                    margin: const EdgeInsets.only(
+                                        bottom: KpbSpacing.sm),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: context.kpb.cardBg,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(16),
+                                        topRight: Radius.circular(16),
+                                        bottomRight: Radius.circular(16),
+                                        bottomLeft: Radius.circular(4),
+                                      ),
+                                      boxShadow: KpbShadow.card,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _TypingDot(delay: Duration.zero),
+                                        const SizedBox(width: 4),
+                                        _TypingDot(
+                                            delay:
+                                                const Duration(milliseconds: 200)),
+                                        const SizedBox(width: 4),
+                                        _TypingDot(
+                                            delay:
+                                                const Duration(milliseconds: 400)),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(
+                                  key: ValueKey('no-typing')),
+                        ),
+
+                        const SizedBox(height: KpbSpacing.sm),
 
                         // ── Input message ────────────────────────────────────────────
                         Container(
@@ -614,6 +680,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 4, vertical: 8),
                                   ),
+                                  onChanged: (value) {
+                                    _ctrl.sendCaseTyping(
+                                        c.id, value.isNotEmpty);
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -906,6 +976,60 @@ class _AdvisorAction extends StatelessWidget {
           borderRadius: KpbRadius.mdBr,
         ),
         child: Icon(icon, color: color, size: 18),
+      ),
+    );
+  }
+}
+
+/// Animated bouncing dot for the typing indicator.
+class _TypingDot extends StatefulWidget {
+  const _TypingDot({required this.delay});
+  final Duration delay;
+
+  @override
+  State<_TypingDot> createState() => _TypingDotState();
+}
+
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _anim = Tween<double>(begin: 0, end: -6).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.repeat(reverse: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) => Transform.translate(
+        offset: Offset(0, _anim.value),
+        child: Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(
+            color: KpbColors.gray400,
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

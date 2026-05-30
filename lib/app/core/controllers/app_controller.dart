@@ -1,23 +1,29 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../navigation/shell_tabs.dart';
 import '../services/analytics_service.dart';
 import '../services/case_message_outbox.dart';
+import '../services/case_socket_service.dart';
 import '../services/safe_crashlytics.dart';
 import '../services/connectivity_service.dart';
 
 import '../observability/crashlytics_observability.dart';
 import '../config/app_config.dart';
+import '../config/app_routes.dart';
 import '../data/mock_catalog.dart';
 import '../data/orientation_engine.dart';
+import '../data/orientation_questions_m4.dart';
 import '../data/roadmap_engine.dart';
 import '../models/app_models.dart';
 import '../repositories/app_api_client.dart';
 import '../repositories/app_repository.dart';
 import '../repositories/app_snapshot.dart';
+import '../utils/country_utils.dart';
 import '../utils/user_facing_sync_error.dart';
 import '../data/case_api_codec.dart';
 import '../data/profile_api_codec.dart';
@@ -28,9 +34,10 @@ import '../services/catalog_cache_service.dart';
 import '../services/push_notification_service.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
+import '../services/auth_service.dart';
 
 class AppController extends GetxController {
-  static const int shellTabCount = 4;
+  static const int shellTabCount = StudentShellTab.count;
 
   AppController({
     required AppRepository repository,
@@ -43,10 +50,14 @@ class AppController extends GetxController {
 
   String localeCode = 'fr';
   bool hasSeenIntro = false;
+  bool isGuestMode = false;
   bool isAppLockEnabled = false;
   bool hasCompletedOnboarding = false;
+  bool onboardingSkipped = false;
+  int onboardingStep = 0;
   ThemeMode themeMode = ThemeMode.system;
   int shellIndex = 0;
+  int commercialShellIndex = 0;
   int selectedOrientationQuestion = 0;
   bool isSyncing = false;
   DateTime? lastSyncedAt;
@@ -72,21 +83,48 @@ class AppController extends GetxController {
       List<ForumCategoryModel>.of(MockCatalog.forumCategories);
   final List<ForumTopicTagModel> forumTopicTags =
       List<ForumTopicTagModel>.of(MockCatalog.forumTopicTags);
-  final List<OrientationQuestion> orientationQuestions =
-      MockCatalog.orientationQuestions;
+  final List<OrientationQuestion> orientationQuestions = [
+    ...MockCatalog.orientationQuestions,
+    ...orientationQuestionsM4Extension,
+  ];
 
   final List<SavedItem> _savedItems = <SavedItem>[];
   final List<StudentCase> _cases = <StudentCase>[];
+  final Map<String, CountryModel> _countryDetailCache = <String, CountryModel>{};
+  final CaseSocketService _caseSocket = CaseSocketService();
+  final Map<String, DateTime> _caseLastReadAt = <String, DateTime>{};
+  String? _activeCaseSocketId;
+  // True while the remote participant is typing (shown in CaseDetailScreen).
+  bool isCaseAdvisorTyping = false;
   final List<OrientationSession> _orientationHistory = <OrientationSession>[];
   final Map<String, String> _remoteSavedItemIds = <String, String>{};
 
   /// True after local profile edits until PATCH `/profiles/me` succeeds (offline sync conflict avoidance).
   bool _profileNeedsPush = false;
+  DateTime? _lastSyncAttemptAt;
+  DateTime? _syncBackoffUntil;
+  static const Duration _minSyncInterval = Duration(seconds: 30);
   final List<String> _searchHistory = <String>[];
   Map<String, List<String>> _pendingOrientationAnswers = {};
   final List<String> _purchasedCourseIds = <String>[];
   Map<String, List<String>> _completedRoadmapSteps = {};
   int pendingOrientationQuestionIndex = 0;
+  bool isSubmittingOrientation = false;
+  String? universitiesInitialFieldId;
+  final List<CommercialLead> _commercialLeads = <CommercialLead>[];
+  bool isLoadingCommercialLeads = false;
+  String? commercialLeadsError;
+  CommercialStats commercialStats = CommercialStats.empty;
+  bool isLoadingCommercialStats = false;
+
+  // ── Parcours (Chantier C) — KPB YouTube playlist ──────────────────────────
+  final List<YoutubeVideo> _parcoursVideos = <YoutubeVideo>[];
+  List<YoutubeVideo> get parcoursVideos => List.unmodifiable(_parcoursVideos);
+  bool isLoadingParcours = false;
+  String? parcoursError;
+  // True once the backend confirms a YOUTUBE_API_KEY is configured.
+  bool parcoursConfigured = true;
+  static const _parcoursCacheKey = 'parcours_videos';
 
   List<SavedItem> get savedItems => List.unmodifiable(_savedItems);
   List<StudentCase> get cases => List.unmodifiable(_cases);
@@ -96,10 +134,13 @@ class AppController extends GetxController {
   List<String> get purchasedCourseIds => List.unmodifiable(_purchasedCourseIds);
   Map<String, List<String>> get pendingOrientationAnswers =>
       Map.unmodifiable(_pendingOrientationAnswers);
+  List<CommercialLead> get commercialLeads =>
+      List.unmodifiable(_commercialLeads);
 
   bool get isStudent => profile?.accountType == AccountType.student;
   bool get isParent => profile?.accountType == AccountType.parent;
   bool get isPartner => profile?.accountType == AccountType.partner;
+  bool get isCommercial => profile?.accountType == AccountType.commercial;
   List<ServiceOffer> get publishedServiceOffers => serviceOffers
       .where((item) => item.status == PublicationStatus.published)
       .toList();
@@ -132,8 +173,11 @@ class AppController extends GetxController {
     final snapshot = await _repository.loadSnapshot();
     localeCode = snapshot.localeCode;
     hasSeenIntro = snapshot.hasSeenIntro;
+    isGuestMode = snapshot.isGuestMode;
     isAppLockEnabled = snapshot.isAppLockEnabled;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
+    onboardingSkipped = snapshot.onboardingSkipped;
+    onboardingStep = snapshot.onboardingStep;
     profile = snapshot.profile;
     _savedItems
       ..clear()
@@ -151,6 +195,17 @@ class AppController extends GetxController {
       ..clear()
       ..addAll(snapshot.purchasedCourseIds);
     _completedRoadmapSteps = Map.from(snapshot.completedRoadmapSteps);
+    _caseLastReadAt
+      ..clear()
+      ..addEntries(
+        snapshot.caseLastReadAt.entries.map(
+          (e) => MapEntry(
+            e.key,
+            DateTime.tryParse(e.value) ??
+                DateTime.fromMillisecondsSinceEpoch(0),
+          ),
+        ),
+      );
     themeMode = snapshot.themeMode;
     latestOrientationSession =
         _orientationHistory.isNotEmpty ? _orientationHistory.first : null;
@@ -214,6 +269,7 @@ class AppController extends GetxController {
     academyCourses
       ..clear()
       ..addAll(MockCatalog.academyCourses);
+    _applyMvpCountryLock();
     if (AppConfig.enableRemoteSync) {
       await syncRemoteData(silent: true);
     }
@@ -244,10 +300,73 @@ class AppController extends GetxController {
     update();
   }
 
+  void enterGuestMode() {
+    isGuestMode = true;
+    hasCompletedOnboarding = true;
+    profile = null;
+    _profileNeedsPush = false;
+    _persist();
+    update();
+  }
+
+  Future<void> finishAuthSession() async {
+    isGuestMode = false;
+    if (AppConfig.enableRemoteSync) {
+      await syncRemoteData(silent: true);
+    }
+    maybeRestoreOnboardingFromProfile();
+    _persist();
+    update();
+  }
+
+  void maybeRestoreOnboardingFromProfile() {
+    final current = profile;
+    if (current == null || hasCompletedOnboarding) return;
+    if (current.completionScore >= 0.5 ||
+        ((current.currentLevel ?? '').trim().isNotEmpty &&
+            current.fieldIds.isNotEmpty)) {
+      hasCompletedOnboarding = true;
+    }
+  }
+
+  void saveOnboardingProgress(int step, UserProfile partialProfile) {
+    onboardingStep = step;
+    profile = partialProfile;
+    _profileNeedsPush = true;
+    _persist();
+    unawaited(_pushProfileUpdate());
+  }
+
+  void skipOnboarding() {
+    onboardingSkipped = true;
+    onboardingStep = 0;
+    hasCompletedOnboarding = true;
+    isGuestMode = false;
+    profile ??= UserProfile(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      accountType: AccountType.student,
+      fullName: '',
+      email: '',
+      phone: '',
+      whatsApp: '',
+      countryOfResidence: '',
+      preferredLanguage: localeCode,
+    );
+    _persist();
+    update();
+    Get.offAllNamed(AppRoutes.home);
+  }
+
+  bool get needsProfileCompletionBanner =>
+      onboardingSkipped || (profile?.completionScore ?? 0) < 0.5;
+
   void completeOnboarding(UserProfile newProfile) {
     profile = newProfile;
     localeCode = newProfile.preferredLanguage;
     hasCompletedOnboarding = true;
+    onboardingSkipped = false;
+    onboardingStep = 0;
+    isGuestMode = false;
     _cases.clear();
     _profileNeedsPush = true;
     unawaited(_pushProfileUpdate());
@@ -255,6 +374,9 @@ class AppController extends GetxController {
     update();
     if (AppConfig.enableRemoteSync) {
       unawaited(syncRemoteData(silent: true));
+      if (Get.isRegistered<PushNotificationService>()) {
+        unawaited(registerDevicePushToken(Get.find<PushNotificationService>()));
+      }
     }
   }
 
@@ -265,11 +387,15 @@ class AppController extends GetxController {
     AnalyticsService.instance.logThemeToggled(mode == ThemeMode.dark);
   }
 
-  void logout() {
+  Future<void> logout() async {
     AnalyticsService.instance.logLogout();
+    if (Get.isRegistered<AuthService>()) {
+      await Get.find<AuthService>().clearSession();
+    }
     profile = null;
     _profileNeedsPush = false;
     hasCompletedOnboarding = false;
+    isGuestMode = false;
     latestOrientationSession = null;
     _savedItems.clear();
     _cases.clear();
@@ -287,8 +413,20 @@ class AppController extends GetxController {
     update();
   }
 
+  void goToUniversitiesForField(String? fieldId) {
+    universitiesInitialFieldId = fieldId;
+    goToTab(StudentShellTab.universities);
+  }
+
+  void goToCommercialTab(int index) {
+    commercialShellIndex =
+        index.clamp(0, CommercialShellTab.count - 1);
+    update();
+  }
+
   void resetShell() {
     shellIndex = 0;
+    commercialShellIndex = 0;
     update();
   }
 
@@ -436,23 +574,66 @@ class AppController extends GetxController {
     return closest;
   }
 
-  /// Public refresh — calls syncRemoteData and returns when done.
-  @override
-  Future<void> refresh() => syncRemoteData(silent: false);
+  /// Public pull-to-refresh — calls syncRemoteData and returns when done.
+  ///
+  /// IMPORTANT: do NOT name this `refresh()` — that would shadow
+  /// `GetxController.refresh()`, which GetX calls internally to notify
+  /// listeners. Naming this `pullToRefresh()` avoids triggering a full sync
+  /// every time any widget rebuilds.
+  Future<void> pullToRefresh() => syncRemoteData(silent: false, force: true);
 
-  OrientationSession submitOrientation(Map<String, List<String>> answers) {
+  Future<OrientationSession> submitOrientation(
+    Map<String, List<String>> answers,
+  ) async {
     final activeProfile = profile;
     if (activeProfile == null) {
       throw StateError('Profile must exist before starting orientation.');
     }
 
-    final session = OrientationEngine.evaluate(
-      profile: activeProfile,
-      answers: answers,
-      questions: orientationQuestions,
-      fields: fields,
-      scholarships: scholarships,
-    );
+    isSubmittingOrientation = true;
+    update();
+
+    OrientationSession session;
+    try {
+      if (AppConfig.enableRemoteSync) {
+        final response = await _apiClient.submitOrientation(<String, dynamic>{
+          'answers': answers,
+          'profile': <String, dynamic>{
+            'fullName': activeProfile.fullName,
+            'currentLevel': activeProfile.currentLevel,
+            'targetCountryIds': activeProfile.targetCountryIds,
+            'fieldIds': activeProfile.fieldIds,
+            'preferredLanguage': activeProfile.preferredLanguage,
+          },
+        });
+        session = _orientationSessionFromApi(response, answers);
+      } else {
+        session = OrientationEngine.evaluate(
+          profile: activeProfile,
+          answers: answers,
+          questions: orientationQuestions,
+          fields: fields,
+          scholarships: scholarships,
+        );
+      }
+    } catch (e, s) {
+      safeRecordError(
+        e,
+        s,
+        reason: 'submitOrientation',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'submit_orientation',
+      );
+      session = OrientationEngine.evaluate(
+        profile: activeProfile,
+        answers: answers,
+        questions: orientationQuestions,
+        fields: fields,
+        scholarships: scholarships,
+      );
+    } finally {
+      isSubmittingOrientation = false;
+    }
 
     latestOrientationSession = session;
     _orientationHistory.insert(0, session);
@@ -473,10 +654,203 @@ class AppController extends GetxController {
       totalQuestions: orientationQuestions.length,
       matchCount: session.recommendations.length,
     );
-    if (AppConfig.enableRemoteSync) {
-      unawaited(_pushOrientationSession(answers));
-    }
     return session;
+  }
+
+  OrientationSession _orientationSessionFromApi(
+    Map<String, dynamic> json,
+    Map<String, List<String>> answers,
+  ) {
+    final locale = profile?.preferredLanguage ?? localeCode;
+    final recommendations = (json['recommendations'] as List<dynamic>? ?? [])
+        .map((item) {
+          final map = item as Map<String, dynamic>;
+          final explanation = map['explanation'];
+          final jobsPayload = map['jobs'];
+          final jobs = <String>[];
+          if (jobsPayload is Map<String, dynamic>) {
+            final localized =
+                (locale.startsWith('en') ? jobsPayload['en'] : jobsPayload['fr'])
+                    as List<dynamic>?;
+            jobs.addAll(localized?.cast<String>() ?? const []);
+          }
+          final partnerCountries =
+              (map['partnerCountryIds'] as List<dynamic>? ?? const [])
+                  .cast<String>();
+          return OrientationRecommendation(
+            fieldId: map['fieldId'] as String? ?? '',
+            score: map['score'] as int? ?? 55,
+            explanation: explanation is Map<String, dynamic>
+                ? LocalizedText(
+                    fr: explanation['fr'] as String? ?? '',
+                    en: explanation['en'] as String? ?? '',
+                  )
+                : const LocalizedText(fr: '', en: ''),
+            relatedCountryIds: partnerCountries,
+            relatedScholarshipIds: scholarships
+                .where(
+                  (s) => s.relatedFieldIds.contains(map['fieldId']),
+                )
+                .map((s) => s.id)
+                .take(3)
+                .toList(),
+            jobs: jobs,
+            iaResilience: map['iaResilience'] as String? ?? 'medium',
+          );
+        })
+        .where((item) => item.fieldId.isNotEmpty)
+        .toList();
+
+    return OrientationSession(
+      id: json['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
+          DateTime.now(),
+      answers: answers,
+      recommendations: recommendations,
+    );
+  }
+
+  Future<void> fetchCommercialLeads({String filter = 'all'}) async {
+    if (!isCommercial || !AppConfig.enableRemoteSync) return;
+    final email = profile?.email;
+    if (email == null || email.isEmpty) return;
+    // Dedup the simultaneous startup fetch from the Leads + Conversations tabs.
+    if (isLoadingCommercialLeads) return;
+
+    isLoadingCommercialLeads = true;
+    commercialLeadsError = null;
+    update();
+
+    try {
+      final items = await _apiClient.listCommercialLeads(
+        email: email,
+        filter: filter,
+      );
+      _commercialLeads
+        ..clear()
+        ..addAll(items);
+    } catch (e, s) {
+      commercialLeadsError = userFacingSyncError(e, localeCode);
+      safeRecordError(
+        e,
+        s,
+        reason: 'fetchCommercialLeads',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'fetch_commercial_leads',
+      );
+    } finally {
+      isLoadingCommercialLeads = false;
+      update();
+    }
+  }
+
+  Future<void> updateCommercialLeadTag(
+    String caseId, {
+    required String leadTag,
+    String? discussionMotive,
+  }) async {
+    if (!AppConfig.enableRemoteSync) return;
+    try {
+      await _apiClient.updateCommercialLead(
+        caseId,
+        leadTag: leadTag,
+        discussionMotive: discussionMotive,
+      );
+      await fetchCommercialLeads();
+    } catch (e, s) {
+      safeRecordError(
+        e,
+        s,
+        reason: 'updateCommercialLeadTag',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'update_commercial_lead',
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> fetchCommercialStats() async {
+    if (!isCommercial || !AppConfig.enableRemoteSync) return;
+    final email = profile?.email;
+    if (email == null || email.isEmpty) return;
+
+    isLoadingCommercialStats = true;
+    update();
+
+    try {
+      final data = await _apiClient.getCommercialStats(email: email);
+      commercialStats = CommercialStats.fromApi(data);
+    } catch (e, s) {
+      safeRecordError(
+        e,
+        s,
+        reason: 'fetchCommercialStats',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'fetch_commercial_stats',
+      );
+    } finally {
+      isLoadingCommercialStats = false;
+      update();
+    }
+  }
+
+  /// Hydrate the Parcours videos from the offline cache, then refresh from the
+  /// backend YouTube proxy when online. Safe to call repeatedly.
+  Future<void> fetchParcoursVideos({bool force = false}) async {
+    // 1. Offline-first: hydrate from Hive cache if we have nothing yet.
+    if (_parcoursVideos.isEmpty && CatalogCacheService.isInitialized) {
+      final cached = CatalogCacheService.instance.read(_parcoursCacheKey);
+      if (cached.isNotEmpty) {
+        _parcoursVideos
+          ..clear()
+          ..addAll(cached
+              .whereType<Map<String, dynamic>>()
+              .map(YoutubeVideo.fromApi));
+        update();
+      }
+    }
+
+    if (!AppConfig.enableRemoteSync) return;
+    if (isLoadingParcours) return;
+    if (!force && _parcoursVideos.isNotEmpty && parcoursConfigured) {
+      // Already populated this session; skip redundant network call.
+      return;
+    }
+
+    isLoadingParcours = true;
+    parcoursError = null;
+    update();
+
+    try {
+      final result = await _apiClient.listParcoursVideos();
+      parcoursConfigured = result.configured;
+      if (result.items.isNotEmpty) {
+        _parcoursVideos
+          ..clear()
+          ..addAll(result.items);
+        if (CatalogCacheService.isInitialized) {
+          await CatalogCacheService.instance.write(
+            _parcoursCacheKey,
+            result.items.map((v) => v.toJson()).toList(),
+          );
+        }
+      }
+    } catch (e, s) {
+      if (_parcoursVideos.isEmpty) {
+        parcoursError = userFacingSyncError(e, localeCode);
+      }
+      safeRecordError(
+        e,
+        s,
+        reason: 'fetchParcoursVideos',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'fetch_parcours_videos',
+      );
+    } finally {
+      isLoadingParcours = false;
+      update();
+    }
   }
 
   // ── Orientation progress persistence ──────────────────────────
@@ -645,7 +1019,7 @@ class AppController extends GetxController {
       duration: const Duration(seconds: 4),
       mainButton: TextButton(
         onPressed: () {
-          shellIndex = 2; // Dossiers tab (new index)
+          shellIndex = StudentShellTab.cases;
           update();
           Get.closeCurrentSnackbar();
         },
@@ -696,7 +1070,11 @@ class AppController extends GetxController {
     update();
 
     if (ConnectivityService.instance.isOnline) {
-      unawaited(_createRemoteCaseMessage(caseId, text));
+      if (_caseSocket.isConnected && _activeCaseSocketId == caseId) {
+        _caseSocket.sendMessage(caseId, text.trim());
+      } else {
+        unawaited(_createRemoteCaseMessage(caseId, text));
+      }
     } else {
       unawaited(CaseMessageOutbox.instance.enqueue(
         caseId: caseId,
@@ -704,6 +1082,114 @@ class AppController extends GetxController {
         senderName: profile?.fullName ?? 'Student',
       ));
     }
+  }
+
+  int unreadMessagesForCase(String caseId) {
+    final caseItem = _cases.firstWhereOrNull((item) => item.id == caseId);
+    if (caseItem == null) return 0;
+    final lastRead = _caseLastReadAt[caseId] ?? caseItem.createdAt;
+    return caseItem.messages
+        .where(
+          (message) =>
+              message.senderRole != 'student' &&
+              message.createdAt.isAfter(lastRead),
+        )
+        .length;
+  }
+
+  int get totalUnreadCaseMessages =>
+      _cases.fold(0, (sum, item) => sum + unreadMessagesForCase(item.id));
+
+  void markCaseMessagesRead(String caseId) {
+    _caseLastReadAt[caseId] = DateTime.now();
+    _persist();
+    update();
+  }
+
+  Future<void> connectCaseDetailSocket(String caseId) async {
+    if (!AppConfig.enableRemoteSync) return;
+    if (!await _apiClient.hasAuthSession()) return;
+
+    _activeCaseSocketId = caseId;
+    await _caseSocket.connect(caseId, fullName: profile?.fullName);
+
+    _caseSocket.onMessage((data) => ingestRemoteCaseMessage(caseId, data));
+    _caseSocket.onCaseUpdated((data) {
+      try {
+        _upsertCase(CaseApiCodec.studentCaseFromApi(data));
+        _persist();
+        update();
+      } catch (_) {}
+    });
+    _caseSocket.onTyping((data) {
+      final isTyping = data['isTyping'] as bool? ?? false;
+      if (isCaseAdvisorTyping == isTyping) return;
+      isCaseAdvisorTyping = isTyping;
+      update();
+      if (isTyping) {
+        // Auto-reset after 4 s in case the stop event is missed.
+        Future.delayed(const Duration(seconds: 4), () {
+          if (isCaseAdvisorTyping) {
+            isCaseAdvisorTyping = false;
+            update();
+          }
+        });
+      }
+    });
+  }
+
+  Future<void> disconnectCaseDetailSocket() async {
+    await _caseSocket.disconnect();
+    _activeCaseSocketId = null;
+    isCaseAdvisorTyping = false;
+    update();
+  }
+
+  void sendCaseTyping(String caseId, bool isTyping) {
+    if (_caseSocket.isConnected) {
+      _caseSocket.sendTyping(caseId, isTyping);
+    }
+  }
+
+  void ingestRemoteCaseMessage(String caseId, Map<String, dynamic> data) {
+    final index = _cases.indexWhere((item) => item.id == caseId);
+    if (index < 0) return;
+
+    final messageId = data['id'] as String? ?? '';
+    final caseItem = _cases[index];
+    if (messageId.isNotEmpty &&
+        caseItem.messages.any((message) => message.id == messageId)) {
+      return;
+    }
+
+    final body = data['body'] as String? ?? '';
+    final senderRole = data['senderRole'] as String? ?? 'counselor';
+    final message = CaseMessage(
+      id: messageId.isNotEmpty
+          ? messageId
+          : 'remote-${DateTime.now().millisecondsSinceEpoch}',
+      senderName: data['senderName'] as String? ?? 'KPB',
+      senderRole: senderRole,
+      body: LocalizedText(fr: body, en: body),
+      createdAt: DateTime.tryParse(data['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+    );
+
+    final withoutOptimistic = senderRole == 'student'
+        ? caseItem.messages
+            .where(
+              (existing) =>
+                  !(existing.id.startsWith('user-') && existing.body.fr == body),
+            )
+            .toList()
+        : caseItem.messages;
+
+    _cases[index] = caseItem.copyWith(
+      messages: [...withoutOptimistic, message],
+      updatedAt: DateTime.now(),
+    );
+    _persist();
+    update();
   }
 
   void uploadDocument(String caseId, String documentId, String filePath) {
@@ -727,11 +1213,22 @@ class AppController extends GetxController {
     }
   }
 
-  Future<void> syncRemoteData({bool silent = false}) async {
+  Future<void> syncRemoteData({bool silent = false, bool force = false}) async {
     if (!AppConfig.enableRemoteSync) return;
     if (isSyncing) return;
 
+    final now = DateTime.now();
+    if (!force && _syncBackoffUntil != null && now.isBefore(_syncBackoffUntil!)) {
+      return;
+    }
+    if (!force &&
+        _lastSyncAttemptAt != null &&
+        now.difference(_lastSyncAttemptAt!) < _minSyncInterval) {
+      return;
+    }
+
     isSyncing = true;
+    _lastSyncAttemptAt = now;
     if (!silent) {
       syncError = null;
       update();
@@ -739,6 +1236,7 @@ class AppController extends GetxController {
 
     final syncStarted = DateTime.now();
     var catalogHiveFallbackCount = 0;
+    var authSyncFailed = false;
     void onCatalogHiveFallback(String resource, int attempts) {
       catalogHiveFallbackCount++;
       SyncTelemetry.catalogHiveFallback(resource: resource, attempts: attempts);
@@ -747,49 +1245,95 @@ class AppController extends GetxController {
     SyncTelemetry.fullSyncStarted();
 
     try {
-      // Flush any messages typed while offline
-      await flushPendingCaseMessages();
+      final hasAuth = await _apiClient.hasAuthSession();
 
-      await _pushProfileUpdate();
+      if (hasAuth) {
+        try {
+          // Flush any messages typed while offline
+          await flushPendingCaseMessages();
 
-      if (!_profileNeedsPush) {
-        final profileJson = await _apiClient.getProfile();
-        profile = ProfileApiCodec.userProfileFromApi(
-          profileJson,
-          fallbackLocale: localeCode,
-        );
-        localeCode = profile?.preferredLanguage ?? localeCode;
+          await _pushProfileUpdate();
+
+          if (!_profileNeedsPush) {
+            final profileJson = await _apiClient.getProfile();
+            profile = ProfileApiCodec.userProfileFromApi(
+              profileJson,
+              fallbackLocale: localeCode,
+            );
+            localeCode = profile?.preferredLanguage ?? localeCode;
+          } else {
+            SyncTelemetry.profileSkippedRemotePull(
+              reason: 'pending_local_patch',
+            );
+          }
+
+          final remoteCasesRaw = await _apiClient.listCases();
+          final remoteCases =
+              remoteCasesRaw.map(CaseApiCodec.studentCaseFromApi).toList();
+          final (mergedCases, caseStats) =
+              mergeCasesRemoteWithLocal(remoteCases, List<StudentCase>.of(_cases));
+          SyncTelemetry.casesMerged(
+            remoteCount: caseStats.remoteCount,
+            localWinCount: caseStats.localWinCount,
+            keptLocalOnlyCount: caseStats.keptLocalOnlyCount,
+          );
+          _cases
+            ..clear()
+            ..addAll(mergedCases);
+
+          final remoteSavedItems = await _apiClient.listSavedItems();
+          final remoteSavedParsed =
+              remoteSavedItems.map(SavedItemApiCodec.fromApi).toList();
+          final (mergedSaved, unionExtraLocals) = mergeSavedItemsUnion(
+            remoteSavedParsed,
+            List<SavedItem>.of(_savedItems),
+          );
+          SyncTelemetry.savedItemsMerged(unionExtraLocals: unionExtraLocals);
+          _savedItems
+            ..clear()
+            ..addAll(mergedSaved);
+
+          _remoteSavedItemIds
+            ..clear()
+            ..addEntries(
+              remoteSavedItems.whereType<Map<String, dynamic>>().map(
+                    (item) => MapEntry(
+                      _savedItemKey(
+                        SavedItemApiCodec.parseType(item['type'] as String?) ??
+                            SavedItemType.field,
+                        item['itemId'] as String? ?? '',
+                      ),
+                      item['id'] as String? ?? '',
+                    ),
+                  ),
+            );
+
+          for (final item in _savedItems) {
+            final key = _savedItemKey(item.type, item.itemId);
+            final id = _remoteSavedItemIds[key];
+            if (id == null || id.isEmpty) {
+              unawaited(_createRemoteSavedItem(item));
+            }
+          }
+        } catch (error, stack) {
+          authSyncFailed = true;
+          if (error is DioException && error.response?.statusCode == 429) {
+            _syncBackoffUntil = DateTime.now().add(const Duration(seconds: 60));
+            syncError = userFacingSyncError(error, localeCode);
+          } else {
+            syncError = userFacingSyncError(error, localeCode);
+            safeRecordError(
+              error,
+              stack,
+              reason: 'syncRemoteData.auth',
+              domain: CrashlyticsObsDomain.sync,
+              operation: 'sync_remote_data_auth',
+            );
+          }
+        }
       } else {
-        SyncTelemetry.profileSkippedRemotePull(
-          reason: 'pending_local_patch',
-        );
+        SyncTelemetry.profileSkippedRemotePull(reason: 'guest_no_auth_token');
       }
-
-      final remoteCasesRaw = await _apiClient.listCases();
-      final remoteCases =
-          remoteCasesRaw.map(CaseApiCodec.studentCaseFromApi).toList();
-      final (mergedCases, caseStats) =
-          mergeCasesRemoteWithLocal(remoteCases, List<StudentCase>.of(_cases));
-      SyncTelemetry.casesMerged(
-        remoteCount: caseStats.remoteCount,
-        localWinCount: caseStats.localWinCount,
-        keptLocalOnlyCount: caseStats.keptLocalOnlyCount,
-      );
-      _cases
-        ..clear()
-        ..addAll(mergedCases);
-
-      final remoteSavedItems = await _apiClient.listSavedItems();
-      final remoteSavedParsed =
-          remoteSavedItems.map(SavedItemApiCodec.fromApi).toList();
-      final (mergedSaved, unionExtraLocals) = mergeSavedItemsUnion(
-        remoteSavedParsed,
-        List<SavedItem>.of(_savedItems),
-      );
-      SyncTelemetry.savedItemsMerged(unionExtraLocals: unionExtraLocals);
-      _savedItems
-        ..clear()
-        ..addAll(mergedSaved);
 
       await syncCatalogResource<FieldModel>(
         _apiClient,
@@ -826,47 +1370,32 @@ class AppController extends GetxController {
         ScholarshipModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
       );
-
-      _remoteSavedItemIds
-        ..clear()
-        ..addEntries(
-          remoteSavedItems.whereType<Map<String, dynamic>>().map(
-                (item) => MapEntry(
-                  _savedItemKey(
-                    SavedItemApiCodec.parseType(item['type'] as String?) ??
-                        SavedItemType.field,
-                    item['itemId'] as String? ?? '',
-                  ),
-                  item['id'] as String? ?? '',
-                ),
-              ),
-        );
-
-      for (final item in _savedItems) {
-        final key = _savedItemKey(item.type, item.itemId);
-        final id = _remoteSavedItemIds[key];
-        if (id == null || id.isEmpty) {
-          unawaited(_createRemoteSavedItem(item));
-        }
-      }
+      _applyMvpCountryLock();
 
       lastSyncedAt = DateTime.now();
-      syncError = null;
+      if (!authSyncFailed) {
+        syncError = null;
+      }
       _persist();
       SyncTelemetry.fullSyncFinished(
-        success: true,
+        success: !authSyncFailed,
         elapsed: DateTime.now().difference(syncStarted),
         catalogHiveFallbackCount: catalogHiveFallbackCount,
       );
     } catch (error, stack) {
+      if (error is DioException && error.response?.statusCode == 429) {
+        _syncBackoffUntil = DateTime.now().add(const Duration(seconds: 60));
+      }
       syncError = userFacingSyncError(error, localeCode);
-      safeRecordError(
-        error,
-        stack,
-        reason: 'syncRemoteData',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'sync_remote_data',
-      );
+      if (error is! DioException || error.response?.statusCode != 429) {
+        safeRecordError(
+          error,
+          stack,
+          reason: 'syncRemoteData',
+          domain: CrashlyticsObsDomain.sync,
+          operation: 'sync_remote_data',
+        );
+      }
       SyncTelemetry.fullSyncFinished(
         success: false,
         elapsed: DateTime.now().difference(syncStarted),
@@ -878,6 +1407,20 @@ class AppController extends GetxController {
     }
   }
 
+  /// Restricts the catalog to the nine MVP destination countries. Drops any
+  /// country/institution/program/scholarship outside the launch scope so a
+  /// stale Hive cache or a broader remote payload can't surface V1.1+ data.
+  void _applyMvpCountryLock() {
+    if (!AppConfig.mvpOnly) return;
+    countries.retainWhere((c) => isMvpCountryId(c.id));
+    institutions.retainWhere((i) => isMvpCountryId(i.countryId));
+    programs.retainWhere((p) => isMvpCountryId(p.countryId));
+    // Keep cross-border scholarships (no specific country) alongside MVP ones.
+    scholarships.retainWhere(
+      (s) => s.countryId.trim().isEmpty || isMvpCountryId(s.countryId),
+    );
+  }
+
   List<StudentCase> casesByType(CaseType? filter) {
     if (filter == null) return cases;
     return cases.where((item) => item.type == filter).toList();
@@ -885,8 +1428,12 @@ class AppController extends GetxController {
 
   FieldModel? fieldByIdOrNull(String id) =>
       fields.firstWhereOrNull((item) => item.id == id);
-  CountryModel? countryByIdOrNull(String id) =>
-      countries.firstWhereOrNull((item) => item.id == id);
+  CountryModel? countryByIdOrNull(String id) {
+    final normalized = normalizeCountryId(id);
+    return countries.firstWhereOrNull(
+      (item) => item.id == id || item.id == normalized,
+    );
+  }
   InstitutionModel? institutionByIdOrNull(String id) =>
       institutions.firstWhereOrNull((item) => item.id == id);
   ProgramModel? programByIdOrNull(String id) =>
@@ -896,8 +1443,68 @@ class AppController extends GetxController {
 
   /// Non-null convenience accessors — prefer the OrNull variants for new code.
   FieldModel fieldById(String id) => fields.firstWhere((item) => item.id == id);
-  CountryModel countryById(String id) =>
-      countries.firstWhere((item) => item.id == id);
+  CountryModel countryById(String id) {
+    final match = countryByIdOrNull(id);
+    if (match != null) return match;
+    throw StateError('Country not found: $id');
+  }
+
+  Future<CountryModel> loadCountryDetail(String countryKey) async {
+    final normalized = normalizeCountryId(countryKey);
+    final cached = _countryDetailCache[normalized];
+    if (cached?.eligibilityQuiz != null) return cached!;
+
+    final base = countryByIdOrNull(normalized) ?? countryByIdOrNull(countryKey);
+
+    if (AppConfig.enableRemoteSync) {
+      try {
+        final json = await _apiClient.getCountryDetail(normalized);
+        final detail = CountryModel.fromJson(json);
+        _countryDetailCache[normalized] = detail;
+        final idx = countries.indexWhere(
+          (c) => c.id == detail.id || c.id == normalized,
+        );
+        if (idx >= 0) {
+          countries[idx] = detail;
+        }
+        update();
+        return detail;
+      } catch (_) {
+        if (base != null) return base;
+        rethrow;
+      }
+    }
+
+    if (base != null) return base;
+    throw StateError('Country not found: $countryKey');
+  }
+
+  Future<CountryQuizResultModel> submitCountryQuiz(
+    String countryKey,
+    Map<String, String> answers,
+  ) async {
+    final normalized = normalizeCountryId(countryKey);
+    if (!AppConfig.enableRemoteSync) {
+      final detail = await loadCountryDetail(normalized);
+      final quiz = detail.eligibilityQuiz;
+      if (quiz == null || quiz.questions.isEmpty) {
+        throw StateError('Quiz unavailable offline');
+      }
+      return CountryQuizResultModel(
+        verdict: EligibilityVerdict.eligibleWithConditions,
+        verdictTitle: quiz.verdicts['eligible_with_conditions']?.titleFor(localeCode) ??
+            'Résultat provisoire',
+        verdictMessage: quiz.verdicts['eligible_with_conditions']?.messageFor(localeCode) ??
+            '',
+        ctaLabel: quiz.verdicts['eligible_with_conditions']?.ctaFor(localeCode) ??
+            'Continuer',
+        countryId: detail.id,
+      );
+    }
+
+    final json = await _apiClient.submitCountryQuiz(normalized, answers);
+    return CountryQuizResultModel.fromJson(json, localeCode: localeCode);
+  }
   InstitutionModel institutionById(String id) =>
       institutions.firstWhere((item) => item.id == id);
   ProgramModel programById(String id) =>
@@ -908,6 +1515,7 @@ class AppController extends GetxController {
   AppSnapshot get _snapshot => AppSnapshot(
         localeCode: localeCode,
         hasSeenIntro: hasSeenIntro,
+        isGuestMode: isGuestMode,
         isAppLockEnabled: isAppLockEnabled,
         hasCompletedOnboarding: hasCompletedOnboarding,
         themeMode: themeMode,
@@ -926,6 +1534,11 @@ class AppController extends GetxController {
         purchasedCourseIds: _purchasedCourseIds,
         completedRoadmapSteps: _completedRoadmapSteps,
         profileNeedsPush: _profileNeedsPush,
+        onboardingStep: onboardingStep,
+        onboardingSkipped: onboardingSkipped,
+        caseLastReadAt: _caseLastReadAt.map(
+          (key, value) => MapEntry(key, value.toIso8601String()),
+        ),
       );
 
   void _persist() {
@@ -938,6 +1551,11 @@ class AppController extends GetxController {
       return;
     }
     if (profile == null) return;
+    if (!await _apiClient.hasAuthSession()) {
+      _profileNeedsPush = false;
+      _persist();
+      return;
+    }
     if (!ConnectivityService.instance.isOnline) {
       _profileNeedsPush = true;
       _persist();
@@ -957,24 +1575,6 @@ class AppController extends GetxController {
       );
       _profileNeedsPush = true;
       _persist();
-    }
-  }
-
-  Future<void> _pushOrientationSession(
-      Map<String, List<String>> answers) async {
-    if (!AppConfig.enableRemoteSync) return;
-    try {
-      await _apiClient.createOrientationSession(<String, dynamic>{
-        'answers': answers,
-      });
-    } catch (e, s) {
-      safeRecordError(
-        e,
-        s,
-        reason: 'pushOrientationSession',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'push_orientation_session',
-      );
     }
   }
 
@@ -1050,6 +1650,7 @@ class AppController extends GetxController {
   /// Flush the offline message queue. Called on connectivity-restored events.
   Future<void> flushPendingCaseMessages() async {
     if (!AppConfig.enableRemoteSync) return;
+    if (!await _apiClient.hasAuthSession()) return;
     final outbox = CaseMessageOutbox.instance;
     final touched = <String>{};
     for (final entry in outbox.pending.toList()) {
@@ -1101,6 +1702,7 @@ class AppController extends GetxController {
   /// Best-effort push token registration for transactional notifications.
   Future<void> registerDevicePushToken(PushNotificationService pushService) async {
     if (!AppConfig.enableRemoteSync) return;
+    if (!await _apiClient.hasAuthSession()) return;
     try {
       final token = await pushService.getToken();
       if (token == null || token.isEmpty) return;
@@ -1203,7 +1805,7 @@ class AppController extends GetxController {
       'languageLevel': profile.languageLevel,
       'fieldIds': profile.fieldIds,
       'targetCountryIds': profile.targetCountryIds,
-      'gradeRange': profile.gradeRange,
+      'gradeRange': profile.bacSeries ?? profile.gradeRange,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
     };

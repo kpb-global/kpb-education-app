@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AccountType { student, parent, partner }
+enum AccountType { student, parent, partner, commercial }
 
 enum InternalRole {
   admin,
@@ -57,6 +57,186 @@ enum CaseStatus {
 
 enum ContactMethod { inApp, whatsapp, phone }
 
+enum EligibilityVerdict { eligible, eligibleWithConditions, notEligible }
+
+EligibilityVerdict eligibilityVerdictFromKey(String key) {
+  switch (key) {
+    case 'eligible':
+      return EligibilityVerdict.eligible;
+    case 'not_eligible':
+      return EligibilityVerdict.notEligible;
+    default:
+      return EligibilityVerdict.eligibleWithConditions;
+  }
+}
+
+class QuizOptionModel {
+  const QuizOptionModel({
+    required this.value,
+    required this.labelFr,
+    required this.labelEn,
+  });
+
+  final String value;
+  final String labelFr;
+  final String labelEn;
+
+  String labelFor(String localeCode) =>
+      localeCode.startsWith('en') && labelEn.isNotEmpty ? labelEn : labelFr;
+
+  factory QuizOptionModel.fromJson(Map<String, dynamic> json) {
+    return QuizOptionModel(
+      value: json['value'] as String? ?? '',
+      labelFr: json['labelFr'] as String? ?? '',
+      labelEn: json['labelEn'] as String? ?? '',
+    );
+  }
+}
+
+class QuizQuestionModel {
+  const QuizQuestionModel({
+    required this.id,
+    required this.textFr,
+    required this.textEn,
+    required this.options,
+  });
+
+  final String id;
+  final String textFr;
+  final String textEn;
+  final List<QuizOptionModel> options;
+
+  String textFor(String localeCode) =>
+      localeCode.startsWith('en') && textEn.isNotEmpty ? textEn : textFr;
+
+  factory QuizQuestionModel.fromJson(Map<String, dynamic> json) {
+    return QuizQuestionModel(
+      id: json['id'] as String? ?? '',
+      textFr: json['textFr'] as String? ?? '',
+      textEn: json['textEn'] as String? ?? '',
+      options: (json['options'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(QuizOptionModel.fromJson)
+          .toList(),
+    );
+  }
+}
+
+class QuizVerdictModel {
+  const QuizVerdictModel({
+    required this.titleFr,
+    required this.titleEn,
+    required this.messageFr,
+    required this.messageEn,
+    required this.ctaFr,
+    required this.ctaEn,
+    this.alternativeCountryIds = const [],
+  });
+
+  final String titleFr;
+  final String titleEn;
+  final String messageFr;
+  final String messageEn;
+  final String ctaFr;
+  final String ctaEn;
+  final List<String> alternativeCountryIds;
+
+  String titleFor(String localeCode) =>
+      localeCode.startsWith('en') && titleEn.isNotEmpty ? titleEn : titleFr;
+
+  String messageFor(String localeCode) =>
+      localeCode.startsWith('en') && messageEn.isNotEmpty ? messageEn : messageFr;
+
+  String ctaFor(String localeCode) =>
+      localeCode.startsWith('en') && ctaEn.isNotEmpty ? ctaEn : ctaFr;
+
+  factory QuizVerdictModel.fromJson(Map<String, dynamic> json) {
+    return QuizVerdictModel(
+      titleFr: json['titleFr'] as String? ?? '',
+      titleEn: json['titleEn'] as String? ?? '',
+      messageFr: json['messageFr'] as String? ?? '',
+      messageEn: json['messageEn'] as String? ?? '',
+      ctaFr: json['ctaFr'] as String? ?? '',
+      ctaEn: json['ctaEn'] as String? ?? '',
+      alternativeCountryIds:
+          (json['alternativeCountryIds'] as List<dynamic>?)?.cast<String>() ??
+              const [],
+    );
+  }
+}
+
+class CountryEligibilityQuizModel {
+  const CountryEligibilityQuizModel({
+    required this.questions,
+    required this.verdicts,
+  });
+
+  final List<QuizQuestionModel> questions;
+  final Map<String, QuizVerdictModel> verdicts;
+
+  factory CountryEligibilityQuizModel.fromJson(Map<String, dynamic> json) {
+    final rawVerdicts =
+        json['verdicts'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    return CountryEligibilityQuizModel(
+      questions: (json['questions'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(QuizQuestionModel.fromJson)
+          .toList(),
+      verdicts: rawVerdicts.map(
+        (key, value) => MapEntry(
+          key,
+          QuizVerdictModel.fromJson(value as Map<String, dynamic>),
+        ),
+      ),
+    );
+  }
+}
+
+class CountryQuizResultModel {
+  const CountryQuizResultModel({
+    required this.verdict,
+    required this.verdictTitle,
+    required this.verdictMessage,
+    required this.ctaLabel,
+    required this.countryId,
+    this.alternativeCountryIds = const [],
+  });
+
+  final EligibilityVerdict verdict;
+  final String verdictTitle;
+  final String verdictMessage;
+  final String ctaLabel;
+  final String countryId;
+  final List<String> alternativeCountryIds;
+
+  factory CountryQuizResultModel.fromJson(
+    Map<String, dynamic> json, {
+    required String localeCode,
+  }) {
+    final en = localeCode.startsWith('en');
+    return CountryQuizResultModel(
+      verdict: eligibilityVerdictFromKey(json['verdict'] as String? ?? ''),
+      verdictTitle: en
+          ? (json['verdictTitleEn'] as String? ??
+              json['verdictTitle'] as String? ??
+              '')
+          : json['verdictTitle'] as String? ?? '',
+      verdictMessage: en
+          ? (json['verdictMessageEn'] as String? ??
+              json['verdictMessage'] as String? ??
+              '')
+          : json['verdictMessage'] as String? ?? '',
+      ctaLabel: en
+          ? (json['ctaLabelEn'] as String? ?? json['ctaLabel'] as String? ?? '')
+          : json['ctaLabel'] as String? ?? '',
+      countryId: json['countryId'] as String? ?? '',
+      alternativeCountryIds:
+          (json['alternativeCountryIds'] as List<dynamic>?)?.cast<String>() ??
+              const [],
+    );
+  }
+}
+
 class LocalizedText {
   const LocalizedText({
     required this.fr,
@@ -97,6 +277,8 @@ class UserProfile {
     this.fieldIds = const [],
     this.targetCountryIds = const [],
     this.gradeRange,
+    this.bacSeries,
+    this.monthlyBudgetEur,
     this.wantsScholarshipSupport = false,
     this.availableDocuments = const [],
     this.consentedAt,
@@ -116,6 +298,8 @@ class UserProfile {
   final List<String> fieldIds;
   final List<String> targetCountryIds;
   final String? gradeRange;
+  final String? bacSeries;
+  final int? monthlyBudgetEur;
   final bool wantsScholarshipSupport;
   final List<String> availableDocuments;
   final DateTime? consentedAt;
@@ -133,6 +317,8 @@ class UserProfile {
     List<String>? fieldIds,
     List<String>? targetCountryIds,
     String? gradeRange,
+    String? bacSeries,
+    int? monthlyBudgetEur,
     bool? wantsScholarshipSupport,
     List<String>? availableDocuments,
     DateTime? consentedAt,
@@ -152,6 +338,8 @@ class UserProfile {
       fieldIds: fieldIds ?? this.fieldIds,
       targetCountryIds: targetCountryIds ?? this.targetCountryIds,
       gradeRange: gradeRange ?? this.gradeRange,
+      bacSeries: bacSeries ?? this.bacSeries,
+      monthlyBudgetEur: monthlyBudgetEur ?? this.monthlyBudgetEur,
       wantsScholarshipSupport:
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       availableDocuments: availableDocuments ?? this.availableDocuments,
@@ -171,7 +359,8 @@ class UserProfile {
       (languageLevel ?? '').trim().isNotEmpty,
       fieldIds.isNotEmpty,
       targetCountryIds.isNotEmpty,
-      (gradeRange ?? '').trim().isNotEmpty,
+      (gradeRange ?? '').trim().isNotEmpty || (bacSeries ?? '').trim().isNotEmpty,
+      monthlyBudgetEur != null && monthlyBudgetEur! > 0,
       availableDocuments.isNotEmpty,
     ];
     final completed = items.where((item) => item).length;
@@ -288,16 +477,98 @@ class CountryModel {
     required this.visaOverview,
     required this.admissionDifficulty,
     required this.popularFieldIds,
+    this.code = '',
+    this.flagEmoji = '',
+    this.tagline = const LocalizedText(fr: '', en: ''),
+    this.nextIntakeLabel = const LocalizedText(fr: '', en: ''),
+    this.mainLanguage = const LocalizedText(fr: '', en: ''),
+    this.marketingDescription = const LocalizedText(fr: '', en: ''),
+    this.whyStudyBulletsFr = const [],
+    this.whyStudyBulletsEn = const [],
+    this.howItWorks = const LocalizedText(fr: '', en: ''),
+    this.costsOverview = const LocalizedText(fr: '', en: ''),
+    this.languageSection = const LocalizedText(fr: '', en: ''),
+    this.partnerSchools = const LocalizedText(fr: '', en: ''),
+    this.scholarshipsSection = const LocalizedText(fr: '', en: ''),
+    this.whatsAppPrefill = const LocalizedText(fr: '', en: ''),
+    this.mvpNote = const LocalizedText(fr: '', en: ''),
+    this.displayOrder = 0,
+    this.isActive = true,
+    this.eligibilityQuiz,
   });
 
   final String id;
+  final String code;
+  final String flagEmoji;
   final LocalizedText name;
+  final LocalizedText tagline;
+  final LocalizedText nextIntakeLabel;
+  final LocalizedText mainLanguage;
   final LocalizedText whyStudy;
+  final LocalizedText marketingDescription;
+  final List<String> whyStudyBulletsFr;
+  final List<String> whyStudyBulletsEn;
+  final LocalizedText howItWorks;
+  final LocalizedText costsOverview;
+  final LocalizedText languageSection;
+  final LocalizedText partnerSchools;
+  final LocalizedText scholarshipsSection;
+  final LocalizedText whatsAppPrefill;
+  final LocalizedText mvpNote;
   final LocalizedText tuitionRange;
   final LocalizedText livingCostRange;
   final LocalizedText visaOverview;
   final LocalizedText admissionDifficulty;
   final List<String> popularFieldIds;
+  final int displayOrder;
+  final bool isActive;
+  final CountryEligibilityQuizModel? eligibilityQuiz;
+
+  List<String> whyStudyBulletsFor(String localeCode) =>
+      localeCode.startsWith('en') && whyStudyBulletsEn.isNotEmpty
+          ? whyStudyBulletsEn
+          : whyStudyBulletsFr;
+
+  List<String> howItWorksStepsFor(String localeCode) {
+    final raw = howItWorks.resolve(localeCode);
+    if (raw.isEmpty) return const [];
+    return raw
+        .split('·')
+        .map((step) => step.trim())
+        .where((step) => step.isNotEmpty)
+        .toList();
+  }
+
+  CountryModel copyWith({CountryEligibilityQuizModel? eligibilityQuiz}) {
+    return CountryModel(
+      id: id,
+      code: code,
+      flagEmoji: flagEmoji,
+      name: name,
+      tagline: tagline,
+      nextIntakeLabel: nextIntakeLabel,
+      mainLanguage: mainLanguage,
+      whyStudy: whyStudy,
+      marketingDescription: marketingDescription,
+      whyStudyBulletsFr: whyStudyBulletsFr,
+      whyStudyBulletsEn: whyStudyBulletsEn,
+      howItWorks: howItWorks,
+      costsOverview: costsOverview,
+      languageSection: languageSection,
+      partnerSchools: partnerSchools,
+      scholarshipsSection: scholarshipsSection,
+      whatsAppPrefill: whatsAppPrefill,
+      mvpNote: mvpNote,
+      tuitionRange: tuitionRange,
+      livingCostRange: livingCostRange,
+      visaOverview: visaOverview,
+      admissionDifficulty: admissionDifficulty,
+      popularFieldIds: popularFieldIds,
+      displayOrder: displayOrder,
+      isActive: isActive,
+      eligibilityQuiz: eligibilityQuiz ?? this.eligibilityQuiz,
+    );
+  }
 
   factory CountryModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -309,28 +580,128 @@ class CountryModel {
           en: json['${key}En'] as String? ?? '');
     }
 
+    List<String> parseBulletList(String key) {
+      final nested = json[key];
+      if (nested is Map) {
+        final fr = nested['fr'];
+        if (fr is List) return fr.cast<String>();
+      }
+      final direct = json['${key}Fr'];
+      if (direct is List) return direct.cast<String>();
+      return const [];
+    }
+
+    List<String> parseBulletListEn(String key) {
+      final nested = json[key];
+      if (nested is Map) {
+        final en = nested['en'];
+        if (en is List) return en.cast<String>();
+      }
+      final direct = json['${key}En'];
+      if (direct is List) return direct.cast<String>();
+      return const [];
+    }
+
+    CountryEligibilityQuizModel? quiz;
+    final rawQuiz = json['eligibilityQuiz'];
+    if (rawQuiz is Map<String, dynamic>) {
+      quiz = CountryEligibilityQuizModel.fromJson(rawQuiz);
+    }
+
     return CountryModel(
       id: json['id'] as String? ?? '',
+      code: json['code'] as String? ?? '',
+      flagEmoji: json['flagEmoji'] as String? ?? '',
       name: parseLoc('name'),
+      tagline: parseLoc('tagline'),
+      nextIntakeLabel: parseLoc('nextIntakeLabel'),
+      mainLanguage: parseLoc('mainLanguage'),
       whyStudy: parseLoc('whyStudy'),
+      marketingDescription: parseLoc('marketingDescription'),
+      whyStudyBulletsFr: parseBulletList('whyStudyBullets'),
+      whyStudyBulletsEn: parseBulletListEn('whyStudyBullets'),
+      howItWorks: parseLoc('howItWorks'),
+      costsOverview: parseLoc('costsOverview'),
+      languageSection: parseLoc('languageSection'),
+      partnerSchools: parseLoc('partnerSchools'),
+      scholarshipsSection: parseLoc('scholarshipsSection'),
+      whatsAppPrefill: parseLoc('whatsAppPrefill'),
+      mvpNote: parseLoc('mvpNote'),
       tuitionRange: parseLoc('tuitionRange'),
       livingCostRange: parseLoc('livingCostRange'),
       visaOverview: parseLoc('visaOverview'),
       admissionDifficulty: parseLoc('admissionDifficulty'),
       popularFieldIds:
           (json['popularFieldIds'] as List<dynamic>?)?.cast<String>() ?? [],
+      displayOrder: json['displayOrder'] as int? ?? 0,
+      isActive: json['isActive'] as bool? ?? true,
+      eligibilityQuiz: quiz,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'code': code,
+        'flagEmoji': flagEmoji,
         'name': name.toJson(),
+        'tagline': tagline.toJson(),
+        'nextIntakeLabel': nextIntakeLabel.toJson(),
+        'mainLanguage': mainLanguage.toJson(),
         'whyStudy': whyStudy.toJson(),
+        'marketingDescription': marketingDescription.toJson(),
+        'whyStudyBullets': {
+          'fr': whyStudyBulletsFr,
+          'en': whyStudyBulletsEn,
+        },
+        'howItWorks': howItWorks.toJson(),
+        'costsOverview': costsOverview.toJson(),
+        'languageSection': languageSection.toJson(),
+        'partnerSchools': partnerSchools.toJson(),
+        'scholarshipsSection': scholarshipsSection.toJson(),
+        'whatsAppPrefill': whatsAppPrefill.toJson(),
+        'mvpNote': mvpNote.toJson(),
         'tuitionRange': tuitionRange.toJson(),
         'livingCostRange': livingCostRange.toJson(),
         'visaOverview': visaOverview.toJson(),
         'admissionDifficulty': admissionDifficulty.toJson(),
         'popularFieldIds': popularFieldIds,
+        'displayOrder': displayOrder,
+        'isActive': isActive,
+        if (eligibilityQuiz != null)
+          'eligibilityQuiz': {
+            'questions': eligibilityQuiz!.questions
+                .map(
+                  (q) => {
+                    'id': q.id,
+                    'textFr': q.textFr,
+                    'textEn': q.textEn,
+                    'options': q.options
+                        .map(
+                          (o) => {
+                            'value': o.value,
+                            'labelFr': o.labelFr,
+                            'labelEn': o.labelEn,
+                          },
+                        )
+                        .toList(),
+                  },
+                )
+                .toList(),
+            'verdicts': eligibilityQuiz!.verdicts.map(
+              (key, value) => MapEntry(
+                key,
+                {
+                  'titleFr': value.titleFr,
+                  'titleEn': value.titleEn,
+                  'messageFr': value.messageFr,
+                  'messageEn': value.messageEn,
+                  'ctaFr': value.ctaFr,
+                  'ctaEn': value.ctaEn,
+                  'alternativeCountryIds': value.alternativeCountryIds,
+                },
+              ),
+            ),
+          },
       };
 }
 
@@ -1004,6 +1375,8 @@ class OrientationRecommendation {
     required this.explanation,
     required this.relatedCountryIds,
     required this.relatedScholarshipIds,
+    this.jobs = const [],
+    this.iaResilience = 'medium',
   });
 
   final String fieldId;
@@ -1011,6 +1384,8 @@ class OrientationRecommendation {
   final LocalizedText explanation;
   final List<String> relatedCountryIds;
   final List<String> relatedScholarshipIds;
+  final List<String> jobs;
+  final String iaResilience;
 }
 
 class OrientationSession {
@@ -1025,4 +1400,115 @@ class OrientationSession {
   final DateTime completedAt;
   final Map<String, List<String>> answers;
   final List<OrientationRecommendation> recommendations;
+}
+
+class CommercialLead {
+  const CommercialLead({
+    required this.id,
+    required this.referenceCode,
+    required this.title,
+    required this.status,
+    required this.studentName,
+    this.studentLevel,
+    this.leadTag,
+    this.discussionMotive,
+    required this.createdAt,
+    required this.updatedAt,
+    this.unreadMessages = 0,
+  });
+
+  final String id;
+  final String referenceCode;
+  final String title;
+  final String status;
+  final String studentName;
+  final String? studentLevel;
+  final String? leadTag;
+  final String? discussionMotive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int unreadMessages;
+
+  factory CommercialLead.fromApi(Map<String, dynamic> json) {
+    return CommercialLead(
+      id: json['id'] as String? ?? '',
+      referenceCode: json['referenceCode'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      studentName: json['studentName'] as String? ?? '',
+      studentLevel: json['studentLevel'] as String?,
+      leadTag: json['leadTag'] as String?,
+      discussionMotive: json['discussionMotive'] as String?,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
+          DateTime.now(),
+      unreadMessages: json['unreadMessages'] as int? ?? 0,
+    );
+  }
+}
+
+class CommercialStats {
+  const CommercialStats({
+    required this.totalLeads,
+    required this.convertedLast30Days,
+    this.avgFirstResponseMinutes,
+  });
+
+  final int totalLeads;
+  final int convertedLast30Days;
+  final int? avgFirstResponseMinutes;
+
+  factory CommercialStats.fromApi(Map<String, dynamic> json) {
+    return CommercialStats(
+      totalLeads: json['totalLeads'] as int? ?? 0,
+      convertedLast30Days: json['convertedLast30Days'] as int? ?? 0,
+      avgFirstResponseMinutes: json['avgFirstResponseMinutes'] as int?,
+    );
+  }
+
+  static const empty = CommercialStats(
+    totalLeads: 0,
+    convertedLast30Days: 0,
+  );
+}
+
+/// A single video from the KPB YouTube playlist (Chantier C — section Parcours).
+class YoutubeVideo {
+  const YoutubeVideo({
+    required this.videoId,
+    required this.title,
+    this.description = '',
+    this.thumbnailUrl = '',
+    this.publishedAt,
+    this.position = 0,
+  });
+
+  final String videoId;
+  final String title;
+  final String description;
+  final String thumbnailUrl;
+  final DateTime? publishedAt;
+  final int position;
+
+  factory YoutubeVideo.fromApi(Map<String, dynamic> json) {
+    return YoutubeVideo(
+      videoId: json['videoId'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      thumbnailUrl: json['thumbnailUrl'] as String? ?? '',
+      publishedAt: DateTime.tryParse(json['publishedAt'] as String? ?? ''),
+      position: json['position'] as int? ?? 0,
+    );
+  }
+
+  /// Round-trips through the offline cache (same shape as the API payload).
+  Map<String, dynamic> toJson() => {
+        'videoId': videoId,
+        'title': title,
+        'description': description,
+        'thumbnailUrl': thumbnailUrl,
+        'publishedAt': publishedAt?.toIso8601String(),
+        'position': position,
+      };
 }

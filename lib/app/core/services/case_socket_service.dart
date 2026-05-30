@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
 
@@ -9,22 +9,25 @@ class CaseSocketService {
   String? _currentCaseId;
 
   bool get isConnected => _socket?.connected ?? false;
+  String? get currentCaseId => _currentCaseId;
 
-  Future<void> connect(String caseId) async {
+  Future<void> connect(String caseId, {String? fullName}) async {
     await disconnect();
     _currentCaseId = caseId;
 
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'kpb.auth.accessToken') ?? '';
+    final token =
+        Supabase.instance.client.auth.currentSession?.accessToken ?? '';
 
-    final baseUrl = AppConfig.apiBaseUrl
-        .replaceFirst('/api', '');
+    final baseUrl = AppConfig.apiBaseUrl.replaceFirst('/api', '');
 
     _socket = io.io(
       '$baseUrl/cases',
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setQuery({'token': token})
+          .setQuery({
+            'token': token,
+            if (fullName != null && fullName.isNotEmpty) 'fullName': fullName,
+          })
           .enableAutoConnect()
           .enableReconnection()
           .build(),
@@ -62,25 +65,35 @@ class CaseSocketService {
   }
 
   void onMessage(void Function(Map<String, dynamic> data) callback) {
+    _socket?.off('message');
     _socket?.on('message', (data) {
-      if (data is Map<String, dynamic>) {
-        callback(data);
+      if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
+      }
+    });
+  }
+
+  void onCaseUpdated(void Function(Map<String, dynamic> data) callback) {
+    _socket?.off('caseUpdated');
+    _socket?.on('caseUpdated', (data) {
+      if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
       }
     });
   }
 
   void onMessageAck(void Function(Map<String, dynamic> data) callback) {
     _socket?.on('messageAck', (data) {
-      if (data is Map<String, dynamic>) {
-        callback(data);
+      if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
       }
     });
   }
 
   void onTyping(void Function(Map<String, dynamic> data) callback) {
     _socket?.on('typing', (data) {
-      if (data is Map<String, dynamic>) {
-        callback(data);
+      if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
       }
     });
   }
