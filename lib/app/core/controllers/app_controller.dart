@@ -32,6 +32,7 @@ import '../services/app_search_service.dart';
 import '../services/catalog_remote_sync.dart';
 import '../services/catalog_cache_service.dart';
 import '../services/push_notification_service.dart';
+import '../services/onesignal_service.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 import '../services/auth_service.dart';
@@ -326,6 +327,7 @@ class AppController extends GetxController {
       await syncRemoteData(silent: true);
     }
     maybeRestoreOnboardingFromProfile();
+    unawaited(syncOneSignalIdentity());
     _persist();
     update();
   }
@@ -383,6 +385,7 @@ class AppController extends GetxController {
     unawaited(_pushProfileUpdate());
     _persist();
     update();
+    unawaited(syncOneSignalIdentity());
     if (AppConfig.enableRemoteSync) {
       unawaited(syncRemoteData(silent: true));
       if (Get.isRegistered<PushNotificationService>()) {
@@ -400,6 +403,7 @@ class AppController extends GetxController {
 
   Future<void> logout() async {
     AnalyticsService.instance.logLogout();
+    unawaited(OneSignalService.instance.logout());
     if (Get.isRegistered<AuthService>()) {
       await Get.find<AuthService>().clearSession();
     }
@@ -1730,6 +1734,26 @@ class AppController extends GetxController {
         operation: 'register_device_push_token',
       );
     }
+  }
+
+  /// Link the current profile to OneSignal (external id + targeting tags).
+  /// Safe to call repeatedly; a no-op when OneSignal isn't configured.
+  Future<void> syncOneSignalIdentity() async {
+    final current = profile;
+    if (current == null) return;
+    final countryId = current.targetCountryIds.isNotEmpty
+        ? current.targetCountryIds.first
+        : current.countryOfResidence;
+    await OneSignalService.instance.login(
+      userId: current.id,
+      email: current.email,
+      tags: {
+        'account_type': current.accountType.name,
+        'level': current.currentLevel ?? '',
+        'target_country': countryId,
+        'locale': localeCode,
+      },
+    );
   }
 
   Future<void> _uploadRemoteCaseDocument(

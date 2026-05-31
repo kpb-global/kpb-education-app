@@ -47,6 +47,45 @@ class AppConfig {
     defaultValue: 'https://chat.whatsapp.com/KPBEducation',
   );
 
+  // ── OneSignal push notifications ───────────────────────────────────────
+  /// OneSignal App ID. Overridable via --dart-define=KPB_ONESIGNAL_APP_ID.
+  static const oneSignalAppId = String.fromEnvironment(
+    'KPB_ONESIGNAL_APP_ID',
+    defaultValue: '779d9ea8-1a0d-4189-9d51-4077cb8ded2a',
+  );
+
+  /// True when a non-empty OneSignal App ID is configured.
+  static bool get oneSignalEnabled => oneSignalAppId.trim().isNotEmpty;
+
+  /// MVP launch lock. When true, modules outside the M1–M14 MVP scope
+  /// (community/forum, alumni, academy, salon, housing, travel, blog and the
+  /// scraped live-scholarships aggregator) are hidden from navigation without
+  /// removing their code, so they can be re-enabled for V1.1+.
+  static const mvpOnly = bool.fromEnvironment(
+    'KPB_MVP_ONLY',
+    defaultValue: true,
+  );
+
+  // ── Supabase Auth ──────────────────────────────────────────────────────
+  /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
+  static const supabaseUrl = String.fromEnvironment(
+    'KPB_SUPABASE_URL',
+    defaultValue: 'https://hijzqsljasbobjrjotjy.supabase.co',
+  );
+
+  /// Supabase anon (publishable) key.
+  static const supabaseAnonKey = String.fromEnvironment(
+    'KPB_SUPABASE_ANON_KEY',
+    defaultValue:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpanpxc2xqYXNib2JqcmpvdGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MTkwODQsImV4cCI6MjA5MDM5NTA4NH0.Yib53B7tICNpnJWktCrc_JhtD06mAby4hbNWKXt3je0',
+  );
+
+  /// Deep-link redirect registered with the Supabase OAuth provider (Google).
+  static const supabaseOAuthRedirect = String.fromEnvironment(
+    'KPB_SUPABASE_OAUTH_REDIRECT',
+    defaultValue: 'io.supabase.kpbeducation://login-callback/',
+  );
+
   static const storageNamespace = 'kpb_relaunch_v1';
 
   /// Pure resolver for tests and tooling.
