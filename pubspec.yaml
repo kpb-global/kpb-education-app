@@ -87,7 +87,6 @@ dependencies:
   collection: any
   syncfusion_flutter_pdfviewer: ^33.2.3
   local_auth: ^3.0.1
-  firebase_messaging: ^16.2.0
   onesignal_flutter: ^5.0.0
   lottie: ^3.3.3
   shimmer: ^3.0.0

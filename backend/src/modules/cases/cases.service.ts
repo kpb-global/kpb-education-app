@@ -3,9 +3,12 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
+import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
@@ -26,7 +29,29 @@ const CASE_INCLUDE = {
 
 @Injectable()
 export class CasesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly moduleRef: ModuleRef,
+    private readonly pushService: OneSignalSenderService,
+  ) {}
+
+  private broadcastCaseUpdate(caseId: string, payload: Record<string, unknown>) {
+    try {
+      const gateway = this.moduleRef.get(CaseMessagingGateway, { strict: false });
+      gateway.emitCaseUpdated(caseId, payload);
+    } catch {
+      // Gateway may be unavailable in isolated tests.
+    }
+  }
+
+  private broadcastCaseMessage(caseId: string, message: Record<string, unknown>) {
+    try {
+      const gateway = this.moduleRef.get(CaseMessagingGateway, { strict: false });
+      gateway.emitCaseMessage(caseId, message);
+    } catch {
+      // Gateway may be unavailable in isolated tests.
+    }
+  }
 
   private assertDb() {
     if (!this.prismaService.isEnabled) {
@@ -103,6 +128,8 @@ export class CasesService {
             assignedAdvisorName: nextCounsellor?.fullName ?? null,
             assignedAdvisorPhone: nextCounsellor?.phone ?? null,
             assignedAdvisorWhatsapp: nextCounsellor?.whatsApp ?? null,
+            leadTag: nextCounsellor ? 'to_follow_up' : null,
+            lastCommercialInteractionAt: nextCounsellor ? new Date() : null,
             nextStepTitle: nextCounsellor
               ? 'A counselor has been assigned'
               : 'Your case is under review',
@@ -161,7 +188,23 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to create case.');
     }
-    return this.mapDbCase(created);
+    const mapped = this.mapDbCase(created);
+    if (userId) {
+      const advisorName = mapped.assignedAdvisorName ?? 'KPB';
+      await this.pushService.sendToUser(
+        userId,
+        'Demande reçue ✅',
+        mapped.assignedAdvisorName
+          ? `Ta demande est reçue, ${advisorName} va te contacter sous peu.`
+          : 'Ta demande est reçue. L\'équipe KPB revient vers toi rapidement.',
+        {
+          type: 'case_created',
+          caseId: created.id,
+          route: `/cases/${created.id}`,
+        },
+      );
+    }
+    return mapped;
   }
 
   async update(id: string, input: UpdateCaseDto) {
@@ -214,7 +257,9 @@ export class CasesService {
     if (!updated) {
       throw new ServiceUnavailableException('Failed to update case.');
     }
-    return this.mapDbCase(updated);
+    const mapped = this.mapDbCase(updated);
+    this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
+    return mapped;
   }
 
   async findMessages(id: string) {
@@ -269,13 +314,17 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to persist message.');
     }
-    return {
+    const payload = {
       id: created.id,
       senderName: created.senderName,
       senderRole: created.senderRole,
       body: created.body,
       createdAt: created.createdAt.toISOString(),
     };
+    if ((input.senderRole ?? 'student') !== 'student') {
+      this.broadcastCaseMessage(id, payload);
+    }
+    return payload;
   }
 
   async uploadDocument(id: string, input: UploadCaseDocumentDto) {
@@ -345,6 +394,8 @@ export class CasesService {
             ...(input.assignedAdvisorWhatsapp
               ? { assignedAdvisorWhatsapp: input.assignedAdvisorWhatsapp }
               : {}),
+            leadTag: 'to_follow_up',
+            lastCommercialInteractionAt: new Date(),
             nextStepTitle:
               input.nextStepTitle ??
               (input.scheduledAt
@@ -382,7 +433,9 @@ export class CasesService {
     if (!assigned) {
       throw new ServiceUnavailableException('Failed to assign case.');
     }
-    return this.mapDbCase(assigned);
+    const mapped = this.mapDbCase(assigned);
+    this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
+    return mapped;
   }
 
   async createTask(id: string, input: CreateCaseTaskDto) {
@@ -489,6 +542,12 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to create timeline event.');
     }
+    const refreshed = await this.prismaService.execute((prisma) =>
+      prisma.case.findUnique({ where: { id }, include: CASE_INCLUDE }),
+    );
+    if (refreshed) {
+      this.broadcastCaseUpdate(id, this.mapDbCase(refreshed) as Record<string, unknown>);
+    }
     return {
       id: created.id,
       title: created.title,
@@ -530,6 +589,10 @@ export class CasesService {
       contextLabel: c.contextLabel,
       preferredContactMethod: c.preferredContactMethod ?? 'in_app',
       scheduledAt: c.scheduledAt?.toISOString() ?? null,
+      leadTag: c.leadTag ?? null,
+      discussionMotive: c.discussionMotive ?? null,
+      lastCommercialInteractionAt:
+        c.lastCommercialInteractionAt?.toISOString() ?? null,
       documentRequests: (c.documents ?? []).map((d: any) => ({
         id: d.id,
         title: d.title,

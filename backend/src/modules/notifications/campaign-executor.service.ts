@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
-import { FirebasePushService } from './firebase-push.service';
+import { OneSignalSenderService } from './onesignal-sender.service';
 
 interface ResolvedTemplate {
   titleFr: string;
@@ -16,7 +16,7 @@ export class CampaignExecutorService {
 
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly pushService: FirebasePushService,
+    private readonly pushService: OneSignalSenderService,
   ) {}
 
   async execute(campaignId: string): Promise<{ enqueued: number }> {
@@ -182,6 +182,57 @@ export class CampaignExecutorService {
             if (!userId) return Promise.resolve([]);
             return prisma.userProfile.findMany({
               where: { id: userId },
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
+          // ── Persona (account type) ─────────────────────────────────────
+          case 'account_type': {
+            const accountType = filters['accountType'] as string | undefined;
+            return prisma.userProfile.findMany({
+              where: accountType
+                ? { accountType: accountType as 'student' | 'parent' | 'partner' }
+                : undefined,
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
+          // ── Study level ────────────────────────────────────────────────
+          case 'study_level': {
+            const levels = filters['levels'] as string[] | string | undefined;
+            const levelArray = Array.isArray(levels)
+              ? levels
+              : levels
+                ? [levels]
+                : undefined;
+            return prisma.userProfile.findMany({
+              where: {
+                accountType: 'student',
+                ...(levelArray ? { currentLevel: { in: levelArray } } : {}),
+              },
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
+          // ── Country of residence ───────────────────────────────────────
+          case 'country_of_residence': {
+            const countryCode = filters['countryCode'] as string | undefined;
+            return prisma.userProfile.findMany({
+              where: countryCode
+                ? { countryOfResidence: countryCode }
+                : undefined,
               select: {
                 id: true,
                 fullName: true,

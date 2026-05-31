@@ -24,7 +24,6 @@ import 'app/core/navigation/app_boot_screen.dart';
 import 'app/core/services/auth_service.dart';
 import 'app/core/navigation/shell_tabs.dart';
 import 'app/core/services/security_service.dart';
-import 'app/core/services/push_notification_service.dart';
 import 'app/core/services/onesignal_service.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'firebase_options.dart';
@@ -78,10 +77,7 @@ Future<void> main() async {
     }
     
     Get.put(SecurityService());
-    final pushService = Get.put(PushNotificationService());
-    unawaited(controller.registerDevicePushToken(pushService));
-
-    // ── OneSignal push ───────────────────────────────────────────────────────
+    // ── Push notifications (OneSignal) ─────────────────────────────────────────
     await OneSignalService.instance.initialize();
     unawaited(OneSignalService.instance.requestPermission());
     // Link an already-signed-in user to OneSignal on cold start.

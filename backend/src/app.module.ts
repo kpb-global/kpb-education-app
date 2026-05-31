@@ -32,7 +32,7 @@ import { ContentService } from './modules/content/content.service';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
-import { FirebasePushService } from './modules/notifications/firebase-push.service';
+import { OneSignalSenderService } from './modules/notifications/onesignal-sender.service';
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
@@ -195,7 +195,7 @@ import { SalonService } from './modules/salon/salon.service';
     CatalogService,
     CommunityService,
     ContentService,
-    FirebasePushService,
+    OneSignalSenderService,
     CampaignExecutorService,
     CampaignCronService,
     NotificationsService,

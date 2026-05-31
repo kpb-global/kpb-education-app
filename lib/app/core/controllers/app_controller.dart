@@ -31,7 +31,6 @@ import '../data/saved_item_api_codec.dart';
 import '../services/app_search_service.dart';
 import '../services/catalog_remote_sync.dart';
 import '../services/catalog_cache_service.dart';
-import '../services/push_notification_service.dart';
 import '../services/onesignal_service.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
@@ -388,9 +387,6 @@ class AppController extends GetxController {
     unawaited(syncOneSignalIdentity());
     if (AppConfig.enableRemoteSync) {
       unawaited(syncRemoteData(silent: true));
-      if (Get.isRegistered<PushNotificationService>()) {
-        unawaited(registerDevicePushToken(Get.find<PushNotificationService>()));
-      }
     }
   }
 
@@ -1714,27 +1710,6 @@ class AppController extends GetxController {
 
   bool caseHasQueuedMessages(String caseId) =>
       CaseMessageOutbox.instance.hasPendingFor(caseId);
-
-  /// Best-effort push token registration for transactional notifications.
-  Future<void> registerDevicePushToken(PushNotificationService pushService) async {
-    if (!AppConfig.enableRemoteSync) return;
-    if (!await _apiClient.hasAuthSession()) return;
-    try {
-      final token = await pushService.getToken();
-      if (token == null || token.isEmpty) return;
-      final platform =
-          GetPlatform.isIOS ? 'ios' : (GetPlatform.isAndroid ? 'android' : 'unknown');
-      await _apiClient.registerDeviceToken(token, platform);
-    } catch (e, s) {
-      safeRecordError(
-        e,
-        s,
-        reason: 'registerDevicePushToken',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'register_device_push_token',
-      );
-    }
-  }
 
   /// Link the current profile to OneSignal (external id + targeting tags).
   /// Safe to call repeatedly; a no-op when OneSignal isn't configured.

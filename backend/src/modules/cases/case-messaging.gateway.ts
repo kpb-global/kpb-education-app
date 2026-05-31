@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 
 import { StudentAuthService } from '../auth/student-auth.service';
 import { CasesService } from './cases.service';
-import { FirebasePushService } from '../notifications/firebase-push.service';
+import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 
 @WebSocketGateway({
   namespace: '/cases',
@@ -32,7 +32,7 @@ export class CaseMessagingGateway
   constructor(
     private readonly studentAuthService: StudentAuthService,
     private readonly casesService: CasesService,
-    private readonly pushService: FirebasePushService,
+    private readonly pushService: OneSignalSenderService,
   ) {}
 
   async handleConnection(client: Socket) {
