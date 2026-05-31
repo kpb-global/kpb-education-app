@@ -171,7 +171,8 @@ class _VideoCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (video.thumbnailUrl.isNotEmpty)
+                    if (video.thumbnailUrl.isNotEmpty &&
+                        !Get.find<AppController>().dataSaverEnabled)
                       CachedNetworkImage(
                         imageUrl: video.thumbnailUrl,
                         fit: BoxFit.cover,
@@ -184,7 +185,11 @@ class _VideoCard extends StatelessWidget {
                         ),
                       )
                     else
-                      Container(color: context.kpb.gray100),
+                      Container(
+                        color: context.kpb.gray100,
+                        child: Icon(Icons.ondemand_video_rounded,
+                            color: context.kpb.gray400, size: 40),
+                      ),
                     Center(
                       child: Container(
                         width: 52,
@@ -366,10 +371,15 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                         child: SizedBox(
                           width: 64,
                           height: 40,
-                          child: v.thumbnailUrl.isNotEmpty
+                          child: v.thumbnailUrl.isNotEmpty &&
+                                  !Get.find<AppController>().dataSaverEnabled
                               ? CachedNetworkImage(
                                   imageUrl: v.thumbnailUrl, fit: BoxFit.cover)
-                              : Container(color: context.kpb.gray100),
+                              : Container(
+                                  color: context.kpb.gray100,
+                                  child: Icon(Icons.ondemand_video_rounded,
+                                      color: context.kpb.gray400, size: 18),
+                                ),
                         ),
                       ),
                       title: Text(

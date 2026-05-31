@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/skeleton.dart';
+import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
@@ -14,16 +18,13 @@ import '../saved/saved_screen.dart';
 import '../search/search_screen.dart';
 import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
+import '../onboarding/onboarding_screen.dart';
+import '../tools/student_tools_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flag helpers
 // ─────────────────────────────────────────────────────────────────────────────
-const _flags = <String, String>{
-  'usa': '🇺🇸', 'canada': '🇨🇦', 'france': '🇫🇷', 'uk': '🇬🇧',
-  'morocco': '🇲🇦', 'turkey': '🇹🇷', 'germany': '🇩🇪', 'spain': '🇪🇸',
-  'china': '🇨🇳', 'belgium': '🇧🇪', 'italy': '🇮🇹', 'portugal': '🇵🇹',
-};
-String _flag(String id) => _flags[id] ?? '🌍';
+String _flag(String id) => countryFlag(id);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HomeScreen
@@ -56,7 +57,7 @@ class HomeScreen extends StatelessWidget {
 
         if (controller.syncError != null && controller.profile == null) {
           return KpbErrorState(
-            onRetry: controller.refresh,
+            onRetry: controller.pullToRefresh,
           );
         }
 
@@ -79,7 +80,7 @@ class HomeScreen extends StatelessWidget {
         return Container(
           color: KpbColors.bgDarkMidnight,
           child: KpbRefresh(
-            onRefresh: controller.refresh,
+            onRefresh: controller.pullToRefresh,
             child: CustomScrollView(
               slivers: [
                 // ── App Bar ───────────────────────────────────────────
@@ -150,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: GestureDetector(
-                      onTap: () => controller.goToTab(3),
+                      onTap: () => controller.goToTab(StudentShellTab.profile),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -213,6 +214,14 @@ class HomeScreen extends StatelessWidget {
                         index: 4,
                         child: _AbroadEnrollmentCard(controller: controller),
                       ),
+                      const SizedBox(height: KpbSpacing.lg),
+
+                      // ── 3.7 Outils étudiants ─────────────────────────────
+                      if (controller.isStudent)
+                        StaggeredSlide(
+                          index: 5,
+                          child: _StudentToolsBanner(),
+                        ),
                       const SizedBox(height: KpbSpacing.xl),
                     ],
                   ),
@@ -226,7 +235,7 @@ class HomeScreen extends StatelessWidget {
                   child: SectionHeader(
                     title: 'Dossiers actifs',
                     actionLabel: 'Voir tout',
-                    onAction: () => controller.goToTab(2),
+                    onAction: () => controller.goToTab(StudentShellTab.cases),
                     textColor: Colors.white,
                   ),
                 ),
@@ -254,7 +263,7 @@ class HomeScreen extends StatelessWidget {
                   child: HScrollSection(
                     title: 'Universités recommandées',
                     actionLabel: 'Voir tout',
-                    onAction: () => controller.goToTab(1), // Go to Explore
+                    onAction: () => controller.goToTab(StudentShellTab.universities),
                     textColor: Colors.white,
                     itemCount: institutions.length,
                     height: 160,
@@ -268,7 +277,7 @@ class HomeScreen extends StatelessWidget {
                         tuitionLabel: controller.resolve(institution.tuitionLabel),
                         isPartner: institution.isPartner,
                         score: controller.institutionMatch(institution),
-                        onTap: () => controller.goToTab(1),
+                        onTap: () => controller.goToTab(StudentShellTab.universities),
                         width: 200,
                       );
                     },
@@ -279,7 +288,8 @@ class HomeScreen extends StatelessWidget {
               ],
 
               // ── 7. Articles récents ───────────────────────────────
-              if (articles.isNotEmpty) ...[
+              // Community/articles is a V1.1+ module (hidden under MVP lock).
+              if (!AppConfig.mvpOnly && articles.isNotEmpty) ...[
                 SliverToBoxAdapter(
                   child: SectionHeader(
                     title: 'latest_articles'.tr,
@@ -404,7 +414,7 @@ class _HeroCard extends StatelessWidget {
           if (controller.isStudent && pct < 100) ...[
             const SizedBox(width: KpbSpacing.md),
             GestureDetector(
-              onTap: () => controller.goToTab(3),
+              onTap: () => controller.goToTab(StudentShellTab.profile),
               child: Column(
                 children: [
                   SizedBox(
@@ -662,21 +672,22 @@ class _NextStepCard extends StatelessWidget {
       );
     }
 
-    // Priority 2 — Profile < 50%
-    final pct = ((profile?.completionScore ?? 0) * 100).round();
-    if (pct < 50) {
+    // Priority 2 — Profile incomplete / skipped onboarding
+    if (controller.needsProfileCompletionBanner) {
+      final pct = ((profile?.completionScore ?? 0) * 100).round();
       return _StepData(
         label: '📋 TON PROFIL',
         labelColor: KpbColors.blue,
         title: 'Complète ton profil',
-        subtitle:
-            'À $pct% — des champs manquants limitent tes recommandations',
+        subtitle: controller.onboardingSkipped
+            ? 'Quelques infos manquent pour personnaliser tes recommandations'
+            : 'À $pct% — des champs manquants limitent tes recommandations',
         icon: Icons.tune_rounded,
         iconColor: KpbColors.blue,
         iconBg: KpbColors.skyLight,
         bgColor: const Color(0xFFEFF6FF),
         borderColor: const Color(0xFFBFDBFE),
-        onTap: () => controller.goToTab(3),
+        onTap: () => Get.to(() => const OnboardingScreen()),
       );
     }
 
@@ -734,7 +745,7 @@ class _NextStepCard extends StatelessWidget {
       iconBg: KpbColors.skyLight,
       bgColor: KpbColors.bgCard,
       borderColor: KpbColors.gray100,
-      onTap: () => controller.goToTab(1),
+      onTap: () => controller.goToTab(StudentShellTab.destinations),
     );
   }
 }
@@ -805,19 +816,19 @@ class _QuickActions extends StatelessWidget {
         Icons.explore_outlined,
         'Explorer',
         KpbColors.stitchCyberCyan,
-        () => controller.goToTab(1),
+        () => controller.goToTab(StudentShellTab.destinations),
       ),
       (
         Icons.apartment_outlined,
         'Écoles',
         KpbColors.gold,
-        () => controller.goToTab(1),
+        () => controller.goToTab(StudentShellTab.universities),
       ),
       (
         Icons.folder_copy_outlined,
         'Dossiers',
         KpbColors.success,
-        () => controller.goToTab(2),
+        () => controller.goToTab(StudentShellTab.cases),
       ),
     ];
 
@@ -1517,4 +1528,81 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
       );
     },
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Student Tools Banner — CV generator + Letters shortcut
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StudentToolsBanner extends StatelessWidget {
+  const _StudentToolsBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.to(() => const StudentToolsScreen()),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              KpbColors.blue.withValues(alpha: 0.15),
+              KpbColors.success.withValues(alpha: 0.10),
+            ],
+          ),
+          borderRadius: KpbRadius.xlBr,
+          border: Border.all(
+            color: KpbColors.blue.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: KpbColors.blue.withValues(alpha: 0.15),
+                borderRadius: KpbRadius.mdBr,
+              ),
+              child: const Icon(
+                Icons.build_circle_rounded,
+                color: KpbColors.blue,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Outils etudiants',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: context.kpb.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'CV, lettres de motivation, et plus',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.kpb.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: context.kpb.textMuted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

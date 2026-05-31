@@ -47,11 +47,15 @@ class AppController extends GetxController {
 
   final AppRepository _repository;
   final AppApiClient _apiClient;
+  /// Expose the API client for feature screens that need direct calls.
+  AppApiClient get apiClient => _apiClient;
 
   String localeCode = 'fr';
   bool hasSeenIntro = false;
   bool isGuestMode = false;
   bool isAppLockEnabled = false;
+  /// Data-saver mode — when on, the UI skips non-essential network images.
+  bool dataSaverEnabled = false;
   bool hasCompletedOnboarding = false;
   bool onboardingSkipped = false;
   int onboardingStep = 0;
@@ -175,6 +179,7 @@ class AppController extends GetxController {
     hasSeenIntro = snapshot.hasSeenIntro;
     isGuestMode = snapshot.isGuestMode;
     isAppLockEnabled = snapshot.isAppLockEnabled;
+    dataSaverEnabled = snapshot.dataSaverEnabled;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
     onboardingSkipped = snapshot.onboardingSkipped;
     onboardingStep = snapshot.onboardingStep;
@@ -290,6 +295,12 @@ class AppController extends GetxController {
 
   void toggleAppLock(bool enable) {
     isAppLockEnabled = enable;
+    _repository.saveSnapshot(_snapshot);
+    update();
+  }
+
+  void toggleDataSaver(bool enable) {
+    dataSaverEnabled = enable;
     _repository.saveSnapshot(_snapshot);
     update();
   }
@@ -1517,6 +1528,7 @@ class AppController extends GetxController {
         hasSeenIntro: hasSeenIntro,
         isGuestMode: isGuestMode,
         isAppLockEnabled: isAppLockEnabled,
+        dataSaverEnabled: dataSaverEnabled,
         hasCompletedOnboarding: hasCompletedOnboarding,
         themeMode: themeMode,
         profile: profile,

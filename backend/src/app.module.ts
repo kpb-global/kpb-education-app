@@ -10,8 +10,11 @@ import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
 import { StudentAuthController } from './modules/auth/student-auth.controller';
 import { StudentAuthService } from './modules/auth/student-auth.service';
+import { SupabaseAuthService } from './modules/auth/supabase-auth.service';
+import { MagicLinkMailService } from './modules/auth/magic-link-mail.service';
 import { CatalogController } from './modules/catalog/catalog.controller';
 import { CatalogService } from './modules/catalog/catalog.service';
+import { CountriesModule } from './modules/countries/countries.module';
 import { AppointmentsController } from './modules/appointments/appointments.controller';
 import { AppointmentsService } from './modules/appointments/appointments.service';
 import { AdminAuthGuard } from './common/guards/admin-auth.guard';
@@ -33,6 +36,22 @@ import { FirebasePushService } from './modules/notifications/firebase-push.servi
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
+import { CoachController } from './modules/coach/coach.controller';
+import { CoachQuotaService } from './modules/coach/coach-quota.service';
+import { CoachService } from './modules/coach/coach.service';
+import { CommercialController } from './modules/commercial/commercial.controller';
+import { CommercialService } from './modules/commercial/commercial.service';
+import { AdminDashboardController } from './modules/admin-dashboard/admin-dashboard.controller';
+import { AdminDashboardService } from './modules/admin-dashboard/admin-dashboard.service';
+import { AdminCatalogController } from './modules/admin-catalog/admin-catalog.controller';
+import { AdminCatalogService } from './modules/admin-catalog/admin-catalog.service';
+import { ImpactController } from './modules/impact/impact.controller';
+import { ImpactService } from './modules/impact/impact.service';
+import { ToolsController } from './modules/tools/tools.controller';
+import { ToolsService } from './modules/tools/tools.service';
+import { YoutubeController } from './modules/content-youtube/youtube.controller';
+import { YoutubeService } from './modules/content-youtube/youtube.service';
+import { LlmService } from './modules/ai/llm.service';
 import { OrientationController } from './modules/orientation/orientation.controller';
 import { OrientationService } from './modules/orientation/orientation.service';
 import { PartnerLeadsController } from './modules/partner-leads/partner-leads.controller';
@@ -103,10 +122,15 @@ import { SalonService } from './modules/salon/salon.service';
       signOptions: { expiresIn: '1h' },
     }),
     ThrottlerModule.forRoot([
-      { name: 'global', ttl: 60000, limit: 60 },
+      {
+        name: 'global',
+        ttl: 60000,
+        limit: process.env.NODE_ENV === 'production' ? 60 : 600,
+      },
       { name: 'auth', ttl: 60000, limit: 10 },
     ]),
     ScheduleModule.forRoot(),
+    CountriesModule,
   ],
   controllers: [
     AuthController,
@@ -122,6 +146,13 @@ import { SalonService } from './modules/salon/salon.service';
     HealthController,
     NotificationsController,
     OrientationController,
+    CoachController,
+    CommercialController,
+    AdminDashboardController,
+    AdminCatalogController,
+    ImpactController,
+    ToolsController,
+    YoutubeController,
     PartnerLeadsController,
     ProfilesController,
     ReportsController,
@@ -155,6 +186,8 @@ import { SalonService } from './modules/salon/salon.service';
     AdminUsersService,
     AuthService,
     StudentAuthService,
+    SupabaseAuthService,
+    MagicLinkMailService,
     AppointmentsService,
     CasesService,
     CaseMessagingGateway,
@@ -167,6 +200,15 @@ import { SalonService } from './modules/salon/salon.service';
     CampaignCronService,
     NotificationsService,
     OrientationService,
+    LlmService,
+    CoachService,
+    CoachQuotaService,
+    CommercialService,
+    AdminDashboardService,
+    AdminCatalogService,
+    ImpactService,
+    ToolsService,
+    YoutubeService,
     PartnerLeadsService,
     ProfilesService,
     PrismaService,

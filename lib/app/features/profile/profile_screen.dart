@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/navigation/app_boot_screen.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';
+import '../eligibility/eligibility_simulator_screen.dart';
+import '../parcours/parcours_screen.dart';
 import '../legal/legal_pages.dart';
+import '../onboarding/onboarding_m2_constants.dart';
 import '../orientation/orientation_screen.dart';
 import '../budget/budget_calculator_screen.dart';
 import '../travel/flight_estimator_screen.dart';
@@ -29,7 +35,9 @@ class ProfileScreen extends StatelessWidget {
     return GetBuilder<AppController>(
       builder: (_) {
         final profile = controller.profile;
-        if (profile == null) return const SizedBox.shrink();
+        if (profile == null) {
+          return _GuestProfilePrompt(controller: controller);
+        }
 
         final completion = (profile.completionScore * 100).round();
         final initials = _initials(profile.fullName);
@@ -131,78 +139,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: KpbSpacing.md),
 
-                    // ── Langue ────────────────────────────────────────
-                    KpbCard(
-                      padding: const EdgeInsets.all(KpbSpacing.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('preferred_language'.tr,
-                              style: KpbTextStyles.titleMd),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              _LangChip(
-                                label: '🇫🇷  Français',
-                                selected: controller.localeCode == 'fr',
-                                onTap: () => controller.switchLanguage('fr'),
-                              ),
-                              const SizedBox(width: 10),
-                              _LangChip(
-                                label: '🇬🇧  English',
-                                selected: controller.localeCode == 'en',
-                                onTap: () => controller.switchLanguage('en'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: KpbSpacing.md),
-
-                    // ── Apparence ─────────────────────────────────────
-                    KpbCard(
-                      padding: const EdgeInsets.all(KpbSpacing.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Apparence', style: KpbTextStyles.titleMd),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              _ThemeModeChip(
-                                icon: Icons.brightness_auto_rounded,
-                                label: 'Système',
-                                selected:
-                                    controller.themeMode == ThemeMode.system,
-                                onTap: () => controller
-                                    .setThemeMode(ThemeMode.system),
-                              ),
-                              const SizedBox(width: 8),
-                              _ThemeModeChip(
-                                icon: Icons.light_mode_rounded,
-                                label: 'Clair',
-                                selected:
-                                    controller.themeMode == ThemeMode.light,
-                                onTap: () =>
-                                    controller.setThemeMode(ThemeMode.light),
-                              ),
-                              const SizedBox(width: 8),
-                              _ThemeModeChip(
-                                icon: Icons.dark_mode_rounded,
-                                label: 'Sombre',
-                                selected:
-                                    controller.themeMode == ThemeMode.dark,
-                                onTap: () =>
-                                    controller.setThemeMode(ThemeMode.dark),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: KpbSpacing.md),
-                    
                     // ── Sécurité ──────────────────────────────────────
                     KpbCard(
                       padding: const EdgeInsets.all(KpbSpacing.md),
@@ -237,6 +173,41 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const Divider(height: 24),
+                          // ── Data saver (low-bandwidth mode) ──────────────
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.data_saver_on_rounded,
+                                      color: KpbColors.success, size: 24),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Mode données réduites',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600)),
+                                      Text(
+                                        'Economise la data (masque les images lourdes)',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: context.kpb.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Switch.adaptive(
+                                value: controller.dataSaverEnabled,
+                                activeTrackColor: KpbColors.success,
+                                onChanged: (val) =>
+                                    controller.toggleDataSaver(val),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -260,7 +231,7 @@ class ProfileScreen extends StatelessWidget {
                             _InfoTile(
                               icon: Icons.school_outlined,
                               label: 'current_level'.tr,
-                              value: profile.currentLevel!,
+                              value: studentLevelLabel(profile.currentLevel),
                               iconColor: KpbColors.sky,
                             ),
                           ],
@@ -364,7 +335,22 @@ class ProfileScreen extends StatelessWidget {
                               onTap: () =>
                                   Get.to(() => const OrientationScreen()),
                             ),
-
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.fact_check_outlined,
+                              label: 'Simulateur d\'éligibilité',
+                              color: KpbColors.warning,
+                              onTap: () => Get.to(
+                                  () => const EligibilitySimulatorScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.play_circle_outline_rounded,
+                              label: 'Parcours & témoignages',
+                              color: KpbColors.error,
+                              onTap: () =>
+                                  Get.to(() => const ParcoursScreen()),
+                            ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.bookmark_outlined,
@@ -381,33 +367,38 @@ class ProfileScreen extends StatelessWidget {
                               onTap: () =>
                                   Get.to(() => const BudgetCalculatorScreen()),
                             ),
+                            // Travel & housing estimators are V1.1+ modules.
+                            if (!AppConfig.mvpOnly) ...[
+                              const KpbDivider(indent: 52),
+                              _QuickAccessTile(
+                                icon: Icons.flight_takeoff_rounded,
+                                label: 'Simulateur de Vols (Kayak)',
+                                color: KpbColors.sky,
+                                onTap: () =>
+                                    Get.to(() => const FlightEstimatorScreen()),
+                              ),
+                              const KpbDivider(indent: 52),
+                              _QuickAccessTile(
+                                icon: Icons.holiday_village_rounded,
+                                label: 'Logement Étudiant (France)',
+                                color: KpbColors.stitchDeepPurple,
+                                onTap: () => Get.to(
+                                    () => const HousingEstimatorScreen()),
+                              ),
+                            ],
                             const KpbDivider(indent: 52),
+                          ],
+                          // Community/forum is a V1.1+ module.
+                          if (!AppConfig.mvpOnly) ...[
                             _QuickAccessTile(
-                              icon: Icons.flight_takeoff_rounded,
-                              label: 'Simulateur de Vols (Kayak)',
+                              icon: Icons.forum_outlined,
+                              label: 'Communauté & Articles',
                               color: KpbColors.sky,
                               onTap: () =>
-                                  Get.to(() => const FlightEstimatorScreen()),
-                            ),
-                            const KpbDivider(indent: 52),
-                            _QuickAccessTile(
-                              icon: Icons.holiday_village_rounded,
-                              label: 'Logement Étudiant (France)',
-                              color: KpbColors.stitchDeepPurple,
-                              onTap: () =>
-                                  Get.to(() => const HousingEstimatorScreen()),
+                                  Get.to(() => const CommunityScreen()),
                             ),
                             const KpbDivider(indent: 52),
                           ],
-                          _QuickAccessTile(
-                            icon: Icons.forum_outlined,
-
-                            label: 'Communauté & Articles',
-                            color: KpbColors.sky,
-                            onTap: () =>
-                                Get.to(() => const CommunityScreen()),
-                          ),
-                          const KpbDivider(indent: 52),
                           // Parent mode is reachable from both student and
                           // parent accounts — students can use it to accept
                           // a code sent to them by a parent.
@@ -430,29 +421,32 @@ class ProfileScreen extends StatelessWidget {
                             onTap: () =>
                                 Get.to(() => const ServicePackagesScreen()),
                           ),
-                          const KpbDivider(indent: 52),
-                          _QuickAccessTile(
-                            icon: Icons.school_outlined,
-                            label: 'Mentors alumni vérifiés',
-                            color: KpbColors.primary,
-                            onTap: () =>
-                                Get.to(() => const AlumniDirectoryScreen()),
-                          ),
-                          const KpbDivider(indent: 52),
-                          _QuickAccessTile(
-                            icon: Icons.verified_outlined,
-                            label: 'Devenir mentor alumni',
-                            color: KpbColors.primary,
-                            onTap: () =>
-                                Get.to(() => const AlumniApplyScreen()),
-                          ),
-                          const KpbDivider(indent: 52),
-                          _QuickAccessTile(
-                            icon: Icons.event,
-                            label: 'Salon KPB Virtuel',
-                            color: KpbColors.stitchCyberCyan,
-                            onTap: () => Get.to(() => const SalonScreen()),
-                          ),
+                          // Alumni mentors & virtual salon are V1.1+ modules.
+                          if (!AppConfig.mvpOnly) ...[
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.school_outlined,
+                              label: 'Mentors alumni vérifiés',
+                              color: KpbColors.primary,
+                              onTap: () =>
+                                  Get.to(() => const AlumniDirectoryScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.verified_outlined,
+                              label: 'Devenir mentor alumni',
+                              color: KpbColors.primary,
+                              onTap: () =>
+                                  Get.to(() => const AlumniApplyScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.event,
+                              label: 'Salon KPB Virtuel',
+                              color: KpbColors.stitchCyberCyan,
+                              onTap: () => Get.to(() => const SalonScreen()),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -524,9 +518,10 @@ class ProfileScreen extends StatelessWidget {
             child: const Text('Annuler'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              controller.logout();
+              await controller.logout();
+              Get.offAll(() => const AppBootScreen());
             },
             style: FilledButton.styleFrom(
               backgroundColor: KpbColors.error,
@@ -564,6 +559,8 @@ class ProfileScreen extends StatelessWidget {
         return 'Parent';
       case 'AccountType.partner':
         return 'Partenaire';
+      case 'AccountType.commercial':
+        return 'Commercial';
       default:
         return type.toString();
     }
@@ -591,12 +588,20 @@ class _ProfileEditSheet extends StatefulWidget {
   State<_ProfileEditSheet> createState() => _ProfileEditSheetState();
 }
 
+/// Documents the student can flag as available, in display order.
+/// Keys match `_docLabel` and the `availableDocuments` payload field.
+const _kEditableDocuments = <String>['Passport', 'CV', 'Transcripts', 'Test score'];
+
 class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameCtrl;
   late TextEditingController _phoneCtrl;
   late TextEditingController _whatsappCtrl;
   late TextEditingController _countryCtrl;
+  String? _currentLevel;
+  String? _bacSeries;
+  late Set<String> _countryIds;
+  late Set<String> _documents;
   bool _saving = false;
 
   @override
@@ -607,6 +612,13 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     _phoneCtrl = TextEditingController(text: p.phone);
     _whatsappCtrl = TextEditingController(text: p.whatsApp);
     _countryCtrl = TextEditingController(text: p.countryOfResidence);
+    // Normalise legacy/raw levels ("L1", "M1"…) to a canonical label so the
+    // dropdown selects the right item instead of resetting to null.
+    _currentLevel = normalizeStudentLevel(p.currentLevel)?.labelFr;
+    _bacSeries =
+        onboardingBacSeries.contains(p.bacSeries) ? p.bacSeries : null;
+    _countryIds = p.targetCountryIds.toSet();
+    _documents = p.availableDocuments.toSet();
   }
 
   @override
@@ -681,6 +693,93 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               ),
               const SizedBox(height: KpbSpacing.xl),
 
+              // ── Mon parcours ────────────────────────────────────────
+              const Text('Mon parcours', style: KpbTextStyles.headline),
+              const SizedBox(height: KpbSpacing.md),
+              DropdownButtonFormField<String>(
+                initialValue: _currentLevel,
+                isExpanded: true,
+                decoration: _dropdownDecoration(
+                  context,
+                  'Niveau d\'études actuel',
+                  Icons.school_outlined,
+                ),
+                items: onboardingStudyLevels
+                    .map((l) => DropdownMenuItem(value: l, child: Text(l)))
+                    .toList(),
+                onChanged: (v) => setState(() {
+                  _currentLevel = v;
+                  if (v == null || !studyLevelNeedsBacSeries(v)) {
+                    _bacSeries = null;
+                  }
+                }),
+              ),
+              if (_currentLevel != null &&
+                  studyLevelNeedsBacSeries(_currentLevel!)) ...[
+                const SizedBox(height: KpbSpacing.md),
+                DropdownButtonFormField<String>(
+                  initialValue: _bacSeries,
+                  isExpanded: true,
+                  decoration: _dropdownDecoration(
+                    context,
+                    'Série du bac',
+                    Icons.workspace_premium_outlined,
+                  ),
+                  items: onboardingBacSeries
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _bacSeries = v),
+                ),
+              ],
+              const SizedBox(height: KpbSpacing.lg),
+
+              // ── Pays visés ──────────────────────────────────────────
+              const Text('Pays visés', style: KpbTextStyles.headline),
+              const SizedBox(height: KpbSpacing.sm),
+              Wrap(
+                spacing: KpbSpacing.sm,
+                runSpacing: KpbSpacing.sm,
+                children: onboardingDestinations.map((d) {
+                  final selected = _countryIds.contains(d.id);
+                  return FilterChip(
+                    label: Text('${d.flag} ${d.labelFr}'),
+                    selected: selected,
+                    onSelected: (on) => setState(() {
+                      if (on) {
+                        _countryIds.add(d.id);
+                      } else {
+                        _countryIds.remove(d.id);
+                      }
+                    }),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: KpbSpacing.lg),
+
+              // ── Mes documents ───────────────────────────────────────
+              const Text('Documents disponibles',
+                  style: KpbTextStyles.headline),
+              const SizedBox(height: KpbSpacing.sm),
+              Wrap(
+                spacing: KpbSpacing.sm,
+                runSpacing: KpbSpacing.sm,
+                children: _kEditableDocuments.map((doc) {
+                  final selected = _documents.contains(doc);
+                  return FilterChip(
+                    label: Text(_editDocLabel(doc)),
+                    selected: selected,
+                    onSelected: (on) => setState(() {
+                      if (on) {
+                        _documents.add(doc);
+                      } else {
+                        _documents.remove(doc);
+                      }
+                    }),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: KpbSpacing.xl),
+
               FilledButton(
                 onPressed: _saving ? null : _save,
                 child: _saving
@@ -711,6 +810,10 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       phone: _phoneCtrl.text.trim(),
       whatsApp: _whatsappCtrl.text.trim(),
       countryOfResidence: _countryCtrl.text.trim(),
+      currentLevel: _currentLevel,
+      bacSeries: _bacSeries,
+      targetCountryIds: _countryIds.toList(),
+      availableDocuments: _documents.toList(),
     );
     widget.controller.updateProfile(updated);
     Navigator.pop(context);
@@ -723,6 +826,41 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       colorText: KpbColors.success,
       duration: const Duration(seconds: 2),
     );
+  }
+
+  InputDecoration _dropdownDecoration(
+    BuildContext context,
+    String label,
+    IconData icon,
+  ) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, size: 20),
+      border: OutlineInputBorder(
+        borderRadius: KpbRadius.mdBr,
+        borderSide: BorderSide(color: context.kpb.gray200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: KpbRadius.mdBr,
+        borderSide: BorderSide(color: context.kpb.gray200),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: KpbRadius.mdBr,
+        borderSide: BorderSide(color: KpbColors.blue, width: 2),
+      ),
+      filled: true,
+      fillColor: context.kpb.gray50,
+    );
+  }
+
+  String _editDocLabel(String doc) {
+    const map = {
+      'Passport': 'Passeport',
+      'CV': 'CV',
+      'Transcripts': 'Relevés de notes',
+      'Test score': 'Score de test',
+    };
+    return map[doc] ?? doc;
   }
 }
 
@@ -928,92 +1066,6 @@ class _ProfileCompletionGuide extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
-class _LangChip extends StatelessWidget {
-  const _LangChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? KpbColors.blue : context.kpb.gray100,
-          borderRadius: KpbRadius.mdBr,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : context.kpb.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeModeChip extends StatelessWidget {
-  const _ThemeModeChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          decoration: BoxDecoration(
-            color: selected ? KpbColors.blue : context.kpb.gray100,
-            borderRadius: KpbRadius.mdBr,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: selected ? Colors.white : context.kpb.textSecondary,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color:
-                      selected ? Colors.white : context.kpb.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _InfoTile extends StatelessWidget {
   const _InfoTile({
     required this.icon,
@@ -1110,6 +1162,61 @@ class _QuickAccessTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _GuestProfilePrompt extends StatelessWidget {
+  const _GuestProfilePrompt({required this.controller});
+
+  final AppController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          backgroundColor: context.kpb.pageBg,
+          title: Text('profile'.tr, style: KpbTextStyles.headline),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.all(KpbSpacing.pagePad),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_outline_rounded,
+                    size: 64, color: context.kpb.gray300),
+                const SizedBox(height: KpbSpacing.lg),
+                Text(
+                  'auth_guest_profile_title'.tr,
+                  textAlign: TextAlign.center,
+                  style: KpbTextStyles.headline,
+                ),
+                const SizedBox(height: KpbSpacing.sm),
+                Text(
+                  'auth_guest_profile_body'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.kpb.textMuted, height: 1.4),
+                ),
+                const SizedBox(height: KpbSpacing.xl),
+                FilledButton(
+                  onPressed: () {
+                    controller.isGuestMode = false;
+                    controller.hasCompletedOnboarding = false;
+                    controller.update();
+                    Get.offAll(() => const AppBootScreen());
+                  },
+                  child: Text('auth_continue_email'.tr),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
