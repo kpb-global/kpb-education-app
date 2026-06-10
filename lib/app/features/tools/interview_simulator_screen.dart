@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 
 /// AI Interview Simulator — visa / admission / scholarship mock interviews
 /// with per-answer scoring and feedback (powered by Groq).

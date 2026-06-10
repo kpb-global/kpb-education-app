@@ -3,9 +3,8 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 
 const _frMonths = <String, int>{
@@ -27,12 +26,6 @@ const _monthNames = <int, String>{
   1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
   5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
   9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre',
-};
-
-const _flags = <String, String>{
-  'usa': '🇺🇸', 'canada': '🇨🇦', 'france': '🇫🇷', 'uk': '🇬🇧',
-  'morocco': '🇲🇦', 'turkey': '🇹🇷', 'germany': '🇩🇪', 'spain': '🇪🇸',
-  'china': '🇨🇳', 'belgium': '🇧🇪', 'italy': '🇮🇹', 'portugal': '🇵🇹',
 };
 
 DateTime? _parseDeadline(String text) {
@@ -541,7 +534,7 @@ class _DeadlineTile extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    _flags[scholarship.countryId] ?? '🌍',
+                    countryFlag(scholarship.countryId),
                     style: const TextStyle(fontSize: 24),
                   ),
                 ),

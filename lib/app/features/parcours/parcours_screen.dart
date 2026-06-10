@@ -11,9 +11,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 
 class ParcoursScreen extends StatefulWidget {
   const ParcoursScreen({super.key});

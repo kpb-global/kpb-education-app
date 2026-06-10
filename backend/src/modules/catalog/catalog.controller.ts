@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 
 import { CatalogService } from './catalog.service';
 
@@ -17,13 +17,33 @@ export class CatalogController {
   }
 
   @Get('institutions')
-  institutions() {
-    return this.catalogService.getInstitutions();
+  institutions(
+    @Query('countryId') countryId?: string,
+    @Query('partnerOnly') partnerOnly?: string,
+  ) {
+    return this.catalogService.getInstitutions({
+      countryId: countryId?.trim() || undefined,
+      partnerOnly: partnerOnly === 'true' || partnerOnly === '1',
+    });
   }
 
   @Get('programs')
-  programs() {
-    return this.catalogService.getPrograms();
+  programs(
+    @Query('q') q?: string,
+    @Query('fieldId') fieldId?: string,
+    @Query('countryId') countryId?: string,
+    @Query('institutionId') institutionId?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.catalogService.getPrograms({
+      q: q?.trim() || undefined,
+      fieldId: fieldId?.trim() || undefined,
+      countryId: countryId?.trim() || undefined,
+      institutionId: institutionId?.trim() || undefined,
+      limit: limit ? Number(limit) : undefined,
+      offset: offset ? Number(offset) : undefined,
+    });
   }
 
   @Get('scholarships')

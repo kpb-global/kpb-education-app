@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/app_tokens.dart';
 import '../cases/cases_screen.dart';
-import '../explore/explore_screen.dart';
+import '../destinations/destinations_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
+import '../universities/universities_screen.dart';
+import '../ai_advisor/coach_fab.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppShell — 4-tab navigation (Home · Explorer · Dossiers · Moi)
-//
-// Uses a custom floating, frosted-glass bottom navigation bar for a premium
-// UI/UX feel. IndexedStack keeps all pages alive so state is preserved when
-// switching tabs.
+// AppShell — 5-tab navigation (Accueil · Destinations · Universités · Demandes · Moi)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class AppShell extends StatelessWidget {
@@ -24,28 +23,34 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
 
-    const pages = <Widget>[
-      HomeScreen(),              // index 0
-      ExploreScreen(),           // index 1
-      CasesScreen(),             // index 2
-      ProfileScreen(),           // index 3
-    ];
-
     return GetBuilder<AppController>(
       builder: (_) {
+        final index =
+            controller.shellIndex.clamp(0, StudentShellTab.count - 1);
+        final fieldFilter = controller.universitiesInitialFieldId;
+
+        final pages = <Widget>[
+          const HomeScreen(),
+          const DestinationsScreen(),
+          UniversitiesScreen(
+            key: ValueKey(fieldFilter ?? 'all'),
+            initialFieldId: fieldFilter,
+          ),
+          const CasesScreen(),
+          const ProfileScreen(),
+        ];
+
         return Scaffold(
           body: Stack(
             children: [
-              IndexedStack(
-                index: controller.shellIndex,
-                children: pages,
-              ),
+              IndexedStack(index: index, children: pages),
+              if (index != StudentShellTab.home) const CoachFab(),
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
                 child: _KpbFloatingNavBar(
-                  currentIndex: controller.shellIndex,
+                  currentIndex: index,
                   onTap: controller.goToTab,
                 ),
               ),
@@ -57,9 +62,6 @@ class AppShell extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Custom Premium Floating Navigation Bar
-// ─────────────────────────────────────────────────────────────────────────────
 class _KpbFloatingNavBar extends StatelessWidget {
   const _KpbFloatingNavBar({
     required this.currentIndex,
@@ -103,41 +105,41 @@ class _KpbFloatingNavBar extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.home_outlined,
-                      selectedIcon: Icons.home_rounded,
-                      label: 'nav_home'.tr,
-                      isSelected: currentIndex == 0,
-                      onTap: () => onTap(0),
-                    ),
+                  _NavItem(
+                    icon: Icons.home_outlined,
+                    selectedIcon: Icons.home_rounded,
+                    label: 'nav_home'.tr,
+                    isSelected: currentIndex == StudentShellTab.home,
+                    onTap: () => onTap(StudentShellTab.home),
                   ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.explore_outlined,
-                      selectedIcon: Icons.explore_rounded,
-                      label: 'nav_explore'.tr,
-                      isSelected: currentIndex == 1,
-                      onTap: () => onTap(1),
-                    ),
+                  _NavItem(
+                    icon: Icons.public_outlined,
+                    selectedIcon: Icons.public_rounded,
+                    label: 'nav_destinations'.tr,
+                    isSelected: currentIndex == StudentShellTab.destinations,
+                    onTap: () => onTap(StudentShellTab.destinations),
                   ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.folder_copy_outlined,
-                      selectedIcon: Icons.folder_copy_rounded,
-                      label: 'nav_cases'.tr,
-                      isSelected: currentIndex == 2,
-                      onTap: () => onTap(2),
-                    ),
+                  _NavItem(
+                    icon: Icons.school_outlined,
+                    selectedIcon: Icons.school_rounded,
+                    label: 'nav_universities'.tr,
+                    isSelected: currentIndex == StudentShellTab.universities,
+                    onTap: () => onTap(StudentShellTab.universities),
                   ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.person_outline_rounded,
-                      selectedIcon: Icons.person_rounded,
-                      label: 'nav_profile'.tr,
-                      isSelected: currentIndex == 3,
-                      onTap: () => onTap(3),
-                    ),
+                  _NavItem(
+                    icon: Icons.folder_copy_outlined,
+                    selectedIcon: Icons.folder_copy_rounded,
+                    label: 'nav_cases'.tr,
+                    isSelected: currentIndex == StudentShellTab.cases,
+                    onTap: () => onTap(StudentShellTab.cases),
+                    badgeCount: Get.find<AppController>().totalUnreadCaseMessages,
+                  ),
+                  _NavItem(
+                    icon: Icons.person_outline_rounded,
+                    selectedIcon: Icons.person_rounded,
+                    label: 'nav_profile'.tr,
+                    isSelected: currentIndex == StudentShellTab.profile,
+                    onTap: () => onTap(StudentShellTab.profile),
                   ),
                 ],
               ),
@@ -156,6 +158,7 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   final IconData icon;
@@ -163,24 +166,24 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final int badgeCount;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // Active colors
     final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
-    final inactiveColor = isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
+    final inactiveColor =
+        isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox.expand(
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
         child: Center(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOutQuint,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
                   ? (isDark
@@ -189,35 +192,54 @@ class _NavItem extends StatelessWidget {
                   : Colors.transparent,
               borderRadius: KpbRadius.pillBr,
             ),
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
-                  child: Icon(
-                    isSelected ? selectedIcon : icon,
-                    key: ValueKey<bool>(isSelected),
-                    color: isSelected ? activeColor : inactiveColor,
-                    size: 24,
-                  ),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(
+                      isSelected ? selectedIcon : icon,
+                      color: isSelected ? activeColor : inactiveColor,
+                      size: 22,
+                    ),
+                    if (badgeCount > 0)
+                      Positioned(
+                        right: -8,
+                        top: -4,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: KpbColors.error,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            badgeCount > 9 ? '9+' : '$badgeCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 if (isSelected) ...[
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: TextStyle(
-                        color: activeColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: activeColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 9,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ],

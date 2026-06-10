@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/navigation/app_boot_screen.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/app_tokens.dart';
-import 'onboarding_screen.dart';
 
 class IntroSlideshowScreen extends StatefulWidget {
   const IntroSlideshowScreen({super.key});
@@ -53,7 +53,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
 
   void _finishIntro() {
     Get.find<AppController>().completeIntro();
-    Get.offAll(() => const OnboardingScreen());
+    Get.offAll(() => const AppBootScreen());
   }
 
   @override

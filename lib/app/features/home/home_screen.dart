@@ -5,9 +5,7 @@ import '../../core/config/app_config.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/skeleton.dart';
 import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
@@ -485,12 +483,16 @@ class _HeroCta extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -852,12 +854,17 @@ class _QuickActions extends StatelessWidget {
                         children: [
                           Icon(a.$1, color: a.$3, size: 16),
                           const SizedBox(width: 6),
-                          Text(
-                            a.$2,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              a.$2,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],
@@ -926,12 +933,16 @@ class _AiAdvisorBanner extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      "Conseiller d'Orientation IA",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                    const Flexible(
+                      child: Text(
+                        "Conseiller d'Orientation IA",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1202,12 +1213,16 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            "Inscriptions à l'Étranger",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                          const Flexible(
+                            child: Text(
+                              "Inscriptions à l'Étranger",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),

@@ -32,6 +32,12 @@ String userFacingSyncError(Object error, String localeCode) {
         'Session expired or access denied. Please sign in again.',
       );
     }
+    if (code == 429) {
+      return t(
+        'Trop de requêtes serveur. Réessayez dans une minute.',
+        'Too many server requests. Try again in a minute.',
+      );
+    }
     if (code != null && code >= 500) {
       return t(
         'Le serveur est temporairement indisponible. Réessayez plus tard.',

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/controllers/app_controller.dart';
+import '../../core/services/coach_service.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 
@@ -26,32 +27,57 @@ class AiChatScreen extends StatefulWidget {
 }
 
 class _AiChatScreenState extends State<AiChatScreen> {
-  static const _weeklyQuota = 5;
-  static const _quotaWeekKey = 'kpb.ai_coach.quota.week';
-  static const _quotaCountKey = 'kpb.ai_coach.quota.count';
-
+  final _coach = CoachService();
   final List<AiMessage> _messages = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isTyping = false;
-  int _remainingMessages = _weeklyQuota;
-
-  final List<String> _suggestions = [
-    "Quelles écoles pour un budget de 10 000€ ?",
-    "Top écoles de commerce en France",
-    "Formations Tech (EPITA, Epitech...)",
-    "Comment postuler en école privée ?",
-  ];
+  int _remainingMessages = 5;
+  int _weeklyQuota = 5;
+  List<String> _suggestions = const [];
+  String? _assistantDraft;
 
   @override
   void initState() {
     super.initState();
-    _messages.add(AiMessage(
-      text: "Bonjour ! Je suis votre conseiller d'orientation intelligent KPB Education. 🤖✨\n\nJe suis là pour vous guider vers la meilleure formation privée en France selon vos critères. "
-          "Dites-moi tout : quel est votre budget annuel, votre filière d'intérêt (Commerce, Informatique, Jeux Vidéo, Ingénierie) ou votre projet d'études ?",
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
+    unawaited(_bootstrap());
+  }
+
+  Future<void> _bootstrap() async {
+    final controller = Get.find<AppController>();
+    final profile = controller.profile;
+    if (profile == null) return;
+
+    final quota = await _coach.fetchQuota(profile.id);
+    final suggestions = await _coach.fetchSuggestions(profile.id);
+    final conversationId =
+        await _coach.ensureConversation(userId: profile.id, profile: profile);
+    final history = await _coach.fetchHistory(conversationId);
+
+    if (!mounted) return;
+    setState(() {
+      _remainingMessages = quota.remaining;
+      _weeklyQuota = quota.limit;
+      _suggestions = suggestions;
+      if (history.isNotEmpty) {
+        // Rehydrate the persisted conversation (survives app restarts).
+        _messages.addAll(history.map(
+          (m) => AiMessage(
+            text: m.content,
+            isUser: m.isUser,
+            timestamp: DateTime.now(),
+          ),
+        ));
+      } else {
+        _messages.add(AiMessage(
+          text:
+              "Bonjour ${profile.fullName.split(' ').first} ! Je suis ton Coach KPB. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      }
+    });
+    _scrollToBottom();
   }
 
   @override
@@ -73,17 +99,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
   }
 
-  void _sendMessage(String text) {
+  Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
     if (_remainingMessages <= 0) {
       Get.snackbar(
         'Quota Coach IA atteint',
-        'Tu as atteint la limite de 5 messages cette semaine. Reviens la semaine prochaine ou passe par un conseiller humain.',
+        'Tu as atteint la limite de $_weeklyQuota messages cette semaine. Reviens la semaine prochaine ou contacte un conseiller humain.',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 4),
       );
       return;
     }
+
+    final controller = Get.find<AppController>();
+    final profile = controller.profile;
+    if (profile == null) return;
+
     setState(() {
       _messages.add(AiMessage(
         text: text,
@@ -91,131 +122,80 @@ class _AiChatScreenState extends State<AiChatScreen> {
         timestamp: DateTime.now(),
       ));
       _isTyping = true;
-      _remainingMessages -= 1;
+      _assistantDraft = '';
     });
-    unawaited(_persistQuotaCount());
     _scrollToBottom();
     _textController.clear();
 
-    // Mock AI response logic with slight delay
-    Timer(const Duration(milliseconds: 1200), () {
+    var assistantIndex = -1;
+
+    try {
+      await for (final event in _coach.sendMessage(
+        userId: profile.id,
+        profile: profile,
+        message: text,
+      )) {
+        if (!mounted) return;
+
+        if (event.type == 'error') {
+          setState(() {
+            _isTyping = false;
+            _messages.add(AiMessage(
+              text: event.message ?? 'Coach indisponible.',
+              isUser: false,
+              timestamp: DateTime.now(),
+            ));
+          });
+          break;
+        }
+
+        if (event.type == 'token' && event.text != null) {
+          _assistantDraft = '${_assistantDraft ?? ''}${event.text}';
+          if (assistantIndex == -1) {
+            _messages.add(AiMessage(
+              text: _assistantDraft!,
+              isUser: false,
+              timestamp: DateTime.now(),
+            ));
+            assistantIndex = _messages.length - 1;
+          } else {
+            _messages[assistantIndex] = AiMessage(
+              text: _assistantDraft!,
+              isUser: false,
+              timestamp: _messages[assistantIndex].timestamp,
+            );
+          }
+          setState(() {});
+          _scrollToBottom();
+        }
+
+        if (event.type == 'done') {
+          setState(() {
+            _isTyping = false;
+            if (event.quotaRemaining != null) {
+              _remainingMessages = event.quotaRemaining!;
+            } else {
+              _remainingMessages = (_remainingMessages - 1).clamp(0, _weeklyQuota);
+            }
+          });
+        }
+      }
+    } catch (_) {
       if (!mounted) return;
-      final responseText = _generateAiResponse(text);
       setState(() {
         _isTyping = false;
         _messages.add(AiMessage(
-          text: responseText,
+          text: 'Impossible de joindre le coach IA pour le moment.',
           isUser: false,
           timestamp: DateTime.now(),
         ));
       });
-      _scrollToBottom();
-    });
-  }
-
-  String _generateAiResponse(String query) {
-    final q = query.toLowerCase();
-
-    if (q.contains('budget') || q.contains('frais') || q.contains('cout') || q.contains('coût') || q.contains('tarif') || q.contains('scolarit')) {
-      return "💸 **Analyse des Budgets & Frais de Scolarité** :\n\n"
-          "Les frais de scolarité dans nos écoles privées partenaires en France s'échelonnent généralement de **8 000 € à 16 000 € par an** selon le cycle (BBA, Bachelor ou Master/MSc) :\n\n"
-          "• **Moins de 10 000 €/an** :\n"
-          "  - **ISG Paris** (BBA/Bachelor) : env. 8 900 €/an\n"
-          "  - **Epitech Paris** (Bachelor Coding & Digital) : env. 9 200 €/an\n"
-          "  - **EPITA Paris** (Classes préparatoires intégrées) : env. 9 900 €/an\n\n"
-          "• **De 10 000 € à 15 000 €/an** :\n"
-          "  - **SKEMA Business School** (BBA/MSc) : env. 11 000 € à 14 000 €/an\n"
-          "  - **Rubika Valenciennes** (Animation 3D / Design / Jeu Vidéo) : env. 10 500 €/an\n"
-          "  - **EDHEC / EM Lyon** (Bachelors / MSc de spécialisation) : env. 12 500 € à 15 000 €/an\n\n"
-          "• **Écoles d'Élite (Master Grande École)** :\n"
-          "  - **HEC Paris / ESSEC / ESCP** : de 16 000 € à plus de 24 000 € pour les derniers cycles d'excellence.\n\n"
-          "💡 *Conseil KPB* : La plupart de ces écoles proposent des paiements échelonnés en 3, 4 ou 10 fois pour faciliter vos démarches financières !";
     }
 
-    if (q.contains('commerce') || q.contains('business') || q.contains('management') || q.contains('hec') || q.contains('essec') || q.contains('escp') || q.contains('edhec') || q.contains('skema') || q.contains('isg') || q.contains('marketing') || q.contains('finance')) {
-      return "💼 **Top Écoles de Commerce Partenaires en France** :\n\n"
-          "Voici une sélection d'écoles d'élite avec lesquelles nous collaborons pour des inscriptions directes sécurisées :\n\n"
-          "1️⃣ **HEC Paris** & **ESSEC** : Les leaders incontestés. Formations d'excellence mondiale en Management, Finance et Stratégie.\n"
-          "2️⃣ **EM Lyon** & **ESCP Business School** : Réputées pour l'entrepreneuriat international et la finance d'entreprise.\n"
-          "3️⃣ **EDHEC** & **SKEMA** : Excellents Bachelors et Masters en double-diplôme, forte présence à l'international.\n"
-          "4️⃣ **ISG Paris** : Une école moderne et très ouverte aux étudiants internationaux, proposant d'excellents cursus BBA et MBA spécialisés à un coût très compétitif (env. 9 000 €/an).\n\n"
-          "✨ *Avantage KPB* : En postulant via notre plateforme, vous bénéficiez d'une exemption de certains frais de dossier et d'un accompagnement personnalisé pour la préparation de vos oraux d'admission ! Vous voulez démarrer une candidature ?";
+    if (mounted && _isTyping) {
+      setState(() => _isTyping = false);
     }
-
-    if (q.contains('tech') || q.contains('informatique') || q.contains('ingénieur') || q.contains('code') || q.contains('epita') || q.contains('epitech') || q.contains('rubika') || q.contains('jeu') || q.contains('design') || q.contains('animation')) {
-      return "💻 **Filières Tech, Ingénierie & Design Numérique** :\n\n"
-          "Pour les profils scientifiques et créatifs, la France abrite des fleurons de l'éducation privée :\n\n"
-          "• **EPITA Paris** : L'école d'ingénieurs de référence en Intelligence Artificielle, Cybersécurité et Software Engineering. Diplôme CTI (reconnu par l'État au plus haut niveau).\n"
-          "• **Epitech Paris** : La pédagogie par projet active par excellence. Parfait pour les profils passionnés de développement logiciel et d'innovation web qui veulent coder dès le premier jour.\n"
-          "• **Rubika Valenciennes** : Classée dans le Top 3 mondial des écoles d'Animation 3D, de Design Industriel et de Jeu Vidéo. Un taux d'employabilité de 99% chez Pixar, Ubisoft et d'autres grands studios.\n\n"
-          "👉 *Quelle école vous inspire le plus pour votre carrière ?* Nous pouvons planifier un entretien blanc pour consolider vos chances d'admission.";
-    }
-
-    if (q.contains('postuler') || q.contains('inscription') || q.contains('dossier') || q.contains('comment') || q.contains('candidat') || q.contains('admiss')) {
-      return "📝 **Comment postuler et garantir votre admission ?**\n\n"
-          "Le processus d'admission directe via KPB Education est simplifié et hautement sécurisé :\n\n"
-          "1️⃣ **Créez votre dossier sur l'application** : Allez dans l'onglet **Dossier** et cliquez sur 'Nouveau dossier'.\n"
-          "2️⃣ **Téléchargez vos pièces justificatives** : Bulletins de notes (les 3 dernières années), diplômes, CV et lettre de motivation.\n"
-          "3️⃣ **Sélectionnez vos vœux d'écoles** : Vous pouvez choisir jusqu'à 3 écoles partenaires (comme EPITA, Rubika, SKEMA, ISG...).\n"
-          "4️⃣ **Validation KPB** : Notre équipe de conseillers audite votre dossier sous 48h, l'optimise, puis le soumet directement aux directeurs d'admissions des écoles concernées.\n\n"
-          "🚀 *Statistique clé* : 98% des étudiants accompagnés par KPB obtiennent au moins une admission ferme dans nos établissements partenaires ! Cliquez sur l'onglet **Dossier** (3ème bouton de la barre de navigation) pour démarrer !";
-    }
-
-    if (q.contains('pays') || q.contains('destination') || q.contains('france') || q.contains('canada') || q.contains('maroc')) {
-      return "🌍 **Comparatif des Destinations d'Études** :\n\n"
-          "• **France (Inscriptions Directes Privées)** : \n"
-          "  - Logement facilité dans nos résidences partenaires.\n"
-          "  - Pas de procédure Campus France bloquante si vous postulez dans certaines écoles privées hors plateforme nationale.\n"
-          "  - Alternance possible en Master pour financer 100% de vos études.\n\n"
-          "• **Canada (Universités Partenaires)** :\n"
-          "  - Opportunités de travail post-études de 3 ans.\n"
-          "  - Pédagogie anglo-saxonne très valorisée.\n\n"
-          "Faisons correspondre cela avec vos objectifs professionnels. Préférez-vous l'Europe ou l'Amérique du Nord ?";
-    }
-
-    return "🤖 **J'ai bien noté votre message !**\n\n"
-        "Pour affiner ma recommandation, pourriez-vous me préciser :\n"
-        "1. Votre dernier diplôme obtenu ou niveau actuel (Bac, Licence...)\n"
-        "2. Votre budget annuel maximum pour les frais de scolarité (ex: 8 000€, 12 000€)\n"
-        "3. La filière de vos rêves (Commerce, Ingénierie, Informatique, Design)\n\n"
-        "Vous pouvez aussi à tout moment aller dans l'onglet **Orientation** pour faire notre questionnaire complet, ou dans l'onglet **Dossier** pour soumettre vos bulletins pour une étude gratuite par nos conseillers humains !";
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    unawaited(_loadQuotaState());
-  }
-
-  String _currentWeekKey() {
-    final now = DateTime.now();
-    final firstDay = DateTime(now.year, 1, 1);
-    final week = ((now.difference(firstDay).inDays + firstDay.weekday - 1) / 7).floor() + 1;
-    return '${now.year}-$week';
-  }
-
-  Future<void> _loadQuotaState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final weekKey = _currentWeekKey();
-    final storedWeek = prefs.getString(_quotaWeekKey);
-    if (storedWeek != weekKey) {
-      await prefs.setString(_quotaWeekKey, weekKey);
-      await prefs.setInt(_quotaCountKey, 0);
-      if (!mounted) return;
-      setState(() => _remainingMessages = _weeklyQuota);
-      return;
-    }
-    final used = prefs.getInt(_quotaCountKey) ?? 0;
-    if (!mounted) return;
-    setState(() => _remainingMessages = (_weeklyQuota - used).clamp(0, _weeklyQuota));
-  }
-
-  Future<void> _persistQuotaCount() async {
-    final prefs = await SharedPreferences.getInstance();
-    final weekKey = _currentWeekKey();
-    await prefs.setString(_quotaWeekKey, weekKey);
-    final used = (_weeklyQuota - _remainingMessages).clamp(0, _weeklyQuota);
-    await prefs.setInt(_quotaCountKey, used);
+    _scrollToBottom();
   }
 
   @override
@@ -229,15 +209,29 @@ class _AiChatScreenState extends State<AiChatScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // ── Header ───────────────────────────────────────────────────
               _buildHeader(context),
-
-              // ── Chat Messages ────────────────────────────────────────────
+              if (_remainingMessages <= 0)
+                Container(
+                  width: double.infinity,
+                  color: KpbColors.gold.withValues(alpha: 0.15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: KpbSpacing.pagePad,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    'Quota épuisé — Premium bientôt disponible ou contacte un conseiller KPB.',
+                    style: TextStyle(
+                      color: KpbColors.gold.withValues(alpha: 0.95),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(KpbSpacing.pagePad),
-                  itemCount: _messages.length + (_isTyping ? 1 : 0),
+                  itemCount: _messages.length + (_isTyping && _assistantDraft == null ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length) {
                       return _buildTypingIndicator();
@@ -247,11 +241,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   },
                 ),
               ),
-
-              // ── Suggestion Chips ──────────────────────────────────────────
-              if (_messages.length <= 2 && !_isTyping) _buildSuggestions(),
-
-              // ── Input Field ──────────────────────────────────────────────
+              if (_messages.length <= 2 && !_isTyping && _suggestions.isNotEmpty)
+                _buildSuggestions(),
               _buildInputBar(context),
             ],
           ),
@@ -293,7 +284,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Conseiller IA",
+                  'Coach IA',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -303,9 +294,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 Row(
                   children: [
                     Icon(Icons.circle, size: 8, color: KpbColors.stitchCyberCyan),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
-                      "En ligne • $_remainingMessages/$_weeklyQuota restants cette semaine",
+                      'En ligne • $_remainingMessages/$_weeklyQuota restants cette semaine',
                       style: TextStyle(
                         fontSize: 11,
                         color: KpbColors.textDarkSecondary,
@@ -374,7 +365,6 @@ class _AiChatScreenState extends State<AiChatScreen> {
   }
 
   Widget _parseAndRichText(String text, TextStyle baseStyle) {
-    // Simple custom parser for markdown elements like bold **text** or bullet list •
     final words = <InlineSpan>[];
     final lines = text.split('\n');
 
@@ -507,7 +497,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 controller: _textController,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: const InputDecoration(
-                  hintText: "Posez votre question sur les écoles, budgets...",
+                  hintText: 'Posez votre question sur les écoles, budgets...',
                   hintStyle: TextStyle(color: KpbColors.textDarkSecondary, fontSize: 13),
                   border: InputBorder.none,
                 ),

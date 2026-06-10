@@ -81,6 +81,79 @@ export const mockCatalog = {
   ],
   scholarships: [
     {
+      // ── Flagship scholarship highlighted at MVP launch (Canada) ───────────
+      id: 'mccall_macbain',
+      name: {
+        fr: 'Bourse McCall MacBain (Université McGill)',
+        en: 'McCall MacBain Scholarship (McGill University)',
+      },
+      countryId: 'canada',
+      countryName: { fr: 'Canada', en: 'Canada' },
+      levelEligible: {
+        fr: 'Master / Études professionnelles',
+        en: "Master's / Professional studies",
+      },
+      typeOfFunding: { fr: 'Complète', en: 'Full' },
+      fundingType: 'fully_funded',
+      deadlineLabel: { fr: 'Août 2026', en: 'August 2026' },
+      description: {
+        fr: "La bourse McCall MacBain finance intégralement un master à l'Université McGill (Montréal) et y ajoute un programme de leadership, de mentorat et de développement personnel. C'est la bourse phare mise en avant au lancement de KPB pour le Canada.",
+        en: 'The McCall MacBain Scholarship fully funds a master’s degree at McGill University (Montreal) and adds a leadership, mentorship and personal-development program. It is the flagship scholarship featured at KPB’s launch for Canada.',
+      },
+      advantages: [
+        {
+          fr: 'Frais de scolarité et frais obligatoires entièrement couverts',
+          en: 'Full tuition and mandatory fees covered',
+        },
+        {
+          fr: 'Allocation de subsistance mensuelle',
+          en: 'Monthly living stipend',
+        },
+        {
+          fr: 'Programme de leadership, mentorat et coaching',
+          en: 'Leadership, mentorship and coaching program',
+        },
+        {
+          fr: 'Financement de la réinstallation et des voyages du programme',
+          en: 'Relocation and program travel funding',
+        },
+      ],
+      eligibility: [
+        {
+          fr: 'Diplôme de premier cycle obtenu (ou en cours) reconnu',
+          en: 'Completed (or final-year) recognised undergraduate degree',
+        },
+        {
+          fr: 'Admissible à un programme de master éligible à McGill',
+          en: 'Eligible for a qualifying McGill master’s program',
+        },
+        {
+          fr: 'Leadership démontré et engagement communautaire',
+          en: 'Demonstrated leadership and community engagement',
+        },
+      ],
+      keyRequirements: [
+        {
+          fr: 'Candidature en ligne avec essais',
+          en: 'Online application with essays',
+        },
+        {
+          fr: 'Lettres de référence',
+          en: 'Reference letters',
+        },
+        {
+          fr: 'Entretiens régionaux et finalistes',
+          en: 'Regional and finalist interviews',
+        },
+      ],
+      relatedFieldIds: [],
+      baseMatch: 60,
+      applicationUrl: 'https://mccallmacbainscholars.org/',
+      sourceUrl: 'https://mccallmacbainscholars.org/',
+      tags: ['flagship', 'fully_funded', 'canada', 'mcgill'],
+      isActive: true,
+    },
+    {
       id: 'canada_future',
       name: { fr: 'Canada Future Leaders', en: 'Canada Future Leaders' },
       countryId: 'canada',

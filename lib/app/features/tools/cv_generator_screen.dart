@@ -5,9 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/utils/study_level.dart';
 
 /// CV Generator — pre-filled from profile, AI-enhanced summary, PDF export.

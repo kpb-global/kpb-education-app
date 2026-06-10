@@ -1,0 +1,389 @@
+// M11 — Simulateur d'éligibilité.
+//
+// Deterministic, fully client-side engine: the student provides ~5 inputs and
+// receives a 🟢 / 🟡 / 🔴 verdict for each of the 9 MVP destinations, with
+// human-readable reasons. No backend round-trip — works offline and is cheap
+// to unit-test.
+
+import '../../core/models/app_models.dart';
+
+/// Self-rated proficiency for a given language.
+enum LangLevel { faible, moyen, bon }
+
+extension LangLevelLabel on LangLevel {
+  String get labelFr {
+    switch (this) {
+      case LangLevel.faible:
+        return 'Débutant';
+      case LangLevel.moyen:
+        return 'Intermédiaire';
+      case LangLevel.bon:
+        return 'Courant';
+    }
+  }
+
+  /// Points contributed to the eligibility score (0–2).
+  int get points {
+    switch (this) {
+      case LangLevel.faible:
+        return 0;
+      case LangLevel.moyen:
+        return 1;
+      case LangLevel.bon:
+        return 2;
+    }
+  }
+}
+
+/// The five inputs that drive the simulation. All are optional so the form can
+/// run with partial data (missing budget is treated as "à confirmer").
+class EligibilityInput {
+  const EligibilityInput({
+    this.studyLevel,
+    this.bacSeries,
+    this.monthlyBudgetEur,
+    this.frenchLevel = LangLevel.bon,
+    this.englishLevel = LangLevel.moyen,
+  });
+
+  final String? studyLevel;
+  final String? bacSeries;
+  final int? monthlyBudgetEur;
+  final LangLevel frenchLevel;
+  final LangLevel englishLevel;
+
+  /// Build sensible defaults from the user's saved profile.
+  factory EligibilityInput.fromProfile(UserProfile profile) {
+    return EligibilityInput(
+      studyLevel: profile.currentLevel,
+      bacSeries: profile.bacSeries,
+      monthlyBudgetEur: profile.monthlyBudgetEur,
+    );
+  }
+
+  EligibilityInput copyWith({
+    String? studyLevel,
+    String? bacSeries,
+    int? monthlyBudgetEur,
+    LangLevel? frenchLevel,
+    LangLevel? englishLevel,
+    bool clearBudget = false,
+    bool clearStudyLevel = false,
+    bool clearBacSeries = false,
+  }) {
+    return EligibilityInput(
+      studyLevel: clearStudyLevel ? null : (studyLevel ?? this.studyLevel),
+      bacSeries: clearBacSeries ? null : (bacSeries ?? this.bacSeries),
+      monthlyBudgetEur:
+          clearBudget ? null : (monthlyBudgetEur ?? this.monthlyBudgetEur),
+      frenchLevel: frenchLevel ?? this.frenchLevel,
+      englishLevel: englishLevel ?? this.englishLevel,
+    );
+  }
+}
+
+/// The language that primarily matters for studying in a country.
+enum PrimaryLang { fr, en }
+
+/// Per-country eligibility ruleset. Budgets are expressed in EUR/month so they
+/// can be compared against a single budget input regardless of local currency.
+class EligibilityRule {
+  const EligibilityRule({
+    required this.countryId,
+    required this.nameFr,
+    required this.flag,
+    required this.budgetComfortEur,
+    required this.budgetMinimumEur,
+    required this.primaryLanguage,
+    required this.noteFr,
+    this.acceptsEnglishPrograms = false,
+    this.bilingualFrEn = false,
+  });
+
+  final String countryId;
+  final String nameFr;
+  final String flag;
+
+  /// Monthly budget (EUR) for a comfortable 🟢 verdict.
+  final int budgetComfortEur;
+
+  /// Monthly budget (EUR) below which the country is 🔴 on budget alone.
+  final int budgetMinimumEur;
+
+  final PrimaryLang primaryLanguage;
+  final String noteFr;
+
+  /// Whether English-taught programs let a non-English-primary country qualify
+  /// through the student's English level.
+  final bool acceptsEnglishPrograms;
+
+  /// Canada: French OR English both fully count.
+  final bool bilingualFrEn;
+}
+
+/// The 9 MVP destinations, in canonical order.
+const kEligibilityRules = <EligibilityRule>[
+  EligibilityRule(
+    countryId: 'fra',
+    nameFr: 'France',
+    flag: '🇫🇷',
+    budgetComfortEur: 900,
+    budgetMinimumEur: 650,
+    primaryLanguage: PrimaryLang.fr,
+    acceptsEnglishPrograms: true,
+    noteFr:
+        'Majorité de programmes en français ; quelques masters enseignés en anglais.',
+  ),
+  EligibilityRule(
+    countryId: 'deu',
+    nameFr: 'Allemagne',
+    flag: '🇩🇪',
+    budgetComfortEur: 950,
+    budgetMinimumEur: 700,
+    primaryLanguage: PrimaryLang.en,
+    acceptsEnglishPrograms: true,
+    noteFr:
+        'Nombreux masters en anglais ; l\'allemand aide pour le quotidien et les jobs étudiants.',
+  ),
+  EligibilityRule(
+    countryId: 'usa',
+    nameFr: 'États-Unis',
+    flag: '🇺🇸',
+    budgetComfortEur: 1500,
+    budgetMinimumEur: 1100,
+    primaryLanguage: PrimaryLang.en,
+    noteFr:
+        'TOEFL/IELTS exigé. Budget élevé : prévois le logement et l\'assurance santé.',
+  ),
+  EligibilityRule(
+    countryId: 'can',
+    nameFr: 'Canada',
+    flag: '🇨🇦',
+    budgetComfortEur: 1100,
+    budgetMinimumEur: 850,
+    primaryLanguage: PrimaryLang.en,
+    acceptsEnglishPrograms: true,
+    bilingualFrEn: true,
+    noteFr:
+        'Anglais ou français accepté selon la province. Preuve de fonds requise pour le permis d\'études.',
+  ),
+  EligibilityRule(
+    countryId: 'mar',
+    nameFr: 'Maroc',
+    flag: '🇲🇦',
+    budgetComfortEur: 450,
+    budgetMinimumEur: 300,
+    primaryLanguage: PrimaryLang.fr,
+    noteFr:
+        'Enseignement majoritairement francophone ; coût de la vie le plus accessible.',
+  ),
+  EligibilityRule(
+    countryId: 'tur',
+    nameFr: 'Turquie',
+    flag: '🇹🇷',
+    budgetComfortEur: 600,
+    budgetMinimumEur: 450,
+    primaryLanguage: PrimaryLang.en,
+    acceptsEnglishPrograms: true,
+    noteFr:
+        'Programmes en anglais disponibles ; bourses Türkiye Burslari intéressantes.',
+  ),
+  EligibilityRule(
+    countryId: 'are',
+    nameFr: 'EAU (Dubaï)',
+    flag: '🇦🇪',
+    budgetComfortEur: 1300,
+    budgetMinimumEur: 1000,
+    primaryLanguage: PrimaryLang.en,
+    noteFr:
+        'Campus internationaux anglophones ; coût de la vie élevé, surtout à Dubaï.',
+  ),
+  EligibilityRule(
+    countryId: 'gbr',
+    nameFr: 'Royaume-Uni',
+    flag: '🇬🇧',
+    budgetComfortEur: 1350,
+    budgetMinimumEur: 1050,
+    primaryLanguage: PrimaryLang.en,
+    noteFr:
+        'IELTS exigé et preuve de fonds pour le visa étudiant (Student route).',
+  ),
+  EligibilityRule(
+    countryId: 'esp',
+    nameFr: 'Espagne',
+    flag: '🇪🇸',
+    budgetComfortEur: 850,
+    budgetMinimumEur: 650,
+    primaryLanguage: PrimaryLang.en,
+    acceptsEnglishPrograms: true,
+    noteFr:
+        'Espagnol recommandé ; offre de programmes en anglais en forte hausse.',
+  ),
+];
+
+/// Outcome for a single country.
+class EligibilityResult {
+  const EligibilityResult({
+    required this.rule,
+    required this.verdict,
+    required this.score,
+    required this.reasons,
+    required this.advice,
+  });
+
+  final EligibilityRule rule;
+  final EligibilityVerdict verdict;
+
+  /// 0–100, for the progress bar / sorting.
+  final int score;
+  final List<String> reasons;
+  final String advice;
+
+  String get verdictLabel {
+    switch (verdict) {
+      case EligibilityVerdict.eligible:
+        return 'Éligible';
+      case EligibilityVerdict.eligibleWithConditions:
+        return 'Éligible sous conditions';
+      case EligibilityVerdict.notEligible:
+        return 'Non éligible pour l\'instant';
+    }
+  }
+
+  String get verdictEmoji {
+    switch (verdict) {
+      case EligibilityVerdict.eligible:
+        return '🟢';
+      case EligibilityVerdict.eligibleWithConditions:
+        return '🟡';
+      case EligibilityVerdict.notEligible:
+        return '🔴';
+    }
+  }
+}
+
+/// Pure scoring engine. No I/O, no Flutter — trivially unit-testable.
+class EligibilityEngine {
+  const EligibilityEngine();
+
+  List<EligibilityResult> evaluate(EligibilityInput input) {
+    final results = kEligibilityRules
+        .map((rule) => _evaluateCountry(rule, input))
+        .toList()
+      // Best matches first.
+      ..sort((a, b) => b.score.compareTo(a.score));
+    return results;
+  }
+
+  EligibilityResult _evaluateCountry(
+    EligibilityRule rule,
+    EligibilityInput input,
+  ) {
+    final reasons = <String>[];
+
+    // ── Budget (weight 2, points 0–2) ──────────────────────────────
+    final budget = input.monthlyBudgetEur;
+    final int budgetPoints;
+    if (budget == null) {
+      budgetPoints = 1;
+      reasons.add('Budget à confirmer (≈ ${rule.budgetComfortEur} €/mois recommandé).');
+    } else if (budget >= rule.budgetComfortEur) {
+      budgetPoints = 2;
+      reasons.add('Budget suffisant ($budget € ≥ ${rule.budgetComfortEur} €/mois).');
+    } else if (budget >= rule.budgetMinimumEur) {
+      budgetPoints = 1;
+      reasons.add(
+          'Budget serré ($budget €) : vise ${rule.budgetComfortEur} €/mois ou une bourse.');
+    } else {
+      budgetPoints = 0;
+      reasons.add(
+          'Budget insuffisant ($budget € < ${rule.budgetMinimumEur} €/mois minimum).');
+    }
+
+    // ── Language (weight 2, points 0–2) ────────────────────────────
+    final langPoints = _languagePoints(rule, input, reasons);
+
+    // ── Study level (weight 1, points 0–2) ─────────────────────────
+    final int levelPoints;
+    if ((input.studyLevel ?? '').trim().isEmpty) {
+      levelPoints = 1;
+      reasons.add('Renseigne ton niveau d\'études pour affiner.');
+    } else {
+      levelPoints = 2;
+    }
+
+    final raw = budgetPoints * 2 + langPoints * 2 + levelPoints; // 0–10
+    final score = (raw * 10).clamp(0, 100);
+
+    final EligibilityVerdict verdict;
+    if (budgetPoints == 0 || langPoints == 0) {
+      verdict = EligibilityVerdict.notEligible;
+    } else if (raw >= 8) {
+      verdict = EligibilityVerdict.eligible;
+    } else {
+      verdict = EligibilityVerdict.eligibleWithConditions;
+    }
+
+    return EligibilityResult(
+      rule: rule,
+      verdict: verdict,
+      score: score,
+      reasons: reasons,
+      advice: _advice(verdict, rule),
+    );
+  }
+
+  int _languagePoints(
+    EligibilityRule rule,
+    EligibilityInput input,
+    List<String> reasons,
+  ) {
+    // Determine the best relevant language level for this country.
+    LangLevel relevant;
+    String langName;
+    if (rule.bilingualFrEn) {
+      relevant = input.frenchLevel.points >= input.englishLevel.points
+          ? input.frenchLevel
+          : input.englishLevel;
+      langName = 'français ou anglais';
+    } else if (rule.primaryLanguage == PrimaryLang.fr) {
+      relevant = input.frenchLevel;
+      langName = 'français';
+      if (rule.acceptsEnglishPrograms &&
+          input.englishLevel.points > relevant.points) {
+        relevant = input.englishLevel;
+        langName = 'anglais (programmes internationaux)';
+      }
+    } else {
+      relevant = input.englishLevel;
+      langName = 'anglais';
+      if (rule.acceptsEnglishPrograms &&
+          input.frenchLevel.points > relevant.points &&
+          (rule.countryId == 'can')) {
+        relevant = input.frenchLevel;
+        langName = 'français';
+      }
+    }
+
+    switch (relevant) {
+      case LangLevel.bon:
+        reasons.add('Niveau de $langName courant : atout fort.');
+      case LangLevel.moyen:
+        reasons.add('Niveau de $langName intermédiaire : une remise à niveau aidera.');
+      case LangLevel.faible:
+        reasons.add('Niveau de $langName trop faible : test de langue à préparer.');
+    }
+    return relevant.points;
+  }
+
+  String _advice(EligibilityVerdict verdict, EligibilityRule rule) {
+    switch (verdict) {
+      case EligibilityVerdict.eligible:
+        return 'Tu peux démarrer un dossier dès maintenant. ${rule.noteFr}';
+      case EligibilityVerdict.eligibleWithConditions:
+        return 'Destination accessible en renforçant budget et/ou langue. ${rule.noteFr}';
+      case EligibilityVerdict.notEligible:
+        return 'Concentre-toi d\'abord sur le blocage principal. ${rule.noteFr}';
+    }
+  }
+}

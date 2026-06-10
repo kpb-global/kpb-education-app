@@ -36,10 +36,28 @@ import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 import '../services/auth_service.dart';
 
-class AppController extends GetxController {
+part 'app_controller/search.dart';
+part 'app_controller/roadmap.dart';
+part 'app_controller/commercial.dart';
+part 'app_controller/parcours.dart';
+part 'app_controller/academy.dart';
+
+class AppController extends _AppControllerBase
+    with
+        _SearchMixin,
+        _RoadmapMixin,
+        _CommercialMixin,
+        _ParcoursMixin,
+        _AcademyMixin {
+  AppController({required super.repository, super.apiClient});
+
+  static const int shellTabCount = StudentShellTab.count;
+}
+
+abstract class _AppControllerBase extends GetxController {
   static const int shellTabCount = StudentShellTab.count;
 
-  AppController({
+  _AppControllerBase({
     required AppRepository repository,
     AppApiClient? apiClient,
   })  : _repository = repository,
@@ -123,12 +141,10 @@ class AppController extends GetxController {
 
   // ── Parcours (Chantier C) — KPB YouTube playlist ──────────────────────────
   final List<YoutubeVideo> _parcoursVideos = <YoutubeVideo>[];
-  List<YoutubeVideo> get parcoursVideos => List.unmodifiable(_parcoursVideos);
   bool isLoadingParcours = false;
   String? parcoursError;
   // True once the backend confirms a YOUTUBE_API_KEY is configured.
   bool parcoursConfigured = true;
-  static const _parcoursCacheKey = 'parcours_videos';
 
   List<SavedItem> get savedItems => List.unmodifiable(_savedItems);
   List<StudentCase> get cases => List.unmodifiable(_cases);
@@ -138,8 +154,6 @@ class AppController extends GetxController {
   List<String> get purchasedCourseIds => List.unmodifiable(_purchasedCourseIds);
   Map<String, List<String>> get pendingOrientationAnswers =>
       Map.unmodifiable(_pendingOrientationAnswers);
-  List<CommercialLead> get commercialLeads =>
-      List.unmodifiable(_commercialLeads);
 
   bool get isStudent => profile?.accountType == AccountType.student;
   bool get isParent => profile?.accountType == AccountType.parent;
@@ -469,121 +483,17 @@ class AppController extends GetxController {
     update();
   }
 
-  AcademyCourseModel? getAcademyCourse(String? id) {
-    if (id == null) return null;
-    return academyCourses.firstWhereOrNull((c) => c.id == id);
-  }
 
-  List<AcademyLessonModel> getCourseLessons(String courseId) {
-    return MockCatalog.academyLessons[courseId] ?? [];
-  }
 
-  bool hasPurchased(String courseId) {
-    return _purchasedCourseIds.contains(courseId);
-  }
 
-  void purchaseCourse(String courseId) {
-    if (!_purchasedCourseIds.contains(courseId)) {
-      _purchasedCourseIds.add(courseId);
-      _persist();
-      update();
-    }
-  }
 
   // ── Roadmap Management ───────────────────────────────────────────────────
 
-  bool isStepCompleted(String scholarshipId, RoadmapStepType type) {
-    return _completedRoadmapSteps[scholarshipId]?.contains(type.name) ?? false;
-  }
 
-  void toggleRoadmapStep(String scholarshipId, RoadmapStepType type) {
-    HapticFeedback.selectionClick();
-    final steps = _completedRoadmapSteps[scholarshipId] ?? [];
-    if (steps.contains(type.name)) {
-      steps.remove(type.name);
-    } else {
-      steps.add(type.name);
-    }
-    _completedRoadmapSteps[scholarshipId] = steps;
-    _persist();
-    update();
-  }
 
-  Map<String, dynamic>? getNextUrgentMilestone() {
-    // ... logic is fine ...
-    return _findNextStep(
-        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id)));
-  }
 
-  double getChildOverallProgressPercentage() {
-    final saved =
-        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
-    if (saved.isEmpty) return 0.0;
 
-    int totalSteps = saved.length * RoadmapEngine.getSteps().length;
-    int completedCount = 0;
 
-    for (final s in saved) {
-      completedCount += (_completedRoadmapSteps[s.id]?.length ?? 0);
-    }
-
-    return completedCount / totalSteps;
-  }
-
-  Map<String, dynamic> getEstimatedFinancialSummary() {
-    // Mock financial data based on profile
-    final p = profile;
-    double tuition = 12000; // Mock average
-    double lifestyle = 8000;
-
-    if (p != null) {
-      if (p.targetCountryIds.contains('canada')) {
-        tuition = 15000;
-        lifestyle = 10000;
-      } else if (p.targetCountryIds.contains('france')) {
-        tuition = 5000;
-        lifestyle = 8000;
-      }
-    }
-
-    final savedScholarships =
-        scholarships.where((s) => isSaved(SavedItemType.scholarship, s.id));
-    double totalSavings =
-        savedScholarships.length * 5000.0; // Mock scholarship value
-
-    return {
-      'totalCost': (tuition + lifestyle),
-      'potentialSavings': totalSavings,
-      'gap': (tuition + lifestyle) - totalSavings,
-    };
-  }
-
-  Map<String, dynamic>? _findNextStep(
-      Iterable<ScholarshipModel> savedScholarships) {
-    final now = DateTime.now();
-    Map<String, dynamic>? closest;
-    DateTime? closestDate;
-
-    for (final s in savedScholarships) {
-      final deadline =
-          RoadmapEngine.calculateDate(now.add(const Duration(days: 90)), 0);
-      final steps = RoadmapEngine.getSteps();
-
-      for (final step in steps) {
-        if (!isStepCompleted(s.id, step.type)) {
-          final stepDate =
-              RoadmapEngine.calculateDate(deadline, step.daysBeforeDeadline);
-          if (stepDate.isAfter(now)) {
-            if (closestDate == null || stepDate.isBefore(closestDate)) {
-              closestDate = stepDate;
-              closest = {'scholarship': s, 'step': step, 'date': stepDate};
-            }
-          }
-        }
-      }
-    }
-    return closest;
-  }
 
   /// Public pull-to-refresh — calls syncRemoteData and returns when done.
   ///
@@ -722,147 +632,9 @@ class AppController extends GetxController {
     );
   }
 
-  Future<void> fetchCommercialLeads({String filter = 'all'}) async {
-    if (!isCommercial || !AppConfig.enableRemoteSync) return;
-    final email = profile?.email;
-    if (email == null || email.isEmpty) return;
-    // Dedup the simultaneous startup fetch from the Leads + Conversations tabs.
-    if (isLoadingCommercialLeads) return;
 
-    isLoadingCommercialLeads = true;
-    commercialLeadsError = null;
-    update();
 
-    try {
-      final items = await _apiClient.listCommercialLeads(
-        email: email,
-        filter: filter,
-      );
-      _commercialLeads
-        ..clear()
-        ..addAll(items);
-    } catch (e, s) {
-      commercialLeadsError = userFacingSyncError(e, localeCode);
-      safeRecordError(
-        e,
-        s,
-        reason: 'fetchCommercialLeads',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'fetch_commercial_leads',
-      );
-    } finally {
-      isLoadingCommercialLeads = false;
-      update();
-    }
-  }
 
-  Future<void> updateCommercialLeadTag(
-    String caseId, {
-    required String leadTag,
-    String? discussionMotive,
-  }) async {
-    if (!AppConfig.enableRemoteSync) return;
-    try {
-      await _apiClient.updateCommercialLead(
-        caseId,
-        leadTag: leadTag,
-        discussionMotive: discussionMotive,
-      );
-      await fetchCommercialLeads();
-    } catch (e, s) {
-      safeRecordError(
-        e,
-        s,
-        reason: 'updateCommercialLeadTag',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'update_commercial_lead',
-      );
-      rethrow;
-    }
-  }
-
-  Future<void> fetchCommercialStats() async {
-    if (!isCommercial || !AppConfig.enableRemoteSync) return;
-    final email = profile?.email;
-    if (email == null || email.isEmpty) return;
-
-    isLoadingCommercialStats = true;
-    update();
-
-    try {
-      final data = await _apiClient.getCommercialStats(email: email);
-      commercialStats = CommercialStats.fromApi(data);
-    } catch (e, s) {
-      safeRecordError(
-        e,
-        s,
-        reason: 'fetchCommercialStats',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'fetch_commercial_stats',
-      );
-    } finally {
-      isLoadingCommercialStats = false;
-      update();
-    }
-  }
-
-  /// Hydrate the Parcours videos from the offline cache, then refresh from the
-  /// backend YouTube proxy when online. Safe to call repeatedly.
-  Future<void> fetchParcoursVideos({bool force = false}) async {
-    // 1. Offline-first: hydrate from Hive cache if we have nothing yet.
-    if (_parcoursVideos.isEmpty && CatalogCacheService.isInitialized) {
-      final cached = CatalogCacheService.instance.read(_parcoursCacheKey);
-      if (cached.isNotEmpty) {
-        _parcoursVideos
-          ..clear()
-          ..addAll(cached
-              .whereType<Map<String, dynamic>>()
-              .map(YoutubeVideo.fromApi));
-        update();
-      }
-    }
-
-    if (!AppConfig.enableRemoteSync) return;
-    if (isLoadingParcours) return;
-    if (!force && _parcoursVideos.isNotEmpty && parcoursConfigured) {
-      // Already populated this session; skip redundant network call.
-      return;
-    }
-
-    isLoadingParcours = true;
-    parcoursError = null;
-    update();
-
-    try {
-      final result = await _apiClient.listParcoursVideos();
-      parcoursConfigured = result.configured;
-      if (result.items.isNotEmpty) {
-        _parcoursVideos
-          ..clear()
-          ..addAll(result.items);
-        if (CatalogCacheService.isInitialized) {
-          await CatalogCacheService.instance.write(
-            _parcoursCacheKey,
-            result.items.map((v) => v.toJson()).toList(),
-          );
-        }
-      }
-    } catch (e, s) {
-      if (_parcoursVideos.isEmpty) {
-        parcoursError = userFacingSyncError(e, localeCode);
-      }
-      safeRecordError(
-        e,
-        s,
-        reason: 'fetchParcoursVideos',
-        domain: CrashlyticsObsDomain.sync,
-        operation: 'fetch_parcours_videos',
-      );
-    } finally {
-      isLoadingParcours = false;
-      update();
-    }
-  }
 
   // ── Orientation progress persistence ──────────────────────────
 
@@ -893,61 +665,19 @@ class AppController extends GetxController {
 
   // ── Search ──────────────────────────────────────────────────
 
-  AppSearchContext get _searchContext => AppSearchContext(
-        localeCode: localeCode,
-        fields: fields,
-        countries: countries,
-        institutions: institutions,
-        programs: programs,
-        scholarships: scholarships,
-        profile: profile,
-        latestOrientationSession: latestOrientationSession,
-      );
 
-  AppSearchService get _searchService => AppSearchService(_searchContext);
 
-  void addSearchQuery(String query) {
-    final trimmed = query.trim();
-    if (trimmed.isEmpty) return;
-    _searchHistory.remove(trimmed);
-    _searchHistory.insert(0, trimmed);
-    if (_searchHistory.length > 10) _searchHistory.removeLast();
-    _persist();
-    AnalyticsService.instance.logSearch(trimmed);
-  }
 
-  void clearSearchHistory() {
-    _searchHistory.clear();
-    _persist();
-    update();
-  }
 
-  List<SearchResult> search(String query) => _searchService.run(query);
 
-  int fieldMatch(FieldModel field) => _searchService.fieldMatch(field);
 
-  int programMatch(ProgramModel program) =>
-      _searchService.programMatch(program);
 
-  int institutionMatch(InstitutionModel institution) =>
-      _searchService.institutionMatch(institution);
 
-  List<FieldModel> get recommendedFields => _searchService.recommendedFields;
 
-  List<ProgramModel> get recommendedPrograms =>
-      _searchService.recommendedPrograms;
 
-  List<InstitutionModel> get recommendedInstitutions =>
-      _searchService.recommendedInstitutions;
 
-  List<String> matchExplanation(SearchResultType type, String id) =>
-      _searchService.matchExplanation(type, id);
 
-  List<ScholarshipModel> get recommendedScholarships =>
-      _searchService.recommendedScholarships;
 
-  int scholarshipMatch(ScholarshipModel scholarship) =>
-      _searchService.scholarshipMatch(scholarship);
 
   StudentCase submitCase({
     required CaseType type,

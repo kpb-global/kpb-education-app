@@ -16,9 +16,14 @@ void main() {
         AppRoutes.normalizeExternalRoute(AppRoutes.caseCreate),
         AppRoutes.caseCreate,
       );
+    });
+
+    test('rejects the live-scholarships route under the MVP lock', () {
+      // `/scholarships` (live aggregator) is a V1.1+ module gated by
+      // KPB_MVP_ONLY (default true in the test environment).
       expect(
         AppRoutes.normalizeExternalRoute(AppRoutes.scholarships),
-        AppRoutes.scholarships,
+        isNull,
       );
     });
 
@@ -59,10 +64,11 @@ void main() {
 
       expect(names, contains(AppRoutes.home));
       expect(names, contains(AppRoutes.search));
-      expect(names, contains(AppRoutes.scholarships));
       expect(names, contains(AppRoutes.caseCreate));
       expect(names, contains(AppRoutes.caseDetail));
-      expect(names.length, equals(5));
+      // `/scholarships` (live aggregator) is gated out under the MVP lock.
+      expect(names, isNot(contains(AppRoutes.scholarships)));
+      expect(names.length, equals(4));
     });
   });
 }

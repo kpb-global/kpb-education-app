@@ -25,31 +25,30 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('displays first page title (Bienvenue)', (tester) async {
+    testWidgets('displays first page title', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Page 0 title is "Bienvenue 👋"
       expect(
         find.byWidgetPredicate(
-          (w) => w is Text && (w.data?.contains('Bienvenue') ?? false),
+          (w) => w is Text && (w.data?.contains('Tu es ?') ?? false),
         ),
         findsOneWidget,
       );
     });
 
-    testWidgets('displays page counter "1 / 3" on first page', (tester) async {
+    testWidgets('displays page counter "Étape 1/6" on first page',
+        (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Default accountType is student → 3 pages
       expect(
         find.byWidgetPredicate(
-          (w) => w is Text && w.data == '1 / 3',
+          (w) => w is Text && w.data == 'Étape 1/6',
         ),
         findsOneWidget,
       );
@@ -84,25 +83,24 @@ void main() {
       expect(pageView.physics, isA<NeverScrollableScrollPhysics>());
     });
 
-    testWidgets('has text form fields for name and email on page 0',
-        (tester) async {
-      await pumpTestApp(
-        tester,
-        child: const OnboardingScreen(),
-      );
-
-      // Page 0 (Identity) should have TextFormField widgets
-      expect(find.byType(TextFormField), findsWidgets);
-    });
-
     testWidgets('displays account type selectors on page 0', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Should have Text widgets for the page content
-      expect(find.byType(Text), findsWidgets);
+      expect(find.text('Étudiant'), findsOneWidget);
+      expect(find.text('Parent d\'élève'), findsOneWidget);
+      expect(find.text('Partenaire (école / agence)'), findsOneWidget);
+    });
+
+    testWidgets('has no identity text fields on page 0', (tester) async {
+      await pumpTestApp(
+        tester,
+        child: const OnboardingScreen(),
+      );
+
+      expect(find.byType(TextFormField), findsNothing);
     });
   });
 }

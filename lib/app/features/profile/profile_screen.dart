@@ -5,8 +5,6 @@ import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';

@@ -16,17 +16,42 @@ class ConnectivityService {
   bool get isOnline => _isOnline;
 
   Timer? _timer;
+  Timer? _reconnectDebounce;
+  StreamSubscription<bool>? _reconnectSubscription;
+  bool _monitoring = false;
   final _controller = StreamController<bool>.broadcast();
   Stream<bool> get onConnectivityChanged => _controller.stream;
 
-  /// Start periodic checks every 15s.
+  /// Start periodic checks every 30s.
   void startMonitoring() {
+    if (_monitoring) return;
+    _monitoring = true;
     _check();
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 30), (_) => _check());
+  }
+
+  /// Registers the reconnect sync handler (replaces any previous binding).
+  void bindReconnectSync(Future<void> Function() onReconnect) {
+    _reconnectSubscription?.cancel();
+    _reconnectSubscription = onConnectivityChanged.listen((online) {
+      if (online) {
+        _reconnectDebounce?.cancel();
+        _reconnectDebounce = Timer(const Duration(seconds: 3), () async {
+          if (_isOnline) {
+            await onReconnect();
+          }
+        });
+      } else {
+        _reconnectDebounce?.cancel();
+      }
+    });
   }
 
   void dispose() {
     _timer?.cancel();
+    _reconnectDebounce?.cancel();
+    _reconnectSubscription?.cancel();
     _controller.close();
   }
 

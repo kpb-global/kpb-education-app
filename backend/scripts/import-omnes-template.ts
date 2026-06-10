@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 // Template importer for OMNES catalog source file:
 // OMNES_FALL_26_TOUT_PROGRAMME_030426.xlsx
@@ -108,7 +108,7 @@ async function main() {
     }))
     .filter((r) => r.programName.length > 0);
 
-  const outputDir = path.resolve(process.cwd(), 'backend', 'scripts', 'output');
+  const outputDir = path.resolve(__dirname, 'output');
   ensureOutputDir(outputDir);
   const outputPath = path.join(outputDir, 'omnes-programs-normalized.json');
   fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2), 'utf-8');

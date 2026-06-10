@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/config/app_routes.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../explore/country_detail_screen.dart';
+import '../explore/program_detail_screen.dart';
 import 'match_explanation_sheet.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -69,11 +69,10 @@ class _SearchScreenState extends State<SearchScreen> {
       case SearchResultType.country:
         Get.to(() => CountryDetailScreen(countryId: result.id));
       case SearchResultType.institution:
-        _ctrl.goToTab(1); // Explorer tab
+        _ctrl.goToTab(StudentShellTab.universities);
         Get.back();
       case SearchResultType.program:
-        _ctrl.goToTab(1); // Explorer tab
-        Get.back();
+        Get.to(() => ProgramDetailScreen(programId: result.id));
       case SearchResultType.scholarship:
         Get.back();
         Get.toNamed(AppRoutes.scholarships);

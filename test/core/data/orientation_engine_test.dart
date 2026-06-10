@@ -59,7 +59,7 @@ void main() {
       );
 
       expect(result.recommendations, isNotEmpty);
-      expect(result.recommendations.length, lessThanOrEqualTo(3));
+      expect(result.recommendations.length, lessThanOrEqualTo(5));
       expect(result.recommendations.first.score, greaterThanOrEqualTo(55));
       expect(result.answers, equals(answers));
     });

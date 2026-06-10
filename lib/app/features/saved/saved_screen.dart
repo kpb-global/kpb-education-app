@@ -3,23 +3,12 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
+import '../../core/utils/study_level.dart';
 import '../deadlines/deadline_calendar_screen.dart';
+import '../explore/program_detail_screen.dart';
 import '../explore/country_detail_screen.dart';
-
-const _countryFlags = <String, String>{
-  'usa': '🇺🇸',
-  'canada': '🇨🇦',
-  'france': '🇫🇷',
-  'uk': '🇬🇧',
-  'morocco': '🇲🇦',
-  'turkey': '🇹🇷',
-  'germany': '🇩🇪',
-  'spain': '🇪🇸',
-  'china': '🇨🇳',
-};
 
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});
@@ -42,7 +31,7 @@ class SavedScreen extends StatelessWidget {
             items.where((e) => e.type == SavedItemType.program).toList();
 
         return KpbRefresh(
-          onRefresh: controller.refresh,
+          onRefresh: controller.pullToRefresh,
           child: CustomScrollView(
             slivers: [
               // ── Header ─────────────────────────────────────────────────
@@ -200,7 +189,7 @@ class SavedScreen extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              _countryFlags[country.id] ?? '🌍',
+                              countryFlag(country.id),
                               style: const TextStyle(fontSize: 22),
                             ),
                           ),
@@ -269,7 +258,10 @@ class SavedScreen extends StatelessWidget {
                         ),
                         title: controller.resolve(program.name),
                         subtitle:
-                            '${controller.resolve(program.level)} · ${controller.resolve(program.duration)}',
+                            '${programLevelLabel(controller.resolve(program.level))} · ${controller.resolve(program.duration)}',
+                        onTap: () => Get.to(
+                          () => ProgramDetailScreen(programId: program.id),
+                        ),
                         onRemove: () =>
                             controller.toggleSaved(item.type, item.itemId),
                       );

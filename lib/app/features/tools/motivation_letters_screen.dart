@@ -4,9 +4,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import 'motivation_letter_templates.dart';
 
 /// Motivation Letters — browse templates, personalise with AI (FR + EN).

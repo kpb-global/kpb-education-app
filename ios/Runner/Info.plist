@@ -45,6 +45,10 @@
 	<string>KPB Education utilise la caméra pour photographier vos pièces jointes de dossier lorsque vous choisissez cette option.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>KPB Education accède à vos photos uniquement lorsque vous sélectionnez une image pour un document ou une pièce jointe.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>KPB Education utilise le micro pour dicter votre message lors d'une demande d'accompagnement.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>KPB Education convertit votre voix en texte pour remplir le message de votre demande.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
 import '../explore/country_detail_screen.dart';
@@ -20,6 +19,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
   final Map<String, List<String>> _answers = {};
   int _questionIndex = 0;
   bool _showResults = false;
+  bool _isSubmitting = false;
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -65,6 +65,25 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   _showResults = false;
                 });
               },
+            ),
+          );
+        }
+
+        if (_isSubmitting || _ctrl.isSubmittingOrientation) {
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: KpbSpacing.md),
+                  Text(
+                    'Analyse de vos réponses…',
+                    style: KpbTextStyles.body,
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -246,8 +265,19 @@ class _OrientationScreenState extends State<OrientationScreen> {
                               _ctrl.saveOrientationProgress(
                                   _answers, _questionIndex);
                             } else {
-                              _ctrl.submitOrientation(_answers);
-                              setState(() => _showResults = true);
+                              setState(() => _isSubmitting = true);
+                              _ctrl
+                                  .submitOrientation(_answers)
+                                  .then((_) {
+                                if (!mounted) return;
+                                setState(() {
+                                  _isSubmitting = false;
+                                  _showResults = true;
+                                });
+                              }).catchError((_) {
+                                if (!mounted) return;
+                                setState(() => _isSubmitting = false);
+                              });
                             }
                           },
                     child: Text(
@@ -460,12 +490,24 @@ class _ResultsView extends StatelessWidget {
               children: [
                 // Primary: explore results
                 FilledButton.icon(
+                  icon: const Icon(Icons.school_rounded, size: 18),
+                  label: const Text('Voir les écoles'),
+                  onPressed: () {
+                    final topField = (result.recommendations as List).isNotEmpty
+                        ? (result.recommendations as List).first.fieldId
+                            as String
+                        : null;
+                    Get.back();
+                    controller.goToUniversitiesForField(topField);
+                  },
+                ),
+                const SizedBox(height: KpbSpacing.sm),
+                OutlinedButton.icon(
                   icon: const Icon(Icons.explore_rounded, size: 18),
                   label: const Text('Explorer mes résultats'),
                   onPressed: () {
-                    // Back to shell then switch to Explorer tab
                     Get.back();
-                    controller.goToTab(1);
+                    controller.goToTab(StudentShellTab.universities);
                   },
                 ),
                 const SizedBox(height: KpbSpacing.sm),
@@ -569,6 +611,14 @@ class _RecommendationCard extends StatelessWidget {
                       const KpbBadge(
                           label: '⭐ Meilleur match', color: KpbColors.blue),
                     if (isBest) const SizedBox(height: 4),
+                    if (rec.iaResilience == 'high')
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: KpbBadge(
+                          label: '🛡 Résilient à l\'IA',
+                          color: KpbColors.success,
+                        ),
+                      ),
                     Text(controller.resolve(field.name),
                         style: KpbTextStyles.title),
                   ],
@@ -616,6 +666,25 @@ class _RecommendationCard extends StatelessWidget {
             controller.resolve(rec.explanation),
             style: KpbTextStyles.body,
           ),
+          if ((rec.jobs as List<String>).isNotEmpty) ...[
+            const SizedBox(height: KpbSpacing.md),
+            Text(
+              'Métiers visés',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: context.kpb.textMuted,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: (rec.jobs as List<String>).map((job) {
+                return KpbBadge(label: job, color: accentColor);
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: KpbSpacing.md),
 
           // ── Countries ────────────────────────────────────────────────
@@ -700,20 +769,22 @@ class _RecommendationCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () =>
-                      controller.toggleSaved(SavedItemType.field, field.id),
-                  style: OutlinedButton.styleFrom(
+                child: FilledButton(
+                  onPressed: () {
+                    controller.goToUniversitiesForField(field.id);
+                    Get.back();
+                  },
+                  style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  child: Text(saved ? '✓ Sauvegardé' : 'Sauvegarder'),
+                  child: const Text('Voir les écoles'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: FilledButton(
+                child: OutlinedButton(
                   onPressed: () => showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
@@ -723,7 +794,7 @@ class _RecommendationCard extends StatelessWidget {
                       contextLabel: controller.resolve(field.name),
                     ),
                   ),
-                  style: FilledButton.styleFrom(
+                  style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),

@@ -246,4 +246,56 @@ export class NotificationsService {
       })),
     };
   }
+
+  async campaignStats(campaignId: string) {
+    this.assertDb();
+    const groups = await this.prismaService.execute((prisma) =>
+      prisma.notificationDelivery.groupBy({
+        by: ['channel', 'status'],
+        where: { campaignId },
+        _count: { _all: true },
+      }),
+    );
+
+    const byChannel: Record<
+      string,
+      { sent: number; delivered: number; failed: number; total: number }
+    > = {};
+
+    for (const group of groups ?? []) {
+      const ch = group.channel as string;
+      if (!byChannel[ch]) {
+        byChannel[ch] = { sent: 0, delivered: 0, failed: 0, total: 0 };
+      }
+      const count = group._count._all;
+      byChannel[ch].total += count;
+      if (group.status === 'delivered') byChannel[ch].delivered += count;
+      else if (group.status === 'queued' || group.status === 'sent')
+        byChannel[ch].sent += count;
+      else if (group.status === 'failed') byChannel[ch].failed += count;
+    }
+
+    const totalDeliveries = Object.values(byChannel).reduce(
+      (sum, ch) => sum + ch.total,
+      0,
+    );
+    const totalDelivered = Object.values(byChannel).reduce(
+      (sum, ch) => sum + ch.delivered,
+      0,
+    );
+
+    return {
+      campaignId,
+      byChannel,
+      totals: {
+        sent: totalDeliveries,
+        delivered: totalDelivered,
+        failed: Object.values(byChannel).reduce((s, c) => s + c.failed, 0),
+        deliveryRate:
+          totalDeliveries > 0
+            ? Math.round((totalDelivered / totalDeliveries) * 100)
+            : 0,
+      },
+    };
+  }
 }

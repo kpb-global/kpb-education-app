@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { HttpException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { StudentAuthService } from './student-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MagicLinkMailService } from './magic-link-mail.service';
 
 const mockPrismaService = {
   execute: jest.fn(),
@@ -11,6 +12,10 @@ const mockPrismaService = {
 const mockJwtService = {
   sign: jest.fn(),
   verify: jest.fn(),
+};
+
+const mockMagicLinkMailService = {
+  sendMagicLink: jest.fn().mockResolvedValue(undefined),
 };
 
 describe('StudentAuthService', () => {
@@ -27,6 +32,10 @@ describe('StudentAuthService', () => {
         {
           provide: JwtService,
           useValue: mockJwtService,
+        },
+        {
+          provide: MagicLinkMailService,
+          useValue: mockMagicLinkMailService,
         },
       ],
     }).compile();

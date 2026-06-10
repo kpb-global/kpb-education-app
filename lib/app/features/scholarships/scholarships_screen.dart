@@ -1,32 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../academy/academy_course_screen.dart';
 import 'widgets/roadmap_timeline_view.dart';
 import '../../core/data/roadmap_engine.dart';
-
-const _countryFlags = <String, String>{
-  'usa': '🇺🇸',
-  'canada': '🇨🇦',
-  'france': '🇫🇷',
-  'uk': '🇬🇧',
-  'morocco': '🇲🇦',
-  'turkey': '🇹🇷',
-  'germany': '🇩🇪',
-  'spain': '🇪🇸',
-  'china': '🇨🇳',
-  'belgium': '🇧🇪',
-  'italy': '🇮🇹',
-  'portugal': '🇵🇹',
-  'germany_de': '🇩🇪',
-};
 
 class ScholarshipsScreen extends StatelessWidget {
   const ScholarshipsScreen({super.key});
@@ -61,7 +45,7 @@ class ScholarshipsScreen extends StatelessWidget {
                 ),
                 if (controller.syncError != null)
                   SliverToBoxAdapter(
-                    child: KpbSyncErrorBanner(onRetry: controller.refresh),
+                    child: KpbSyncErrorBanner(onRetry: controller.pullToRefresh),
                   ),
                 SliverToBoxAdapter(
                   child: Padding(
@@ -175,7 +159,7 @@ class _ScholarshipCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      _countryFlags[s.countryId] ?? '🌍',
+                      countryFlag(s.countryId),
                       style: const TextStyle(fontSize: 26),
                     ),
                   ),
@@ -473,7 +457,8 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           isDark: isDark,
         ),
         const SizedBox(height: KpbSpacing.md),
-        if (s.academyCourseId != null) ...[
+        // KPB Academy is a V1.1+ module (hidden under MVP lock).
+        if (!AppConfig.mvpOnly && s.academyCourseId != null) ...[
           _AcademyCtaCard(courseId: s.academyCourseId!, isDark: isDark),
           const SizedBox(height: KpbSpacing.md),
         ],

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'app_config.dart';
 import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
 import '../../features/scholarships/live_scholarships_screen.dart';
@@ -40,7 +41,13 @@ class AppRoutes {
       return '/cases/$caseId';
     }
 
-    const known = <String>{home, search, caseCreate, scholarships};
+    final known = <String>{
+      home,
+      search,
+      caseCreate,
+      // Live-scholarships aggregator is a V1.1+ module.
+      if (!AppConfig.mvpOnly) scholarships,
+    };
     if (known.contains(route)) return route;
     return null;
   }
@@ -54,10 +61,12 @@ class AppRoutes {
       name: search,
       page: () => const SearchScreen(),
     ),
-    GetPage(
-      name: scholarships,
-      page: () => const LiveScholarshipsScreen(),
-    ),
+    // Live-scholarships aggregator is a V1.1+ module (hidden under MVP lock).
+    if (!AppConfig.mvpOnly)
+      GetPage(
+        name: scholarships,
+        page: () => const LiveScholarshipsScreen(),
+      ),
     GetPage(
       name: caseCreate,
       page: () => const CaseCreateScreen(),

@@ -63,3 +63,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Generated backend script outputs
+backend/scripts/output/

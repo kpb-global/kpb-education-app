@@ -14,11 +14,31 @@ Seeds the 9 launch countries required by the KPB product scope.
 npm --prefix backend run import:omnes -- "/absolute/path/to/OMNES_FALL_26_TOUT_PROGRAMME_030426.xlsx"
 ```
 
+Bundled workbook (repo):
+
+```bash
+npm --prefix backend run import:omnes:bundled
+```
+
 This generates:
 
-- `backend/scripts/output/omnes-programs-normalized.json`
+- `backend/scripts/output/omnes-programs-normalized.json` (747 programmes)
 
-The script is validation-first and does **not** write to DB directly.
+## 3) Full catalog seed (M5 countries + OMNES programs)
+
+```bash
+npm --prefix backend run seed:catalog
+```
+
+Runs `seed:countries-m5`, then `seed:omnes` (747 programmes), then `seed:partners` (76 programmes annexe 05).
+
+Total attendu en base : **~825 programmes** (747 OMNES + 76 partenaires).
+
+## 4) Partner schools only (annexe 05)
+
+```bash
+npm --prefix backend run seed:partners
+```
 
 ## Prerequisites
 

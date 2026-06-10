@@ -9,7 +9,7 @@ class KpbColors {
 
   // ── Brand ────────────────────────────────────────────────────────────────
   static const navy = Color(0xFF1E3A6E);
-  static const blue = Color(0xFF1E4C93);
+  static const blue = Color(0xFF004AAD);
   static const blueMid = Color(0xFF2D5FBA);
   static const sky = Color(0xFF4EADEA);
   static const skyLight = Color(0xFFE8F5FD);
@@ -168,7 +168,7 @@ class KpbShadow {
 
   static const blue = [
     BoxShadow(
-      color: Color(0x261E4C93),
+      color: Color(0x26004AAD),
       blurRadius: 20,
       offset: Offset(0, 8),
     ),

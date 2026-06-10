@@ -80,6 +80,11 @@ enum FundingType {
   unknown
 }
 
+enum CoachMessageRole {
+  user
+  assistant
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Phase 3 — Value proposition enums
 // ─────────────────────────────────────────────────────────────────────────────
@@ -134,6 +139,10 @@ enum SalonSessionStatus {
 model UserProfile {
   id                   String                   @id @default(cuid())
   accountType          AccountType
+  // Supabase Auth user id (JWT `sub`). Null for legacy/home-grown accounts
+  // not yet migrated. Used by SupabaseAuthGuard to map a verified token to a
+  // local profile.
+  supabaseUserId       String?                  @unique
   preferredLanguage    String
   fullName             String
   email                String                   @unique
@@ -194,6 +203,20 @@ model StudentCredential {
   userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
 }
 
+/// Email magic-link / one-time code tokens (purged after use or expiry).
+model MagicLinkToken {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+}
+
 model DeviceToken {
   id            String      @id @default(cuid())
   userProfileId String
@@ -228,12 +251,11 @@ model Case {
   // ── Parent mode (Track C1) ──────────────────────────────────────────────
   parentCanView           Boolean                @default(false)
   // ── Phase 3 — Zero-friction entry ───────────────────────────────────────
-  // Every new case grants one free counsellor message. After the student (or
-  // counsellor) replies to that first message, the case is considered to have
-  // consumed its free-message quota and subsequent counsellor messages require
-  // a paid ServicePackage (consultation) purchase. `freeMessageConsumed` is
-  // flipped by CaseMessagingGateway on the second counsellor→student reply.
   freeMessageConsumed     Boolean                @default(false)
+  // ── M9 Commercial ops ───────────────────────────────────────────────────
+  leadTag                 String?
+  discussionMotive        String?
+  lastCommercialInteractionAt DateTime?
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
   user                    UserProfile            @relation(fields: [userId], references: [id])
@@ -538,10 +560,36 @@ model Field {
 
 model Country {
   id                    String   @id @default(cuid())
+  code                  String   @unique
+  flagEmoji             String   @default("🌍")
   nameFr                String
   nameEn                String
+  taglineFr             String   @default("")
+  taglineEn             String   @default("")
+  nextIntakeLabelFr     String   @default("")
+  nextIntakeLabelEn     String   @default("")
+  mainLanguageFr        String   @default("")
+  mainLanguageEn        String   @default("")
   whyStudyFr            String
   whyStudyEn            String
+  marketingDescriptionFr String  @default("")
+  marketingDescriptionEn String  @default("")
+  whyStudyBulletsFr     String[] @default([])
+  whyStudyBulletsEn     String[] @default([])
+  howItWorksFr          String   @default("")
+  howItWorksEn          String   @default("")
+  costsOverviewFr       String   @default("")
+  costsOverviewEn       String   @default("")
+  languageSectionFr     String   @default("")
+  languageSectionEn     String   @default("")
+  partnerSchoolsFr      String   @default("")
+  partnerSchoolsEn      String   @default("")
+  scholarshipsSectionFr String   @default("")
+  scholarshipsSectionEn String   @default("")
+  whatsAppPrefillFr     String   @default("")
+  whatsAppPrefillEn     String   @default("")
+  mvpNoteFr             String   @default("")
+  mvpNoteEn             String   @default("")
   tuitionRangeFr        String
   tuitionRangeEn        String
   livingCostRangeFr     String
@@ -551,8 +599,23 @@ model Country {
   admissionDifficultyFr String
   admissionDifficultyEn String
   popularFieldIds       String[]
+  displayOrder          Int      @default(0)
+  isActive              Boolean  @default(true)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  eligibilityQuiz       CountryEligibilityQuiz?
+
+  @@index([isActive, displayOrder])
+}
+
+model CountryEligibilityQuiz {
+  id        String   @id @default(cuid())
+  countryId String   @unique
+  questions Json
+  verdicts  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
 }
 
 model Institution {
@@ -1051,4 +1114,45 @@ model SalonRegistration {
   @@unique([sessionId, userId])
   @@index([userId])
   @@index([sessionId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Coach IA — persisted conversations (replaces the in-memory store)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CoachConversation {
+  id        String         @id @default(cuid())
+  userId    String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  messages  CoachMessage[]
+
+  @@index([userId])
+}
+
+model CoachMessage {
+  id             String            @id @default(cuid())
+  conversationId String
+  role           CoachMessageRole
+  content        String
+  createdAt      DateTime          @default(now())
+  conversation   CoachConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Orientation IA — persisted sessions (replaces the in-memory store)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model OrientationSession {
+  id              String   @id @default(cuid())
+  userId          String?
+  answers         Json
+  recommendations Json
+  iaModelUsed     String?
+  nextActions     Json?
+  completedAt     DateTime @default(now())
+
+  @@index([userId])
 }

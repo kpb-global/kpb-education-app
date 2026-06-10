@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 import { AuthService } from './auth.service';
 import { AdminUsersService } from '../admin-users/admin-users.service';
 
 const mockAdminUsersService = {
   findActiveUserByEmail: jest.fn(),
+  findActiveUserByEmailWithCredentials: jest.fn(),
+  updateRefreshToken: jest.fn(),
 };
 
 describe('AuthService', () => {
@@ -19,11 +22,19 @@ describe('AuthService', () => {
           provide: AdminUsersService,
           useValue: mockAdminUsersService,
         },
+        {
+          provide: JwtService,
+          useValue: new JwtService({ secret: 'auth-service-test-secret' }),
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     jest.clearAllMocks();
+    mockAdminUsersService.findActiveUserByEmailWithCredentials.mockResolvedValue(
+      null,
+    );
+    mockAdminUsersService.updateRefreshToken.mockResolvedValue(null);
   });
 
   it('throws UnauthorizedException when login email is unknown', async () => {

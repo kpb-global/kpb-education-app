@@ -4,11 +4,14 @@ import {
   UnauthorizedException,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { MagicLinkMailService } from './magic-link-mail.service';
 
 export interface StudentTokenUser {
   id: string;
@@ -25,6 +28,8 @@ interface LoginAttempt {
 
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
+const MAGIC_LINK_RESEND_COOLDOWN_MS = 60 * 1000;
 
 @Injectable()
 export class StudentAuthService {
@@ -37,10 +42,12 @@ export class StudentAuthService {
   })();
 
   private readonly loginAttempts = new Map<string, LoginAttempt>();
+  private readonly magicLinkCooldown = new Map<string, number>();
 
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly magicLinkMailService: MagicLinkMailService,
   ) {}
 
   async register(input: {
@@ -193,6 +200,136 @@ export class StudentAuthService {
     }
   }
 
+  async requestMagicLink(email: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const now = Date.now();
+    const lastSent = this.magicLinkCooldown.get(normalizedEmail);
+    if (lastSent != null && now - lastSent < MAGIC_LINK_RESEND_COOLDOWN_MS) {
+      const secondsLeft = Math.ceil(
+        (MAGIC_LINK_RESEND_COOLDOWN_MS - (now - lastSent)) / 1000,
+      );
+      throw new HttpException(
+        `Veuillez patienter ${secondsLeft}s avant de renvoyer un code.`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const recordId = randomBytes(12).toString('hex');
+    const secret = randomBytes(24).toString('hex');
+    const token = `${recordId}.${secret}`;
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const tokenHash = await bcrypt.hash(secret, 10);
+    const codeHash = await bcrypt.hash(code, 10);
+    const expiresAt = new Date(now + MAGIC_LINK_TTL_MS);
+
+    await this.prismaService.execute((prisma) =>
+      prisma.$transaction(async (tx) => {
+        await tx.magicLinkToken.deleteMany({
+          where: {
+            email: normalizedEmail,
+            OR: [{ usedAt: { not: null } }, { expiresAt: { lt: new Date() } }],
+          },
+        });
+        await tx.magicLinkToken.create({
+          data: {
+            id: recordId,
+            email: normalizedEmail,
+            tokenHash,
+            codeHash,
+            expiresAt,
+          },
+        });
+      }),
+    );
+
+    await this.magicLinkMailService.sendMagicLink(normalizedEmail, {
+      token,
+      code,
+    });
+    this.magicLinkCooldown.set(normalizedEmail, now);
+
+    const isDev = process.env.NODE_ENV !== 'production';
+    return {
+      message: 'Magic link sent.',
+      expiresInSeconds: MAGIC_LINK_TTL_MS / 1000,
+      email: normalizedEmail,
+      ...(isDev ? { devCode: code, devToken: token } : {}),
+    };
+  }
+
+  async verifyMagicLink(input: {
+    token?: string;
+    email?: string;
+    code?: string;
+  }) {
+    const record = await this.resolveMagicLinkRecord(input);
+    if (!record) {
+      throw new UnauthorizedException('Code ou lien invalide ou expiré.');
+    }
+
+    if (record.usedAt || record.expiresAt.getTime() < Date.now()) {
+      throw new UnauthorizedException('Code ou lien invalide ou expiré.');
+    }
+
+    const normalizedEmail = record.email;
+    let userId: string;
+
+    const existing = await this.prismaService.execute((prisma) =>
+      prisma.studentCredential.findUnique({
+        where: { email: normalizedEmail },
+        include: { userProfile: true },
+      }),
+    );
+
+    if (existing) {
+      userId = existing.userProfile.id;
+    } else {
+      const placeholderPassword = await bcrypt.hash(
+        randomBytes(32).toString('hex'),
+        12,
+      );
+      const displayName =
+        normalizedEmail.split('@')[0]?.replace(/[._-]+/g, ' ').trim() ||
+        'Utilisateur';
+
+      const created = await this.prismaService.execute((prisma) =>
+        prisma.$transaction(async (tx) => {
+          const profile = await tx.userProfile.create({
+            data: {
+              accountType: 'student',
+              fullName: displayName.slice(0, 80),
+              email: normalizedEmail,
+              phone: '',
+              countryOfResidence: '',
+              preferredLanguage: 'fr',
+            },
+          });
+          await tx.studentCredential.create({
+            data: {
+              userProfileId: profile.id,
+              email: normalizedEmail,
+              passwordHash: placeholderPassword,
+            },
+          });
+          return profile;
+        }),
+      );
+      if (!created) {
+        throw new Error('Database unavailable.');
+      }
+      userId = created.id;
+    }
+
+    await this.prismaService.execute((prisma) =>
+      prisma.magicLinkToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      }),
+    );
+
+    return this.issueTokens({ id: userId, email: normalizedEmail });
+  }
+
   // ── Private helpers ────────────────────────────────────────────────────────
 
   private checkLoginAttempts(email: string): void {
@@ -222,6 +359,47 @@ export class StudentAuthService {
     } else {
       attempt.count++;
     }
+  }
+
+  private async resolveMagicLinkRecord(input: {
+    token?: string;
+    email?: string;
+    code?: string;
+  }) {
+    if (input.token?.trim()) {
+      const [recordId, secret] = input.token.trim().split('.', 2);
+      if (!recordId || !secret) {
+        throw new BadRequestException('Invalid magic link token format.');
+      }
+      const record = await this.prismaService.execute((prisma) =>
+        prisma.magicLinkToken.findUnique({ where: { id: recordId } }),
+      );
+      if (!record) return null;
+      const valid = await bcrypt.compare(secret, record.tokenHash);
+      return valid ? record : null;
+    }
+
+    const email = input.email?.trim().toLowerCase();
+    const code = input.code?.trim();
+    if (!email || !code) {
+      throw new BadRequestException(
+        'Provide either token or email + 6-digit code.',
+      );
+    }
+
+    const record = await this.prismaService.execute((prisma) =>
+      prisma.magicLinkToken.findFirst({
+        where: {
+          email,
+          usedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    );
+    if (!record) return null;
+    const valid = await bcrypt.compare(code, record.codeHash);
+    return valid ? record : null;
   }
 
   private async issueTokens(user: { id: string; email: string }) {
