@@ -54,7 +54,7 @@ class RoadmapTimelineView extends StatelessWidget {
         Get.snackbar('Academy', 'Redirection vers les tutoriels de rédaction...', backgroundColor: KpbColors.blue, colorText: Colors.white);
      } else if (route == '/consultation') {
         // Handle deep link to consultation
-        Get.snackbar('Consultation', 'Redirection vers l\'expert KPB...', backgroundColor: KpbColors.stitchDeepPurple, colorText: Colors.white);
+        Get.snackbar('Consultation', 'Redirection vers l\'expert KPB...', backgroundColor: KpbColors.blue, colorText: Colors.white);
      }
   }
 }

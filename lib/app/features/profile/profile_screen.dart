@@ -437,7 +437,7 @@ class ProfileScreen extends StatelessWidget {
                             _QuickAccessTile(
                               icon: Icons.holiday_village_rounded,
                               label: 'Logement Étudiant (France)',
-                              color: KpbColors.stitchDeepPurple,
+                              color: KpbColors.blueMid,
                               onTap: () =>
                                   Get.to(() => const HousingEstimatorScreen()),
                             ),
@@ -460,7 +460,7 @@ class ProfileScreen extends StatelessWidget {
                             label: controller.isParent
                                 ? 'Espace parent'
                                 : 'Mode parent',
-                            color: KpbColors.stitchDeepPurple,
+                            color: KpbColors.gold,
                             onTap: () =>
                                 Get.to(() => const ParentDashboardScreen()),
                           ),
@@ -494,7 +494,7 @@ class ProfileScreen extends StatelessWidget {
                           _QuickAccessTile(
                             icon: Icons.event,
                             label: 'Salon KPB Virtuel',
-                            color: KpbColors.stitchCyberCyan,
+                            color: KpbColors.success,
                             onTap: () => Get.to(() => const SalonScreen()),
                           ),
                         ],
