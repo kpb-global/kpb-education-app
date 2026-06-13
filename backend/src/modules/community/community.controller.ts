@@ -13,6 +13,7 @@ import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { CommunityService } from './community.service';
+import { UpsertForumTaxonomyDto } from './dto/upsert-forum-taxonomy.dto';
 
 @Controller()
 export class CommunityController {
@@ -48,7 +49,7 @@ export class CommunityController {
     InternalRole.Admin,
     InternalRole.SuperAdmin,
   )
-  createForumCategory(@Body() input: Record<string, unknown>) {
+  createForumCategory(@Body() input: UpsertForumTaxonomyDto) {
     return this.communityService.createForumCategory(input);
   }
 
@@ -62,7 +63,7 @@ export class CommunityController {
   )
   updateForumCategory(
     @Param('id') id: string,
-    @Body() input: Record<string, unknown>,
+    @Body() input: UpsertForumTaxonomyDto,
   ) {
     return this.communityService.updateForumCategory(id, input);
   }
@@ -87,7 +88,7 @@ export class CommunityController {
     InternalRole.Admin,
     InternalRole.SuperAdmin,
   )
-  createForumTag(@Body() input: Record<string, unknown>) {
+  createForumTag(@Body() input: UpsertForumTaxonomyDto) {
     return this.communityService.createForumTag(input);
   }
 
@@ -101,7 +102,7 @@ export class CommunityController {
   )
   updateForumTag(
     @Param('id') id: string,
-    @Body() input: Record<string, unknown>,
+    @Body() input: UpsertForumTaxonomyDto,
   ) {
     return this.communityService.updateForumTag(id, input);
   }

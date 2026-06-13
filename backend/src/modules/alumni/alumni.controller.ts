@@ -17,6 +17,9 @@ import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { AlumniService } from './alumni.service';
+import { ApplyAlumniDto } from './dto/apply-alumni.dto';
+import { DecideAlumniDto } from './dto/decide-alumni.dto';
+import { SetBadgeVisibleDto } from './dto/set-badge-visible.dto';
 
 type StudentReq = Request & { studentUser?: { id: string } };
 type AdminReq = Request & { adminUser?: { id?: string; sub?: string } };
@@ -52,24 +55,12 @@ export class MyAlumniController {
   }
 
   @Post('apply')
-  apply(
-    @Req() req: StudentReq,
-    @Body()
-    body: {
-      alumniUniversity: string;
-      alumniProgramme: string;
-      alumniGraduationYear: number;
-      alumniCountryCode?: string;
-      alumniBioFr?: string;
-      alumniBioEn?: string;
-      alumniProofUrl: string;
-    },
-  ) {
+  apply(@Req() req: StudentReq, @Body() body: ApplyAlumniDto) {
     return this.alumniService.apply(req.studentUser!.id, body);
   }
 
   @Patch('badge-visible')
-  setVisible(@Req() req: StudentReq, @Body() body: { visible: boolean }) {
+  setVisible(@Req() req: StudentReq, @Body() body: SetBadgeVisibleDto) {
     return this.alumniService.setBadgeVisible(req.studentUser!.id, body.visible);
   }
 }
@@ -92,7 +83,7 @@ export class AdminAlumniController {
   decide(
     @Req() req: AdminReq,
     @Param('userId') userId: string,
-    @Body() body: { decision: 'approved' | 'rejected' },
+    @Body() body: DecideAlumniDto,
   ) {
     const adminId = req.adminUser?.id ?? req.adminUser?.sub ?? 'unknown-admin';
     return this.alumniService.decide(userId, adminId, body.decision);
