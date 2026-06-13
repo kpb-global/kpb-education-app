@@ -48,8 +48,16 @@ export class CampaignCronService {
         );
 
         this.logger.log(`Executing scheduled campaign ${campaign.id} ("${campaign.name}")`);
-        await this.campaignExecutor.execute(campaign.id).catch((error) => {
+        await this.campaignExecutor.execute(campaign.id).catch(async (error) => {
           this.logger.error(`Failed to execute scheduled campaign ${campaign.id}:`, error);
+          // Safety net: ensure the campaign never stays stuck in `Sending`,
+          // even if the executor threw before marking it Failed itself.
+          await this.prismaService.tryExecute((prisma) =>
+            prisma.notificationCampaign.update({
+              where: { id: campaign.id },
+              data: { status: NotificationCampaignStatus.Failed },
+            }),
+          );
         });
       }
     } catch (error) {

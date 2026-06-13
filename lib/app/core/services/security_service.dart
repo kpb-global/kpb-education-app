@@ -61,20 +61,20 @@ class SecurityService extends GetxService with WidgetsBindingObserver {
       final canCheckBiometrics = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
 
       if (!canCheckBiometrics) {
-        _isAuthenticating = false;
         return true; // Fallback to allowing access if device has no security
       }
 
-      final authenticated = await _auth.authenticate(
+      return await _auth.authenticate(
         localizedReason: 'Déverrouillez pour accéder à vos documents sécurisés KPB',
         persistAcrossBackgrounding: true,
       );
-      
-      _isAuthenticating = false;
-      return authenticated;
     } on PlatformException catch (_) {
+      return false;
+    } finally {
+      // Always reset, even on unexpected exception types — otherwise the flag
+      // stays true and the lock screen is never shown again (app lock silently
+      // stops working).
       _isAuthenticating = false;
-      return false; 
     }
   }
 }

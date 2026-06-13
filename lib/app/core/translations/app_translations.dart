@@ -140,6 +140,7 @@ class AppTranslations extends Translations {
           'status_cancelled': 'Annulé',
           'status_draft': 'Brouillon',
           // Case detail
+          'case_not_found': 'Ce dossier est introuvable.',
           'no_messages': 'Aucun message',
           'send_message_hint': 'Écris un message à ton conseiller.',
           'message_input_hint': 'Écrire un message…',
@@ -326,6 +327,7 @@ class AppTranslations extends Translations {
           'status_cancelled': 'Cancelled',
           'status_draft': 'Draft',
           // Case detail
+          'case_not_found': 'This case could not be found.',
           'no_messages': 'No messages',
           'send_message_hint': 'Send a message to your counselor.',
           'message_input_hint': 'Write a message…',

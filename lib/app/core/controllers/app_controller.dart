@@ -307,6 +307,7 @@ class AppController extends GetxController {
     if (saved.isEmpty) return 0.0;
 
     int totalSteps = saved.length * RoadmapEngine.getSteps().length;
+    if (totalSteps == 0) return 0.0; // guard against NaN if there are no steps
     int completedCount = 0;
 
     for (final s in saved) {

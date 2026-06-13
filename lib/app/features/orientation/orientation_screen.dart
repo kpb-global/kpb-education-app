@@ -67,6 +67,15 @@ class _OrientationScreenState extends State<OrientationScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        // A persisted index can exceed the current question count (e.g. the
+        // catalog changed since the answers were saved) — clamp before
+        // indexing to avoid a RangeError crash.
+        if (_questionIndex >= questions.length) {
+          _questionIndex = questions.length - 1;
+        } else if (_questionIndex < 0) {
+          _questionIndex = 0;
+        }
+
         final question = questions[_questionIndex];
         final selectedIds = _answers[question.id] ?? [];
         final progress = (_questionIndex + 1) / questions.length;
@@ -410,14 +419,22 @@ class _ResultsView extends StatelessWidget {
             itemBuilder: (ctx, i) {
               final rec =
                   (result.recommendations as List)[i];
-              final field = controller.fieldById(rec.fieldId);
+              // A recommendation can reference ids absent from the loaded
+              // (remote/cached) catalog — resolve null-safely instead of
+              // crashing with a StateError from the non-null accessors.
+              final field = controller.fieldByIdOrNull(rec.fieldId);
+              if (field == null) {
+                return const SizedBox.shrink();
+              }
               final countries = (rec.relatedCountryIds as List<String>)
-                  .map(controller.countryById)
+                  .map(controller.countryByIdOrNull)
+                  .whereType<CountryModel>()
                   .take(3)
                   .toList();
               final scholarships =
                   (rec.relatedScholarshipIds as List<String>)
-                      .map(controller.scholarshipById)
+                      .map(controller.scholarshipByIdOrNull)
+                      .whereType<ScholarshipModel>()
                       .take(3)
                       .toList();
               final isBest = i == 0;

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 
+import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
 import {
@@ -44,6 +45,7 @@ interface ArticleItem {
 }
 
 export default function ContentPage() {
+  const { session } = useAdminAuth();
   const [serviceOffers, setServiceOffers] = useState<ServiceOfferItem[]>([]);
   const [supportDestinations, setSupportDestinations] = useState<
     SupportDestinationItem[]
@@ -116,8 +118,12 @@ export default function ContentPage() {
   }
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void loadContent();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   async function submitOffer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

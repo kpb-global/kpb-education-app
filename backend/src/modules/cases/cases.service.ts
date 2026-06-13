@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
@@ -36,11 +37,14 @@ export class CasesService {
     }
   }
 
-  private async requireDbCase(id: string) {
+  private async requireDbCase(id: string, ownerUserId?: string) {
     const dbCase = await this.prismaService.execute((prisma) =>
       prisma.case.findUnique({ where: { id }, include: CASE_INCLUDE }),
     );
-    if (!dbCase) {
+    // When ownerUserId is provided (student-facing path) a case owned by
+    // another user must be indistinguishable from a missing case to avoid
+    // leaking its existence (IDOR protection).
+    if (!dbCase || (ownerUserId && dbCase.userId !== ownerUserId)) {
       throw new NotFoundException(`Case ${id} not found.`);
     }
     return dbCase;
@@ -62,24 +66,24 @@ export class CasesService {
     return this.findAll();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, ownerUserId?: string) {
     this.assertDb();
-    const dbCase = await this.requireDbCase(id);
-    return this.mapDbCase(dbCase);
+    const dbCase = await this.requireDbCase(id, ownerUserId);
+    // Student-facing reads (ownerUserId set) must not expose counselor notes.
+    return this.mapDbCase(dbCase, { includeInternal: !ownerUserId });
   }
 
   async create(input: CreateCaseDto, userId?: string) {
     this.assertDb();
-    const now = new Date();
-    const count =
-      (await this.prismaService.execute((prisma) => prisma.case.count())) ?? 0;
-    const refCode = `KPB-${now.getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
+        // Insert with a temporary unique placeholder, then derive the real
+        // referenceCode from the DB-assigned `seq`. This is collision-free by
+        // construction (no count()+1 race).
         const c = await tx.case.create({
           data: {
-            referenceCode: refCode,
+            referenceCode: `PENDING-${randomUUID()}`,
             userId: userId ?? 'demo-user',
             type: input.type,
             status: CaseStatus.Submitted,
@@ -92,6 +96,12 @@ export class CasesService {
             nextStepDescription:
               'The KPB team will review your request and assign a counselor.',
           },
+        });
+
+        const refCode = `KPB-${c.createdAt.getFullYear()}-${String(c.seq).padStart(3, '0')}`;
+        await tx.case.update({
+          where: { id: c.id },
+          data: { referenceCode: refCode },
         });
 
         await tx.caseTimelineEvent.create({
@@ -133,9 +143,9 @@ export class CasesService {
     return this.mapDbCase(created);
   }
 
-  async update(id: string, input: UpdateCaseDto) {
+  async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const updated = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -183,11 +193,14 @@ export class CasesService {
     if (!updated) {
       throw new ServiceUnavailableException('Failed to update case.');
     }
-    return this.mapDbCase(updated);
+    return this.mapDbCase(updated, { includeInternal: !ownerUserId });
   }
 
-  async findMessages(id: string) {
+  async findMessages(id: string, ownerUserId?: string) {
     this.assertDb();
+    if (ownerUserId) {
+      await this.requireDbCase(id, ownerUserId);
+    }
     const messages = await this.prismaService.execute((prisma) =>
       prisma.caseMessage.findMany({
         where: { caseId: id },
@@ -203,9 +216,13 @@ export class CasesService {
     }));
   }
 
-  async createMessage(id: string, input: CreateCaseMessageDto) {
+  async createMessage(
+    id: string,
+    input: CreateCaseMessageDto,
+    ownerUserId?: string,
+  ) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -247,9 +264,13 @@ export class CasesService {
     };
   }
 
-  async uploadDocument(id: string, input: UploadCaseDocumentDto) {
+  async uploadDocument(
+    id: string,
+    input: UploadCaseDocumentDto,
+    ownerUserId?: string,
+  ) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -475,7 +496,8 @@ export class CasesService {
     return this.createTimelineEvent(id, { title, description });
   }
 
-  private mapDbCase(c: any) {
+  private mapDbCase(c: any, opts: { includeInternal?: boolean } = {}) {
+    const includeInternal = opts.includeInternal ?? true;
     return {
       id: c.id,
       userId: c.userId,
@@ -515,13 +537,15 @@ export class CasesService {
         status: t.status,
         createdAt: t.createdAt.toISOString(),
       })),
-      internalNotes: (c.internalNotes ?? []).map((n: any) => ({
-        id: n.id,
-        authorName: n.authorName,
-        authorRole: n.authorRole,
-        body: n.body,
-        createdAt: n.createdAt.toISOString(),
-      })),
+      internalNotes: includeInternal
+        ? (c.internalNotes ?? []).map((n: any) => ({
+            id: n.id,
+            authorName: n.authorName,
+            authorRole: n.authorRole,
+            body: n.body,
+            createdAt: n.createdAt.toISOString(),
+          }))
+        : [],
       timeline: (c.timelineEvents ?? []).map((e: any) => ({
         id: e.id,
         title: e.title,

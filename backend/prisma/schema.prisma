@@ -145,6 +145,11 @@ model UserProfile {
   languageLevel        String?
   gradeRange           String?
   wantsScholarship     Boolean                  @default(false)
+  // Per-user interest selections (previously held in a shared in-memory
+  // singleton, which leaked across users). Now persisted per profile.
+  fieldIds             String[]                 @default([])
+  targetCountryIds     String[]                 @default([])
+  availableDocuments   String[]                 @default([])
   consentedAt          DateTime?
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
@@ -208,6 +213,9 @@ model DeviceToken {
 model Case {
   id                      String                 @id @default(cuid())
   referenceCode           String                 @unique
+  // DB-assigned monotonic counter used to build a collision-free
+  // referenceCode (replaces the racy count()+1 scheme).
+  seq                     Int                    @unique @default(autoincrement())
   userId                  String
   type                    CaseType
   status                  CaseStatus

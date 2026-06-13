@@ -97,9 +97,21 @@ export class ServicePackagesService {
     caseId?: string;
     returnUrl: string;
     cancelUrl: string;
-    customer: { email: string; phone: string; fullName: string };
+    customer?: { email?: string; phone?: string; fullName?: string };
   }) {
     const pkg = await this.getPublic(input.packageCode);
+
+    // Resolve customer details from the stored profile. The access-token
+    // payload only carries id/email, so phone/fullName passed by the
+    // controller are undefined — mobile-money providers require a real phone.
+    const profile = await this.prismaService.execute((prisma) =>
+      prisma.userProfile.findUnique({ where: { id: input.userId } }),
+    );
+    const customer = {
+      email: profile?.email || input.customer?.email || '',
+      phone: profile?.phone || input.customer?.phone || '',
+      fullName: profile?.fullName || input.customer?.fullName || '',
+    };
 
     const purchase = await this.prismaService.execute((prisma) =>
       prisma.servicePurchase.create({
@@ -123,7 +135,7 @@ export class ServicePackagesService {
       currency: 'XOF',
       caseId: input.caseId,
       description: `KPB — ${pkg.nameFr}`,
-      customer: input.customer,
+      customer,
       returnUrl: input.returnUrl,
       cancelUrl: input.cancelUrl,
     });

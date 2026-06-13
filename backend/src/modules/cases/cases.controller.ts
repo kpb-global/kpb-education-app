@@ -42,8 +42,8 @@ export class CasesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.casesService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.casesService.findOne(id, req.studentUser.id);
   }
 
   @Post()
@@ -52,26 +52,35 @@ export class CasesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() input: UpdateCaseDto) {
-    return this.casesService.update(id, input);
+  update(
+    @Param('id') id: string,
+    @Body() input: UpdateCaseDto,
+    @Req() req: any,
+  ) {
+    return this.casesService.update(id, input, req.studentUser.id);
   }
 
   @Get(':id/messages')
-  findMessages(@Param('id') id: string) {
-    return this.casesService.findMessages(id);
+  findMessages(@Param('id') id: string, @Req() req: any) {
+    return this.casesService.findMessages(id, req.studentUser.id);
   }
 
   @Post(':id/messages')
-  createMessage(@Param('id') id: string, @Body() input: CreateCaseMessageDto) {
-    return this.casesService.createMessage(id, input);
+  createMessage(
+    @Param('id') id: string,
+    @Body() input: CreateCaseMessageDto,
+    @Req() req: any,
+  ) {
+    return this.casesService.createMessage(id, input, req.studentUser.id);
   }
 
   @Post(':id/documents')
   registerDocument(
     @Param('id') id: string,
     @Body() input: UploadCaseDocumentDto,
+    @Req() req: any,
   ) {
-    return this.casesService.uploadDocument(id, input);
+    return this.casesService.uploadDocument(id, input, req.studentUser.id);
   }
 
   @Post(':id/documents/upload')
@@ -80,6 +89,7 @@ export class CasesController {
     @Param('id') id: string,
     @Body() input: UploadCaseDocumentDto,
     @UploadedFile() file: UploadedMulterFile | undefined,
+    @Req() req: any,
   ) {
     if (!file) {
       throw new BadRequestException('File is required under field "file".');
@@ -94,9 +104,13 @@ export class CasesController {
       file.originalname,
       file.mimetype,
     );
-    return this.casesService.uploadDocument(id, {
-      title: input.title || file.originalname,
-      fileUrl: stored.url,
-    });
+    return this.casesService.uploadDocument(
+      id,
+      {
+        title: input.title || file.originalname,
+        fileUrl: stored.url,
+      },
+      req.studentUser.id,
+    );
   }
 }

@@ -18,7 +18,9 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { ServicePackagesService } from './service-packages.service';
 
-type AuthedReq = Request & { studentUser?: { id: string; email: string; fullName: string; phone: string } };
+// The student access-token payload only carries id/email/role; fullName and
+// phone are resolved from the stored profile in the service layer.
+type AuthedReq = Request & { studentUser?: { id: string; email: string } };
 
 /**
  * Public catalog — no auth. Parents browsing the app before login still
@@ -72,11 +74,8 @@ export class MyPurchasesController {
       caseId: body.caseId,
       returnUrl: body.returnUrl,
       cancelUrl: body.cancelUrl,
-      customer: {
-        email: user.email,
-        phone: user.phone,
-        fullName: user.fullName,
-      },
+      // phone/fullName are resolved from the profile inside the service.
+      customer: { email: user.email },
     });
   }
 

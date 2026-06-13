@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 
+import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
 import {
@@ -31,6 +32,7 @@ function splitList(value: string) {
 }
 
 export default function UsersPage() {
+  const { session } = useAdminAuth();
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -64,8 +66,12 @@ export default function UsersPage() {
   }
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void loadUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const selectedUser = useMemo(
     () => users.find((item) => item.id === selectedUserId) ?? null,
