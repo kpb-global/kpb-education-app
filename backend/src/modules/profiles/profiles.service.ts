@@ -68,6 +68,13 @@ export class ProfilesService {
           ...(input.wantsScholarshipSupport !== undefined
             ? { wantsScholarship: input.wantsScholarshipSupport }
             : {}),
+          ...(input.fieldIds ? { fieldIds: input.fieldIds } : {}),
+          ...(input.targetCountryIds
+            ? { targetCountryIds: input.targetCountryIds }
+            : {}),
+          ...(input.availableDocuments
+            ? { availableDocuments: input.availableDocuments }
+            : {}),
         },
       }),
     );
@@ -100,12 +107,9 @@ export class ProfilesService {
       languageLevel: p.languageLevel,
       gradeRange: p.gradeRange,
       wantsScholarshipSupport: p.wantsScholarship,
-      // These are not persisted on UserProfile (no columns). Return empty
-      // arrays per-user instead of leaking shared in-memory values. Persisting
-      // them requires a schema migration (tracked separately).
-      fieldIds: [] as string[],
-      targetCountryIds: [] as string[],
-      availableDocuments: [] as string[],
+      fieldIds: p.fieldIds,
+      targetCountryIds: p.targetCountryIds,
+      availableDocuments: p.availableDocuments,
       updatedAt: p.updatedAt.toISOString(),
     };
   }

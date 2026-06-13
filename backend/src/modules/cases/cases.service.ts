@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
@@ -74,93 +75,72 @@ export class CasesService {
 
   async create(input: CreateCaseDto, userId?: string) {
     this.assertDb();
-    const now = new Date();
-    // referenceCode is @unique and derived from a live count, so two
-    // concurrent creates can compute the same code. Retry on the resulting
-    // unique-constraint violation, recomputing the count each attempt, so a
-    // collision yields the next code instead of a hard failure.
-    const MAX_ATTEMPTS = 5;
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const count =
-        (await this.prismaService.execute((prisma) => prisma.case.count())) ?? 0;
-      const refCode = `KPB-${now.getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
-      try {
-        const created = await this.prismaService.execute((prisma) =>
-          prisma.$transaction(async (tx) => {
-            const c = await tx.case.create({
-              data: {
-                referenceCode: refCode,
-                userId: userId ?? 'demo-user',
-                type: input.type,
-                status: CaseStatus.Submitted,
-                title: input.title,
-                description: input.description,
-                contextLabel: input.contextLabel,
-                preferredContactMethod: input.preferredContactMethod ?? 'in_app',
-                source: 'mobile_app',
-                nextStepTitle: 'Your case is under review',
-                nextStepDescription:
-                  'The KPB team will review your request and assign a counselor.',
-              },
-            });
+    const created = await this.prismaService.execute((prisma) =>
+      prisma.$transaction(async (tx) => {
+        // Insert with a temporary unique placeholder, then derive the real
+        // referenceCode from the DB-assigned `seq`. This is collision-free by
+        // construction (no count()+1 race).
+        const c = await tx.case.create({
+          data: {
+            referenceCode: `PENDING-${randomUUID()}`,
+            userId: userId ?? 'demo-user',
+            type: input.type,
+            status: CaseStatus.Submitted,
+            title: input.title,
+            description: input.description,
+            contextLabel: input.contextLabel,
+            preferredContactMethod: input.preferredContactMethod ?? 'in_app',
+            source: 'mobile_app',
+            nextStepTitle: 'Your case is under review',
+            nextStepDescription:
+              'The KPB team will review your request and assign a counselor.',
+          },
+        });
 
-            await tx.caseTimelineEvent.create({
-              data: {
-                caseId: c.id,
-                status: CaseStatus.Submitted,
-                title: 'Case submitted',
-                description:
-                  'The student created a new case from the mobile app.',
-              },
-            });
+        const refCode = `KPB-${c.createdAt.getFullYear()}-${String(c.seq).padStart(3, '0')}`;
+        await tx.case.update({
+          where: { id: c.id },
+          data: { referenceCode: refCode },
+        });
 
-            await tx.caseMessage.create({
-              data: {
-                caseId: c.id,
-                senderRole: 'system',
-                senderName: 'KPB Operations',
-                body: 'Thank you. Your request has been received by the KPB team.',
-              },
-            });
+        await tx.caseTimelineEvent.create({
+          data: {
+            caseId: c.id,
+            status: CaseStatus.Submitted,
+            title: 'Case submitted',
+            description: 'The student created a new case from the mobile app.',
+          },
+        });
 
-            await tx.caseDocument.create({
-              data: {
-                caseId: c.id,
-                title: 'Academic profile',
-                isProvided: false,
-              },
-            });
+        await tx.caseMessage.create({
+          data: {
+            caseId: c.id,
+            senderRole: 'system',
+            senderName: 'KPB Operations',
+            body: 'Thank you. Your request has been received by the KPB team.',
+          },
+        });
 
-            return tx.case.findUnique({
-              where: { id: c.id },
-              include: CASE_INCLUDE,
-            });
-          }),
-        );
+        await tx.caseDocument.create({
+          data: {
+            caseId: c.id,
+            title: 'Academic profile',
+            isProvided: false,
+          },
+        });
 
-        if (!created) {
-          throw new ServiceUnavailableException('Failed to create case.');
-        }
-        return this.mapDbCase(created);
-      } catch (error) {
-        // P2002 = unique constraint violation (referenceCode raced). Retry.
-        if (
-          error &&
-          typeof error === 'object' &&
-          'code' in error &&
-          (error as { code: string }).code === 'P2002' &&
-          attempt < MAX_ATTEMPTS - 1
-        ) {
-          continue;
-        }
-        throw error;
-      }
-    }
-
-    throw new ServiceUnavailableException(
-      'Could not allocate a unique case reference. Please retry.',
+        return tx.case.findUnique({
+          where: { id: c.id },
+          include: CASE_INCLUDE,
+        });
+      }),
     );
+
+    if (!created) {
+      throw new ServiceUnavailableException('Failed to create case.');
+    }
+    return this.mapDbCase(created);
   }
 
   async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
