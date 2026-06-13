@@ -60,7 +60,6 @@ class KpbColors {
   static const glassBg = Color(0x19FFFFFF);
   static const stitchCyberCyan = Color(0xFF00E5FF);
   static const stitchDeepPurple = Color(0xFF6B21A8);
-  static const stitchNeonRed = Color(0xFFFF2A5F);
   
   // ── Aliases ──────────────────────────────────────────────────────────────
   static const primary = blue;
@@ -95,11 +94,6 @@ class KpbColors {
     end: Alignment.bottomRight,
   );
 
-  static const stitchHeroGradient = LinearGradient(
-    colors: [stitchCyberCyan, stitchDeepPurple],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
