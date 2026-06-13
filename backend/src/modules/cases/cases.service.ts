@@ -75,66 +75,92 @@ export class CasesService {
   async create(input: CreateCaseDto, userId?: string) {
     this.assertDb();
     const now = new Date();
-    const count =
-      (await this.prismaService.execute((prisma) => prisma.case.count())) ?? 0;
-    const refCode = `KPB-${now.getFullYear()}-${String(count + 1).padStart(3, '0')}`;
+    // referenceCode is @unique and derived from a live count, so two
+    // concurrent creates can compute the same code. Retry on the resulting
+    // unique-constraint violation, recomputing the count each attempt, so a
+    // collision yields the next code instead of a hard failure.
+    const MAX_ATTEMPTS = 5;
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const count =
+        (await this.prismaService.execute((prisma) => prisma.case.count())) ?? 0;
+      const refCode = `KPB-${now.getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
-    const created = await this.prismaService.execute((prisma) =>
-      prisma.$transaction(async (tx) => {
-        const c = await tx.case.create({
-          data: {
-            referenceCode: refCode,
-            userId: userId ?? 'demo-user',
-            type: input.type,
-            status: CaseStatus.Submitted,
-            title: input.title,
-            description: input.description,
-            contextLabel: input.contextLabel,
-            preferredContactMethod: input.preferredContactMethod ?? 'in_app',
-            source: 'mobile_app',
-            nextStepTitle: 'Your case is under review',
-            nextStepDescription:
-              'The KPB team will review your request and assign a counselor.',
-          },
-        });
+      try {
+        const created = await this.prismaService.execute((prisma) =>
+          prisma.$transaction(async (tx) => {
+            const c = await tx.case.create({
+              data: {
+                referenceCode: refCode,
+                userId: userId ?? 'demo-user',
+                type: input.type,
+                status: CaseStatus.Submitted,
+                title: input.title,
+                description: input.description,
+                contextLabel: input.contextLabel,
+                preferredContactMethod: input.preferredContactMethod ?? 'in_app',
+                source: 'mobile_app',
+                nextStepTitle: 'Your case is under review',
+                nextStepDescription:
+                  'The KPB team will review your request and assign a counselor.',
+              },
+            });
 
-        await tx.caseTimelineEvent.create({
-          data: {
-            caseId: c.id,
-            status: CaseStatus.Submitted,
-            title: 'Case submitted',
-            description: 'The student created a new case from the mobile app.',
-          },
-        });
+            await tx.caseTimelineEvent.create({
+              data: {
+                caseId: c.id,
+                status: CaseStatus.Submitted,
+                title: 'Case submitted',
+                description:
+                  'The student created a new case from the mobile app.',
+              },
+            });
 
-        await tx.caseMessage.create({
-          data: {
-            caseId: c.id,
-            senderRole: 'system',
-            senderName: 'KPB Operations',
-            body: 'Thank you. Your request has been received by the KPB team.',
-          },
-        });
+            await tx.caseMessage.create({
+              data: {
+                caseId: c.id,
+                senderRole: 'system',
+                senderName: 'KPB Operations',
+                body: 'Thank you. Your request has been received by the KPB team.',
+              },
+            });
 
-        await tx.caseDocument.create({
-          data: {
-            caseId: c.id,
-            title: 'Academic profile',
-            isProvided: false,
-          },
-        });
+            await tx.caseDocument.create({
+              data: {
+                caseId: c.id,
+                title: 'Academic profile',
+                isProvided: false,
+              },
+            });
 
-        return tx.case.findUnique({
-          where: { id: c.id },
-          include: CASE_INCLUDE,
-        });
-      }),
-    );
+            return tx.case.findUnique({
+              where: { id: c.id },
+              include: CASE_INCLUDE,
+            });
+          }),
+        );
 
-    if (!created) {
-      throw new ServiceUnavailableException('Failed to create case.');
+        if (!created) {
+          throw new ServiceUnavailableException('Failed to create case.');
+        }
+        return this.mapDbCase(created);
+      } catch (error) {
+        // P2002 = unique constraint violation (referenceCode raced). Retry.
+        if (
+          error &&
+          typeof error === 'object' &&
+          'code' in error &&
+          (error as { code: string }).code === 'P2002' &&
+          attempt < MAX_ATTEMPTS - 1
+        ) {
+          continue;
+        }
+        throw error;
+      }
     }
-    return this.mapDbCase(created);
+
+    throw new ServiceUnavailableException(
+      'Could not allocate a unique case reference. Please retry.',
+    );
   }
 
   async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
