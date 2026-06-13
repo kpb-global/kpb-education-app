@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { UserProfile } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -7,7 +8,10 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfilesService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private profile = {
+  // Returned ONLY when the database is not configured. Kept readonly and never
+  // mutated — a previous mutable singleton leaked one user's profile fields
+  // into another user's responses (cross-tenant leak + race condition).
+  private readonly demoProfile = {
     id: 'demo-user',
     accountType: 'student',
     preferredLanguage: 'fr',
@@ -33,29 +37,7 @@ export class ProfilesService {
       prisma.userProfile.findUnique({ where: { id } }),
     );
 
-    if (dbProfile) {
-      return {
-        id: dbProfile.id,
-        accountType: dbProfile.accountType,
-        preferredLanguage: dbProfile.preferredLanguage,
-        fullName: dbProfile.fullName,
-        email: dbProfile.email,
-        phone: dbProfile.phone,
-        whatsApp: dbProfile.whatsApp,
-        countryOfResidence: dbProfile.countryOfResidence,
-        currentLevel: dbProfile.currentLevel,
-        targetLevel: dbProfile.targetLevel,
-        languageLevel: dbProfile.languageLevel,
-        gradeRange: dbProfile.gradeRange,
-        wantsScholarshipSupport: dbProfile.wantsScholarship,
-        fieldIds: this.profile.fieldIds,
-        targetCountryIds: this.profile.targetCountryIds,
-        availableDocuments: this.profile.availableDocuments,
-        updatedAt: dbProfile.updatedAt.toISOString(),
-      };
-    }
-
-    return this.profile;
+    return dbProfile ? this.mapDbProfile(dbProfile) : this.demoProfile;
   }
 
   async updateMe(input: UpdateProfileDto, userId?: string) {
@@ -91,39 +73,40 @@ export class ProfilesService {
     );
 
     if (updated) {
-      // Keep in-memory copy in sync for non-DB fields
-      this.profile = {
-        ...this.profile,
-        ...input,
-        updatedAt: updated.updatedAt.toISOString(),
-      };
-
-      return {
-        id: updated.id,
-        accountType: updated.accountType,
-        preferredLanguage: updated.preferredLanguage,
-        fullName: updated.fullName,
-        email: updated.email,
-        phone: updated.phone,
-        whatsApp: updated.whatsApp,
-        countryOfResidence: updated.countryOfResidence,
-        currentLevel: updated.currentLevel,
-        targetLevel: updated.targetLevel,
-        languageLevel: updated.languageLevel,
-        gradeRange: updated.gradeRange,
-        wantsScholarshipSupport: updated.wantsScholarship,
-        fieldIds: this.profile.fieldIds,
-        targetCountryIds: this.profile.targetCountryIds,
-        availableDocuments: this.profile.availableDocuments,
-        updatedAt: updated.updatedAt.toISOString(),
-      };
+      return this.mapDbProfile(updated);
     }
 
-    this.profile = {
-      ...this.profile,
+    // No database: return a per-request merge of the demo profile without
+    // mutating any shared state.
+    return {
+      ...this.demoProfile,
       ...input,
       updatedAt: new Date().toISOString(),
     };
-    return this.profile;
+  }
+
+  private mapDbProfile(p: UserProfile) {
+    return {
+      id: p.id,
+      accountType: p.accountType,
+      preferredLanguage: p.preferredLanguage,
+      fullName: p.fullName,
+      email: p.email,
+      phone: p.phone,
+      whatsApp: p.whatsApp,
+      countryOfResidence: p.countryOfResidence,
+      currentLevel: p.currentLevel,
+      targetLevel: p.targetLevel,
+      languageLevel: p.languageLevel,
+      gradeRange: p.gradeRange,
+      wantsScholarshipSupport: p.wantsScholarship,
+      // These are not persisted on UserProfile (no columns). Return empty
+      // arrays per-user instead of leaking shared in-memory values. Persisting
+      // them requires a schema migration (tracked separately).
+      fieldIds: [] as string[],
+      targetCountryIds: [] as string[],
+      availableDocuments: [] as string[],
+      updatedAt: p.updatedAt.toISOString(),
+    };
   }
 }
