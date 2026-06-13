@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 
+import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
 import {
@@ -44,6 +45,7 @@ interface NotificationDeliveryItem {
 }
 
 export default function NotificationsPage() {
+  const { session } = useAdminAuth();
   const [templates, setTemplates] = useState<NotificationTemplateItem[]>([]);
   const [campaigns, setCampaigns] = useState<NotificationCampaignItem[]>([]);
   const [deliveries, setDeliveries] = useState<NotificationDeliveryItem[]>([]);
@@ -107,27 +109,43 @@ export default function NotificationsPage() {
   }
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void loadNotifications();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     if (!selectedCampaignId) {
       setDeliveries([]);
       return;
     }
 
+    // Guard against an out-of-order resolution overwriting deliveries with
+    // stale data when the user switches campaigns quickly.
+    let cancelled = false;
     void apiFetch<{ items: NotificationDeliveryItem[] }>(
       `/admin/notifications/campaigns/${selectedCampaignId}/deliveries`,
     )
-      .then((response) => setDeliveries(response.items))
-      .catch((error) =>
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : 'Unable to load deliveries.',
-        ),
-      );
-  }, [selectedCampaignId]);
+      .then((response) => {
+        if (!cancelled) setDeliveries(response.items);
+      })
+      .catch((error) => {
+        if (!cancelled)
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : 'Unable to load deliveries.',
+          );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCampaignId, session]);
 
   async function submitTemplate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

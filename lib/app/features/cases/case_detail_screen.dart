@@ -129,7 +129,23 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<AppController>(
       builder: (_) {
-        final c = _ctrl.cases.firstWhere((e) => e.id == widget.caseId);
+        // The case can disappear from the list mid-session (e.g. its local id
+        // is swapped for the server id after a remote create), so look it up
+        // null-safely instead of crashing with a StateError.
+        final matches = _ctrl.cases.where((e) => e.id == widget.caseId);
+        if (matches.isEmpty) {
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            appBar: AppBar(backgroundColor: context.kpb.pageBg, elevation: 0),
+            body: Center(
+              child: Text(
+                'case_not_found'.tr,
+                style: KpbTextStyles.bodySm,
+              ),
+            ),
+          );
+        }
+        final c = matches.first;
         final statusInfo = _statusInfo(c.status);
 
         return Scaffold(
@@ -670,7 +686,7 @@ class _TimelineItem extends StatelessWidget {
     required this.ctrl,
   });
 
-  final dynamic event;
+  final CaseTimelineEvent event;
   final bool isLast;
   final AppController ctrl;
 
@@ -678,7 +694,7 @@ class _TimelineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final date =
         DateFormat('dd MMM yyyy', ctrl.localeCode).format(event.createdAt);
-    final dotColor = _dotColor(context, event.eventType as String? ?? '');
+    final dotColor = _dotColor(context, event.status);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -737,16 +753,27 @@ class _TimelineItem extends StatelessWidget {
     );
   }
 
-  Color _dotColor(BuildContext context, String type) {
-    switch (type) {
-      case 'status_change':
-        return KpbColors.blue;
-      case 'document_uploaded':
-        return KpbColors.success;
-      case 'message':
+  Color _dotColor(BuildContext context, CaseStatus status) {
+    switch (status) {
+      case CaseStatus.submitted:
         return KpbColors.sky;
-      case 'note':
+      case CaseStatus.underReview:
+      case CaseStatus.waitingDecision:
         return KpbColors.gold;
+      case CaseStatus.documentsNeeded:
+      case CaseStatus.awaitingPayment:
+        return KpbColors.warning;
+      case CaseStatus.counselorAssigned:
+      case CaseStatus.scheduled:
+      case CaseStatus.inProgress:
+        return KpbColors.blue;
+      case CaseStatus.applicationSubmitted:
+        return KpbColors.blueMid;
+      case CaseStatus.awaitingStudent:
+      case CaseStatus.rejected:
+        return KpbColors.error;
+      case CaseStatus.completed:
+        return KpbColors.success;
       default:
         return context.kpb.gray300;
     }

@@ -31,13 +31,19 @@ export class FirebasePushService implements OnModuleInit {
     }
   }
 
+  /**
+   * Sends a push to all of the user's registered devices.
+   * Returns `true` only if at least one device accepted the message, so
+   * callers can record an accurate delivery status (a no-op when push is
+   * disabled or the user has no tokens returns `false`).
+   */
   async sendToUser(
     userId: string,
     title: string,
     body: string,
     data?: Record<string, string>,
-  ) {
-    if (!this.initialized) return;
+  ): Promise<boolean> {
+    if (!this.initialized) return false;
 
     const tokens = await this.prismaService.execute((prisma) =>
       prisma.deviceToken.findMany({
@@ -46,7 +52,7 @@ export class FirebasePushService implements OnModuleInit {
       }),
     );
 
-    if (!tokens || tokens.length === 0) return;
+    if (!tokens || tokens.length === 0) return false;
 
     const message: admin.messaging.MulticastMessage = {
       tokens: tokens.map((t: { token: string }) => t.token),
@@ -76,8 +82,11 @@ export class FirebasePushService implements OnModuleInit {
         );
         this.logger.log(`Cleaned up ${tokensToDelete.length} invalid tokens.`);
       }
+
+      return response.successCount > 0;
     } catch (error) {
       this.logger.error(`Push notification failed for user ${userId}:`, error);
+      return false;
     }
   }
 }

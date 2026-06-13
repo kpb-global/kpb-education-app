@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 
+import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
 import {
@@ -39,6 +40,7 @@ interface ModerationItem {
 }
 
 export default function CommunityPage() {
+  const { session } = useAdminAuth();
   const [forumCategories, setForumCategories] = useState<ForumCategoryItem[]>(
     [],
   );
@@ -85,8 +87,12 @@ export default function CommunityPage() {
   }
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void loadCommunity();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   async function submitCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
 import { FirebasePushService } from './firebase-push.service';
@@ -28,6 +29,26 @@ export class CampaignExecutorService {
       return { enqueued: 0 };
     }
 
+    try {
+      return await this.run(campaign, campaignId);
+    } catch (error) {
+      // Never leave a campaign stuck in `Sending`: any failure transitions it
+      // to `Failed` so the cron won't re-pick it and operators can see it.
+      this.logger.error(`Campaign ${campaignId} execution failed:`, error);
+      await this.prismaService.tryExecute((prisma) =>
+        prisma.notificationCampaign.update({
+          where: { id: campaignId },
+          data: { status: NotificationCampaignStatus.Failed },
+        }),
+      );
+      throw error;
+    }
+  }
+
+  private async run(
+    campaign: NotificationCampaign,
+    campaignId: string,
+  ): Promise<{ enqueued: number }> {
     const templateRow = campaign.templateId
       ? await this.prismaService.execute((prisma) =>
           prisma.notificationTemplate.findUnique({
@@ -80,19 +101,28 @@ export class CampaignExecutorService {
           user.preferredLanguage === 'en' ? template.titleEn : template.titleFr;
         const body =
           user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
-        await this.pushService.sendToUser(user.id, title, body, {
+        const ok = await this.pushService.sendToUser(user.id, title, body, {
           campaignId,
           ...(campaign.linkedCaseId ? { caseId: campaign.linkedCaseId } : {}),
         });
-        delivered += 1;
-      }
+        if (ok) delivered += 1;
 
-      await this.prismaService.execute((prisma) =>
-        prisma.notificationDelivery.updateMany({
-          where: { campaignId, channel: 'push', status: 'queued' },
-          data: { status: 'delivered', deliveredAt: new Date() },
-        }),
-      );
+        // Record the real per-recipient outcome instead of blanket-marking
+        // every queued push as delivered (no token / send failure → failed).
+        await this.prismaService.execute((prisma) =>
+          prisma.notificationDelivery.updateMany({
+            where: {
+              campaignId,
+              recipientId: user.id,
+              channel: 'push',
+              status: 'queued',
+            },
+            data: ok
+              ? { status: 'delivered', deliveredAt: new Date() }
+              : { status: 'failed' },
+          }),
+        );
+      }
     }
 
     if (campaign.channels.includes('email') && template) {
@@ -137,7 +167,17 @@ export class CampaignExecutorService {
     return (
       (await this.prismaService.execute((prisma) => {
         switch (audienceType) {
-          case 'all_users':
+          case 'all_users': {
+            // Every account, including parents — no accountType filter.
+            return prisma.userProfile.findMany({
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
           case 'all_students': {
             return prisma.userProfile.findMany({
               where: { accountType: 'student' },
@@ -151,8 +191,10 @@ export class CampaignExecutorService {
           }
           case 'country': {
             const countryId = filters['countryId'] as string | undefined;
+            // A missing filter must NOT fall through to "everyone".
+            if (!countryId) return Promise.resolve([]);
             return prisma.userProfile.findMany({
-              where: countryId ? { countryOfResidence: countryId } : undefined,
+              where: { countryOfResidence: countryId },
               select: {
                 id: true,
                 fullName: true,

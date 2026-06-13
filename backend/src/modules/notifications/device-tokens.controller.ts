@@ -47,9 +47,14 @@ export class DeviceTokensController {
   }
 
   @Delete(':token')
-  async unregister(@Param('token') token: string) {
+  async unregister(@Param('token') token: string, @Req() req: any) {
+    const userId = req.studentUser.id as string;
+    // Scope deletion to the owner so a user cannot unregister another
+    // user's device token (denial of push notifications).
     await this.prismaService.execute((prisma) =>
-      prisma.deviceToken.delete({ where: { token } }),
+      prisma.deviceToken.deleteMany({
+        where: { token, userProfileId: userId },
+      }),
     );
     return { ok: true };
   }

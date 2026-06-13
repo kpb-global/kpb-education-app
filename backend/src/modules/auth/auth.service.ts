@@ -93,7 +93,7 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    let payload: { sub: string; type: string };
+    let payload: { sub: string; type: string; email: string };
     try {
       payload = this.jwtService.verify(refreshToken, {
         secret: this.refreshSecret,
