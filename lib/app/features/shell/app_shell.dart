@@ -164,7 +164,7 @@ class _NavItem extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     // Active colors
-    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final activeColor = KpbColors.blue;
     final inactiveColor = isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
 
     return GestureDetector(
@@ -180,7 +180,7 @@ class _NavItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? (isDark
-                  ? KpbColors.stitchCyberCyan.withValues(alpha: 0.15)
+                  ? KpbColors.blue.withValues(alpha: 0.15)
                   : KpbColors.skyLight)
               : Colors.transparent,
           borderRadius: KpbRadius.pillBr,

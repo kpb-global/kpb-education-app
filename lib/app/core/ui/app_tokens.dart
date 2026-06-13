@@ -51,15 +51,13 @@ class KpbColors {
   static const bgMuted = Color(0xFFF3F4F6);
   static const sand = Color(0xFFFFF4E5);
 
-  // ── Stitch Dark UI Theme ─────────────────────────────────────────────────
+  // ── Dark UI surfaces (glass nav, immersive screens) ──────────────────────
   static const bgDarkMidnight = Color(0xFF060D1A);
   static const bgDarkCard = Color(0xFF131A2A);
   static const textDarkPrimary = Colors.white;
   static const textDarkSecondary = Color(0xFF94A3B8);
   static const glassBorder = Color(0x33FFFFFF);
   static const glassBg = Color(0x19FFFFFF);
-  static const stitchCyberCyan = Color(0xFF00E5FF);
-  static const stitchDeepPurple = Color(0xFF6B21A8);
   
   // ── Aliases ──────────────────────────────────────────────────────────────
   static const primary = blue;

@@ -144,7 +144,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   _CompareRow(
                     label: 'Niveaux',
                     icon: Icons.school_outlined,
-                    iconColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    iconColor: KpbColors.blue,
                     value1: _TagsCell(inst1.studyLevels),
                     value2: _TagsCell(inst2.studyLevels),
                   ),
@@ -194,7 +194,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                       ),
                     ),
                     bgColor: Colors.transparent,
-                    textColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    textColor: KpbColors.blue,
                     icon: Icons.folder_open_rounded,
                   ),
                 ),
@@ -213,7 +213,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                       ),
                     ),
                     bgColor: Colors.transparent,
-                    textColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    textColor: KpbColors.blue,
                     icon: Icons.folder_open_rounded,
                   ),
                 ),
@@ -233,7 +233,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                       '${controller.resolve(inst1.name)} vs ${controller.resolve(inst2.name)}',
                 ),
               ),
-              bgColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+              bgColor: KpbColors.blue,
               icon: Icons.support_agent_rounded,
             ),
             const SizedBox(height: KpbSpacing.xl),
@@ -522,7 +522,7 @@ class _ScoreWidget extends StatelessWidget {
 
   Color _color(BuildContext context) {
     if (score >= 85) return KpbColors.success;
-    if (score >= 70) return isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    if (score >= 70) return KpbColors.blue;
     if (score >= 50) return KpbColors.gold;
     return context.kpb.gray400;
   }

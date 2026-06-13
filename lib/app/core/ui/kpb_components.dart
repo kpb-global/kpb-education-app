@@ -131,7 +131,7 @@ class SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: textColor == Colors.white ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                  color: textColor == Colors.white ? KpbColors.blue : KpbColors.blue,
                 ),
               ),
             ),

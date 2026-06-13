@@ -127,16 +127,16 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                     },
                     backgroundColor: context.kpb.cardBg,
                     selectedColor: isDark
-                        ? KpbColors.stitchCyberCyan.withValues(alpha: 0.2)
+                        ? KpbColors.blue.withValues(alpha: 0.2)
                         : KpbColors.skyLight,
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (KpbColors.blue)
                           : context.kpb.textSecondary,
                     ),
                     side: BorderSide(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (KpbColors.blue)
                           : context.kpb.gray200,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -266,7 +266,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                   case 3:
                     return _buildDetailRow(p.healthInsurance, mult, KpbColors.error, p.currency, Icons.health_and_safety_rounded, isDark);
                   case 4:
-                    return _buildDetailRow(p.internetMobile, mult, KpbColors.stitchDeepPurple, p.currency, Icons.wifi_rounded, isDark);
+                    return _buildDetailRow(p.internetMobile, mult, KpbColors.blueMid, p.currency, Icons.wifi_rounded, isDark);
                   case 5:
                   default:
                     return _buildDetailRow(p.leisureMisc, mult, KpbColors.gray400, p.currency, Icons.local_activity_rounded, isDark);
@@ -291,7 +291,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                ? (KpbColors.blue)
                 : Colors.transparent,
             borderRadius: KpbRadius.pillBr,
             boxShadow: isSelected && !isDark ? KpbShadow.soft : null,
@@ -338,7 +338,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
       createSection(p.food.typical, KpbColors.success),
       createSection(p.transport.typical, KpbColors.gold),
       createSection(p.healthInsurance.typical, KpbColors.error),
-      createSection(p.internetMobile.typical, KpbColors.stitchDeepPurple),
+      createSection(p.internetMobile.typical, KpbColors.blueMid),
       createSection(p.leisureMisc.typical, KpbColors.gray400),
     ];
   }
