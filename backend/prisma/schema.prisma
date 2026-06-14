@@ -1,0 +1,1062 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  student
+  parent
+  partner
+}
+
+enum InternalRole {
+  counselor
+  commercial
+  content_manager
+  moderator
+  admin
+  super_admin
+}
+
+enum CaseType {
+  consultation
+  application_support
+  scholarship_support
+  housing_support
+  mentorship
+}
+
+enum CaseStatus {
+  draft
+  submitted
+  under_review
+  documents_needed
+  counselor_assigned
+  awaiting_student
+  scheduled
+  in_progress
+  application_submitted
+  waiting_decision
+  awaiting_payment
+  completed
+  rejected
+  cancelled
+}
+
+enum PublicationStatus {
+  draft
+  published
+  archived
+}
+
+enum NotificationCampaignStatus {
+  draft
+  scheduled
+  sending
+  completed
+  failed
+}
+
+enum NotificationChannel {
+  push
+  in_app
+  email
+}
+
+enum VisaAvailabilityStatus {
+  available
+  full
+  unknown
+  error
+}
+
+enum FundingType {
+  fully_funded
+  partially_funded
+  unknown
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3 — Value proposition enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ServicePackageCategory {
+  dossier_pret // CV + motivation + recommendation review bundle
+  scholarship_kit // Bourse application kit (10k–25k FCFA)
+  visa_kit // Visa prep kit
+  consultation // One-off counsellor consult
+  other
+}
+
+enum ServicePurchaseStatus {
+  pending_payment // Purchase row created; waiting on PaymentIntent to settle
+  paid // Payment settled; delivery can begin
+  in_progress // KPB team is actively delivering
+  delivered // Deliverables handed over to the student
+  cancelled
+  refunded
+}
+
+enum AlumniVerificationStatus {
+  none
+  pending // Student submitted proof; awaiting admin review
+  approved // Verified — badge shown in community + mentor listing
+  rejected
+}
+
+enum PartnerCategory {
+  university // Campus France, AUF, Moroccan / Tunisian unis
+  bank // UBA, Ecobank, Orabank (student-loan referrals)
+  agency // Gov bodies, consulates
+  ngo
+  other
+}
+
+enum SalonEventStatus {
+  draft
+  scheduled
+  live
+  ended
+  cancelled
+}
+
+enum SalonSessionStatus {
+  scheduled
+  live
+  ended
+  cancelled
+}
+
+model UserProfile {
+  id                   String                   @id @default(cuid())
+  accountType          AccountType
+  preferredLanguage    String
+  fullName             String
+  email                String                   @unique
+  phone                String
+  whatsApp             String?
+  countryOfResidence   String
+  currentLevel         String?
+  targetLevel          String?
+  languageLevel        String?
+  gradeRange           String?
+  wantsScholarship     Boolean                  @default(false)
+  // Per-user interest selections (previously held in a shared in-memory
+  // singleton, which leaked across users). Now persisted per profile.
+  fieldIds             String[]                 @default([])
+  targetCountryIds     String[]                 @default([])
+  availableDocuments   String[]                 @default([])
+  consentedAt          DateTime?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  cases                Case[]
+  appointments         Appointment[]
+  savedItems           SavedItem[]
+  partnerLead          PartnerLead?
+  credential           StudentCredential?
+  deviceTokens         DeviceToken[]
+  purchases            AcademyPurchase[]
+  parentLinksAsParent  ParentChildLink[]        @relation("parentLink_parent")
+  parentLinksAsChild   ParentChildLink[]        @relation("parentLink_child")
+  paymentIntents       PaymentIntent[]
+  // ── Phase 3 — Alumni mentor layer ─────────────────────────────────────────
+  // Students who got admitted become verified mentors with a badge in the
+  // community. We keep the fields flat on UserProfile (rather than a separate
+  // Mentor model) because the identity is the same — it's a status, not a new
+  // account type. Admin flips `alumniStatus` to `approved` after reviewing the
+  // acceptance letter uploaded via `alumniProofUrl`.
+  alumniStatus         AlumniVerificationStatus @default(none)
+  alumniUniversity     String?
+  alumniProgramme      String?
+  alumniGraduationYear Int?
+  alumniCountryCode    String? // ISO 3166-1 alpha-2
+  alumniBioFr          String?
+  alumniBioEn          String?
+  alumniProofUrl       String? // Admission letter / degree — admin-only
+  alumniVerifiedAt     DateTime?
+  alumniVerifiedById   String? // AdminUser.id (no FK — keep decoupled)
+  alumniBadgeVisible   Boolean                  @default(true)
+  servicePurchases     ServicePurchase[]
+  salonRegistrations   SalonRegistration[]
+
+  @@index([accountType])
+  @@index([createdAt])
+  @@index([alumniStatus])
+}
+
+model StudentCredential {
+  id            String      @id @default(cuid())
+  userProfileId String      @unique
+  email         String      @unique
+  passwordHash  String
+  refreshToken  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+}
+
+model DeviceToken {
+  id            String      @id @default(cuid())
+  userProfileId String
+  token         String      @unique
+  platform      String
+  createdAt     DateTime    @default(now())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+
+  @@index([userProfileId])
+}
+
+model Case {
+  id                      String                 @id @default(cuid())
+  referenceCode           String                 @unique
+  // DB-assigned monotonic counter used to build a collision-free
+  // referenceCode (replaces the racy count()+1 scheme).
+  seq                     Int                    @unique @default(autoincrement())
+  userId                  String
+  type                    CaseType
+  status                  CaseStatus
+  title                   String
+  description             String
+  contextLabel            String
+  nextStepTitle           String
+  nextStepDescription     String
+  assignedAdvisorName     String?
+  assignedAdvisorPhone    String?
+  assignedAdvisorWhatsapp String?
+  source                  String                 @default("mobile_app")
+  requestedCountryId      String?
+  preferredContactMethod  String                 @default("in_app")
+  scheduledAt             DateTime?
+  // ── Marketplace (Track B) ───────────────────────────────────────────────
+  counsellorId            String?
+  // ── Parent mode (Track C1) ──────────────────────────────────────────────
+  parentCanView           Boolean                @default(false)
+  // ── Phase 3 — Zero-friction entry ───────────────────────────────────────
+  // Every new case grants one free counsellor message. After the student (or
+  // counsellor) replies to that first message, the case is considered to have
+  // consumed its free-message quota and subsequent counsellor messages require
+  // a paid ServicePackage (consultation) purchase. `freeMessageConsumed` is
+  // flipped by CaseMessagingGateway on the second counsellor→student reply.
+  freeMessageConsumed     Boolean                @default(false)
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  user                    UserProfile            @relation(fields: [userId], references: [id])
+  counsellor              Counsellor?            @relation(fields: [counsellorId], references: [id])
+  messages                CaseMessage[]
+  timelineEvents          CaseTimelineEvent[]
+  tasks                   CaseTask[]
+  documents               CaseDocument[]
+  appointments            Appointment[]
+  internalNotes           CaseInternalNote[]
+  notificationDeliveries  NotificationDelivery[]
+  paymentIntents          PaymentIntent[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([type])
+  @@index([counsellorId])
+}
+
+model CaseMessage {
+  id         String   @id @default(cuid())
+  caseId     String
+  senderRole String
+  senderName String
+  body       String
+  createdAt  DateTime @default(now())
+  case       Case     @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+  @@index([createdAt])
+}
+
+model CaseTimelineEvent {
+  id          String   @id @default(cuid())
+  caseId      String
+  status      String
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  case        Case     @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+}
+
+model CaseTask {
+  id           String        @id @default(cuid())
+  caseId       String
+  title        String
+  assigneeName String?
+  assigneeRole InternalRole?
+  status       String
+  dueAt        DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  case         Case          @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+}
+
+model CaseDocument {
+  id         String    @id @default(cuid())
+  caseId     String
+  title      String
+  fileUrl    String?
+  uploadedAt DateTime?
+  isProvided Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  case       Case      @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+}
+
+model CaseInternalNote {
+  id         String       @id @default(cuid())
+  caseId     String
+  authorName String
+  authorRole InternalRole
+  body       String
+  createdAt  DateTime     @default(now())
+  case       Case         @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+}
+
+model Appointment {
+  id            String      @id @default(cuid())
+  userId        String
+  caseId        String?
+  title         String
+  goal          String
+  startsAt      DateTime
+  status        String
+  contactMethod String      @default("in_app")
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          UserProfile @relation(fields: [userId], references: [id])
+  case          Case?       @relation(fields: [caseId], references: [id])
+
+  @@index([userId])
+  @@index([caseId])
+}
+
+model SavedItem {
+  id        String      @id @default(cuid())
+  userId    String
+  itemType  String
+  itemId    String
+  createdAt DateTime    @default(now())
+  user      UserProfile @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemType, itemId])
+}
+
+model PartnerLead {
+  id               String       @id @default(cuid())
+  userId           String?      @unique
+  organizationName String
+  contactName      String
+  email            String
+  phone            String?
+  country          String?
+  message          String?
+  status           String       @default("new")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  user             UserProfile? @relation(fields: [userId], references: [id])
+}
+
+model AdminUser {
+  id            String       @id @default(cuid())
+  fullName      String
+  email         String       @unique
+  passwordHash  String?
+  refreshToken  String?
+  role          InternalRole
+  isActive      Boolean      @default(true)
+  languageScope String[]
+  workload      Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model ServiceOffer {
+  id             String            @id @default(cuid())
+  nameFr         String
+  nameEn         String
+  offerType      String
+  destinationIds String[]
+  studyLevels    String[]
+  priceLabelFr   String
+  priceLabelEn   String
+  benefitsFr     String[]
+  benefitsEn     String[]
+  ctaLabelFr     String
+  ctaLabelEn     String
+  status         PublicationStatus
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model SupportDestination {
+  id                    String            @id @default(cuid())
+  countryId             String
+  countryNameFr         String
+  countryNameEn         String
+  supportLanguages      String[]
+  availableServiceTypes String[]
+  conditionsFr          String[]
+  conditionsEn          String[]
+  counselorNames        String[]
+  isVisible             Boolean           @default(true)
+  status                PublicationStatus
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+}
+
+model Article {
+  id             String            @id @default(cuid())
+  authorName     String
+  slug           String            @unique
+  category       String
+  titleFr        String
+  titleEn        String
+  summaryFr      String
+  summaryEn      String
+  contentFr      String
+  contentEn      String
+  seoTitle       String?
+  seoDescription String?
+  tags           String[]
+  status         PublicationStatus
+  publishedAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model ForumCategory {
+  id            String            @id @default(cuid())
+  labelFr       String
+  labelEn       String
+  descriptionFr String
+  descriptionEn String
+  displayOrder  Int
+  status        PublicationStatus
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model ForumTopicTag {
+  id            String            @id @default(cuid())
+  labelFr       String
+  labelEn       String
+  descriptionFr String
+  descriptionEn String
+  displayOrder  Int
+  status        PublicationStatus
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model ForumModerationAction {
+  id            String       @id @default(cuid())
+  targetType    String
+  targetId      String
+  reason        String
+  action        String
+  moderatorName String
+  moderatorRole InternalRole
+  createdAt     DateTime     @default(now())
+}
+
+model NotificationTemplate {
+  id         String                @id @default(cuid())
+  name       String
+  titleFr    String
+  titleEn    String
+  bodyFr     String
+  bodyEn     String
+  channels   NotificationChannel[]
+  isCritical Boolean               @default(false)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+}
+
+model NotificationCampaign {
+  id           String                     @id @default(cuid())
+  templateId   String?
+  name         String
+  audienceType String
+  filters      Json
+  channels     NotificationChannel[]
+  scheduledFor DateTime?
+  status       NotificationCampaignStatus
+  linkedCaseId String?
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  deliveries   NotificationDelivery[]
+}
+
+model NotificationDelivery {
+  id            String               @id @default(cuid())
+  campaignId    String
+  caseId        String?
+  recipientId   String
+  recipientName String
+  channel       NotificationChannel
+  status        String
+  deliveredAt   DateTime?
+  createdAt     DateTime             @default(now())
+  campaign      NotificationCampaign @relation(fields: [campaignId], references: [id])
+  case          Case?                @relation(fields: [caseId], references: [id])
+
+  @@index([campaignId])
+  @@index([recipientId])
+}
+
+model Field {
+  id                    String   @id @default(cuid())
+  nameFr                String
+  nameEn                String
+  descriptionFr         String
+  descriptionEn         String
+  subjectsFr            String[]
+  subjectsEn            String[]
+  careersFr             String[]
+  careersEn             String[]
+  dailyLifeFr           String[]
+  dailyLifeEn           String[]
+  skillsFr              String[]
+  skillsEn              String[]
+  personalityTraitsFr   String[]
+  personalityTraitsEn   String[]
+  relatedCountryIds     String[]
+  relatedScholarshipIds String[]
+  accentColorHex        String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Country {
+  id                    String   @id @default(cuid())
+  nameFr                String
+  nameEn                String
+  whyStudyFr            String
+  whyStudyEn            String
+  tuitionRangeFr        String
+  tuitionRangeEn        String
+  livingCostRangeFr     String
+  livingCostRangeEn     String
+  visaOverviewFr        String
+  visaOverviewEn        String
+  admissionDifficultyFr String
+  admissionDifficultyEn String
+  popularFieldIds       String[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Institution {
+  id                     String   @id @default(cuid())
+  nameFr                 String
+  nameEn                 String
+  countryId              String
+  locationFr             String
+  locationEn             String
+  overviewFr             String
+  overviewEn             String
+  studyLevels            String[]
+  tuitionLabelFr         String
+  tuitionLabelEn         String
+  languageRequirementsFr String
+  languageRequirementsEn String
+  intakePeriods          String[]
+  programIds             String[]
+  isPartner              Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([countryId])
+}
+
+model Program {
+  id             String   @id @default(cuid())
+  institutionId  String
+  countryId      String
+  fieldId        String
+  nameFr         String
+  nameEn         String
+  levelFr        String
+  levelEn        String
+  durationFr     String
+  durationEn     String
+  tuitionFr      String
+  tuitionEn      String
+  languageFr     String
+  languageEn     String
+  requirementsFr String[]
+  requirementsEn String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([institutionId])
+  @@index([countryId])
+  @@index([fieldId])
+}
+
+model Scholarship {
+  id                String         @id @default(cuid())
+  nameFr            String
+  nameEn            String
+  countryId         String
+  countryNameFr     String         @default("")
+  countryNameEn     String         @default("")
+  levelEligibleFr   String
+  levelEligibleEn   String
+  typeOfFundingFr   String
+  typeOfFundingEn   String
+  fundingType       FundingType    @default(unknown)
+  deadlineLabelFr   String
+  deadlineLabelEn   String
+  descriptionFr     String         @default("")
+  descriptionEn     String         @default("")
+  advantagesFr      String[]       @default([])
+  advantagesEn      String[]       @default([])
+  eligibilityFr     String[]       @default([])
+  eligibilityEn     String[]       @default([])
+  keyRequirementsFr String[]
+  keyRequirementsEn String[]
+  relatedFieldIds   String[]
+  baseMatch         Int            @default(30)
+  academyCourseId   String?
+  // ── Live-index fields (Track A1) ────────────────────────────────────────
+  // Populated by the 48h refresh job; null for legacy seed data.
+  sourceKey         String?        @unique // e.g. "greatyop-ajinomoto-2026"
+  sourceUrl         String?
+  applicationUrl    String?
+  deadlineAt        DateTime?
+  lastVerifiedAt    DateTime?
+  isActive          Boolean        @default(true)
+  tags              String[]       @default([])
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  academyCourse     AcademyCourse? @relation(fields: [academyCourseId], references: [id])
+
+  @@index([countryId])
+  @@index([deadlineAt])
+  @@index([isActive])
+  @@index([fundingType])
+}
+
+model AcademyCourse {
+  id            String            @id @default(cuid())
+  titleFr       String
+  titleEn       String
+  descriptionFr String
+  descriptionEn String
+  coverImageUrl String?
+  priceXOF      Int
+  priceEUR      Float
+  status        PublicationStatus @default(draft)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  lessons       AcademyLesson[]
+  scholarships  Scholarship[]
+  purchases     AcademyPurchase[]
+}
+
+model AcademyLesson {
+  id              String        @id @default(cuid())
+  courseId        String
+  titleFr         String
+  titleEn         String
+  videoUrl        String
+  durationSeconds Int
+  order           Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  course          AcademyCourse @relation(fields: [courseId], references: [id])
+}
+
+model AcademyPurchase {
+  id            String        @id @default(cuid())
+  userId        String
+  courseId      String
+  transactionId String? // Reference to payment provider
+  amountPaid    Float
+  currency      String
+  createdAt     DateTime      @default(now())
+  user          UserProfile   @relation(fields: [userId], references: [id])
+  course        AcademyCourse @relation(fields: [courseId], references: [id])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Counsellor marketplace (Track B)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CounsellorKycStatus {
+  pending
+  under_review
+  approved
+  rejected
+  suspended
+}
+
+model Counsellor {
+  id                 String              @id @default(cuid())
+  fullName           String
+  email              String              @unique
+  phone              String
+  whatsApp           String?
+  countryOfResidence String
+  // Freeform slug like "cs-bj", "med-ci" — used for filtering in admin/mobile.
+  specialties        String[]            @default([])
+  // ISO 639-1 codes (e.g. ["fr","en","bm","wo"]).
+  languagesSpoken    String[]            @default([])
+  bioFr              String
+  bioEn              String
+  yearsExperience    Int                 @default(0)
+  // Hourly rate in XOF. Admin can override per-case in PaymentIntent.
+  hourlyRateXOF      Int                 @default(0)
+  // KPB take (basis points, 1000 = 10%). Default 15%.
+  commissionBps      Int                 @default(1500)
+  kycStatus          CounsellorKycStatus @default(pending)
+  kycNotes           String?
+  kycVerifiedAt      DateTime?
+  isActive           Boolean             @default(false)
+  avgRating          Float               @default(0)
+  reviewCount        Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  cases              Case[]
+  reviews            CounsellorReview[]
+
+  @@index([kycStatus])
+  @@index([isActive])
+  @@index([countryOfResidence])
+}
+
+model CounsellorReview {
+  id             String     @id @default(cuid())
+  counsellorId   String
+  reviewerName   String
+  reviewerUserId String?
+  caseId         String?
+  rating         Int // 1–5
+  body           String
+  isPublished    Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  counsellor     Counsellor @relation(fields: [counsellorId], references: [id])
+
+  @@index([counsellorId])
+  @@index([isPublished])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parent mode (Track C1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ParentLinkStatus {
+  pending
+  active
+  revoked
+}
+
+model ParentChildLink {
+  id         String           @id @default(cuid())
+  parentId   String // UserProfile.id with accountType=parent
+  // Null while the invite is pending — populated on accept.
+  childId    String?
+  inviteCode String           @unique
+  status     ParentLinkStatus @default(pending)
+  acceptedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  parent     UserProfile      @relation("parentLink_parent", fields: [parentId], references: [id])
+  child      UserProfile?     @relation("parentLink_child", fields: [childId], references: [id])
+
+  @@unique([parentId, childId])
+  @@index([childId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Payment abstraction (Track C3) — CinetPay / Paydunya / Stripe
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PaymentProvider {
+  cinetpay
+  paydunya
+  stripe
+  manual
+}
+
+enum PaymentStatus {
+  created
+  pending
+  paid
+  failed
+  refunded
+  cancelled
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Visa appointment availability (Phase 1 — Track A2)
+// ─────────────────────────────────────────────────────────────────────────────
+// One row per consulate. Cron upserts by consulateCode so the mobile app
+// can fetch the latest-known state cheaply. No history table — if we need
+// trend analysis later, we'll add a separate append-only VisaAvailabilityLog.
+
+model VisaAvailabilitySnapshot {
+  id              String                 @id @default(cuid())
+  // Stable slug like "canada-abidjan", "france-dakar". @unique so upsert
+  // cleanly replaces the previous snapshot.
+  consulateCode   String                 @unique
+  // ISO 3166-1 alpha-2 of the destination (the country being travelled to).
+  countryCode     String
+  // City the consulate/TLS/VFS centre sits in — not the destination city.
+  city            String
+  // Earliest bookable appointment datetime, if known. Null for full/unknown.
+  nextAvailableAt DateTime?
+  // Human-readable label (e.g. "2 semaines", "5+ months", "fermé"). The
+  // fetcher can set this even when it can't parse a concrete datetime.
+  soonestSlot     String?
+  lastCheckedAt   DateTime?
+  status          VisaAvailabilityStatus @default(unknown)
+  // If a fetch failed, the short error string — surfaced to admins only.
+  errorMessage    String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([countryCode])
+  @@index([status])
+}
+
+model PaymentIntent {
+  id              String           @id @default(cuid())
+  userId          String // payer (often a parent)
+  caseId          String?
+  // Allows paying a counsellor directly without a case (unusual but possible).
+  counsellorId    String?
+  // XOF is integer (no subdivision); other currencies kept as integer minor units.
+  amountMinor     Int
+  currency        String           @default("XOF")
+  provider        PaymentProvider
+  // Provider's own id for the transaction (e.g. CinetPay transaction_id).
+  providerRef     String?          @unique
+  // Provider-hosted checkout URL returned by init call.
+  checkoutUrl     String?
+  status          PaymentStatus    @default(created)
+  description     String?
+  // Last raw webhook payload — useful for support when a payment is "stuck".
+  lastWebhookAt   DateTime?
+  paidAt          DateTime?
+  failureReason   String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            UserProfile      @relation(fields: [userId], references: [id])
+  case            Case?            @relation(fields: [caseId], references: [id])
+  servicePurchase ServicePurchase?
+
+  @@index([userId])
+  @@index([caseId])
+  @@index([status])
+  @@index([provider])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3 — "Dossier prêt" service + scholarship/visa kits
+// ─────────────────────────────────────────────────────────────────────────────
+// Catalog of fixed-price packages KPB sells (10k–25k FCFA range).
+// "Dossier prêt" = CV + motivation letter + recommendation letters reviewed
+// in French + English before submission. This is the concrete, tangible
+// thing parents are willing to pay for — the rest of the app's perceived
+// value funnels into this SKU.
+//
+// A ServicePackage is the product definition. A ServicePurchase is a user's
+// instance of that product (paid via PaymentIntent). Deliverables (uploaded
+// CV, cover letter, reviewed PDF) live under CaseDocument on the linked case
+// — we don't duplicate storage here.
+
+model ServicePackage {
+  id             String                 @id @default(cuid())
+  // Stable slug used from the mobile app deep-links ("dossier-pret-fr-en").
+  code           String                 @unique
+  nameFr         String
+  nameEn         String
+  summaryFr      String
+  summaryEn      String
+  // Long-form marketing copy shown on the purchase screen.
+  descriptionFr  String
+  descriptionEn  String
+  category       ServicePackageCategory
+  // XOF integer (no subdivision). 25 000 FCFA = 25000.
+  priceXOF       Int
+  // What the student receives — bullet list rendered in the app.
+  deliverablesFr String[]               @default([])
+  deliverablesEn String[]               @default([])
+  // Estimated turnaround e.g. "3 jours ouvrés".
+  turnaroundFr   String?
+  turnaroundEn   String?
+  // Admin can hide a SKU without deleting it (keeps history intact).
+  isActive       Boolean                @default(true)
+  displayOrder   Int                    @default(0)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  purchases      ServicePurchase[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ServicePurchase {
+  id              String                @id @default(cuid())
+  packageId       String
+  userId          String
+  // Optional — a purchase may be linked to an existing case for document flow.
+  caseId          String?
+  // Exactly one PaymentIntent per purchase. Null while we're still setting up.
+  paymentIntentId String?               @unique
+  status          ServicePurchaseStatus @default(pending_payment)
+  // Price snapshot at purchase time — protects against later SKU edits.
+  amountXOF       Int
+  // Freeform handoff notes from KPB back-office (not shown to student).
+  internalNotes   String?
+  deliveredAt     DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  package         ServicePackage        @relation(fields: [packageId], references: [id])
+  user            UserProfile           @relation(fields: [userId], references: [id])
+  paymentIntent   PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
+
+  @@index([packageId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3 — Partner credibility layer
+// ─────────────────────────────────────────────────────────────────────────────
+// Campus France, AUF, Moroccan / Tunisian unis, and francophone banks
+// (UBA, Ecobank, Orabank) for student-loan referrals. Each logo on the
+// landing page is worth 1000 cold users — the mobile app renders this as
+// the "Ils nous font confiance" strip.
+
+model Partner {
+  id            String          @id @default(cuid())
+  // Stable slug like "campus-france-abidjan" — used in deep-links.
+  slug          String          @unique
+  nameFr        String
+  nameEn        String
+  category      PartnerCategory
+  // ISO 3166-1 alpha-2 — lets the mobile app filter by "Banques au Sénégal" etc.
+  countryCode   String?
+  // Displayed as the tagline under the logo on the landing strip.
+  taglineFr     String?
+  taglineEn     String?
+  descriptionFr String?
+  descriptionEn String?
+  logoUrl       String?
+  websiteUrl    String?
+  // For bank loans / agency referrals — a deep-link the student opens.
+  referralUrl   String?
+  // Featured partners pin to the top of the homepage strip.
+  isFeatured    Boolean         @default(false)
+  displayOrder  Int             @default(0)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([countryCode])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 3 — "Salon KPB virtuel" (annual 2-day event)
+// ─────────────────────────────────────────────────────────────────────────────
+// Universities from Canada / France / Morocco answer questions live inside
+// the app. The event itself (SalonEvent) owns the dates + branding. Each
+// individual talk is a SalonSession with its own joinUrl (Jitsi / Zoom /
+// Google Meet — we don't host video ourselves). Students RSVP via
+// SalonRegistration so we can push reminders 24h and 1h before the session.
+
+model SalonEvent {
+  id            String           @id @default(cuid())
+  slug          String           @unique
+  nameFr        String
+  nameEn        String
+  // Edition year — used in the mobile app title ("Salon KPB Virtuel 2026").
+  year          Int
+  // Event window in UTC. Individual sessions fall within this range.
+  startAt       DateTime
+  endAt         DateTime
+  heroImageUrl  String?
+  descriptionFr String?
+  descriptionEn String?
+  status        SalonEventStatus @default(draft)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  sessions      SalonSession[]
+
+  @@index([status])
+  @@index([year])
+}
+
+model SalonSession {
+  id              String              @id @default(cuid())
+  eventId         String
+  // Optional partner (e.g. Université de Montréal, Université Mohammed V).
+  // Left nullable so KPB in-house sessions (welcome talk, Q&A panel) don't
+  // need a Partner row.
+  partnerId       String?
+  titleFr         String
+  titleEn         String
+  descriptionFr   String?
+  descriptionEn   String?
+  // Host name(s) — freeform since they may not be KPB users.
+  hostName        String?
+  startAt         DateTime
+  // Duration in minutes. 30/45/60 are the common slots.
+  durationMinutes Int                 @default(45)
+  // External meeting URL. We don't persist recordings — universities own those.
+  joinUrl         String?
+  recordingUrl    String?
+  capacity        Int?
+  status          SalonSessionStatus  @default(scheduled)
+  displayOrder    Int                 @default(0)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  event           SalonEvent          @relation(fields: [eventId], references: [id])
+  registrations   SalonRegistration[]
+
+  @@index([eventId])
+  @@index([partnerId])
+  @@index([startAt])
+  @@index([status])
+}
+
+model SalonRegistration {
+  id         String       @id @default(cuid())
+  sessionId  String
+  userId     String
+  // "registered" | "attended" | "cancelled" — kept as string to avoid a
+  // dedicated enum for three values that rarely change.
+  status     String       @default("registered")
+  remindedAt DateTime?
+  createdAt  DateTime     @default(now())
+  session    SalonSession @relation(fields: [sessionId], references: [id])
+  user       UserProfile  @relation(fields: [userId], references: [id])
+
+  @@unique([sessionId, userId])
+  @@index([userId])
+  @@index([sessionId])
+}

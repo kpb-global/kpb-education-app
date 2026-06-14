@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "KPB Admin",
+    "tagline": "Student requests, counseling, content, and operational follow-up."
+  },
+  "shell": {
+    "loading": "Loading admin workspace…",
+    "description": "Mobile-facing content, case operations, and team workflows live from this workspace.",
+    "logout": "Log out",
+    "language": "Language"
+  },
+  "nav": {
+    "overview": "Overview",
+    "cases": "Cases",
+    "content": "Content",
+    "community": "Community",
+    "notifications": "Notifications",
+    "users": "Users",
+    "reports": "Reports"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Use your KPB email to access the operations workspace.",
+    "emailLabel": "Email",
+    "submit": "Sign in",
+    "loading": "Signing in…",
+    "error": "Email not found or inactive."
+  },
+  "overview": {
+    "title": "Overview",
+    "casesInProgress": "Cases in progress",
+    "casesPending": "Pending",
+    "newThisWeek": "New this week",
+    "activeStudents": "Active students",
+    "recentCases": "Recent cases",
+    "noRecent": "No recent cases."
+  }
+}

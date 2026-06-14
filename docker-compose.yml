@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    image: kpb-backend:latest
+    container_name: kpb_api
+    restart: always
+    ports:
+      - "127.0.0.1:3000:3000" # Expose only to localhost, let Nginx proxy it
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-kpb}?schema=public
+      - JWT_SECRET=${JWT_SECRET:-your_dev_jwt_secret}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+    depends_on:
+      db:
+        condition: service_healthy # Wait for DB to be genuinely ready
+
+  db:
+    image: postgres:15-alpine
+    container_name: kpb_db
+    restart: always
+    ports:
+      - "127.0.0.1:5432:5432" # Secure port
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-kpb}
+    volumes:
+      - kpb-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-kpb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  kpb-db-data:

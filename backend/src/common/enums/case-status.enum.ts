@@ -1,0 +1,16 @@
+export enum CaseStatus {
+  Draft = 'draft',
+  Submitted = 'submitted',
+  UnderReview = 'under_review',
+  DocumentsNeeded = 'documents_needed',
+  CounselorAssigned = 'counselor_assigned',
+  AwaitingStudent = 'awaiting_student',
+  Scheduled = 'scheduled',
+  InProgress = 'in_progress',
+  ApplicationSubmitted = 'application_submitted',
+  WaitingDecision = 'waiting_decision',
+  AwaitingPayment = 'awaiting_payment',
+  Completed = 'completed',
+  Rejected = 'rejected',
+  Cancelled = 'cancelled',
+}

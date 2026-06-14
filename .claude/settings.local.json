@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew install:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(grep -l \"private readonly.*=\" /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev/backend/src/modules/*/*.service.ts)",
+      "Bash(npm run:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.nvm/versions/node/*/bin:$PATH\")",
+      "Read(//Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev/backend/$HOME/.nvm/versions/**)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npx prisma:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''scripts'''', {}\\), indent=2\\)\\)\")",
+      "Read(//private/tmp/**)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$HOME/fvm/default/bin:$HOME/flutter/bin:/usr/local/bin:$PATH\")",
+      "Bash(export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev flutter devices)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\")",
+      "Bash(flutter emulators:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\" cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev flutter analyze lib/app/features/onboarding/lib/app/core/translations/lib/app/core/ui/lib/app/core/controllers/app_controller.dart)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\" cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev flutter analyze lib/app)",
+      "Bash(grep -E \"\\\\.\\(dart|yaml\\)$\")",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\" cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev flutter analyze lib/app/features/home/lib/app/core/ui/)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\" cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev/backend npx prisma db seed)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\" cd /Users/aminou/Documents/Claude/Code/kpb-education-new-app-aminoudev/backend npx ts-node prisma/seed.ts)",
+      "Bash(export PATH=\"$PATH:/Users/aminou/flutter/bin\")",
+      "Bash(/opt/homebrew/bin/flutter analyze:*)"
+    ]
+  }
+}

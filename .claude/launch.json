@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "servers": [
+    {
+      "name": "Backend — NestJS",
+      "cwd": "backend",
+      "command": "npm run dev",
+      "port": 4000,
+      "url": "http://localhost:4000/api",
+      "description": "API REST + Prisma/PostgreSQL"
+    },
+    {
+      "name": "Admin — Next.js",
+      "cwd": "admin",
+      "command": "npm run dev",
+      "port": 3000,
+      "url": "http://localhost:3000",
+      "description": "Dashboard admin (login, cases, notifications)"
+    },
+    {
+      "name": "Mobile — Flutter",
+      "cwd": ".",
+      "command": "flutter run",
+      "port": null,
+      "url": null,
+      "description": "App mobile (sync activé → http://localhost:4000/api)"
+    }
+  ]
+}

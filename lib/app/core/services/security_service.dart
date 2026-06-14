@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:local_auth/local_auth.dart';
+
+
+import '../controllers/app_controller.dart';
+import '../../features/auth/app_lock_screen.dart';
+
+/// App lock when [AppController.isAppLockEnabled]: on each [AppLifecycleState.resumed],
+/// pushes [AppLockScreen]. Unlock uses [LocalAuthentication] (biometrics and/or device PIN).
+///
+/// **Threat model (short):** Protection against casual shoulder-surfing and unattended device
+/// while the app is backgrounded — not a substitute for OS-level encryption or server auth.
+/// If the device reports no biometric/PIN capability, [authenticate] allows access so users
+/// are not locked out (documented product trade-off).
+class SecurityService extends GetxService with WidgetsBindingObserver {
+  static SecurityService get instance => Get.find<SecurityService>();
+
+  final LocalAuthentication _auth = LocalAuthentication();
+  bool _isAuthenticating = false;
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkAndShowLockScreen();
+    }
+  }
+
+  /// Called when the app starts or resumes.
+  /// If biometrics are enabled in the user's snapshot, we throw the lock screen.
+  void _checkAndShowLockScreen() {
+    // We only enforce lock if the user has enabled it in their profile/snapshot.
+    // For now, let's assume it's stored in AppController.
+    final controller = Get.find<AppController>();
+    if (!controller.isAppLockEnabled) return;
+    
+    // Don't show if we are already authenticating or currently showing the lock screen
+    if (_isAuthenticating || Get.currentRoute == '/app_lock') return;
+
+    Get.to(() => const AppLockScreen(), transition: Transition.fadeIn, routeName: '/app_lock');
+  }
+
+  /// Attempts to authenticate the user using biometrics or device PIN.
+  /// Returns true if successful.
+  Future<bool> authenticate() async {
+    _isAuthenticating = true;
+    try {
+      final canCheckBiometrics = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
+
+      if (!canCheckBiometrics) {
+        return true; // Fallback to allowing access if device has no security
+      }
+
+      return await _auth.authenticate(
+        localizedReason: 'Déverrouillez pour accéder à vos documents sécurisés KPB',
+        persistAcrossBackgrounding: true,
+      );
+    } on PlatformException catch (_) {
+      return false;
+    } finally {
+      // Always reset, even on unexpected exception types — otherwise the flag
+      // stays true and the lock screen is never shown again (app lock silently
+      // stops working).
+      _isAuthenticating = false;
+    }
+  }
+}
