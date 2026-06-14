@@ -94,8 +94,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final accent = KpbColors.blue;
 
     return Scaffold(
       backgroundColor: context.kpb.pageBg,

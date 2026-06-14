@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
@@ -176,6 +177,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _ => true,
     };
     if (!valid) return;
+    HapticFeedback.lightImpact();
     if (_page < _totalPages - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 350),
@@ -541,7 +543,7 @@ class _PageIdentity extends StatelessWidget {
           children: AccountType.values.map((t) {
             final sel = t == accountType;
             return Expanded(
-              child: GestureDetector(
+              child: KpbPressable(
                 onTap: () => onAccountType(t),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
@@ -830,7 +832,7 @@ class _PageAcademic extends StatelessWidget {
           onChanged: onGradeRange,
         ),
         const SizedBox(height: KpbSpacing.lg),
-        GestureDetector(
+        KpbPressable(
           onTap: () => onWantsScholarship(!wantsScholarship),
           child: KpbCard(
             color: wantsScholarship
@@ -1001,7 +1003,7 @@ class _LangBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
+      child: KpbPressable(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),

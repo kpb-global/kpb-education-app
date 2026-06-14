@@ -71,7 +71,6 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final ytController = _ytController;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (ytController == null) {
       return Scaffold(
@@ -96,7 +95,7 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
       player: YoutubePlayer(
         controller: ytController,
         showVideoProgressIndicator: true,
-        progressIndicatorColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+        progressIndicatorColor: KpbColors.blue,
         onReady: () => ytController.addListener(() {}),
       ),
       builder: (context, player) {
@@ -154,7 +153,7 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
                   itemBuilder: (context, index) {
                     final lesson = _lessons[index];
                     final isCurrent = index == _currentIndex;
-                    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+                    final activeColor = KpbColors.blue;
                     
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg, vertical: 4),

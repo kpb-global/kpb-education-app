@@ -217,7 +217,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     },
                     backgroundColor: context.kpb.cardBg,
                     selectedColor: isDark
-                        ? KpbColors.stitchDeepPurple.withValues(alpha: 0.3)
+                        ? KpbColors.blueMid.withValues(alpha: 0.3)
                         : KpbColors.skyLight,
                     labelStyle: TextStyle(
                       color: isSelected
@@ -226,7 +226,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     ),
                     side: BorderSide(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchDeepPurple : KpbColors.blue)
+                          ? (isDark ? KpbColors.blueMid : KpbColors.blue)
                           : context.kpb.gray200,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -256,10 +256,10 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: KpbColors.stitchDeepPurple.withValues(alpha: 0.1),
+                            color: KpbColors.blueMid.withValues(alpha: 0.1),
                             borderRadius: KpbRadius.mdBr,
                           ),
-                          child: const Icon(Icons.holiday_village_rounded, color: KpbColors.stitchDeepPurple),
+                          child: const Icon(Icons.holiday_village_rounded, color: KpbColors.blueMid),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -287,7 +287,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                       text: 'Voir les offres à ${_selectedCity?.name}',
                       onPressed: _launchStudapart,
                       icon: Icons.open_in_new_rounded,
-                      bgColor: KpbColors.stitchDeepPurple,
+                      bgColor: KpbColors.blueMid,
                     ),
                   ],
                 ),

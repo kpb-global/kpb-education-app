@@ -34,7 +34,7 @@ class AcademyCourseScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      KpbBadge(label: 'COURS EXPERT', color: isDark ? KpbColors.stitchDeepPurple : KpbColors.blue),
+                      KpbBadge(label: 'COURS EXPERT', color: isDark ? KpbColors.blueMid : KpbColors.blue),
                       const SizedBox(width: 8),
                       Text(
                         '${course.lessonCount} sessions',
@@ -195,7 +195,7 @@ class AcademyCourseScreen extends StatelessWidget {
                   child: KpbButton(
                     text: 'Acheter le pack',
                     onPressed: () => _handlePurchase(context, controller, isDark),
-                    bgColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    bgColor: KpbColors.blue,
                   ),
                 ),
               ],
@@ -219,10 +219,10 @@ class AcademyCourseScreen extends StatelessWidget {
                Container(
                  padding: const EdgeInsets.all(16),
                  decoration: BoxDecoration(
-                   color: (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.1),
+                   color: (KpbColors.blue).withValues(alpha: 0.1),
                    shape: BoxShape.circle,
                  ),
-                 child: Icon(Icons.shopping_bag_outlined, color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue, size: 48),
+                 child: Icon(Icons.shopping_bag_outlined, color: KpbColors.blue, size: 48),
                ),
                const SizedBox(height: 24),
                Text(
@@ -274,10 +274,10 @@ class _BenefitRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.15),
+            color: (KpbColors.blue).withValues(alpha: 0.15),
             borderRadius: KpbRadius.mdBr,
           ),
-          child: Icon(icon, color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue, size: 20),
+          child: Icon(icon, color: KpbColors.blue, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -318,7 +318,7 @@ class _LessonPreviewTile extends StatelessWidget {
               child: Text(
                 '$index',
                 style: TextStyle(
-                  color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                  color: KpbColors.blue,
                   fontWeight: FontWeight.w800,
                 ),
               ),

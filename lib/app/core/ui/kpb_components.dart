@@ -1,7 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_tokens.dart';
 import 'kpb_theme_ext.dart';
+
+// ── KpbPressable ──────────────────────────────────────────────────────────────
+// Wraps any tappable surface with a subtle press-scale + haptic tick. Gives the
+// whole app a tactile, "alive" feel without each call site reimplementing it.
+class KpbPressable extends StatefulWidget {
+  const KpbPressable({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.scale = 0.97,
+    this.haptic = true,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final double scale;
+  final bool haptic;
+
+  @override
+  State<KpbPressable> createState() => _KpbPressableState();
+}
+
+class _KpbPressableState extends State<KpbPressable> {
+  bool _down = false;
+
+  void _set(bool v) {
+    if (mounted) setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = widget.onTap != null;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: enabled ? (_) => _set(true) : null,
+      onTapUp: enabled ? (_) => _set(false) : null,
+      onTapCancel: enabled ? () => _set(false) : null,
+      onTap: enabled
+          ? () {
+              if (widget.haptic) HapticFeedback.lightImpact();
+              widget.onTap!();
+            }
+          : null,
+      child: AnimatedScale(
+        scale: _down ? widget.scale : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // KPB Education — Component Library
@@ -78,7 +131,7 @@ class SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: textColor == Colors.white ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                  color: textColor == Colors.white ? KpbColors.blue : KpbColors.blue,
                 ),
               ),
             ),
@@ -388,16 +441,21 @@ class QuickActionTile extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textPrimary,
-                height: 1.3,
+            // Single line that shrinks to fit so long labels (e.g.
+            // "Orientation") don't wrap mid-word in the narrow tile.
+            SizedBox(
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: c.textPrimary,
+                  ),
+                ),
               ),
             ),
           ],
@@ -591,199 +649,6 @@ class FieldCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Scholarship Card ──────────────────────────────────────────────────────────
-class ScholarshipMiniCard extends StatelessWidget {
-  const ScholarshipMiniCard({
-    super.key,
-    required this.name,
-    required this.countryFlag,
-    required this.amount,
-    required this.matchScore,
-    required this.onTap,
-    this.width = 200,
-  });
-
-  final String name;
-  final String countryFlag;
-  final String amount;
-  final int matchScore;
-  final VoidCallback onTap;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: KpbColors.bgDarkCard,
-          borderRadius: KpbRadius.lgBr,
-          border: Border.all(color: KpbColors.glassBorder),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(countryFlag, style: const TextStyle(fontSize: 22)),
-                const Spacer(),
-                MatchBadge(score: matchScore),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                height: 1.3,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-            Text(
-              amount,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: KpbColors.textDarkSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Institution Mini Card ──────────────────────────────────────────────────────
-class InstitutionMiniCard extends StatelessWidget {
-  const InstitutionMiniCard({
-    super.key,
-    required this.name,
-    required this.countryFlag,
-    required this.location,
-    required this.tuitionLabel,
-    required this.onTap,
-    this.isPartner = false,
-    required this.score,
-    this.width = 200,
-  });
-
-  final String name;
-  final String countryFlag;
-  final String location;
-  final String tuitionLabel;
-  final bool isPartner;
-  final int score;
-  final VoidCallback onTap;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: KpbColors.bgDarkCard,
-          borderRadius: KpbRadius.lgBr,
-          border: Border.all(color: KpbColors.glassBorder),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(countryFlag, style: const TextStyle(fontSize: 22)),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          AdmissionMeter(
-                            score: score,
-                            size: 28,
-                            strokeWidth: 3,
-                            showLabel: false,
-                          ),
-                          if (isPartner) ...[
-                            const SizedBox(width: 8),
-                            const KpbBadge(
-                              label: 'Partenaire',
-                              color: KpbColors.stitchDeepPurple,
-                              small: true,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                height: 1.3,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              location,
-              style: const TextStyle(
-                fontSize: 11,
-                color: KpbColors.textDarkSecondary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis, // Keep locations from bleeding
-            ),
-            const Spacer(),
-            Text(
-              tuitionLabel,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: KpbColors.textDarkSecondary,
               ),
             ),
           ],

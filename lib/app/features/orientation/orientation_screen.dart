@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
@@ -289,7 +292,7 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return KpbPressable(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
@@ -353,7 +356,7 @@ class _OptionCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Results view
 // ─────────────────────────────────────────────────────────────────────────────
-class _ResultsView extends StatelessWidget {
+class _ResultsView extends StatefulWidget {
   const _ResultsView({
     required this.result,
     required this.controller,
@@ -365,146 +368,386 @@ class _ResultsView extends StatelessWidget {
   final VoidCallback onRetake;
 
   @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // ── Hero banner ───────────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: KpbColors.heroGradient,
-            ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const KpbBadge(
-                  label: '✅ Orientation complète',
-                  color: KpbColors.success,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Vos résultats',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Basé sur vos réponses, voici les filières qui vous correspondent le mieux.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.75),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+  State<_ResultsView> createState() => _ResultsViewState();
+}
 
-        // ── Recommendations ────────────────────────────────────────────────
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-              KpbSpacing.pagePad, KpbSpacing.lg,
-              KpbSpacing.pagePad, 0),
-          sliver: SliverList.separated(
-            itemCount:
-                (result.recommendations as List).length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: KpbSpacing.md),
-            itemBuilder: (ctx, i) {
-              final rec =
-                  (result.recommendations as List)[i];
-              // A recommendation can reference ids absent from the loaded
-              // (remote/cached) catalog — resolve null-safely instead of
-              // crashing with a StateError from the non-null accessors.
-              final field = controller.fieldByIdOrNull(rec.fieldId);
-              if (field == null) {
-                return const SizedBox.shrink();
-              }
-              final countries = (rec.relatedCountryIds as List<String>)
-                  .map(controller.countryByIdOrNull)
-                  .whereType<CountryModel>()
-                  .take(3)
-                  .toList();
-              final scholarships =
-                  (rec.relatedScholarshipIds as List<String>)
-                      .map(controller.scholarshipByIdOrNull)
-                      .whereType<ScholarshipModel>()
+class _ResultsViewState extends State<_ResultsView>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _confetti;
+  late final List<_Confetti> _particles;
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    );
+    _particles = _buildParticles();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      HapticFeedback.mediumImpact();
+      _confetti.forward();
+    });
+  }
+
+  List<_Confetti> _buildParticles() {
+    final rnd = Random(7);
+    const palette = [
+      KpbColors.blue,
+      KpbColors.sky,
+      KpbColors.gold,
+      KpbColors.success,
+      KpbColors.blueMid,
+    ];
+    return List.generate(46, (i) {
+      final angle = -pi / 2 + (rnd.nextDouble() - 0.5) * (pi * 0.95);
+      return _Confetti(
+        angle: angle,
+        speed: 0.45 + rnd.nextDouble() * 0.85,
+        color: palette[i % palette.length],
+        size: 6 + rnd.nextDouble() * 8,
+        rot: rnd.nextDouble() * pi,
+        rotSpeed: (rnd.nextDouble() - 0.5) * 9,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _confetti.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final recs = (widget.result.recommendations as List);
+    final topScore = recs.isNotEmpty ? (recs.first.score as int) : 0;
+    final topField = recs.isNotEmpty
+        ? controller.fieldByIdOrNull(recs.first.fieldId)
+        : null;
+
+    return Scaffold(
+      backgroundColor: context.kpb.pageBg,
+      body: Stack(
+        children: [
+          CustomScrollView(
+          slivers: [
+            // ── Celebratory hero ───────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _ResultsHero(
+                controller: controller,
+                topScore: topScore,
+                topFieldName: topField != null
+                    ? controller.resolve(topField.name)
+                    : null,
+              ),
+            ),
+
+            // ── Recommendations (staggered reveal) ─────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                  KpbSpacing.pagePad, KpbSpacing.lg,
+                  KpbSpacing.pagePad, 0),
+              sliver: SliverList.separated(
+                itemCount: recs.length,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: KpbSpacing.md),
+                itemBuilder: (ctx, i) {
+                  final rec = recs[i];
+                  final field = controller.fieldByIdOrNull(rec.fieldId);
+                  if (field == null) return const SizedBox.shrink();
+                  final countries = (rec.relatedCountryIds as List<String>)
+                      .map(controller.countryByIdOrNull)
+                      .whereType<CountryModel>()
                       .take(3)
                       .toList();
-              final isBest = i == 0;
+                  final scholarships =
+                      (rec.relatedScholarshipIds as List<String>)
+                          .map(controller.scholarshipByIdOrNull)
+                          .whereType<ScholarshipModel>()
+                          .take(3)
+                          .toList();
+                  return StaggeredSlide(
+                    index: i,
+                    delayMs: 130,
+                    child: _RecommendationCard(
+                      rec: rec,
+                      field: field,
+                      countries: countries,
+                      scholarships: scholarships,
+                      controller: controller,
+                      isBest: i == 0,
+                      context: ctx,
+                    ),
+                  );
+                },
+              ),
+            ),
 
-              return _RecommendationCard(
-                rec: rec,
-                field: field,
-                countries: countries,
-                scholarships: scholarships,
-                controller: controller,
-                isBest: isBest,
-                context: ctx,
-              );
-            },
-          ),
+            // ── Action buttons ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    KpbSpacing.pagePad, KpbSpacing.xl,
+                    KpbSpacing.pagePad, KpbSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton.icon(
+                      icon: const Icon(Icons.explore_rounded, size: 18),
+                      label: const Text('Explorer mes résultats'),
+                      onPressed: () {
+                        Get.back();
+                        controller.goToTab(1);
+                      },
+                    ),
+                    const SizedBox(height: KpbSpacing.sm),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.folder_open_rounded, size: 18),
+                      label: const Text('Démarrer un dossier'),
+                      onPressed: () => showModalBottomSheet<void>(
+                        context: Get.context!,
+                        isScrollControlled: true,
+                        builder: (_) => const CaseComposerSheet(
+                          caseType: CaseType.applicationSupport,
+                          title: 'Dossier de candidature',
+                          contextLabel: 'Suite orientation',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: KpbSpacing.md),
+                    TextButton.icon(
+                      icon: const Icon(Icons.refresh_rounded, size: 16),
+                      label: const Text('Refaire le test'),
+                      onPressed: widget.onRetake,
+                      style: TextButton.styleFrom(
+                        foregroundColor: context.kpb.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
 
-        // ── Action buttons ─────────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Primary: explore results
-                FilledButton.icon(
-                  icon: const Icon(Icons.explore_rounded, size: 18),
-                  label: const Text('Explorer mes résultats'),
-                  onPressed: () {
-                    // Back to shell then switch to Explorer tab
-                    Get.back();
-                    controller.goToTab(1);
-                  },
-                ),
-                const SizedBox(height: KpbSpacing.sm),
-                // Secondary: open a support case
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.folder_open_rounded, size: 18),
-                  label: const Text('Démarrer un dossier'),
-                  onPressed: () => showModalBottomSheet<void>(
-                    context: Get.context!,
-                    isScrollControlled: true,
-                    builder: (_) => const CaseComposerSheet(
-                      caseType: CaseType.applicationSupport,
-                      title: 'Dossier de candidature',
-                      contextLabel: 'Suite orientation',
-                    ),
+        // ── Confetti overlay (bursts once over the hero) ───────────────
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 400,
+          child: IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _confetti,
+              builder: (_, __) {
+                if (_confetti.value == 0 || _confetti.isDismissed) {
+                  return const SizedBox.shrink();
+                }
+                return CustomPaint(
+                  size: Size.infinite,
+                  painter: _ConfettiPainter(
+                    progress: _confetti.value,
+                    particles: _particles,
                   ),
-                ),
-                const SizedBox(height: KpbSpacing.md),
-                // Tertiary: retake
-                TextButton.icon(
-                  icon: const Icon(Icons.refresh_rounded, size: 16),
-                  label: const Text('Refaire le test'),
-                  onPressed: onRetake,
-                  style: TextButton.styleFrom(
-                    foregroundColor: context.kpb.textSecondary,
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-        ),
-
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
+          ),
+        ],
+      ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Celebratory results hero — animated medallion + count-up top match
+// ─────────────────────────────────────────────────────────────────────────────
+class _ResultsHero extends StatelessWidget {
+  const _ResultsHero({
+    required this.controller,
+    required this.topScore,
+    required this.topFieldName,
+  });
+
+  final AppController controller;
+  final int topScore;
+  final String? topFieldName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
+      padding: EdgeInsets.fromLTRB(
+        KpbSpacing.pagePad,
+        MediaQuery.of(context).padding.top + KpbSpacing.lg,
+        KpbSpacing.pagePad,
+        KpbSpacing.xl,
+      ),
+      child: Column(
+        children: [
+          // Trophy medallion that springs in
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.elasticOut,
+            builder: (_, v, child) =>
+                Transform.scale(scale: v.clamp(0.0, 1.2), child: child),
+            child: Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5), width: 2),
+              ),
+              child: const Icon(Icons.emoji_events_rounded,
+                  color: KpbColors.gold, size: 42),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Bravo ! 🎉',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Voici les filières qui vous correspondent le mieux.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 14,
+              height: 1.4,
+            ),
+          ),
+          if (topFieldName != null) ...[
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: KpbRadius.lgBr,
+                border:
+                    Border.all(color: Colors.white.withValues(alpha: 0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: topScore.toDouble()),
+                    duration: const Duration(milliseconds: 1500),
+                    curve: Curves.easeOutExpo,
+                    builder: (_, v, __) => Text(
+                      '${v.round()}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                        height: 1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 1,
+                    height: 34,
+                    color: Colors.white.withValues(alpha: 0.25),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'MEILLEURE CORRESPONDANCE',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        topFieldName!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dependency-free confetti burst
+// ─────────────────────────────────────────────────────────────────────────────
+class _Confetti {
+  const _Confetti({
+    required this.angle,
+    required this.speed,
+    required this.color,
+    required this.size,
+    required this.rot,
+    required this.rotSpeed,
+  });
+  final double angle, speed, size, rot, rotSpeed;
+  final Color color;
+}
+
+class _ConfettiPainter extends CustomPainter {
+  _ConfettiPainter({required this.progress, required this.particles});
+  final double progress;
+  final List<_Confetti> particles;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final origin = Offset(size.width / 2, size.height * 0.22);
+    final t = progress;
+    for (final p in particles) {
+      final reach = size.width * 0.62 * p.speed;
+      final dx = cos(p.angle) * reach * t;
+      final dy = sin(p.angle) * reach * t + (size.height * 0.95) * t * t;
+      final opacity = (1.0 - t).clamp(0.0, 1.0);
+      final paint = Paint()..color = p.color.withValues(alpha: opacity);
+      canvas.save();
+      canvas.translate(origin.dx + dx, origin.dy + dy);
+      canvas.rotate(p.rot + p.rotSpeed * t);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+              center: Offset.zero, width: p.size, height: p.size * 0.6),
+          const Radius.circular(2),
+        ),
+        paint,
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.progress != progress;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
