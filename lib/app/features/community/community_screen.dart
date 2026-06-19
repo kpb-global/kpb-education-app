@@ -418,6 +418,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
+    group: true,
     message: 'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
   );
 }

@@ -388,9 +388,13 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final whatsAppPrefill = country?.whatsAppPrefill.fr.isNotEmpty == true
-        ? controller.resolve(country!.whatsAppPrefill)
-        : 'Bonjour KPB, je suis intéressé(e) par ${controller.resolve(program.name)}.';
+    final whatsAppPrefill = kpbWhatsAppPrefill(
+      custom: country?.whatsAppPrefill.fr.isNotEmpty == true
+          ? controller.resolve(country!.whatsAppPrefill)
+          : null,
+      program: controller.resolve(program.name),
+      country: country != null ? controller.resolve(country!.name) : null,
+    );
 
     return Container(
       padding: EdgeInsets.fromLTRB(
