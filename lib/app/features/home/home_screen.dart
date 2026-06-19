@@ -655,13 +655,13 @@ class _NextStepCard extends StatelessWidget {
         label: '⚡ ACTION REQUISE',
         labelColor: KpbColors.error,
         title: isPayment
-            ? 'Paiement en attente'
+            ? 'Échange avec ton conseiller'
             : isDocs
                 ? 'Documents à envoyer'
                 : 'Réponse attendue de toi',
         subtitle: controller.resolve(urgentCase.nextStepTitle),
         icon: isPayment
-            ? Icons.credit_card_rounded
+            ? Icons.chat_rounded
             : isDocs
                 ? Icons.upload_file_rounded
                 : Icons.reply_rounded,

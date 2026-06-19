@@ -497,41 +497,11 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  // ── Payments (Track C3) ───────────────────────────────────────────────────
-
-  Future<List<String>> listPaymentProviders() async {
-    final response = await _dio.get<Map<String, dynamic>>('/payments/providers');
-    final data = response.data ?? <String, dynamic>{};
-    return (data['providers'] as List<dynamic>? ?? <dynamic>[])
-        .map((e) => e.toString())
-        .toList();
-  }
-
-  Future<Map<String, dynamic>> createPaymentIntent({
-    required String provider,
-    required int amountMinor,
-    required String returnUrl,
-    required String cancelUrl,
-    String? caseId,
-    String? counsellorId,
-    String currency = 'XOF',
-    String? description,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/payments/intents',
-      data: {
-        'provider': provider,
-        'amountMinor': amountMinor,
-        'currency': currency,
-        'returnUrl': returnUrl,
-        'cancelUrl': cancelUrl,
-        if (caseId != null) 'caseId': caseId,
-        if (counsellorId != null) 'counsellorId': counsellorId,
-        if (description != null) 'description': description,
-      },
-    );
-    return response.data ?? <String, dynamic>{};
-  }
+  // ── Payments ──────────────────────────────────────────────────────────────
+  // Intentionally not called from the app. Our (largely African) audience
+  // settles fees directly with a KPB advisor over WhatsApp rather than through
+  // an in-app checkout. The backend `payments` module + endpoints remain for
+  // admin/manual reconciliation; the client just no longer initiates them.
 
   // ── Counsellor marketplace (Track B) ──────────────────────────────────────
 

@@ -330,7 +330,7 @@ class _CaseCard extends StatelessWidget {
       case CaseStatus.documentsNeeded:
         return '📎 Envoyer mes documents';
       case CaseStatus.awaitingPayment:
-        return '💳 Procéder au paiement';
+        return '💬 Échanger avec mon conseiller';
       case CaseStatus.awaitingStudent:
         return '✉️ Répondre au conseiller';
       case CaseStatus.scheduled:
