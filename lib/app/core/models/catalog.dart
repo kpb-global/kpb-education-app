@@ -497,6 +497,7 @@ class ScholarshipModel {
     required this.relatedFieldIds,
     required this.baseMatch,
     this.academyCourseId,
+    this.eligibility = const [],
   });
 
   final String id;
@@ -509,6 +510,11 @@ class ScholarshipModel {
   final List<String> relatedFieldIds;
   final int baseMatch;
   final String? academyCourseId;
+
+  /// Who can apply (distinct from [keyRequirements], which are application
+  /// steps). Drives the scholarship eligibility self-check. May be empty for
+  /// scraped/live entries.
+  final List<LocalizedText> eligibility;
 
   factory ScholarshipModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -551,6 +557,7 @@ class ScholarshipModel {
           (json['relatedFieldIds'] as List<dynamic>?)?.cast<String>() ?? [],
       baseMatch: json['baseMatch'] as int? ?? 0,
       academyCourseId: json['academyCourseId'] as String?,
+      eligibility: parseLocList('eligibility'),
     );
   }
 
@@ -565,6 +572,7 @@ class ScholarshipModel {
         'relatedFieldIds': relatedFieldIds,
         'baseMatch': baseMatch,
         'academyCourseId': academyCourseId,
+        'eligibility': eligibility.map((e) => e.toJson()).toList(),
       };
 }
 
