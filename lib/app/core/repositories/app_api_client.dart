@@ -547,25 +547,9 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> purchaseServicePackage({
-    required String packageCode,
-    required String returnUrl,
-    required String cancelUrl,
-    String? provider,
-    String? caseId,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/me/purchases',
-      data: {
-        'packageCode': packageCode,
-        'returnUrl': returnUrl,
-        'cancelUrl': cancelUrl,
-        if (provider != null) 'provider': provider,
-        if (caseId != null) 'caseId': caseId,
-      },
-    );
-    return response.data ?? <String, dynamic>{};
-  }
+  // purchaseServicePackage() removed: the app no longer initiates in-app
+  // checkout. Students arrange payment with an advisor on WhatsApp (see
+  // service_packages_screen). The backend purchase endpoint remains available.
 
   Future<List<dynamic>> listMyPurchases() async {
     final response = await _dio.get<Map<String, dynamic>>('/me/purchases');

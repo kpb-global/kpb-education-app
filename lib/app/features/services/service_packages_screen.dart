@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/repositories/app_api_client.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
 ///
-/// This is the SKU that anchors KPB's monetization: fixed-price bundles
-/// (10k–25k FCFA) where we review CV, motivation and recommendation
-/// letters in FR + EN before submission. Parents have a concrete, tangible
-/// thing to pay for.
+/// Fixed-price bundles (10k–25k FCFA) where KPB reviews CV, motivation and
+/// recommendation letters in FR + EN before submission.
 ///
-/// The screen splits the catalog by category and opens a purchase flow
-/// via [AppApiClient.purchaseServicePackage], which creates a PaymentIntent
-/// and returns the provider-hosted checkout URL (CinetPay / Paydunya).
+/// The screen splits the catalog by category. There is no in-app checkout —
+/// our (largely African) audience arranges payment directly with an advisor,
+/// so each package's CTA opens WhatsApp pre-filled with that service's name.
 class ServicePackagesScreen extends StatefulWidget {
   const ServicePackagesScreen({super.key});
 
@@ -53,40 +51,11 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     }
   }
 
-  Future<void> _purchase(Map<String, dynamic> pkg) async {
-    final code = pkg['code'] as String?;
-    if (code == null) return;
-    // Deep-link the CinetPay/Paydunya return journey back into the app.
-    const returnUrl = 'kpb://payment/success';
-    const cancelUrl = 'kpb://payment/cancel';
-
-    try {
-      final result = await _api.purchaseServicePackage(
-        packageCode: code,
-        returnUrl: returnUrl,
-        cancelUrl: cancelUrl,
-      );
-      final intent = result['paymentIntent'] as Map<String, dynamic>?;
-      final checkoutUrl = intent?['checkoutUrl'] as String?;
-      if (checkoutUrl == null || checkoutUrl.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paiement préparé. Un conseiller te contactera.'),
-          ),
-        );
-        return;
-      }
-      final uri = Uri.parse(checkoutUrl);
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Impossible de démarrer le paiement.'),
-        ),
-      );
-    }
+  Future<void> _contactAdvisor(Map<String, dynamic> pkg) async {
+    // No in-app checkout — route to a KPB advisor on WhatsApp, pre-filled with
+    // the package name so they know which service the student is asking about.
+    final name = (pkg['nameFr'] as String?)?.trim();
+    await openWhatsAppOrToast(prefill: kpbWhatsAppPrefill(service: name));
   }
 
   @override
@@ -131,17 +100,19 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
       padding: const EdgeInsets.all(16),
       itemCount: _packages.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) =>
-          _PackageCard(pkg: _packages[i] as Map<String, dynamic>, onBuy: _purchase),
+      itemBuilder: (context, i) => _PackageCard(
+        pkg: _packages[i] as Map<String, dynamic>,
+        onContact: _contactAdvisor,
+      ),
     );
   }
 }
 
 class _PackageCard extends StatelessWidget {
-  const _PackageCard({required this.pkg, required this.onBuy});
+  const _PackageCard({required this.pkg, required this.onContact});
 
   final Map<String, dynamic> pkg;
-  final Future<void> Function(Map<String, dynamic>) onBuy;
+  final Future<void> Function(Map<String, dynamic>) onContact;
 
   @override
   Widget build(BuildContext context) {
@@ -204,9 +175,9 @@ class _PackageCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                icon: const Icon(Icons.payments),
-                label: const Text('Payer maintenant'),
-                onPressed: () => onBuy(pkg),
+                icon: const Icon(Icons.chat_rounded),
+                label: const Text('Contacter un conseiller'),
+                onPressed: () => onContact(pkg),
               ),
             ),
           ],

@@ -439,7 +439,11 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
                           onPressed: () => openWhatsAppOrToast(
-                            prefill: _controller.resolve(country.whatsAppPrefill),
+                            prefill: kpbWhatsAppPrefill(
+                              custom:
+                                  _controller.resolve(country.whatsAppPrefill),
+                              country: _controller.resolve(country.name),
+                            ),
                           ),
                           icon: const Icon(Icons.chat_outlined),
                           label: const Text('Discuter sur WhatsApp'),
@@ -655,7 +659,10 @@ class _BottomCta extends StatelessWidget {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () => openWhatsAppOrToast(
-                prefill: controller.resolve(country.whatsAppPrefill),
+                prefill: kpbWhatsAppPrefill(
+                  custom: controller.resolve(country.whatsAppPrefill),
+                  country: controller.resolve(country.name),
+                ),
               ),
               icon: const Icon(Icons.chat_outlined, size: 18),
               label: const Text('WhatsApp'),
