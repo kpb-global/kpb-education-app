@@ -103,7 +103,7 @@ jobs:
         run: flutter pub get
 
       - name: Build release APK
-        run: flutter build apk --release --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
+        run: flutter build apk --release --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com --dart-define=KPB_WHATSAPP_NUMBER=+33768674292
 
       - name: Upload APK
         uses: actions/upload-artifact@v5
@@ -130,7 +130,7 @@ jobs:
         run: cd ios && rm -f Podfile.lock && pod install --repo-update
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com
+        run: flutter build ios --release --no-codesign --dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com --dart-define=KPB_WHATSAPP_NUMBER=+33768674292
 
       - name: Upload iOS build
         uses: actions/upload-artifact@v5
