@@ -14,6 +14,7 @@ import '../../core/services/document_upload_service.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import 'case_status_timeline.dart';
 import 'case_timeline_definition.dart';
+import 'document_review_screen.dart';
 
 Future<void> _openWhatsapp({String? phone, String? prefill}) async {
   await openWhatsAppOrToast(phone: phone, prefill: prefill);
@@ -492,6 +493,17 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                           ),
                           const SizedBox(height: KpbSpacing.md),
                         ],
+
+                        // ── AI document review (always available) ─────────────────────
+                        KpbButton(
+                          text: '✨ Relecture IA de mon dossier',
+                          icon: Icons.auto_awesome_rounded,
+                          fullWidth: true,
+                          secondary: true,
+                          onPressed: () =>
+                              Get.to(() => const DocumentReviewScreen()),
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
 
                         // ── Timeline ────────────────────────────────────────────────
                         if (c.timeline.isNotEmpty) ...[
