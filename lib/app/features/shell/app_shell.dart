@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/components/kpb_offline_banner.dart';
 import '../cases/cases_screen.dart';
 import '../destinations/destinations_screen.dart';
 import '../home/home_screen.dart';
@@ -44,7 +45,17 @@ class AppShell extends StatelessWidget {
         return Scaffold(
           body: Stack(
             children: [
-              IndexedStack(index: index, children: pages),
+              // Offline banner above the body. KpbOfflineBanner collapses to a
+              // zero-height SizedBox when online, so this Column has no layout
+              // effect unless the user is actually offline.
+              Column(
+                children: [
+                  const KpbOfflineBanner(),
+                  Expanded(
+                    child: IndexedStack(index: index, children: pages),
+                  ),
+                ],
+              ),
               if (index != StudentShellTab.home) const CoachFab(),
               Positioned(
                 left: 0,
