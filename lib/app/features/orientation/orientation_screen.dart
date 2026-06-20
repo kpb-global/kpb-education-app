@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
 import '../explore/country_detail_screen.dart';
@@ -23,6 +22,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
   final Map<String, List<String>> _answers = {};
   int _questionIndex = 0;
   bool _showResults = false;
+  bool _isSubmitting = false;
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -43,7 +43,10 @@ class _OrientationScreenState extends State<OrientationScreen> {
     return GetBuilder<AppController>(
       builder: (_) {
         if (!_ctrl.isStudent) {
-          return _ConsultativeView(controller: _ctrl);
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: _ConsultativeView(controller: _ctrl),
+          );
         }
 
         final questions = _ctrl.orientationQuestions;
@@ -52,17 +55,39 @@ class _OrientationScreenState extends State<OrientationScreen> {
 
         // Show results if test already done or user just finished
         if (_showResults && hasResult) {
-          return _ResultsView(
-            result: latestResult,
-            controller: _ctrl,
-            onRetake: () {
-              _ctrl.clearOrientationProgress();
-              setState(() {
-                _answers.clear();
-                _questionIndex = 0;
-                _showResults = false;
-              });
-            },
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: _ResultsView(
+              result: latestResult,
+              controller: _ctrl,
+              onRetake: () {
+                _ctrl.clearOrientationProgress();
+                setState(() {
+                  _answers.clear();
+                  _questionIndex = 0;
+                  _showResults = false;
+                });
+              },
+            ),
+          );
+        }
+
+        if (_isSubmitting || _ctrl.isSubmittingOrientation) {
+          return Scaffold(
+            backgroundColor: context.kpb.pageBg,
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: KpbSpacing.md),
+                  Text(
+                    'Analyse de vos réponses…',
+                    style: KpbTextStyles.body,
+                  ),
+                ],
+              ),
+            ),
           );
         }
 
@@ -91,8 +116,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                 // ── Progress header ─────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.md,
-                      KpbSpacing.pagePad, 0),
+                      KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0),
                   child: Column(
                     children: [
                       Row(
@@ -101,8 +125,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
                             onTap: () {
                               if (_questionIndex > 0) {
                                 setState(() => _questionIndex--);
-                              } else if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
+                              } else {
+                                Get.back();
                               }
                             },
                             child: Container(
@@ -173,8 +197,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         const SizedBox(height: KpbSpacing.md),
                         // Question number badge
                         KpbBadge(
-                          label:
-                              'Question ${_questionIndex + 1}',
+                          label: 'Question ${_questionIndex + 1}',
                           color: KpbColors.blue,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
@@ -202,8 +225,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         const SizedBox(height: KpbSpacing.lg),
                         // Options
                         ...question.options.map((option) {
-                          final selected =
-                              selectedIds.contains(option.id);
+                          final selected = selectedIds.contains(option.id);
                           return Padding(
                             padding:
                                 const EdgeInsets.only(bottom: KpbSpacing.sm),
@@ -240,9 +262,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
 
                 // ── Bottom CTA ──────────────────────────────────────────
                 Container(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.sm,
-                      KpbSpacing.pagePad, KpbSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.md),
                   decoration: BoxDecoration(
                     color: context.kpb.pageBg,
                     boxShadow: KpbShadow.float,
@@ -256,8 +277,19 @@ class _OrientationScreenState extends State<OrientationScreen> {
                               _ctrl.saveOrientationProgress(
                                   _answers, _questionIndex);
                             } else {
-                              _ctrl.submitOrientation(_answers);
-                              setState(() => _showResults = true);
+                              setState(() => _isSubmitting = true);
+                              _ctrl
+                                  .submitOrientation(_answers)
+                                  .then((_) {
+                                if (!mounted) return;
+                                setState(() {
+                                  _isSubmitting = false;
+                                  _showResults = true;
+                                });
+                              }).catchError((_) {
+                                if (!mounted) return;
+                                setState(() => _isSubmitting = false);
+                              });
                             }
                           },
                     child: Text(
@@ -296,17 +328,12 @@ class _OptionCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
-          color: selected
-              ? KpbColors.blue
-              : context.kpb.cardBg,
+          color: selected ? KpbColors.blue : context.kpb.cardBg,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-            color: selected
-                ? KpbColors.blue
-                : context.kpb.gray100,
+            color: selected ? KpbColors.blue : context.kpb.gray100,
             width: selected ? 2 : 1,
           ),
           boxShadow: selected ? KpbShadow.soft : KpbShadow.card,
@@ -318,14 +345,10 @@ class _OptionCard extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: selected
-                    ? Colors.white
-                    : KpbColors.bgMuted,
+                color: selected ? Colors.white : KpbColors.bgMuted,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected
-                      ? Colors.white
-                      : context.kpb.gray200,
+                  color: selected ? Colors.white : context.kpb.gray200,
                 ),
               ),
               child: selected
@@ -340,9 +363,7 @@ class _OptionCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: selected
-                      ? Colors.white
-                      : context.kpb.textPrimary,
+                  color: selected ? Colors.white : context.kpb.textPrimary,
                 ),
               ),
             ),
@@ -495,15 +516,29 @@ class _ResultsViewState extends State<_ResultsView>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Primary: jump straight to the schools for the top match
                     FilledButton.icon(
+                      icon: const Icon(Icons.school_rounded, size: 18),
+                      label: const Text('Voir les écoles'),
+                      onPressed: () {
+                        final topFieldId = recs.isNotEmpty
+                            ? recs.first.fieldId as String
+                            : null;
+                        Get.back();
+                        controller.goToUniversitiesForField(topFieldId);
+                      },
+                    ),
+                    const SizedBox(height: KpbSpacing.sm),
+                    OutlinedButton.icon(
                       icon: const Icon(Icons.explore_rounded, size: 18),
                       label: const Text('Explorer mes résultats'),
                       onPressed: () {
                         Get.back();
-                        controller.goToTab(1);
+                        controller.goToTab(StudentShellTab.universities);
                       },
                     ),
                     const SizedBox(height: KpbSpacing.sm),
+                    // Secondary: open a support case
                     OutlinedButton.icon(
                       icon: const Icon(Icons.folder_open_rounded, size: 18),
                       label: const Text('Démarrer un dossier'),
@@ -518,6 +553,7 @@ class _ResultsViewState extends State<_ResultsView>
                       ),
                     ),
                     const SizedBox(height: KpbSpacing.md),
+                    // Tertiary: retake
                     TextButton.icon(
                       icon: const Icon(Icons.refresh_rounded, size: 16),
                       label: const Text('Refaire le test'),
@@ -765,9 +801,9 @@ class _RecommendationCard extends StatelessWidget {
   });
 
   final dynamic rec;
-  final dynamic field;
-  final List countries;
-  final List scholarships;
+  final FieldModel field;
+  final List<CountryModel> countries;
+  final List<ScholarshipModel> scholarships;
   final AppController controller;
   final bool isBest;
   final BuildContext context;
@@ -775,8 +811,8 @@ class _RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final score = rec.score as int;
-    final accentColor = Color(field.accentColor as int);
-    final saved = controller.isSaved(SavedItemType.field, field.id as String);
+    final accentColor = field.accentColor;
+    final saved = controller.isSaved(SavedItemType.field, field.id);
 
     return KpbCard(
       border: isBest
@@ -813,17 +849,24 @@ class _RecommendationCard extends StatelessWidget {
                   children: [
                     if (isBest)
                       const KpbBadge(
-                          label: '⭐ Meilleur match',
-                          color: KpbColors.blue),
+                          label: '⭐ Meilleur match', color: KpbColors.blue),
                     if (isBest) const SizedBox(height: 4),
+                    if (rec.iaResilience == 'high')
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: KpbBadge(
+                          label: '🛡 Résilient à l\'IA',
+                          color: KpbColors.success,
+                        ),
+                      ),
                     Text(controller.resolve(field.name),
                         style: KpbTextStyles.title),
                   ],
                 ),
               ),
               GestureDetector(
-                onTap: () => controller.toggleSaved(
-                    SavedItemType.field, field.id as String),
+                onTap: () =>
+                    controller.toggleSaved(SavedItemType.field, field.id),
                 child: Icon(
                   saved
                       ? Icons.bookmark_rounded
@@ -863,6 +906,25 @@ class _RecommendationCard extends StatelessWidget {
             controller.resolve(rec.explanation),
             style: KpbTextStyles.body,
           ),
+          if ((rec.jobs as List<String>).isNotEmpty) ...[
+            const SizedBox(height: KpbSpacing.md),
+            Text(
+              'Métiers visés',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: context.kpb.textMuted,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: (rec.jobs as List<String>).map((job) {
+                return KpbBadge(label: job, color: accentColor);
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: KpbSpacing.md),
 
           // ── Countries ────────────────────────────────────────────────
@@ -881,11 +943,11 @@ class _RecommendationCard extends StatelessWidget {
               runSpacing: 6,
               children: countries.map<Widget>((country) {
                 return GestureDetector(
-                  onTap: () => Get.to(
-                      () => CountryDetailScreen(countryId: country.id)),
+                  onTap: () =>
+                      Get.to(() => CountryDetailScreen(countryId: country.id)),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: context.kpb.surfaceBg,
                       borderRadius: KpbRadius.pillBr,
@@ -947,21 +1009,22 @@ class _RecommendationCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () => controller.toggleSaved(
-                      SavedItemType.field, field.id as String),
-                  style: OutlinedButton.styleFrom(
+                child: FilledButton(
+                  onPressed: () {
+                    controller.goToUniversitiesForField(field.id);
+                    Get.back();
+                  },
+                  style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  child:
-                      Text(saved ? '✓ Sauvegardé' : 'Sauvegarder'),
+                  child: const Text('Voir les écoles'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: FilledButton(
+                child: OutlinedButton(
                   onPressed: () => showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
@@ -971,7 +1034,7 @@ class _RecommendationCard extends StatelessWidget {
                       contextLabel: controller.resolve(field.name),
                     ),
                   ),
-                  style: FilledButton.styleFrom(
+                  style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
@@ -998,14 +1061,39 @@ class _ConsultativeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        // ── Pinned Header ──────────────────────────────────────────────────
+        SliverAppBar(
+          pinned: true,
+          floating: false,
+          backgroundColor: KpbColors.navy,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: KpbColors.heroGradient,
+            ),
+          ),
+          title: const Text(
+            'Orientation',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        // ── Content header ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Container(
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
             padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.xl,
-                KpbSpacing.pagePad, KpbSpacing.xl),
+                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1020,8 +1108,7 @@ class _ConsultativeView extends StatelessWidget {
                   controller.isParent
                       ? 'home_for_parent'.tr
                       : 'home_for_partner'.tr,
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 15),
+                  style: const TextStyle(color: Colors.white70, fontSize: 15),
                 ),
               ],
             ),

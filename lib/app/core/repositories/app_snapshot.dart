@@ -7,7 +7,9 @@ class AppSnapshot {
     required this.localeCode,
     required this.hasCompletedOnboarding,
     this.hasSeenIntro = false,
+    this.isGuestMode = false,
     this.isAppLockEnabled = false,
+    this.dataSaverEnabled = false,
     this.themeMode = ThemeMode.system,
     this.profile,
     this.savedItems = const [],
@@ -24,6 +26,9 @@ class AppSnapshot {
     this.purchasedCourseIds = const [],
     this.completedRoadmapSteps = const {},
     this.profileNeedsPush = false,
+    this.onboardingStep = 0,
+    this.onboardingSkipped = false,
+    this.caseLastReadAt = const {},
   });
 
   /// Local profile edits not yet confirmed by PATCH `/profiles/me`; avoids overwriting on sync.
@@ -32,7 +37,10 @@ class AppSnapshot {
   final String localeCode;
   final bool hasCompletedOnboarding;
   final bool hasSeenIntro;
+  final bool isGuestMode;
   final bool isAppLockEnabled;
+  /// Data-saver: skip non-essential network image loads on low-bandwidth links.
+  final bool dataSaverEnabled;
   final ThemeMode themeMode;
   final UserProfile? profile;
   final List<SavedItem> savedItems;
@@ -48,6 +56,9 @@ class AppSnapshot {
   final List<ScholarshipModel> scholarships;
   final List<String> purchasedCourseIds;
   final Map<String, List<String>> completedRoadmapSteps;
+  final int onboardingStep;
+  final bool onboardingSkipped;
+  final Map<String, String> caseLastReadAt;
 
   factory AppSnapshot.initial() {
     return const AppSnapshot(

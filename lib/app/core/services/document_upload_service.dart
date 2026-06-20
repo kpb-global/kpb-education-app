@@ -45,6 +45,23 @@ class DocumentUploadService {
   /// Maximum allowed file size: 10 MB.
   static const int _maxFileSizeBytes = 10 * 1024 * 1024;
 
+  static String formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes o';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(0)} Ko';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} Mo';
+  }
+
+  static Future<String?> fileSizeLabel(String path) async {
+    try {
+      final size = await File(path).length();
+      return formatFileSize(size);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Opens the system file picker for PDFs (no recompression — PDFs already
   /// compress poorly and users expect the exact document).
   /// Throws [FileTooLargeException] if the file exceeds [_maxFileSizeBytes].

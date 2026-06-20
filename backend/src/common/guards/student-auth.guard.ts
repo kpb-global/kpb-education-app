@@ -5,11 +5,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { StudentAuthService, StudentTokenUser } from '../../modules/auth/student-auth.service';
+import {
+  SupabaseAuthService,
+  SupabaseTokenUser,
+} from '../../modules/auth/supabase-auth.service';
 
+/**
+ * Authenticates student/parent requests with a Supabase Auth access token.
+ *
+ * The token is verified (JWKS or HS256) and mapped to a local UserProfile.
+ * The resolved user is attached as `request.studentUser` — the same contract
+ * the legacy home-grown guard exposed — so downstream controllers are
+ * unchanged.
+ */
 @Injectable()
 export class StudentAuthGuard implements CanActivate {
-  constructor(private readonly studentAuthService: StudentAuthService) {}
+  constructor(private readonly supabaseAuthService: SupabaseAuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -20,8 +31,8 @@ export class StudentAuthGuard implements CanActivate {
     }
 
     const token = header.slice(7);
-    const user: StudentTokenUser =
-      await this.studentAuthService.verifyAccessToken(token);
+    const user: SupabaseTokenUser =
+      await this.supabaseAuthService.verifyAndResolve(token);
 
     request.studentUser = user;
     return true;

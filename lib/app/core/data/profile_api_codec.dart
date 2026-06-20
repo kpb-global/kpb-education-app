@@ -27,6 +27,8 @@ abstract final class ProfileApiCodec {
       fieldIds: stringListFromJson(json['fieldIds']),
       targetCountryIds: stringListFromJson(json['targetCountryIds']),
       gradeRange: json['gradeRange'] as String?,
+      bacSeries: json['bacSeries'] as String?,
+      monthlyBudgetEur: json['monthlyBudgetEur'] as int?,
       wantsScholarshipSupport: json['wantsScholarshipSupport'] as bool? ??
           json['wantsScholarship'] as bool? ??
           false,

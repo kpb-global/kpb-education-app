@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/config/app_routes.dart';
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/skeleton.dart';
+import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
 import '../orientation/orientation_screen.dart';
 import '../saved/saved_screen.dart';
 import '../search/search_screen.dart';
+import '../ai_advisor/ai_chat_screen.dart';
+import '../explore/country_detail_screen.dart';
+import '../onboarding/onboarding_screen.dart';
+import '../tools/student_tools_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flag helpers
 // ─────────────────────────────────────────────────────────────────────────────
-const _flags = <String, String>{
-  'usa': '🇺🇸', 'canada': '🇨🇦', 'france': '🇫🇷', 'uk': '🇬🇧',
-  'morocco': '🇲🇦', 'turkey': '🇹🇷', 'germany': '🇩🇪', 'spain': '🇪🇸',
-  'china': '🇨🇳', 'belgium': '🇧🇪', 'italy': '🇮🇹', 'portugal': '🇵🇹',
-};
-String _flag(String id) => _flags[id] ?? '🌍';
+String _flag(String id) => countryFlag(id);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HomeScreen — light premium, momentum-first
@@ -33,7 +33,8 @@ String _flag(String id) => _flags[id] ?? '🌍';
 //   2. Hero    — brand banner + animated progress ring (momentum)
 //   3. ⚡ Prochaine étape — smart next-best-action card
 //   4. 🗂 Quick actions — 4 light tiles
-//   5. 📁 Dossiers actifs · ⏰ Deadline · 🏛 Universités · 🏆 Bourses · 📰 Articles
+//   5. 🤖 Assistant d'Orientation IA · 🌍 Inscriptions à l'Étranger · 🛠 Outils
+//   6. 📁 Dossiers actifs · ⏰ Deadline · 🏛 Universités · 🏆 Bourses · 📰 Articles
 // ─────────────────────────────────────────────────────────────────────────────
 
 class HomeScreen extends StatelessWidget {
@@ -51,12 +52,15 @@ class HomeScreen extends StatelessWidget {
         }
 
         if (controller.syncError != null && controller.profile == null) {
-          return KpbErrorState(onRetry: controller.refresh);
+          return KpbErrorState(
+            onRetry: controller.pullToRefresh,
+          );
         }
 
         final profile = controller.profile;
         final firstName = profile?.fullName.split(' ').first ?? '';
 
+        // Data — limited, curated
         final institutions = controller.institutions.take(4).toList();
         final scholarships =
             controller.recommendedScholarships.take(3).toList();
@@ -73,7 +77,7 @@ class HomeScreen extends StatelessWidget {
         return Container(
           color: c.pageBg,
           child: KpbRefresh(
-            onRefresh: controller.refresh,
+            onRefresh: controller.pullToRefresh,
             child: CustomScrollView(
               slivers: [
                 // ── App Bar ───────────────────────────────────────────
@@ -125,7 +129,8 @@ class HomeScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8),
                       child: _AppBarChip(
                         icon: Icons.person_outline_rounded,
-                        onTap: () => controller.goToTab(4),
+                        onTap: () =>
+                            controller.goToTab(StudentShellTab.profile),
                       ),
                     ),
                   ],
@@ -163,6 +168,28 @@ class HomeScreen extends StatelessWidget {
                           index: 2,
                           child: _QuickActions(controller: controller),
                         ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.5 Assistant d'Orientation IA ──────────
+                        const StaggeredSlide(
+                          index: 3,
+                          child: _AiAdvisorBanner(),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.6 Inscriptions à l'Étranger ───────────
+                        StaggeredSlide(
+                          index: 4,
+                          child: _AbroadEnrollmentCard(controller: controller),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.7 Outils étudiants ────────────────────
+                        if (controller.isStudent)
+                          StaggeredSlide(
+                            index: 5,
+                            child: _StudentToolsBanner(),
+                          ),
                         const SizedBox(height: KpbSpacing.xl),
                       ],
                     ),
@@ -175,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                     child: SectionHeader(
                       title: 'Dossiers actifs',
                       actionLabel: 'Voir tout',
-                      onAction: () => controller.goToTab(2),
+                      onAction: () => controller.goToTab(StudentShellTab.cases),
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.sm)),
@@ -216,7 +243,8 @@ class HomeScreen extends StatelessWidget {
                     child: HScrollSection(
                       title: 'Universités recommandées',
                       actionLabel: 'Voir tout',
-                      onAction: () => controller.goToTab(1),
+                      onAction: () =>
+                          controller.goToTab(StudentShellTab.universities),
                       itemCount: institutions.length,
                       height: 168,
                       itemWidth: 210,
@@ -230,7 +258,8 @@ class HomeScreen extends StatelessWidget {
                               controller.resolve(institution.tuitionLabel),
                           isPartner: institution.isPartner,
                           score: controller.institutionMatch(institution),
-                          onTap: () => controller.goToTab(1),
+                          onTap: () =>
+                              controller.goToTab(StudentShellTab.universities),
                         );
                       },
                     ),
@@ -265,7 +294,8 @@ class HomeScreen extends StatelessWidget {
                 ],
 
                 // ── 7. Articles récents ───────────────────────────────
-                if (articles.isNotEmpty) ...[
+                // Community/articles is a V1.1+ module (hidden under MVP lock).
+                if (!AppConfig.mvpOnly && articles.isNotEmpty) ...[
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'latest_articles'.tr,
@@ -446,7 +476,7 @@ class _HeroCard extends StatelessWidget {
           if (showRing) ...[
             const SizedBox(width: KpbSpacing.md),
             KpbPressable(
-              onTap: () => controller.goToTab(4),
+              onTap: () => controller.goToTab(StudentShellTab.profile),
               child: Column(
                 children: [
                   _AnimatedRing(value: progress),
@@ -643,6 +673,7 @@ class _NextStepCard extends StatelessWidget {
     final profile = controller.profile;
     final hasOrientation = controller.latestOrientationSession != null;
 
+    // Priority 1 — Case requires immediate action
     final urgentCase = activeCases.firstWhere(
       (c) =>
           c.status == CaseStatus.documentsNeeded ||
@@ -676,19 +707,22 @@ class _NextStepCard extends StatelessWidget {
       );
     }
 
-    final pct = ((profile?.completionScore ?? 0) * 100).round();
-    if (pct < 50) {
+    // Priority 2 — Profile incomplete / skipped onboarding
+    if (controller.needsProfileCompletionBanner) {
+      final pct = ((profile?.completionScore ?? 0) * 100).round();
       return _StepData(
         label: 'Ton profil',
         title: 'Complète ton profil',
-        subtitle:
-            'À $pct% — des champs manquants limitent tes recommandations',
+        subtitle: controller.onboardingSkipped
+            ? 'Quelques infos manquent pour personnaliser tes recommandations'
+            : 'À $pct% — des champs manquants limitent tes recommandations',
         icon: Icons.tune_rounded,
         iconColor: KpbColors.blue,
-        onTap: () => controller.goToTab(4),
+        onTap: () => Get.to(() => const OnboardingScreen()),
       );
     }
 
+    // Priority 3 — No orientation done
     if (!hasOrientation) {
       return _StepData(
         label: 'Découverte',
@@ -701,6 +735,7 @@ class _NextStepCard extends StatelessWidget {
       );
     }
 
+    // Priority 4 — Orientation done, no active cases
     if (activeCases.isEmpty) {
       return _StepData(
         label: 'Prochaine étape',
@@ -721,6 +756,7 @@ class _NextStepCard extends StatelessWidget {
       );
     }
 
+    // Default — everything in progress
     return _StepData(
       label: 'Explorer',
       title: 'Découvre de nouvelles opportunités',
@@ -728,7 +764,7 @@ class _NextStepCard extends StatelessWidget {
           'Parcours les filières, pays et bourses qui matchent ton profil',
       icon: Icons.explore_rounded,
       iconColor: KpbColors.sky,
-      onTap: () => controller.goToTab(1),
+      onTap: () => controller.goToTab(StudentShellTab.destinations),
     );
   }
 }
@@ -791,7 +827,7 @@ class _QuickActions extends StatelessWidget {
         Icons.explore_rounded,
         'Explorer',
         KpbColors.sky,
-        () => controller.goToTab(1),
+        () => controller.goToTab(StudentShellTab.destinations),
       ),
       (
         Icons.workspace_premium_rounded,
@@ -803,7 +839,7 @@ class _QuickActions extends StatelessWidget {
         Icons.folder_copy_rounded,
         'Dossiers',
         KpbColors.success,
-        () => controller.goToTab(2),
+        () => controller.goToTab(StudentShellTab.cases),
       ),
     ];
 
@@ -822,6 +858,136 @@ class _QuickActions extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Assistant d'Orientation IA Banner
+// ─────────────────────────────────────────────────────────────────────────────
+class _AiAdvisorBanner extends StatelessWidget {
+  const _AiAdvisorBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: KpbColors.bgDarkCard,
+        borderRadius: KpbRadius.lgBr,
+        border: Border.all(
+          color: KpbColors.blue.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: KpbColors.blue.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(KpbSpacing.md),
+      child: Row(
+        children: [
+          // Glowing AI icon
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: KpbColors.heroGradient,
+              borderRadius: KpbRadius.mdBr,
+              boxShadow: [
+                BoxShadow(
+                  color: KpbColors.blue.withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.psychology_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Flexible(
+                      child: Text(
+                        "Conseiller d'Orientation IA",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: KpbColors.blue.withValues(alpha: 0.2),
+                        borderRadius: KpbRadius.xsBr,
+                        border: Border.all(
+                          color: KpbColors.blue.withValues(alpha: 0.5),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: const Text(
+                        "Nouveau",
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: KpbColors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  "Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: KpbColors.textDarkSecondary,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => Get.to(() => const AiChatScreen()),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Discuter avec l'IA",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: KpbColors.blue,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 14,
+                        color: KpbColors.blue,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -955,10 +1121,16 @@ class _InstitutionCard extends StatelessWidget {
                     showLabel: false),
                 if (isPartner) ...[
                   const SizedBox(width: 6),
-                  const KpbBadge(
-                    label: 'Partenaire',
-                    color: KpbColors.gold,
-                    small: true,
+                  const Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: KpbBadge(
+                        label: 'Partenaire',
+                        color: KpbColors.gold,
+                        small: true,
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -1251,6 +1423,477 @@ class _ArticleCard extends StatelessWidget {
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
                 size: 18, color: context.kpb.gray300),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Inscriptions à l'Étranger — Widget & Sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AbroadEnrollmentCard extends StatelessWidget {
+  const _AbroadEnrollmentCard({required this.controller});
+  final AppController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showAbroadCountriesSheet(context, controller),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: KpbColors.bgDarkCard,
+          borderRadius: KpbRadius.lgBr,
+          border: Border.all(
+            color: KpbColors.gold.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: KpbColors.gold.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Premium World Icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: KpbColors.goldGradient,
+                    borderRadius: KpbRadius.mdBr,
+                    boxShadow: [
+                      BoxShadow(
+                        color: KpbColors.gold.withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.public_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Flexible(
+                            child: Text(
+                              "Inscriptions à l'Étranger",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: KpbColors.gold.withValues(alpha: 0.15),
+                              borderRadius: KpbRadius.xsBr,
+                              border: Border.all(
+                                color: KpbColors.gold.withValues(alpha: 0.4),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: const Text(
+                              "Accompagnement",
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: KpbColors.gold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        "Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: KpbColors.textDarkSecondary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Divider
+            Container(
+              height: 0.5,
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
+            const SizedBox(height: 12),
+            // Footer with dynamic flag list & CTA
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Horizontal Row of Flags
+                Row(
+                  children: const ['canada', 'usa', 'uk', 'germany', 'morocco']
+                      .map((id) => Container(
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              borderRadius: KpbRadius.xsBr,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: Text(
+                              _flag(id),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ))
+                      .toList(),
+                ),
+                // CTA text & arrow
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Découvrir",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: KpbColors.gold,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: KpbColors.gold,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
+  final targetCountryIds = ['canada', 'usa', 'uk', 'germany', 'morocco'];
+  final countries = targetCountryIds
+      .map((id) => controller.countries.firstWhereOrNull((c) => c.id == id))
+      .whereType<CountryModel>()
+      .toList();
+
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    barrierColor: Colors.black.withValues(alpha: 0.75),
+    builder: (context) {
+      return Container(
+        decoration: BoxDecoration(
+          color: KpbColors.bgDarkMidnight,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.only(
+          left: KpbSpacing.lg,
+          right: KpbSpacing.lg,
+          top: KpbSpacing.md,
+          bottom: KpbSpacing.xl + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Grab handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: KpbRadius.pillBr,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Header Title
+            Row(
+              children: const [
+                Text(
+                  "S'inscrire à l'Étranger",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "🌍",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Découvrez les destinations d'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.",
+              style: TextStyle(
+                fontSize: 13,
+                color: KpbColors.textDarkSecondary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // List of countries
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: countries.map((country) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: KpbColors.bgDarkCard,
+                        borderRadius: KpbRadius.mdBr,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: KpbRadius.mdBr,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Get.back();
+                              Get.to(() => CountryDetailScreen(countryId: country.id));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(KpbSpacing.md),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Flag circular badge
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.06),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      _flag(country.id),
+                                      style: const TextStyle(fontSize: 24),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  // Text contents
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              controller.resolve(country.name),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            // Difficulty Badge
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(alpha: 0.05),
+                                                borderRadius: KpbRadius.xsBr,
+                                              ),
+                                              child: Text(
+                                                "Admission : ${controller.resolve(country.admissionDifficulty)}",
+                                                style: const TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: KpbColors.textDarkSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          controller.resolve(country.whyStudy),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: KpbColors.textDarkSecondary,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        // Budget Row
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.payments_outlined,
+                                              size: 14,
+                                              color: KpbColors.gold,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              "Scolarité : ",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white.withValues(alpha: 0.6),
+                                              ),
+                                            ),
+                                            Text(
+                                              controller.resolve(country.tuitionRange),
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: KpbColors.gold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Right Chevron
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 12),
+                                    child: Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Colors.white30,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Student Tools Banner — CV generator + Letters shortcut
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StudentToolsBanner extends StatelessWidget {
+  const _StudentToolsBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.to(() => const StudentToolsScreen()),
+      child: Container(
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              KpbColors.blue.withValues(alpha: 0.15),
+              KpbColors.success.withValues(alpha: 0.10),
+            ],
+          ),
+          borderRadius: KpbRadius.xlBr,
+          border: Border.all(
+            color: KpbColors.blue.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: KpbColors.blue.withValues(alpha: 0.15),
+                borderRadius: KpbRadius.mdBr,
+              ),
+              child: const Icon(
+                Icons.build_circle_rounded,
+                color: KpbColors.blue,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Outils etudiants',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: context.kpb.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'CV, lettres de motivation, et plus',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.kpb.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: context.kpb.textMuted,
+            ),
           ],
         ),
       ),

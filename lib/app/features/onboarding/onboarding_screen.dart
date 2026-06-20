@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
+import '../../core/services/onesignal_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../legal/legal_pages.dart';
+import 'onboarding_m2_constants.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Dial codes
@@ -73,7 +74,7 @@ const _countries = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Onboarding Screen — Stepper paginé
+// Onboarding Screen — Stepper paginé (light-premium)
 // ─────────────────────────────────────────────────────────────────────────────
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -83,7 +84,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final _pageController = PageController();
+  late final PageController _pageController;
   int _page = 0;
 
   // Form keys per page
@@ -120,6 +121,74 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _accountType == AccountType.partner ? 2 : 3;
 
   @override
+  void initState() {
+    super.initState();
+    _restoreFromProfile();
+    _page = _ctrl.onboardingStep.clamp(0, _totalPages - 1);
+    _pageController = PageController(initialPage: _page);
+  }
+
+  /// Rehydrate the form from any persisted (partial) profile so a user who
+  /// left mid-onboarding resumes where they stopped.
+  void _restoreFromProfile() {
+    _language = _ctrl.localeCode;
+    final profile = _ctrl.profile;
+    if (profile == null) return;
+
+    _accountType = profile.accountType;
+    if (profile.preferredLanguage.isNotEmpty) {
+      _language = profile.preferredLanguage;
+    }
+    // Only restore dropdown-backed values when they exist in the current
+    // option lists — a value persisted by an earlier onboarding flow that is
+    // absent here would crash DropdownButtonFormField.
+    if (_countries.contains(profile.countryOfResidence)) {
+      _country = profile.countryOfResidence;
+    }
+    if (_studyLevels.any((e) => e.$1 == profile.currentLevel)) {
+      _currentLevel = profile.currentLevel!;
+    }
+    if (_targetLevels.any((e) => e.$1 == profile.targetLevel)) {
+      _targetLevel = profile.targetLevel!;
+    }
+    if (_langLevels.any((e) => e.$1 == profile.languageLevel)) {
+      _languageLevel = profile.languageLevel!;
+    }
+    if (_grades.contains(profile.gradeRange)) {
+      _gradeRange = profile.gradeRange!;
+    }
+    _wantsScholarship = profile.wantsScholarshipSupport;
+    if (profile.fieldIds.isNotEmpty) {
+      _fieldIds
+        ..clear()
+        ..addAll(profile.fieldIds);
+    }
+    if (profile.targetCountryIds.isNotEmpty) {
+      _countryIds
+        ..clear()
+        ..addAll(profile.targetCountryIds);
+    }
+    if (profile.availableDocuments.isNotEmpty) {
+      _docs
+        ..clear()
+        ..addAll(profile.availableDocuments);
+    }
+
+    // Names / contact come back as composite strings — best-effort rehydrate.
+    final parts = profile.fullName.trim().split(RegExp(r'\s+'));
+    if (parts.isNotEmpty && parts.first.isNotEmpty) {
+      _firstNameCtrl.text = parts.first;
+      if (parts.length > 1) {
+        _lastNameCtrl.text = parts.sublist(1).join(' ');
+      }
+    }
+    _emailCtrl.text = profile.email;
+    if (profile.consentedAt != null) {
+      _hasConsented = true;
+    }
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     _firstNameCtrl.dispose();
@@ -128,6 +197,46 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _phoneCtrl.dispose();
     _whatsAppCtrl.dispose();
     super.dispose();
+  }
+
+  /// Builds the (possibly partial) profile from current form state.
+  /// Shared by progress persistence and final submit so a resumed session
+  /// keeps the same stable id.
+  UserProfile _buildProfile() {
+    final existing = _ctrl.profile;
+    final firstName = _firstNameCtrl.text.trim();
+    final lastName = _lastNameCtrl.text.trim();
+    final isPartner = _accountType == AccountType.partner;
+    final phone = _phoneCtrl.text.trim().isEmpty
+        ? (existing?.phone ?? '')
+        : '${_phoneCode.code} ${_phoneCtrl.text.trim()}';
+    final whatsApp = _sameWhatsApp
+        ? phone
+        : (_whatsAppCtrl.text.trim().isEmpty
+            ? (existing?.whatsApp ?? '')
+            : '${_waCode.code} ${_whatsAppCtrl.text.trim()}');
+
+    return UserProfile(
+      id: existing?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      accountType: _accountType,
+      fullName: '$firstName $lastName'.trim(),
+      email: _emailCtrl.text.trim(),
+      phone: phone,
+      whatsApp: whatsApp,
+      countryOfResidence: _country,
+      preferredLanguage: _language,
+      currentLevel: isPartner ? null : _currentLevel,
+      targetLevel: isPartner ? null : _targetLevel,
+      languageLevel: isPartner ? null : _languageLevel,
+      fieldIds: isPartner ? const [] : _fieldIds.toList(),
+      targetCountryIds: isPartner ? const [] : _countryIds.toList(),
+      gradeRange: isPartner ? null : _gradeRange,
+      wantsScholarshipSupport:
+          _accountType == AccountType.student && _wantsScholarship,
+      availableDocuments: isPartner ? const [] : _docs.toList(),
+      consentedAt:
+          _hasConsented ? (existing?.consentedAt ?? DateTime.now()) : null,
+    );
   }
 
   void _next() {
@@ -179,6 +288,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (!valid) return;
     HapticFeedback.lightImpact();
     if (_page < _totalPages - 1) {
+      final nextPage = _page + 1;
+      // Persist progress so the user can resume mid-onboarding.
+      _ctrl.saveOnboardingProgress(nextPage, _buildProfile());
       _pageController.nextPage(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
@@ -195,34 +307,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  void _submit() {
-    final firstName = _firstNameCtrl.text.trim();
-    final lastName = _lastNameCtrl.text.trim();
-    final phone = '${_phoneCode.code} ${_phoneCtrl.text.trim()}';
-    final whatsApp = _sameWhatsApp
-        ? phone
-        : '${_waCode.code} ${_whatsAppCtrl.text.trim()}';
-
-    final profile = UserProfile(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      accountType: _accountType,
-      fullName: '$firstName $lastName'.trim(),
-      email: _emailCtrl.text.trim(),
-      phone: phone,
-      whatsApp: whatsApp,
-      countryOfResidence: _country,
-      preferredLanguage: _language,
-      currentLevel: _accountType == AccountType.partner ? null : _currentLevel,
-      targetLevel: _accountType == AccountType.partner ? null : _targetLevel,
-      languageLevel: _accountType == AccountType.partner ? null : _languageLevel,
-      fieldIds: _accountType == AccountType.partner ? [] : _fieldIds.toList(),
-      targetCountryIds: _accountType == AccountType.partner ? [] : _countryIds.toList(),
-      gradeRange: _accountType == AccountType.partner ? null : _gradeRange,
-      wantsScholarshipSupport: _accountType == AccountType.student && _wantsScholarship,
-      availableDocuments: _accountType == AccountType.partner ? [] : _docs.toList(),
-      consentedAt: DateTime.now(),
-    );
-    _ctrl.completeOnboarding(profile);
+  Future<void> _submit() async {
+    // Ask for push permission via OneSignal; identity is linked in
+    // completeOnboarding() → syncOneSignalIdentity().
+    await OneSignalService.instance.requestPermission();
+    _ctrl.completeOnboarding(_buildProfile());
+    Get.offAllNamed(AppRoutes.home);
   }
 
   @override
@@ -236,6 +326,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page: _page,
             total: _totalPages,
             onBack: _page > 0 ? _prev : null,
+            onSkip: _page > 0 ? _ctrl.skipOnboarding : null,
           ),
 
           // ── Pages ────────────────────────────────────────────────
@@ -358,9 +449,11 @@ class _ProgressHeader extends StatelessWidget {
     required this.page,
     required this.total,
     this.onBack,
+    this.onSkip,
   });
   final int page, total;
   final VoidCallback? onBack;
+  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +490,18 @@ class _ProgressHeader extends StatelessWidget {
                   style: KpbTextStyles.label,
                 ),
                 const Spacer(),
-                const SizedBox(width: 36),
+                if (onSkip != null)
+                  TextButton(
+                    onPressed: onSkip,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      minimumSize: const Size(36, 36),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text('Passer'),
+                  )
+                else
+                  const SizedBox(width: 36),
               ],
             ),
             const SizedBox(height: KpbSpacing.sm),
@@ -540,7 +644,7 @@ class _PageIdentity extends StatelessWidget {
         const Text('Je suis', style: KpbTextStyles.titleMd),
         const SizedBox(height: 10),
         Row(
-          children: AccountType.values.map((t) {
+          children: onboardingAccountTypes.map((t) {
             final sel = t == accountType;
             return Expanded(
               child: KpbPressable(
@@ -548,7 +652,7 @@ class _PageIdentity extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
                   margin: EdgeInsets.only(
-                    right: t != AccountType.values.last ? 8 : 0,
+                    right: t != onboardingAccountTypes.last ? 8 : 0,
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
@@ -730,7 +834,7 @@ class _PageIdentity extends StatelessWidget {
                           onTap: () => Get.to(
                               () => const PrivacyPolicyScreen()),
                           child: const Text(
-                            'politique de confidentialit\u00e9',
+                            'politique de confidentialité',
                             style: TextStyle(
                               fontSize: 13,
                               color: KpbColors.blue,

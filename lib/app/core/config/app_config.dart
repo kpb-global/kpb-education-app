@@ -20,14 +20,70 @@ class AppConfig {
   static String get apiBaseUrl =>
       resolveApiBaseUrl(override: apiBaseUrlOverride, env: appEnv);
 
-  static const enableRemoteSync = bool.fromEnvironment(
+  static bool get enableRemoteSync => _enableRemoteSyncOverride ?? const bool.fromEnvironment(
     'KPB_ENABLE_REMOTE_SYNC',
     defaultValue: true,
   );
 
+  static bool? _enableRemoteSyncOverride;
+
+  @visibleForTesting
+  static set enableRemoteSyncOverride(bool? value) => _enableRemoteSyncOverride = value;
+
   static const requestTimeoutInSeconds = int.fromEnvironment(
     'KPB_REQUEST_TIMEOUT',
     defaultValue: 15,
+  );
+
+  /// Main KPB WhatsApp line (E.164 digits, with or without leading +).
+  static const whatsappNumber = String.fromEnvironment(
+    'KPB_WHATSAPP_NUMBER',
+    defaultValue: '',
+  );
+
+  /// Optional WhatsApp group invite fallback.
+  static const whatsappGroupInvite = String.fromEnvironment(
+    'KPB_WHATSAPP_GROUP',
+    defaultValue: 'https://chat.whatsapp.com/KPBEducation',
+  );
+
+  // ── OneSignal push notifications ───────────────────────────────────────
+  /// OneSignal App ID. Overridable via --dart-define=KPB_ONESIGNAL_APP_ID.
+  static const oneSignalAppId = String.fromEnvironment(
+    'KPB_ONESIGNAL_APP_ID',
+    defaultValue: '779d9ea8-1a0d-4189-9d51-4077cb8ded2a',
+  );
+
+  /// True when a non-empty OneSignal App ID is configured.
+  static bool get oneSignalEnabled => oneSignalAppId.trim().isNotEmpty;
+
+  /// MVP launch lock. When true, modules outside the M1–M14 MVP scope
+  /// (community/forum, alumni, academy, salon, housing, travel, blog and the
+  /// scraped live-scholarships aggregator) are hidden from navigation without
+  /// removing their code, so they can be re-enabled for V1.1+.
+  static const mvpOnly = bool.fromEnvironment(
+    'KPB_MVP_ONLY',
+    defaultValue: true,
+  );
+
+  // ── Supabase Auth ──────────────────────────────────────────────────────
+  /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
+  static const supabaseUrl = String.fromEnvironment(
+    'KPB_SUPABASE_URL',
+    defaultValue: 'https://hijzqsljasbobjrjotjy.supabase.co',
+  );
+
+  /// Supabase anon (publishable) key.
+  static const supabaseAnonKey = String.fromEnvironment(
+    'KPB_SUPABASE_ANON_KEY',
+    defaultValue:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpanpxc2xqYXNib2JqcmpvdGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MTkwODQsImV4cCI6MjA5MDM5NTA4NH0.Yib53B7tICNpnJWktCrc_JhtD06mAby4hbNWKXt3je0',
+  );
+
+  /// Deep-link redirect registered with the Supabase OAuth provider (Google).
+  static const supabaseOAuthRedirect = String.fromEnvironment(
+    'KPB_SUPABASE_OAUTH_REDIRECT',
+    defaultValue: 'io.supabase.kpbeducation://login-callback/',
   );
 
   static const storageNamespace = 'kpb_relaunch_v1';

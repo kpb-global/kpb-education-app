@@ -14,6 +14,8 @@ import { StudentAuthService } from './student-auth.service';
 import { StudentRegisterDto } from './dto/student-register.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { MagicLinkRequestDto } from './dto/magic-link-request.dto';
+import { MagicLinkVerifyDto } from './dto/magic-link-verify.dto';
 
 @Controller('auth/student')
 export class StudentAuthController {
@@ -42,5 +44,17 @@ export class StudentAuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: { studentUser: { id: string } }) {
     await this.studentAuthService.logout(req.studentUser.id);
+  }
+
+  @Post('magic-link/request')
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
+  requestMagicLink(@Body() input: MagicLinkRequestDto) {
+    return this.studentAuthService.requestMagicLink(input.email);
+  }
+
+  @Post('magic-link/verify')
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
+  verifyMagicLink(@Body() input: MagicLinkVerifyDto) {
+    return this.studentAuthService.verifyMagicLink(input);
   }
 }

@@ -6,8 +6,18 @@ import { OrientationService } from './orientation.service';
 export class OrientationController {
   constructor(private readonly orientationService: OrientationService) {}
 
+  @Get('questions')
+  getQuestions() {
+    return this.orientationService.getQuestions();
+  }
+
   @Post('sessions')
   createSession(@Body() body: Record<string, unknown>) {
+    return this.orientationService.createSession(body);
+  }
+
+  @Post('submit')
+  submit(@Body() body: Record<string, unknown>) {
     return this.orientationService.createSession(body);
   }
 

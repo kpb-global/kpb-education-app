@@ -3,42 +3,20 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
-import '../../core/ui/app_tokens.dart';
 import '../../core/ui/skeleton_loader.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
-import 'case_timeline_stepper.dart';
-
-// Fallback group link used when the case has no assigned advisor yet.
-const _kKpbWhatsappGroup = 'https://chat.whatsapp.com/KPBEducation';
+import '../../core/utils/whatsapp_utils.dart';
+import 'case_status_timeline.dart';
+import 'case_timeline_definition.dart';
 
 Future<void> _openWhatsapp({String? phone, String? prefill}) async {
-  final Uri uri;
-  if (phone != null && phone.isNotEmpty) {
-    final cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    final normalized = cleaned.startsWith('+') ? cleaned.substring(1) : cleaned;
-    final query = prefill != null && prefill.isNotEmpty
-        ? '?text=${Uri.encodeComponent(prefill)}'
-        : '';
-    uri = Uri.parse('https://wa.me/$normalized$query');
-  } else {
-    uri = Uri.parse(_kKpbWhatsappGroup);
-  }
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
-    Get.snackbar(
-      'WhatsApp',
-      "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
-    );
-  }
+  await openWhatsAppOrToast(phone: phone, prefill: prefill);
 }
 
 Future<void> _callPhone(String phone) async {
@@ -63,7 +41,19 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
   AppController get _ctrl => Get.find<AppController>();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ctrl.markCaseMessagesRead(widget.caseId);
+      if (AppConfig.enableRemoteSync) {
+        _ctrl.connectCaseDetailSocket(widget.caseId);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _ctrl.disconnectCaseDetailSocket();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -132,20 +122,31 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
         // The case can disappear from the list mid-session (e.g. its local id
         // is swapped for the server id after a remote create), so look it up
         // null-safely instead of crashing with a StateError.
-        final matches = _ctrl.cases.where((e) => e.id == widget.caseId);
-        if (matches.isEmpty) {
+        final c = _ctrl.cases.firstWhereOrNull((e) => e.id == widget.caseId);
+        if (c == null) {
           return Scaffold(
             backgroundColor: context.kpb.pageBg,
-            appBar: AppBar(backgroundColor: context.kpb.pageBg, elevation: 0),
-            body: Center(
-              child: Text(
-                'case_not_found'.tr,
-                style: KpbTextStyles.bodySm,
+            appBar: AppBar(
+              title: const Text('Dossier introuvable'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => Get.back(),
               ),
+            ),
+            body: KpbEmptyState(
+              icon: Icons.folder_off_outlined,
+              title: 'Ce dossier n\'est plus disponible',
+              subtitle: 'Retourne a la liste des dossiers pour continuer.',
+              actionLabel: 'Ouvrir mes dossiers',
+              onAction: () {
+                _ctrl.goToTab(StudentShellTab.cases);
+                if (Get.key.currentState?.canPop() ?? false) {
+                  Get.back();
+                }
+              },
             ),
           );
         }
-        final c = matches.first;
         final statusInfo = _statusInfo(c.status);
 
         return Scaffold(
@@ -173,7 +174,12 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     decoration: const BoxDecoration(
                       gradient: KpbColors.heroGradient,
                     ),
-                    padding: const EdgeInsets.fromLTRB(20, 80, 20, 16),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      MediaQuery.of(context).padding.top + 40,
+                      20,
+                      16,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -217,22 +223,28 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   Container(
                     width: double.infinity,
                     color: KpbColors.warning.withValues(alpha: 0.1),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.wifi_off_rounded, color: KpbColors.warning, size: 16),
+                        Icon(Icons.wifi_off_rounded,
+                            color: KpbColors.warning, size: 16),
                         SizedBox(width: 8),
                         Text(
                           'Mode hors ligne. Affichage des données en cache.',
-                          style: TextStyle(color: KpbColors.warning, fontSize: 12, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: KpbColors.warning,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
                   ),
-                
+
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                      KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -244,403 +256,470 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         SkeletonLoader.card(height: 150),
                       ] else ...[
                         // ── Prochaine étape ──────────────────────────────────────────
-                KpbCard(
-                  color: KpbColors.blue.withValues(alpha: 0.06),
-                  border: Border.all(
-                      color: KpbColors.blue.withValues(alpha: 0.15)),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: KpbColors.blue.withValues(alpha: 0.12),
-                          borderRadius: KpbRadius.mdBr,
-                        ),
-                        child: const Icon(Icons.arrow_right_alt_rounded,
-                            color: KpbColors.blue, size: 22),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Prochaine étape',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: KpbColors.blue,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              _ctrl.resolve(c.nextStepTitle),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: context.kpb.textPrimary,
-                              ),
-                            ),
-                            if (c.nextStepDescription.fr.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                _ctrl.resolve(c.nextStepDescription),
-                                style: KpbTextStyles.bodySm,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: KpbSpacing.md),
-                
-                // ── Stepper visuel ───────────────────────────────────────────
-                CaseTimelineStepper(currentStatus: c.status),
-                const SizedBox(height: KpbSpacing.md),
-
-                // ── Conseiller ───────────────────────────────────────────────
-                if (c.assignedAdvisorName != null)
-                  KpbCard(
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor:
-                              KpbColors.sky.withValues(alpha: 0.15),
-                          child: Text(
-                            (c.assignedAdvisorName ?? 'K')[0].toUpperCase(),
-                            style: const TextStyle(
-                              color: KpbColors.sky,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
+                        KpbCard(
+                          color: KpbColors.blue.withValues(alpha: 0.06),
+                          border: Border.all(
+                              color: KpbColors.blue.withValues(alpha: 0.15)),
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                c.assignedAdvisorName ?? 'KPB Team',
-                                style: KpbTextStyles.titleMd,
-                              ),
-                              Text(
-                                'Conseiller KPB Education',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: context.kpb.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (c.advisorWhatsapp != null)
-                          _AdvisorAction(
-                            icon: Icons.chat_rounded,
-                            color: KpbColors.success,
-                            onTap: () => _openWhatsapp(
-                              phone: c.advisorWhatsapp,
-                              prefill:
-                                  'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
-                            ),
-                          ),
-                        if (c.advisorPhone != null) ...[
-                          const SizedBox(width: 8),
-                          _AdvisorAction(
-                            icon: Icons.call_rounded,
-                            color: KpbColors.blue,
-                            onTap: () => _callPhone(c.advisorPhone!),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                if (c.assignedAdvisorName != null)
-                  const SizedBox(height: KpbSpacing.sm),
-
-                // ── WhatsApp CTA ─────────────────────────────────────────────
-                // Students trust WhatsApp more than the in-app inbox; make it
-                // the primary channel. Falls back to the KPB group link if no
-                // advisor is assigned yet.
-                _WhatsappContinueButton(
-                  onTap: () => _openWhatsapp(
-                    phone: c.advisorWhatsapp,
-                    prefill:
-                        'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
-                  ),
-                  hasAdvisor: c.advisorWhatsapp != null,
-                ),
-                const SizedBox(height: KpbSpacing.md),
-
-                // ── Documents ────────────────────────────────────────────────
-                if (c.documentRequests.isNotEmpty) ...[
-                  const SectionHeader(
-                    title: 'Documents',
-                    padding: EdgeInsets.zero,
-                  ),
-                  const SizedBox(height: KpbSpacing.sm),
-                  KpbCard(
-                    child: Column(
-                      children: c.documentRequests.asMap().entries.map((e) {
-                        final i = e.key;
-                        final doc = e.value;
-                        return Column(
-                          children: [
-                            if (i > 0) const KpbDivider(),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: i > 0 ? KpbSpacing.sm : 0,
-                                  bottom: i < c.documentRequests.length - 1
-                                      ? KpbSpacing.sm
-                                      : 0),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: doc.isProvided
-                                          ? KpbColors.success
-                                              .withValues(alpha: 0.1)
-                                          : KpbColors.warning
-                                              .withValues(alpha: 0.1),
-                                      borderRadius: KpbRadius.smBr,
-                                    ),
-                                    child: Icon(
-                                      doc.isProvided
-                                          ? Icons.check_circle_rounded
-                                          : Icons.upload_file_rounded,
-                                      size: 18,
-                                      color: doc.isProvided
-                                          ? KpbColors.success
-                                          : KpbColors.warning,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      _ctrl.resolve(doc.title),
-                                      style: KpbTextStyles.body,
-                                    ),
-                                  ),
-                                  if (!doc.isProvided)
-                                    GestureDetector(
-                                      onTap: () => _promptUpload(c.id, doc),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: KpbColors.blue
-                                              .withValues(alpha: 0.1),
-                                          borderRadius: KpbRadius.pillBr,
-                                        ),
-                                        child: const Text(
-                                          'Envoyer',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: KpbColors.blue,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    const KpbBadge(
-                                        label: '✓ Reçu',
-                                        color: KpbColors.success),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: KpbSpacing.md),
-                ],
-
-                // ── Timeline ────────────────────────────────────────────────
-                if (c.timeline.isNotEmpty) ...[
-                  const SectionHeader(title: 'Historique', padding: EdgeInsets.zero),
-                  const SizedBox(height: KpbSpacing.sm),
-                  KpbCard(
-                    child: Column(
-                      children: c.timeline.asMap().entries.map((e) {
-                        final i = e.key;
-                        final event = e.value;
-                        final isLast = i == c.timeline.length - 1;
-                        return _TimelineItem(
-                          event: event,
-                          isLast: isLast,
-                          ctrl: _ctrl,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: KpbSpacing.md),
-                ],
-
-                // ── Messages ─────────────────────────────────────────────────
-                SectionHeader(
-                  title:
-                      'Messages${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}',
-                  padding: EdgeInsets.zero,
-                ),
-                const SizedBox(height: KpbSpacing.sm),
-                if (c.messages.isEmpty)
-                  const KpbCard(
-                    child: KpbEmptyState(
-                      icon: Icons.chat_bubble_outline_rounded,
-                      title: 'no_messages',
-                      subtitle: 'send_message_hint',
-                    ),
-                  )
-                else
-                  Column(
-                    children: c.messages.map((msg) {
-                      final isStudent = msg.senderRole == 'student';
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Row(
-                          mainAxisAlignment: isStudent
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (!isStudent) ...[
-                              CircleAvatar(
-                                radius: 14,
-                                backgroundColor:
-                                    KpbColors.sky.withValues(alpha: 0.15),
-                                child: Text(
-                                  msg.senderName[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: KpbColors.sky,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 10),
+                              Container(
+                                width: 40,
+                                height: 40,
                                 decoration: BoxDecoration(
-                                  color: isStudent
-                                      ? KpbColors.blue
-                                      : context.kpb.cardBg,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: const Radius.circular(16),
-                                    topRight: const Radius.circular(16),
-                                    bottomLeft: isStudent
-                                        ? const Radius.circular(16)
-                                        : const Radius.circular(4),
-                                    bottomRight: isStudent
-                                        ? const Radius.circular(4)
-                                        : const Radius.circular(16),
-                                  ),
-                                  boxShadow: KpbShadow.card,
+                                  color: KpbColors.blue.withValues(alpha: 0.12),
+                                  borderRadius: KpbRadius.mdBr,
                                 ),
+                                child: const Icon(Icons.arrow_right_alt_rounded,
+                                    color: KpbColors.blue, size: 22),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    const Text(
+                                      'Prochaine étape',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: KpbColors.blue,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
                                     Text(
-                                      _ctrl.resolve(msg.body),
+                                      _ctrl.resolve(c.nextStepTitle),
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: isStudent
-                                            ? Colors.white
-                                            : context.kpb.textPrimary,
+                                        fontWeight: FontWeight.w700,
+                                        color: context.kpb.textPrimary,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      DateFormat('HH:mm', _ctrl.localeCode)
-                                          .format(msg.createdAt),
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: isStudent
-                                            ? Colors.white54
-                                            : context.kpb.textMuted,
+                                    if (c
+                                        .nextStepDescription.fr.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _ctrl.resolve(c.nextStepDescription),
+                                        style: KpbTextStyles.bodySm,
                                       ),
-                                    ),
+                                    ],
                                   ],
                                 ),
                               ),
-                            ),
-                            if (isStudent) const SizedBox(width: 8),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: KpbSpacing.md),
+                        const SizedBox(height: KpbSpacing.md),
 
-                // ── Input message ────────────────────────────────────────────
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: context.kpb.cardBg,
-                    borderRadius: KpbRadius.xlBr,
-                    boxShadow: KpbShadow.float,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _messageController,
-                          maxLines: 3,
-                          minLines: 1,
-                          decoration: InputDecoration(
-                            hintText: 'message_input_hint'.tr,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 8),
+                        // ── Timeline M14 (10 statuts) ────────────────────────────────
+                        CaseStatusTimeline(
+                          steps: buildCaseTimelineSteps(
+                            currentStatus: c.status,
+                            events: c.timeline,
+                            assignedAdvisorName: c.assignedAdvisorName,
+                          ),
+                          localeCode: _ctrl.localeCode,
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
+
+                        // ── Conseiller ───────────────────────────────────────────────
+                        if (c.assignedAdvisorName != null)
+                          KpbCard(
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor:
+                                      KpbColors.sky.withValues(alpha: 0.15),
+                                  child: Text(
+                                    (c.assignedAdvisorName ?? 'K')[0]
+                                        .toUpperCase(),
+                                    style: const TextStyle(
+                                      color: KpbColors.sky,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        c.assignedAdvisorName ?? 'KPB Team',
+                                        style: KpbTextStyles.titleMd,
+                                      ),
+                                      Text(
+                                        'Conseiller KPB Education',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: context.kpb.textMuted,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (c.advisorWhatsapp != null)
+                                  _AdvisorAction(
+                                    icon: Icons.chat_rounded,
+                                    color: KpbColors.success,
+                                    onTap: () => _openWhatsapp(
+                                      phone: c.advisorWhatsapp,
+                                      prefill:
+                                          'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
+                                    ),
+                                  ),
+                                if (c.advisorPhone != null) ...[
+                                  const SizedBox(width: 8),
+                                  _AdvisorAction(
+                                    icon: Icons.call_rounded,
+                                    color: KpbColors.blue,
+                                    onTap: () => _callPhone(c.advisorPhone!),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        if (c.assignedAdvisorName != null)
+                          const SizedBox(height: KpbSpacing.sm),
+
+                        // ── WhatsApp CTA ─────────────────────────────────────────────
+                        // Students trust WhatsApp more than the in-app inbox; make it
+                        // the primary channel. Falls back to the KPB group link if no
+                        // advisor is assigned yet.
+                        _WhatsappContinueButton(
+                          onTap: () => _openWhatsapp(
+                            phone: c.advisorWhatsapp,
+                            prefill:
+                                'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
+                          ),
+                          hasAdvisor: c.advisorWhatsapp != null,
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
+
+                        // ── Documents ────────────────────────────────────────────────
+                        if (c.documentRequests.isNotEmpty) ...[
+                          const SectionHeader(
+                            title: 'Documents',
+                            padding: EdgeInsets.zero,
+                          ),
+                          const SizedBox(height: KpbSpacing.sm),
+                          KpbCard(
+                            child: Column(
+                              children:
+                                  c.documentRequests.asMap().entries.map((e) {
+                                final i = e.key;
+                                final doc = e.value;
+                                return Column(
+                                  children: [
+                                    if (i > 0) const KpbDivider(),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: i > 0 ? KpbSpacing.sm : 0,
+                                          bottom:
+                                              i < c.documentRequests.length - 1
+                                                  ? KpbSpacing.sm
+                                                  : 0),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: doc.isProvided
+                                                  ? KpbColors.success
+                                                      .withValues(alpha: 0.1)
+                                                  : KpbColors.warning
+                                                      .withValues(alpha: 0.1),
+                                              borderRadius: KpbRadius.smBr,
+                                            ),
+                                            child: Icon(
+                                              doc.isProvided
+                                                  ? Icons.check_circle_rounded
+                                                  : Icons.upload_file_rounded,
+                                              size: 18,
+                                              color: doc.isProvided
+                                                  ? KpbColors.success
+                                                  : KpbColors.warning,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              _ctrl.resolve(doc.title),
+                                              style: KpbTextStyles.body,
+                                            ),
+                                          ),
+                                          if (!doc.isProvided)
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  _promptUpload(c.id, doc),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: KpbColors.blue
+                                                      .withValues(alpha: 0.1),
+                                                  borderRadius:
+                                                      KpbRadius.pillBr,
+                                                ),
+                                                child: const Text(
+                                                  'Envoyer',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: KpbColors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          else
+                                            const KpbBadge(
+                                                label: '✓ Reçu',
+                                                color: KpbColors.success),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: KpbSpacing.md),
+                        ],
+
+                        // ── Timeline ────────────────────────────────────────────────
+                        if (c.timeline.isNotEmpty) ...[
+                          const SectionHeader(
+                              title: 'Historique', padding: EdgeInsets.zero),
+                          const SizedBox(height: KpbSpacing.sm),
+                          KpbCard(
+                            child: Column(
+                              children: c.timeline.asMap().entries.map((e) {
+                                final i = e.key;
+                                final event = e.value;
+                                final isLast = i == c.timeline.length - 1;
+                                return _TimelineItem(
+                                  event: event,
+                                  isLast: isLast,
+                                  ctrl: _ctrl,
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: KpbSpacing.md),
+                        ],
+
+                        // ── Messages ─────────────────────────────────────────────────
+                        SectionHeader(
+                          title:
+                              'Messages${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} non lu(s)' : ''}',
+                          padding: EdgeInsets.zero,
+                        ),
+                        const SizedBox(height: KpbSpacing.sm),
+                        if (c.messages.isEmpty)
+                          const KpbCard(
+                            child: KpbEmptyState(
+                              icon: Icons.chat_bubble_outline_rounded,
+                              title: 'no_messages',
+                              subtitle: 'send_message_hint',
+                            ),
+                          )
+                        else
+                          Column(
+                            children: c.messages.map((msg) {
+                              final isStudent = msg.senderRole == 'student';
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  mainAxisAlignment: isStudent
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (!isStudent) ...[
+                                      CircleAvatar(
+                                        radius: 14,
+                                        backgroundColor: KpbColors.sky
+                                            .withValues(alpha: 0.15),
+                                        child: Text(
+                                          msg.senderName[0].toUpperCase(),
+                                          style: const TextStyle(
+                                            color: KpbColors.sky,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Flexible(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: isStudent
+                                              ? KpbColors.blue
+                                              : context.kpb.cardBg,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: const Radius.circular(16),
+                                            topRight: const Radius.circular(16),
+                                            bottomLeft: isStudent
+                                                ? const Radius.circular(16)
+                                                : const Radius.circular(4),
+                                            bottomRight: isStudent
+                                                ? const Radius.circular(4)
+                                                : const Radius.circular(16),
+                                          ),
+                                          boxShadow: KpbShadow.card,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _ctrl.resolve(msg.body),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: isStudent
+                                                    ? Colors.white
+                                                    : context.kpb.textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              DateFormat(
+                                                      'HH:mm', _ctrl.localeCode)
+                                                  .format(msg.createdAt),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: isStudent
+                                                    ? Colors.white54
+                                                    : context.kpb.textMuted,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    if (isStudent) const SizedBox(width: 8),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        const SizedBox(height: KpbSpacing.sm),
+
+                        // ── Typing indicator ─────────────────────────────────────────
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: _ctrl.isCaseAdvisorTyping
+                              ? Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    key: const ValueKey('typing'),
+                                    margin: const EdgeInsets.only(
+                                        bottom: KpbSpacing.sm),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: context.kpb.cardBg,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(16),
+                                        topRight: Radius.circular(16),
+                                        bottomRight: Radius.circular(16),
+                                        bottomLeft: Radius.circular(4),
+                                      ),
+                                      boxShadow: KpbShadow.card,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _TypingDot(delay: Duration.zero),
+                                        const SizedBox(width: 4),
+                                        _TypingDot(
+                                            delay:
+                                                const Duration(milliseconds: 200)),
+                                        const SizedBox(width: 4),
+                                        _TypingDot(
+                                            delay:
+                                                const Duration(milliseconds: 400)),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(
+                                  key: ValueKey('no-typing')),
+                        ),
+
+                        const SizedBox(height: KpbSpacing.sm),
+
+                        // ── Input message ────────────────────────────────────────────
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: context.kpb.cardBg,
+                            borderRadius: KpbRadius.xlBr,
+                            boxShadow: KpbShadow.float,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _messageController,
+                                  maxLines: 3,
+                                  minLines: 1,
+                                  decoration: InputDecoration(
+                                    hintText: 'message_input_hint'.tr,
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 8),
+                                  ),
+                                  onChanged: (value) {
+                                    _ctrl.sendCaseTyping(
+                                        c.id, value.isNotEmpty);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  final text = _messageController.text.trim();
+                                  if (text.isEmpty) return;
+                                  _ctrl.addCaseMessage(c.id, text);
+                                  _messageController.clear();
+                                },
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: const BoxDecoration(
+                                    color: KpbColors.blue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.send_rounded,
+                                      color: Colors.white, size: 18),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          final text = _messageController.text.trim();
-                          if (text.isEmpty) return;
-                          _ctrl.addCaseMessage(c.id, text);
-                          _messageController.clear();
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: KpbColors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.send_rounded,
-                              color: Colors.white, size: 18),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-                ],
               ],
             ),
           ),
-        ],
-      ),
-    ),
-  );
-},
-);
-}
+        );
+      },
+    );
+  }
 
   ({String label, Color color}) _statusInfo(CaseStatus status) {
     switch (status) {
@@ -659,7 +738,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
       case CaseStatus.inProgress:
         return (label: 'status_in_progress'.tr, color: KpbColors.blue);
       case CaseStatus.applicationSubmitted:
-        return (label: 'status_application_submitted'.tr, color: KpbColors.blueMid);
+        return (
+          label: 'status_application_submitted'.tr,
+          color: KpbColors.blueMid
+        );
       case CaseStatus.waitingDecision:
         return (label: 'status_waiting_decision'.tr, color: KpbColors.gold);
       case CaseStatus.awaitingPayment:
@@ -774,8 +856,10 @@ class _TimelineItem extends StatelessWidget {
         return KpbColors.error;
       case CaseStatus.completed:
         return KpbColors.success;
+      case CaseStatus.cancelled:
+        return context.kpb.gray500;
       default:
-        return context.kpb.gray300;
+        return context.kpb.gray400;
     }
   }
 }
@@ -795,7 +879,8 @@ class _WhatsappContinueButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Get.locale?.languageCode ?? 'fr';
-    final label = locale == 'en' ? 'Continue on WhatsApp' : 'Continuer sur WhatsApp';
+    final label =
+        locale == 'en' ? 'Continue on WhatsApp' : 'Continuer sur WhatsApp';
     final subtitle = hasAdvisor
         ? (locale == 'en'
             ? 'Chat directly with your KPB advisor.'
@@ -890,6 +975,60 @@ class _AdvisorAction extends StatelessWidget {
           borderRadius: KpbRadius.mdBr,
         ),
         child: Icon(icon, color: color, size: 18),
+      ),
+    );
+  }
+}
+
+/// Animated bouncing dot for the typing indicator.
+class _TypingDot extends StatefulWidget {
+  const _TypingDot({required this.delay});
+  final Duration delay;
+
+  @override
+  State<_TypingDot> createState() => _TypingDotState();
+}
+
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _anim = Tween<double>(begin: 0, end: -6).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.repeat(reverse: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) => Transform.translate(
+        offset: Offset(0, _anim.value),
+        child: Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(
+            color: KpbColors.gray400,
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

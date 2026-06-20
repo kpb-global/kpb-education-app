@@ -59,4 +59,9 @@ export class NotificationsController {
   listDeliveries(@Param('id') id: string) {
     return this.notificationsService.listDeliveries(id);
   }
+
+  @Get('campaigns/:id/stats')
+  campaignStats(@Param('id') id: string) {
+    return this.notificationsService.campaignStats(id);
+  }
 }

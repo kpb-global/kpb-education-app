@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
 
@@ -12,26 +12,30 @@ class CaseSocketService {
   // created socket whenever connect() runs again (disconnect() disposes the
   // previous socket and would otherwise drop them).
   void Function(Map<String, dynamic> data)? _onMessage;
+  void Function(Map<String, dynamic> data)? _onCaseUpdated;
   void Function(Map<String, dynamic> data)? _onMessageAck;
   void Function(Map<String, dynamic> data)? _onTyping;
 
   bool get isConnected => _socket?.connected ?? false;
+  String? get currentCaseId => _currentCaseId;
 
-  Future<void> connect(String caseId) async {
+  Future<void> connect(String caseId, {String? fullName}) async {
     await disconnect();
     _currentCaseId = caseId;
 
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'kpb.auth.accessToken') ?? '';
+    final token =
+        Supabase.instance.client.auth.currentSession?.accessToken ?? '';
 
-    final baseUrl = AppConfig.apiBaseUrl
-        .replaceFirst('/api', '');
+    final baseUrl = AppConfig.apiBaseUrl.replaceFirst('/api', '');
 
     _socket = io.io(
       '$baseUrl/cases',
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setQuery({'token': token})
+          .setQuery({
+            'token': token,
+            if (fullName != null && fullName.isNotEmpty) 'fullName': fullName,
+          })
           .enableAutoConnect()
           .enableReconnection()
           .build(),
@@ -76,6 +80,11 @@ class CaseSocketService {
     _attach('message', callback);
   }
 
+  void onCaseUpdated(void Function(Map<String, dynamic> data) callback) {
+    _onCaseUpdated = callback;
+    _attach('caseUpdated', callback);
+  }
+
   void onMessageAck(void Function(Map<String, dynamic> data) callback) {
     _onMessageAck = callback;
     _attach('messageAck', callback);
@@ -90,6 +99,7 @@ class CaseSocketService {
   /// so listeners registered before a (re)connection are not lost.
   void _bindHandlers() {
     if (_onMessage != null) _attach('message', _onMessage!);
+    if (_onCaseUpdated != null) _attach('caseUpdated', _onCaseUpdated!);
     if (_onMessageAck != null) _attach('messageAck', _onMessageAck!);
     if (_onTyping != null) _attach('typing', _onTyping!);
   }
@@ -103,8 +113,8 @@ class CaseSocketService {
     // Avoid stacking duplicate handlers if re-registered on the same socket.
     socket.off(event);
     socket.on(event, (data) {
-      if (data is Map<String, dynamic>) {
-        callback(data);
+      if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
       }
     });
   }

@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../controllers/app_controller.dart';
+import '../services/auth_service.dart';
+import '../../features/auth/auth_welcome_screen.dart';
+import '../../features/onboarding/intro_slideshow_screen.dart';
+import '../../features/onboarding/onboarding_screen.dart';
+import '../../features/shell/app_root_shell.dart';
+
+/// Resolves the first screen after app bootstrap based on intro/auth/onboarding state.
+class AppBootScreen extends StatelessWidget {
+  const AppBootScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<AppController>(
+      builder: (controller) {
+        if (controller.hasCompletedOnboarding || controller.isGuestMode) {
+          return const AppRootShell();
+        }
+
+        if (!controller.hasSeenIntro) {
+          return const IntroSlideshowScreen();
+        }
+
+        final authService = Get.isRegistered<AuthService>()
+            ? Get.find<AuthService>()
+            : null;
+        final isAuthenticated = authService?.isLoggedIn ?? false;
+
+        if (!isAuthenticated) {
+          return const AuthWelcomeScreen();
+        }
+
+        return const OnboardingScreen();
+      },
+    );
+  }
+}

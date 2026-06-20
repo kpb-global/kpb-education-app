@@ -1,117 +1,78 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../config/kpb_secure_storage.dart';
+import '../config/app_config.dart';
 import '../repositories/app_api_client.dart';
 
+/// Authentication is delegated to Supabase Auth (Google sign-in + email OTP).
+///
+/// The Supabase SDK owns session persistence and silent token refresh, so this
+/// service is a thin wrapper that exposes the small surface the app relies on:
+/// [isLoggedIn], [accessToken], [userId], the email-OTP pair
+/// ([requestMagicLink] / [verifyMagicLink]), [signInWithGoogle], and session
+/// teardown. Business data still lives in the NestJS/Prisma backend, which
+/// trusts the Supabase access token via the `StudentAuthGuard`.
 class AuthService {
-  AuthService._(this._storage, this._apiClient);
+  AuthService._(this._client, this._apiClient);
 
-  final FlutterSecureStorage _storage;
+  final SupabaseClient _client;
+  // Retained so future flows can call backend endpoints; the access token is
+  // injected into requests by the Dio interceptor, not from here.
+  // ignore: unused_field
   final AppApiClient _apiClient;
 
-  static const _keyAccessToken = 'kpb.auth.accessToken';
-  static const _keyRefreshToken = 'kpb.auth.refreshToken';
-  static const _keyUserId = 'kpb.auth.userId';
-
-  String? _cachedAccessToken;
-  String? _cachedRefreshToken;
-  String? _cachedUserId;
-
   static Future<AuthService> create(AppApiClient apiClient) async {
-    const storage = kpbFlutterSecureStorage;
-    final service = AuthService._(storage, apiClient);
-    // Pre-load tokens into memory for synchronous access
-    service._cachedAccessToken = await storage.read(key: _keyAccessToken);
-    service._cachedRefreshToken = await storage.read(key: _keyRefreshToken);
-    service._cachedUserId = await storage.read(key: _keyUserId);
-    return service;
+    return AuthService._(Supabase.instance.client, apiClient);
   }
 
-  String? get accessToken => _cachedAccessToken;
-  String? get refreshToken => _cachedRefreshToken;
-  String? get userId => _cachedUserId;
+  Session? get _session => _client.auth.currentSession;
+
+  String? get accessToken => _session?.accessToken;
+  String? get userId => _session?.user.id;
   bool get isLoggedIn => accessToken != null && accessToken!.isNotEmpty;
 
-  Future<Map<String, dynamic>> register({
-    required String email,
-    required String password,
-    required String fullName,
-    String? phone,
-    String? countryOfResidence,
-    String preferredLanguage = 'fr',
+  /// Streams Supabase auth state changes (login/logout/token refresh).
+  Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
+
+  /// Sends a 6-digit email OTP (also usable as a magic link). Supabase creates
+  /// the user on first verification when `shouldCreateUser` is true.
+  Future<void> requestMagicLink({required String email}) async {
+    await _client.auth.signInWithOtp(
+      email: email.trim().toLowerCase(),
+      shouldCreateUser: true,
+      emailRedirectTo: AppConfig.supabaseOAuthRedirect,
+    );
+  }
+
+  /// Verifies the email OTP code and establishes a session.
+  Future<AuthResponse> verifyMagicLink({
+    String? token,
+    String? email,
+    String? code,
   }) async {
-    final response = await _apiClient.post('/auth/student/register', {
-      'email': email,
-      'password': password,
-      'fullName': fullName,
-      if (phone != null) 'phone': phone,
-      if (countryOfResidence != null) 'countryOfResidence': countryOfResidence,
-      'preferredLanguage': preferredLanguage,
-    });
-    await _storeTokens(response);
-    return response;
+    final otp = (code ?? token ?? '').trim();
+    final normalizedEmail = (email ?? '').trim().toLowerCase();
+    return _client.auth.verifyOTP(
+      type: OtpType.email,
+      email: normalizedEmail,
+      token: otp,
+    );
   }
 
-  Future<Map<String, dynamic>> login({
-    required String email,
-    required String password,
-  }) async {
-    final response = await _apiClient.post('/auth/student/login', {
-      'email': email,
-      'password': password,
-    });
-    await _storeTokens(response);
-    return response;
-  }
-
-  Future<void> forgotPassword({required String email}) async {
-    await _apiClient.post('/auth/student/forgot-password', {'email': email});
-  }
-
-  Future<bool> refreshAccessToken() async {
-    final currentRefresh = refreshToken;
-    if (currentRefresh == null || currentRefresh.isEmpty) return false;
-
-    try {
-      final response = await _apiClient.post('/auth/student/refresh', {
-        'refreshToken': currentRefresh,
-      });
-      await _storeTokens(response);
-      return true;
-    } catch (_) {
-      await logout();
-      return false;
-    }
+  /// Launches the Google OAuth flow via the system browser / deep link.
+  Future<bool> signInWithGoogle() async {
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: AppConfig.supabaseOAuthRedirect,
+    );
   }
 
   Future<void> logout() async {
-    _cachedAccessToken = null;
-    _cachedRefreshToken = null;
-    _cachedUserId = null;
-    await _storage.delete(key: _keyAccessToken);
-    await _storage.delete(key: _keyRefreshToken);
-    await _storage.delete(key: _keyUserId);
+    await clearSession();
   }
 
-  Future<void> _storeTokens(Map<String, dynamic> response) async {
-    final access = response['accessToken'] as String?;
-    final refresh = response['refreshToken'] as String?;
-    final user = response['user'] as Map<String, dynamic>?;
-
-    if (access != null) {
-      _cachedAccessToken = access;
-      await _storage.write(key: _keyAccessToken, value: access);
-    }
-    if (refresh != null) {
-      _cachedRefreshToken = refresh;
-      await _storage.write(key: _keyRefreshToken, value: refresh);
-    }
-    if (user != null) {
-      final id = user['id'] as String?;
-      if (id != null) {
-        _cachedUserId = id;
-        await _storage.write(key: _keyUserId, value: id);
-      }
-    }
+  Future<void> clearSession() async {
+    try {
+      await _client.auth.signOut();
+    } catch (_) {}
   }
 }

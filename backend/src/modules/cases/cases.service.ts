@@ -3,10 +3,13 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { randomUUID } from 'node:crypto';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
+import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
@@ -27,7 +30,29 @@ const CASE_INCLUDE = {
 
 @Injectable()
 export class CasesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly moduleRef: ModuleRef,
+    private readonly pushService: OneSignalSenderService,
+  ) {}
+
+  private broadcastCaseUpdate(caseId: string, payload: Record<string, unknown>) {
+    try {
+      const gateway = this.moduleRef.get(CaseMessagingGateway, { strict: false });
+      gateway.emitCaseUpdated(caseId, payload);
+    } catch {
+      // Gateway may be unavailable in isolated tests.
+    }
+  }
+
+  private broadcastCaseMessage(caseId: string, message: Record<string, unknown>) {
+    try {
+      const gateway = this.moduleRef.get(CaseMessagingGateway, { strict: false });
+      gateway.emitCaseMessage(caseId, message);
+    } catch {
+      // Gateway may be unavailable in isolated tests.
+    }
+  }
 
   private assertDb() {
     if (!this.prismaService.isEnabled) {
@@ -78,9 +103,15 @@ export class CasesService {
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
+        const activeCounsellors = await tx.counsellor.findMany({
+          where: { isActive: true },
+          orderBy: { createdAt: 'asc' },
+        });
+
         // Insert with a temporary unique placeholder, then derive the real
         // referenceCode from the DB-assigned `seq`. This is collision-free by
-        // construction (no count()+1 race).
+        // construction (no count()+1 race). The same monotonic `seq` is used to
+        // round-robin across active counsellors.
         const c = await tx.case.create({
           data: {
             referenceCode: `PENDING-${randomUUID()}`,
@@ -98,10 +129,30 @@ export class CasesService {
           },
         });
 
+        const nextCounsellor =
+          activeCounsellors.length > 0
+            ? activeCounsellors[(c.seq - 1) % activeCounsellors.length]
+            : null;
+
         const refCode = `KPB-${c.createdAt.getFullYear()}-${String(c.seq).padStart(3, '0')}`;
         await tx.case.update({
           where: { id: c.id },
-          data: { referenceCode: refCode },
+          data: {
+            referenceCode: refCode,
+            ...(nextCounsellor
+              ? {
+                  status: CaseStatus.CounselorAssigned,
+                  counsellorId: nextCounsellor.id,
+                  assignedAdvisorName: nextCounsellor.fullName,
+                  assignedAdvisorPhone: nextCounsellor.phone ?? null,
+                  assignedAdvisorWhatsapp: nextCounsellor.whatsApp ?? null,
+                  leadTag: 'to_follow_up',
+                  lastCommercialInteractionAt: new Date(),
+                  nextStepTitle: 'A counselor has been assigned',
+                  nextStepDescription: `${nextCounsellor.fullName} has been assigned to your case and will contact you shortly.`,
+                }
+              : {}),
+          },
         });
 
         await tx.caseTimelineEvent.create({
@@ -113,12 +164,25 @@ export class CasesService {
           },
         });
 
+        if (nextCounsellor) {
+          await tx.caseTimelineEvent.create({
+            data: {
+              caseId: c.id,
+              status: CaseStatus.CounselorAssigned,
+              title: 'Counselor assigned',
+              description: `${nextCounsellor.fullName} was assigned automatically (round-robin).`,
+            },
+          });
+        }
+
         await tx.caseMessage.create({
           data: {
             caseId: c.id,
             senderRole: 'system',
             senderName: 'KPB Operations',
-            body: 'Thank you. Your request has been received by the KPB team.',
+            body: nextCounsellor
+              ? `Thank you. ${nextCounsellor.fullName} has been assigned to your request.`
+              : 'Thank you. Your request has been received by the KPB team.',
           },
         });
 
@@ -140,7 +204,23 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to create case.');
     }
-    return this.mapDbCase(created);
+    const mapped = this.mapDbCase(created);
+    if (userId) {
+      const advisorName = mapped.assignedAdvisorName ?? 'KPB';
+      await this.pushService.sendToUser(
+        userId,
+        'Demande reçue ✅',
+        mapped.assignedAdvisorName
+          ? `Ta demande est reçue, ${advisorName} va te contacter sous peu.`
+          : 'Ta demande est reçue. L\'équipe KPB revient vers toi rapidement.',
+        {
+          type: 'case_created',
+          caseId: created.id,
+          route: `/cases/${created.id}`,
+        },
+      );
+    }
+    return mapped;
   }
 
   async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
@@ -193,7 +273,9 @@ export class CasesService {
     if (!updated) {
       throw new ServiceUnavailableException('Failed to update case.');
     }
-    return this.mapDbCase(updated, { includeInternal: !ownerUserId });
+    const mapped = this.mapDbCase(updated, { includeInternal: !ownerUserId });
+    this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
+    return mapped;
   }
 
   async findMessages(id: string, ownerUserId?: string) {
@@ -255,13 +337,17 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to persist message.');
     }
-    return {
+    const payload = {
       id: created.id,
       senderName: created.senderName,
       senderRole: created.senderRole,
       body: created.body,
       createdAt: created.createdAt.toISOString(),
     };
+    if ((input.senderRole ?? 'student') !== 'student') {
+      this.broadcastCaseMessage(id, payload);
+    }
+    return payload;
   }
 
   async uploadDocument(
@@ -335,6 +421,8 @@ export class CasesService {
             ...(input.assignedAdvisorWhatsapp
               ? { assignedAdvisorWhatsapp: input.assignedAdvisorWhatsapp }
               : {}),
+            leadTag: 'to_follow_up',
+            lastCommercialInteractionAt: new Date(),
             nextStepTitle:
               input.nextStepTitle ??
               (input.scheduledAt
@@ -372,7 +460,9 @@ export class CasesService {
     if (!assigned) {
       throw new ServiceUnavailableException('Failed to assign case.');
     }
-    return this.mapDbCase(assigned);
+    const mapped = this.mapDbCase(assigned);
+    this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
+    return mapped;
   }
 
   async createTask(id: string, input: CreateCaseTaskDto) {
@@ -479,6 +569,12 @@ export class CasesService {
     if (!created) {
       throw new ServiceUnavailableException('Failed to create timeline event.');
     }
+    const refreshed = await this.prismaService.execute((prisma) =>
+      prisma.case.findUnique({ where: { id }, include: CASE_INCLUDE }),
+    );
+    if (refreshed) {
+      this.broadcastCaseUpdate(id, this.mapDbCase(refreshed) as Record<string, unknown>);
+    }
     return {
       id: created.id,
       title: created.title,
@@ -521,6 +617,10 @@ export class CasesService {
       contextLabel: c.contextLabel,
       preferredContactMethod: c.preferredContactMethod ?? 'in_app',
       scheduledAt: c.scheduledAt?.toISOString() ?? null,
+      leadTag: c.leadTag ?? null,
+      discussionMotive: c.discussionMotive ?? null,
+      lastCommercialInteractionAt:
+        c.lastCommercialInteractionAt?.toISOString() ?? null,
       documentRequests: (c.documents ?? []).map((d: any) => ({
         id: d.id,
         title: d.title,

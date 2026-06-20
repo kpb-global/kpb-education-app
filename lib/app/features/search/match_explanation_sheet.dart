@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
@@ -119,7 +120,7 @@ void showMatchExplanation(
             child: OutlinedButton.icon(
               onPressed: () {
                 Get.back();
-                controller.goToTab(4); // Moi tab
+                controller.goToTab(StudentShellTab.profile);
               },
               icon: const Icon(Icons.tune_rounded, size: 16),
               label: const Text('Améliorer mon profil'),

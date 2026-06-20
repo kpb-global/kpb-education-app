@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/whatsapp_utils.dart';
 import '../search/search_screen.dart';
 import 'forum_category_screen.dart';
 
@@ -54,7 +52,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 .toList();
 
         return KpbRefresh(
-          onRefresh: controller.refresh,
+          onRefresh: controller.pullToRefresh,
           child: CustomScrollView(
             slivers: [
               // ── App Bar ─────────────────────────────────────────────
@@ -419,20 +417,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
 // Launch WhatsApp group
 // ─────────────────────────────────────────────────────────────────────────────
 Future<void> _launchWhatsApp() async {
-  // Replace with actual WhatsApp group invite link
-  const url = 'https://chat.whatsapp.com/KPBEducation';
-  final uri = Uri.parse(url);
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
-    Get.snackbar(
-      'WhatsApp',
-      'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
-    );
-  }
+  await openWhatsAppOrToast(
+    message: 'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

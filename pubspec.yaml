@@ -67,6 +67,7 @@ dependencies:
   video_player: ^2.9.2
   webview_flutter: ^4.10.0
   file_picker: ^11.0.2
+  speech_to_text: ^7.0.0
   change_app_package_name: ^1.4.0
   flutter_widget_from_html: ^0.17.2
   timeago: ^3.7.0
@@ -81,14 +82,17 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  supabase_flutter: ^2.5.6
 
   collection: any
   syncfusion_flutter_pdfviewer: ^33.2.3
   local_auth: ^3.0.1
-  firebase_messaging: ^16.2.0
+  onesignal_flutter: ^5.0.0
   lottie: ^3.3.3
   shimmer: ^3.0.0
   quick_actions: ^1.1.0
+  pdf: ^3.12.0
+  printing: ^5.14.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

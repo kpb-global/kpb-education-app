@@ -4,31 +4,18 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
+import '../../core/utils/study_level.dart';
 import '../cases/case_composer_sheet.dart';
 import '../compare/institution_compare_screen.dart';
 import 'country_detail_screen.dart';
+import 'program_detail_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Country flag lookup (shared with home)
 // ─────────────────────────────────────────────────────────────────────────────
-const _flags = <String, String>{
-  'usa': '🇺🇸',
-  'canada': '🇨🇦',
-  'france': '🇫🇷',
-  'uk': '🇬🇧',
-  'morocco': '🇲🇦',
-  'turkey': '🇹🇷',
-  'germany': '🇩🇪',
-  'spain': '🇪🇸',
-  'china': '🇨🇳',
-  'belgium': '🇧🇪',
-  'italy': '🇮🇹',
-  'portugal': '🇵🇹',
-};
-String _flag(String id) => _flags[id] ?? '🌍';
+String _flag(String id) => countryFlag(id);
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -57,9 +44,9 @@ class ExploreScreen extends StatelessWidget {
           builder: (_) => TabBarView(
             children: [
               _FieldsGrid(controller: controller),
-              _CountriesGrid(controller: controller),
-              _ProgramsList(controller: controller),
-              _InstitutionsTab(controller: controller),
+              CountriesCatalogGrid(controller: controller),
+              ProgramsCatalogList(controller: controller),
+              InstitutionsCatalogTab(controller: controller),
               _SupportList(controller: controller),
             ],
           ),
@@ -238,8 +225,8 @@ class _FieldGridCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab: Pays — grille avec drapeaux
 // ─────────────────────────────────────────────────────────────────────────────
-class _CountriesGrid extends StatelessWidget {
-  const _CountriesGrid({required this.controller});
+class CountriesCatalogGrid extends StatelessWidget {
+  const CountriesCatalogGrid({super.key, required this.controller});
   final AppController controller;
 
   @override
@@ -261,12 +248,13 @@ class _CountriesGrid extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.82,
       ),
       itemCount: countries.length,
       itemBuilder: (context, index) {
         final country = countries[index];
         final saved = controller.isSaved(SavedItemType.country, country.id);
+        final intake = controller.resolve(country.nextIntakeLabel);
         final popularFields = country.popularFieldIds.take(2).map((id) {
           try {
             return controller.resolve(controller.fieldById(id).name);
@@ -276,9 +264,10 @@ class _CountriesGrid extends StatelessWidget {
         }).toList();
 
         return _CountryGridCard(
-          flag: _flag(country.id),
+          flag: displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
           name: controller.resolve(country.name),
           tuition: controller.resolve(country.tuitionRange),
+          intake: intake,
           fields: popularFields,
           saved: saved,
           onSave: () =>
@@ -295,6 +284,7 @@ class _CountryGridCard extends StatelessWidget {
     required this.flag,
     required this.name,
     required this.tuition,
+    required this.intake,
     required this.fields,
     required this.saved,
     required this.onSave,
@@ -304,6 +294,7 @@ class _CountryGridCard extends StatelessWidget {
   final String flag;
   final String name;
   final String tuition;
+  final String intake;
   final List<String> fields;
   final bool saved;
   final VoidCallback onSave;
@@ -375,6 +366,14 @@ class _CountryGridCard extends StatelessWidget {
                         color: context.kpb.textPrimary,
                       ),
                     ),
+                    if (intake.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      KpbBadgeLight(
+                        label: intake,
+                        bgColor: KpbColors.skyLight,
+                        textColor: KpbColors.blue,
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Text(
                       tuition,
@@ -417,61 +416,175 @@ class _CountryGridCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab: Formations — liste enrichie
 // ─────────────────────────────────────────────────────────────────────────────
-class _ProgramsList extends StatelessWidget {
-  const _ProgramsList({required this.controller});
+class ProgramsCatalogList extends StatefulWidget {
+  const ProgramsCatalogList({super.key, required this.controller});
   final AppController controller;
 
   @override
-  Widget build(BuildContext context) {
-    final programs = controller.programs;
+  State<ProgramsCatalogList> createState() => _ProgramsCatalogListState();
+}
 
-    if (programs.isEmpty) {
+class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
+  String _query = '';
+  String? _fieldFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final query = _query.trim().toLowerCase();
+    final filtered = controller.programs.where((program) {
+      if (_fieldFilter != null && program.fieldId != _fieldFilter) {
+        return false;
+      }
+      if (query.isEmpty) return true;
+      final haystack = [
+        controller.resolve(program.name),
+        controller.resolve(program.level),
+        program.fieldId,
+      ].join(' ').toLowerCase();
+      return haystack.contains(query);
+    }).toList();
+
+    final programs = [...filtered]..sort((a, b) {
+        bool isPartner(ProgramModel p) {
+          final inst = controller.institutionByIdOrNull(p.institutionId);
+          return inst?.isPartner ?? false;
+        }
+
+        final partnerCmp = (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
+        if (partnerCmp != 0) return partnerCmp;
+        return controller
+            .resolve(a.name)
+            .toLowerCase()
+            .compareTo(controller.resolve(b.name).toLowerCase());
+      });
+
+    if (controller.programs.isEmpty) {
       return const KpbEmptyState(
         icon: Icons.menu_book_outlined,
         title: 'Aucune formation disponible',
         subtitle:
-            'Utilisez les filtres pour trouver la formation qui vous correspond.',
+            'Synchronisez l’app avec le serveur pour charger le catalogue.',
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
-      itemCount: programs.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final program = programs[index];
-        InstitutionModel? institution;
-        try {
-          institution = controller.institutionById(program.institutionId);
-        } catch (_) {}
-
-        final saved = controller.isSaved(SavedItemType.program, program.id);
-
-        return _ProgramCard(
-          name: controller.resolve(program.name),
-          institution:
-              institution != null ? controller.resolve(institution.name) : null,
-          level: controller.resolve(program.level),
-          tuition: controller.resolve(program.tuition),
-          language: controller.resolve(program.language),
-          duration: controller.resolve(program.duration),
-          flag: institution != null ? _flag(program.countryId) : '🌍',
-          saved: saved,
-          onSave: () =>
-              controller.toggleSaved(SavedItemType.program, program.id),
-          onTap: () => showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            builder: (_) => CaseComposerSheet(
-              caseType: CaseType.applicationSupport,
-              title: controller.resolve(program.name),
-              contextLabel: institution != null
-                  ? controller.resolve(institution.name)
-                  : program.countryId,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            KpbSpacing.pagePad,
+            KpbSpacing.pagePad,
+            KpbSpacing.pagePad,
+            KpbSpacing.sm,
           ),
-        );
-      },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                decoration: KpbInputDecoration.build(
+                  context,
+                  label: 'Rechercher un programme',
+                  prefixIcon: Icons.search_rounded,
+                ),
+                onChanged: (value) => setState(() => _query = value),
+              ),
+              const SizedBox(height: KpbSpacing.sm),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    FilterChip(
+                      label: Text('catalog_filter_all'.tr),
+                      selected: _fieldFilter == null,
+                      onSelected: (_) => setState(() => _fieldFilter = null),
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text('catalog_filter_business'.tr),
+                      selected: _fieldFilter == 'business',
+                      onSelected: (_) =>
+                          setState(() => _fieldFilter = 'business'),
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text('catalog_filter_cs'.tr),
+                      selected: _fieldFilter == 'computer_science',
+                      onSelected: (_) =>
+                          setState(() => _fieldFilter = 'computer_science'),
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text('catalog_filter_engineering'.tr),
+                      selected: _fieldFilter == 'engineering',
+                      onSelected: (_) =>
+                          setState(() => _fieldFilter = 'engineering'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'catalog_program_count'.trParams({'count': '${programs.length}'}),
+                style: KpbTextStyles.caption.copyWith(
+                  color: context.kpb.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: programs.isEmpty
+              ? KpbEmptyState(
+                  icon: Icons.search_off_rounded,
+                  title: 'catalog_no_match_title'.tr,
+                  subtitle: 'catalog_no_match_body'.tr,
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(
+                    KpbSpacing.pagePad,
+                    0,
+                    KpbSpacing.pagePad,
+                    KpbSpacing.pagePad,
+                  ),
+                  itemCount: programs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final program = programs[index];
+                    InstitutionModel? institution;
+                    try {
+                      institution =
+                          controller.institutionById(program.institutionId);
+                    } catch (_) {}
+
+                    final saved =
+                        controller.isSaved(SavedItemType.program, program.id);
+                    final isPartner = institution?.isPartner ?? false;
+
+                    return _ProgramCard(
+                      name: controller.resolve(program.name),
+                      institution: institution != null
+                          ? controller.resolve(institution.name)
+                          : null,
+                      level: programLevelLabel(controller.resolve(program.level)),
+                      tuition: controller.resolve(program.tuition),
+                      language: controller.resolve(program.language),
+                      duration: controller.resolve(program.duration),
+                      flag: _flag(program.countryId),
+                      saved: saved,
+                      isPartner: isPartner,
+                      onSave: () => controller.toggleSaved(
+                        SavedItemType.program,
+                        program.id,
+                      ),
+                      onTap: () => Get.to(
+                        () => ProgramDetailScreen(programId: program.id),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }
@@ -486,6 +599,7 @@ class _ProgramCard extends StatelessWidget {
     required this.duration,
     required this.flag,
     required this.saved,
+    this.isPartner = false,
     required this.onSave,
     required this.onTap,
   });
@@ -498,6 +612,7 @@ class _ProgramCard extends StatelessWidget {
   final String duration;
   final String flag;
   final bool saved;
+  final bool isPartner;
   final VoidCallback onSave;
   final VoidCallback onTap;
 
@@ -535,6 +650,12 @@ class _ProgramCard extends StatelessWidget {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
+                    if (isPartner)
+                      KpbBadgeLight(
+                        label: 'catalog_partner_badge'.tr,
+                        bgColor: KpbColors.skyLight,
+                        textColor: KpbColors.blue,
+                      ),
                     KpbBadgeLight(label: level),
                     KpbBadgeLight(label: duration),
                     KpbBadgeLight(label: language),
@@ -565,15 +686,15 @@ class _ProgramCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab: Universités — liste avec mode comparaison
 // ─────────────────────────────────────────────────────────────────────────────
-class _InstitutionsTab extends StatefulWidget {
-  const _InstitutionsTab({required this.controller});
+class InstitutionsCatalogTab extends StatefulWidget {
+  const InstitutionsCatalogTab({super.key, required this.controller});
   final AppController controller;
 
   @override
-  State<_InstitutionsTab> createState() => _InstitutionsTabState();
+  State<InstitutionsCatalogTab> createState() => _InstitutionsCatalogTabState();
 }
 
-class _InstitutionsTabState extends State<_InstitutionsTab> {
+class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
   final Set<String> _compareSet = {};
 
   void _toggleCompare(String id) {
@@ -1437,7 +1558,9 @@ class _InstitutionDetailSheet extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: KpbCard(
                           padding: const EdgeInsets.all(12),
-                          onTap: () {},
+                          onTap: () => Get.to(
+                            () => ProgramDetailScreen(programId: prog.id),
+                          ),
                           child: Row(
                             children: [
                               Expanded(
@@ -1492,11 +1615,15 @@ class _InstitutionDetailSheet extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Get.to(() => CaseComposerSheet(
-                            caseType: CaseType.consultation,
-                            title: 'Expert KPB',
-                            contextLabel: controller.resolve(institution.name),
-                          )),
+                      onPressed: () => showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => CaseComposerSheet(
+                          caseType: CaseType.consultation,
+                          title: 'Expert KPB',
+                          contextLabel: controller.resolve(institution.name),
+                        ),
+                      ),
                       child: const Text('Parler à un expert'),
                     ),
                   ),
@@ -1507,13 +1634,17 @@ class _InstitutionDetailSheet extends StatelessWidget {
                       label: institution.isPartner
                           ? 'S\'inscrire via KPB'
                           : 'En savoir plus',
-                      onTap: () => Get.to(() => CaseComposerSheet(
-                            caseType: CaseType.applicationSupport,
-                            title: controller.resolve(institution.name),
-                            contextLabel: institution.isPartner
-                                ? 'Accompagnement Premium Garanti'
-                                : 'Accompagnement Premium',
-                          )),
+                      onTap: () => showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => CaseComposerSheet(
+                          caseType: CaseType.applicationSupport,
+                          title: controller.resolve(institution.name),
+                          contextLabel: institution.isPartner
+                              ? 'Accompagnement Premium Garanti'
+                              : 'Accompagnement Premium',
+                        ),
+                      ),
                     ),
                   ),
                 ],

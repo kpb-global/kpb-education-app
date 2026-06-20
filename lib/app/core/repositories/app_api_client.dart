@@ -1,9 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart' show Color, EdgeInsets;
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
+import 'package:supabase_flutter/supabase_flutter.dart' hide MultipartFile;
 
 import '../config/app_config.dart';
-import '../config/kpb_secure_storage.dart';
+import '../config/app_routes.dart';
+import '../controllers/app_controller.dart';
+import '../models/app_models.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -31,12 +37,24 @@ class AppApiClient {
 
   final Dio _dio;
 
+  /// True when an authenticated Supabase session is present.
+  Future<bool> hasAuthSession() async {
+    final token = Supabase.instance.client.auth.currentSession?.accessToken;
+    return token != null && token.isNotEmpty;
+  }
+
   /// Generic POST for auth endpoints (no token needed).
   Future<Map<String, dynamic>> post(
     String path,
     Map<String, dynamic> payload,
   ) async {
     final response = await _dio.post<Map<String, dynamic>>(path, data: payload);
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Generic GET returning a JSON object.
+  Future<Map<String, dynamic>> get(String path) async {
+    final response = await _dio.get<Map<String, dynamic>>(path);
     return response.data ?? <String, dynamic>{};
   }
 
@@ -67,6 +85,16 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  Future<Map<String, dynamic>> submitOrientation(
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/orientation/submit',
+      data: payload,
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<Map<String, dynamic>> createOrientationSession(
     Map<String, dynamic> payload,
   ) async {
@@ -84,10 +112,172 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  // ── Coach IA (M10) ────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> getCoachQuota(String userId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/coach/quota',
+      queryParameters: {'userId': userId},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> createCoachConversation({
+    required String userId,
+    required Map<String, dynamic> profile,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/coach/conversations',
+      data: {'userId': userId, 'profile': profile},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  Future<List<dynamic>> getCoachMessages(String conversationId) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/coach/conversations/$conversationId/messages',
+    );
+    return response.data ?? const [];
+  }
+
+  Future<List<dynamic>> getCoachSuggestions(String userId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/coach/suggestions',
+      queryParameters: {'userId': userId},
+    );
+    final data = response.data ?? <String, dynamic>{};
+    return data['suggestions'] as List<dynamic>? ?? const [];
+  }
+
+  Stream<Map<String, dynamic>> streamCoachReply({
+    required String conversationId,
+    required String userId,
+    required String message,
+    required Map<String, dynamic> profile,
+  }) async* {
+    final response = await _dio.get<ResponseBody>(
+      '/coach/conversations/$conversationId/messages/stream',
+      queryParameters: {
+        'userId': userId,
+        'message': message,
+        'fullName': profile['fullName'],
+        'currentLevel': profile['currentLevel'],
+        'targetCountryIds':
+            (profile['targetCountryIds'] as List<dynamic>?)?.join(',') ?? '',
+      },
+      options: Options(responseType: ResponseType.stream),
+    );
+
+    final stream = response.data?.stream;
+    if (stream == null) return;
+
+    var buffer = '';
+    await for (final chunk in stream) {
+      buffer += utf8.decode(chunk, allowMalformed: true);
+      final lines = buffer.split('\n');
+      buffer = lines.removeLast();
+
+      for (final line in lines) {
+        if (!line.startsWith('data:')) continue;
+        final payload = line.substring(5).trim();
+        if (payload.isEmpty) continue;
+        try {
+          yield jsonDecode(payload) as Map<String, dynamic>;
+        } catch (_) {
+          // Ignore malformed SSE chunks.
+        }
+      }
+    }
+  }
+
+  // ── Commercial (M9) ───────────────────────────────────────────
+
+  Future<List<CommercialLead>> listCommercialLeads({
+    required String email,
+    String filter = 'all',
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/commercial/leads',
+      queryParameters: {'email': email, 'filter': filter},
+    );
+    final items = response.data ?? const [];
+    return items
+        .map((item) => CommercialLead.fromApi(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> updateCommercialLead(
+    String caseId, {
+    String? leadTag,
+    String? discussionMotive,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/commercial/leads/$caseId',
+      data: {
+        if (leadTag != null) 'leadTag': leadTag,
+        if (discussionMotive != null) 'discussionMotive': discussionMotive,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> getCommercialStats({
+    required String email,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/commercial/stats',
+      queryParameters: {'email': email},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  // ── Parcours (Chantier C) — KPB YouTube playlist ───────────────────────────
+
+  /// Returns the playlist videos plus a `configured` flag (false when the
+  /// backend has no YOUTUBE_API_KEY → the UI shows an informative empty state).
+  Future<({List<YoutubeVideo> items, bool configured})>
+      listParcoursVideos() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/content/youtube-playlist',
+    );
+    final data = response.data ?? <String, dynamic>{};
+    final rawItems = (data['items'] as List<dynamic>? ?? const []);
+    final items = rawItems
+        .whereType<Map<String, dynamic>>()
+        .map(YoutubeVideo.fromApi)
+        .where((v) => v.videoId.isNotEmpty)
+        .toList();
+    return (items: items, configured: data['configured'] as bool? ?? false);
+  }
+
   Future<List<dynamic>> listCatalog(String resource) async {
-    final response = await _dio.get<Map<String, dynamic>>('/catalog/$resource');
+    final queryParameters = (resource == 'programs' || resource == 'institutions')
+        ? <String, dynamic>{'limit': 1000}
+        : null;
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/catalog/$resource',
+      queryParameters: queryParameters,
+    );
     final data = response.data ?? <String, dynamic>{};
     return (data['items'] as List<dynamic>? ?? <dynamic>[]);
+  }
+
+  Future<Map<String, dynamic>> getCountryDetail(String countryKey) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/countries/${Uri.encodeComponent(countryKey)}',
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> submitCountryQuiz(
+    String countryKey,
+    Map<String, String> answers,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/countries/${Uri.encodeComponent(countryKey)}/quiz/submit',
+      data: {'answers': answers},
+    );
+    return response.data ?? <String, dynamic>{};
   }
 
   /// Fetch live scraped scholarships, filtered and scored by the user's profile.
@@ -529,7 +719,7 @@ class AppApiClient {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth interceptor — injects Bearer token, auto-refreshes on 401
+// Auth interceptor — injects the Supabase Bearer token, refreshes on 401
 // ─────────────────────────────────────────────────────────────────────────────
 class _AuthInterceptor extends Interceptor {
   _AuthInterceptor(this._dio);
@@ -538,9 +728,7 @@ class _AuthInterceptor extends Interceptor {
   bool _isRefreshing = false;
   Completer<bool>? _refreshCompleter;
 
-  static const _keyAccessToken = 'kpb.auth.accessToken';
-  static const _keyRefreshToken = 'kpb.auth.refreshToken';
-  static const _storage = kpbFlutterSecureStorage;
+  GoTrueClient get _auth => Supabase.instance.client.auth;
 
   @override
   void onRequest(
@@ -552,7 +740,7 @@ class _AuthInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    final token = await _storage.read(key: _keyAccessToken);
+    final token = _auth.currentSession?.accessToken;
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -566,7 +754,7 @@ class _AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    // Try to refresh the token
+    // Try to refresh the Supabase session
     if (_isRefreshing) {
       final success = await _refreshCompleter?.future ?? false;
       if (success) {
@@ -575,37 +763,26 @@ class _AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
+    if (_auth.currentSession == null) {
+      // Guest/local-only session — never wipe onboarding on missing token.
+      return handler.next(err);
+    }
+
     _isRefreshing = true;
     _refreshCompleter = Completer<bool>();
 
     try {
-      final refresh = await _storage.read(key: _keyRefreshToken);
-      if (refresh == null || refresh.isEmpty) {
-        _refreshCompleter!.complete(false);
-        return handler.next(err);
-      }
-
-      final response = await _dio.post<Map<String, dynamic>>(
-        '/auth/student/refresh',
-        data: {'refreshToken': refresh},
-      );
-      final data = response.data;
-      if (data != null) {
-        final newAccess = data['accessToken'] as String?;
-        final newRefresh = data['refreshToken'] as String?;
-        if (newAccess != null) {
-          await _storage.write(key: _keyAccessToken, value: newAccess);
-        }
-        if (newRefresh != null) {
-          await _storage.write(key: _keyRefreshToken, value: newRefresh);
-        }
+      final response = await _auth.refreshSession();
+      if (response.session != null) {
         _refreshCompleter!.complete(true);
         return handler.resolve(await _retryRequest(err.requestOptions));
       }
       _refreshCompleter!.complete(false);
+      await _handlePermanentFailure();
       handler.next(err);
     } catch (_) {
       _refreshCompleter!.complete(false);
+      await _handlePermanentFailure();
       handler.next(err);
     } finally {
       _isRefreshing = false;
@@ -613,8 +790,32 @@ class _AuthInterceptor extends Interceptor {
     }
   }
 
+  Future<void> _handlePermanentFailure() async {
+    try {
+      await _auth.signOut();
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<AppController>()) {
+        final controller = Get.find<AppController>();
+        if (controller.profile != null) {
+          await controller.logout();
+          Get.offAllNamed(AppRoutes.home);
+          Get.snackbar(
+            'Session Expirée',
+            'Votre session a expiré. Veuillez vous reconnecter.',
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+            backgroundColor: const Color(0xFFFEE2E2), // soft red
+            colorText: const Color(0xFF991B1B), // dark red
+            duration: const Duration(seconds: 4),
+          );
+        }
+      }
+    } catch (_) {}
+  }
+
   Future<Response<dynamic>> _retryRequest(RequestOptions options) async {
-    final token = await _storage.read(key: _keyAccessToken);
+    final token = _auth.currentSession?.accessToken;
     options.headers['Authorization'] = 'Bearer $token';
     return _dio.fetch(options);
   }

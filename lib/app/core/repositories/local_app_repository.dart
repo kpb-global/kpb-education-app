@@ -40,7 +40,9 @@ class LocalAppRepository implements AppRepository {
       hasCompletedOnboarding:
           json['hasCompletedOnboarding'] as bool? ?? false,
       hasSeenIntro: json['hasSeenIntro'] as bool? ?? false,
+      isGuestMode: json['isGuestMode'] as bool? ?? false,
       isAppLockEnabled: json['isAppLockEnabled'] as bool? ?? false,
+      dataSaverEnabled: json['dataSaverEnabled'] as bool? ?? false,
       themeMode: _themeModeFromString(json['themeMode'] as String?),
       profile: _userProfileFromJson(json['profile'] as Map<String, dynamic>?),
       savedItems: ((json['savedItems'] as List<dynamic>?) ?? <dynamic>[])
@@ -59,31 +61,19 @@ class LocalAppRepository implements AppRepository {
       searchHistory: _stringList(json['searchHistory']),
       pendingOrientationAnswers:
           _stringListMap(json['pendingOrientationAnswers']),
-      fields: ((json['fields'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(FieldModel.fromJson)
-          .toList(),
-      countries: ((json['countries'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(CountryModel.fromJson)
-          .toList(),
-      institutions: ((json['institutions'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(InstitutionModel.fromJson)
-          .toList(),
-      programs: ((json['programs'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(ProgramModel.fromJson)
-          .toList(),
-      scholarships: ((json['scholarships'] as List<dynamic>?) ?? <dynamic>[])
-          .whereType<Map<String, dynamic>>()
-          .map(ScholarshipModel.fromJson)
-          .toList(),
+      fields: const [],
+      countries: const [],
+      institutions: const [],
+      programs: const [],
+      scholarships: const [],
       pendingOrientationQuestionIndex:
           json['pendingOrientationQuestionIndex'] as int? ?? 0,
       purchasedCourseIds: _stringList(json['purchasedCourseIds']),
       completedRoadmapSteps: _stringListMap(json['completedRoadmapSteps']),
       profileNeedsPush: json['profileNeedsPush'] as bool? ?? false,
+      onboardingStep: json['onboardingStep'] as int? ?? 0,
+      onboardingSkipped: json['onboardingSkipped'] as bool? ?? false,
+      caseLastReadAt: _stringMap(json['caseLastReadAt']),
     );
   }
 
@@ -94,7 +84,9 @@ class LocalAppRepository implements AppRepository {
       'localeCode': snapshot.localeCode,
       'hasCompletedOnboarding': snapshot.hasCompletedOnboarding,
       'hasSeenIntro': snapshot.hasSeenIntro,
+      'isGuestMode': snapshot.isGuestMode,
       'isAppLockEnabled': snapshot.isAppLockEnabled,
+      'dataSaverEnabled': snapshot.dataSaverEnabled,
       'themeMode': snapshot.themeMode.name,
       'profile': _userProfileToJson(snapshot.profile),
       'savedItems': snapshot.savedItems.map(_savedItemToJson).toList(),
@@ -103,16 +95,19 @@ class LocalAppRepository implements AppRepository {
           snapshot.orientationHistory.map(_orientationSessionToJson).toList(),
       'searchHistory': snapshot.searchHistory,
       'pendingOrientationAnswers': snapshot.pendingOrientationAnswers,
-            'fields': snapshot.fields.map((e) => e.toJson()).toList(),
-      'countries': snapshot.countries.map((e) => e.toJson()).toList(),
-      'institutions': snapshot.institutions.map((e) => e.toJson()).toList(),
-      'programs': snapshot.programs.map((e) => e.toJson()).toList(),
-      'scholarships': snapshot.scholarships.map((e) => e.toJson()).toList(),
+            'fields': const [],
+      'countries': const [],
+      'institutions': const [],
+      'programs': const [],
+      'scholarships': const [],
       'pendingOrientationQuestionIndex':
           snapshot.pendingOrientationQuestionIndex,
       'purchasedCourseIds': snapshot.purchasedCourseIds,
       'completedRoadmapSteps': snapshot.completedRoadmapSteps,
       'profileNeedsPush': snapshot.profileNeedsPush,
+      'onboardingStep': snapshot.onboardingStep,
+      'onboardingSkipped': snapshot.onboardingSkipped,
+      'caseLastReadAt': snapshot.caseLastReadAt,
     };
     await _preferences.setString(_storageKey, jsonEncode(json));
   }
@@ -133,6 +128,8 @@ class LocalAppRepository implements AppRepository {
       'fieldIds': profile.fieldIds,
       'targetCountryIds': profile.targetCountryIds,
       'gradeRange': profile.gradeRange,
+      'bacSeries': profile.bacSeries,
+      'monthlyBudgetEur': profile.monthlyBudgetEur,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
     };
@@ -156,6 +153,8 @@ class LocalAppRepository implements AppRepository {
       fieldIds: _stringList(json['fieldIds']),
       targetCountryIds: _stringList(json['targetCountryIds']),
       gradeRange: json['gradeRange'] as String?,
+      bacSeries: json['bacSeries'] as String? ?? json['gradeRange'] as String?,
+      monthlyBudgetEur: json['monthlyBudgetEur'] as int?,
       wantsScholarshipSupport:
           json['wantsScholarshipSupport'] as bool? ?? false,
       availableDocuments: _stringList(json['availableDocuments']),
@@ -332,6 +331,8 @@ class LocalAppRepository implements AppRepository {
       'explanation': _localizedTextToJson(recommendation.explanation),
       'relatedCountryIds': recommendation.relatedCountryIds,
       'relatedScholarshipIds': recommendation.relatedScholarshipIds,
+      'jobs': recommendation.jobs,
+      'iaResilience': recommendation.iaResilience,
     };
   }
 
@@ -345,6 +346,8 @@ class LocalAppRepository implements AppRepository {
           _localizedTextFromJson(json['explanation'] as Map<String, dynamic>?),
       relatedCountryIds: _stringList(json['relatedCountryIds']),
       relatedScholarshipIds: _stringList(json['relatedScholarshipIds']),
+      jobs: _stringList(json['jobs']),
+      iaResilience: json['iaResilience'] as String? ?? 'medium',
     );
   }
 
@@ -391,6 +394,15 @@ class LocalAppRepository implements AppRepository {
       );
     }
     return const <String, List<String>>{};
+  }
+
+  Map<String, String> _stringMap(Object? raw) {
+    if (raw is Map<String, dynamic>) {
+      return raw.map(
+        (key, value) => MapEntry(key, value?.toString() ?? ''),
+      );
+    }
+    return const <String, String>{};
   }
 
   static ThemeMode _themeModeFromString(String? value) {

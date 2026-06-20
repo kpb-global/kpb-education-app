@@ -25,13 +25,12 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('displays first page title (Bienvenue)', (tester) async {
+    testWidgets('displays first page title', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Page 0 title is "Bienvenue 👋"
       expect(
         find.byWidgetPredicate(
           (w) => w is Text && (w.data?.contains('Bienvenue') ?? false),
@@ -40,13 +39,14 @@ void main() {
       );
     });
 
-    testWidgets('displays page counter "1 / 3" on first page', (tester) async {
+    testWidgets('displays page counter "1 / 3" on first page',
+        (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Default accountType is student → 3 pages
+      // Student account => 3 pages; the redesigned header shows "1 / 3".
       expect(
         find.byWidgetPredicate(
           (w) => w is Text && w.data == '1 / 3',
@@ -84,25 +84,26 @@ void main() {
       expect(pageView.physics, isA<NeverScrollableScrollPhysics>());
     });
 
-    testWidgets('has text form fields for name and email on page 0',
-        (tester) async {
-      await pumpTestApp(
-        tester,
-        child: const OnboardingScreen(),
-      );
-
-      // Page 0 (Identity) should have TextFormField widgets
-      expect(find.byType(TextFormField), findsWidgets);
-    });
-
     testWidgets('displays account type selectors on page 0', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      // Should have Text widgets for the page content
-      expect(find.byType(Text), findsWidgets);
+      expect(find.text('Étudiant'), findsOneWidget);
+      expect(find.text('Parent'), findsOneWidget);
+      expect(find.text('Partenaire'), findsOneWidget);
+    });
+
+    testWidgets('has identity text fields on page 0', (tester) async {
+      await pumpTestApp(
+        tester,
+        child: const OnboardingScreen(),
+      );
+
+      // The redesigned page 0 collects identity (first/last name, email,
+      // phone) up front, so identity text fields ARE present here.
+      expect(find.byType(TextFormField), findsWidgets);
     });
   });
 }

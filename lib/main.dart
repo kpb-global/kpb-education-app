@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app/core/config/app_config.dart';
 import 'app/core/controllers/app_controller.dart';
 import 'app/core/config/app_routes.dart';
 import 'app/core/repositories/app_api_client.dart';
@@ -18,30 +20,41 @@ import 'app/core/services/catalog_cache_service.dart';
 import 'app/core/services/connectivity_service.dart';
 import 'app/core/translations/app_translations.dart';
 import 'app/core/ui/app_theme.dart';
-import 'app/features/onboarding/intro_slideshow_screen.dart';
-import 'app/features/onboarding/onboarding_screen.dart';
-import 'app/features/shell/app_shell.dart';
+import 'app/core/navigation/app_boot_screen.dart';
+import 'app/core/services/auth_service.dart';
+import 'app/core/navigation/shell_tabs.dart';
 import 'app/core/services/security_service.dart';
-import 'app/core/services/push_notification_service.dart';
+import 'app/core/services/onesignal_service.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ── Firebase ──────────────────────────────────────────────────────────────
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // ── Crashlytics — catch all uncaught errors ──────────────────────────────
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  bool firebaseInitialized = false;
 
   try {
+    // ── Safe Firebase Booting ────────────────────────────────────────────────
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+      firebaseInitialized = true;
+    } catch (firebaseError) {
+      debugPrint('Firebase/Crashlytics boot skipped (running offline/local-only): $firebaseError');
+    }
+
+    // ── Supabase Auth ────────────────────────────────────────────────────────
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      anonKey: AppConfig.supabaseAnonKey,
+    );
+
     // ── Offline catalog cache (Hive) ─────────────────────────────────────────
     await Hive.initFlutter();
     await CatalogCacheService.init();
@@ -49,26 +62,33 @@ Future<void> main() async {
 
     // ── App bootstrap ────────────────────────────────────────────────────────
     final repository = await LocalAppRepository.create();
+    final apiClient = AppApiClient();
     final controller = AppController(
       repository: repository,
-      apiClient: AppApiClient(),
+      apiClient: apiClient,
     );
     await controller.hydrate();
     Get.put(controller, permanent: true);
+
+    final authService = await AuthService.create(apiClient);
+    Get.put(authService, permanent: true);
+    if (authService.isLoggedIn) {
+      await controller.finishAuthSession();
+    }
     
     Get.put(SecurityService());
-    Get.put(PushNotificationService());
+    // ── Push notifications (OneSignal) ─────────────────────────────────────────
+    await OneSignalService.instance.initialize();
+    unawaited(OneSignalService.instance.requestPermission());
+    // Link an already-signed-in user to OneSignal on cold start.
+    if (controller.profile != null) {
+      unawaited(controller.syncOneSignalIdentity());
+    }
     
     ConnectivityService.instance.startMonitoring();
-    ConnectivityService.instance.onConnectivityChanged.listen((online) async {
-      if (online) {
-        // Reconnect: drain the offline message outbox and refresh remote data.
-        await Future.delayed(const Duration(seconds: 2));
-        if (ConnectivityService.instance.isOnline) {
-          controller.flushPendingCaseMessages();
-          controller.syncRemoteData(silent: true);
-        }
-      }
+    ConnectivityService.instance.bindReconnectSync(() async {
+      await controller.flushPendingCaseMessages();
+      await controller.syncRemoteData(silent: true);
     });
 
     // ── Quick Actions ────────────────────────────────────────────────────────
@@ -77,7 +97,9 @@ Future<void> main() async {
       if (shortcutType == 'action_cases') {
         // Reset stack to shell + Dossiers tab (named `/cases` was never registered).
         Get.offAllNamed(AppRoutes.home);
-        Future.microtask(() => Get.find<AppController>().goToTab(2));
+        Future.microtask(
+          () => Get.find<AppController>().goToTab(StudentShellTab.cases),
+        );
       } else if (shortcutType == 'action_search') {
         Get.toNamed(AppRoutes.search);
       }
@@ -98,7 +120,11 @@ Future<void> main() async {
 
     runApp(const KpbEducationApp());
   } catch (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    if (firebaseInitialized) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    } else {
+      debugPrint('Boot critical error: $error\n$stack');
+    }
     runApp(BootstrapErrorApp(error: error));
   }
 }
@@ -150,11 +176,11 @@ class KpbEducationApp extends StatelessWidget {
           title: 'KPB Education',
           debugShowCheckedModeBanner: false,
           translations: AppTranslations(),
-          locale: Locale(controller.localeCode),
-          fallbackLocale: const Locale('en'),
+          // MVP launch lock: French only, light theme only.
+          locale: const Locale('fr'),
+          fallbackLocale: const Locale('fr'),
           supportedLocales: const [
             Locale('fr'),
-            Locale('en'),
           ],
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
@@ -162,17 +188,12 @@ class KpbEducationApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           theme: AppTheme.buildTheme(),
-          darkTheme: AppTheme.buildDarkTheme(),
-          themeMode: controller.themeMode,
+          themeMode: ThemeMode.light,
           defaultTransition: Transition.cupertino,
           transitionDuration: const Duration(milliseconds: 280),
           getPages: AppRoutes.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
-          home: controller.hasCompletedOnboarding
-              ? const AppShell()
-              : (controller.hasSeenIntro
-                  ? const OnboardingScreen()
-                  : const IntroSlideshowScreen()),
+          home: const AppBootScreen(),
         );
       },
     );

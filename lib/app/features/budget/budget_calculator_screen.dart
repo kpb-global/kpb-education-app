@@ -3,9 +3,24 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
+import '../../core/utils/country_utils.dart';
 import 'data/budget_data.dart';
 
 enum Lifestyle { econome, standard, confort }
+
+/// Fixed icon + colour palette for the nine canonical budget categories,
+/// indexed to match [LivingBudgetProfile.categories].
+const List<IconData> _kCategoryIcons = [
+  Icons.home_rounded, // Loyer
+  Icons.bolt_rounded, // Charges & énergie
+  Icons.restaurant_rounded, // Alimentation
+  Icons.directions_bus_rounded, // Transport
+  Icons.health_and_safety_rounded, // Santé & assurance
+  Icons.wifi_rounded, // Forfait & Internet
+  Icons.menu_book_rounded, // Fournitures & livres
+  Icons.checkroom_rounded, // Vêtements & hygiène
+  Icons.local_activity_rounded, // Loisirs & divers
+];
 
 class BudgetCalculatorScreen extends StatefulWidget {
   const BudgetCalculatorScreen({super.key});
@@ -18,19 +33,18 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
   LivingBudgetProfile? _selectedProfile;
   Lifestyle _lifestyle = Lifestyle.standard;
 
-  final Map<String, String> _flags = {
-    'France': '🇫🇷',
-    'Canada': '🇨🇦',
-    'USA': '🇺🇸',
-    'Belgium': '🇧🇪',
-    'Morocco': '🇲🇦',
-    'Turkey': '🇹🇷',
-    'United Kingdom': '🇬🇧',
-    'Germany': '🇩🇪',
-    'Spain': '🇪🇸',
-    'China': '🇨🇳',
-    'United Arab Emirates': '🇦🇪',
-  };
+  /// Colour ramp aligned 1:1 with [LivingBudgetProfile.categories].
+  static const List<Color> _categoryColors = [
+    KpbColors.sky,
+    KpbColors.blue,
+    KpbColors.success,
+    KpbColors.gold,
+    KpbColors.error,
+    KpbColors.blueMid,
+    KpbColors.blue,
+    KpbColors.warning,
+    KpbColors.gray400,
+  ];
 
   @override
   void initState() {
@@ -116,7 +130,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                   final isSelected = profile == _selectedProfile;
                   return ChoiceChip(
                     label: Text(
-                      '${_flags[profile.country] ?? '🌍'} ${profile.country}',
+                      '${countryFlag(profile.country)} ${profile.country}',
                       style: TextStyle(
                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -249,28 +263,21 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.md)),
-          
+
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
             sliver: SliverList.separated(
-              itemCount: 6,
+              itemCount: p.categories.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                switch (index) {
-                  case 0:
-                    return _buildDetailRow(p.rent, mult, KpbColors.sky, p.currency, Icons.home_rounded, isDark);
-                  case 1:
-                    return _buildDetailRow(p.food, mult, KpbColors.success, p.currency, Icons.restaurant_rounded, isDark);
-                  case 2:
-                    return _buildDetailRow(p.transport, mult, KpbColors.gold, p.currency, Icons.directions_bus_rounded, isDark);
-                  case 3:
-                    return _buildDetailRow(p.healthInsurance, mult, KpbColors.error, p.currency, Icons.health_and_safety_rounded, isDark);
-                  case 4:
-                    return _buildDetailRow(p.internetMobile, mult, KpbColors.blueMid, p.currency, Icons.wifi_rounded, isDark);
-                  case 5:
-                  default:
-                    return _buildDetailRow(p.leisureMisc, mult, KpbColors.gray400, p.currency, Icons.local_activity_rounded, isDark);
-                }
+                return _buildDetailRow(
+                  p.categories[index],
+                  mult,
+                  _categoryColors[index % _categoryColors.length],
+                  p.currency,
+                  _kCategoryIcons[index % _kCategoryIcons.length],
+                  isDark,
+                );
               },
             ),
           ),
@@ -334,12 +341,11 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     }
 
     return [
-      createSection(p.rent.typical, KpbColors.sky),
-      createSection(p.food.typical, KpbColors.success),
-      createSection(p.transport.typical, KpbColors.gold),
-      createSection(p.healthInsurance.typical, KpbColors.error),
-      createSection(p.internetMobile.typical, KpbColors.blueMid),
-      createSection(p.leisureMisc.typical, KpbColors.gray400),
+      for (var i = 0; i < p.categories.length; i++)
+        createSection(
+          p.categories[i].typical,
+          _categoryColors[i % _categoryColors.length],
+        ),
     ];
   }
 

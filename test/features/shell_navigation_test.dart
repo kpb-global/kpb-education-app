@@ -66,7 +66,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('navigates to Explore tab when tapped (index 1)',
+    testWidgets('navigates to Destinations tab when tapped (index 1)',
         (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
@@ -81,10 +81,10 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Tap Explore (second tab) — scope to nav bar so Explore screen icons don't match.
+      // Tap Destinations (second tab) — scope to nav bar so page icons don't match.
       final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       await tester.tap(
-        find.descendant(of: bar, matching: find.byIcon(Icons.explore_outlined)),
+        find.descendant(of: bar, matching: find.byIcon(Icons.public_outlined)),
       );
       await tester.pumpAndSettle();
 
@@ -93,33 +93,7 @@ void main() {
       expect(controller.shellIndex, equals(1));
     });
 
-    testWidgets('navigates to Cases tab when tapped (index 2)', (tester) async {
-      final profile = createTestProfile();
-      final snapshot = AppSnapshot(
-        localeCode: 'fr',
-        hasCompletedOnboarding: true,
-        profile: profile,
-      );
-
-      await pumpTestApp(
-        tester,
-        child: const AppShell(),
-        initialSnapshot: snapshot,
-      );
-
-      final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
-      await tester.tap(
-        find.descendant(of: bar, matching: find.byIcon(Icons.folder_copy_outlined)),
-      );
-      await tester.pumpAndSettle();
-
-      // Verify shellIndex updated
-      final controller = Get.find<AppController>();
-      expect(controller.shellIndex, equals(2));
-    });
-
-    testWidgets('navigates to Scholarships tab when tapped (index 3)',
-        (tester) async {
+    testWidgets('navigates to Cases tab when tapped (index 3)', (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
         localeCode: 'fr',
@@ -136,9 +110,7 @@ void main() {
       final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       await tester.tap(
         find.descendant(
-          of: bar,
-          matching: find.byIcon(Icons.workspace_premium_outlined),
-        ),
+            of: bar, matching: find.byIcon(Icons.folder_copy_outlined)),
       );
       await tester.pumpAndSettle();
 
@@ -164,7 +136,8 @@ void main() {
 
       final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       await tester.tap(
-        find.descendant(of: bar, matching: find.byIcon(Icons.person_outline_rounded)),
+        find.descendant(
+            of: bar, matching: find.byIcon(Icons.person_outline_rounded)),
       );
       await tester.pumpAndSettle();
 
@@ -189,7 +162,7 @@ void main() {
 
       final controller = Get.find<AppController>();
 
-      // Switch to Explore (index 1)
+      // Switch to Destinations (index 1)
       controller.goToTab(1);
       await tester.pumpAndSettle();
       expect(controller.shellIndex, equals(1));
@@ -199,10 +172,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(controller.shellIndex, equals(0));
 
-      // Switch to Cases (index 2)
-      controller.goToTab(2);
+      // Switch to Cases (index 3)
+      controller.goToTab(3);
       await tester.pumpAndSettle();
-      expect(controller.shellIndex, equals(2));
+      expect(controller.shellIndex, equals(3));
     });
 
     testWidgets('rapid tab switching does not cause errors', (tester) async {
@@ -296,9 +269,9 @@ void main() {
       // Use goToTab to navigate
       expect(controller.shellIndex, equals(0));
 
-      controller.goToTab(3);
+      controller.goToTab(4);
       await tester.pumpAndSettle();
-      expect(controller.shellIndex, equals(3));
+      expect(controller.shellIndex, equals(4));
 
       controller.goToTab(0);
       await tester.pumpAndSettle();

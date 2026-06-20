@@ -1,4 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../observability/analytics_event_contract.dart';
 import '../utils/app_logger.dart';
@@ -17,13 +18,27 @@ class AnalyticsService {
   FirebaseAnalyticsObserver get observer =>
       FirebaseAnalyticsObserver(analytics: _analytics);
 
+  static void _logError(String operation, Object error, StackTrace stackTrace) {
+    if (error is FirebaseException &&
+        error.plugin == 'core' &&
+        error.code == 'no-app') {
+      return;
+    }
+    AppLogger.error(
+      operation,
+      error: error,
+      stackTrace: stackTrace,
+      tag: 'analytics',
+    );
+  }
+
   // ── Screen tracking ────────────────────────────────────────────────────────
 
   Future<void> logScreen(String screenName) async {
     try {
       await _analytics.logScreenView(screenName: screenName);
     } catch (e, s) {
-      AppLogger.error('logScreen', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logScreen', e, s);
     }
   }
 
@@ -33,7 +48,7 @@ class AnalyticsService {
     try {
       await _analytics.logLogin(loginMethod: method);
     } catch (e, s) {
-      AppLogger.error('logLogin', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logLogin', e, s);
     }
   }
 
@@ -41,7 +56,7 @@ class AnalyticsService {
     try {
       await _analytics.logSignUp(signUpMethod: method);
     } catch (e, s) {
-      AppLogger.error('logRegister', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logRegister', e, s);
     }
   }
 
@@ -49,7 +64,7 @@ class AnalyticsService {
     try {
       await _analytics.logEvent(name: AnalyticsEventName.logout);
     } catch (e, s) {
-      AppLogger.error('logLogout', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logLogout', e, s);
     }
   }
 
@@ -59,7 +74,7 @@ class AnalyticsService {
     try {
       await _analytics.logEvent(name: AnalyticsEventName.orientationStart);
     } catch (e, s) {
-      AppLogger.error('logOrientationStart', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logOrientationStart', e, s);
     }
   }
 
@@ -76,7 +91,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logOrientationComplete', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logOrientationComplete', e, s);
     }
   }
 
@@ -86,7 +101,7 @@ class AnalyticsService {
     try {
       await _analytics.logSearch(searchTerm: query);
     } catch (e, s) {
-      AppLogger.error('logSearch', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logSearch', e, s);
     }
   }
 
@@ -105,7 +120,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logSaveItem', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logSaveItem', e, s);
     }
   }
 
@@ -122,7 +137,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logUnsaveItem', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logUnsaveItem', e, s);
     }
   }
 
@@ -134,7 +149,7 @@ class AnalyticsService {
         ],
       );
     } catch (e, s) {
-      AppLogger.error('logViewInstitution', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logViewInstitution', e, s);
     }
   }
 
@@ -146,7 +161,7 @@ class AnalyticsService {
         ],
       );
     } catch (e, s) {
-      AppLogger.error('logViewScholarship', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logViewScholarship', e, s);
     }
   }
 
@@ -160,7 +175,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logCompareInstitutions', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logCompareInstitutions', e, s);
     }
   }
 
@@ -173,7 +188,7 @@ class AnalyticsService {
         parameters: {AnalyticsParamKey.caseType: caseType},
       );
     } catch (e, s) {
-      AppLogger.error('logCaseCreated', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logCaseCreated', e, s);
     }
   }
 
@@ -184,7 +199,7 @@ class AnalyticsService {
         parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
-      AppLogger.error('logCaseViewed', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logCaseViewed', e, s);
     }
   }
 
@@ -195,7 +210,7 @@ class AnalyticsService {
         parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
-      AppLogger.error('logDocumentUploaded', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logDocumentUploaded', e, s);
     }
   }
 
@@ -206,7 +221,7 @@ class AnalyticsService {
         parameters: {AnalyticsParamKey.caseId: caseId},
       );
     } catch (e, s) {
-      AppLogger.error('logMessageSent', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logMessageSent', e, s);
     }
   }
 
@@ -216,7 +231,7 @@ class AnalyticsService {
     try {
       await _analytics.logEvent(name: AnalyticsEventName.profileUpdated);
     } catch (e, s) {
-      AppLogger.error('logProfileUpdated', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logProfileUpdated', e, s);
     }
   }
 
@@ -227,7 +242,7 @@ class AnalyticsService {
         parameters: {AnalyticsParamKey.theme: isDark ? 'dark' : 'light'},
       );
     } catch (e, s) {
-      AppLogger.error('logThemeToggled', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logThemeToggled', e, s);
     }
   }
 
@@ -248,7 +263,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logFullSyncResult', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logFullSyncResult', e, s);
     }
   }
 
@@ -265,7 +280,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logSyncConflict', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logSyncConflict', e, s);
     }
   }
 
@@ -282,7 +297,7 @@ class AnalyticsService {
         },
       );
     } catch (e, s) {
-      AppLogger.error('logCatalogSyncFallback', error: e, stackTrace: s, tag: 'analytics');
+      _logError('logCatalogSyncFallback', e, s);
     }
   }
 }

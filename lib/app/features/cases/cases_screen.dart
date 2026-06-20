@@ -4,8 +4,6 @@ import 'package:intl/intl.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/ui/skeleton.dart';
 import 'case_composer_sheet.dart';
@@ -30,13 +28,13 @@ class _CasesScreenState extends State<CasesScreen> {
         }
 
         if (controller.syncError != null && controller.cases.isEmpty) {
-          return KpbErrorState(onRetry: controller.refresh);
+          return KpbErrorState(onRetry: controller.pullToRefresh);
         }
 
         final items = controller.casesByType(_selectedType);
 
-        return KpbRefresh(
-          onRefresh: controller.refresh,
+        final Widget body = KpbRefresh(
+          onRefresh: controller.pullToRefresh,
           child: CustomScrollView(
           slivers: [
             // ── Header ───────────────────────────────────────────────
@@ -154,6 +152,17 @@ class _CasesScreenState extends State<CasesScreen> {
           ],
           ),
         );
+
+        // Guard against being laid out with unbounded width (e.g. while
+        // offstage beneath the Overlay theater during boot), which makes the
+        // header Row's button measurement assert. Capping maxWidth is a no-op
+        // during normal onstage layout since the parent is already narrower.
+        final mqWidth = MediaQuery.maybeOf(context)?.size.width ?? 0;
+        final safeWidth = (mqWidth.isFinite && mqWidth > 0) ? mqWidth : 400.0;
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: safeWidth),
+          child: body,
+        );
       },
     );
   }
@@ -182,6 +191,7 @@ class _CaseCard extends StatelessWidget {
     final statusInfo = _statusInfo(context, item.status);
     final date = DateFormat('dd MMM yyyy', controller.localeCode)
         .format(item.updatedAt);
+    final unread = controller.unreadMessagesForCase(item.id);
 
     return KpbCard(
       onTap: () => Get.to(() => CaseDetailScreen(caseId: item.id)),
@@ -225,6 +235,25 @@ class _CaseCard extends StatelessWidget {
                 color: statusInfo.color,
                 small: true,
               ),
+              if (unread > 0) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: KpbColors.error,
+                    borderRadius: KpbRadius.pillBr,
+                  ),
+                  child: Text(
+                    unread == 1 ? 'Nouveau message' : '$unread nouveaux',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 12),
