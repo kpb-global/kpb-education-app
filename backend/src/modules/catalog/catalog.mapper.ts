@@ -6,6 +6,15 @@ import type {
   Scholarship,
 } from '@prisma/client';
 
+import { ORIENTATION_FIELDS } from '../orientation/orientation-fields.data';
+
+// AI-resilience metadata lives in the orientation field referential (not the
+// Field table). Enrich the field DTO from it by id so the app can show the
+// "métier d'avenir" framing without a schema migration.
+const IA_RESILIENCE_BY_FIELD = new Map<string, string>(
+  ORIENTATION_FIELDS.map((f) => [f.id, f.iaResilience]),
+);
+
 type Localized = { fr: string; en: string };
 
 function localized(fr?: string | null, en?: string | null): Localized {
@@ -37,6 +46,7 @@ export function mapField(row: Field) {
     ),
     relatedCountryIds: row.relatedCountryIds,
     relatedScholarshipIds: row.relatedScholarshipIds,
+    iaResilience: IA_RESILIENCE_BY_FIELD.get(row.id) ?? '',
   };
 }
 
