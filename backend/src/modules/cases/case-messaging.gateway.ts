@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 import { StudentAuthService } from '../auth/student-auth.service';
@@ -31,6 +31,10 @@ export class CaseMessagingGateway
 
   constructor(
     private readonly studentAuthService: StudentAuthService,
+    // Circular import with cases.service.ts (it resolves this gateway lazily via
+    // ModuleRef). forwardRef defers the reference so it isn't undefined at the
+    // time Nest reads this constructor's param metadata.
+    @Inject(forwardRef(() => CasesService))
     private readonly casesService: CasesService,
     private readonly pushService: OneSignalSenderService,
   ) {}
