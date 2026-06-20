@@ -176,11 +176,14 @@ class KpbEducationApp extends StatelessWidget {
           title: 'KPB Education',
           debugShowCheckedModeBanner: false,
           translations: AppTranslations(),
-          // MVP launch lock: French only, light theme only.
-          locale: const Locale('fr'),
+          // Locale is driven by the saved preference (default French). Runtime
+          // switches go through AppController.switchLanguage → Get.updateLocale.
+          // Light theme only remains the MVP launch lock.
+          locale: Locale(controller.localeCode),
           fallbackLocale: const Locale('fr'),
           supportedLocales: const [
             Locale('fr'),
+            Locale('en'),
           ],
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,

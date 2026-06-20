@@ -24,6 +24,7 @@ class AppTranslations extends Translations {
           'scholarship_interest': 'Recherche d\'écoles privées',
           'available_documents': 'Documents disponibles',
           'preferred_language': 'Langue préférée',
+          'app_language': 'Langue de l\'application',
           'onboarding_title': 'Construisons votre parcours',
           'partner_redirect':
               'Les partenariats sont gérés via un formulaire dédié et un suivi KPB.',
@@ -271,6 +272,7 @@ class AppTranslations extends Translations {
           'scholarship_interest': 'Searching private schools',
           'available_documents': 'Available documents',
           'preferred_language': 'Preferred language',
+          'app_language': 'App language',
           'onboarding_title': 'Let’s build your journey',
           'partner_redirect':
               'Partnerships are handled through a dedicated form and KPB follow-up.',
@@ -310,7 +312,6 @@ class AppTranslations extends Translations {
           'commercial_no_chat_body':
               'Open a case from My leads to chat with a student.',
           'search': 'Search',
-          'nav_explore': 'Explore',
           'nav_scholarships': 'Schools',
           'nav_cases': 'My Cases',
           'nav_saved': 'Saved',
