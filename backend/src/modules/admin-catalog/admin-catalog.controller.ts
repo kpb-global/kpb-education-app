@@ -22,6 +22,20 @@ import { AdminCatalogService } from './admin-catalog.service';
 export class AdminCatalogController {
   constructor(private readonly service: AdminCatalogService) {}
 
+  // ── Verification (data-trust signal) ──────────────────────────────────────
+  @Post('verify')
+  setVerification(
+    @Body()
+    body: { entity: string; id: string; verified?: boolean; sourceUrl?: string },
+  ) {
+    return this.service.setVerification(
+      body.entity,
+      body.id,
+      body.verified ?? true,
+      body.sourceUrl,
+    );
+  }
+
   // ── Programs (formations) ─────────────────────────────────────────────────
   @Post('programs')
   createProgram(@Body() input: Record<string, unknown>) {

@@ -132,6 +132,8 @@ function seedToCountry(seed: (typeof M5_COUNTRY_SEEDS)[number]): CountryWithQuiz
     popularFieldIds: seed.popularFieldIds,
     displayOrder: seed.displayOrder,
     isActive: true,
+    lastVerifiedAt: null,
+    sourceUrl: null,
     createdAt: now,
     updatedAt: now,
     eligibilityQuiz: {
