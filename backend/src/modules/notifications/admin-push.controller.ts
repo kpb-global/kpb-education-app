@@ -4,6 +4,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { DeadlineReminderCronService } from './deadline-reminder-cron.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
 interface TestPushDto {
@@ -17,7 +18,17 @@ interface TestPushDto {
 @UseGuards(AdminAuthGuard, RolesGuard)
 @Roles(InternalRole.Admin, InternalRole.SuperAdmin)
 export class AdminPushController {
-  constructor(private readonly sender: OneSignalSenderService) {}
+  constructor(
+    private readonly sender: OneSignalSenderService,
+    private readonly reminders: DeadlineReminderCronService,
+  ) {}
+
+  /// Run the scholarship deadline-reminder pass on demand (test the pipeline
+  /// without waiting for the daily cron).
+  @Post('deadline-reminders')
+  runDeadlineReminders() {
+    return this.reminders.run();
+  }
 
   /**
    * Fire a test push to a single user (by KPB user id = OneSignal external id).

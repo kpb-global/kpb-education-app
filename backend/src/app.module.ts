@@ -35,6 +35,7 @@ import { NotificationsService } from './modules/notifications/notifications.serv
 import { OneSignalSenderService } from './modules/notifications/onesignal-sender.service';
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
+import { DeadlineReminderCronService } from './modules/notifications/deadline-reminder-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
 import { AdminPushController } from './modules/notifications/admin-push.controller';
 import { CoachController } from './modules/coach/coach.controller';
@@ -200,6 +201,7 @@ import { SalonService } from './modules/salon/salon.service';
     OneSignalSenderService,
     CampaignExecutorService,
     CampaignCronService,
+    DeadlineReminderCronService,
     NotificationsService,
     OrientationService,
     LlmService,
