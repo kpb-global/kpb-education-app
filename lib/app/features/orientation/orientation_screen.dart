@@ -8,8 +8,12 @@ import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
+import '../../core/utils/study_level.dart';
 import '../cases/case_composer_sheet.dart';
 import '../explore/country_detail_screen.dart';
+import '../explore/program_detail_screen.dart';
+import '../universities/widgets/program_catalog_card.dart';
 
 class OrientationScreen extends StatefulWidget {
   const OrientationScreen({super.key});
@@ -449,6 +453,21 @@ class _ResultsViewState extends State<_ResultsView>
         ? controller.fieldByIdOrNull(recs.first.fieldId)
         : null;
 
+    // Sprint 4 — connect the result to concrete formations: programs in the
+    // top recommended fields, best-match first, with a profile-aware fallback.
+    final topFieldIds = recs.take(2).map((r) => r.fieldId as String).toSet();
+    final matchedPrograms = () {
+      final byField = controller.programs
+          .where((p) => topFieldIds.contains(p.fieldId))
+          .toList()
+        ..sort((a, b) =>
+            controller.programMatch(b).compareTo(controller.programMatch(a)));
+      final picked = byField.take(6).toList();
+      return picked.isNotEmpty
+          ? picked
+          : controller.recommendedPrograms.take(6).toList();
+    }();
+
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       body: Stack(
@@ -506,6 +525,60 @@ class _ResultsViewState extends State<_ResultsView>
                 },
               ),
             ),
+
+            // ── Matched formations (Sprint 4) ──────────────────────────
+            if (matchedPrograms.isNotEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                    KpbSpacing.pagePad, KpbSpacing.xl, KpbSpacing.pagePad, 0),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Formations qui te correspondent',
+                        style: KpbTextStyles.titleLg
+                            .copyWith(color: context.kpb.textPrimary),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        topField != null
+                            ? 'Des programmes liés à ${controller.resolve(topField.name)}.'
+                            : 'Des programmes liés à tes résultats.',
+                        style: KpbTextStyles.bodySm
+                            .copyWith(color: context.kpb.textSecondary),
+                      ),
+                      const SizedBox(height: KpbSpacing.md),
+                      ...matchedPrograms.map((program) {
+                        final institution =
+                            controller.institutionByIdOrNull(program.institutionId);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: KpbSpacing.sm),
+                          child: ProgramCatalogCard(
+                            name: controller.resolve(program.name),
+                            institution: institution != null
+                                ? controller.resolve(institution.name)
+                                : null,
+                            level: programLevelLabel(
+                                controller.resolve(program.level)),
+                            tuition: controller.resolve(program.tuition),
+                            language: controller.resolve(program.language),
+                            duration: controller.resolve(program.duration),
+                            flag: countryFlag(program.countryId),
+                            saved: controller.isSaved(
+                                SavedItemType.program, program.id),
+                            isPartner: institution?.isPartner ?? false,
+                            onSave: () => controller.toggleSaved(
+                                SavedItemType.program, program.id),
+                            onTap: () => Get.to(
+                                () => ProgramDetailScreen(programId: program.id)),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
 
             // ── Action buttons ─────────────────────────────────────────
             SliverToBoxAdapter(
