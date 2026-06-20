@@ -295,8 +295,17 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// Re-render every `.tr` string in [localeCode]. Guarded so it is a no-op in
+  /// pure unit tests (no live GetMaterialApp), where forcing a frame asserts.
+  void _applyLocaleToUi() {
+    if (Get.context != null) {
+      Get.updateLocale(Locale(localeCode));
+    }
+  }
+
   void switchLanguage(String newLocaleCode) {
     localeCode = newLocaleCode;
+    _applyLocaleToUi();
     final p = profile;
     if (p != null) {
       profile = p.copyWith(preferredLanguage: newLocaleCode);
@@ -389,6 +398,8 @@ abstract class _AppControllerBase extends GetxController {
   void completeOnboarding(UserProfile newProfile) {
     profile = newProfile;
     localeCode = newProfile.preferredLanguage;
+    // Apply the language chosen during onboarding to all `.tr` strings.
+    _applyLocaleToUi();
     hasCompletedOnboarding = true;
     onboardingSkipped = false;
     onboardingStep = 0;

@@ -206,6 +206,46 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const Divider(height: 24),
+                          // ── App language (FR / EN) ───────────────────────
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.translate_rounded,
+                                        color: KpbColors.blue, size: 24),
+                                    const SizedBox(width: 12),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('app_language'.tr,
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600)),
+                                          Text(
+                                            controller.localeCode
+                                                    .startsWith('en')
+                                                ? 'English'
+                                                : 'Français',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: context.kpb.textMuted),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              _LanguageToggle(
+                                current: controller.localeCode,
+                                onChanged: controller.switchLanguage,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -1215,6 +1255,52 @@ class _GuestProfilePrompt extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact FR | EN segmented control for the app display language.
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle({required this.current, required this.onChanged});
+
+  final String current;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _segment(context, 'FR', 'fr'),
+        const SizedBox(width: 8),
+        _segment(context, 'EN', 'en'),
+      ],
+    );
+  }
+
+  Widget _segment(BuildContext context, String label, String code) {
+    final selected = current.startsWith(code);
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: selected ? null : () => onChanged(code),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? KpbColors.blue : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? KpbColors.blue : context.kpb.gray300,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            color: selected ? Colors.white : context.kpb.textMuted,
+          ),
+        ),
+      ),
     );
   }
 }
