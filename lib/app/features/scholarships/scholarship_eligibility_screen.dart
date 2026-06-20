@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/scholarship_status_badge.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// Three-state answer for one eligibility criterion.
@@ -80,7 +81,12 @@ class _ScholarshipEligibilityScreenState
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       children: [
         Text(_name, style: KpbTextStyles.titleLg),
-        const SizedBox(height: KpbSpacing.xs),
+        const SizedBox(height: KpbSpacing.sm),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ScholarshipStatusBadge(scholarship: widget.scholarship),
+        ),
+        const SizedBox(height: KpbSpacing.sm),
         Text(
           'Réponds honnêtement à chaque critère pour estimer ton éligibilité. '
           'Ce n’est qu’une indication — un conseiller confirmera ton cas.',
