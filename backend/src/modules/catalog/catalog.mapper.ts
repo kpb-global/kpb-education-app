@@ -94,6 +94,8 @@ export function mapCountry(row: Country) {
     visaOverviewEn: row.visaOverviewEn,
     admissionDifficultyFr: row.admissionDifficultyFr,
     admissionDifficultyEn: row.admissionDifficultyEn,
+    lastVerifiedAt: row.lastVerifiedAt,
+    sourceUrl: row.sourceUrl,
   };
 }
 
@@ -113,6 +115,8 @@ export function mapInstitution(row: Institution) {
     intakePeriods: row.intakePeriods,
     programIds: row.programIds,
     isPartner: row.isPartner,
+    lastVerifiedAt: row.lastVerifiedAt,
+    sourceUrl: row.sourceUrl,
   };
 }
 
@@ -141,6 +145,8 @@ export function mapProgram(row: Program) {
     languageEn: row.languageEn,
     requirementsFr: row.requirementsFr,
     requirementsEn: row.requirementsEn,
+    lastVerifiedAt: row.lastVerifiedAt,
+    sourceUrl: row.sourceUrl,
   };
 }
 

@@ -609,6 +609,9 @@ model Country {
   popularFieldIds       String[]
   displayOrder          Int      @default(0)
   isActive              Boolean  @default(true)
+  // Data-trust signal: when the facts were last confirmed, and the source.
+  lastVerifiedAt        DateTime?
+  sourceUrl             String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   eligibilityQuiz       CountryEligibilityQuiz?
@@ -643,6 +646,8 @@ model Institution {
   intakePeriods          String[]
   programIds             String[]
   isPartner              Boolean  @default(false)
+  lastVerifiedAt         DateTime?
+  sourceUrl              String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
@@ -666,6 +671,8 @@ model Program {
   languageEn     String
   requirementsFr String[]
   requirementsEn String[]
+  lastVerifiedAt DateTime?
+  sourceUrl      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

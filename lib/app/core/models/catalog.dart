@@ -127,6 +127,8 @@ class CountryModel {
     this.displayOrder = 0,
     this.isActive = true,
     this.eligibilityQuiz,
+    this.lastVerifiedAt,
+    this.sourceUrl,
   });
 
   final String id;
@@ -155,6 +157,8 @@ class CountryModel {
   final int displayOrder;
   final bool isActive;
   final CountryEligibilityQuizModel? eligibilityQuiz;
+  final DateTime? lastVerifiedAt;
+  final String? sourceUrl;
 
   List<String> whyStudyBulletsFor(String localeCode) =>
       localeCode.startsWith('en') && whyStudyBulletsEn.isNotEmpty
@@ -199,6 +203,8 @@ class CountryModel {
       displayOrder: displayOrder,
       isActive: isActive,
       eligibilityQuiz: eligibilityQuiz ?? this.eligibilityQuiz,
+      lastVerifiedAt: lastVerifiedAt,
+      sourceUrl: sourceUrl,
     );
   }
 
@@ -268,6 +274,8 @@ class CountryModel {
       displayOrder: json['displayOrder'] as int? ?? 0,
       isActive: json['isActive'] as bool? ?? true,
       eligibilityQuiz: quiz,
+      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      sourceUrl: json['sourceUrl'] as String?,
     );
   }
 
@@ -299,6 +307,8 @@ class CountryModel {
         'popularFieldIds': popularFieldIds,
         'displayOrder': displayOrder,
         'isActive': isActive,
+        'lastVerifiedAt': lastVerifiedAt?.toIso8601String(),
+        'sourceUrl': sourceUrl,
         if (eligibilityQuiz != null)
           'eligibilityQuiz': {
             'questions': eligibilityQuiz!.questions
@@ -349,6 +359,8 @@ class InstitutionModel {
     required this.intakePeriods,
     required this.programIds,
     this.isPartner = false,
+    this.lastVerifiedAt,
+    this.sourceUrl,
   });
 
   final String id;
@@ -362,6 +374,8 @@ class InstitutionModel {
   final List<String> intakePeriods;
   final List<String> programIds;
   final bool isPartner;
+  final DateTime? lastVerifiedAt;
+  final String? sourceUrl;
 
   factory InstitutionModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -387,6 +401,8 @@ class InstitutionModel {
           (json['intakePeriods'] as List<dynamic>?)?.cast<String>() ?? [],
       programIds: (json['programIds'] as List<dynamic>?)?.cast<String>() ?? [],
       isPartner: json['isPartner'] as bool? ?? false,
+      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      sourceUrl: json['sourceUrl'] as String?,
     );
   }
 
@@ -402,6 +418,8 @@ class InstitutionModel {
         'intakePeriods': intakePeriods,
         'programIds': programIds,
         'isPartner': isPartner,
+        'lastVerifiedAt': lastVerifiedAt?.toIso8601String(),
+        'sourceUrl': sourceUrl,
       };
 }
 class ProgramModel {
@@ -416,6 +434,8 @@ class ProgramModel {
     required this.tuition,
     required this.language,
     required this.requirements,
+    this.lastVerifiedAt,
+    this.sourceUrl,
   });
 
   final String id;
@@ -428,6 +448,8 @@ class ProgramModel {
   final LocalizedText tuition;
   final LocalizedText language;
   final List<LocalizedText> requirements;
+  final DateTime? lastVerifiedAt;
+  final String? sourceUrl;
 
   factory ProgramModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -469,6 +491,8 @@ class ProgramModel {
       tuition: parseLoc('tuition'),
       language: parseLoc('language'),
       requirements: parseLocList('requirements'),
+      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      sourceUrl: json['sourceUrl'] as String?,
     );
   }
 
@@ -483,6 +507,8 @@ class ProgramModel {
         'tuition': tuition.toJson(),
         'language': language.toJson(),
         'requirements': requirements.map((e) => e.toJson()).toList(),
+        'lastVerifiedAt': lastVerifiedAt?.toIso8601String(),
+        'sourceUrl': sourceUrl,
       };
 }
 class ScholarshipModel {
