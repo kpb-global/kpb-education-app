@@ -139,11 +139,18 @@ export class CoachService {
 
         await this.appendMessage(conversation, 'user', params.message);
 
+        // RAG: ground the reply in verified catalog facts for this question.
+        const verifiedContext = await this.retrieveContext(
+          params.message,
+          (params.profile.targetCountryIds as string[] | undefined) ?? [],
+        );
+
         const system = buildCoachSystemPrompt({
           fullName: params.profile.fullName as string | undefined,
           currentLevel: params.profile.currentLevel as string | undefined,
           targetCountryIds: params.profile.targetCountryIds as string[] | undefined,
           monthlyBudgetEur: params.profile.monthlyBudgetEur as number | undefined,
+          verifiedContext,
         });
 
         const history = conversation.messages.slice(-8).map((item) => ({
@@ -176,6 +183,77 @@ export class CoachService {
         }
       })();
     });
+  }
+
+  // ── RAG retrieval ───────────────────────────────────────────────────────────
+
+  /// Pull the verified catalog facts most relevant to the question (the user's
+  /// target countries + any country/scholarship named in the message), as a
+  /// compact, citable context block. Returns '' when the DB is unavailable — the
+  /// prompt then tells the model it has no verified data (so it won't invent).
+  private async retrieveContext(
+    message: string,
+    targetCountryIds: string[],
+  ): Promise<string> {
+    const q = ' ' + message.toLowerCase() + ' ';
+    const targets = new Set(targetCountryIds.map((c) => c.toLowerCase()));
+
+    const [countries, scholarships] = await Promise.all([
+      this.prisma.tryExecute((p) =>
+        p.country.findMany({ where: { isActive: true }, take: 30 }),
+      ),
+      this.prisma.tryExecute((p) =>
+        p.scholarship.findMany({
+          where: { isActive: true, moderationStatus: 'approved' },
+          orderBy: { nameFr: 'asc' },
+          take: 60,
+        }),
+      ),
+    ]);
+    if (!countries && !scholarships) return '';
+
+    const relCountries = (countries ?? [])
+      .filter(
+        (c) =>
+          targets.has(c.id.toLowerCase()) ||
+          targets.has(c.code.toLowerCase()) ||
+          (!!c.nameFr && q.includes(c.nameFr.toLowerCase())) ||
+          (!!c.nameEn && q.includes(c.nameEn.toLowerCase())),
+      )
+      .slice(0, 4);
+    const relCountryIds = new Set(relCountries.map((c) => c.id));
+
+    const relScholarships = (scholarships ?? [])
+      .filter(
+        (s) =>
+          relCountryIds.has(s.countryId) ||
+          (!!s.nameFr && q.includes(s.nameFr.toLowerCase())) ||
+          (!!s.nameEn && q.includes(s.nameEn.toLowerCase())),
+      )
+      .slice(0, 6);
+
+    const lines: string[] = [];
+    if (relCountries.length) {
+      lines.push('PAYS:');
+      for (const c of relCountries) {
+        const verified = c.lastVerifiedAt
+          ? `vérifié ${c.lastVerifiedAt.toISOString().slice(0, 10)}`
+          : 'à confirmer';
+        lines.push(
+          `- ${c.nameFr}: frais ${c.tuitionRangeFr || 'n/d'}; coût de vie ${c.livingCostRangeFr || 'n/d'}; visa ${c.visaOverviewFr || 'n/d'}; admission ${c.admissionDifficultyFr || 'n/d'} [source: catalogue KPB, ${verified}]`,
+        );
+      }
+    }
+    if (relScholarships.length) {
+      lines.push('BOURSES:');
+      for (const s of relScholarships) {
+        const elig = (s.eligibilityFr ?? []).slice(0, 2).join(' / ');
+        lines.push(
+          `- ${s.nameFr} (${s.countryNameFr || s.countryId}): financement ${s.typeOfFundingFr || 'n/d'}; date limite ${s.deadlineLabelFr || 'n/d'}; éligibilité ${elig || 'voir détail'} [source: ${s.sourceUrl || 'catalogue KPB'}]`,
+        );
+      }
+    }
+    return lines.join('\n');
   }
 
   // ── Storage helpers ─────────────────────────────────────────────────────────
