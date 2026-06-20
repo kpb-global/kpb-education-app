@@ -485,6 +485,10 @@ class ProgramModel {
         'requirements': requirements.map((e) => e.toJson()).toList(),
       };
 }
+/// Application-window status for a scholarship (Ouvert / Bientôt clôturé /
+/// Clôturé), derived from [ScholarshipModel.deadlineAt].
+enum ScholarshipWindowStatus { open, closingSoon, closed }
+
 class ScholarshipModel {
   const ScholarshipModel({
     required this.id,
@@ -497,6 +501,8 @@ class ScholarshipModel {
     required this.relatedFieldIds,
     required this.baseMatch,
     this.academyCourseId,
+    this.eligibility = const [],
+    this.deadlineAt,
   });
 
   final String id;
@@ -509,6 +515,27 @@ class ScholarshipModel {
   final List<String> relatedFieldIds;
   final int baseMatch;
   final String? academyCourseId;
+
+  /// Who can apply (distinct from [keyRequirements], which are application
+  /// steps). Drives the scholarship eligibility self-check. May be empty for
+  /// scraped/live entries.
+  final List<LocalizedText> eligibility;
+
+  /// Application close date. Null = no fixed deadline (treated as open / rolling).
+  final DateTime? deadlineAt;
+
+  /// Ouvert / Bientôt clôturé / Clôturé, derived from [deadlineAt]. [now] is
+  /// injectable for testing; [soonDays] is the "closing soon" window.
+  ScholarshipWindowStatus windowStatus({DateTime? now, int soonDays = 21}) {
+    final close = deadlineAt;
+    if (close == null) return ScholarshipWindowStatus.open;
+    final ref = now ?? DateTime.now();
+    if (!ref.isBefore(close)) return ScholarshipWindowStatus.closed;
+    if (close.difference(ref).inDays <= soonDays) {
+      return ScholarshipWindowStatus.closingSoon;
+    }
+    return ScholarshipWindowStatus.open;
+  }
 
   factory ScholarshipModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -551,6 +578,8 @@ class ScholarshipModel {
           (json['relatedFieldIds'] as List<dynamic>?)?.cast<String>() ?? [],
       baseMatch: json['baseMatch'] as int? ?? 0,
       academyCourseId: json['academyCourseId'] as String?,
+      eligibility: parseLocList('eligibility'),
+      deadlineAt: DateTime.tryParse(json['deadlineAt'] as String? ?? ''),
     );
   }
 
@@ -565,6 +594,8 @@ class ScholarshipModel {
         'relatedFieldIds': relatedFieldIds,
         'baseMatch': baseMatch,
         'academyCourseId': academyCourseId,
+        'eligibility': eligibility.map((e) => e.toJson()).toList(),
+        'deadlineAt': deadlineAt?.toIso8601String(),
       };
 }
 

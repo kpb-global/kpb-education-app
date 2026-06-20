@@ -6,9 +6,11 @@ import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/scholarship_status_badge.dart';
 import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../academy/academy_course_screen.dart';
+import 'scholarship_eligibility_screen.dart';
 import 'widgets/roadmap_timeline_view.dart';
 import '../../core/data/roadmap_engine.dart';
 
@@ -223,12 +225,15 @@ class _ScholarshipCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
+              ScholarshipStatusBadge(scholarship: s, compact: true),
               _InfoRow(
                   icon: Icons.payments_outlined,
                   label: controller.resolve(s.typeOfFunding)),
-              const SizedBox(width: 16),
               _InfoRow(icon: Icons.event_outlined, label: deadline),
             ],
           ),
@@ -442,6 +447,11 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           ],
         ),
         const SizedBox(height: KpbSpacing.lg),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ScholarshipStatusBadge(scholarship: s),
+        ),
+        const SizedBox(height: KpbSpacing.md),
         _AdmissionHook(
           score: controller.scholarshipMatch(s),
           scholarshipName: controller.resolve(s.name),
@@ -485,6 +495,22 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           ),
         ),
         const SizedBox(height: KpbSpacing.xl),
+        OutlinedButton.icon(
+          onPressed: () {
+            Navigator.pop(context);
+            Get.to(() => ScholarshipEligibilityScreen(scholarship: s));
+          },
+          icon: const Icon(Icons.fact_check_outlined),
+          label: const Text('Suis-je éligible ?'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            foregroundColor:
+                KpbColors.blue,
+            side: BorderSide(
+                color: KpbColors.blue),
+          ),
+        ),
+        const SizedBox(height: KpbSpacing.sm),
         KpbButton(
           text: 'Candidater avec KPB',
           onPressed: () {

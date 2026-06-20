@@ -156,7 +156,9 @@ export function mapScholarship(row: Scholarship) {
       row.keyRequirementsFr,
       row.keyRequirementsEn,
     ),
+    eligibility: localizedList(row.eligibilityFr, row.eligibilityEn),
     relatedFieldIds: row.relatedFieldIds,
     baseMatch: row.baseMatch,
+    deadlineAt: row.deadlineAt,
   };
 }
