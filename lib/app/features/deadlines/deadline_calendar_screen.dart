@@ -90,12 +90,13 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
               .map((e) => e.itemId)
               .toSet();
 
-          // Build deadline entries
+          // Build deadline entries. Prefer the structured deadlineAt (now
+          // populated server-side); fall back to parsing the label text.
           final entries = controller.scholarships.map((s) {
             final labelText = controller.resolve(s.deadlineLabel);
             return _DeadlineEntry(
               scholarship: s,
-              deadline: _parseDeadline(labelText),
+              deadline: s.deadlineAt ?? _parseDeadline(labelText),
               isSaved: savedIds.contains(s.id),
             );
           }).toList();
