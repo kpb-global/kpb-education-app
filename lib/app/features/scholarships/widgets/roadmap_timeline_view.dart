@@ -9,11 +9,14 @@ import '../../../core/ui/app_tokens.dart';
 class RoadmapTimelineView extends StatelessWidget {
   const RoadmapTimelineView({
     super.key,
-    required this.scholarship,
+    required this.completionKey,
     required this.deadline,
   });
 
-  final ScholarshipModel scholarship;
+  /// Stable id used to persist per-step completion (e.g. a scholarship id, or an
+  /// orientation roadmap key). Lets one timeline serve both scholarships and the
+  /// orientation "parcours".
+  final String completionKey;
   final DateTime deadline;
 
   @override
@@ -32,14 +35,14 @@ class RoadmapTimelineView extends StatelessWidget {
 
         return GetBuilder<AppController>(
           builder: (controller) {
-            final isCompleted = controller.isStepCompleted(scholarship.id, step.type);
-            
+            final isCompleted = controller.isStepCompleted(completionKey, step.type);
+
             return _RoadmapStepTile(
               step: step,
               date: date,
               isCompleted: isCompleted,
               isLast: isLast,
-              onToggle: () => controller.toggleRoadmapStep(scholarship.id, step.type),
+              onToggle: () => controller.toggleRoadmapStep(completionKey, step.type),
               onAction: step.actionRoute != null ? () => _handleAction(step.actionRoute!) : null,
             );
           },
