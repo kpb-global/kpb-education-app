@@ -14,7 +14,8 @@ import 'parent_case_view_screen.dart';
 /// - An invite-code flow: parents generate a code and send it to their child
 ///   by WhatsApp; students accept by typing the code.
 /// - A list of the child's cases the student has opted to share.
-/// - A "Payer" button on any case that routes through [PaymentsService].
+/// - A "Discuter avec un conseiller" button on any shared case that opens
+///   WhatsApp to a KPB advisor (fees are arranged with the advisor, not in-app).
 ///
 /// Kept deliberately simple — parents in this market are often first-time
 /// smartphone users who only reliably operate WhatsApp, so the UI stays

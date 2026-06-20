@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/verified_badge.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/study_level.dart';
@@ -112,7 +113,15 @@ class ProgramDetailScreen extends StatelessWidget {
                     icon: Icons.info_outline_rounded,
                     title: 'Le programme en bref',
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: VerifiedBadge(
+                            lastVerifiedAt: program.lastVerifiedAt,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         KpbInfoRow(
                           icon: Icons.school_outlined,
                           label: 'Niveau',
@@ -388,9 +397,13 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final whatsAppPrefill = country?.whatsAppPrefill.fr.isNotEmpty == true
-        ? controller.resolve(country!.whatsAppPrefill)
-        : 'Bonjour KPB, je suis intéressé(e) par ${controller.resolve(program.name)}.';
+    final whatsAppPrefill = kpbWhatsAppPrefill(
+      custom: country?.whatsAppPrefill.fr.isNotEmpty == true
+          ? controller.resolve(country!.whatsAppPrefill)
+          : null,
+      program: controller.resolve(program.name),
+      country: country != null ? controller.resolve(country!.name) : null,
+    );
 
     return Container(
       padding: EdgeInsets.fromLTRB(

@@ -226,6 +226,7 @@ async function main() {
       baseMatch: scholarship.baseMatch ?? 30,
       applicationUrl: scholarship.applicationUrl ?? null,
       sourceUrl: scholarship.sourceUrl ?? null,
+      deadlineAt: scholarship.deadlineAt ? new Date(scholarship.deadlineAt) : null,
       tags: scholarship.tags ?? [],
       isActive: scholarship.isActive ?? true,
     };

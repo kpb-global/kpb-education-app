@@ -36,9 +36,12 @@ class AppConfig {
   );
 
   /// Main KPB WhatsApp line (E.164 digits, with or without leading +).
+  /// Defaults to the KPB advisor line so the "Discuter avec un conseiller" CTAs
+  /// reach a real person even when no --dart-define is passed; override per
+  /// environment with --dart-define=KPB_WHATSAPP_NUMBER=...
   static const whatsappNumber = String.fromEnvironment(
     'KPB_WHATSAPP_NUMBER',
-    defaultValue: '',
+    defaultValue: '+33768674292',
   );
 
   /// Optional WhatsApp group invite fallback.

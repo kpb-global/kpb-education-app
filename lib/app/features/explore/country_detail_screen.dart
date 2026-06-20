@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/verified_badge.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
@@ -128,6 +129,15 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: VerifiedBadge(
+                        lastVerifiedAt: country.lastVerifiedAt,
+                      ),
+                    ),
+                  ),
                   if (mvpNote.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -439,7 +449,11 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
                           onPressed: () => openWhatsAppOrToast(
-                            prefill: _controller.resolve(country.whatsAppPrefill),
+                            prefill: kpbWhatsAppPrefill(
+                              custom:
+                                  _controller.resolve(country.whatsAppPrefill),
+                              country: _controller.resolve(country.name),
+                            ),
                           ),
                           icon: const Icon(Icons.chat_outlined),
                           label: const Text('Discuter sur WhatsApp'),
@@ -655,7 +669,10 @@ class _BottomCta extends StatelessWidget {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () => openWhatsAppOrToast(
-                prefill: controller.resolve(country.whatsAppPrefill),
+                prefill: kpbWhatsAppPrefill(
+                  custom: controller.resolve(country.whatsAppPrefill),
+                  country: controller.resolve(country.name),
+                ),
               ),
               icon: const Icon(Icons.chat_outlined, size: 18),
               label: const Text('WhatsApp'),

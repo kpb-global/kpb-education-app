@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 /// Read-only case view for linked parents (Track C1). The student has opted
 /// in to share the case (`parentCanView = true` on the case). We show:
 /// - Title, context, current status, next-step copy
 /// - Timeline (read-only)
 /// - Last few messages (read-only — parent can't post)
-/// - A prominent "Payer" button that routes to the hosted checkout page.
+/// - A prominent "Discuter avec un conseiller" button that opens WhatsApp.
 ///
-/// Scope is deliberately narrow — the parent's job here is to pay and stay
-/// informed, not to operate the case. Advisor chat stays with the student.
+/// Scope is deliberately narrow — the parent's job here is to reach a KPB
+/// advisor and stay informed, not to operate the case. In-app payment was
+/// removed (our largely African audience settles fees directly with their
+/// advisor); the backend payments module stays but is no longer called here.
 class ParentCaseViewScreen extends StatefulWidget {
   const ParentCaseViewScreen({super.key, required this.caseId});
 
@@ -25,10 +27,8 @@ class ParentCaseViewScreen extends StatefulWidget {
 class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
   late final AppApiClient _api = AppApiClient();
   bool _loading = true;
-  bool _paying = false;
   String? _error;
   Map<String, dynamic> _case = const {};
-  List<String> _providers = const [];
 
   @override
   void initState() {
@@ -42,14 +42,10 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
       _error = null;
     });
     try {
-      final results = await Future.wait([
-        _api.getParentVisibleCase(widget.caseId),
-        _api.listPaymentProviders().catchError((_) => <String>[]),
-      ]);
+      final result = await _api.getParentVisibleCase(widget.caseId);
       if (!mounted) return;
       setState(() {
-        _case = results[0] as Map<String, dynamic>;
-        _providers = results[1] as List<String>;
+        _case = result;
         _loading = false;
       });
     } catch (_) {
@@ -61,47 +57,14 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
     }
   }
 
-  Future<void> _payPressed() async {
-    if (_providers.isEmpty) {
-      _toast('Aucun moyen de paiement disponible.');
-      return;
-    }
-    // Pick the first configured provider automatically — adding a picker here
-    // would be a UX step too many for a parent who just wants to pay.
-    final provider = _providers.first;
-    setState(() => _paying = true);
-    try {
-      final intent = await _api.createPaymentIntent(
-        provider: provider,
-        // Default to a 25,000 XOF advisor consultation deposit. Real amount
-        // should come from the case's pending invoice — stubbed for Phase 1.
-        amountMinor: 25000,
-        currency: 'XOF',
-        caseId: widget.caseId,
-        description: 'KPB Education — consultation',
-        returnUrl: 'https://kpb-education.com/pay/success',
-        cancelUrl: 'https://kpb-education.com/pay/cancel',
-      );
-      final url = intent['checkoutUrl'] as String?;
-      if (url != null && url.isNotEmpty) {
-        await launchUrl(
-          Uri.parse(url),
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        _toast('Lien de paiement indisponible.');
-      }
-    } catch (_) {
-      _toast('Paiement impossible pour le moment.');
-    } finally {
-      if (mounted) setState(() => _paying = false);
-    }
-  }
-
-  void _toast(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
-    );
+  Future<void> _discussPressed() async {
+    // No in-app payment: a parent who wants to act on the case is routed to a
+    // KPB advisor on WhatsApp, pre-filled with the case title for context.
+    final title = (_case['title'] as String?)?.trim();
+    final prefill = title != null && title.isNotEmpty
+        ? 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier « $title » sur KPB Education.'
+        : 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier de mon enfant sur KPB Education.';
+    await openWhatsAppOrToast(prefill: prefill);
   }
 
   @override
@@ -127,17 +90,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
                 child: SizedBox(
                   height: 52,
                   child: ElevatedButton.icon(
-                    icon: _paying
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.payments_rounded),
-                    label: Text(_paying ? 'Ouverture…' : 'Payer'),
+                    icon: const Icon(Icons.chat_rounded),
+                    label: const Text('Discuter avec un conseiller'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: KpbColors.success,
                       foregroundColor: Colors.white,
@@ -146,7 +100,7 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    onPressed: _paying ? null : _payPressed,
+                    onPressed: _discussPressed,
                   ),
                 ),
               ),

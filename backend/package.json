@@ -16,7 +16,8 @@
     "seed:omnes": "ts-node scripts/seed-omnes-programs.ts",
     "seed:partners": "ts-node scripts/seed-partner-schools.ts",
     "seed:countries-m5": "ts-node scripts/seed-countries-m5.ts",
-    "seed:catalog": "npm run seed:countries-m5 && npm run seed:omnes && npm run seed:partners",
+    "seed:catalogue-unique": "ts-node scripts/seed-catalogue-unique.ts",
+    "seed:catalog": "npm run seed:countries-m5 && npm run seed:omnes && npm run seed:partners && npm run seed:catalogue-unique",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest"
   },
