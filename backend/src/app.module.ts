@@ -73,10 +73,10 @@ import {
   CounsellorsController,
 } from './modules/counsellors/counsellors.controller';
 import { CounsellorsService } from './modules/counsellors/counsellors.service';
-import {
-  AdminPaymentsController,
-  PaymentsController,
-} from './modules/payments/payments.controller';
+// NOTE: PaymentsController/AdminPaymentsController are intentionally NOT
+// registered — the launch is WhatsApp-advisor only (no in-app checkout), and an
+// unauthenticated payment webhook is a needless attack surface. PaymentsService
+// stays a provider because ServicePackagesService injects it.
 import { PaymentsService } from './modules/payments/payments.service';
 import { CinetpayAdapter } from './modules/payments/cinetpay.adapter';
 import { PaydunyaAdapter } from './modules/payments/paydunya.adapter';
@@ -165,8 +165,6 @@ import { SalonService } from './modules/salon/salon.service';
     SavedItemsController,
     CounsellorsController,
     AdminCounsellorsController,
-    PaymentsController,
-    AdminPaymentsController,
     ParentLinksController,
     AdminScholarshipsController,
     ScholarshipsController,
