@@ -14,6 +14,7 @@ class FieldModel {
     required this.relatedCountryIds,
     required this.relatedScholarshipIds,
     required this.accentColor,
+    this.iaResilience = '',
   });
 
   final String id;
@@ -27,6 +28,11 @@ class FieldModel {
   final List<String> relatedCountryIds;
   final List<String> relatedScholarshipIds;
   final Color accentColor;
+
+  /// AI-resilience of the field's careers: 'high' | 'medium' | 'low' (or '').
+  /// Drives the "métier d'avenir" framing. Sourced from the orientation
+  /// field metadata.
+  final String iaResilience;
 
   factory FieldModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -81,6 +87,7 @@ class FieldModel {
           (json['relatedScholarshipIds'] as List<dynamic>?)?.cast<String>() ??
               [],
       accentColor: parseColor(json['accentColorHex'] as String?),
+      iaResilience: json['iaResilience'] as String? ?? '',
     );
   }
 
@@ -97,6 +104,7 @@ class FieldModel {
         'relatedScholarshipIds': relatedScholarshipIds,
         'accentColorHex':
             '#${accentColor.toARGB32().toRadixString(16).substring(2)}',
+        'iaResilience': iaResilience,
       };
 }
 class CountryModel {

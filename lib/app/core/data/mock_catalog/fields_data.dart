@@ -7,6 +7,7 @@ import '../../models/app_models.dart';
 const kFields = <FieldModel>[
     FieldModel(
       id: 'd01',
+      iaResilience: 'high',
       name: LocalizedText(
           fr: 'Informatique & Intelligence Artificielle',
           en: 'Computer Science & AI'),
@@ -56,6 +57,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd02',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Gestion, Business & Management', en: 'Business & Management'),
       description: LocalizedText(
@@ -104,6 +106,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd03',
+      iaResilience: 'high',
       name: LocalizedText(
           fr: 'Finance, Banque & Comptabilité',
           en: 'Finance, Banking & Accounting'),
@@ -151,6 +154,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd04',
+      iaResilience: 'high',
       name: LocalizedText(
           fr: 'Santé & Sciences Médicales', en: 'Health & Medical Sciences'),
       description: LocalizedText(
@@ -195,6 +199,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd05',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Ingénierie & Sciences Appliquées',
           en: 'Engineering & Applied Sciences'),
@@ -244,6 +249,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd06',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Marketing, Communication & Arts',
           en: 'Marketing, Communication & Arts'),
@@ -300,6 +306,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd07',
+      iaResilience: 'high',
       name: LocalizedText(
           fr: 'Droit & Sciences Politiques', en: 'Law & Political Science'),
       description: LocalizedText(
@@ -347,6 +354,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd08',
+      iaResilience: 'high',
       name: LocalizedText(
           fr: 'Énergie, Environnement & Développement durable',
           en: 'Energy, Environment & Sustainability'),
@@ -403,6 +411,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd09',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Éducation, Sciences Humaines & Langues',
           en: 'Education, Humanities & Languages'),
@@ -448,6 +457,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd10',
+      iaResilience: 'low',
       name: LocalizedText(
           fr: 'Agriculture & Agroalimentaire', en: 'Agriculture & Agri-food'),
       description: LocalizedText(
@@ -497,6 +507,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd11',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Architecture, BTP & Urbanisme',
           en: 'Architecture, Construction & Urban Planning'),
@@ -546,6 +557,7 @@ const kFields = <FieldModel>[
     ),
     FieldModel(
       id: 'd12',
+      iaResilience: 'medium',
       name: LocalizedText(
           fr: 'Hôtellerie, Tourisme & Luxe',
           en: 'Hospitality, Tourism & Luxury'),

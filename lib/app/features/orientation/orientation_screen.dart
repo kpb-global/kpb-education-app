@@ -1017,6 +1017,10 @@ class _RecommendationCard extends StatelessWidget {
               }).toList(),
             ),
           ],
+          if (field.iaResilience.isNotEmpty) ...[
+            const SizedBox(height: KpbSpacing.sm),
+            _IaResilienceChip(level: field.iaResilience),
+          ],
           const SizedBox(height: KpbSpacing.md),
 
           // ── Countries ────────────────────────────────────────────────
@@ -1250,6 +1254,61 @@ class _ConsultativeView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Sprint 7 — a "future-proof career" badge derived from a field's AI-resilience.
+/// Reassures students (and parents) that the recommended path holds up against AI.
+class _IaResilienceChip extends StatelessWidget {
+  const _IaResilienceChip({required this.level});
+
+  final String level;
+
+  @override
+  Widget build(BuildContext context) {
+    final (Color color, IconData icon, String label) = switch (level) {
+      'high' => (
+          KpbColors.success,
+          Icons.eco_rounded,
+          'Métier d\'avenir · résistant à l\'IA',
+        ),
+      'medium' => (
+          KpbColors.warning,
+          Icons.trending_up_rounded,
+          'Bonne résilience face à l\'IA',
+        ),
+      _ => (
+          context.kpb.textSecondary,
+          Icons.info_outline_rounded,
+          'À faire évoluer face à l\'IA',
+        ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: KpbRadius.pillBr,
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
