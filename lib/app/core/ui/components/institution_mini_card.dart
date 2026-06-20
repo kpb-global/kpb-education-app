@@ -72,7 +72,7 @@ class InstitutionMiniCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             const KpbBadge(
                               label: 'Partenaire',
-                              color: KpbColors.stitchDeepPurple,
+                              color: KpbColors.blue,
                               small: true,
                             ),
                           ],

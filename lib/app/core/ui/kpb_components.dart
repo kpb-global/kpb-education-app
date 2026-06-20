@@ -1,6 +1,7 @@
 export 'app_tokens.dart';
 export 'kpb_theme_ext.dart';
 
+export 'components/kpb_pressable.dart';
 export 'components/kpb_input_decoration.dart';
 export 'components/section_header.dart';
 export 'components/kpb_card.dart';

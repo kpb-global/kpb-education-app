@@ -260,7 +260,7 @@ class _StatsBanner extends StatelessWidget {
           _StatItem(
             count: stats['upcoming']!,
             label: 'À venir',
-            color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+            color: KpbColors.blue,
             icon: Icons.upcoming_outlined,
           ),
           _StatDivider(),
@@ -353,7 +353,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final activeColor = KpbColors.blue;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -409,7 +409,7 @@ class _MonthGroup extends StatelessWidget {
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                  color: KpbColors.blue,
                   borderRadius: KpbRadius.pillBr,
                 ),
               ),
@@ -598,7 +598,7 @@ extension _DeadlineStatusExt on _DeadlineStatus {
       case _DeadlineStatus.urgent:
         return KpbColors.warning.withValues(alpha: 0.15);
       case _DeadlineStatus.upcoming:
-        return (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.1);
+        return (KpbColors.blue).withValues(alpha: 0.1);
       case _DeadlineStatus.unknown:
         return context.kpb.surfaceBg;
     }
@@ -611,7 +611,7 @@ extension _DeadlineStatusExt on _DeadlineStatus {
       case _DeadlineStatus.urgent:
         return KpbColors.warning.withValues(alpha: 0.3);
       case _DeadlineStatus.upcoming:
-        return (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.2);
+        return (KpbColors.blue).withValues(alpha: 0.2);
       case _DeadlineStatus.unknown:
         return context.kpb.gray100;
     }
@@ -624,7 +624,7 @@ extension _DeadlineStatusExt on _DeadlineStatus {
       case _DeadlineStatus.urgent:
         return KpbColors.warning;
       case _DeadlineStatus.upcoming:
-        return isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+        return KpbColors.blue;
       case _DeadlineStatus.unknown:
         return context.kpb.textMuted;
     }

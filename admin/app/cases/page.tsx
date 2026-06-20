@@ -110,8 +110,14 @@ export default function CasesPage() {
   }
 
   useEffect(() => {
+    // Don't fire authenticated admin requests until a session exists,
+    // otherwise the page issues token-less calls while unauthenticated.
+    if (!session) {
+      return;
+    }
     void loadCases();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const selectedCase = useMemo(
     () => cases.find((item) => item.id === selectedCaseId) ?? null,

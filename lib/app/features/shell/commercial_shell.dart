@@ -140,7 +140,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final activeColor = isDark ? KpbColors.blue : KpbColors.blue;
     final inactiveColor =
         isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
 
@@ -155,7 +155,7 @@ class _NavItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? (isDark
-                      ? KpbColors.stitchCyberCyan.withValues(alpha: 0.15)
+                      ? KpbColors.blue.withValues(alpha: 0.15)
                       : KpbColors.skyLight)
                   : Colors.transparent,
               borderRadius: KpbRadius.pillBr,

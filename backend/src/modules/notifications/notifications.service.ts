@@ -9,6 +9,8 @@ import { NotificationCampaignStatus } from '../../common/enums/notification-camp
 import { CasesService } from '../cases/cases.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CampaignExecutorService } from './campaign-executor.service';
+import { CreateNotificationCampaignDto } from './dto/create-notification-campaign.dto';
+import { UpsertNotificationTemplateDto } from './dto/upsert-notification-template.dto';
 
 interface TemplateTitle {
   fr: string;
@@ -49,7 +51,7 @@ export class NotificationsService {
     };
   }
 
-  async createTemplate(input: Record<string, unknown>) {
+  async createTemplate(input: UpsertNotificationTemplateDto) {
     this.assertDb();
     const name = (input['name'] as string | undefined) ?? 'New template';
     const title =
@@ -85,7 +87,7 @@ export class NotificationsService {
     };
   }
 
-  async updateTemplate(id: string, input: Record<string, unknown>) {
+  async updateTemplate(id: string, input: UpsertNotificationTemplateDto) {
     this.assertDb();
     try {
       const updated = await this.prismaService.execute((prisma) =>
@@ -159,7 +161,7 @@ export class NotificationsService {
     };
   }
 
-  async createCampaign(input: Record<string, unknown>) {
+  async createCampaign(input: CreateNotificationCampaignDto) {
     this.assertDb();
     const name = (input['name'] as string | undefined) ?? 'New campaign';
     const templateId = (input['templateId'] as string | null | undefined) ?? null;

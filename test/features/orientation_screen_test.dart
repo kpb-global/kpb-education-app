@@ -71,12 +71,19 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Verify that ResultsView is rendered and wrapped in Scaffold
+      // Verify that ResultsView is rendered and wrapped in Scaffold.
+      // The redesigned cinematic reveal replaced the "Vos résultats" heading
+      // with a celebratory hero ("Bravo ! 🎉" + intro line).
       expect(find.byType(OrientationScreen), findsOneWidget);
-      expect(find.text('Vos résultats'), findsOneWidget);
-      
-      // Verify back button is visible
-      expect(find.byIcon(Icons.arrow_back_rounded), findsWidgets);
+      expect(find.text('Bravo ! 🎉'), findsOneWidget);
+      expect(
+        find.text('Voici les filières qui vous correspondent le mieux.'),
+        findsOneWidget,
+      );
+
+      // The redesigned results view exits via its action buttons (which call
+      // Get.back()) rather than an app-bar arrow. Assert the primary action.
+      expect(find.text('Voir les écoles'), findsWidgets);
     });
 
     testWidgets('renders ConsultativeView with back button when user is parent',

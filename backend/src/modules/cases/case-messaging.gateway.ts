@@ -68,6 +68,15 @@ export class CaseMessagingGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { caseId: string },
   ) {
+    const userId = client.data.userId as string;
+    // Only allow joining a room for a case the connected user owns, otherwise
+    // a client could subscribe to another student's message stream.
+    const caseRecord = await this.casesService.findOne(data.caseId).catch(
+      () => null,
+    );
+    if (!caseRecord || caseRecord.userId !== userId) {
+      return { event: 'joinCaseError', data: { caseId: data.caseId } };
+    }
     const room = `case:${data.caseId}`;
     await client.join(room);
     this.logger.log(
@@ -99,11 +108,15 @@ export class CaseMessagingGateway
     // Prefer the display name stored on connect; fall back to email.
     const senderName =
       (client.data.fullName as string | undefined) ?? client.data.email;
-    const message = await this.casesService.createMessage(data.caseId, {
-      senderName,
-      senderRole,
-      body: data.body,
-    });
+    const message = await this.casesService.createMessage(
+      data.caseId,
+      {
+        senderName,
+        senderRole,
+        body: data.body,
+      },
+      userId,
+    );
 
     const room = `case:${data.caseId}`;
     this.server.to(room).emit('message', message);

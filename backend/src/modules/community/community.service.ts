@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PublicationStatus } from '../../common/enums/publication-status.enum';
 import { mockAdminData } from '../../common/data/mock-admin';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpsertForumTaxonomyDto } from './dto/upsert-forum-taxonomy.dto';
 
 type ForumCategoryRecord = (typeof mockAdminData.forumCategories)[number];
 type ForumTagRecord = (typeof mockAdminData.forumTags)[number];
@@ -40,7 +41,7 @@ export class CommunityService {
     return { items: this.forumCategories };
   }
 
-  async createForumCategory(input: Record<string, unknown>) {
+  async createForumCategory(input: UpsertForumTaxonomyDto) {
     const record: ForumCategoryRecord = {
       id: `forum-category-${Date.now()}`,
       label:
@@ -86,7 +87,7 @@ export class CommunityService {
     return record;
   }
 
-  async updateForumCategory(id: string, input: Record<string, unknown>) {
+  async updateForumCategory(id: string, input: UpsertForumTaxonomyDto) {
     const updated = await this.prismaService.execute((prisma) =>
       prisma.forumCategory.update({
         where: { id },
@@ -164,7 +165,7 @@ export class CommunityService {
     return { items: this.forumTags };
   }
 
-  async createForumTag(input: Record<string, unknown>) {
+  async createForumTag(input: UpsertForumTaxonomyDto) {
     const record: ForumTagRecord = {
       id: `forum-tag-${Date.now()}`,
       label:
@@ -210,7 +211,7 @@ export class CommunityService {
     return record;
   }
 
-  async updateForumTag(id: string, input: Record<string, unknown>) {
+  async updateForumTag(id: string, input: UpsertForumTaxonomyDto) {
     const updated = await this.prismaService.execute((prisma) =>
       prisma.forumTopicTag.update({
         where: { id },

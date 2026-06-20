@@ -58,7 +58,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(KpbSpacing.lg),
                     decoration: BoxDecoration(
-                      gradient: KpbColors.stitchHeroGradient,
+                      gradient: KpbColors.heroGradient,
                       borderRadius: KpbRadius.xlBr,
                     ),
                     child: Column(

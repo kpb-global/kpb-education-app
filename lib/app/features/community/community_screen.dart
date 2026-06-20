@@ -169,7 +169,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.15),
+                          color: (KpbColors.blue).withValues(alpha: 0.15),
                           borderRadius: KpbRadius.pillBr,
                         ),
                         child: Text(
@@ -177,7 +177,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                            color: KpbColors.blue,
                           ),
                         ),
                       ),
@@ -440,7 +440,7 @@ class _TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final activeColor = KpbColors.blue;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -510,7 +510,7 @@ class _FeaturedArticle extends StatelessWidget {
               children: [
                 KpbBadge(
                   label: '📌 À la une',
-                  color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                  color: KpbColors.blue,
                 ),
                 const SizedBox(height: 12),
                 Text(

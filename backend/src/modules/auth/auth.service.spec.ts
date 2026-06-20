@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 
 import { AuthService } from './auth.service';
 import { AdminUsersService } from '../admin-users/admin-users.service';
@@ -16,25 +16,24 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [JwtModule.register({ secret: 'test-secret' })],
       providers: [
         AuthService,
         {
           provide: AdminUsersService,
           useValue: mockAdminUsersService,
         },
-        {
-          provide: JwtService,
-          useValue: new JwtService({ secret: 'auth-service-test-secret' }),
-        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     jest.clearAllMocks();
+    // Default: no DB-backed credential row, so login falls back to the mock
+    // (non-production) path and issueTokens skips persisting a refresh token.
     mockAdminUsersService.findActiveUserByEmailWithCredentials.mockResolvedValue(
       null,
     );
-    mockAdminUsersService.updateRefreshToken.mockResolvedValue(null);
+    mockAdminUsersService.updateRefreshToken.mockResolvedValue(undefined);
   });
 
   it('throws UnauthorizedException when login email is unknown', async () => {

@@ -33,22 +33,23 @@ void main() {
 
       expect(
         find.byWidgetPredicate(
-          (w) => w is Text && (w.data?.contains('Tu es ?') ?? false),
+          (w) => w is Text && (w.data?.contains('Bienvenue') ?? false),
         ),
         findsOneWidget,
       );
     });
 
-    testWidgets('displays page counter "Étape 1/6" on first page',
+    testWidgets('displays page counter "1 / 3" on first page',
         (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
+      // Student account => 3 pages; the redesigned header shows "1 / 3".
       expect(
         find.byWidgetPredicate(
-          (w) => w is Text && w.data == 'Étape 1/6',
+          (w) => w is Text && w.data == '1 / 3',
         ),
         findsOneWidget,
       );
@@ -90,17 +91,19 @@ void main() {
       );
 
       expect(find.text('Étudiant'), findsOneWidget);
-      expect(find.text('Parent d\'élève'), findsOneWidget);
-      expect(find.text('Partenaire (école / agence)'), findsOneWidget);
+      expect(find.text('Parent'), findsOneWidget);
+      expect(find.text('Partenaire'), findsOneWidget);
     });
 
-    testWidgets('has no identity text fields on page 0', (tester) async {
+    testWidgets('has identity text fields on page 0', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),
       );
 
-      expect(find.byType(TextFormField), findsNothing);
+      // The redesigned page 0 collects identity (first/last name, email,
+      // phone) up front, so identity text fields ARE present here.
+      expect(find.byType(TextFormField), findsWidgets);
     });
   });
 }

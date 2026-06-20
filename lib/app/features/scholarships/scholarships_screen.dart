@@ -135,7 +135,6 @@ class _ScholarshipCard extends StatelessWidget {
     final name = controller.resolve(s.name);
     final deadline = controller.resolve(s.deadlineLabel);
     final match = controller.scholarshipMatch(s);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return KpbCard(
       margin: const EdgeInsets.only(bottom: 4),
@@ -175,8 +174,7 @@ class _ScholarshipCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color:
-                            isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                        color: KpbColors.blue,
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -204,10 +202,7 @@ class _ScholarshipCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color:
                             controller.isSaved(SavedItemType.scholarship, s.id)
-                                ? (isDark
-                                        ? KpbColors.stitchCyberCyan
-                                        : KpbColors.blue)
-                                    .withValues(alpha: 0.1)
+                                ? KpbColors.blue.withValues(alpha: 0.1)
                                 : Colors.transparent,
                         shape: BoxShape.circle,
                       ),
@@ -217,9 +212,7 @@ class _ScholarshipCard extends StatelessWidget {
                             : Icons.bookmark_outline_rounded,
                         color:
                             controller.isSaved(SavedItemType.scholarship, s.id)
-                                ? (isDark
-                                    ? KpbColors.stitchCyberCyan
-                                    : KpbColors.blue)
+                                ? KpbColors.blue
                                 : context.kpb.gray400,
                         size: 20,
                       ),
@@ -392,9 +385,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active
-                ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
-                : Colors.transparent,
+            color: active ? KpbColors.blue : Colors.transparent,
             borderRadius: KpbRadius.mdBr,
             boxShadow: active ? (isDark ? null : KpbShadow.soft) : null,
           ),
@@ -429,7 +420,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
                 children: [
                   KpbBadge(
                     label: countryName.toUpperCase(),
-                    color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                    color: KpbColors.blue,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -482,9 +473,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
                 Padding(
                   padding: const EdgeInsets.only(top: 2, right: 12),
                   child: Icon(Icons.check_circle_rounded,
-                      size: 20,
-                      color:
-                          isDark ? KpbColors.stitchCyberCyan : KpbColors.blue),
+                      size: 20, color: KpbColors.blue),
                 ),
                 Expanded(
                   child: Text(controller.resolve(e),
@@ -502,7 +491,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             Navigator.pop(context);
             _showApplicationOptions(context, s, country, controller);
           },
-          bgColor: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+          bgColor: KpbColors.blue,
           icon: Icons.rocket_launch_rounded,
         ),
       ],
@@ -639,7 +628,7 @@ class _AcademyCtaCard extends StatelessWidget {
     if (course == null) return const SizedBox.shrink();
 
     final isPurchased = controller.hasPurchased(courseId);
-    final themeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final themeColor = KpbColors.blue;
 
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),

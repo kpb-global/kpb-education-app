@@ -119,6 +119,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<AppController>(
       builder: (_) {
+        // The case can disappear from the list mid-session (e.g. its local id
+        // is swapped for the server id after a remote create), so look it up
+        // null-safely instead of crashing with a StateError.
         final c = _ctrl.cases.firstWhereOrNull((e) => e.id == widget.caseId);
         if (c == null) {
           return Scaffold(
@@ -837,22 +840,20 @@ class _TimelineItem extends StatelessWidget {
       case CaseStatus.submitted:
         return KpbColors.sky;
       case CaseStatus.underReview:
+      case CaseStatus.waitingDecision:
         return KpbColors.gold;
       case CaseStatus.documentsNeeded:
+      case CaseStatus.awaitingPayment:
         return KpbColors.warning;
       case CaseStatus.counselorAssigned:
       case CaseStatus.scheduled:
       case CaseStatus.inProgress:
         return KpbColors.blue;
+      case CaseStatus.applicationSubmitted:
+        return KpbColors.blueMid;
       case CaseStatus.awaitingStudent:
       case CaseStatus.rejected:
         return KpbColors.error;
-      case CaseStatus.applicationSubmitted:
-        return KpbColors.blueMid;
-      case CaseStatus.waitingDecision:
-        return KpbColors.gold;
-      case CaseStatus.awaitingPayment:
-        return KpbColors.warning;
       case CaseStatus.completed:
         return KpbColors.success;
       case CaseStatus.cancelled:

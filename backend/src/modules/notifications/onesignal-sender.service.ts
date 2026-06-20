@@ -40,14 +40,14 @@ export class OneSignalSenderService {
     title: string,
     body: string,
     data?: Record<string, string>,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (!this.isConfigured) {
       this.logger.warn(
         'OneSignal not configured (ONESIGNAL_APP_ID / ONESIGNAL_REST_API_KEY) — push skipped.',
       );
-      return;
+      return false;
     }
-    if (!userId) return;
+    if (!userId) return false;
 
     try {
       const response = await fetch(ONESIGNAL_API_URL, {
@@ -71,7 +71,7 @@ export class OneSignalSenderService {
         this.logger.warn(
           `OneSignal send failed (${response.status}) for ${userId}: ${text.slice(0, 200)}`,
         );
-        return;
+        return false;
       }
 
       const json = (await response.json()) as {
@@ -83,9 +83,12 @@ export class OneSignalSenderService {
         this.logger.warn(
           `OneSignal send returned errors for ${userId}: ${JSON.stringify(json.errors).slice(0, 200)}`,
         );
+        return false;
       }
+      return true;
     } catch (error) {
       this.logger.error(`OneSignal push failed for user ${userId}:`, error);
+      return false;
     }
   }
 }

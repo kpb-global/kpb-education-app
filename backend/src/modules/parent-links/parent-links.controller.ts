@@ -12,6 +12,8 @@ import {
 import { Request } from 'express';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { AcceptInviteDto } from './dto/accept-invite.dto';
+import { SetParentVisibilityDto } from './dto/set-parent-visibility.dto';
 import { ParentLinksService } from './parent-links.service';
 
 type AuthedReq = Request & { studentUser?: { id: string } };
@@ -29,7 +31,7 @@ export class ParentLinksController {
 
   /** Student → accept an invite using the 8-character code. */
   @Post('accept')
-  accept(@Req() req: AuthedReq, @Body() body: { inviteCode: string }) {
+  accept(@Req() req: AuthedReq, @Body() body: AcceptInviteDto) {
     return this.parentLinksService.accept(
       req.studentUser!.id,
       body.inviteCode,
@@ -70,7 +72,7 @@ export class ParentLinksController {
   setVisibility(
     @Req() req: AuthedReq,
     @Param('caseId') caseId: string,
-    @Body() body: { parentCanView: boolean },
+    @Body() body: SetParentVisibilityDto,
   ) {
     return this.parentLinksService.setParentVisibility(
       req.studentUser!.id,

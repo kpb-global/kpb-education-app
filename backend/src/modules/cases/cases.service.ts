@@ -4,6 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { randomUUID } from 'node:crypto';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
@@ -61,11 +62,14 @@ export class CasesService {
     }
   }
 
-  private async requireDbCase(id: string) {
+  private async requireDbCase(id: string, ownerUserId?: string) {
     const dbCase = await this.prismaService.execute((prisma) =>
       prisma.case.findUnique({ where: { id }, include: CASE_INCLUDE }),
     );
-    if (!dbCase) {
+    // When ownerUserId is provided (student-facing path) a case owned by
+    // another user must be indistinguishable from a missing case to avoid
+    // leaking its existence (IDOR protection).
+    if (!dbCase || (ownerUserId && dbCase.userId !== ownerUserId)) {
       throw new NotFoundException(`Case ${id} not found.`);
     }
     return dbCase;
@@ -87,18 +91,15 @@ export class CasesService {
     return this.findAll();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, ownerUserId?: string) {
     this.assertDb();
-    const dbCase = await this.requireDbCase(id);
-    return this.mapDbCase(dbCase);
+    const dbCase = await this.requireDbCase(id, ownerUserId);
+    // Student-facing reads (ownerUserId set) must not expose counselor notes.
+    return this.mapDbCase(dbCase, { includeInternal: !ownerUserId });
   }
 
   async create(input: CreateCaseDto, userId?: string) {
     this.assertDb();
-    const now = new Date();
-    const count =
-      (await this.prismaService.execute((prisma) => prisma.case.count())) ?? 0;
-    const refCode = `KPB-${now.getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -106,43 +107,58 @@ export class CasesService {
           where: { isActive: true },
           orderBy: { createdAt: 'asc' },
         });
-        const nextCounsellor =
-          activeCounsellors.length > 0
-            ? activeCounsellors[count % activeCounsellors.length]
-            : null;
 
+        // Insert with a temporary unique placeholder, then derive the real
+        // referenceCode from the DB-assigned `seq`. This is collision-free by
+        // construction (no count()+1 race). The same monotonic `seq` is used to
+        // round-robin across active counsellors.
         const c = await tx.case.create({
           data: {
-            referenceCode: refCode,
+            referenceCode: `PENDING-${randomUUID()}`,
             userId: userId ?? 'demo-user',
             type: input.type,
-            status: nextCounsellor
-              ? CaseStatus.CounselorAssigned
-              : CaseStatus.Submitted,
+            status: CaseStatus.Submitted,
             title: input.title,
             description: input.description,
             contextLabel: input.contextLabel,
             preferredContactMethod: input.preferredContactMethod ?? 'in_app',
             source: 'mobile_app',
-            counsellorId: nextCounsellor?.id ?? null,
-            assignedAdvisorName: nextCounsellor?.fullName ?? null,
-            assignedAdvisorPhone: nextCounsellor?.phone ?? null,
-            assignedAdvisorWhatsapp: nextCounsellor?.whatsApp ?? null,
-            leadTag: nextCounsellor ? 'to_follow_up' : null,
-            lastCommercialInteractionAt: nextCounsellor ? new Date() : null,
-            nextStepTitle: nextCounsellor
-              ? 'A counselor has been assigned'
-              : 'Your case is under review',
-            nextStepDescription: nextCounsellor
-              ? `${nextCounsellor.fullName} has been assigned to your case and will contact you shortly.`
-              : 'The KPB team will review your request and assign a counselor.',
+            nextStepTitle: 'Your case is under review',
+            nextStepDescription:
+              'The KPB team will review your request and assign a counselor.',
+          },
+        });
+
+        const nextCounsellor =
+          activeCounsellors.length > 0
+            ? activeCounsellors[(c.seq - 1) % activeCounsellors.length]
+            : null;
+
+        const refCode = `KPB-${c.createdAt.getFullYear()}-${String(c.seq).padStart(3, '0')}`;
+        await tx.case.update({
+          where: { id: c.id },
+          data: {
+            referenceCode: refCode,
+            ...(nextCounsellor
+              ? {
+                  status: CaseStatus.CounselorAssigned,
+                  counsellorId: nextCounsellor.id,
+                  assignedAdvisorName: nextCounsellor.fullName,
+                  assignedAdvisorPhone: nextCounsellor.phone ?? null,
+                  assignedAdvisorWhatsapp: nextCounsellor.whatsApp ?? null,
+                  leadTag: 'to_follow_up',
+                  lastCommercialInteractionAt: new Date(),
+                  nextStepTitle: 'A counselor has been assigned',
+                  nextStepDescription: `${nextCounsellor.fullName} has been assigned to your case and will contact you shortly.`,
+                }
+              : {}),
           },
         });
 
         await tx.caseTimelineEvent.create({
           data: {
             caseId: c.id,
-            status: c.status,
+            status: CaseStatus.Submitted,
             title: 'Case submitted',
             description: 'The student created a new case from the mobile app.',
           },
@@ -207,9 +223,9 @@ export class CasesService {
     return mapped;
   }
 
-  async update(id: string, input: UpdateCaseDto) {
+  async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const updated = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -257,13 +273,16 @@ export class CasesService {
     if (!updated) {
       throw new ServiceUnavailableException('Failed to update case.');
     }
-    const mapped = this.mapDbCase(updated);
+    const mapped = this.mapDbCase(updated, { includeInternal: !ownerUserId });
     this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
     return mapped;
   }
 
-  async findMessages(id: string) {
+  async findMessages(id: string, ownerUserId?: string) {
     this.assertDb();
+    if (ownerUserId) {
+      await this.requireDbCase(id, ownerUserId);
+    }
     const messages = await this.prismaService.execute((prisma) =>
       prisma.caseMessage.findMany({
         where: { caseId: id },
@@ -279,9 +298,13 @@ export class CasesService {
     }));
   }
 
-  async createMessage(id: string, input: CreateCaseMessageDto) {
+  async createMessage(
+    id: string,
+    input: CreateCaseMessageDto,
+    ownerUserId?: string,
+  ) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -327,9 +350,13 @@ export class CasesService {
     return payload;
   }
 
-  async uploadDocument(id: string, input: UploadCaseDocumentDto) {
+  async uploadDocument(
+    id: string,
+    input: UploadCaseDocumentDto,
+    ownerUserId?: string,
+  ) {
     this.assertDb();
-    await this.requireDbCase(id);
+    await this.requireDbCase(id, ownerUserId);
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -565,7 +592,8 @@ export class CasesService {
     return this.createTimelineEvent(id, { title, description });
   }
 
-  private mapDbCase(c: any) {
+  private mapDbCase(c: any, opts: { includeInternal?: boolean } = {}) {
+    const includeInternal = opts.includeInternal ?? true;
     return {
       id: c.id,
       userId: c.userId,
@@ -609,13 +637,15 @@ export class CasesService {
         status: t.status,
         createdAt: t.createdAt.toISOString(),
       })),
-      internalNotes: (c.internalNotes ?? []).map((n: any) => ({
-        id: n.id,
-        authorName: n.authorName,
-        authorRole: n.authorRole,
-        body: n.body,
-        createdAt: n.createdAt.toISOString(),
-      })),
+      internalNotes: includeInternal
+        ? (c.internalNotes ?? []).map((n: any) => ({
+            id: n.id,
+            authorName: n.authorName,
+            authorRole: n.authorRole,
+            body: n.body,
+            createdAt: n.createdAt.toISOString(),
+          }))
+        : [],
       timeline: (c.timelineEvents ?? []).map((e: any) => ({
         id: e.id,
         title: e.title,

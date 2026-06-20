@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
 import { badgeStyle, mutedTextStyle, panelStyle } from '../../lib/ui';
@@ -50,6 +51,7 @@ function ReportSection({
 }
 
 export default function ReportsPage() {
+  const { session } = useAdminAuth();
   const [funnel, setFunnel] = useState<FunnelRow[]>([]);
   const [counselorPerformance, setCounselorPerformance] = useState<
     PerformanceRow[]
@@ -60,6 +62,9 @@ export default function ReportsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void Promise.all([
       apiFetch<{ items: FunnelRow[] }>('/admin/reports/funnel'),
       apiFetch<{ items: CounselorPerformanceRow[] }>(
@@ -92,7 +97,8 @@ export default function ReportsPage() {
           error instanceof Error ? error.message : 'Unable to load reports.',
         ),
       );
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   return (
     <DashboardShell title="Reports">

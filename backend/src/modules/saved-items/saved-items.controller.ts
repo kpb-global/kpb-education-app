@@ -20,7 +20,7 @@ export class SavedItemsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.savedItemsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.savedItemsService.remove(id, req.studentUser.id);
   }
 }

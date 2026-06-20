@@ -173,9 +173,21 @@ export class StudentAuthService {
       throw new UnauthorizedException('Refresh token revoked.');
     }
 
-    // Atomic rotation: clear the stored hash in the same transaction that
-    // issues the new one. Concurrent refresh calls with the same token lose
-    // the race and get rejected by the compare above on the next attempt.
+    // Atomic rotation: invalidate the presented token before issuing a new
+    // one, gated on the exact stored hash. Two concurrent refreshes with the
+    // same token both pass the compare above, but only the first wins this
+    // conditional update (count === 1); the loser is rejected, preserving
+    // single-use semantics and reuse detection.
+    const rotated = await this.prismaService.execute((prisma) =>
+      prisma.studentCredential.updateMany({
+        where: { id: credential.id, refreshToken: credential.refreshToken },
+        data: { refreshToken: null },
+      }),
+    );
+    if (!rotated || rotated.count === 0) {
+      throw new UnauthorizedException('Refresh token already used.');
+    }
+
     return this.issueTokens({
       id: credential.userProfile.id,
       email: credential.email,

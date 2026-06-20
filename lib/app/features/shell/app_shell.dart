@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
@@ -171,13 +172,16 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? KpbColors.stitchCyberCyan : KpbColors.blue;
+    final activeColor = KpbColors.blue;
     final inactiveColor =
         isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
 
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          if (!isSelected) HapticFeedback.selectionClick();
+          onTap();
+        },
         behavior: HitTestBehavior.opaque,
         child: Center(
           child: AnimatedContainer(
@@ -187,7 +191,7 @@ class _NavItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? (isDark
-                      ? KpbColors.stitchCyberCyan.withValues(alpha: 0.15)
+                      ? KpbColors.blue.withValues(alpha: 0.15)
                       : KpbColors.skyLight)
                   : Colors.transparent,
               borderRadius: KpbRadius.pillBr,
@@ -198,10 +202,17 @@ class _NavItem extends StatelessWidget {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Icon(
-                      isSelected ? selectedIcon : icon,
-                      color: isSelected ? activeColor : inactiveColor,
-                      size: 22,
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
+                      child: Icon(
+                        isSelected ? selectedIcon : icon,
+                        key: ValueKey<bool>(isSelected),
+                        color: isSelected ? activeColor : inactiveColor,
+                        size: 22,
+                      ),
                     ),
                     if (badgeCount > 0)
                       Positioned(

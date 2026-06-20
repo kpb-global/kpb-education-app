@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { useAdminAuth } from '../components/admin-auth-provider';
 import { DashboardShell } from '../components/dashboard-shell';
 import { apiFetch } from '../lib/api-client';
 import { mutedTextStyle, panelStyle } from '../lib/ui';
@@ -15,21 +16,31 @@ interface OverviewMetrics {
 }
 
 export default function OverviewPage() {
+  const { session } = useAdminAuth();
   const [overview, setOverview] = useState<OverviewMetrics | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
+    let cancelled = false;
     void apiFetch<OverviewMetrics>('/admin/reports/overview')
       .then((response) => {
+        if (cancelled) return;
         setOverview(response);
         setErrorMessage(null);
       })
-      .catch((error) =>
+      .catch((error) => {
+        if (cancelled) return;
         setErrorMessage(
           error instanceof Error ? error.message : 'Unable to load overview.',
-        ),
-      );
-  }, []);
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   return (
     <DashboardShell title="Overview">

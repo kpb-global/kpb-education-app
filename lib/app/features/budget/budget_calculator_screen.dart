@@ -36,11 +36,11 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
   /// Colour ramp aligned 1:1 with [LivingBudgetProfile.categories].
   static const List<Color> _categoryColors = [
     KpbColors.sky,
-    KpbColors.stitchCyberCyan,
+    KpbColors.blue,
     KpbColors.success,
     KpbColors.gold,
     KpbColors.error,
-    KpbColors.stitchDeepPurple,
+    KpbColors.blueMid,
     KpbColors.blue,
     KpbColors.warning,
     KpbColors.gray400,
@@ -141,16 +141,16 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                     },
                     backgroundColor: context.kpb.cardBg,
                     selectedColor: isDark
-                        ? KpbColors.stitchCyberCyan.withValues(alpha: 0.2)
+                        ? KpbColors.blue.withValues(alpha: 0.2)
                         : KpbColors.skyLight,
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (KpbColors.blue)
                           : context.kpb.textSecondary,
                     ),
                     side: BorderSide(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (KpbColors.blue)
                           : context.kpb.gray200,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -263,7 +263,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.md)),
-          
+
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
             sliver: SliverList.separated(
@@ -298,7 +298,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                ? (KpbColors.blue)
                 : Colors.transparent,
             borderRadius: KpbRadius.pillBr,
             boxShadow: isSelected && !isDark ? KpbShadow.soft : null,

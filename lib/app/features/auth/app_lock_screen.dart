@@ -26,8 +26,12 @@ class _AppLockScreenState extends State<AppLockScreen> {
   }
 
   Future<void> _authenticate() async {
+    if (!mounted) return;
     setState(() => _hasError = false);
     final success = await SecurityService.instance.authenticate();
+    // The screen may have been popped while the auth dialog was open; guard
+    // against setState/navigation on a disposed State.
+    if (!mounted) return;
     if (success) {
       Get.back(); // Dismiss the lock screen
     } else {

@@ -65,32 +65,16 @@ export class SavedItemsService {
     };
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
     this.assertDb();
-    try {
-      const deleted = await this.prismaService.execute((prisma) =>
-        prisma.savedItem.delete({ where: { id } }),
-      );
-      if (!deleted) {
-        throw new NotFoundException(`Saved item ${id} not found.`);
-      }
-      return {
-        id: deleted.id,
-        userId: deleted.userId,
-        type: deleted.itemType,
-        itemId: deleted.itemId,
-        createdAt: deleted.createdAt.toISOString(),
-      };
-    } catch (error) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code: string }).code === 'P2025'
-      ) {
-        throw new NotFoundException(`Saved item ${id} not found.`);
-      }
-      throw error;
+    // Scope deletion to the owner: a missing item and another user's item
+    // are both reported as not found (IDOR protection).
+    const result = await this.prismaService.execute((prisma) =>
+      prisma.savedItem.deleteMany({ where: { id, userId } }),
+    );
+    if (!result || result.count === 0) {
+      throw new NotFoundException(`Saved item ${id} not found.`);
     }
+    return { id };
   }
 }

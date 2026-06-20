@@ -12,6 +12,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { CreateNotificationCampaignDto } from './dto/create-notification-campaign.dto';
+import { UpsertNotificationTemplateDto } from './dto/upsert-notification-template.dto';
 import { NotificationsService } from './notifications.service';
 
 @Controller('admin/notifications')
@@ -31,14 +33,14 @@ export class NotificationsController {
   }
 
   @Post('templates')
-  createTemplate(@Body() input: Record<string, unknown>) {
+  createTemplate(@Body() input: UpsertNotificationTemplateDto) {
     return this.notificationsService.createTemplate(input);
   }
 
   @Patch('templates/:id')
   updateTemplate(
     @Param('id') id: string,
-    @Body() input: Record<string, unknown>,
+    @Body() input: UpsertNotificationTemplateDto,
   ) {
     return this.notificationsService.updateTemplate(id, input);
   }
@@ -49,7 +51,7 @@ export class NotificationsController {
   }
 
   @Post('campaigns')
-  createCampaign(@Body() input: Record<string, unknown>) {
+  createCampaign(@Body() input: CreateNotificationCampaignDto) {
     return this.notificationsService.createCampaign(input);
   }
 

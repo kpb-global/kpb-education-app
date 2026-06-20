@@ -238,7 +238,7 @@ class _JoinCtaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedAccent = isDark ? KpbColors.stitchCyberCyan : accent;
+    final resolvedAccent = isDark ? KpbColors.blue : accent;
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),
       decoration: BoxDecoration(
@@ -311,7 +311,7 @@ class _TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedAccent = isDark ? KpbColors.stitchCyberCyan : accent;
+    final resolvedAccent = isDark ? KpbColors.blue : accent;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(

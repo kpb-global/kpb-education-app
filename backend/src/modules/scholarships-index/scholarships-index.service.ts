@@ -181,26 +181,39 @@ export class ScholarshipsIndexService {
   }) {
     const { lang, limit = 20, offset = 0 } = params;
 
+    const where = {
+      isActive: true,
+      ...(params.fundingType ? { fundingType: params.fundingType as any } : {}),
+      ...(params.countryId ? { countryId: params.countryId } : {}),
+      ...(params.fieldIds?.length
+        ? {
+            relatedFieldIds: {
+              hasSome: params.fieldIds,
+            },
+          }
+        : {}),
+    };
+
+    // matchScore is computed in memory, so we must score the full candidate
+    // set before sorting/paginating — fetching only `limit + offset` rows (as
+    // before) meant higher-scoring scholarships past that window were never
+    // ranked, and `total` was wrong. Cap the set to stay bounded.
+    const MAX_CANDIDATES = 500;
     const items = await this.prismaService.execute((prisma) =>
       prisma.scholarship.findMany({
-        where: {
-          isActive: true,
-          ...(params.fundingType ? { fundingType: params.fundingType as any } : {}),
-          ...(params.countryId ? { countryId: params.countryId } : {}),
-          ...(params.fieldIds?.length
-            ? {
-                relatedFieldIds: {
-                  hasSome: params.fieldIds,
-                },
-              }
-            : {}),
-        },
+        where,
         orderBy: [{ deadlineAt: 'asc' }, { createdAt: 'desc' }],
-        take: limit + offset,
+        take: MAX_CANDIDATES,
       }),
     );
 
     if (!items) return { items: [], total: 0 };
+    if (items.length === MAX_CANDIDATES) {
+      this.logger.warn(
+        `listForProfile hit the ${MAX_CANDIDATES}-candidate cap; ` +
+          'matchScore ranking may be incomplete for very large result sets.',
+      );
+    }
 
     const mapped = items.map((s) => {
       // Profile-match score
@@ -245,7 +258,13 @@ export class ScholarshipsIndexService {
       return 0;
     });
 
-    return { items: mapped.slice(offset, offset + limit), total: mapped.length };
+    // Real total of matching scholarships, independent of the candidate cap.
+    const total =
+      (await this.prismaService.execute((prisma) =>
+        prisma.scholarship.count({ where }),
+      )) ?? mapped.length;
+
+    return { items: mapped.slice(offset, offset + limit), total };
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────

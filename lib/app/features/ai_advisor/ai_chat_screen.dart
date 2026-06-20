@@ -273,7 +273,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient: KpbColors.stitchHeroGradient,
+              gradient: KpbColors.heroGradient,
               borderRadius: KpbRadius.mdBr,
             ),
             child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 24),
@@ -293,7 +293,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 ),
                 Row(
                   children: [
-                    Icon(Icons.circle, size: 8, color: KpbColors.stitchCyberCyan),
+                    Icon(Icons.circle, size: 8, color: KpbColors.blue),
                     const SizedBox(width: 4),
                     Text(
                       'En ligne • $_remainingMessages/$_weeklyQuota restants cette semaine',
@@ -383,7 +383,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           text: parts[j],
           style: TextStyle(
             fontWeight: isBold ? FontWeight.w800 : FontWeight.w400,
-            color: isBold ? KpbColors.stitchCyberCyan : Colors.white,
+            color: isBold ? KpbColors.blue : Colors.white,
           ),
         ));
       }
@@ -449,7 +449,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               decoration: BoxDecoration(
                 color: KpbColors.bgDarkCard,
                 borderRadius: KpbRadius.pillBr,
-                border: Border.all(color: KpbColors.stitchCyberCyan.withValues(alpha: 0.3)),
+                border: Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
               ),
               child: Center(
                 child: Text(
@@ -457,7 +457,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: KpbColors.stitchCyberCyan,
+                    color: KpbColors.blue,
                   ),
                 ),
               ),
@@ -512,7 +512,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                gradient: KpbColors.stitchHeroGradient,
+                gradient: KpbColors.heroGradient,
                 borderRadius: KpbRadius.mdBr,
                 boxShadow: KpbShadow.blue,
               ),
@@ -575,7 +575,7 @@ class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMi
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: KpbColors.stitchCyberCyan,
+              color: KpbColors.blue,
               shape: BoxShape.circle,
             ),
           ),

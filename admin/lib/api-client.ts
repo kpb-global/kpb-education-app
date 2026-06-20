@@ -84,9 +84,23 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed with status ${response.status}`);
+    const text = await response.text().catch(() => '');
+    const error = new Error(
+      text || `Request failed with status ${response.status}`,
+    ) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
 
-  return (await response.json()) as T;
+  // Mutations frequently return 204 No Content or an empty body; calling
+  // response.json() on those throws and surfaces as a false failure even
+  // though the write succeeded.
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }

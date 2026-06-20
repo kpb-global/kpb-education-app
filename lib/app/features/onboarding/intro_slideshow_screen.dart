@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 
 class IntroSlideshowScreen extends StatefulWidget {
   const IntroSlideshowScreen({super.key});
@@ -16,21 +17,27 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<_SlideData> _slides = [
+  final List<_SlideData> _slides = const [
     _SlideData(
       icon: Icons.explore_rounded,
-      title: "Explorez vos Destinations",
-      description: "Découvrez des centaines de programmes d'études au Canada, en France et partout dans le monde.",
+      accent: KpbColors.blue,
+      title: 'Explorez vos destinations',
+      description:
+          "Découvrez des centaines de programmes au Canada, en France et partout dans le monde.",
     ),
     _SlideData(
-      icon: Icons.apartment_rounded,
-      title: "Grandes Écoles Privées",
-      description: "Postulez dans les plus prestigieuses écoles de commerce, d'informatique et d'ingénierie en France.",
+      icon: Icons.workspace_premium_rounded,
+      accent: KpbColors.gold,
+      title: 'Bourses & accompagnement',
+      description:
+          "Trouvez la bourse idéale et obtenez une feuille de route adaptée à votre profil.",
     ),
     _SlideData(
       icon: Icons.folder_copy_rounded,
-      title: "Suivi en Temps Réel",
-      description: "Suivez l'avancement de votre dossier et échangez avec nos conseillers KPB directement dans l'application.",
+      accent: KpbColors.sky,
+      title: 'Suivi en temps réel',
+      description:
+          "Suivez l'avancement de votre dossier et échangez avec nos conseillers, dans l'app.",
     ),
   ];
 
@@ -41,10 +48,11 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
   }
 
   void _onNext() {
+    HapticFeedback.lightImpact();
     if (_currentPage < _slides.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
       );
     } else {
       _finishIntro();
@@ -58,50 +66,66 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.kpb;
+    final accent = _slides[_currentPage].accent;
+    final isLast = _currentPage == _slides.length - 1;
+
     return Scaffold(
-      backgroundColor: KpbColors.bgDarkMidnight,
+      backgroundColor: c.pageBg,
       body: Stack(
         children: [
-          // Background Gradient
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF0F172A), // bgDarkMidnight
-                    Color(0xFF1E293B), // slightly lighter
-                  ],
+          // Soft brand halo that tints with the current slide's accent.
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 600),
+            child: Align(
+              key: ValueKey(accent),
+              alignment: const Alignment(0, -0.45),
+              child: Container(
+                width: 340,
+                height: 340,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      accent.withValues(alpha: 0.18),
+                      accent.withValues(alpha: 0.0),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          
-          // Slides
+
+          // Slides with parallax-on-scroll.
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentPage = index),
             itemCount: _slides.length,
-            itemBuilder: (context, index) {
-              return _SlideView(data: _slides[index]);
-            },
+            itemBuilder: (context, index) => _SlideView(
+              data: _slides[index],
+              index: index,
+              pageController: _pageController,
+            ),
           ),
-          
-          // Skip Button
+
+          // Skip
           Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            right: 16,
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 12,
             child: TextButton(
               onPressed: _finishIntro,
-              child: const Text(
-                "Passer",
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+              child: Text(
+                'Passer',
+                style: TextStyle(
+                  color: c.textSecondary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
-          
-          // Bottom Navigation
+
+          // Bottom controls
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 32,
             left: 24,
@@ -109,44 +133,60 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Page Indicators
                 Row(
                   children: List.generate(_slides.length, (index) {
                     final isActive = _currentPage == index;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
                       margin: const EdgeInsets.only(right: 8),
                       height: 8,
-                      width: isActive ? 24 : 8,
+                      width: isActive ? 26 : 8,
                       decoration: BoxDecoration(
-                        color: isActive ? KpbColors.blue : Colors.white24,
+                        color: isActive ? accent : c.gray300,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     );
                   }),
                 ),
-                
-                // Next/Start Button
-                ElevatedButton(
-                  onPressed: _onNext,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: KpbColors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KpbRadius.pill)),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        _currentPage == _slides.length - 1 ? "Commencer" : "Continuer",
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        _currentPage == _slides.length - 1 ? Icons.check_circle_rounded : Icons.arrow_forward_rounded,
-                        size: 20,
-                      ),
-                    ],
+                KpbPressable(
+                  onTap: _onNext,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: KpbRadius.pillBr,
+                      boxShadow: [
+                        BoxShadow(
+                          color: accent.withValues(alpha: 0.35),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isLast ? 'Commencer' : 'Continuer',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          isLast
+                              ? Icons.check_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -160,65 +200,102 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
 
 class _SlideData {
   final IconData icon;
+  final Color accent;
   final String title;
   final String description;
 
-  const _SlideData({required this.icon, required this.title, required this.description});
+  const _SlideData({
+    required this.icon,
+    required this.accent,
+    required this.title,
+    required this.description,
+  });
 }
 
 class _SlideView extends StatelessWidget {
-  final _SlideData data;
+  const _SlideView({
+    required this.data,
+    required this.index,
+    required this.pageController,
+  });
 
-  const _SlideView({required this.data});
+  final _SlideData data;
+  final int index;
+  final PageController pageController;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Icon Container
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white10, width: 2),
-            ),
-            child: Icon(
-              data.icon,
-              size: 100,
-              color: KpbColors.blue,
-            ),
+    final c = context.kpb;
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, child) {
+        // Parallax: 1.0 when this page is centered, fading as it scrolls away.
+        double page = index.toDouble();
+        if (pageController.hasClients &&
+            pageController.position.haveDimensions) {
+          page = pageController.page ?? index.toDouble();
+        }
+        final delta = (index - page);
+        final t = (1 - delta.abs()).clamp(0.0, 1.0);
+        return Opacity(
+          opacity: (0.3 + 0.7 * t).clamp(0.0, 1.0),
+          child: Transform.translate(
+            offset: Offset(0, (1 - t) * 28),
+            child: Transform.scale(scale: 0.88 + 0.12 * t, child: child),
           ),
-          const SizedBox(height: 64),
-          
-          // Title
-          Text(
-            data.title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.2,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gradient icon medallion
+            Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [data.accent, data.accent.withValues(alpha: 0.65)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: data.accent.withValues(alpha: 0.35),
+                    blurRadius: 32,
+                    offset: const Offset(0, 14),
+                  ),
+                ],
+              ),
+              child: Icon(data.icon, size: 76, color: Colors.white),
             ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Description
-          Text(
-            data.description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white.withValues(alpha: 0.7),
-              height: 1.5,
+            const SizedBox(height: 56),
+            Text(
+              data.title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: c.textPrimary,
+                height: 1.2,
+                letterSpacing: -0.5,
+              ),
             ),
-          ),
-          const SizedBox(height: 80), // Space for bottom navigation
-        ],
+            const SizedBox(height: 16),
+            Text(
+              data.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: c.textSecondary,
+                height: 1.55,
+              ),
+            ),
+            const SizedBox(height: 80),
+          ],
+        ),
       ),
     );
   }
