@@ -505,9 +505,9 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
             foregroundColor:
-                isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                KpbColors.blue,
             side: BorderSide(
-                color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue),
+                color: KpbColors.blue),
           ),
         ),
         const SizedBox(height: KpbSpacing.sm),
