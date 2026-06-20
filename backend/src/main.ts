@@ -11,7 +11,8 @@ import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   loadEnvFile?.('.env');
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api', { exclude: ['uploads/(.*)'] });
+  // Express 5 / path-to-regexp v8: wildcards must be named ('(.*)' is invalid).
+  app.setGlobalPrefix('api', { exclude: ['uploads/{*path}'] });
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
