@@ -261,7 +261,7 @@ export class MastereTnScraper implements ScholarshipScraper {
     for (const p of patterns) {
       const m = text.match(p);
       if (m) {
-        const date = new Date(m[1].trim());
+        const date = this.parseLooseDate(m[1].trim());
         if (!isNaN(date.getTime())) {
           return {
             date,
@@ -271,6 +271,42 @@ export class MastereTnScraper implements ScholarshipScraper {
       }
     }
     return { date: null, label: 'Voir site officiel' };
+  }
+
+  /// Parse a deadline date. Native Date handles English ("March 15, 2026");
+  /// French month names ("15 mars 2026") are parsed explicitly since JS Date
+  /// cannot — previously this silently returned null for FR listings.
+  private parseLooseDate(raw: string): Date {
+    const native = new Date(raw);
+    if (!isNaN(native.getTime())) return native;
+
+    const fr: Record<string, number> = {
+      janvier: 0,
+      fevrier: 1,
+      février: 1,
+      mars: 2,
+      avril: 3,
+      mai: 4,
+      juin: 5,
+      juillet: 6,
+      aout: 7,
+      août: 7,
+      septembre: 8,
+      octobre: 9,
+      novembre: 10,
+      decembre: 11,
+      décembre: 11,
+    };
+    const m = raw
+      .toLowerCase()
+      .match(/(\d{1,2})\s+([a-zàâäéèêëîïôöùûüç]+)\.?\s+(\d{4})/i);
+    if (m) {
+      const month = fr[m[2]];
+      if (month !== undefined) {
+        return new Date(Number(m[3]), month, Number(m[1]));
+      }
+    }
+    return new Date(NaN);
   }
 
   private detectFunding(title: string, html: string): FundingType {

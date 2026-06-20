@@ -116,7 +116,11 @@ export class CatalogService {
 
   async getScholarships() {
     const items = await this.prismaService.tryExecute((prisma) =>
-      prisma.scholarship.findMany({ orderBy: { nameFr: 'asc' } }),
+      prisma.scholarship.findMany({
+        // Only show approved + active rows; hide pending-scraped and expired.
+        where: { isActive: true, moderationStatus: 'approved' },
+        orderBy: { nameFr: 'asc' },
+      }),
     );
     const rows =
       items ?? (mockCatalog.scholarships as Record<string, unknown>[]);
