@@ -96,9 +96,13 @@ export class CoachService {
     };
   }
 
-  async getMessages(conversationId: string): Promise<CoachMessage[]> {
+  async getMessages(
+    conversationId: string,
+    userId: string,
+  ): Promise<CoachMessage[]> {
     const conversation = await this.loadConversation(conversationId);
-    if (!conversation) {
+    // Treat "not yours" the same as "not found" so we don't leak existence.
+    if (!conversation || conversation.userId !== userId) {
       throw new NotFoundException(`Conversation ${conversationId} not found.`);
     }
     return conversation.messages;
@@ -113,7 +117,9 @@ export class CoachService {
     return new Observable((subscriber) => {
       void (async () => {
         const conversation = await this.loadConversation(params.conversationId);
-        if (!conversation) {
+        // Ownership check: reject streaming into someone else's conversation
+        // (same "not found" message so existence isn't leaked).
+        if (!conversation || conversation.userId !== params.userId) {
           subscriber.next({
             data: {
               type: 'error',

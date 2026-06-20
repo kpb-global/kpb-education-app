@@ -39,6 +39,9 @@ migrate_working_dir/
 /admin/out/
 .env
 .env.*
+# …but DO track the documented templates.
+!.env.example
+!**/.env.example
 
 # Symbolication related
 app.*.symbols

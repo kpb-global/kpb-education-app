@@ -53,7 +53,15 @@ export class SupabaseAuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    // Fail loud at boot rather than silently 401-ing every student/parent
+    // request: SUPABASE_URL is required for both the JWKS and HS256 (issuer) paths.
+    if (process.env.NODE_ENV === 'production' && !this.supabaseUrl) {
+      throw new Error(
+        'SUPABASE_URL must be set in production — student/parent authentication depends on it.',
+      );
+    }
+  }
 
   private get issuer(): string {
     return `${this.supabaseUrl}/auth/v1`;

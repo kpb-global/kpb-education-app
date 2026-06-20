@@ -7,6 +7,8 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { CommercialService } from './commercial.service';
 
 @Controller('commercial')
+@UseGuards(AdminAuthGuard, RolesGuard)
+@Roles(InternalRole.Commercial, InternalRole.Admin, InternalRole.SuperAdmin)
 export class CommercialController {
   constructor(private readonly commercialService: CommercialService) {}
 
@@ -35,8 +37,8 @@ export class CommercialController {
   }
 
   // ── Admin only — performance overview for all counsellors ────────────────
+  // Method-level @Roles overrides the class default (Reflector.getAllAndOverride).
   @Get('performance')
-  @UseGuards(AdminAuthGuard, RolesGuard)
   @Roles(InternalRole.Admin, InternalRole.SuperAdmin)
   performance() {
     return this.commercialService.performance();

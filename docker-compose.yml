@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   api:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     image: kpb-backend:latest
@@ -10,11 +10,39 @@ services:
     restart: always
     ports:
       - "127.0.0.1:3000:3000" # Expose only to localhost, let Nginx proxy it
+    # All values come from the root .env file (see backend/.env.example).
+    # No insecure defaults: a missing required secret makes the app fail loud at boot.
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-kpb}?schema=public
-      - JWT_SECRET=${JWT_SECRET:-your_dev_jwt_secret}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - PORT=3000 # must match the published port above (app default is 4000)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-kpb}?schema=public
+      # ── Required secrets — the app throws on boot if any is unset in production ──
+      - KPB_JWT_SECRET=${KPB_JWT_SECRET}
+      - KPB_JWT_REFRESH_SECRET=${KPB_JWT_REFRESH_SECRET}
+      - KPB_ADMIN_REFRESH_SECRET=${KPB_ADMIN_REFRESH_SECRET}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      # ── Feature integrations (optional; leave blank to disable the feature) ──
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-}
+      - ONESIGNAL_APP_ID=${ONESIGNAL_APP_ID:-}
+      - ONESIGNAL_REST_API_KEY=${ONESIGNAL_REST_API_KEY:-}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - KPB_MAGIC_LINK_FROM=${KPB_MAGIC_LINK_FROM:-}
+      - KPB_MAGIC_LINK_WEB_BASE=${KPB_MAGIC_LINK_WEB_BASE:-}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+      - YOUTUBE_PLAYLIST_ID=${YOUTUBE_PLAYLIST_ID:-}
+      # Uploads: set the S3 vars for object storage, or KPB_UPLOADS_DIR for local disk.
+      - KPB_S3_ENDPOINT=${KPB_S3_ENDPOINT:-}
+      - KPB_S3_REGION=${KPB_S3_REGION:-}
+      - KPB_S3_BUCKET=${KPB_S3_BUCKET:-}
+      - KPB_S3_ACCESS_KEY_ID=${KPB_S3_ACCESS_KEY_ID:-}
+      - KPB_S3_SECRET_ACCESS_KEY=${KPB_S3_SECRET_ACCESS_KEY:-}
+      - KPB_S3_PUBLIC_BASE_URL=${KPB_S3_PUBLIC_BASE_URL:-}
+      - KPB_S3_FORCE_PATH_STYLE=${KPB_S3_FORCE_PATH_STYLE:-}
+      - KPB_UPLOADS_DIR=${KPB_UPLOADS_DIR:-}
+      - KPB_UPLOADS_PUBLIC_URL=${KPB_UPLOADS_PUBLIC_URL:-}
     depends_on:
       db:
         condition: service_healthy # Wait for DB to be genuinely ready
@@ -25,14 +53,15 @@ services:
     restart: always
     ports:
       - "127.0.0.1:5432:5432" # Secure port
+    # No default credentials — compose errors if these are not set in .env.
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-kpb}
     volumes:
       - kpb-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-kpb}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-kpb}"]
       interval: 10s
       timeout: 5s
       retries: 5
