@@ -98,6 +98,56 @@ export class AdminCatalogService {
   }
 
   // ════════════════════════════════════════════════════════════════════════
+  // VERIFICATION (data-trust signal)
+  // ════════════════════════════════════════════════════════════════════════
+
+  /// Stamp (or clear) the data-trust signal on a catalog entity. When
+  /// `verified` is true, `lastVerifiedAt` is set server-side to now; an optional
+  /// `sourceUrl` records where the facts were confirmed. `verified: false`
+  /// clears the stamp (back to "À confirmer").
+  async setVerification(
+    entity: string,
+    id: string,
+    verified: boolean,
+    sourceUrl?: unknown,
+  ) {
+    this.assertDb();
+    const srcStr = this.str(sourceUrl);
+    const data = {
+      lastVerifiedAt: verified ? new Date() : null,
+      ...(srcStr !== undefined ? { sourceUrl: srcStr } : {}),
+    };
+    switch (entity) {
+      case 'program':
+        return this.runUpdate(
+          () => this.prisma.execute((db) => db.program.update({ where: { id }, data })),
+          'Program',
+          id,
+        );
+      case 'institution':
+        return this.runUpdate(
+          () => this.prisma.execute((db) => db.institution.update({ where: { id }, data })),
+          'Institution',
+          id,
+        );
+      case 'country':
+        return this.runUpdate(
+          () => this.prisma.execute((db) => db.country.update({ where: { id }, data })),
+          'Country',
+          id,
+        );
+      case 'scholarship':
+        return this.runUpdate(
+          () => this.prisma.execute((db) => db.scholarship.update({ where: { id }, data })),
+          'Scholarship',
+          id,
+        );
+      default:
+        throw new BadRequestException(`Unknown catalog entity "${entity}".`);
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
   // PROGRAMS (formations)
   // ════════════════════════════════════════════════════════════════════════
   async createProgram(input: Record<string, unknown>) {
