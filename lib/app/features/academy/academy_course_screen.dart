@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
@@ -96,11 +95,11 @@ class AcademyCourseScreen extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (course.coverImageUrl != null)
-              CachedNetworkImage(
+              KpbNetworkImage(
                 imageUrl: course.coverImageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(color: context.kpb.surfaceBg),
-                errorWidget: (context, url, error) => Container(color: context.kpb.surfaceBg),
+                targetWidth: MediaQuery.of(context).size.width,
+                fallbackColor: context.kpb.surfaceBg,
+                errorIcon: null,
               ),
             Container(
               decoration: BoxDecoration(

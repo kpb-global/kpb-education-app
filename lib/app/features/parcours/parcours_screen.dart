@@ -4,7 +4,6 @@
 // come from the backend proxy, cached offline). Tapping a card opens an in-app
 // player. The Academy module stays separate for paid courses.
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -169,25 +168,13 @@ class _VideoCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (video.thumbnailUrl.isNotEmpty &&
-                        !Get.find<AppController>().dataSaverEnabled)
-                      CachedNetworkImage(
-                        imageUrl: video.thumbnailUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) =>
-                            Container(color: context.kpb.gray100),
-                        errorWidget: (_, __, ___) => Container(
-                          color: context.kpb.gray100,
-                          child: Icon(Icons.broken_image_outlined,
-                              color: context.kpb.gray400),
-                        ),
-                      )
-                    else
-                      Container(
-                        color: context.kpb.gray100,
-                        child: Icon(Icons.ondemand_video_rounded,
-                            color: context.kpb.gray400, size: 40),
-                      ),
+                    KpbNetworkImage(
+                      imageUrl: video.thumbnailUrl,
+                      targetWidth: 360,
+                      placeholderIcon: Icons.ondemand_video_rounded,
+                      errorIcon: Icons.broken_image_outlined,
+                      iconSize: 40,
+                    ),
                     Center(
                       child: Container(
                         width: 52,
@@ -369,15 +356,12 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                         child: SizedBox(
                           width: 64,
                           height: 40,
-                          child: v.thumbnailUrl.isNotEmpty &&
-                                  !Get.find<AppController>().dataSaverEnabled
-                              ? CachedNetworkImage(
-                                  imageUrl: v.thumbnailUrl, fit: BoxFit.cover)
-                              : Container(
-                                  color: context.kpb.gray100,
-                                  child: Icon(Icons.ondemand_video_rounded,
-                                      color: context.kpb.gray400, size: 18),
-                                ),
+                          child: KpbNetworkImage(
+                            imageUrl: v.thumbnailUrl,
+                            targetWidth: 64,
+                            placeholderIcon: Icons.ondemand_video_rounded,
+                            iconSize: 18,
+                          ),
                         ),
                       ),
                       title: Text(

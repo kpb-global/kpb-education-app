@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../core/ui/components/kpb_network_image.dart';
 
 import '../../core/repositories/app_api_client.dart';
 
@@ -126,14 +127,15 @@ class _PartnerTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: logo.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: logo,
-                      fit: BoxFit.contain,
-                      errorWidget: (_, __, ___) =>
-                          const Icon(Icons.business, size: 32),
-                    )
-                  : const Icon(Icons.business, size: 32),
+              child: KpbNetworkImage(
+                imageUrl: logo,
+                fit: BoxFit.contain,
+                targetWidth: 116,
+                placeholderIcon: Icons.business,
+                errorIcon: Icons.business,
+                iconSize: 32,
+                fallbackColor: Colors.transparent,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
