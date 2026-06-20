@@ -65,6 +65,14 @@ void main() {
         orientationHistory: [session],
       );
 
+      // The results view is a long, lazy CustomScrollView; give the test a tall
+      // surface so every sliver (incl. the action buttons below the new
+      // matched-formations section) builds, rather than relying on scrolling.
+      tester.view.physicalSize = const Size(800, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await pumpTestApp(
         tester,
         child: const OrientationScreen(),
