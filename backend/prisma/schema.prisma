@@ -80,6 +80,14 @@ enum FundingType {
   unknown
 }
 
+// Moderation gate for scraped scholarships. Curated/seeded rows default to
+// `approved` (visible); scraper inserts land as `pending` until an admin acts.
+enum ScholarshipModeration {
+  pending
+  approved
+  rejected
+}
+
 enum CoachMessageRole {
   user
   assistant
@@ -714,6 +722,8 @@ model Scholarship {
   deadlineAt        DateTime?
   lastVerifiedAt    DateTime?
   isActive          Boolean        @default(true)
+  // Approved for curated/seeded rows; scraper inserts land as pending.
+  moderationStatus  ScholarshipModeration @default(approved)
   tags              String[]       @default([])
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -723,6 +733,7 @@ model Scholarship {
   @@index([deadlineAt])
   @@index([isActive])
   @@index([fundingType])
+  @@index([moderationStatus])
 }
 
 model AcademyCourse {

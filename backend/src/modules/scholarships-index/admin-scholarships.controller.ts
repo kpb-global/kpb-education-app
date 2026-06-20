@@ -1,4 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
@@ -23,6 +32,27 @@ export class AdminScholarshipsController {
   @HttpCode(HttpStatus.OK)
   refresh() {
     return this.scholarshipsIndexService.refresh();
+  }
+
+  // ── Moderation queue (Sprint 3) ───────────────────────────────────────────
+  /// List scholarships by moderation status (default: pending review).
+  @Get('moderation')
+  listForModeration(@Query('status') status?: string) {
+    const s =
+      status === 'approved' || status === 'rejected' ? status : 'pending';
+    return this.scholarshipsIndexService.listForModeration(s);
+  }
+
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  approve(@Param('id') id: string) {
+    return this.scholarshipsIndexService.setModeration(id, 'approved');
+  }
+
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  reject(@Param('id') id: string) {
+    return this.scholarshipsIndexService.setModeration(id, 'rejected');
   }
 }
 

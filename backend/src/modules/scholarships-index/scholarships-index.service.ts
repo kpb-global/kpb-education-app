@@ -183,6 +183,8 @@ export class ScholarshipsIndexService {
 
     const where = {
       isActive: true,
+      // Only approved (curated default-approved + admin-approved scraped) is public.
+      moderationStatus: 'approved' as const,
       ...(params.fundingType ? { fundingType: params.fundingType as any } : {}),
       ...(params.countryId ? { countryId: params.countryId } : {}),
       ...(params.fieldIds?.length
@@ -327,6 +329,45 @@ export class ScholarshipsIndexService {
     return { deduplicated, mergeCount };
   }
 
+  /// Admin moderation: approve / reject / reset a scholarship's visibility.
+  /// moderationStatus is intentionally NOT touched by the refresh upsert, so an
+  /// admin decision survives subsequent scraper runs.
+  async setModeration(id: string, status: 'approved' | 'rejected' | 'pending') {
+    return this.prismaService.execute((prisma) =>
+      prisma.scholarship.update({
+        where: { id },
+        data: { moderationStatus: status },
+      }),
+    );
+  }
+
+  /// Admin moderation queue — scraped entries awaiting review (default pending).
+  async listForModeration(
+    status: 'approved' | 'rejected' | 'pending' = 'pending',
+  ) {
+    const rows = await this.prismaService.execute((prisma) =>
+      prisma.scholarship.findMany({
+        where: { moderationStatus: status },
+        orderBy: { lastVerifiedAt: 'desc' },
+        take: 200,
+      }),
+    );
+    return {
+      items: (rows ?? []).map((r) => ({
+        id: r.id,
+        nameFr: r.nameFr,
+        nameEn: r.nameEn,
+        countryId: r.countryId,
+        sourceUrl: r.sourceUrl,
+        applicationUrl: r.applicationUrl,
+        deadlineAt: r.deadlineAt,
+        moderationStatus: r.moderationStatus,
+        lastVerifiedAt: r.lastVerifiedAt,
+        tags: r.tags,
+      })),
+    };
+  }
+
   private async upsert(row: ScrapedScholarship): Promise<boolean> {
     const now = new Date();
     const result = await this.prismaService.execute((prisma) =>
@@ -339,6 +380,8 @@ export class ScholarshipsIndexService {
           deadlineAt: row.deadlineAt,
           lastVerifiedAt: now,
           isActive: true,
+          // Scraped entries are unpublished until an admin approves them.
+          moderationStatus: 'pending',
           tags: row.tags,
           nameFr: row.nameFr,
           nameEn: row.nameEn,
