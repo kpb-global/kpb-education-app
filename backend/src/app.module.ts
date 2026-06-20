@@ -41,6 +41,8 @@ import { AdminPushController } from './modules/notifications/admin-push.controll
 import { CoachController } from './modules/coach/coach.controller';
 import { CoachQuotaService } from './modules/coach/coach-quota.service';
 import { CoachService } from './modules/coach/coach.service';
+import { DocumentReviewController } from './modules/document-review/document-review.controller';
+import { DocumentReviewService } from './modules/document-review/document-review.service';
 import { CommercialController } from './modules/commercial/commercial.controller';
 import { CommercialService } from './modules/commercial/commercial.service';
 import { AdminDashboardController } from './modules/admin-dashboard/admin-dashboard.controller';
@@ -146,6 +148,7 @@ import { SalonService } from './modules/salon/salon.service';
     ContentController,
     DeviceTokensController,
     AdminPushController,
+    DocumentReviewController,
     HealthController,
     NotificationsController,
     OrientationController,
@@ -205,6 +208,7 @@ import { SalonService } from './modules/salon/salon.service';
     NotificationsService,
     OrientationService,
     LlmService,
+    DocumentReviewService,
     CoachService,
     CoachQuotaService,
     CommercialService,

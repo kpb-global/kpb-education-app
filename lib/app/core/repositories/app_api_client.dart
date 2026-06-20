@@ -636,6 +636,22 @@ class AppApiClient {
     return (data['items'] as List<dynamic>? ?? <dynamic>[]);
   }
 
+  // ── AI document review (Sprint 9 — Document Studio) ───────────────────────
+
+  /// Sends a draft (motivation letter or CV) to the backend for structured
+  /// AI feedback. [kind] is `'motivation'` or `'cv'`. Student-authenticated;
+  /// the auth token is attached by the interceptor like other student calls.
+  Future<Map<String, dynamic>> reviewDocument({
+    required String kind,
+    required String text,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/document-review',
+      data: {'kind': kind, 'text': text},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   // ── Phase 3 — Salon KPB Virtuel ───────────────────────────────────────────
 
   Future<List<dynamic>> listSalonEvents() async {
