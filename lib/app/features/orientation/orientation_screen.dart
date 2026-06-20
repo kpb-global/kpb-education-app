@@ -14,6 +14,7 @@ import '../cases/case_composer_sheet.dart';
 import '../explore/country_detail_screen.dart';
 import '../explore/program_detail_screen.dart';
 import '../universities/widgets/program_catalog_card.dart';
+import 'orientation_roadmap_screen.dart';
 
 class OrientationScreen extends StatefulWidget {
   const OrientationScreen({super.key});
@@ -599,6 +600,24 @@ class _ResultsViewState extends State<_ResultsView>
                             : null;
                         Get.back();
                         controller.goToUniversitiesForField(topFieldId);
+                      },
+                    ),
+                    const SizedBox(height: KpbSpacing.sm),
+                    // Sprint 5 — a dated parcours toward the top match.
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.timeline_rounded, size: 18),
+                      label: const Text('Mon parcours de candidature'),
+                      onPressed: () {
+                        final topProgram = matchedPrograms.isNotEmpty
+                            ? matchedPrograms.first
+                            : null;
+                        Get.to(() => OrientationRoadmapScreen(
+                              fieldLabel: topField != null
+                                  ? controller.resolve(topField.name)
+                                  : 'tes résultats',
+                              programId: topProgram?.id,
+                              countryId: topProgram?.countryId,
+                            ));
                       },
                     ),
                     const SizedBox(height: KpbSpacing.sm),

@@ -372,7 +372,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           if (_tabIndex == 0) ...[
             _buildInfoContent(s, country, controller, isDark),
           ] else ...[
-            RoadmapTimelineView(scholarship: s, deadline: deadline),
+            RoadmapTimelineView(completionKey: s.id, deadline: deadline),
           ],
 
           const SizedBox(height: KpbSpacing.xl),
