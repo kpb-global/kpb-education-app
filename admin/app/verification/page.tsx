@@ -20,7 +20,7 @@ interface CatalogEntry {
   sourceUrl: string | null;
 }
 
-interface ProgramsResponse {
+interface CatalogResponse {
   items: CatalogEntry[];
   total: number;
 }
@@ -68,13 +68,13 @@ export default function VerificationPage() {
     setErrorMessage(null);
     try {
       const [countriesResponse, programsResponse] = await Promise.all([
-        apiFetch<CatalogEntry[]>('/catalog/countries'),
-        apiFetch<ProgramsResponse>('/catalog/programs?limit=1000'),
+        apiFetch<CatalogResponse>('/catalog/countries'),
+        apiFetch<CatalogResponse>('/catalog/programs?limit=1000'),
       ]);
-      setCountries(countriesResponse);
+      setCountries(countriesResponse.items);
       setPrograms(programsResponse.items);
       const initialSources: Record<string, string> = {};
-      for (const country of countriesResponse) {
+      for (const country of countriesResponse.items) {
         initialSources[`country:${country.id}`] = country.sourceUrl ?? '';
       }
       for (const program of programsResponse.items) {

@@ -48,7 +48,8 @@ class CaseMessageOutbox {
       .toMap()
       .entries
       .map((e) => OutboxEntry.decode(e.key, e.value))
-      .whereType<OutboxEntry>();
+      .whereType<OutboxEntry>()
+      .where((e) => e.retries < _maxRetries);
 
   int get pendingCount => _box.length;
 
@@ -59,12 +60,17 @@ class CaseMessageOutbox {
 
   Future<void> markFailure(dynamic key, OutboxEntry entry) async {
     final next = entry.withRetries(entry.retries + 1);
-    if (next.retries >= _maxRetries) {
-      await _box.delete(key);
-      return;
-    }
+    // On max retries, mark as permanently failed instead of silently deleting.
+    // Permanently-failed entries are surfaced in the UI so the user can resend.
     await _box.put(key, next.encode());
   }
+
+  Iterable<OutboxEntry> get permanentlyFailed => _box
+      .toMap()
+      .entries
+      .map((e) => OutboxEntry.decode(e.key, e.value))
+      .whereType<OutboxEntry>()
+      .where((e) => e.retries >= _maxRetries);
 }
 
 class OutboxEntry {

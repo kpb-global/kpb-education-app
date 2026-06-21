@@ -8,12 +8,16 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { forwardRef, Inject, Logger } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Server, Socket } from 'socket.io';
 
 import { StudentAuthService } from '../auth/student-auth.service';
 import { CasesService } from './cases.service';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 
+// ThrottlerGuard (registered as APP_GUARD) calls res.header() which is
+// undefined on WebSocket contexts — skip rate-limiting for all WS handlers.
+@SkipThrottle()
 @WebSocketGateway({
   namespace: '/cases',
   cors: {

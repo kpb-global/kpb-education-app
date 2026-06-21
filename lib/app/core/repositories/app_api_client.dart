@@ -7,9 +7,9 @@ import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:supabase_flutter/supabase_flutter.dart' hide MultipartFile;
 
 import '../config/app_config.dart';
-import '../config/app_routes.dart';
 import '../controllers/app_controller.dart';
 import '../models/app_models.dart';
+import '../navigation/app_boot_screen.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -769,7 +769,9 @@ class _AuthInterceptor extends Interceptor {
         final controller = Get.find<AppController>();
         if (controller.profile != null) {
           await controller.logout();
-          Get.offAllNamed(AppRoutes.home);
+          // Route to the boot gate, not the authenticated shell, so the user
+          // lands on the login/onboarding screen rather than AppShell.
+          Get.offAll(() => const AppBootScreen());
           Get.snackbar(
             'Session Expirée',
             'Votre session a expiré. Veuillez vous reconnecter.',

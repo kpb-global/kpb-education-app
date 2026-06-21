@@ -111,6 +111,8 @@ abstract class _AppControllerBase extends GetxController {
   ];
 
   final List<SavedItem> _savedItems = <SavedItem>[];
+  // Keys of saved items deleted locally but not yet confirmed by the server.
+  final Set<String> _savedItemTombstones = <String>{};
   final List<StudentCase> _cases = <StudentCase>[];
   final Map<String, CountryModel> _countryDetailCache = <String, CountryModel>{};
   final CaseSocketService _caseSocket = CaseSocketService();
@@ -201,6 +203,9 @@ abstract class _AppControllerBase extends GetxController {
     _savedItems
       ..clear()
       ..addAll(snapshot.savedItems);
+    _savedItemTombstones
+      ..clear()
+      ..addAll(snapshot.savedItemTombstones);
     _cases
       ..clear()
       ..addAll(snapshot.cases);
@@ -434,6 +439,7 @@ abstract class _AppControllerBase extends GetxController {
     isGuestMode = false;
     latestOrientationSession = null;
     _savedItems.clear();
+    _savedItemTombstones.clear();
     _cases.clear();
     _orientationHistory.clear();
     _searchHistory.clear();
@@ -478,6 +484,7 @@ abstract class _AppControllerBase extends GetxController {
     if (index >= 0) {
       final existing = _savedItems[index];
       _savedItems.removeAt(index);
+      _savedItemTombstones.add(_savedItemKey(type, itemId));
       unawaited(_deleteRemoteSavedItem(existing));
       AnalyticsService.instance
           .logUnsaveItem(itemId: itemId, itemType: type.name);
@@ -1039,6 +1046,7 @@ abstract class _AppControllerBase extends GetxController {
           final (mergedSaved, unionExtraLocals) = mergeSavedItemsUnion(
             remoteSavedParsed,
             List<SavedItem>.of(_savedItems),
+            tombstones: Set<String>.of(_savedItemTombstones),
           );
           SyncTelemetry.savedItemsMerged(unionExtraLocals: unionExtraLocals);
           _savedItems
@@ -1274,6 +1282,7 @@ abstract class _AppControllerBase extends GetxController {
         themeMode: themeMode,
         profile: profile,
         savedItems: _savedItems,
+        savedItemTombstones: _savedItemTombstones,
         cases: _cases,
         orientationHistory: _orientationHistory,
         searchHistory: _searchHistory,
@@ -1529,6 +1538,9 @@ abstract class _AppControllerBase extends GetxController {
       if (savedId != null && savedId.isNotEmpty) {
         await _apiClient.deleteSavedItem(savedId);
         _remoteSavedItemIds.remove(key);
+        // Server confirmed the delete — tombstone no longer needed.
+        _savedItemTombstones.remove(key);
+        _persist();
       }
     } catch (e, s) {
       safeRecordError(

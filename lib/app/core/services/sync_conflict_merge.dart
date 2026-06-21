@@ -52,19 +52,26 @@ class CasesMergeStats {
   );
 }
 
-/// Union by (type, itemId): all remote rows plus local rows missing from remote (offline saves).
+/// Union by (type, itemId): all remote rows plus local rows missing from remote
+/// (offline saves), minus any [tombstones] (locally-deleted items not yet
+/// confirmed by the server).
 (List<SavedItem>, int) mergeSavedItemsUnion(
   List<SavedItem> remote,
-  List<SavedItem> local,
-) {
+  List<SavedItem> local, {
+  Set<String> tombstones = const {},
+}) {
   final remoteKeys = <String>{
     for (final s in remote) '${s.type.name}:${s.itemId}',
   };
-  final merged = <SavedItem>[...remote];
+  // Filter remote: tombstoned items the user deleted while offline must not
+  // come back from the server until the delete is confirmed.
+  final filteredRemote =
+      remote.where((s) => !tombstones.contains('${s.type.name}:${s.itemId}')).toList();
+  final merged = <SavedItem>[...filteredRemote];
   var extra = 0;
   for (final s in local) {
     final key = '${s.type.name}:${s.itemId}';
-    if (!remoteKeys.contains(key)) {
+    if (!tombstones.contains(key) && !remoteKeys.contains(key)) {
       merged.add(s);
       extra++;
     }

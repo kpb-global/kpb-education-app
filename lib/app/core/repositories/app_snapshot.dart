@@ -13,6 +13,7 @@ class AppSnapshot {
     this.themeMode = ThemeMode.system,
     this.profile,
     this.savedItems = const [],
+    this.savedItemTombstones = const {},
     this.cases = const [],
     this.orientationHistory = const [],
     this.searchHistory = const [],
@@ -44,6 +45,10 @@ class AppSnapshot {
   final ThemeMode themeMode;
   final UserProfile? profile;
   final List<SavedItem> savedItems;
+  // Keys of locally-deleted saved items not yet confirmed by the server.
+  // Format: 'type:itemId'. Excluded from the merge union to prevent
+  // remote items from being resurrected on reconnect.
+  final Set<String> savedItemTombstones;
   final List<StudentCase> cases;
   final List<OrientationSession> orientationHistory;
   final List<String> searchHistory;

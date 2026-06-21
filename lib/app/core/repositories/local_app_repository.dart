@@ -49,6 +49,10 @@ class LocalAppRepository implements AppRepository {
           .whereType<Map<String, dynamic>>()
           .map(_savedItemFromJson)
           .toList(),
+      savedItemTombstones: ((json['savedItemTombstones'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toSet()) ??
+          const {},
       cases: ((json['cases'] as List<dynamic>?) ?? <dynamic>[])
           .whereType<Map<String, dynamic>>()
           .map(_caseFromJson)
@@ -90,6 +94,7 @@ class LocalAppRepository implements AppRepository {
       'themeMode': snapshot.themeMode.name,
       'profile': _userProfileToJson(snapshot.profile),
       'savedItems': snapshot.savedItems.map(_savedItemToJson).toList(),
+      'savedItemTombstones': snapshot.savedItemTombstones.toList(),
       'cases': snapshot.cases.map(_caseToJson).toList(),
       'orientationHistory':
           snapshot.orientationHistory.map(_orientationSessionToJson).toList(),
