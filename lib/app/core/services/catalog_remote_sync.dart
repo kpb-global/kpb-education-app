@@ -19,6 +19,10 @@ Future<void> syncCatalogResource<T>(
   for (var attempt = 0; attempt < _maxCatalogSyncAttempts; attempt++) {
     try {
       final raw = await api.listCatalog(resource);
+      // An empty response is treated as a no-op: don't clear existing catalog
+      // data (seeded from MockCatalog or a prior cache) and don't overwrite the
+      // Hive cache, which would poison future offline sessions.
+      if (raw.isEmpty) return;
       target
         ..clear()
         ..addAll(raw.whereType<Map<String, dynamic>>().map(fromJson));

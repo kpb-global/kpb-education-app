@@ -195,10 +195,11 @@ class CoachQuota {
   final bool allowed;
 
   factory CoachQuota.fromJson(Map<String, dynamic> json) {
+    final remaining = json['quotaRemaining'] as int? ?? 0;
     return CoachQuota(
-      remaining: json['remaining'] as int? ?? 0,
-      limit: json['limit'] as int? ?? 5,
-      allowed: json['allowed'] as bool? ?? false,
+      remaining: remaining,
+      limit: json['quotaLimit'] as int? ?? 5,
+      allowed: remaining > 0,
     );
   }
 }

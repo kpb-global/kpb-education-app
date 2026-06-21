@@ -13,7 +13,6 @@ import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
-import { CreateCaseMessageDto } from './dto/create-case-message.dto';
 import { CreateCaseTaskDto } from './dto/create-case-task.dto';
 import { CreateCaseTimelineEventDto } from './dto/create-case-timeline-event.dto';
 import { UpdateCaseDto } from './dto/update-case.dto';
@@ -300,7 +299,7 @@ export class CasesService {
 
   async createMessage(
     id: string,
-    input: CreateCaseMessageDto,
+    input: { body: string; senderName?: string; senderRole?: string },
     ownerUserId?: string,
   ) {
     this.assertDb();
@@ -308,11 +307,15 @@ export class CasesService {
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
+        // When ownerUserId is set this is the student REST path — force role
+        // to 'student' regardless of the input to prevent impersonation.
+        const effectiveRole = ownerUserId ? 'student' : (input.senderRole ?? 'student');
+        const effectiveName = ownerUserId ? (input.senderName ?? 'Étudiant') : (input.senderName ?? 'KPB Operations');
         const msg = await tx.caseMessage.create({
           data: {
             caseId: id,
-            senderName: input.senderName ?? 'KPB Operations',
-            senderRole: input.senderRole ?? 'student',
+            senderName: effectiveName,
+            senderRole: effectiveRole,
             body: input.body,
           },
         });

@@ -1,5 +1,6 @@
 import { loadEnvFile } from 'node:process';
 import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
@@ -9,7 +10,11 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  loadEnvFile?.('.env');
+  // Only load .env when the file is present — in prod Docker, env is injected
+  // by the container runtime and there is no .env file on disk.
+  if (existsSync('.env')) {
+    loadEnvFile('.env');
+  }
   const app = await NestFactory.create(AppModule);
   // Express 5 / path-to-regexp v8: wildcards must be named ('(.*)' is invalid).
   app.setGlobalPrefix('api', { exclude: ['uploads/{*path}'] });
