@@ -187,6 +187,31 @@ void main() {
       expect(controller.isSaved(SavedItemType.scholarship, 's01'), isTrue);
       expect(controller.isSaved(SavedItemType.field, 's01'), isFalse);
     });
+
+    test(
+        'Bug E: re-saving an item purges its tombstone — otherwise a sync racing the un-save delete would silently drop the re-save in mergeSavedItemsUnion',
+        () async {
+      // 1. Save it.
+      controller.toggleSaved(SavedItemType.field, 'd01');
+      expect(controller.isSaved(SavedItemType.field, 'd01'), isTrue);
+
+      // 2. Un-save → tombstone is added.
+      controller.toggleSaved(SavedItemType.field, 'd01');
+      await Future<void>.delayed(Duration.zero); // flush _persist microtask
+      var snapshot = await repository.loadSnapshot();
+      expect(snapshot.savedItemTombstones, contains('field:d01'));
+
+      // 3. Re-save immediately (before _deleteRemoteSavedItem confirms) — the
+      // fix is supposed to purge the tombstone here. Without it, the next
+      // sync would filter out the re-save.
+      controller.toggleSaved(SavedItemType.field, 'd01');
+      await Future<void>.delayed(Duration.zero);
+      snapshot = await repository.loadSnapshot();
+      expect(snapshot.savedItemTombstones, isNot(contains('field:d01')),
+          reason:
+              're-save must purge the tombstone so the item survives the next merge');
+      expect(controller.isSaved(SavedItemType.field, 'd01'), isTrue);
+    });
   });
 
   // ── toggleRoadmapStep / isStepCompleted ────────────────────────────────

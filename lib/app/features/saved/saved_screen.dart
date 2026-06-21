@@ -146,7 +146,11 @@ class SavedScreen extends StatelessWidget {
                     items: fields,
                     controller: controller,
                     buildItem: (item) {
-                      final field = controller.fieldById(item.itemId);
+                      // Catalog id may no longer exist (renamed/deactivated by
+                      // a backend sync) — skip rather than crash the tab with
+                      // StateError from firstWhere.
+                      final field = controller.fieldByIdOrNull(item.itemId);
+                      if (field == null) return const SizedBox.shrink();
                       return _SavedTile(
                         leading: Container(
                           width: 40,
@@ -178,7 +182,8 @@ class SavedScreen extends StatelessWidget {
                     items: countries,
                     controller: controller,
                     buildItem: (item) {
-                      final country = controller.countryById(item.itemId);
+                      final country = controller.countryByIdOrNull(item.itemId);
+                      if (country == null) return const SizedBox.shrink();
                       return _SavedTile(
                         leading: Container(
                           width: 40,
@@ -214,7 +219,8 @@ class SavedScreen extends StatelessWidget {
                     controller: controller,
                     buildItem: (item) {
                       final institution =
-                          controller.institutionById(item.itemId);
+                          controller.institutionByIdOrNull(item.itemId);
+                      if (institution == null) return const SizedBox.shrink();
                       return _SavedTile(
                         leading: Container(
                           width: 40,
@@ -244,7 +250,8 @@ class SavedScreen extends StatelessWidget {
                     items: programs,
                     controller: controller,
                     buildItem: (item) {
-                      final program = controller.programById(item.itemId);
+                      final program = controller.programByIdOrNull(item.itemId);
+                      if (program == null) return const SizedBox.shrink();
                       return _SavedTile(
                         leading: Container(
                           width: 40,
