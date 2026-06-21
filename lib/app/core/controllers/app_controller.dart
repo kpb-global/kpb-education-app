@@ -492,6 +492,11 @@ abstract class _AppControllerBase extends GetxController {
     } else {
       final savedItem = SavedItem(type: type, itemId: itemId);
       _savedItems.add(savedItem);
+      // If the user is re-saving an item they just un-saved (the delete may
+      // still be in-flight), purge the tombstone — otherwise a sync running
+      // before the server confirms the delete would filter this re-save out
+      // of mergeSavedItemsUnion and silently drop it.
+      _savedItemTombstones.remove(_savedItemKey(type, itemId));
       unawaited(_createRemoteSavedItem(savedItem));
       AnalyticsService.instance
           .logSaveItem(itemId: itemId, itemType: type.name);

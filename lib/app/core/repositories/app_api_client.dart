@@ -724,13 +724,24 @@ class _AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    // Try to refresh the Supabase session
+    // Bug A: a request that already went through a post-refresh retry must
+    // NOT be retried again — that would loop forever if the new token is also
+    // rejected (revoked refresh token, clock skew, backend reboot).
+    if (err.requestOptions.extra['authRetried'] == true) {
+      await _handlePermanentFailure();
+      return handler.next(err);
+    }
+
+    // Concurrent 401 while a refresh is in flight — wait for its outcome,
+    // then retry exactly once (guarded by the authRetried flag above).
     if (_isRefreshing) {
       final success = await _refreshCompleter?.future ?? false;
-      if (success) {
+      if (!success) return handler.next(err);
+      try {
         return handler.resolve(await _retryRequest(err.requestOptions));
+      } catch (_) {
+        return handler.next(err);
       }
-      return handler.next(err);
     }
 
     if (_auth.currentSession == null) {
@@ -741,22 +752,34 @@ class _AuthInterceptor extends Interceptor {
     _isRefreshing = true;
     _refreshCompleter = Completer<bool>();
 
+    // Bug B: separate the refresh from the retry so the catch only handles
+    // refresh failures — a retry that throws AFTER a successful refresh must
+    // not call complete() on an already-completed completer (StateError).
+    bool refreshed = false;
     try {
       final response = await _auth.refreshSession();
-      if (response.session != null) {
-        _refreshCompleter!.complete(true);
-        return handler.resolve(await _retryRequest(err.requestOptions));
-      }
-      _refreshCompleter!.complete(false);
-      await _handlePermanentFailure();
-      handler.next(err);
+      refreshed = response.session != null;
     } catch (_) {
-      _refreshCompleter!.complete(false);
+      refreshed = false;
+    }
+    if (!_refreshCompleter!.isCompleted) {
+      _refreshCompleter!.complete(refreshed);
+    }
+    _isRefreshing = false;
+
+    if (!refreshed) {
       await _handlePermanentFailure();
-      handler.next(err);
-    } finally {
-      _isRefreshing = false;
       _refreshCompleter = null;
+      return handler.next(err);
+    }
+
+    try {
+      final response = await _retryRequest(err.requestOptions);
+      _refreshCompleter = null;
+      return handler.resolve(response);
+    } catch (_) {
+      _refreshCompleter = null;
+      return handler.next(err);
     }
   }
 
@@ -788,7 +811,18 @@ class _AuthInterceptor extends Interceptor {
 
   Future<Response<dynamic>> _retryRequest(RequestOptions options) async {
     final token = _auth.currentSession?.accessToken;
+    if (token == null || token.isEmpty) {
+      // No usable token after refresh — bail out instead of sending
+      // a literal "Bearer null".
+      throw DioException(
+        requestOptions: options,
+        type: DioExceptionType.cancel,
+        message: 'No access token available for retry.',
+      );
+    }
     options.headers['Authorization'] = 'Bearer $token';
+    // Mark so a recursive 401 short-circuits to permanent failure (Bug A).
+    options.extra['authRetried'] = true;
     return _dio.fetch(options);
   }
 }
