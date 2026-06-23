@@ -30,12 +30,13 @@ void main() {
         ),
       );
 
-      // Remote sync is off in the harness → no videos → an informative empty
-      // state, not a crash and not a stuck spinner.
+      // Cold start with parcoursConfigured=false (the new default) — UI shows
+      // the friendly "Bientôt disponible" empty state, NOT the harsh
+      // "Contenu indisponible / wifi_off" error. The harsh state only triggers
+      // once the backend explicitly reports configured=true but no videos.
       expect(find.byType(ParcoursScreen), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text('Contenu indisponible'), findsOneWidget);
-      expect(find.text('Réessayer'), findsOneWidget);
+      expect(find.text('Bientôt disponible'), findsOneWidget);
     });
 
     testWidgets('renders video cards when the playlist returns items',
