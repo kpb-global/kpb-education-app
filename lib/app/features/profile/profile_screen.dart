@@ -148,21 +148,31 @@ class ProfileScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.face_unlock_outlined, color: KpbColors.blue, size: 24),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Verrouillage biométrique', style: TextStyle(fontWeight: FontWeight.w600)),
-                                      Text(
-                                        'Protéger l\'accès à l\'application',
-                                        style: TextStyle(fontSize: 12, color: context.kpb.textMuted),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.face_unlock_outlined,
+                                        color: KpbColors.blue, size: 24),
+                                    const SizedBox(width: 12),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('Verrouillage biométrique',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600)),
+                                          Text(
+                                            'Protéger l\'accès à l\'application',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: context.kpb.textMuted),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               Switch.adaptive(
                                 value: controller.isAppLockEnabled,
@@ -176,27 +186,31 @@ class ProfileScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.data_saver_on_rounded,
-                                      color: KpbColors.success, size: 24),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Mode données réduites',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600)),
-                                      Text(
-                                        'Economise la data (masque les images lourdes)',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: context.kpb.textMuted),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.data_saver_on_rounded,
+                                        color: KpbColors.success, size: 24),
+                                    const SizedBox(width: 12),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('Mode données réduites',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600)),
+                                          Text(
+                                            'Economise la data (masque les images lourdes)',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: context.kpb.textMuted),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               Switch.adaptive(
                                 value: controller.dataSaverEnabled,

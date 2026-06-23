@@ -57,6 +57,12 @@ jobs:
     name: Build Android APK
     needs: quality
     runs-on: ubuntu-latest
+    # `secrets` is NOT available in step-level `if:` expressions (GH Actions
+    # context restriction) — referencing it there makes the workflow file fail
+    # to parse and skip every job in 0s. Expose presence as a job-level env so
+    # the `if:` lines below can read `env.ANDROID_KEYSTORE_BASE64`.
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v5
 
@@ -75,13 +81,20 @@ jobs:
       #   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
       # If ANDROID_KEYSTORE_BASE64 is unset, the build uses debug keystore (android/app/build.gradle).
       - name: Decode upload keystore (when secrets configured)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        run: |
+          # Tolerate an invalid/placeholder secret: warn + fall back to the
+          # debug keystore rather than failing the whole build.
+          if printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks 2>/dev/null; then
+            echo "✓ Release keystore decoded"
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 is set but is not valid base64 — falling back to debug keystore."
+            rm -f android/upload-keystore.jks
+          fi
 
-      - name: Write android/key.properties (when secrets configured)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      # Only write key.properties when the keystore actually decoded successfully.
+      - name: Write android/key.properties (when keystore decoded)
+        if: env.ANDROID_KEYSTORE_BASE64 != '' && hashFiles('android/upload-keystore.jks') != ''
         env:
           STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}

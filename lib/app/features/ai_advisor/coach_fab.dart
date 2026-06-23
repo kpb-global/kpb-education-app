@@ -15,9 +15,13 @@ class CoachFab extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    // The floating bottom nav is ~68px high + 24px page padding; we add the
+    // device safe-area inset so the FAB stays clear of the home indicator on
+    // iPhones with notch/dynamic island. Old constant 96 sat behind the bar.
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Positioned(
       right: KpbSpacing.pagePad,
-      bottom: 96,
+      bottom: 92 + bottomInset,
       child: FloatingActionButton.extended(
         heroTag: 'kpb_coach_fab',
         backgroundColor: KpbColors.navy,

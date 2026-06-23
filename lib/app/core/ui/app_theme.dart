@@ -267,6 +267,9 @@ class AppTheme {
       ),
 
       // ── Chips ───────────────────────────────────────────────────────────
+      // Unselected chip: gray100 fill + gray300 border + textPrimary label.
+      // The previous textSecondary label rendered as low-contrast grey-on-grey
+      // across ~13 filter screens (universités, orientation, search, etc.).
       chipTheme: ChipThemeData(
         shape: const RoundedRectangleBorder(
           borderRadius: KpbRadius.pillBr,
@@ -286,12 +289,17 @@ class AppTheme {
             );
           }
           return const TextStyle(
-            color: KpbColors.textSecondary,
-            fontWeight: FontWeight.w500,
+            color: KpbColors.textPrimary,
+            fontWeight: FontWeight.w600,
             fontSize: 13,
           );
         }),
-        side: BorderSide.none,
+        side: WidgetStateBorderSide.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const BorderSide(color: Colors.transparent);
+          }
+          return const BorderSide(color: KpbColors.gray300, width: 1);
+        }),
       ),
 
       // ── Inputs ──────────────────────────────────────────────────────────

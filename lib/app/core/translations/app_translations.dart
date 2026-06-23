@@ -65,7 +65,7 @@ class AppTranslations extends Translations {
               'Ouvre un dossier depuis Mes leads pour discuter avec un étudiant.',
           'search': 'Rechercher',
           'nav_scholarships': 'Écoles',
-          'nav_cases': 'Mes dossiers',
+          'nav_cases': 'Dossiers',
           'nav_saved': 'Sauvegardés',
           'nav_profile': 'Profil',
           'nav_community': 'Communauté',

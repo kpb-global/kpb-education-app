@@ -36,7 +36,9 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Parcours & Témoignages'),
+        // Renamed: the screen only shows YouTube videos (no separate
+        // témoignages section yet). Aligning title with content.
+        title: const Text('Parcours KPB'),
         backgroundColor: Colors.transparent,
       ),
       body: GetBuilder<AppController>(

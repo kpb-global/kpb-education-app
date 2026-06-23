@@ -146,7 +146,10 @@ abstract class _AppControllerBase extends GetxController {
   bool isLoadingParcours = false;
   String? parcoursError;
   // True once the backend confirms a YOUTUBE_API_KEY is configured.
-  bool parcoursConfigured = true;
+  // Default false → cold-start shows the friendly "Bientôt disponible" empty
+  // state rather than the harsh "Contenu indisponible / wifi_off" error.
+  // Set to true only once fetchParcoursVideos reports the backend is configured.
+  bool parcoursConfigured = false;
 
   List<SavedItem> get savedItems => List.unmodifiable(_savedItems);
   List<StudentCase> get cases => List.unmodifiable(_cases);
