@@ -412,7 +412,10 @@ abstract class _AppControllerBase extends GetxController {
     onboardingSkipped = false;
     onboardingStep = 0;
     isGuestMode = false;
-    _cases.clear();
+    // Note: don't clear _cases here. Onboarding sets the profile; it doesn't
+    // imply the user has no cases (e.g. they could be completing a missing
+    // profile to unblock submitCase, which would discard the case they just
+    // built). The next syncRemoteData will reconcile from the server.
     _profileNeedsPush = true;
     unawaited(_pushProfileUpdate());
     _persist();
