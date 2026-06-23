@@ -21,8 +21,8 @@ class ProgramDetailScreen extends StatelessWidget {
     final controller = Get.find<AppController>();
     final program = controller.programByIdOrNull(programId);
     if (program == null) {
-      return const Scaffold(
-        body: Center(child: Text('Programme introuvable')),
+      return Scaffold(
+        body: Center(child: Text('program_not_found'.tr)),
       );
     }
 
@@ -430,7 +430,7 @@ class _BottomBar extends StatelessWidget {
             flex: 2,
             child: FilledButton(
               onPressed: () => _openCaseTunnel(context),
-              child: const Text('M\'inscrire avec KPB'),
+              child: Text('enroll_with_kpb'.tr),
             ),
           ),
         ],

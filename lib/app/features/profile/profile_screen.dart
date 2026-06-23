@@ -54,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
                   child: TextButton.icon(
                     onPressed: () => _openEditSheet(context, controller),
                     icon: const Icon(Icons.edit_outlined, size: 16),
-                    label: const Text('Modifier'),
+                    label: Text('profile_edit'.tr),
                   ),
                 ),
               ],
@@ -143,7 +143,7 @@ class ProfileScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Sécurité', style: KpbTextStyles.titleMd),
+                          Text('profile_security'.tr, style: KpbTextStyles.titleMd),
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,7 +159,7 @@ class ProfileScreen extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Verrouillage biométrique',
+                                          Text('profile_biometric'.tr,
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600)),
                                           Text(
@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Mode données réduites',
+                                          Text('profile_data_saver'.tr,
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600)),
                                           Text(
@@ -266,7 +266,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: KpbSpacing.md),
 
                     // ── Infos académiques ─────────────────────────────
-                    const Text('Informations académiques',
+                    Text('profile_academic_info'.tr,
                         style: KpbTextStyles.title),
                     const SizedBox(height: KpbSpacing.sm),
                     KpbCard(
@@ -320,7 +320,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: KpbSpacing.md),
 
                     // ── Contact ───────────────────────────────────────
-                    const Text('Contact', style: KpbTextStyles.title),
+                    Text('profile_contact'.tr, style: KpbTextStyles.title),
                     const SizedBox(height: KpbSpacing.sm),
                     KpbCard(
                       child: Column(
@@ -374,7 +374,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: KpbSpacing.lg),
 
                     // ── Accès rapide ──────────────────────────────────
-                    const Text('Accès rapide', style: KpbTextStyles.title),
+                    Text('profile_quick_access'.tr, style: KpbTextStyles.title),
                     const SizedBox(height: KpbSpacing.sm),
                     KpbCard(
                       child: Column(
@@ -505,7 +505,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: KpbSpacing.md),
 
                     // ── Legal ──────────────────────────────────────────
-                    const Text('Informations légales', style: KpbTextStyles.title),
+                    Text('profile_legal_info'.tr, style: KpbTextStyles.title),
                     const SizedBox(height: KpbSpacing.sm),
                     KpbCard(
                       child: Column(
@@ -541,7 +541,7 @@ class ProfileScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         icon: const Icon(Icons.logout_rounded, size: 18),
-                        label: const Text('Se déconnecter'),
+                        label: Text('logout'.tr),
                       ),
                     ),
 
@@ -560,14 +560,14 @@ class ProfileScreen extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Se déconnecter ?'),
+        title: Text('logout_confirm_title'.tr),
         content: const Text(
           'Vous serez redirigé vers l\'écran d\'accueil. Vos données locales seront effacées.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text('cancel'.tr),
           ),
           FilledButton(
             onPressed: () async {
@@ -578,7 +578,7 @@ class ProfileScreen extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: KpbColors.error,
             ),
-            child: const Text('Se déconnecter'),
+            child: Text('logout'.tr),
           ),
         ],
       ),
@@ -713,7 +713,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   ),
                 ),
               ),
-              const Text('Modifier le profil', style: KpbTextStyles.headline),
+              Text('profile_edit_title'.tr, style: KpbTextStyles.headline),
               const SizedBox(height: KpbSpacing.lg),
 
               _EditField(
@@ -746,7 +746,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               const SizedBox(height: KpbSpacing.xl),
 
               // ── Mon parcours ────────────────────────────────────────
-              const Text('Mon parcours', style: KpbTextStyles.headline),
+              Text('profile_my_journey'.tr, style: KpbTextStyles.headline),
               const SizedBox(height: KpbSpacing.md),
               DropdownButtonFormField<String>(
                 initialValue: _currentLevel,
@@ -786,7 +786,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               const SizedBox(height: KpbSpacing.lg),
 
               // ── Pays visés ──────────────────────────────────────────
-              const Text('Pays visés', style: KpbTextStyles.headline),
+              Text('profile_target_countries'.tr, style: KpbTextStyles.headline),
               const SizedBox(height: KpbSpacing.sm),
               Wrap(
                 spacing: KpbSpacing.sm,
@@ -809,7 +809,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               const SizedBox(height: KpbSpacing.lg),
 
               // ── Mes documents ───────────────────────────────────────
-              const Text('Documents disponibles',
+              Text('available_documents'.tr,
                   style: KpbTextStyles.headline),
               const SizedBox(height: KpbSpacing.sm),
               Wrap(
@@ -843,7 +843,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Enregistrer'),
+                    : Text('save_changes'.tr),
               ),
               const SizedBox(height: KpbSpacing.md),
             ],
@@ -984,7 +984,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('Profil complété', style: KpbTextStyles.titleMd),
+              Text('profile_completed'.tr, style: KpbTextStyles.titleMd),
               const Spacer(),
               Text(
                 '$completion%',
@@ -1070,7 +1070,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
                   textStyle: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700),
                 ),
-                child: const Text('Compléter mon profil'),
+                child: Text('profile_complete_cta'.tr),
               ),
             ),
           ],
