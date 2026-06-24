@@ -86,6 +86,27 @@ class AppTranslations extends Translations {
           'back_to_country': 'Retour à la fiche pays',
           'student_tools_title': 'Outils étudiants',
           'updated_on': 'Mis à jour @date',
+          // ── KPB accompaniment offer (country detail) ───────────
+          'kpb_offer_title': 'L\'accompagnement KPB',
+          'kpb_offer_intro':
+              'Nos conseillers t\'accompagnent de l\'éligibilité jusqu\'à l\'obtention du visa.',
+          'kpb_offer_conditions': 'Conditions d\'éligibilité',
+          'kpb_cond_grades': 'Moyenne ≥ 11/20 sur tes 3 dernières années',
+          'kpb_cond_language': 'Bon niveau dans la langue d\'enseignement',
+          'kpb_cond_guarantor': 'Un garant pour ton dossier visa',
+          'kpb_offer_formulas': 'Nos formules d\'accompagnement',
+          'pack_admission': 'Admission',
+          'pack_admission_desc':
+              'Sécurise ton admission dans une bonne école.',
+          'pack_envol': 'Pack Envol',
+          'pack_envol_desc': 'Admission + procédure visa de bout en bout.',
+          'svc_school_search': 'Recherche d\'une école adaptée',
+          'svc_application': 'CV + lettre de motivation',
+          'svc_interview': 'Préparation à l\'entretien',
+          'svc_visa': 'Procédure visa accompagnée',
+          'kpb_offer_partner_discount':
+              '−30 % si tu étudies dans une école partenaire KPB',
+          'kpb_offer_price_note': 'Tarif indicatif · payable après échange avec un conseiller',
           'onboarding_title': 'Construisons votre parcours',
           'partner_redirect':
               'Les partenariats sont gérés via un formulaire dédié et un suivi KPB.',
@@ -395,6 +416,26 @@ class AppTranslations extends Translations {
           'back_to_country': 'Back to country page',
           'student_tools_title': 'Student tools',
           'updated_on': 'Updated @date',
+          // ── KPB accompaniment offer (country detail) ───────────
+          'kpb_offer_title': 'KPB support',
+          'kpb_offer_intro':
+              'Our advisors guide you from eligibility all the way to your visa.',
+          'kpb_offer_conditions': 'Eligibility requirements',
+          'kpb_cond_grades': 'Average ≥ 11/20 over your last 3 years',
+          'kpb_cond_language': 'Good level in the language of instruction',
+          'kpb_cond_guarantor': 'A sponsor for your visa file',
+          'kpb_offer_formulas': 'Our support packages',
+          'pack_admission': 'Admission',
+          'pack_admission_desc': 'Secure your admission to a strong school.',
+          'pack_envol': 'Envol Pack',
+          'pack_envol_desc': 'Admission + end-to-end visa process.',
+          'svc_school_search': 'Tailored school search',
+          'svc_application': 'CV + motivation letter',
+          'svc_interview': 'Interview preparation',
+          'svc_visa': 'Guided visa process',
+          'kpb_offer_partner_discount':
+              '−30% if you study at a KPB partner school',
+          'kpb_offer_price_note': 'Indicative price · payable after talking to an advisor',
           'onboarding_title': 'Let’s build your journey',
           'partner_redirect':
               'Partnerships are handled through a dedicated form and KPB follow-up.',

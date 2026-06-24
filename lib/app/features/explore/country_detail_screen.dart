@@ -422,16 +422,72 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
-                          'Accompagnement KPB',
-                          style: KpbTextStyles.titleMd,
+                        Row(
+                          children: [
+                            const Icon(Icons.workspace_premium_outlined,
+                                color: KpbColors.blue, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text('kpb_offer_title'.tr,
+                                  style: KpbTextStyles.titleMd),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Nos conseillers t\'accompagnent de l\'éligibilité jusqu\'à l\'obtention du visa.',
-                          style: KpbTextStyles.body,
+                        Text('kpb_offer_intro'.tr, style: KpbTextStyles.body),
+                        const SizedBox(height: 16),
+
+                        // ── Conditions d'éligibilité ──────────────────────
+                        Text('kpb_offer_conditions'.tr,
+                            style: KpbTextStyles.label),
+                        const SizedBox(height: 8),
+                        _OfferCondition(text: 'kpb_cond_grades'.tr),
+                        _OfferCondition(text: 'kpb_cond_language'.tr),
+                        _OfferCondition(text: 'kpb_cond_guarantor'.tr),
+                        const SizedBox(height: 16),
+
+                        // ── Nos formules ──────────────────────────────────
+                        Text('kpb_offer_formulas'.tr,
+                            style: KpbTextStyles.label),
+                        const SizedBox(height: 8),
+                        _PackCard(
+                          name: 'pack_admission'.tr,
+                          price: '249 €',
+                          description: 'pack_admission_desc'.tr,
+                          services: [
+                            'svc_school_search'.tr,
+                            'svc_application'.tr,
+                            'svc_interview'.tr,
+                          ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
+                        _PackCard(
+                          name: 'pack_envol'.tr,
+                          price: '399 €',
+                          description: 'pack_envol_desc'.tr,
+                          highlight: true,
+                          services: [
+                            'svc_school_search'.tr,
+                            'svc_application'.tr,
+                            'svc_interview'.tr,
+                            'svc_visa'.tr,
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.local_offer_outlined,
+                                size: 15, color: KpbColors.success),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text('kpb_offer_partner_discount'.tr,
+                                  style: KpbTextStyles.caption.copyWith(
+                                      color: KpbColors.success,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         FilledButton(
                           onPressed: () => showModalBottomSheet<void>(
                             context: context,
@@ -686,6 +742,99 @@ class _BottomCta extends StatelessWidget {
                 () => EligibilityQuizScreen(countryId: country.id),
               ),
               child: Text('eligibility_quiz_short'.tr),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KPB accompaniment offer — eligibility condition row + service-pack card.
+// ─────────────────────────────────────────────────────────────────────────────
+class _OfferCondition extends StatelessWidget {
+  const _OfferCondition({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.check_circle, size: 18, color: KpbColors.success),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: KpbTextStyles.bodySm)),
+        ],
+      ),
+    );
+  }
+}
+
+class _PackCard extends StatelessWidget {
+  const _PackCard({
+    required this.name,
+    required this.price,
+    required this.description,
+    required this.services,
+    this.highlight = false,
+  });
+
+  final String name;
+  final String price;
+  final String description;
+  final List<String> services;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = highlight ? KpbColors.blue : context.kpb.gray400;
+    return Container(
+      padding: const EdgeInsets.all(KpbSpacing.md),
+      decoration: BoxDecoration(
+        color: highlight ? KpbColors.skyLight : context.kpb.gray50,
+        borderRadius: KpbRadius.lgBr,
+        border: Border.all(
+          color: highlight ? KpbColors.blue : context.kpb.gray200,
+          width: highlight ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  name,
+                  style: KpbTextStyles.titleMd.copyWith(color: accent),
+                ),
+              ),
+              Text(
+                price,
+                style: KpbTextStyles.titleMd.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(description, style: KpbTextStyles.caption),
+          const SizedBox(height: 10),
+          ...services.map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.check_rounded, size: 16, color: accent),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(s, style: KpbTextStyles.bodySm)),
+                ],
+              ),
             ),
           ),
         ],

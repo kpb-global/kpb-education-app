@@ -462,8 +462,25 @@ class _ChipRow extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
-                  label: Text(text),
+                  // Explicit colours: Material 3 FilterChip ignores the theme's
+                  // WidgetStateTextStyle label colour, which left unselected
+                  // chips grey-on-grey (unreadable). Set colour on the Text
+                  // itself so it always wins.
+                  label: Text(
+                    text,
+                    style: TextStyle(
+                      color: selected ? Colors.white : KpbColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
                   selected: selected,
+                  showCheckmark: false,
+                  backgroundColor: KpbColors.gray100,
+                  selectedColor: KpbColors.blue,
+                  side: BorderSide(
+                    color: selected ? Colors.transparent : KpbColors.gray300,
+                  ),
                   onSelected: (_) => onSelected(selected ? null : key),
                 ),
               );
