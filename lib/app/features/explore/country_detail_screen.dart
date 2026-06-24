@@ -84,8 +84,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
 
     final country = _country ?? _controller.countryByIdOrNull(_countryKey);
     if (country == null) {
-      return const Scaffold(
-        body: Center(child: Text('Pays introuvable')),
+      return Scaffold(
+        body: Center(child: Text('country_not_found'.tr)),
       );
     }
 
@@ -211,7 +211,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                       () => EligibilityQuizScreen(countryId: country.id),
                     ),
                     icon: const Icon(Icons.quiz_outlined),
-                    label: const Text('Faire le quiz d\'éligibilité'),
+                    label: Text('take_eligibility_quiz'.tr),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       textStyle: const TextStyle(
@@ -444,7 +444,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                               countryId: country.id,
                             ),
                           ),
-                          child: const Text('Demander un accompagnement'),
+                          child: Text('request_support'.tr),
                         ),
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
@@ -456,7 +456,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                             ),
                           ),
                           icon: const Icon(Icons.chat_outlined),
-                          label: const Text('Discuter sur WhatsApp'),
+                          label: Text('chat_on_whatsapp'.tr),
                         ),
                       ],
                     ),
@@ -685,7 +685,7 @@ class _BottomCta extends StatelessWidget {
               onPressed: () => Get.to(
                 () => EligibilityQuizScreen(countryId: country.id),
               ),
-              child: const Text('Quiz éligibilité'),
+              child: Text('eligibility_quiz_short'.tr),
             ),
           ),
         ],

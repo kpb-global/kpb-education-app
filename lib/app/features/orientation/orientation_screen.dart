@@ -593,7 +593,7 @@ class _ResultsViewState extends State<_ResultsView>
                     // Primary: jump straight to the schools for the top match
                     FilledButton.icon(
                       icon: const Icon(Icons.school_rounded, size: 18),
-                      label: const Text('Voir les écoles'),
+                      label: Text('see_schools'.tr),
                       onPressed: () {
                         final topFieldId = recs.isNotEmpty
                             ? recs.first.fieldId as String
@@ -606,7 +606,7 @@ class _ResultsViewState extends State<_ResultsView>
                     // Sprint 5 — a dated parcours toward the top match.
                     OutlinedButton.icon(
                       icon: const Icon(Icons.timeline_rounded, size: 18),
-                      label: const Text('Mon parcours de candidature'),
+                      label: Text('my_application_journey'.tr),
                       onPressed: () {
                         final topProgram = matchedPrograms.isNotEmpty
                             ? matchedPrograms.first
@@ -623,7 +623,7 @@ class _ResultsViewState extends State<_ResultsView>
                     const SizedBox(height: KpbSpacing.sm),
                     OutlinedButton.icon(
                       icon: const Icon(Icons.explore_rounded, size: 18),
-                      label: const Text('Explorer mes résultats'),
+                      label: Text('explore_my_results'.tr),
                       onPressed: () {
                         Get.back();
                         controller.goToTab(StudentShellTab.universities);
@@ -633,7 +633,7 @@ class _ResultsViewState extends State<_ResultsView>
                     // Secondary: open a support case
                     OutlinedButton.icon(
                       icon: const Icon(Icons.folder_open_rounded, size: 18),
-                      label: const Text('Démarrer un dossier'),
+                      label: Text('start_a_case'.tr),
                       onPressed: () => showModalBottomSheet<void>(
                         context: Get.context!,
                         isScrollControlled: true,
@@ -648,7 +648,7 @@ class _ResultsViewState extends State<_ResultsView>
                     // Tertiary: retake
                     TextButton.icon(
                       icon: const Icon(Icons.refresh_rounded, size: 16),
-                      label: const Text('Refaire le test'),
+                      label: Text('retake_test'.tr),
                       onPressed: widget.onRetake,
                       style: TextButton.styleFrom(
                         foregroundColor: context.kpb.textSecondary,
@@ -1115,7 +1115,7 @@ class _RecommendationCard extends StatelessWidget {
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  child: const Text('Voir les écoles'),
+                  child: Text('see_schools'.tr),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1135,7 +1135,7 @@ class _RecommendationCard extends StatelessWidget {
                     textStyle: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  child: const Text('Être accompagné'),
+                  child: Text('get_support'.tr),
                 ),
               ),
             ],

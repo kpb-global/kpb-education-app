@@ -293,7 +293,8 @@ class _CaseCard extends StatelessWidget {
               Icon(Icons.access_time_rounded,
                   size: 14, color: context.kpb.textMuted),
               const SizedBox(width: 4),
-              Text('Mis à jour $date', style: KpbTextStyles.caption),
+              Text('updated_on'.trParams({'date': date}),
+                  style: KpbTextStyles.caption),
               if (item.messages.isNotEmpty) ...[
                 const SizedBox(width: 10),
                 Icon(Icons.chat_bubble_outline_rounded,

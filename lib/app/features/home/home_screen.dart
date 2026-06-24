@@ -592,7 +592,7 @@ class _NextStepCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Prochaine étape', style: KpbTextStyles.title),
+        Text('next_step'.tr, style: KpbTextStyles.title),
         const SizedBox(height: 12),
         KpbPressable(
           onTap: step.onTap,

@@ -15,7 +15,7 @@ class StudentToolsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Outils etudiants')),
+      appBar: AppBar(title: Text('student_tools_title'.tr)),
       body: ListView(
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [

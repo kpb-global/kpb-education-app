@@ -138,7 +138,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
         subtitle: _error!,
         action: FilledButton(
           onPressed: _load,
-          child: const Text('Réessayer'),
+          child: Text('retry'.tr),
         ),
       );
     }
@@ -407,7 +407,7 @@ class _ResultView extends StatelessWidget {
         const SizedBox(height: 16),
         if (result.alternativeCountryIds.isNotEmpty &&
             result.verdict == EligibilityVerdict.notEligible) ...[
-          const Text('Destinations alternatives', style: KpbTextStyles.titleMd),
+          Text('alternative_destinations'.tr, style: KpbTextStyles.titleMd),
           const SizedBox(height: 10),
           ...result.alternativeCountryIds.map((id) {
             final alt = controller.countryByIdOrNull(id);
@@ -440,7 +440,7 @@ class _ResultView extends StatelessWidget {
         const SizedBox(height: 10),
         OutlinedButton(
           onPressed: () => Get.back<void>(),
-          child: const Text('Retour à la fiche pays'),
+          child: Text('back_to_country'.tr),
         ),
       ],
     );
