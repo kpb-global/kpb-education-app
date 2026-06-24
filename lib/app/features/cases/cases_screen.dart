@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/navigation/app_boot_screen.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/ui/skeleton.dart';
 import 'case_composer_sheet.dart';
@@ -23,6 +24,13 @@ class _CasesScreenState extends State<CasesScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<AppController>(
       builder: (controller) {
+        // Guest mode: dossiers require a signed-in profile. Show an explicit
+        // sign-in prompt rather than a blank-empty-state that the user can't
+        // act on (Submit would silently fail).
+        if (controller.isGuestMode || controller.profile == null) {
+          return _GuestCasesPrompt();
+        }
+
         if (controller.isSyncing && controller.cases.isEmpty) {
           return const CasesScreenSkeleton();
         }
@@ -433,6 +441,55 @@ class _FilterChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Guest prompt — dossiers require a signed-in profile.
+// ─────────────────────────────────────────────────────────────────────────────
+class _GuestCasesPrompt extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          backgroundColor: context.kpb.pageBg,
+          title: Text('nav_cases'.tr, style: KpbTextStyles.headline),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.all(KpbSpacing.pagePad),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.folder_open_outlined,
+                    size: 64, color: context.kpb.gray300),
+                const SizedBox(height: KpbSpacing.lg),
+                Text('guest_cases_title'.tr,
+                    style: KpbTextStyles.headline,
+                    textAlign: TextAlign.center),
+                const SizedBox(height: KpbSpacing.sm),
+                Text(
+                  'guest_cases_body'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.kpb.textMuted, height: 1.4),
+                ),
+                const SizedBox(height: KpbSpacing.xl),
+                FilledButton.icon(
+                  icon: const Icon(Icons.login_rounded),
+                  label: Text('guest_case_gate_cta'.tr),
+                  onPressed: () =>
+                      Get.offAll(() => const AppBootScreen()),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

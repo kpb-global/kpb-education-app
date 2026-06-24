@@ -25,6 +25,26 @@ class AppTranslations extends Translations {
           'available_documents': 'Documents disponibles',
           'preferred_language': 'Langue préférée',
           'app_language': 'Langue de l\'application',
+          // ── Guest gating for dossiers ──────────────────────────
+          'guest_case_gate_title': 'Connecte-toi pour créer un dossier',
+          'guest_case_gate_body':
+              'Un compte est nécessaire pour qu\'un conseiller KPB puisse traiter ta demande et te répondre.',
+          'guest_case_gate_cta': 'Se connecter',
+          'guest_cases_title': 'Tes dossiers en un seul endroit',
+          'guest_cases_body':
+              'Connecte-toi pour créer tes demandes et suivre leur progression avec un conseiller KPB.',
+          // ── Outils KPB (drawer hamburger) ──────────────────────
+          'tools_drawer_title': 'Outils KPB',
+          'tools_drawer_subtitle': 'Tout pour préparer ta candidature',
+          'tools_cv': 'CV',
+          'tools_motivation_letter': 'Lettre de motivation',
+          'tools_interview': 'Simulateur d\'entretien',
+          'tools_doc_scanner': 'Scanner de documents',
+          'tools_budget': 'Calculateur de budget',
+          'tools_flight': 'Estimateur de vol',
+          'tools_housing': 'Estimateur de logement',
+          'tools_doc_review': 'Relecture IA',
+          'tools_impact': 'Tableau d\'impact',
           'onboarding_title': 'Construisons votre parcours',
           'partner_redirect':
               'Les partenariats sont gérés via un formulaire dédié et un suivi KPB.',
@@ -273,6 +293,26 @@ class AppTranslations extends Translations {
           'available_documents': 'Available documents',
           'preferred_language': 'Preferred language',
           'app_language': 'App language',
+          // ── Guest gating for cases ─────────────────────────────
+          'guest_case_gate_title': 'Sign in to create a case',
+          'guest_case_gate_body':
+              'You need an account so a KPB advisor can process your request and reply to you.',
+          'guest_case_gate_cta': 'Sign in',
+          'guest_cases_title': 'All your cases in one place',
+          'guest_cases_body':
+              'Sign in to create requests and track their progress with a KPB advisor.',
+          // ── KPB tools (drawer) ─────────────────────────────────
+          'tools_drawer_title': 'KPB Tools',
+          'tools_drawer_subtitle': 'Everything to prepare your application',
+          'tools_cv': 'CV',
+          'tools_motivation_letter': 'Motivation letter',
+          'tools_interview': 'Interview simulator',
+          'tools_doc_scanner': 'Document scanner',
+          'tools_budget': 'Budget calculator',
+          'tools_flight': 'Flight estimator',
+          'tools_housing': 'Housing estimator',
+          'tools_doc_review': 'AI review',
+          'tools_impact': 'Impact dashboard',
           'onboarding_title': 'Let’s build your journey',
           'partner_redirect':
               'Partnerships are handled through a dedicated form and KPB follow-up.',

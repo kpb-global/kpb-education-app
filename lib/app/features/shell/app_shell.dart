@@ -7,12 +7,14 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/components/kpb_offline_banner.dart';
+import '../../core/ui/kpb_theme_ext.dart';
 import '../cases/cases_screen.dart';
 import '../destinations/destinations_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 import '../universities/universities_screen.dart';
 import '../ai_advisor/coach_fab.dart';
+import 'kpb_tools_drawer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AppShell — 5-tab navigation (Accueil · Destinations · Universités · Demandes · Moi)
@@ -43,6 +45,11 @@ class AppShell extends StatelessWidget {
         ];
 
         return Scaffold(
+          // Attach the global tools-drawer key so any descendant (including
+          // tab screens with their own inner Scaffolds) can call
+          // `KpbToolsDrawer.open(context)`.
+          key: KpbToolsDrawer.shellKey,
+          drawer: const KpbToolsDrawer(),
           body: Stack(
             children: [
               // Offline banner above the body. KpbOfflineBanner collapses to a
@@ -55,6 +62,21 @@ class AppShell extends StatelessWidget {
                     child: IndexedStack(index: index, children: pages),
                   ),
                 ],
+              ),
+              // Top-left hamburger overlay. Tab screens have their own
+              // Scaffolds without leading icons, so we surface the drawer entry
+              // point from the AppShell level. Sits clear of the dynamic-island
+              // / notch via SafeArea.
+              Positioned(
+                top: 0,
+                left: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: KpbSpacing.xs, top: KpbSpacing.xs),
+                    child: _KpbDrawerButton(),
+                  ),
+                ),
               ),
               if (index != StudentShellTab.home) const CoachFab(),
               Positioned(
@@ -267,6 +289,30 @@ class _NavItem extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small floating menu (hamburger) button that opens the KPB tools drawer.
+/// Lives in the AppShell stack so it surfaces regardless of which tab is
+/// currently rendered (each tab has its own Scaffold without a leading icon).
+class _KpbDrawerButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.kpb.cardBg.withValues(alpha: 0.85),
+          shape: BoxShape.circle,
+          boxShadow: KpbShadow.soft,
+        ),
+        child: IconButton(
+          icon: Icon(Icons.menu_rounded, color: context.kpb.textPrimary),
+          tooltip: 'tools_drawer_title'.tr,
+          onPressed: () => KpbToolsDrawer.open(context),
         ),
       ),
     );
