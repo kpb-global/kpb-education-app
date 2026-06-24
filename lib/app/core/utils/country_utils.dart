@@ -38,11 +38,12 @@ const _legacyCountryIdAliases = <String, String>{
   'uae': 'are',
   'united arab emirates': 'are',
   'united states': 'usa',
+  'china': 'chn',
 };
 
-/// The nine destination countries locked for the MVP launch (ISO-3 ids,
-/// matching the backend `m5-countries` seed). Used to filter the offline mock
-/// catalog and any remote payload down to the launch scope.
+/// Destination countries available at launch (ISO-3 ids, matching the backend
+/// `m5-countries` seed). Used to filter the offline mock catalog and any remote
+/// payload down to the launch scope.
 const kMvpCountryIds = <String>{
   'fra',
   'deu',
@@ -53,6 +54,7 @@ const kMvpCountryIds = <String>{
   'are',
   'gbr',
   'esp',
+  'chn',
 };
 
 String normalizeCountryId(String id) =>

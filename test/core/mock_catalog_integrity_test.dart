@@ -54,5 +54,22 @@ void main() {
       expect(canadaPrograms.length, greaterThanOrEqualTo(20),
           reason: 'Canada should expose its full program set offline');
     });
+
+    test('China is a destination with institutions and resolved programs', () {
+      expect(MockCatalog.countries.any((c) => c.id == 'china'), isTrue,
+          reason: 'China must exist as a destination country');
+      final chinaInst =
+          MockCatalog.institutions.where((i) => i.countryId == 'china');
+      expect(chinaInst, isNotEmpty);
+      final programIds = MockCatalog.programs.map((p) => p.id).toSet();
+      final dangling = <String>[];
+      for (final inst in chinaInst) {
+        for (final pid in inst.programIds) {
+          if (!programIds.contains(pid)) dangling.add('${inst.id} → $pid');
+        }
+      }
+      expect(dangling, isEmpty,
+          reason: 'Chinese institutions reference missing programs: $dangling');
+    });
   });
 }

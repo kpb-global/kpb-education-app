@@ -10,6 +10,7 @@ import 'programs/morocco.dart';
 import 'programs/turkey.dart';
 import 'programs/uae.dart';
 import 'programs/canada.dart';
+import 'programs/china.dart';
 
 const kPrograms = <ProgramModel>[
   ...kProgramsFrance,
@@ -20,4 +21,5 @@ const kPrograms = <ProgramModel>[
   ...kProgramsTurkey,
   ...kProgramsUae,
   ...kProgramsCanada,
+  ...kProgramsChina,
 ];

@@ -34,6 +34,23 @@ const kCountries = <CountryModel>[
       popularFieldIds: ['d01', 'd02', 'd09'],
     ),
     CountryModel(
+      id: 'china',
+      name: LocalizedText(fr: 'Chine', en: 'China'),
+      whyStudy: LocalizedText(
+          fr: 'Universités de classe mondiale (Tsinghua, Fudan), nombreux programmes en anglais et bourses CSC/HSK très généreuses pour les étudiants africains.',
+          en: 'World-class universities (Tsinghua, Fudan), many English-taught programs and very generous CSC/HSK scholarships for African students.'),
+      tuitionRange: LocalizedText(
+          fr: 'CNY 20k–45k/an (souvent couvert par bourse)',
+          en: 'CNY 20k–45k/year (often scholarship-covered)'),
+      livingCostRange:
+          LocalizedText(fr: 'CNY 2 000–4 000/mois', en: 'CNY 2,000–4,000/month'),
+      visaOverview: LocalizedText(
+          fr: 'Visa X1 (études > 6 mois) avec lettre d\'admission (JW202) et formulaire JW201 — procédure accompagnée par KPB.',
+          en: 'X1 visa (studies > 6 months) with admission letter (JW202) and JW201 form — KPB-guided process.'),
+      admissionDifficulty: LocalizedText(fr: 'Modérée', en: 'Moderate'),
+      popularFieldIds: ['d05', 'd01', 'd04', 'd09'],
+    ),
+    CountryModel(
       id: 'france',
       name: LocalizedText(fr: 'France', en: 'France'),
       whyStudy: LocalizedText(
