@@ -86,4 +86,125 @@ const kProgramsChina = <ProgramModel>[
         en: 'Chinese (HSK 4+) / English depending on program'),
     requirements: [_contactKpb],
   ),
+  // ── Zhejiang Normal University (Jinhua) ─────────────────────────────────
+  ProgramModel(
+    id: 'prog_cn_znu1',
+    institutionId: 'znu_jinhua',
+    countryId: 'china',
+    fieldId: 'd09',
+    name: LocalizedText(
+        fr: 'Master en Éducation internationale',
+        en: 'Master in International Education'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 18 000–24 000/an (souvent bourse CSC)',
+        en: 'CNY 18,000–24,000/yr (often CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_znu2',
+    institutionId: 'znu_jinhua',
+    countryId: 'china',
+    fieldId: 'd02',
+    name: LocalizedText(
+        fr: 'Licence en Commerce international',
+        en: 'Bachelor in International Business'),
+    level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 18 000–24 000/an (souvent bourse CSC)',
+        en: 'CNY 18,000–24,000/yr (often CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0) ou Chinois (HSK 4)',
+        en: 'English (IELTS 6.0) or Chinese (HSK 4)'),
+    requirements: [_contactKpb],
+  ),
+  // ── Beijing Institute of Technology ─────────────────────────────────────
+  ProgramModel(
+    id: 'prog_cn_bit',
+    institutionId: 'bit',
+    countryId: 'china',
+    fieldId: 'd01',
+    name: LocalizedText(
+        fr: 'Master en Informatique & IA',
+        en: 'Master in Computer Science & AI'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 20 000–30 000/an', en: 'CNY 20,000–30,000/yr'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0–6.5)', en: 'English (IELTS 6.0–6.5)'),
+    requirements: [_contactKpb],
+  ),
+  // ── Zhejiang University (Hangzhou) ──────────────────────────────────────
+  ProgramModel(
+    id: 'prog_cn_zju',
+    institutionId: 'zju',
+    countryId: 'china',
+    fieldId: 'd05',
+    name: LocalizedText(
+        fr: 'Master en Génie & Sciences appliquées',
+        en: 'Master in Engineering & Applied Sciences'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 26 000–40 000/an', en: 'CNY 26,000–40,000/yr'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    requirements: [_contactKpb],
+  ),
+  // ── Jiangsu University — MBBS (médecine en anglais) ─────────────────────
+  ProgramModel(
+    id: 'prog_cn_jsu',
+    institutionId: 'jiangsu',
+    countryId: 'china',
+    fieldId: 'd04',
+    name: LocalizedText(
+        fr: 'MBBS — Médecine (enseignée en anglais)',
+        en: 'MBBS — Medicine (English-taught)'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Bachelor'),
+    duration: LocalizedText(fr: '5–6 ans', en: '5–6 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 18 000–28 000/an', en: 'CNY 18,000–28,000/yr'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    requirements: [_contactKpb],
+  ),
+  // ── Wuhan University ────────────────────────────────────────────────────
+  ProgramModel(
+    id: 'prog_cn_whu',
+    institutionId: 'whu',
+    countryId: 'china',
+    fieldId: 'd03',
+    name: LocalizedText(
+        fr: 'Master en Finance & Économie internationale',
+        en: 'Master in International Finance & Economics'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2 ans', en: '2 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 20 000–35 000/an', en: 'CNY 20,000–35,000/yr'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0–6.5)', en: 'English (IELTS 6.0–6.5)'),
+    requirements: [_contactKpb],
+  ),
+  // ── Hohai University (Nanjing) ──────────────────────────────────────────
+  ProgramModel(
+    id: 'prog_cn_hohai',
+    institutionId: 'hohai',
+    countryId: 'china',
+    fieldId: 'd05',
+    name: LocalizedText(
+        fr: 'Licence en Génie civil & hydraulique',
+        en: 'Bachelor in Civil & Hydraulic Engineering'),
+    level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 18 000–26 000/an', en: 'CNY 18,000–26,000/yr'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    requirements: [_contactKpb],
+  ),
 ];

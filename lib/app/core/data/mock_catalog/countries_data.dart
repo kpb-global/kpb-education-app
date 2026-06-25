@@ -36,17 +36,57 @@ const kCountries = <CountryModel>[
     CountryModel(
       id: 'china',
       name: LocalizedText(fr: 'Chine', en: 'China'),
+      flagEmoji: '🇨🇳',
+      tagline: LocalizedText(
+          fr: 'Bourses CSC généreuses · diplômes reconnus · destination n°1 des étudiants africains en Asie',
+          en: 'Generous CSC scholarships · recognized degrees · the #1 Asian destination for African students'),
+      mainLanguage: LocalizedText(
+          fr: 'Chinois (mandarin) — nombreux programmes 100 % en anglais',
+          en: 'Chinese (Mandarin) — many fully English-taught programs'),
       whyStudy: LocalizedText(
-          fr: 'Universités de classe mondiale (Tsinghua, Fudan), nombreux programmes en anglais et bourses CSC/HSK très généreuses pour les étudiants africains.',
-          en: 'World-class universities (Tsinghua, Fudan), many English-taught programs and very generous CSC/HSK scholarships for African students.'),
+          fr: 'La Chine est devenue la 1ʳᵉ destination des étudiants africains hors du continent : universités classées au top mondial, milliers de bourses CSC (souvent intégrales : frais + logement + allocation mensuelle), et un accueil structuré des étudiants africains (notamment via Jinhua / Zhejiang Normal University).',
+          en: 'China is now the top destination for African students outside the continent: world-ranked universities, thousands of CSC scholarships (often full: tuition + housing + monthly stipend) and structured support for African students (notably via Jinhua / Zhejiang Normal University).'),
+      marketingDescription: LocalizedText(
+          fr: 'Avec KPB, tu candidates dans les universités où la diaspora étudiante africaine est déjà bien installée — tu n\'arrives pas en terrain inconnu.',
+          en: 'With KPB you apply to the universities where the African student community is already well established — you don\'t arrive on unknown ground.'),
+      whyStudyBulletsFr: [
+        'Bourses CSC : frais de scolarité + chambre + allocation mensuelle (~2 500–3 500 CNY) souvent couverts',
+        'Des centaines de programmes Licence/Master/Doctorat enseignés 100 % en anglais',
+        'Coût de la vie bas comparé à l\'Europe ou l\'Amérique du Nord',
+        'Forte communauté d\'étudiants africains, surtout à Jinhua, Pékin, Wuhan et Nankin',
+        'Diplômes reconnus internationalement, débouchés en ingénierie, médecine (MBBS) et tech',
+      ],
+      whyStudyBulletsEn: [
+        'CSC scholarships: tuition + dorm room + monthly stipend (~2,500–3,500 CNY) often covered',
+        'Hundreds of Bachelor/Master/PhD programs taught 100% in English',
+        'Low cost of living compared with Europe or North America',
+        'Large African student community, especially in Jinhua, Beijing, Wuhan and Nanjing',
+        'Internationally recognized degrees; strong outcomes in engineering, medicine (MBBS) and tech',
+      ],
+      // Steps are split on "·" by howItWorksStepsFor — visa procedure, to reassure.
+      howItWorks: LocalizedText(
+          fr: 'Choix de l\'université et du programme avec ton conseiller KPB · Candidature + dossier de bourse CSC/HSK (relevés, passeport, certificat médical, lettres) · Réception de la lettre d\'admission et du formulaire JW202/JW201 de l\'université · Demande du visa étudiant X1 à l\'ambassade de Chine avec le JW202 · Départ, puis conversion en permis de séjour dans les 30 jours après l\'arrivée (accompagné par le bureau international) · KPB te suit à chaque étape jusqu\'à ton installation sur le campus',
+          en: 'Pick the university and program with your KPB advisor · Application + CSC/HSK scholarship file (transcripts, passport, medical certificate, letters) · Receive the admission letter and the university\'s JW202/JW201 form · Apply for the X1 student visa at the Chinese embassy with the JW202 · Travel, then convert to a residence permit within 30 days of arrival (guided by the international office) · KPB follows you at every step until you settle on campus'),
+      costsOverview: LocalizedText(
+          fr: 'Sans bourse, compte CNY 20 000–45 000/an de frais. Avec une bourse CSC ou provinciale (très fréquentes pour les Africains), les frais et le logement sont souvent gratuits, avec une allocation mensuelle.',
+          en: 'Without a scholarship, budget CNY 20,000–45,000/yr in fees. With a CSC or provincial scholarship (very common for Africans), tuition and housing are often free, plus a monthly stipend.'),
       tuitionRange: LocalizedText(
           fr: 'CNY 20k–45k/an (souvent couvert par bourse)',
           en: 'CNY 20k–45k/year (often scholarship-covered)'),
       livingCostRange:
           LocalizedText(fr: 'CNY 2 000–4 000/mois', en: 'CNY 2,000–4,000/month'),
+      languageSection: LocalizedText(
+          fr: 'Programmes en anglais : IELTS 6.0–6.5 selon l\'université. Programmes en chinois : HSK 4 à 5. KPB t\'oriente vers le bon format selon ton niveau.',
+          en: 'English-taught programs: IELTS 6.0–6.5 depending on the university. Chinese-taught: HSK 4 to 5. KPB guides you to the right format for your level.'),
+      scholarshipsSection: LocalizedText(
+          fr: 'Bourse du gouvernement chinois (CSC), bourses provinciales et bourses universitaires — KPB t\'aide à monter le dossier de bourse en parallèle de l\'admission.',
+          en: 'Chinese Government Scholarship (CSC), provincial and university scholarships — KPB helps you build the scholarship file alongside the admission.'),
       visaOverview: LocalizedText(
-          fr: 'Visa X1 (études > 6 mois) avec lettre d\'admission (JW202) et formulaire JW201 — procédure accompagnée par KPB.',
-          en: 'X1 visa (studies > 6 months) with admission letter (JW202) and JW201 form — KPB-guided process.'),
+          fr: 'Visa X1 (études > 6 mois) avec lettre d\'admission (JW202) et formulaire JW201, puis permis de séjour à l\'arrivée — procédure accompagnée par KPB.',
+          en: 'X1 visa (studies > 6 months) with admission letter (JW202) and JW201 form, then residence permit on arrival — KPB-guided process.'),
+      whatsAppPrefill: LocalizedText(
+          fr: 'Bonjour KPB, je veux étudier en Chine (bourse CSC) et j\'aimerais être accompagné·e.',
+          en: 'Hello KPB, I want to study in China (CSC scholarship) and would like support.'),
       admissionDifficulty: LocalizedText(fr: 'Modérée', en: 'Moderate'),
       popularFieldIds: ['d05', 'd01', 'd04', 'd09'],
     ),

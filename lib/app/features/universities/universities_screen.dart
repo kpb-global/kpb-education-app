@@ -461,27 +461,34 @@ class _ChipRow extends StatelessWidget {
               final selected = selectedKey == key;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  // Explicit colours: Material 3 FilterChip ignores the theme's
-                  // WidgetStateTextStyle label colour, which left unselected
-                  // chips grey-on-grey (unreadable). Set colour on the Text
-                  // itself so it always wins.
-                  label: Text(
-                    text,
-                    style: TextStyle(
-                      color: selected ? Colors.white : KpbColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                // Custom chip (NOT Material FilterChip): M3 FilterChip overrides
+                // even an explicit label colour with its own onSurfaceVariant,
+                // which rendered unselected chips grey-on-grey. A plain
+                // Container + Text guarantees the colour sticks.
+                child: GestureDetector(
+                  onTap: () => onSelected(selected ? null : key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: selected ? KpbColors.blue : KpbColors.gray100,
+                      borderRadius: KpbRadius.pillBr,
+                      border: Border.all(
+                        color:
+                            selected ? KpbColors.blue : KpbColors.gray300,
+                      ),
+                    ),
+                    child: Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            selected ? Colors.white : KpbColors.textPrimary,
+                      ),
                     ),
                   ),
-                  selected: selected,
-                  showCheckmark: false,
-                  backgroundColor: KpbColors.gray100,
-                  selectedColor: KpbColors.blue,
-                  side: BorderSide(
-                    color: selected ? Colors.transparent : KpbColors.gray300,
-                  ),
-                  onSelected: (_) => onSelected(selected ? null : key),
                 ),
               );
             }).toList(),
