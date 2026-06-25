@@ -184,4 +184,133 @@ const kInstitutionsChina = <InstitutionModel>[
     programIds: ['prog_cn004'],
     isPartner: false,
   ),
+  // ── Hebei University of Technology (Tianjin) — très abordable, 211 ────────
+  InstitutionModel(
+    id: 'hebut',
+    name: LocalizedText(
+        fr: 'Université de Technologie du Hebei (HEBUT)',
+        en: 'Hebei University of Technology (HEBUT)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Tianjin', en: 'Tianjin'),
+    overview: LocalizedText(
+        fr: 'Université 211 d\'ingénierie aux frais très abordables. Bourses CSC (exonération totale + logement gratuit + allocation) et bourse provinciale du Hebei. Masters et doctorats en anglais accessibles aux étudiants africains.',
+        en: '211 engineering university with very affordable fees. CSC scholarships (full waiver + free housing + stipend) and Hebei Provincial scholarship. English-taught masters and PhDs accessible to African students.'),
+    studyLevels: ['Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 6 000–18 000/an (souvent bourse CSC)',
+        en: 'CNY 6,000–18,000/yr (often CSC scholarship)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 85)',
+        en: 'English (IELTS 6.0 / TOEFL 85)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_hebut'],
+    isPartner: false,
+  ),
+  // ── China Three Gorges University (Yichang) — abordable, accueillante ─────
+  InstitutionModel(
+    id: 'ctgu',
+    name: LocalizedText(
+        fr: 'Université des Trois Gorges (CTGU)',
+        en: 'China Three Gorges University (CTGU)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Yichang, Hubei', en: 'Yichang, Hubei'),
+    overview: LocalizedText(
+        fr: 'Université abordable et accueillante avec plus de 1 200 étudiants internationaux. Bourses CSC et provinciales du Hubei, réductions de frais fréquentes (jusqu\'à 50%) pour les étudiants africains. Génie, médecine et informatique en anglais.',
+        en: 'Affordable and welcoming university with 1,200+ international students. CSC and Hubei Provincial scholarships, frequent tuition reductions (up to 50%) for African students. English-taught engineering, medicine and computing.'),
+    studyLevels: ['Bac+4', 'Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 15 000–25 000/an (bourse/réduction possible)',
+        en: 'CNY 15,000–25,000/yr (scholarship/reduction possible)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_ctgu'],
+    isPartner: false,
+  ),
+  // ── Yangzhou University (Jiangsu) — bourse maison généreuse ───────────────
+  InstitutionModel(
+    id: 'yzu',
+    name: LocalizedText(
+        fr: 'Université de Yangzhou (YZU)', en: 'Yangzhou University (YZU)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Yangzhou, Jiangsu', en: 'Yangzhou, Jiangsu'),
+    overview: LocalizedText(
+        fr: 'Grande université publique offrant une bourse maison généreuse (exonération frais + logement + allocation mensuelle) en plus du CSC. Programmes en anglais et frais raisonnables : option très accessible, surtout en master.',
+        en: 'Large public university offering a generous in-house scholarship (tuition + accommodation waiver + monthly allowance) on top of CSC. English-taught programs and reasonable fees: a very accessible option, especially at master level.'),
+    studyLevels: ['Bac+4', 'Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 16 000–30 000/an (souvent bourse)',
+        en: 'CNY 16,000–30,000/yr (often scholarship)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_yzu'],
+    isPartner: false,
+  ),
+  // ── Nanjing University of Science & Technology (NJUST) — CSC direct, 211 ──
+  InstitutionModel(
+    id: 'njust',
+    name: LocalizedText(
+        fr: 'Université des Sciences et Technologies de Nankin (NJUST)',
+        en: 'Nanjing University of Science & Technology (NJUST)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Nankin, Jiangsu', en: 'Nanjing, Jiangsu'),
+    overview: LocalizedText(
+        fr: 'Université 211 réputée en ingénierie et technologies. Admission directe à la bourse CSC type B (frais exonérés + allocation mensuelle) pour masters et doctorats enseignés en anglais. Procédure simplifiée appréciée des candidats africains.',
+        en: 'Renowned 211 university in engineering and technology. Direct admission to CSC Type-B scholarship (tuition exempt + monthly allowance) for English-taught masters and PhDs. Streamlined process popular with African applicants.'),
+    studyLevels: ['Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 20 000–30 000/an (souvent bourse CSC)',
+        en: 'CNY 20,000–30,000/yr (often CSC scholarship)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_njust'],
+    isPartner: false,
+  ),
+  // ── Shandong University (Jinan) — grande bourse internationale ───────────
+  InstitutionModel(
+    id: 'sdu',
+    name: LocalizedText(
+        fr: 'Université du Shandong (SDU)', en: 'Shandong University (SDU)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Jinan, Shandong', en: 'Jinan, Shandong'),
+    overview: LocalizedText(
+        fr: 'Université 985 avec une importante bourse pour étudiants internationaux (totale : frais + logement + allocation + assurance ; partielle : frais). Programmes en anglais (licence, master, doctorat, sciences médicales) avec exemption de test pour les diplômés en anglais.',
+        en: '985 university with a large international-student scholarship (full: tuition + accommodation + allowance + insurance; partial: tuition). English-taught programs (bachelor, master, PhD, medical sciences) with test exemption for English-medium graduates.'),
+    studyLevels: ['Bac+4', 'Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 20 000–35 000/an (ou bourse SDU/CSC)',
+        en: 'CNY 20,000–35,000/yr (or SDU/CSC scholarship)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80, exemption si cursus en anglais)',
+        en: 'English (IELTS 6.0 / TOEFL 80, waived if English-medium studies)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_sdu'],
+    isPartner: false,
+  ),
+  // ── Nanjing Agricultural University (NAU) — agriculture, CSC direct ───────
+  InstitutionModel(
+    id: 'nau',
+    name: LocalizedText(
+        fr: 'Université d\'Agriculture de Nankin (NAU)',
+        en: 'Nanjing Agricultural University (NAU)'),
+    countryId: 'china',
+    location: LocalizedText(fr: 'Nankin, Jiangsu', en: 'Nanjing, Jiangsu'),
+    overview: LocalizedText(
+        fr: 'Université 211 de premier plan en agriculture et sciences du vivant. Admission directe à la bourse CSC type B (frais exonérés + allocation jusqu\'à CNY 3 500/mois). Programmes en anglais (agriculture, agroalimentaire, environnement) très adaptés aux étudiants africains.',
+        en: 'Leading 211 university in agriculture and life sciences. Direct admission to CSC Type-B scholarship (tuition exempt + allowance up to CNY 3,500/mo). English-taught programs (agriculture, food tech, environment) very well-suited to African students.'),
+    studyLevels: ['Bac+5', 'Doctorat'],
+    tuitionLabel: LocalizedText(
+        fr: 'CNY 18 000–28 000/an (souvent bourse CSC)',
+        en: 'CNY 18,000–28,000/yr (often CSC scholarship)'),
+    languageRequirements: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    intakePeriods: ['Septembre'],
+    programIds: ['prog_cn_nau'],
+    isPartner: false,
+  ),
 ];

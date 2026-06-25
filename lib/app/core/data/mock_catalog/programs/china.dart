@@ -207,4 +207,112 @@ const kProgramsChina = <ProgramModel>[
         fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
+  // ── Accessible / scholarship-friendly universities ──────────────────────
+  ProgramModel(
+    id: 'prog_cn_hebut',
+    institutionId: 'hebut',
+    countryId: 'china',
+    fieldId: 'd05',
+    name: LocalizedText(
+        fr: 'Master en Génie électrique & Communication',
+        en: 'Master in Electrical & Communication Engineering'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 6 000–18 000/an (souvent bourse CSC)',
+        en: 'CNY 6,000–18,000/yr (often CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 85)',
+        en: 'English (IELTS 6.0 / TOEFL 85)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_ctgu',
+    institutionId: 'ctgu',
+    countryId: 'china',
+    fieldId: 'd08',
+    name: LocalizedText(
+        fr: 'Master en Génie hydraulique & Énergie',
+        en: 'Master in Hydraulic & Power Engineering'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 15 000–25 000/an (bourse/réduction possible)',
+        en: 'CNY 15,000–25,000/yr (scholarship/reduction possible)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_yzu',
+    institutionId: 'yzu',
+    countryId: 'china',
+    fieldId: 'd10',
+    name: LocalizedText(
+        fr: 'Master en Sciences agronomiques & vétérinaires',
+        en: 'Master in Agronomy & Veterinary Sciences'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 16 000–30 000/an (souvent bourse)',
+        en: 'CNY 16,000–30,000/yr (often scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_njust',
+    institutionId: 'njust',
+    countryId: 'china',
+    fieldId: 'd05',
+    name: LocalizedText(
+        fr: 'Master en Ingénierie mécanique & matériaux',
+        en: 'Master in Mechanical Engineering & Materials'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 20 000–30 000/an (souvent bourse CSC)',
+        en: 'CNY 20,000–30,000/yr (often CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_sdu',
+    institutionId: 'sdu',
+    countryId: 'china',
+    fieldId: 'd02',
+    name: LocalizedText(
+        fr: 'Master en Administration des affaires (MBA)',
+        en: 'Master in Business Administration (MBA)'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 20 000–35 000/an (ou bourse SDU/CSC)',
+        en: 'CNY 20,000–35,000/yr (or SDU/CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    requirements: [_contactKpb],
+  ),
+  ProgramModel(
+    id: 'prog_cn_nau',
+    institutionId: 'nau',
+    countryId: 'china',
+    fieldId: 'd10',
+    name: LocalizedText(
+        fr: 'Master en Agronomie & Sécurité alimentaire',
+        en: 'Master in Agronomy & Food Security'),
+    level: LocalizedText(fr: 'Bac+5', en: 'Master'),
+    duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
+    tuition: LocalizedText(
+        fr: 'CNY 18 000–28 000/an (souvent bourse CSC)',
+        en: 'CNY 18,000–28,000/yr (often CSC scholarship)'),
+    language: LocalizedText(
+        fr: 'Anglais (IELTS 6.0 / TOEFL 80)',
+        en: 'English (IELTS 6.0 / TOEFL 80)'),
+    requirements: [_contactKpb],
+  ),
 ];
