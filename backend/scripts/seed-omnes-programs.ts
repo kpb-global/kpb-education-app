@@ -1,6 +1,14 @@
 /**
  * Seeds OMNES France private-school programs from normalized JSON.
  *
+ * The same formation is often delivered on several campuses (e.g. the INSEEC
+ * "Bachelor Marketing" runs in Bordeaux, Lyon, Paris…). Rather than create one
+ * near-identical Program per campus, we group by (school, campus-agnostic
+ * formation name) and store the per-campus price/intake in `campusOfferings`.
+ *
+ *   Institution = the SCHOOL (INSEEC, ECE, ESCE, HEIP, Sup de Pub) — 5 total.
+ *   Program     = one campus-agnostic formation, carrying campusOfferings[].
+ *
  * Usage:
  *   npm run seed:omnes
  *   ts-node scripts/seed-omnes-programs.ts [path-to-json]
@@ -10,7 +18,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createHash } from 'node:crypto';
 
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 import { M5_COUNTRY_SEEDS } from '../src/modules/countries/data/m5-countries.seed';
 
@@ -35,6 +43,14 @@ type OmnesRow = {
   intakeDate: string | null;
 };
 
+/** One campus on which a formation is available, with its own price/intake. */
+type CampusOffering = {
+  campus: string;
+  tuitionUpfront: number | null;
+  tuitionInstallments: number | null;
+  intake: string | null;
+};
+
 function slugify(value: string, max = 40): string {
   return value
     .normalize('NFD')
@@ -45,12 +61,28 @@ function slugify(value: string, max = 40): string {
     .slice(0, max);
 }
 
-function institutionId(school: string, campus: string): string {
-  return `${INSTITUTION_ID_PREFIX}${slugify(school)}-${slugify(campus)}`;
+/** Institution = school (campus-agnostic). e.g. "INSEEC" -> "omnes-inseec". */
+function institutionId(school: string): string {
+  return `${INSTITUTION_ID_PREFIX}${slugify(school)}`;
 }
 
-function programId(row: OmnesRow): string {
-  const key = `${row.school}|${row.campus}|${row.programName}`;
+/**
+ * Strip the campus from a programme name so the same formation collapses to one
+ * row across campuses. OMNES names follow "School - Type - Campus - Code -
+ * Specialty"; the campus is one " - "-delimited segment, so we drop exactly
+ * that segment (safe against a city name also appearing inside the specialty).
+ */
+function normalizeFormationName(name: string, campus: string): string {
+  const parts = name.split(' - ');
+  const target = campus.trim().toLowerCase();
+  const idx = parts.findIndex((p) => p.trim().toLowerCase() === target);
+  if (idx !== -1) parts.splice(idx, 1);
+  return parts.join(' - ').replace(/\s+/g, ' ').trim();
+}
+
+/** Stable id for a formation, identical across all its campuses. */
+function programId(school: string, formationName: string): string {
+  const key = `${school}|${formationName}`;
   const hash = createHash('sha256').update(key).digest('hex').slice(0, 16);
   return `${PROGRAM_ID_PREFIX}${hash}`;
 }
@@ -136,19 +168,27 @@ function formatDuration(row: OmnesRow): { fr: string; en: string } {
   return { fr: row.degreeLevel || '—', en: row.degreeLevel || '—' };
 }
 
-function formatTuition(row: OmnesRow): { fr: string; en: string } {
-  if (row.paymentUpfront == null) {
-    return { fr: 'Sur demande', en: 'On request' };
-  }
-  const upfront = `${Math.round(row.paymentUpfront).toLocaleString('fr-FR')} €`;
-  if (row.paymentInstallments != null) {
-    const installments = `${Math.round(row.paymentInstallments).toLocaleString('fr-FR')} €`;
-    return {
-      fr: `${upfront}/an · Échelonné ${installments}`,
-      en: `${upfront}/year · Installments ${installments}`,
-    };
-  }
-  return { fr: `${upfront}/an`, en: `${upfront}/year` };
+function euro(value: number): string {
+  return `${Math.round(value).toLocaleString('fr-FR')} €`;
+}
+
+/**
+ * Headline tuition for a formation across its campuses. A single price when all
+ * campuses align, otherwise a "min – max … selon le campus" range. Per-campus
+ * detail lives in `campusOfferings`.
+ */
+function formatTuitionSummary(offerings: CampusOffering[]): { fr: string; en: string } {
+  const prices = offerings
+    .map((o) => o.tuitionUpfront)
+    .filter((p): p is number => typeof p === 'number' && !Number.isNaN(p));
+  if (prices.length === 0) return { fr: 'Sur demande', en: 'On request' };
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  if (min === max) return { fr: `${euro(min)}/an`, en: `${euro(min)}/year` };
+  return {
+    fr: `${euro(min)} – ${euro(max)}/an selon le campus`,
+    en: `${euro(min)} – ${euro(max)}/year by campus`,
+  };
 }
 
 function intakeLabel(intakeDate: string | null): string[] {
@@ -212,6 +252,36 @@ async function ensureFranceCountry() {
   });
 }
 
+// --- Grouping accumulators -------------------------------------------------
+
+type InstitutionAcc = {
+  school: string;
+  campuses: Set<string>;
+  levels: Set<string>;
+  intakes: Set<string>;
+  programIds: Set<string>;
+  prices: number[];
+};
+
+type OfferingAcc = {
+  tuitionUpfront: number | null;
+  tuitionInstallments: number | null;
+  intakes: Set<string>;
+};
+
+type FormationAcc = {
+  progId: string;
+  instId: string;
+  fieldId: string;
+  name: string;
+  level: { fr: string; en: string };
+  duration: { fr: string; en: string };
+  languages: Set<string>;
+  requirements: Set<string>;
+  // Keyed by campus so each campus contributes exactly one offering.
+  offerings: Map<string, OfferingAcc>;
+};
+
 async function main() {
   const jsonPath =
     process.argv[2] ??
@@ -236,83 +306,136 @@ async function main() {
     where: { id: { startsWith: INSTITUTION_ID_PREFIX } },
   });
 
-  const institutionProgramIds = new Map<string, Set<string>>();
-  const institutionMeta = new Map<
-    string,
-    { school: string; campus: string; levels: Set<string>; intakes: Set<string> }
-  >();
+  const institutions = new Map<string, InstitutionAcc>();
+  const formations = new Map<string, FormationAcc>();
 
   for (const row of rows) {
-    const instId = institutionId(row.school, row.campus);
-    institutionProgramIds.set(instId, institutionProgramIds.get(instId) ?? new Set());
-    institutionProgramIds.get(instId)!.add(programId(row));
+    const instId = institutionId(row.school);
+    const formationName = normalizeFormationName(row.programName, row.campus);
+    const progId = programId(row.school, formationName);
+    const campus = row.campus || '—';
 
-    const meta = institutionMeta.get(instId) ?? {
+    // --- institution-level aggregation ---
+    const inst = institutions.get(instId) ?? {
       school: row.school,
-      campus: row.campus,
+      campuses: new Set<string>(),
       levels: new Set<string>(),
       intakes: new Set<string>(),
+      programIds: new Set<string>(),
+      prices: [],
     };
-    studyLevelsFor(row).forEach((level) => meta.levels.add(level));
-    intakeLabel(row.intakeDate).forEach((intake) => meta.intakes.add(intake));
-    institutionMeta.set(instId, meta);
+    inst.campuses.add(campus);
+    studyLevelsFor(row).forEach((l) => inst.levels.add(l));
+    intakeLabel(row.intakeDate).forEach((i) => inst.intakes.add(i));
+    inst.programIds.add(progId);
+    if (row.paymentUpfront != null) inst.prices.push(row.paymentUpfront);
+    institutions.set(instId, inst);
+
+    // --- formation-level aggregation ---
+    const formation = formations.get(progId) ?? {
+      progId,
+      instId,
+      fieldId: inferFieldId(row),
+      name: formationName,
+      level: formatLevel(row),
+      duration: formatDuration(row),
+      languages: new Set<string>(),
+      requirements: new Set<string>(),
+      offerings: new Map<string, OfferingAcc>(),
+    };
+    if (row.language) formation.languages.add(row.language);
+    if (row.admissionLevel) formation.requirements.add(row.admissionLevel);
+
+    const offering = formation.offerings.get(campus) ?? {
+      tuitionUpfront: null,
+      tuitionInstallments: null,
+      intakes: new Set<string>(),
+    };
+    // Keep the first known price for a campus; never overwrite a value with null.
+    if (offering.tuitionUpfront == null) offering.tuitionUpfront = row.paymentUpfront;
+    if (offering.tuitionInstallments == null) {
+      offering.tuitionInstallments = row.paymentInstallments;
+    }
+    if (row.intakeDate) offering.intakes.add(row.intakeDate);
+    formation.offerings.set(campus, offering);
+
+    formations.set(progId, formation);
   }
 
-  for (const [instId, meta] of institutionMeta.entries()) {
-    const displayName = `${meta.school} — ${meta.campus}`;
+  // --- write institutions (one per school) ---
+  for (const [instId, inst] of institutions.entries()) {
+    const cities = [...inst.campuses].sort((a, b) => a.localeCompare(b, 'fr'));
+    const tuitionLabel = inst.prices.length
+      ? formatTuitionSummary(
+          inst.prices.map((p) => ({
+            campus: '',
+            tuitionUpfront: p,
+            tuitionInstallments: null,
+            intake: null,
+          })),
+        )
+      : { fr: 'Voir programmes', en: 'See programs' };
+
     await prisma.institution.create({
       data: {
         id: instId,
-        nameFr: displayName,
-        nameEn: displayName,
+        nameFr: inst.school,
+        nameEn: inst.school,
         countryId: FRANCE_COUNTRY_ID,
-        locationFr: meta.campus,
-        locationEn: meta.campus,
-        overviewFr: `Campus ${meta.campus} du réseau ${meta.school} (OMNES Education), partenaire KPB.`,
-        overviewEn: `${meta.school} ${meta.campus} campus (OMNES Education), KPB partner.`,
-        studyLevels: [...meta.levels],
-        tuitionLabelFr: 'Voir programme',
-        tuitionLabelEn: 'See program',
+        locationFr: cities.join(' · '),
+        locationEn: cities.join(' · '),
+        overviewFr: `Réseau ${inst.school} (OMNES Education) — présent sur ${cities.length} campus en France : ${cities.join(', ')}. Partenaire KPB.`,
+        overviewEn: `${inst.school} network (OMNES Education) — ${cities.length} campuses in France: ${cities.join(', ')}. KPB partner.`,
+        studyLevels: [...inst.levels],
+        tuitionLabelFr: tuitionLabel.fr,
+        tuitionLabelEn: tuitionLabel.en,
         languageRequirementsFr: 'Français ou Anglais selon programme',
         languageRequirementsEn: 'French or English depending on program',
-        intakePeriods: [...meta.intakes],
-        programIds: [...(institutionProgramIds.get(instId) ?? [])],
+        intakePeriods: [...inst.intakes],
+        programIds: [...inst.programIds],
         isPartner: true,
       },
     });
   }
 
+  // --- write programs (one per campus-agnostic formation) ---
+  const formationList = [...formations.values()];
   const batchSize = 50;
-  for (let i = 0; i < rows.length; i += batchSize) {
-    const batch = rows.slice(i, i + batchSize);
+  for (let i = 0; i < formationList.length; i += batchSize) {
+    const batch = formationList.slice(i, i + batchSize);
     await prisma.$transaction(
-      batch.map((row) => {
-        const level = formatLevel(row);
-        const duration = formatDuration(row);
-        const tuition = formatTuition(row);
-        const requirementsFr = row.admissionLevel
-          ? [row.admissionLevel]
-          : [];
-        const requirementsEn = requirementsFr;
+      batch.map((formation) => {
+        const offerings: CampusOffering[] = [...formation.offerings.entries()]
+          .sort(([a], [b]) => a.localeCompare(b, 'fr'))
+          .map(([campus, acc]) => ({
+            campus,
+            tuitionUpfront: acc.tuitionUpfront,
+            tuitionInstallments: acc.tuitionInstallments,
+            intake: [...acc.intakes].join(' · ') || null,
+          }));
+        const tuition = formatTuitionSummary(offerings);
+        const requirements = [...formation.requirements];
+        const language = [...formation.languages].join(' / ');
 
         return prisma.program.create({
           data: {
-            id: programId(row),
-            institutionId: institutionId(row.school, row.campus),
+            id: formation.progId,
+            institutionId: formation.instId,
             countryId: FRANCE_COUNTRY_ID,
-            fieldId: inferFieldId(row),
-            nameFr: row.programName,
-            nameEn: row.programName,
-            levelFr: level.fr,
-            levelEn: level.en,
-            durationFr: duration.fr,
-            durationEn: duration.en,
+            fieldId: formation.fieldId,
+            nameFr: formation.name,
+            nameEn: formation.name,
+            levelFr: formation.level.fr,
+            levelEn: formation.level.en,
+            durationFr: formation.duration.fr,
+            durationEn: formation.duration.en,
             tuitionFr: tuition.fr,
             tuitionEn: tuition.en,
-            languageFr: row.language,
-            languageEn: row.language,
-            requirementsFr,
-            requirementsEn,
+            languageFr: language,
+            languageEn: language,
+            requirementsFr: requirements,
+            requirementsEn: requirements,
+            campusOfferings: offerings as unknown as Prisma.InputJsonValue,
           },
         });
       }),
@@ -328,7 +451,7 @@ async function main() {
 
   // eslint-disable-next-line no-console
   console.log(
-    `OMNES seed complete: ${programCount} programs, ${institutionCount} institutions (France / ${FRANCE_COUNTRY_ID}).`,
+    `OMNES seed complete: ${programCount} formations across ${institutionCount} schools (France / ${FRANCE_COUNTRY_ID}), from ${rows.length} source rows.`,
   );
 }
 
