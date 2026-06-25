@@ -461,10 +461,34 @@ class _ChipRow extends StatelessWidget {
               final selected = selectedKey == key;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(text),
-                  selected: selected,
-                  onSelected: (_) => onSelected(selected ? null : key),
+                // Custom chip (NOT Material FilterChip): M3 FilterChip overrides
+                // even an explicit label colour with its own onSurfaceVariant,
+                // which rendered unselected chips grey-on-grey. A plain
+                // Container + Text guarantees the colour sticks.
+                child: GestureDetector(
+                  onTap: () => onSelected(selected ? null : key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: selected ? KpbColors.blue : KpbColors.gray100,
+                      borderRadius: KpbRadius.pillBr,
+                      border: Border.all(
+                        color:
+                            selected ? KpbColors.blue : KpbColors.gray300,
+                      ),
+                    ),
+                    child: Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            selected ? Colors.white : KpbColors.textPrimary,
+                      ),
+                    ),
+                  ),
                 ),
               );
             }).toList(),

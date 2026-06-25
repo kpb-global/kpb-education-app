@@ -91,7 +91,8 @@ void main() {
 
       // The redesigned results view exits via its action buttons (which call
       // Get.back()) rather than an app-bar arrow. Assert the primary action.
-      expect(find.text('Voir les écoles'), findsWidgets);
+      // (The label now goes through `.tr`; the test harness renders the raw key.)
+      expect(find.text('see_schools'), findsWidgets);
     });
 
     testWidgets('renders ConsultativeView with back button when user is parent',

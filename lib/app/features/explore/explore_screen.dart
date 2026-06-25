@@ -28,7 +28,7 @@ class ExploreScreen extends StatelessWidget {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Explorer'),
+          title: Text('explore_title'.tr),
           bottom: const TabBar(
             isScrollable: true,
             tabs: [
@@ -794,12 +794,12 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
                             ));
                       },
                       icon: const Icon(Icons.compare_arrows_rounded, size: 16),
-                      label: const Text('Comparer'),
+                      label: Text('compare'.tr),
                     )
                   else
                     OutlinedButton(
                       onPressed: () => setState(() => _compareSet.clear()),
-                      child: const Text('Annuler'),
+                      child: Text('cancel'.tr),
                     ),
                 ],
               ),
@@ -1044,7 +1044,7 @@ class _InstitutionCard extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onApply,
                 icon: const Icon(Icons.school_rounded, size: 16),
-                label: const Text('Candidater avec KPB'),
+                label: Text('apply_with_kpb'.tr),
                 style: FilledButton.styleFrom(
                   backgroundColor: KpbColors.blue,
                   foregroundColor: Colors.white,
@@ -1519,7 +1519,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Frais / an',
+                              Text('fees_per_year'.tr,
                                   style: KpbTextStyles.label),
                               const SizedBox(height: 4),
                               Text(controller.resolve(institution.tuitionLabel),
@@ -1534,7 +1534,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Niveaux', style: KpbTextStyles.label),
+                              Text('levels'.tr, style: KpbTextStyles.label),
                               const SizedBox(height: 4),
                               Text(institution.studyLevels.join(', '),
                                   style: KpbTextStyles.titleMd),
@@ -1624,7 +1624,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                           contextLabel: controller.resolve(institution.name),
                         ),
                       ),
-                      child: const Text('Parler à un expert'),
+                      child: Text('talk_to_expert'.tr),
                     ),
                   ),
                   const SizedBox(width: 12),

@@ -1,7 +1,7 @@
 // Living-cost model for the budget simulator.
 //
-// MVP launch scope = the nine locked destination countries
-// (France, Canada, USA, Morocco, Turkey, United Kingdom, Germany, Spain, UAE).
+// Launch scope = the locked destination countries (France, Canada, USA,
+// Morocco, Turkey, United Kingdom, Germany, Spain, UAE, China).
 // Each profile carries the same nine spending categories, in the same order,
 // so the UI can map a category index to a fixed icon/colour palette.
 
@@ -194,6 +194,23 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
       BudgetCategory(name: 'Fournitures & livres', typical: 200),
       BudgetCategory(name: 'Vêtements & hygiène', typical: 250),
       BudgetCategory(name: 'Loisirs & divers', typical: 400),
+    ],
+  ),
+  LivingBudgetProfile(
+    country: 'China',
+    currency: 'CNY',
+    monthlyMin: 2000,
+    monthlyMax: 4000,
+    categories: [
+      BudgetCategory(name: 'Loyer', typical: 1200, note: 'Résidence universitaire ou coloc hors centre-ville'),
+      BudgetCategory(name: 'Charges & énergie', typical: 150),
+      BudgetCategory(name: 'Alimentation', typical: 800),
+      BudgetCategory(name: 'Transport', typical: 150),
+      BudgetCategory(name: 'Santé & assurance', typical: 50, note: 'Assurance étudiante obligatoire ~600-800 CNY/an'),
+      BudgetCategory(name: 'Forfait & Internet', typical: 100),
+      BudgetCategory(name: 'Fournitures & livres', typical: 100),
+      BudgetCategory(name: 'Vêtements & hygiène', typical: 150),
+      BudgetCategory(name: 'Loisirs & divers', typical: 300),
     ],
   ),
 ];
