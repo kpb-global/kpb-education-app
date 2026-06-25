@@ -570,6 +570,7 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       tuition: controller.resolve(program.tuition),
                       language: controller.resolve(program.language),
                       duration: controller.resolve(program.duration),
+                      campusCount: program.campusOfferings.length,
                       flag: _flag(program.countryId),
                       saved: saved,
                       isPartner: isPartner,
@@ -599,6 +600,7 @@ class _ProgramCard extends StatelessWidget {
     required this.duration,
     required this.flag,
     required this.saved,
+    this.campusCount = 0,
     this.isPartner = false,
     required this.onSave,
     required this.onTap,
@@ -612,6 +614,10 @@ class _ProgramCard extends StatelessWidget {
   final String duration;
   final String flag;
   final bool saved;
+
+  /// Number of campuses the formation is offered on (multi-campus schools like
+  /// OMNES). 0/1 = no badge.
+  final int campusCount;
   final bool isPartner;
   final VoidCallback onSave;
   final VoidCallback onTap;
@@ -653,6 +659,12 @@ class _ProgramCard extends StatelessWidget {
                     if (isPartner)
                       KpbBadgeLight(
                         label: 'catalog_partner_badge'.tr,
+                        bgColor: KpbColors.skyLight,
+                        textColor: KpbColors.blue,
+                      ),
+                    if (campusCount > 1)
+                      KpbBadgeLight(
+                        label: '📍 $campusCount campus',
                         bgColor: KpbColors.skyLight,
                         textColor: KpbColors.blue,
                       ),
