@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/components/anti_fraud_notice.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
@@ -56,7 +57,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     // No in-app checkout — route to a KPB advisor on WhatsApp, pre-filled with
     // the package name so they know which service the student is asking about.
     final name = (pkg['nameFr'] as String?)?.trim();
-    await openWhatsAppOrToast(
+    await showVerifiedAdvisorThenWhatsApp(
       prefill: kpbWhatsAppPrefill(service: name),
       source: 'service_packages',
       contextType: 'service',
