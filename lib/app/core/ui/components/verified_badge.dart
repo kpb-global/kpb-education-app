@@ -36,27 +36,37 @@ class VerifiedBadge extends StatelessWidget {
     final double py = compact ? 3 : 5;
     final double fs = compact ? 11 : 12;
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: px, vertical: py),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: KpbRadius.pillBr,
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: fs, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: fs,
-              fontWeight: FontWeight.w700,
-              color: color,
+    // a11y: expose the chip as a single labelled node (the icon is decorative)
+    // so a screen reader announces "Information vérifiée le …" rather than an
+    // unlabelled icon followed by a date.
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: verified
+          ? 'Information vérifiée le ${lastVerifiedAt!.day}/${lastVerifiedAt!.month}/${lastVerifiedAt!.year}'
+          : 'Information à confirmer, non vérifiée',
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: px, vertical: py),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: KpbRadius.pillBr,
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: fs, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: fs,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
