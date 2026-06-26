@@ -800,6 +800,51 @@ abstract class _AppControllerBase extends GetxController {
     return created;
   }
 
+  /// Toggle whether a linked parent can view a given case. Optimistically flips
+  /// the local flag (so the switch reacts instantly) then persists to the
+  /// backend; reverts and surfaces an error if the call fails. This is what
+  /// makes a linked parent actually able to see the case — `parentCanView`
+  /// defaults to false server-side.
+  Future<void> setCaseParentVisibility(String caseId, bool canView) async {
+    final index = _cases.indexWhere((item) => item.id == caseId);
+    if (index < 0) return;
+    final previous = _cases[index];
+    if (previous.parentCanView == canView) return;
+
+    _cases[index] = previous.copyWith(parentCanView: canView);
+    _persist();
+    update();
+
+    if (!AppConfig.enableRemoteSync) return;
+    try {
+      await _apiClient.setCaseParentVisibility(
+        caseId: caseId,
+        parentCanView: canView,
+      );
+    } catch (e, s) {
+      // Revert the optimistic flip so the UI reflects the real backend state.
+      final i = _cases.indexWhere((item) => item.id == caseId);
+      if (i >= 0) {
+        _cases[i] = _cases[i].copyWith(parentCanView: previous.parentCanView);
+        _persist();
+        update();
+      }
+      safeRecordError(
+        e,
+        s,
+        reason: 'setCaseParentVisibility',
+        domain: CrashlyticsObsDomain.cases,
+        operation: 'set_parent_visibility',
+      );
+      Get.snackbar(
+        'KPB Education',
+        'parent_visibility_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    }
+  }
+
   void addCaseMessage(String caseId, String text) {
     final index = _cases.indexWhere((item) => item.id == caseId);
     if (index < 0 || text.trim().isEmpty) return;

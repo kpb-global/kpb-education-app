@@ -150,6 +150,11 @@ class AppTranslations extends Translations {
           'nav_cases': 'Dossiers',
           'nav_saved': 'Sauvegardés',
           'nav_profile': 'Profil',
+          'parent_share_case_title': 'Partager avec mon parent',
+          'parent_share_case_subtitle':
+              'Ton parent lié pourra suivre ce dossier (lecture seule).',
+          'parent_visibility_error':
+              'Impossible de mettre à jour le partage. Réessaie.',
           'view_official_source': 'Voir la source officielle',
           'nav_community': 'Communauté',
           'home_for_student': 'Votre tableau de bord',
@@ -493,6 +498,11 @@ class AppTranslations extends Translations {
           'nav_cases': 'My Cases',
           'nav_saved': 'Saved',
           'nav_profile': 'Profile',
+          'parent_share_case_title': 'Share with my parent',
+          'parent_share_case_subtitle':
+              'Your linked parent can follow this case (read-only).',
+          'parent_visibility_error':
+              'Could not update sharing. Please try again.',
           'view_official_source': 'View official source',
           'nav_community': 'Community',
           'home_for_student': 'Your dashboard',

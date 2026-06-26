@@ -431,6 +431,30 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         const KpbAntiFraudNotice(source: 'case_detail'),
                         const SizedBox(height: KpbSpacing.md),
 
+                        // ── Partage avec un parent ───────────────────────────────────
+                        // Opt-in, per case: lets a linked parent (the usual
+                        // decision-maker/financier) follow this dossier read-only.
+                        KpbCard(
+                          padding: EdgeInsets.zero,
+                          // Transparent Material so the ListTile paints its ink
+                          // on a Material below KpbCard's DecoratedBox (otherwise
+                          // Flutter asserts the splash/bg may be invisible).
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: SwitchListTile.adaptive(
+                              value: c.parentCanView,
+                              onChanged: (v) =>
+                                  _ctrl.setCaseParentVisibility(c.id, v),
+                              secondary: const Icon(Icons.family_restroom,
+                                  color: KpbColors.gold),
+                              title: Text('parent_share_case_title'.tr),
+                              subtitle: Text('parent_share_case_subtitle'.tr,
+                                  style: KpbTextStyles.caption),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
+
                         // ── Documents ────────────────────────────────────────────────
                         if (c.documentRequests.isNotEmpty) ...[
                           const SectionHeader(
