@@ -3,6 +3,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import {
   DocumentKind,
+  DocumentReviewLanguage,
   DocumentReviewService,
 } from './document-review.service';
 
@@ -13,8 +14,13 @@ export class DocumentReviewController {
 
   /// Returns structured, on-rubric feedback for a pasted motivation letter / CV.
   @Post()
-  review(@Body() body: { kind?: string; text?: string }) {
+  review(@Body() body: { kind?: string; text?: string; language?: string }) {
     const kind: DocumentKind = body?.kind === 'cv' ? 'cv' : 'motivation';
-    return this.service.review(kind, body?.text ?? '');
+    const language: DocumentReviewLanguage = String(body?.language ?? '')
+      .toLowerCase()
+      .startsWith('en')
+      ? 'en'
+      : 'fr';
+    return this.service.review(kind, body?.text ?? '', language);
   }
 }

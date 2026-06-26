@@ -26,8 +26,11 @@ export class CoachController {
   }
 
   @Get('suggestions')
-  getSuggestions() {
-    return this.coachService.getSuggestions({ fullName: 'Étudiant' });
+  getSuggestions(@Query('lang') lang = '') {
+    return this.coachService.getSuggestions({
+      fullName: 'Étudiant',
+      preferredLanguage: lang,
+    });
   }
 
   @Post('conversations')
@@ -49,6 +52,7 @@ export class CoachController {
     @Query('fullName') fullName = 'Étudiant',
     @Query('currentLevel') currentLevel = '',
     @Query('targetCountryIds') targetCountryIds = '',
+    @Query('lang') lang = '',
   ): Observable<MessageEvent> {
     return this.coachService.streamReply({
       conversationId: id,
@@ -60,6 +64,7 @@ export class CoachController {
         targetCountryIds: targetCountryIds
           ? targetCountryIds.split(',').filter(Boolean)
           : [],
+        preferredLanguage: lang,
       },
     });
   }
