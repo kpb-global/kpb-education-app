@@ -126,12 +126,12 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(Icons.route_outlined,
                                 color: KpbColors.blue, size: 20),
                             SizedBox(width: 8),
-                            Text('Ton parcours en 6 étapes',
+                            Text('france_path_steps'.tr,
                                 style: KpbTextStyles.titleMd),
                           ],
                         ),
@@ -173,7 +173,7 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Écoles partenaires France',
+                  Text('france_partner_schools_title'.tr,
                       style: KpbTextStyles.titleMd),
                   const SizedBox(height: 10),
                   if (partners.isEmpty)
@@ -269,7 +269,7 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
               countryId: 'fra',
             ),
           ),
-          child: const Text('Je commence ma procédure'),
+          child: Text('france_start_procedure'.tr),
         ),
       ),
     );

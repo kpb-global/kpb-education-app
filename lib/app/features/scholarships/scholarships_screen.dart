@@ -470,7 +470,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
         _buildDetailRow(Icons.event_outlined, 'Date limite : ',
             controller.resolve(s.deadlineLabel)),
         const SizedBox(height: KpbSpacing.xl),
-        Text('Critères clés :',
+        Text('key_criteria'.tr,
             style:
                 KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
         const SizedBox(height: 16),
@@ -501,7 +501,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             Get.to(() => ScholarshipEligibilityScreen(scholarship: s));
           },
           icon: const Icon(Icons.fact_check_outlined),
-          label: const Text('Suis-je éligible ?'),
+          label: Text('am_i_eligible'.tr),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
             foregroundColor:

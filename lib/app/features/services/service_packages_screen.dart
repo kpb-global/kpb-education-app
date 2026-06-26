@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/components/anti_fraud_notice.dart';
@@ -164,7 +165,7 @@ class _PackageCard extends StatelessWidget {
             ),
             if (turnaround.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Délai : $turnaround',
+              Text('${'turnaround_label'.tr} : $turnaround',
                   style: Theme.of(context).textTheme.bodySmall),
             ],
             if (deliverables.isNotEmpty) ...[

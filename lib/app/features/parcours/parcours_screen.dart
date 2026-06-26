@@ -244,7 +244,7 @@ class _ParcoursEmptyState extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Réessayer'),
+                label: Text('retry'.tr),
               ),
             ],
           ],

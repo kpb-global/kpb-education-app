@@ -194,7 +194,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                 // ── Actions ───────────────────────────────────────────────
                 ListTile(
                   leading: const Icon(Icons.logout_rounded),
-                  title: const Text('Se déconnecter'),
+                  title: Text('logout'.tr),
                   textColor: KpbColors.error,
                   iconColor: KpbColors.error,
                   shape: RoundedRectangleBorder(
@@ -203,7 +203,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                   onTap: () {
                     Get.dialog(
                       AlertDialog(
-                        title: const Text('Se déconnecter ?'),
+                        title: Text('logout_confirm_title'.tr),
                         actions: [
                           TextButton(
                             onPressed: Get.back,

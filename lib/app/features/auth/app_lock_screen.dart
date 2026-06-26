@@ -92,7 +92,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KpbRadius.pill)),
                   ),
-                  child: const Text('Déverrouiller', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text('unlock'.tr, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),

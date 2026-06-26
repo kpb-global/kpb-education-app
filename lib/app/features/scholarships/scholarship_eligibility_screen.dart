@@ -67,7 +67,7 @@ class _ScholarshipEligibilityScreenState
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Suis-je éligible ?'),
+        title: Text('am_i_eligible'.tr),
         backgroundColor: context.kpb.pageBg,
         foregroundColor: context.kpb.textPrimary,
         elevation: 0,
@@ -239,7 +239,7 @@ class _ScholarshipEligibilityScreenState
           if (unmet.isNotEmpty &&
               verdict != ScholarshipEligibilityVerdict.eligible) ...[
             const SizedBox(height: KpbSpacing.md),
-            Text('À vérifier :', style: KpbTextStyles.label),
+            Text('to_check'.tr, style: KpbTextStyles.label),
             const SizedBox(height: 4),
             ...unmet.map(
               (c) => Padding(
