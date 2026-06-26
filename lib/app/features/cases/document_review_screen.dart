@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
@@ -120,7 +121,11 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
     });
 
     try {
-      final result = await _api.reviewDocument(kind: _kind.apiValue, text: text);
+      final result = await _api.reviewDocument(
+        kind: _kind.apiValue,
+        text: text,
+        language: Get.locale?.languageCode ?? 'fr',
+      );
       final review = result['review'] as Map<String, dynamic>?;
       if (review == null) {
         setState(() => _error = 'Relecture impossible pour le moment.');
