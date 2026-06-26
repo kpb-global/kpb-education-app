@@ -93,7 +93,7 @@ class _EligibilitySimulatorScreenState
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Simulateur d\'éligibilité'),
+        title: Text('eligibility_simulator_title'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: ListView(
@@ -212,17 +212,17 @@ class _IntroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'En 1 minute, découvre tes chances',
+          Text(
+            'eligibility_hook'.tr,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
-            'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
+            'eligibility_intro'.tr,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 13,

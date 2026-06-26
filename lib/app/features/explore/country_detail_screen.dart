@@ -179,7 +179,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: KpbCard(
                         onTap: () =>
-                            Get.to(() => const FrancePrivateAdmissionScreen()),
+                            Get.to(() => FrancePrivateAdmissionScreen()),
                         child: Row(
                           children: [
                             Container(
@@ -189,21 +189,21 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                                 color: KpbColors.skyLight,
                                 borderRadius: KpbRadius.mdBr,
                               ),
-                              child: const Icon(Icons.school_outlined,
+                              child: Icon(Icons.school_outlined,
                                   color: KpbColors.blue),
                             ),
-                            const SizedBox(width: 12),
-                            const Expanded(
+                            SizedBox(width: 12),
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Admission écoles privées',
+                                    'private_schools_admission'.tr,
                                     style: KpbTextStyles.titleMd,
                                   ),
                                   SizedBox(height: 2),
                                   Text(
-                                    'Parcours dédié · Septembre 2026',
+                                    'dedicated_path_sept_2026'.tr,
                                     style: KpbTextStyles.caption,
                                   ),
                                 ],
