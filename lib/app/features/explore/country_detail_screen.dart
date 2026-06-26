@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
@@ -133,8 +134,16 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: VerifiedBadge(
-                        lastVerifiedAt: country.lastVerifiedAt,
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          VerifiedBadge(
+                            lastVerifiedAt: country.lastVerifiedAt,
+                          ),
+                          KpbSourceLink(url: country.sourceUrl),
+                        ],
                       ),
                     ),
                   ),

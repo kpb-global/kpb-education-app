@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
@@ -215,6 +216,8 @@ class ProgramDetailScreen extends StatelessWidget {
                             style: KpbTextStyles.bodySm,
                           ),
                         ],
+                        const SizedBox(height: 8),
+                        KpbSourceLink(url: program.sourceUrl),
                       ],
                     ),
                   ),
