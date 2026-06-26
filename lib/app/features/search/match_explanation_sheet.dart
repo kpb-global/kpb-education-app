@@ -123,7 +123,7 @@ void showMatchExplanation(
                 controller.goToTab(StudentShellTab.profile);
               },
               icon: const Icon(Icons.tune_rounded, size: 16),
-              label: const Text('Améliorer mon profil'),
+              label: Text('improve_profile'.tr),
             ),
           ),
           const SizedBox(height: KpbSpacing.sm),

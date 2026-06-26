@@ -255,7 +255,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           const SizedBox(height: KpbSpacing.md),
           ElevatedButton.icon(
             icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Créer un code d\'invitation'),
+            label: Text('parent_create_invite'.tr),
             onPressed: _createInvite,
           ),
         ],
@@ -319,9 +319,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
-          child: Text('Enfants liés', style: KpbTextStyles.label),
+          child: Text('linked_children'.tr, style: KpbTextStyles.label),
         ),
         ..._children.map((raw) {
           final link = raw as Map<String, dynamic>;
@@ -375,9 +375,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
-          child: Text('Dossiers partagés', style: KpbTextStyles.label),
+          child: Text('shared_cases'.tr, style: KpbTextStyles.label),
         ),
         ..._cases.map((raw) {
           final item = raw as Map<String, dynamic>;

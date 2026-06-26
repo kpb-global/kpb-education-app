@@ -394,7 +394,7 @@ class _CampusOfferingRow extends StatelessWidget {
                   ),
                 ),
                 if (intake != null && intake.isNotEmpty)
-                  Text('Rentrée $intake', style: KpbTextStyles.caption),
+                  Text('${'intake_label'.tr} $intake', style: KpbTextStyles.caption),
               ],
             ),
           ),

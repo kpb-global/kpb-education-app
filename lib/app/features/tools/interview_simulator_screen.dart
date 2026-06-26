@@ -383,7 +383,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                     const Icon(Icons.star_rounded,
                         color: KpbColors.blue, size: 20),
                     const SizedBox(width: 8),
-                    Text('Réponse modèle',
+                    Text('model_answer'.tr,
                         style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: context.kpb.textPrimary)),

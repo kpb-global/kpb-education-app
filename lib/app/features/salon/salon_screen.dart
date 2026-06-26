@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/repositories/app_api_client.dart';
@@ -293,7 +294,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Impossible de mettre à jour l'inscription.")),
+        SnackBar(content: Text('salon_rsvp_error'.tr)),
       );
     }
   }

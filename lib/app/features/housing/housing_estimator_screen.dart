@@ -85,7 +85,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Logement Étudiant'),
+        title: Text('student_housing'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: CustomScrollView(

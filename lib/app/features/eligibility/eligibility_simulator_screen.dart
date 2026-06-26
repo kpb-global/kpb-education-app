@@ -106,7 +106,7 @@ class _EligibilitySimulatorScreenState
           FilledButton.icon(
             onPressed: _evaluate,
             icon: const Icon(Icons.travel_explore_rounded),
-            label: const Text('Évaluer mon éligibilité'),
+            label: Text('evaluate_eligibility'.tr),
           ),
           if (results != null) ...[
             const SizedBox(height: KpbSpacing.xl),

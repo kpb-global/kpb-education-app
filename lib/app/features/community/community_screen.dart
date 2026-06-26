@@ -66,7 +66,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ? Navigator.pop(context)
                       : null,
                 ),
-                title: Text('Communauté', style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
+                title: Text('nav_community'.tr, style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
                 actions: [
                   // Search icon opens SearchScreen
                   IconButton(

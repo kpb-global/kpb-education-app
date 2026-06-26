@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
 
@@ -176,10 +177,10 @@ class _AlumnusCard extends StatelessWidget {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ),
-                          const Chip(
+                          Chip(
                             visualDensity: VisualDensity.compact,
                             avatar: Icon(Icons.verified, size: 16),
-                            label: Text('Alumni vérifié'),
+                            label: Text('verified_alumni'.tr),
                           ),
                         ],
                       ),

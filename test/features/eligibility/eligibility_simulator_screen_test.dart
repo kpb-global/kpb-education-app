@@ -39,14 +39,16 @@ void main() {
       expect(find.text('Tes informations'), findsOneWidget);
       // createTestProfile uses currentLevel "Licence" → normalised to "Bachelor 1".
       expect(find.text('Bachelor 1'), findsWidgets);
-      expect(find.text('Évaluer mon éligibilité'), findsOneWidget);
+      // The CTA label is localized (.tr); the test harness doesn't load
+      // translations, so the rendered text is the key.
+      expect(find.text('evaluate_eligibility'), findsOneWidget);
     });
 
     testWidgets('evaluating shows the verdict summary and per-country results',
         (tester) async {
       await pump(tester);
 
-      await tester.tap(find.text('Évaluer mon éligibilité'));
+      await tester.tap(find.text('evaluate_eligibility'));
       await tester.pumpAndSettle();
 
       // Verdict labels appear in the summary row and on result cards.

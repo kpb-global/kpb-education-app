@@ -172,7 +172,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Icon(Icons.history_rounded,
                     size: 16, color: context.kpb.gray400),
                 const SizedBox(width: 6),
-                Text('Recherches récentes',
+                Text('recent_searches'.tr,
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -583,7 +583,7 @@ void _openFieldDetail(
             ),
             const SizedBox(height: KpbSpacing.lg),
             if (field.careers.isNotEmpty) ...[
-              Text('Débouchés possibles',
+              Text('possible_careers'.tr,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -613,7 +613,7 @@ void _openFieldDetail(
               const SizedBox(height: KpbSpacing.lg),
             ],
             if (field.subjects.isNotEmpty) ...[
-              Text('Matières principales',
+              Text('main_subjects'.tr,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

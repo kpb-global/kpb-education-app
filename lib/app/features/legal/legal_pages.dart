@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
@@ -13,7 +14,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Politique de Confidentialité'),
+        title: Text('privacy_policy'.tr),
         backgroundColor: context.kpb.pageBg,
         surfaceTintColor: Colors.transparent,
       ),
