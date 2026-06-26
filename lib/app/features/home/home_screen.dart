@@ -952,8 +952,8 @@ class _AiAdvisorBanner extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !",
+                Text(
+                  'home_find_school_desc'.tr,
                   style: TextStyle(
                     fontSize: 12,
                     color: KpbColors.textDarkSecondary,
@@ -1329,7 +1329,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Clôture : $deadline',
+                    '${'closing_label'.tr} : $deadline',
                     style: const TextStyle(
                         fontSize: 12, color: KpbColors.textMuted),
                   ),
@@ -1528,8 +1528,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        "Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).",
+                      Text(
+                        'home_apply_world_desc'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: KpbColors.textDarkSecondary,
@@ -1574,11 +1574,11 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       .toList(),
                 ),
                 // CTA text & arrow
-                const Row(
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Découvrir",
+                      'discover'.tr,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1669,8 +1669,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
-              "Découvrez les destinations d'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.",
+            Text(
+              'home_destinations_desc'.tr,
               style: TextStyle(
                 fontSize: 13,
                 color: KpbColors.textDarkSecondary,
@@ -1777,7 +1777,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              "Scolarité : ",
+                                              'tuition_prefix'.tr,
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,

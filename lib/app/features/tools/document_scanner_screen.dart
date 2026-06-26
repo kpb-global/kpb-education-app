@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -100,7 +101,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '$_doneCount / ${_docs.length} documents prêts',
+                        '$_doneCount / ${_docs.length} ${'documents_ready'.tr}',
                         style: TextStyle(
                           fontSize: 12,
                           color: context.kpb.textMuted,

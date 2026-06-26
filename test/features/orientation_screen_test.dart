@@ -85,7 +85,7 @@ void main() {
       expect(find.byType(OrientationScreen), findsOneWidget);
       expect(find.text('Bravo ! 🎉'), findsOneWidget);
       expect(
-        find.text('Voici les filières qui vous correspondent le mieux.'),
+        find.text('orientation_results_intro'),
         findsOneWidget,
       );
 
