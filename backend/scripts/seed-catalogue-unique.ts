@@ -28,6 +28,20 @@ loadEnvFile?.('.env');
 
 const prisma = new PrismaClient();
 
+// The catalogue-unique deliverable was authored with human-readable country ids
+// (canada/germany/morocco/uk), but the canonical M5 countries use ISO codes
+// (can/deu/mar/gbr). Without this remap the institutions/programs link to a
+// non-existent country (germany, morocco → orphaned) or to the inactive legacy
+// rows (canada, uk), so they never surface under their active country page.
+// usa and senegal already match active country ids, so they pass through.
+const COUNTRY_ID_REMAP: Record<string, string> = {
+  morocco: 'mar',
+  germany: 'deu',
+  canada: 'can',
+  uk: 'gbr',
+};
+const canonicalCountryId = (id: string): string => COUNTRY_ID_REMAP[id] ?? id;
+
 // Senegal — authored locally (FR primary). Refine marketing copy as needed.
 const SENEGAL = {
   code: 'SN',
@@ -122,21 +136,23 @@ async function main() {
     create: { id: 'senegal', ...SENEGAL },
   });
 
-  // 3) Institutions.
+  // 3) Institutions (countryId remapped to the canonical M5 ISO id).
   for (const inst of catalogueUniqueInstitutions) {
+    const data = { ...inst, countryId: canonicalCountryId(inst.countryId) };
     await prisma.institution.upsert({
       where: { id: inst.id },
-      update: inst,
-      create: inst,
+      update: data,
+      create: data,
     });
   }
 
-  // 4) Programs.
+  // 4) Programs (countryId remapped to the canonical M5 ISO id).
   for (const prog of catalogueUniquePrograms) {
+    const data = { ...prog, countryId: canonicalCountryId(prog.countryId) };
     await prisma.program.upsert({
       where: { id: prog.id },
-      update: prog,
-      create: prog,
+      update: data,
+      create: data,
     });
   }
 
