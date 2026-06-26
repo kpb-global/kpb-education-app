@@ -436,15 +436,21 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         // decision-maker/financier) follow this dossier read-only.
                         KpbCard(
                           padding: EdgeInsets.zero,
-                          child: SwitchListTile.adaptive(
-                            value: c.parentCanView,
-                            onChanged: (v) =>
-                                _ctrl.setCaseParentVisibility(c.id, v),
-                            secondary: const Icon(Icons.family_restroom,
-                                color: KpbColors.gold),
-                            title: Text('parent_share_case_title'.tr),
-                            subtitle: Text('parent_share_case_subtitle'.tr,
-                                style: KpbTextStyles.caption),
+                          // Transparent Material so the ListTile paints its ink
+                          // on a Material below KpbCard's DecoratedBox (otherwise
+                          // Flutter asserts the splash/bg may be invisible).
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: SwitchListTile.adaptive(
+                              value: c.parentCanView,
+                              onChanged: (v) =>
+                                  _ctrl.setCaseParentVisibility(c.id, v),
+                              secondary: const Icon(Icons.family_restroom,
+                                  color: KpbColors.gold),
+                              title: Text('parent_share_case_title'.tr),
+                              subtitle: Text('parent_share_case_subtitle'.tr,
+                                  style: KpbTextStyles.caption),
+                            ),
                           ),
                         ),
                         const SizedBox(height: KpbSpacing.md),
