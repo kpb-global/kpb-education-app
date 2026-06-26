@@ -279,6 +279,7 @@ class LocalAppRepository implements AppRepository {
       'advisorPhone': caseItem.advisorPhone,
       'advisorWhatsapp': caseItem.advisorWhatsapp,
       'scheduledAt': caseItem.scheduledAt?.toIso8601String(),
+      'parentCanView': caseItem.parentCanView,
     };
   }
 
@@ -324,6 +325,7 @@ class LocalAppRepository implements AppRepository {
       advisorPhone: json['advisorPhone'] as String?,
       advisorWhatsapp: json['advisorWhatsapp'] as String?,
       scheduledAt: DateTime.tryParse(json['scheduledAt'] as String? ?? ''),
+      parentCanView: json['parentCanView'] as bool? ?? false,
     );
   }
 
