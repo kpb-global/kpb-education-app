@@ -10,14 +10,27 @@ import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/anti_fraud_notice.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/services/document_upload_service.dart';
-import '../../core/utils/whatsapp_utils.dart';
 import 'case_status_timeline.dart';
 import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
 
-Future<void> _openWhatsapp({String? phone, String? prefill}) async {
-  await openWhatsAppOrToast(phone: phone, prefill: prefill);
+Future<void> _openWhatsapp({
+  String? phone,
+  String? prefill,
+  String? advisorName,
+}) async {
+  // Gate every case hand-off behind the verified-advisor card so an impostor
+  // number is obvious before the user leaves the app.
+  await showVerifiedAdvisorThenWhatsApp(
+    advisorName: advisorName,
+    phone: phone,
+    prefill: prefill,
+    source: 'case_detail',
+    contextType: 'case',
+  );
 }
 
 Future<void> _callPhone(String phone) async {
@@ -192,11 +205,22 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                               color: statusInfo.color,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              c.referenceCode,
-                              style: const TextStyle(
-                                  color: Colors.white60, fontSize: 12),
+                            Flexible(
+                              child: Text(
+                                c.referenceCode,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white60, fontSize: 12),
+                              ),
                             ),
+                            if (c.isReferenceProvisional) ...[
+                              const SizedBox(width: 6),
+                              const Text(
+                                '⏳ provisoire',
+                                style: TextStyle(
+                                    color: Colors.white60, fontSize: 11),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -369,8 +393,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                     color: KpbColors.success,
                                     onTap: () => _openWhatsapp(
                                       phone: c.advisorWhatsapp,
-                                      prefill:
-                                          'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
+                                      advisorName: c.assignedAdvisorName,
+                                      prefill: c.isReferenceProvisional
+                                          ? 'Bonjour, je reviens vers toi au sujet de ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
+                                          : 'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
                                     ),
                                   ),
                                 if (c.advisorPhone != null) ...[
@@ -394,11 +420,15 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         _WhatsappContinueButton(
                           onTap: () => _openWhatsapp(
                             phone: c.advisorWhatsapp,
-                            prefill:
-                                'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
+                            advisorName: c.assignedAdvisorName,
+                            prefill: c.isReferenceProvisional
+                                ? 'Bonjour KPB, je souhaite continuer sur ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
+                                : 'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
                           ),
                           hasAdvisor: c.advisorWhatsapp != null,
                         ),
+                        const SizedBox(height: KpbSpacing.sm),
+                        const KpbAntiFraudNotice(source: 'case_detail'),
                         const SizedBox(height: KpbSpacing.md),
 
                         // ── Documents ────────────────────────────────────────────────

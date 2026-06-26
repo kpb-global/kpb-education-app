@@ -267,6 +267,19 @@ class AppTranslations extends Translations {
           'case_created_title': 'Dossier créé ✅',
           'case_created_body': 'Votre dossier @code a bien été soumis.',
           'view': 'Voir',
+          'anti_fraud_title': '🔒 Sécurité KPB',
+          'anti_fraud_body':
+              'KPB ne demande JAMAIS de paiement sur un numéro Mobile Money personnel, et aucun visa ni bourse n\'est garanti. En cas de doute, vérifie l\'identité du conseiller avant de payer quoi que ce soit.',
+          'report_fraud': 'Signaler une fraude',
+          'report_fraud_prefill':
+              'Bonjour KPB, je souhaite signaler une tentative de fraude ou un comportement suspect.',
+          'verified_advisor_title': 'Conseiller KPB vérifié',
+          'verified_advisor_badge': 'Identité vérifiée (KYC)',
+          'verified_advisor_official_name': 'Conseiller KPB officiel',
+          'verified_advisor_expected': 'Numéro WhatsApp officiel à attendre :',
+          'verified_advisor_check':
+              'Vérifie que le numéro correspond exactement avant d\'écrire. KPB ne demande JAMAIS de paiement sur un numéro Mobile Money personnel.',
+          'continue_to_whatsapp': 'Continuer vers WhatsApp',
           // Case status labels
           'status_submitted': 'Envoyé',
           'status_under_review': 'En revue',
@@ -596,6 +609,19 @@ class AppTranslations extends Translations {
           'case_created_title': 'Case created ✅',
           'case_created_body': 'Your case @code has been submitted.',
           'view': 'View',
+          'anti_fraud_title': '🔒 KPB safety',
+          'anti_fraud_body':
+              'KPB NEVER asks for payment on a personal Mobile Money number, and no visa or scholarship is ever guaranteed. If in doubt, verify the advisor\'s identity before paying anything.',
+          'report_fraud': 'Report fraud',
+          'report_fraud_prefill':
+              'Hello KPB, I would like to report a fraud attempt or suspicious behavior.',
+          'verified_advisor_title': 'Verified KPB advisor',
+          'verified_advisor_badge': 'Identity verified (KYC)',
+          'verified_advisor_official_name': 'Official KPB advisor',
+          'verified_advisor_expected': 'Official WhatsApp number to expect:',
+          'verified_advisor_check':
+              'Check the number matches exactly before messaging. KPB NEVER asks for payment on a personal Mobile Money number.',
+          'continue_to_whatsapp': 'Continue to WhatsApp',
           // Case status labels
           'status_submitted': 'Submitted',
           'status_under_review': 'Under review',
