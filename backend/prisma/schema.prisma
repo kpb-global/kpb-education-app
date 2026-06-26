@@ -679,6 +679,13 @@ model Program {
   languageEn     String
   requirementsFr String[]
   requirementsEn String[]
+  // Multi-campus formations (OMNES, and any future school whose programme is
+  // delivered on several campuses). Same formation = one Program row; the
+  // per-campus price/intake live here instead of duplicating the row.
+  // Null for single-campus programs. Shape:
+  // [{ campus: string, tuitionUpfront: number|null,
+  //    tuitionInstallments: number|null, intake: string|null }]
+  campusOfferings Json?
   lastVerifiedAt DateTime?
   sourceUrl      String?
   createdAt      DateTime @default(now())

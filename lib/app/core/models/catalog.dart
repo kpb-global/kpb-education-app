@@ -430,6 +430,57 @@ class InstitutionModel {
         'sourceUrl': sourceUrl,
       };
 }
+/// One campus on which a (multi-campus) formation is delivered, with its own
+/// price and intake. Used by OMNES formations, where the same programme runs on
+/// several campuses at different prices. Empty for single-campus programs.
+class CampusOffering {
+  const CampusOffering({
+    required this.campus,
+    this.tuitionUpfront,
+    this.tuitionInstallments,
+    this.intake,
+  });
+
+  final String campus;
+  final num? tuitionUpfront;
+  final num? tuitionInstallments;
+  final String? intake;
+
+  /// Localized headline tuition for this campus, e.g. "12 690 €/an".
+  String tuitionLabel(String localeCode) {
+    final value = tuitionUpfront;
+    if (value == null) {
+      return localeCode.startsWith('en') ? 'On request' : 'Sur demande';
+    }
+    final amount = _formatEuro(value);
+    return localeCode.startsWith('en') ? '$amount/year' : '$amount/an';
+  }
+
+  static String _formatEuro(num value) {
+    final digits = value.round().abs().toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(' ');
+      buffer.write(digits[i]);
+    }
+    return '$buffer €';
+  }
+
+  factory CampusOffering.fromJson(Map<String, dynamic> json) => CampusOffering(
+        campus: json['campus'] as String? ?? '',
+        tuitionUpfront: json['tuitionUpfront'] as num?,
+        tuitionInstallments: json['tuitionInstallments'] as num?,
+        intake: json['intake'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'campus': campus,
+        'tuitionUpfront': tuitionUpfront,
+        'tuitionInstallments': tuitionInstallments,
+        'intake': intake,
+      };
+}
+
 class ProgramModel {
   const ProgramModel({
     required this.id,
@@ -442,6 +493,7 @@ class ProgramModel {
     required this.tuition,
     required this.language,
     required this.requirements,
+    this.campusOfferings = const [],
     this.lastVerifiedAt,
     this.sourceUrl,
   });
@@ -456,8 +508,15 @@ class ProgramModel {
   final LocalizedText tuition;
   final LocalizedText language;
   final List<LocalizedText> requirements;
+
+  /// Campuses on which this formation is available (multi-campus schools like
+  /// OMNES). Empty for single-campus programs.
+  final List<CampusOffering> campusOfferings;
   final DateTime? lastVerifiedAt;
   final String? sourceUrl;
+
+  /// True when the formation is offered on more than one campus.
+  bool get isMultiCampus => campusOfferings.length > 1;
 
   factory ProgramModel.fromJson(Map<String, dynamic> json) {
     LocalizedText parseLoc(String key) {
@@ -488,6 +547,19 @@ class ProgramModel {
       );
     }
 
+    List<CampusOffering> parseOfferings() {
+      final raw = json['campusOfferings'];
+      if (raw is List) {
+        return raw
+            .whereType<Map>()
+            .map((e) => CampusOffering.fromJson(
+                  Map<String, dynamic>.from(e),
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
     return ProgramModel(
       id: json['id'] as String? ?? '',
       institutionId: json['institutionId'] as String? ?? '',
@@ -499,6 +571,7 @@ class ProgramModel {
       tuition: parseLoc('tuition'),
       language: parseLoc('language'),
       requirements: parseLocList('requirements'),
+      campusOfferings: parseOfferings(),
       lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
       sourceUrl: json['sourceUrl'] as String?,
     );
@@ -515,6 +588,8 @@ class ProgramModel {
         'tuition': tuition.toJson(),
         'language': language.toJson(),
         'requirements': requirements.map((e) => e.toJson()).toList(),
+        if (campusOfferings.isNotEmpty)
+          'campusOfferings': campusOfferings.map((e) => e.toJson()).toList(),
         'lastVerifiedAt': lastVerifiedAt?.toIso8601String(),
         'sourceUrl': sourceUrl,
       };
