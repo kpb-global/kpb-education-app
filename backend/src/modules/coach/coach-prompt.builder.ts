@@ -1,3 +1,5 @@
+export type CoachLanguage = 'fr' | 'en';
+
 type CoachProfileContext = {
   fullName?: string;
   currentLevel?: string;
@@ -7,16 +9,60 @@ type CoachProfileContext = {
   /// Verified catalog facts retrieved for this question (RAG). When present,
   /// the model must use ONLY these for any figure/date/eligibility claim.
   verifiedContext?: string;
+  /// Student's UI / preferred language. The coach must answer in this language
+  /// so Anglophone students are not served French (and vice-versa).
+  language?: CoachLanguage;
 };
 
+/// Normalize an arbitrary locale-ish string ('en', 'en_US', 'EN', …) to a
+/// supported coach language, defaulting to French.
+export function resolveCoachLanguage(raw?: string | null): CoachLanguage {
+  return String(raw ?? '').trim().toLowerCase().startsWith('en') ? 'en' : 'fr';
+}
+
 export function buildCoachSystemPrompt(profile: CoachProfileContext): string {
+  const lang: CoachLanguage = profile.language === 'en' ? 'en' : 'fr';
+  const verified = profile.verifiedContext?.trim();
+  const hasVerified = !!verified && verified.length > 0;
+
+  if (lang === 'en') {
+    const firstName = (profile.fullName ?? 'Student').split(' ')[0];
+    const countries =
+      (profile.targetCountryIds ?? []).join(', ') || 'not specified';
+    const budget = profile.monthlyBudgetEur
+      ? `€${profile.monthlyBudgetEur}/month`
+      : 'not specified';
+    const cases = (profile.openCases ?? []).join(', ') || 'none';
+
+    return `You are KPB Coach, a study-abroad guidance assistant for African students.
+Student context:
+- First name: ${firstName}
+- Level: ${profile.currentLevel ?? 'not specified'}
+- Target countries: ${countries}
+- Indicative budget: ${budget}
+- Open cases: ${cases}
+
+VERIFIED CONTEXT (KPB catalogue data):
+${hasVerified ? verified : 'No verified data available for this question.'}
+
+Rules:
+- Reply in English, max 4 sentences.
+- For ANY figure or date (fees, amounts, deadlines, eligibility conditions), use ONLY the VERIFIED CONTEXT above and cite the source in brackets (e.g. [source: ...]). NEVER invent a figure, a date or a condition.
+- If the requested information is not in the VERIFIED CONTEXT, say so plainly and invite the student to confirm with a KPB advisor — do not guess.
+- Recommend only the 9 KPB destinations (France, Canada, USA, UK, Germany, Spain, Morocco, Turkey, UAE).
+- Mention KPB partner schools when relevant.
+- No personalized legal/financial advice.
+- If the student is in distress, point them to a human KPB advisor.
+- End with: "For important decisions, contact a KPB advisor."`;
+  }
+
   const firstName = (profile.fullName ?? 'Étudiant').split(' ')[0];
-  const countries = (profile.targetCountryIds ?? []).join(', ') || 'non renseignés';
+  const countries =
+    (profile.targetCountryIds ?? []).join(', ') || 'non renseignés';
   const budget = profile.monthlyBudgetEur
     ? `${profile.monthlyBudgetEur} €/mois`
     : 'non renseigné';
   const cases = (profile.openCases ?? []).join(', ') || 'aucune';
-  const verified = profile.verifiedContext?.trim();
 
   return `Tu es Coach KPB, assistant d'orientation pour étudiants francophones d'Afrique.
 Contexte étudiant:
@@ -27,7 +73,7 @@ Contexte étudiant:
 - Demandes en cours: ${cases}
 
 CONTEXTE VÉRIFIÉ (données du catalogue KPB) :
-${verified && verified.length > 0 ? verified : 'Aucune donnée vérifiée disponible pour cette question.'}
+${hasVerified ? verified : 'Aucune donnée vérifiée disponible pour cette question.'}
 
 Règles:
 - Réponds en français, max 4 phrases.
@@ -41,12 +87,27 @@ Règles:
 }
 
 export function buildCoachSuggestions(profile: CoachProfileContext): string[] {
+  const lang: CoachLanguage = profile.language === 'en' ? 'en' : 'fr';
+  const targets = profile.targetCountryIds ?? [];
+
+  if (lang === 'en') {
+    const suggestions = [
+      'Which schools fit my budget?',
+      'How do I apply to private schools in France?',
+      'Which countries for computer science?',
+    ];
+    if (targets.includes('fra')) {
+      suggestions[1] = 'OMNES vs ICN: which should I choose?';
+    }
+    return suggestions;
+  }
+
   const suggestions = [
     'Quelles écoles pour mon budget ?',
     'Comment postuler en France privé ?',
     'Quels pays pour l’informatique ?',
   ];
-  if ((profile.targetCountryIds ?? []).includes('fra')) {
+  if (targets.includes('fra')) {
     suggestions[1] = 'OMNES vs ICN : que choisir ?';
   }
   return suggestions;

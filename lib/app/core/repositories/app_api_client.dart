@@ -164,6 +164,7 @@ class AppApiClient {
         'currentLevel': profile['currentLevel'],
         'targetCountryIds':
             (profile['targetCountryIds'] as List<dynamic>?)?.join(',') ?? '',
+        'lang': profile['preferredLanguage'] ?? '',
       },
       options: Options(responseType: ResponseType.stream),
     );
@@ -644,10 +645,11 @@ class AppApiClient {
   Future<Map<String, dynamic>> reviewDocument({
     required String kind,
     required String text,
+    String language = 'fr',
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/document-review',
-      data: {'kind': kind, 'text': text},
+      data: {'kind': kind, 'text': text, 'language': language},
     );
     return response.data ?? <String, dynamic>{};
   }

@@ -42,6 +42,11 @@ export interface M5CountrySeed {
   admissionDifficultyFr: string;
   admissionDifficultyEn: string;
   popularFieldIds: string[];
+  /// Data-trust signal: ISO date these country facts were last verified, and
+  /// the official source they were checked against (drives the VerifiedBadge +
+  /// "official source" link). Optional so non-verified rows stay "À confirmer".
+  lastVerifiedAt?: string;
+  sourceUrl?: string;
   quiz: CountryQuizDefinition;
 }
 
@@ -151,6 +156,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'fra',
     code: 'FRA',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.campusfrance.org/en',
     flagEmoji: '🇫🇷',
     displayOrder: 1,
     nameFr: 'France',
@@ -273,6 +280,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'deu',
     code: 'DEU',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.daad.de/en/studying-in-germany/',
     flagEmoji: '🇩🇪',
     displayOrder: 2,
     nameFr: 'Allemagne',
@@ -378,6 +387,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'usa',
     code: 'USA',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://educationusa.state.gov/',
     flagEmoji: '🇺🇸',
     displayOrder: 3,
     nameFr: 'USA',
@@ -425,6 +436,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'can',
     code: 'CAN',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.educanada.ca/index.aspx?lang=eng',
     flagEmoji: '🇨🇦',
     displayOrder: 4,
     nameFr: 'Canada',
@@ -472,6 +485,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'mar',
     code: 'MAR',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.amci.ma/cooperation-academique',
     flagEmoji: '🇲🇦',
     displayOrder: 5,
     nameFr: 'Maroc',
@@ -534,6 +549,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'tur',
     code: 'TUR',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.turkiyeburslari.gov.tr/',
     flagEmoji: '🇹🇷',
     displayOrder: 6,
     nameFr: 'Turquie',
@@ -581,6 +598,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'are',
     code: 'ARE',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://u.ae/en/information-and-services/education/higher-education',
     flagEmoji: '🇦🇪',
     displayOrder: 7,
     nameFr: 'EAU (Dubaï)',
@@ -628,6 +647,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'gbr',
     code: 'GBR',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.gov.uk/student-visa',
     flagEmoji: '🇬🇧',
     displayOrder: 8,
     nameFr: 'Royaume-Uni',
@@ -675,6 +696,8 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
   {
     id: 'esp',
     code: 'ESP',
+    lastVerifiedAt: '2026-06-26',
+    sourceUrl: 'https://www.studyinspain.info/en',
     flagEmoji: '🇪🇸',
     displayOrder: 9,
     nameFr: 'Espagne',

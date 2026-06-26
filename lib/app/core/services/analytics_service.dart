@@ -225,6 +225,30 @@ class AnalyticsService {
     }
   }
 
+  // ── Conversion events ─────────────────────────────────────────────────────
+
+  /// Fired the instant a user is handed off to a KPB advisor on WhatsApp — the
+  /// core lead→advisor-contact conversion step. [source] is the call site
+  /// (e.g. 'case_detail', 'program_detail', 'service_packages') and
+  /// [contextType] the kind of context attached (e.g. 'case', 'program',
+  /// 'service', 'destination', 'fraud_report', 'unknown').
+  Future<void> logWhatsAppHandoff({
+    String source = 'unknown',
+    String contextType = 'unknown',
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.whatsappHandoff,
+        parameters: {
+          AnalyticsParamKey.source: source,
+          AnalyticsParamKey.contextType: contextType,
+        },
+      );
+    } catch (e, s) {
+      _logError('logWhatsAppHandoff', e, s);
+    }
+  }
+
   // ── Profile events ────────────────────────────────────────────────────────
 
   Future<void> logProfileUpdated() async {

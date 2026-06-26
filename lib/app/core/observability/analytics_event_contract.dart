@@ -15,6 +15,10 @@ abstract final class AnalyticsEventName {
   static const profileUpdated = 'profile_updated';
   static const themeToggled = 'theme_toggled';
 
+  /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
+  /// This is the core lead→advisor-contact step the funnel is measured on.
+  static const whatsappHandoff = 'whatsapp_handoff';
+
   /// Sync / catalog observability (paired with [AnalyticsService] helpers).
   static const syncFullComplete = 'sync_full_complete';
   static const syncConflictResolved = 'sync_conflict_resolved';
@@ -32,6 +36,10 @@ abstract final class AnalyticsParamKey {
   static const caseType = 'case_type';
   static const caseId = 'case_id';
   static const theme = 'theme';
+
+  /// WhatsApp hand-off attribution.
+  static const source = 'source';
+  static const contextType = 'context_type';
 
   static const success = 'success';
   static const elapsedMs = 'elapsed_ms';

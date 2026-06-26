@@ -196,6 +196,21 @@ class KpbEducationApp extends StatelessWidget {
           transitionDuration: const Duration(milliseconds: 280),
           getPages: AppRoutes.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
+          // Accessibility: honor the user's OS font-size preference (older
+          // parents and low-vision users on budget Android phones often crank
+          // it up) but clamp it so extreme scales don't shatter fixed-size
+          // chips/badges. Respect — never ignore — text scaling.
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            final scaled = mq.textScaler.clamp(
+              minScaleFactor: 1.0,
+              maxScaleFactor: 1.3,
+            );
+            return MediaQuery(
+              data: mq.copyWith(textScaler: scaled),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: const AppBootScreen(),
         );
       },
