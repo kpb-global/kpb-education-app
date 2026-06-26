@@ -267,6 +267,12 @@ class AppTranslations extends Translations {
           'case_created_title': 'Dossier créé ✅',
           'case_created_body': 'Votre dossier @code a bien été soumis.',
           'view': 'Voir',
+          'anti_fraud_title': '🔒 Sécurité KPB',
+          'anti_fraud_body':
+              'KPB ne demande JAMAIS de paiement sur un numéro Mobile Money personnel, et aucun visa ni bourse n\'est garanti. En cas de doute, vérifie l\'identité du conseiller avant de payer quoi que ce soit.',
+          'report_fraud': 'Signaler une fraude',
+          'report_fraud_prefill':
+              'Bonjour KPB, je souhaite signaler une tentative de fraude ou un comportement suspect.',
           // Case status labels
           'status_submitted': 'Envoyé',
           'status_under_review': 'En revue',
@@ -596,6 +602,12 @@ class AppTranslations extends Translations {
           'case_created_title': 'Case created ✅',
           'case_created_body': 'Your case @code has been submitted.',
           'view': 'View',
+          'anti_fraud_title': '🔒 KPB safety',
+          'anti_fraud_body':
+              'KPB NEVER asks for payment on a personal Mobile Money number, and no visa or scholarship is ever guaranteed. If in doubt, verify the advisor\'s identity before paying anything.',
+          'report_fraud': 'Report fraud',
+          'report_fraud_prefill':
+              'Hello KPB, I would like to report a fraud attempt or suspicious behavior.',
           // Case status labels
           'status_submitted': 'Submitted',
           'status_under_review': 'Under review',

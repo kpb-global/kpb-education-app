@@ -119,6 +119,13 @@ class StudentCase {
   final String? advisorWhatsapp;
   final DateTime? scheduledAt;
 
+  /// True while the case still carries a client-generated temporary id
+  /// (`case-<millis>`). On a successful remote create the backend swaps in the
+  /// canonical id + referenceCode, so a non-temp id means the reference is the
+  /// authoritative one. Used to mark the reference as provisional in the UI and
+  /// to avoid quoting a not-yet-registered reference to a WhatsApp advisor.
+  bool get isReferenceProvisional => id.startsWith('case-');
+
   StudentCase copyWith({
     CaseStatus? status,
     DateTime? updatedAt,
