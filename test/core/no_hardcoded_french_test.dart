@@ -32,7 +32,6 @@ void main() {
     'lib/app/features/eligibility/eligibility_simulator_screen.dart': 2,
     'lib/app/features/explore/country_detail_screen.dart': 2,
     'lib/app/features/explore/explore_screen.dart': 2,
-    'lib/app/features/france/france_private_admission_screen.dart': 6,
     'lib/app/features/home/home_screen.dart': 2,
     'lib/app/features/housing/housing_estimator_screen.dart': 3,
     'lib/app/features/legal/legal_pages.dart': 4,

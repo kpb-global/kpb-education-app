@@ -56,8 +56,8 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                       style: const TextStyle(fontSize: 44),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Admission France — Écoles privées',
+                    Text(
+                      'france_admission_title'.tr,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -66,7 +66,7 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Rentrée septembre 2026 · $francePrograms programmes disponibles',
+                      '${'france_sept_intake'.tr} · $francePrograms ${'programs_available'.tr}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.85),
                         fontSize: 13,
@@ -95,9 +95,9 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                         Icon(Icons.info_outline,
                             size: 18, color: context.kpb.textSecondary),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Universités publiques — Bientôt disponible · Septembre 2026',
+                            'france_public_unis_soon'.tr,
                             style: KpbTextStyles.bodySm,
                           ),
                         ),
@@ -109,13 +109,13 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Pourquoi le privé au lancement ?',
+                        Text(
+                          'france_why_private'.tr,
                           style: KpbTextStyles.titleMd,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Les écoles privées françaises partenaires KPB offrent un parcours d\'admission direct, avec des rentrées flexibles et un accompagnement personnalisé pour les étudiants africains.',
+                        Text(
+                          'france_private_intro'.tr,
                           style: KpbTextStyles.body,
                         ),
                       ],
@@ -177,9 +177,9 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                       style: KpbTextStyles.titleMd),
                   const SizedBox(height: 10),
                   if (partners.isEmpty)
-                    const KpbCard(
+                    KpbCard(
                       child: Text(
-                        'Synchronise le catalogue pour voir les écoles OMNES et partenaires.',
+                        'france_sync_catalog'.tr,
                         style: KpbTextStyles.bodySm,
                       ),
                     )
