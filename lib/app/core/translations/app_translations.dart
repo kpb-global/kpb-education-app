@@ -472,6 +472,21 @@ class AppTranslations extends Translations {
           'delete_account_cta': 'Supprimer',
           'delete_account_error':
               'Suppression impossible pour le moment. Vérifie ta connexion et réessaie.',
+          // ── Âge + consentement tuteur (mineurs) ──
+          'birth_date': 'Date de naissance',
+          'birth_date_hint': 'Sélectionne ta date de naissance',
+          'onboarding_birthdate_required_title': 'Date de naissance requise',
+          'onboarding_birthdate_required':
+              'Indique ta date de naissance pour continuer.',
+          'minor_guardian_title': 'Accord d\'un parent / tuteur',
+          'minor_guardian_intro':
+              'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et Coach IA).',
+          'guardian_name': 'Nom du parent / tuteur',
+          'guardian_contact': 'Contact du parent / tuteur (WhatsApp ou email)',
+          'guardian_consent_checkbox': 'Mon parent / tuteur a donné son accord.',
+          'guardian_consent_required_title': 'Accord parental requis',
+          'guardian_consent_required':
+              'Renseigne le nom et le contact de ton parent/tuteur et coche son accord pour continuer.',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -941,6 +956,22 @@ class AppTranslations extends Translations {
           'delete_account_cta': 'Delete',
           'delete_account_error':
               'Deletion failed for now. Check your connection and try again.',
+          // ── Age + guardian consent (minors) ──
+          'birth_date': 'Date of birth',
+          'birth_date_hint': 'Select your date of birth',
+          'onboarding_birthdate_required_title': 'Birth date required',
+          'onboarding_birthdate_required':
+              'Enter your date of birth to continue.',
+          'minor_guardian_title': 'Parent / guardian consent',
+          'minor_guardian_intro':
+              'You are under 18. A parent or guardian must consent and provide their details for you to use KPB (data sync and AI Coach).',
+          'guardian_name': 'Parent / guardian name',
+          'guardian_contact': 'Parent / guardian contact (WhatsApp or email)',
+          'guardian_consent_checkbox':
+              'My parent / guardian has given their consent.',
+          'guardian_consent_required_title': 'Guardian consent required',
+          'guardian_consent_required':
+              'Enter your guardian\'s name and contact and tick their consent to continue.',
         },
       };
 }
