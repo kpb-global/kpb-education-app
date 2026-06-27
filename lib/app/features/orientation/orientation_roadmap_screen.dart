@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
@@ -65,10 +66,9 @@ class OrientationRoadmapScreen extends StatelessWidget {
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
           Text('Ton parcours de candidature', style: KpbTextStyles.titleLg),
-          const SizedBox(height: KpbSpacing.xs),
+          SizedBox(height: KpbSpacing.xs),
           Text(
-            'Objectif : rentrée $intakeLabel · $fieldLabel. Voici les étapes, '
-            'datées à rebours de l’échéance — coche-les au fur et à mesure.',
+            'roadmap_objective'.trParams({'intake': intakeLabel, 'field': fieldLabel}),
             style:
                 KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
           ),

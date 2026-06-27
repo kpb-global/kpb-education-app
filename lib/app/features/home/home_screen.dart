@@ -1475,17 +1475,17 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       BoxShadow(
                         color: KpbColors.gold.withValues(alpha: 0.4),
                         blurRadius: 10,
-                        offset: const Offset(0, 2),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.public_rounded,
                     color: Colors.white,
                     size: 28,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 // Content
                 Expanded(
                   child: Column(
@@ -1493,9 +1493,9 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Flexible(
+                          Flexible(
                             child: Text(
-                              "Inscriptions à l'Étranger",
+                              'register_abroad_title'.tr,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -1651,9 +1651,9 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
             const SizedBox(height: 20),
             // Header Title
             Row(
-              children: const [
+              children: [
                 Text(
-                  "S'inscrire à l'Étranger",
+                  'register_abroad_cta'.tr,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,

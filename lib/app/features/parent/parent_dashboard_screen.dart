@@ -89,7 +89,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
       ),
       builder: (_) => Padding(
@@ -103,10 +103,10 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Code d\'invitation', style: KpbTextStyles.title),
-            const SizedBox(height: KpbSpacing.sm),
-            const Text(
-              'Envoie ce code à ton enfant par WhatsApp. Il l\'entrera dans son application pour te lier.',
+            Text('Code d\'invitation', style: KpbTextStyles.title),
+            SizedBox(height: KpbSpacing.sm),
+            Text(
+              'parent_invite_share_hint'.tr,
               style: KpbTextStyles.bodySm,
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -238,7 +238,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   Widget _inviteCard() {
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: KpbRadius.lgBr,
         boxShadow: KpbShadow.card,
@@ -246,10 +246,10 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Invite ton enfant', style: KpbTextStyles.title),
-          const SizedBox(height: KpbSpacing.sm),
-          const Text(
-            'Crée un code à 8 caractères et envoie-le par WhatsApp. Ton enfant pourra ensuite partager ses dossiers avec toi.',
+          Text('Invite ton enfant', style: KpbTextStyles.title),
+          SizedBox(height: KpbSpacing.sm),
+          Text(
+            'parent_create_code_hint'.tr,
             style: KpbTextStyles.bodySm,
           ),
           const SizedBox(height: KpbSpacing.md),
@@ -266,7 +266,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   Widget _acceptCard() {
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: KpbRadius.lgBr,
         boxShadow: KpbShadow.card,
@@ -274,13 +274,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Lier un compte parent',
             style: KpbTextStyles.title,
           ),
-          const SizedBox(height: KpbSpacing.sm),
-          const Text(
-            'Si un parent t\'a envoyé un code à 8 caractères, saisis-le ci-dessous pour lui donner un accès lecture à tes dossiers.',
+          SizedBox(height: KpbSpacing.sm),
+          Text(
+            'parent_accept_code_hint'.tr,
             style: KpbTextStyles.bodySm,
           ),
           const SizedBox(height: KpbSpacing.md),

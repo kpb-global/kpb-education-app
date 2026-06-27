@@ -816,7 +816,7 @@ class _PageIdentity extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text.rich(
                   TextSpan(
@@ -826,15 +826,15 @@ class _PageIdentity extends StatelessWidget {
                       height: 1.4,
                     ),
                     children: [
-                      const TextSpan(text: 'J\'accepte la '),
+                      TextSpan(text: 'J\'accepte la '),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                         child: GestureDetector(
                           onTap: () => Get.to(
-                              () => const PrivacyPolicyScreen()),
-                          child: const Text(
-                            'politique de confidentialité',
+                              () => PrivacyPolicyScreen()),
+                          child: Text(
+                            'privacy_policy_inline'.tr,
                             style: TextStyle(
                               fontSize: 13,
                               color: KpbColors.blue,

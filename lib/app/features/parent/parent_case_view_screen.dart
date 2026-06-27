@@ -159,15 +159,15 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
           const SizedBox(height: KpbSpacing.md),
           Container(
             padding: const EdgeInsets.all(KpbSpacing.md),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: KpbColors.skyLight,
               borderRadius: KpbRadius.mdBr,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Prochaine étape',
+                Text(
+                  'next_step'.tr,
                   style: KpbTextStyles.label,
                 ),
                 const SizedBox(height: 4),

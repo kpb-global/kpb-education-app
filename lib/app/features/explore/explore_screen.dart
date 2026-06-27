@@ -779,7 +779,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '${_compareSet.length}/2 sélectionnée${_compareSet.length > 1 ? 's' : ''}',
+                          'compare_selected'.trParams({'n': '${_compareSet.length}'}),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -788,7 +788,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
                         ),
                         if (_compareSet.length < 2)
                           Text(
-                            'Choisissez une 2ème université',
+                            'choose_second_uni'.tr,
                             style: TextStyle(
                                 fontSize: 12, color: context.kpb.textMuted),
                           ),

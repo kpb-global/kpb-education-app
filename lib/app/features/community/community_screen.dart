@@ -89,7 +89,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Apprendre ensemble 🌍',
                         style: TextStyle(
                           color: Colors.white,
@@ -97,9 +97,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
-                        'Articles, guides et conseils de nos experts pour réussir votre projet d\'études.',
+                        'community_intro'.tr,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 15,
@@ -329,7 +329,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Rejoindre le groupe WhatsApp',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -337,9 +337,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6),
                                 Text(
-                                  '+2 000 étudiants — Conseils, entraide & actu',
+                                  'community_members'.tr,
                                   style: TextStyle(
                                     color: Colors.white
                                         .withValues(alpha: 0.8),
@@ -664,7 +664,7 @@ void _openArticleSheet(
                           .map((tag) => KpbBadgeLight(label: '#$tag'))
                           .toList(),
                     ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     controller.resolve(article.title),
                     style: TextStyle(
@@ -674,7 +674,7 @@ void _openArticleSheet(
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     controller.resolve(article.body ?? article.summary),
                     style: TextStyle(
@@ -683,10 +683,10 @@ void _openArticleSheet(
                       height: 1.6,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   if (article.publishedAt != null)
                     Text(
-                      'Publié le ${_formatDate(article.publishedAt as DateTime)}',
+                      '${'published_on'.tr} ${_formatDate(article.publishedAt as DateTime)}',
                       style: TextStyle(
                           fontSize: 13, color: context.kpb.textMuted),
                     ),

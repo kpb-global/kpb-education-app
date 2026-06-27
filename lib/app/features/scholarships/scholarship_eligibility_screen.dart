@@ -81,15 +81,14 @@ class _ScholarshipEligibilityScreenState
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       children: [
         Text(_name, style: KpbTextStyles.titleLg),
-        const SizedBox(height: KpbSpacing.sm),
+        SizedBox(height: KpbSpacing.sm),
         Align(
           alignment: Alignment.centerLeft,
           child: ScholarshipStatusBadge(scholarship: widget.scholarship),
         ),
-        const SizedBox(height: KpbSpacing.sm),
+        SizedBox(height: KpbSpacing.sm),
         Text(
-          'Réponds honnêtement à chaque critère pour estimer ton éligibilité. '
-          'Ce n’est qu’une indication — un conseiller confirmera ton cas.',
+          'eligibility_honest_hint'.tr,
           style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
         ),
         const SizedBox(height: KpbSpacing.lg),
@@ -274,8 +273,7 @@ class _ScholarshipEligibilityScreenState
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Les critères d’éligibilité de cette bourse ne sont pas encore '
-            'détaillés. Un conseiller KPB peut vérifier ton cas directement.',
+            'eligibility_not_detailed'.tr,
             textAlign: TextAlign.center,
             style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
           ),
