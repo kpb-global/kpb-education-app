@@ -105,6 +105,24 @@ class AnalyticsService {
     }
   }
 
+  // ── Referral loop (KPB-69) ──────────────────────────────────────────────────
+
+  Future<void> logReferralInviteShared() async {
+    try {
+      await _analytics.logEvent(name: AnalyticsEventName.referralInviteShared);
+    } catch (e, s) {
+      _logError('logReferralInviteShared', e, s);
+    }
+  }
+
+  Future<void> logReferralRedeemed() async {
+    try {
+      await _analytics.logEvent(name: AnalyticsEventName.referralRedeemed);
+    } catch (e, s) {
+      _logError('logReferralRedeemed', e, s);
+    }
+  }
+
   // ── Content events ────────────────────────────────────────────────────────
 
   Future<void> logSaveItem({

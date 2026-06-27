@@ -473,6 +473,25 @@ class AppTranslations extends Translations {
           'register_error_generic': 'Une erreur est survenue. Réessayez.',
           'register_error_email_exists': 'Un compte avec cet email existe déjà.',
           'register_error_network': 'Problème de connexion. Vérifiez votre réseau.',
+          // ── Parrainage (KPB-69) ──
+          'copy': 'Copier',
+          'referral_title': 'Parrainer un ami',
+          'referral_intro':
+              'Invite tes amis sur KPB. Quand ils s\'inscrivent et lancent un dossier avec ton code, on suit ton impact.',
+          'referral_your_code': 'Ton code de parrainage',
+          'referral_invite_whatsapp': 'Inviter sur WhatsApp',
+          'referral_invite_message':
+              'Salut ! J\'utilise KPB Education pour mes études à l\'étranger (orientation, bourses, accompagnement visa). Inscris-toi et saisis mon code de parrainage : @code',
+          'referral_friends_joined': 'Amis inscrits',
+          'referral_friends_cases': 'Ont créé un dossier',
+          'referral_have_code': 'Tu as un code de parrainage ?',
+          'referral_code_hint': 'Saisis le code',
+          'referral_redeem_cta': 'Valider le code',
+          'referral_code_copied': 'Code copié',
+          'referral_redeemed_ok': 'Code validé — merci ! Ton parrain est crédité.',
+          'referral_redeemed_already':
+              'Tu as déjà utilisé un code de parrainage.',
+          'referral_redeem_error': 'Code invalide. Vérifie et réessaie.',
           // ── Consentement IA (Coach) ──
           'coach_ai': 'Coach IA',
           'ai_consent_title': 'Activer le Coach IA',
@@ -978,6 +997,24 @@ class AppTranslations extends Translations {
           'register_error_generic': 'An error occurred. Please try again.',
           'register_error_email_exists': 'An account with this email already exists.',
           'register_error_network': 'Connection issue. Check your network.',
+          // ── Referral (KPB-69) ──
+          'copy': 'Copy',
+          'referral_title': 'Refer a friend',
+          'referral_intro':
+              'Invite your friends to KPB. When they sign up and start a case with your code, we track your impact.',
+          'referral_your_code': 'Your referral code',
+          'referral_invite_whatsapp': 'Invite on WhatsApp',
+          'referral_invite_message':
+              'Hi! I use KPB Education for studying abroad (guidance, scholarships, visa support). Sign up and enter my referral code: @code',
+          'referral_friends_joined': 'Friends joined',
+          'referral_friends_cases': 'Started a case',
+          'referral_have_code': 'Have a referral code?',
+          'referral_code_hint': 'Enter the code',
+          'referral_redeem_cta': 'Apply code',
+          'referral_code_copied': 'Code copied',
+          'referral_redeemed_ok': 'Code applied — thanks! Your referrer is credited.',
+          'referral_redeemed_already': 'You have already used a referral code.',
+          'referral_redeem_error': 'Invalid code. Check it and try again.',
           // ── AI consent (Coach) ──
           'coach_ai': 'AI Coach',
           'ai_consent_title': 'Enable the AI Coach',
