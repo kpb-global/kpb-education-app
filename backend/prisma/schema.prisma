@@ -161,6 +161,9 @@ model UserProfile {
   targetLevel          String?
   languageLevel        String?
   gradeRange           String?
+  // Indicative monthly budget in EUR. Powers eligibility scoring + coach budget
+  // anchoring, and is the field that lets profile completion reach 100%.
+  monthlyBudgetEur     Int?
   wantsScholarship     Boolean                  @default(false)
   // Per-user interest selections (previously held in a shared in-memory
   // singleton, which leaked across users). Now persisted per profile.
