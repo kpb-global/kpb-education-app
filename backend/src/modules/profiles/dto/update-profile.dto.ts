@@ -1,4 +1,12 @@
-import { IsArray, IsBoolean, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -56,4 +64,10 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsArray()
   availableDocuments?: string[];
+
+  // ISO timestamp when the user granted explicit consent to third-party AI
+  // (Groq) processing. Set once the user opts into the AI coach.
+  @IsOptional()
+  @IsDateString()
+  aiConsentedAt?: string;
 }

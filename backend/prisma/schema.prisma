@@ -168,6 +168,9 @@ model UserProfile {
   targetCountryIds     String[]                 @default([])
   availableDocuments   String[]                 @default([])
   consentedAt          DateTime?
+  // Separate, explicit consent for third-party AI processing (Groq). Gates the
+  // AI coach independently of the general onboarding consent above.
+  aiConsentedAt        DateTime?
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
   cases                Case[]

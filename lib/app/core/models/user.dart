@@ -55,6 +55,7 @@ class UserProfile {
     this.wantsScholarshipSupport = false,
     this.availableDocuments = const [],
     this.consentedAt,
+    this.aiConsentedAt,
   });
 
   final String id;
@@ -77,6 +78,13 @@ class UserProfile {
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
+  /// Timestamp of explicit consent to third-party AI (Groq) processing. Null
+  /// until the user opts into the AI coach. Distinct from [consentedAt].
+  final DateTime? aiConsentedAt;
+
+  /// Whether the user has granted explicit consent to AI processing.
+  bool get hasAiConsent => aiConsentedAt != null;
+
   UserProfile copyWith({
     String? fullName,
     String? email,
@@ -95,6 +103,7 @@ class UserProfile {
     bool? wantsScholarshipSupport,
     List<String>? availableDocuments,
     DateTime? consentedAt,
+    DateTime? aiConsentedAt,
   }) {
     return UserProfile(
       id: id,
@@ -117,6 +126,7 @@ class UserProfile {
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
+      aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,
     );
   }
 

@@ -452,6 +452,13 @@ class AppTranslations extends Translations {
           'register_error_generic': 'Une erreur est survenue. Réessayez.',
           'register_error_email_exists': 'Un compte avec cet email existe déjà.',
           'register_error_network': 'Problème de connexion. Vérifiez votre réseau.',
+          // ── Consentement IA (Coach) ──
+          'coach_ai': 'Coach IA',
+          'ai_consent_title': 'Activer le Coach IA',
+          'ai_consent_body':
+              'Pour te répondre, le Coach KPB envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
+          'ai_consent_accept': 'J\'active le Coach IA',
+          'ai_consent_decline': 'Plus tard',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -901,6 +908,13 @@ class AppTranslations extends Translations {
           'register_error_generic': 'An error occurred. Please try again.',
           'register_error_email_exists': 'An account with this email already exists.',
           'register_error_network': 'Connection issue. Check your network.',
+          // ── AI consent (Coach) ──
+          'coach_ai': 'AI Coach',
+          'ai_consent_title': 'Enable the AI Coach',
+          'ai_consent_body':
+              'To answer you, the KPB Coach sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
+          'ai_consent_accept': 'Enable AI Coach',
+          'ai_consent_decline': 'Not now',
         },
       };
 }

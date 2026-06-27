@@ -75,6 +75,9 @@ export class ProfilesService {
           ...(input.availableDocuments
             ? { availableDocuments: input.availableDocuments }
             : {}),
+          ...(input.aiConsentedAt !== undefined
+            ? { aiConsentedAt: new Date(input.aiConsentedAt) }
+            : {}),
         },
       }),
     );
@@ -110,6 +113,7 @@ export class ProfilesService {
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,
+      aiConsentedAt: p.aiConsentedAt ? p.aiConsentedAt.toISOString() : null,
       updatedAt: p.updatedAt.toISOString(),
     };
   }
