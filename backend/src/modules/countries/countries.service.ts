@@ -3,8 +3,6 @@ import type { Country, CountryEligibilityQuiz, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { M5_COUNTRY_SEEDS } from './data/m5-countries.seed';
-import { scoreCountryQuiz } from './country-quiz.scorer';
-import type { EligibilityVerdictKey } from './country-quiz.types';
 
 type CountryWithQuiz = Country & {
   eligibilityQuiz: CountryEligibilityQuiz | null;
@@ -195,46 +193,7 @@ export class CountriesService {
     return mapCountry(fallback, fallback.eligibilityQuiz);
   }
 
-  async submitQuiz(countryKey: string, answers: Record<string, string>) {
-    const detail = await this.getCountryDetail(countryKey);
-    const verdictKey = scoreCountryQuiz(detail.id, answers);
-    const quiz = detail.eligibilityQuiz as {
-      verdicts: Record<
-        EligibilityVerdictKey,
-        {
-          titleFr: string;
-          titleEn: string;
-          messageFr: string;
-          messageEn: string;
-          ctaFr: string;
-          ctaEn: string;
-          alternativeCountryIds?: string[];
-        }
-      >;
-    } | undefined;
-
-    const copy = quiz?.verdicts?.[verdictKey];
-    if (!copy) {
-      return {
-        verdict: verdictKey,
-        verdictTitle: verdictKey,
-        verdictMessage: '',
-        ctaLabel: 'Continuer',
-        alternativeCountryIds: [] as string[],
-        countryId: detail.id,
-      };
-    }
-
-    return {
-      verdict: verdictKey,
-      verdictTitle: copy.titleFr,
-      verdictTitleEn: copy.titleEn,
-      verdictMessage: copy.messageFr,
-      verdictMessageEn: copy.messageEn,
-      ctaLabel: copy.ctaFr,
-      ctaLabelEn: copy.ctaEn,
-      alternativeCountryIds: copy.alternativeCountryIds ?? [],
-      countryId: detail.id,
-    };
-  }
+  // submitQuiz + scoreCountryQuiz removed (KPB-62): the per-country eligibility
+  // verdict is computed client-side by the single EligibilityEngine. The quiz
+  // questions + verdict copy are still served via getCountryDetail.
 }

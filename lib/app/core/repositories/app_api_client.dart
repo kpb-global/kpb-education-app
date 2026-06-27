@@ -275,16 +275,8 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> submitCountryQuiz(
-    String countryKey,
-    Map<String, String> answers,
-  ) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/countries/${Uri.encodeComponent(countryKey)}/quiz/submit',
-      data: {'answers': answers},
-    );
-    return response.data ?? <String, dynamic>{};
-  }
+  // Country quiz submit endpoint removed (KPB-62): eligibility is scored
+  // client-side by the single EligibilityEngine.
 
   /// Fetch live scraped scholarships, filtered and scored by the user's profile.
   Future<List<dynamic>> fetchLiveScholarships({
