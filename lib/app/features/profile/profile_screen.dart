@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
@@ -530,6 +533,32 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: KpbSpacing.lg),
 
+                    // ── Mes données / RGPD ─────────────────────────────
+                    Text('data_rights_section'.tr,
+                        style: KpbTextStyles.title),
+                    const SizedBox(height: KpbSpacing.sm),
+                    KpbCard(
+                      child: Column(
+                        children: [
+                          _QuickAccessTile(
+                            icon: Icons.download_outlined,
+                            label: 'export_data'.tr,
+                            color: context.kpb.textSecondary,
+                            onTap: () => _exportData(context, controller),
+                          ),
+                          const KpbDivider(indent: 52),
+                          _QuickAccessTile(
+                            icon: Icons.delete_outline_rounded,
+                            label: 'delete_account'.tr,
+                            color: KpbColors.error,
+                            onTap: () =>
+                                _confirmDeleteAccount(context, controller),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: KpbSpacing.lg),
+
                     // ── Logout ────────────────────────────────────────
                     SizedBox(
                       width: double.infinity,
@@ -579,6 +608,61 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: KpbColors.error,
             ),
             child: Text('logout'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _exportData(
+      BuildContext context, AppController controller) async {
+    try {
+      final data = await controller.exportData();
+      const encoder = JsonEncoder.withIndent('  ');
+      await SharePlus.instance.share(
+        ShareParams(
+          text: encoder.convert(data),
+          subject: 'export_data_subject'.tr,
+        ),
+      );
+    } catch (_) {
+      Get.snackbar(
+        'data_rights_section'.tr,
+        'export_data_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void _confirmDeleteAccount(BuildContext context, AppController controller) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('delete_account_confirm_title'.tr),
+        content: Text('delete_account_confirm_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('cancel'.tr),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await controller.deleteAccount();
+                Get.offAll(() => const AppBootScreen());
+              } catch (_) {
+                Get.snackbar(
+                  'delete_account'.tr,
+                  'delete_account_error'.tr,
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: KpbColors.error,
+            ),
+            child: Text('delete_account_cta'.tr),
           ),
         ],
       ),

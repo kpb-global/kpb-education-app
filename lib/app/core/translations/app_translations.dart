@@ -459,6 +459,19 @@ class AppTranslations extends Translations {
               'Pour te répondre, le Coach KPB envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
           'ai_consent_accept': 'J\'active le Coach IA',
           'ai_consent_decline': 'Plus tard',
+          // ── Mes données / RGPD ──
+          'data_rights_section': 'Mes données',
+          'export_data': 'Exporter mes données',
+          'export_data_subject': 'Export de mes données KPB',
+          'export_data_error':
+              'Impossible d\'exporter tes données pour le moment. Réessaie.',
+          'delete_account': 'Supprimer mon compte',
+          'delete_account_confirm_title': 'Supprimer définitivement ton compte ?',
+          'delete_account_confirm_body':
+              'Cette action est irréversible. Toutes tes données (profil, dossiers, messages, favoris) seront définitivement supprimées de nos serveurs.',
+          'delete_account_cta': 'Supprimer',
+          'delete_account_error':
+              'Suppression impossible pour le moment. Vérifie ta connexion et réessaie.',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -915,6 +928,19 @@ class AppTranslations extends Translations {
               'To answer you, the KPB Coach sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
           'ai_consent_accept': 'Enable AI Coach',
           'ai_consent_decline': 'Not now',
+          // ── My data / GDPR ──
+          'data_rights_section': 'My data',
+          'export_data': 'Export my data',
+          'export_data_subject': 'My KPB data export',
+          'export_data_error':
+              'Could not export your data right now. Please try again.',
+          'delete_account': 'Delete my account',
+          'delete_account_confirm_title': 'Permanently delete your account?',
+          'delete_account_confirm_body':
+              'This cannot be undone. All your data (profile, cases, messages, favourites) will be permanently deleted from our servers.',
+          'delete_account_cta': 'Delete',
+          'delete_account_error':
+              'Deletion failed for now. Check your connection and try again.',
         },
       };
 }
