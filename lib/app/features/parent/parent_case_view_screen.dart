@@ -1,9 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/app_tokens.dart';
-import '../../core/utils/whatsapp_utils.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../../core/utils/tuition_utils.dart';
+
+/// FR/EN short labels for each backend case status (kept local so the parent
+/// view doesn't depend on the student-side case models).
+const _caseStatusLabels = <String, (String, String)>{
+  'draft': ('Brouillon', 'Draft'),
+  'submitted': ('Soumis', 'Submitted'),
+  'under_review': ('En revue', 'Under review'),
+  'documents_needed': ('Documents requis', 'Documents needed'),
+  'counselor_assigned': ('Conseiller assigné', 'Advisor assigned'),
+  'awaiting_student': ('En attente de l\'étudiant', 'Awaiting student'),
+  'scheduled': ('Programmé', 'Scheduled'),
+  'in_progress': ('En cours', 'In progress'),
+  'application_submitted': ('Candidature envoyée', 'Application submitted'),
+  'waiting_decision': ('Décision en attente', 'Awaiting decision'),
+  'awaiting_payment': ('Paiement en attente', 'Awaiting payment'),
+  'completed': ('Terminé', 'Completed'),
+  'rejected': ('Refusé', 'Rejected'),
+  'cancelled': ('Annulé', 'Cancelled'),
+};
 
 /// Read-only case view for linked parents (Track C1). The student has opted
 /// in to share the case (`parentCanView = true` on the case). We show:
@@ -59,13 +80,21 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
   }
 
   Future<void> _discussPressed() async {
-    // No in-app payment: a parent who wants to act on the case is routed to a
-    // KPB advisor on WhatsApp, pre-filled with the case title for context.
+    // Anti-scam: surface the verified advisor's identity + the exact official
+    // number to expect BEFORE the WhatsApp hand-off (KPB-52 pattern), so an
+    // impostor number demanding Mobile Money is obvious. No in-app payment.
     final title = (_case['title'] as String?)?.trim();
     final prefill = title != null && title.isNotEmpty
         ? 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier « $title » sur KPB Education.'
         : 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier de mon enfant sur KPB Education.';
-    await openWhatsAppOrToast(prefill: prefill);
+    await showVerifiedAdvisorThenWhatsApp(
+      advisorName: (_case['assignedAdvisorName'] as String?)?.trim(),
+      phone: (_case['assignedAdvisorWhatsapp'] as String?)?.trim() ??
+          (_case['assignedAdvisorPhone'] as String?)?.trim(),
+      prefill: prefill,
+      source: 'parent_case',
+      contextType: 'parent_advisor',
+    );
   }
 
   @override
@@ -150,7 +179,19 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text((_case['title'] as String?) ?? '', style: KpbTextStyles.title),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text((_case['title'] as String?) ?? '',
+                    style: KpbTextStyles.title),
+              ),
+              if (_statusLabel() case final s?) ...[
+                const SizedBox(width: KpbSpacing.sm),
+                _StatusChip(label: s),
+              ],
+            ],
+          ),
           const SizedBox(height: KpbSpacing.xs),
           Text(
             (_case['contextLabel'] as String?) ?? '',
@@ -183,9 +224,90 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
               ],
             ),
           ),
+          _moneyAndDeadlines(),
         ],
       ),
     );
+  }
+
+  // ── Argent & échéances (KPB-58): coût FCFA + prochaine échéance ─────────────
+  Widget _moneyAndDeadlines() {
+    final locale = Get.find<AppController>().localeCode;
+    final fcfa = _fcfaEstimate(locale);
+    final deadline = _nextDeadline();
+    if (fcfa == null && deadline == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: KpbSpacing.md),
+      child: Container(
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        decoration: BoxDecoration(
+          color: KpbColors.goldLight,
+          borderRadius: KpbRadius.mdBr,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (fcfa != null) ...[
+              Row(
+                children: [
+                  const Icon(Icons.savings_outlined,
+                      size: 18, color: KpbColors.gold),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text('${'parent_tuition_estimate'.tr} : $fcfa',
+                        style: KpbTextStyles.bodySm),
+                  ),
+                ],
+              ),
+            ],
+            if (deadline != null) ...[
+              if (fcfa != null) const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.event_outlined,
+                      size: 18, color: KpbColors.gold),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text('${'parent_next_deadline'.tr} : $deadline',
+                        style: KpbTextStyles.bodySm),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 6),
+            Text('parent_cost_note'.tr,
+                style: KpbTextStyles.caption),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _statusLabel() {
+    final raw = (_case['status'] as String?) ?? '';
+    final pair = _caseStatusLabels[raw];
+    if (pair == null) return raw.isEmpty ? null : raw;
+    return Get.find<AppController>().localeCode.startsWith('en')
+        ? pair.$2
+        : pair.$1;
+  }
+
+  String? _fcfaEstimate(String locale) {
+    final countryId = (_case['requestedCountryId'] as String?) ?? '';
+    if (countryId.isEmpty) return null;
+    final country = Get.find<AppController>().countryByIdOrNull(countryId);
+    if (country == null) return null;
+    final suffix =
+        TuitionUtils.fcfaSuffixFromTuition(country.tuitionRange.resolve(locale));
+    return suffix.isEmpty ? null : suffix;
+  }
+
+  String? _nextDeadline() {
+    final d = DateTime.tryParse((_case['scheduledAt'] as String?) ?? '');
+    if (d == null) return null;
+    return '${d.day.toString().padLeft(2, '0')}/'
+        '${d.month.toString().padLeft(2, '0')}/${d.year}';
   }
 
   Widget _timelineTile(dynamic raw) {
@@ -242,6 +364,31 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
               style: KpbTextStyles.body,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: KpbColors.blue.withValues(alpha: 0.12),
+        borderRadius: KpbRadius.pillBr,
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: KpbColors.blue,
         ),
       ),
     );

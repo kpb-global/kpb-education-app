@@ -233,6 +233,11 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
           'offline_cache_notice': 'Mode hors ligne. Affichage des données en cache.',
           'next_step': 'Prochaine étape',
+          // ── Vue parent : argent & échéances (KPB-58) ──
+          'parent_tuition_estimate': 'Frais de scolarité estimés',
+          'parent_next_deadline': 'Prochaine échéance',
+          'parent_cost_note':
+              'Estimation indicative — confirme le détail avec le conseiller.',
           'step_label': 'Étape',
           'case_context_prefilled': 'Contexte pré-rempli depuis ta navigation. Tu peux continuer ou revenir en arrière pour modifier.',
           'listening_speak_clearly': 'Écoute en cours… parle clairement.',
@@ -765,6 +770,11 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Answer 5 questions and get a 🟢 🟡 🔴 verdict for each of the 9 KPB destinations, then export your report as a PDF.',
           'offline_cache_notice': 'Offline mode. Showing cached data.',
           'next_step': 'Next step',
+          // ── Parent view: money & deadlines (KPB-58) ──
+          'parent_tuition_estimate': 'Estimated tuition',
+          'parent_next_deadline': 'Next deadline',
+          'parent_cost_note':
+              'Indicative estimate — confirm details with the advisor.',
           'step_label': 'Step',
           'case_context_prefilled': 'Context pre-filled from your browsing. You can continue or go back to edit.',
           'listening_speak_clearly': 'Listening… speak clearly.',
