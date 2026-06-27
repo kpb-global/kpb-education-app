@@ -126,25 +126,20 @@ export class CampaignExecutorService {
     }
 
     if (campaign.channels.includes('email') && template) {
-      let emailDelivered = 0;
-      for (const user of recipients) {
-        if (!user.email) continue;
-        
-        const title = user.preferredLanguage === 'en' ? template.titleEn : template.titleFr;
-        const body = user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
-        
-        // TODO: Integrate actual email provider (e.g., SendGrid, AWS SES) here
-        this.logger.log(`[MOCK EMAIL] Sending to ${user.email}: Subject: "${title}" Body: "${body.substring(0, 30)}..."`);
-        emailDelivered += 1;
-      }
-
+      // No email provider is wired yet (SendGrid/SES — TODO). We must NOT
+      // fabricate a "delivered" status: nothing is actually sent, so queued
+      // email deliveries are marked failed and campaign stats stay honest.
+      const emailRecipients = recipients.filter((u) => u.email).length;
       await this.prismaService.execute((prisma) =>
         prisma.notificationDelivery.updateMany({
           where: { campaignId, channel: 'email', status: 'queued' },
-          data: { status: 'delivered', deliveredAt: new Date() },
+          data: { status: 'failed' },
         }),
       );
-      this.logger.log(`Mock-delivered ${emailDelivered} emails for campaign ${campaignId}`);
+      this.logger.warn(
+        `Email provider not configured — ${emailRecipients} email recipient(s) ` +
+          `for campaign ${campaignId} marked failed (not sent).`,
+      );
     }
 
     await this.prismaService.execute((prisma) =>

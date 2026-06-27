@@ -13,11 +13,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface ImpactStats {
   studentsGuided: number;
   admissionsSecured: number;
-  scholarshipsValueEur: number;
+  /// Count of active, approved scholarships in the catalogue (verifiable),
+  /// replacing the former fabricated "value in EUR" (convertedCases × 4500).
+  scholarshipsTracked: number;
   orientationSessions: number;
   countriesCovered: number;
   partnerInstitutions: number;
-  satisfactionRate: number; // 0-100
+  /// 0–100, derived from published counsellor reviews. NULL until any review
+  /// exists — we never fabricate a satisfaction figure.
+  satisfactionRate: number | null;
+  reviewsCount: number;
   generatedAt: string;
 }
 
@@ -29,9 +34,11 @@ export class ImpactService {
     const [
       studentsGuided,
       completedCases,
-      convertedCases,
       orientationSessions,
       partnerInstitutions,
+      countriesCovered,
+      scholarshipsTracked,
+      reviewAgg,
     ] = await Promise.all([
       this.prisma.tryExecute((db) =>
         db.userProfile.count({ where: { accountType: 'student' } }),
@@ -39,36 +46,48 @@ export class ImpactService {
       this.prisma.tryExecute((db) =>
         db.case.count({ where: { status: 'completed' } }),
       ),
-      this.prisma.tryExecute((db) =>
-        db.case.count({ where: { leadTag: 'converted' } }),
-      ),
       this.prisma.tryExecute((db) => db.orientationSession.count()),
       this.prisma.tryExecute((db) =>
         db.institution.count({ where: { isPartner: true } }),
       ),
+      // Real destination coverage from the catalogue (was hardcoded 9).
+      this.prisma.tryExecute((db) =>
+        db.country.count({ where: { isActive: true } }),
+      ),
+      // Real, verifiable scholarship coverage (was a fabricated EUR estimate).
+      this.prisma.tryExecute((db) =>
+        db.scholarship.count({
+          where: { isActive: true, moderationStatus: 'approved' },
+        }),
+      ),
+      // Satisfaction from published reviews only — no survey data ⇒ null.
+      this.prisma.tryExecute((db) =>
+        db.counsellorReview.aggregate({
+          where: { isPublished: true },
+          _avg: { rating: true },
+          _count: { _all: true },
+        }),
+      ),
     ]);
 
-    // Admissions = completed dossiers (a completed case == a placed student).
-    const admissions = completedCases ?? 0;
-
-    // Estimated scholarship value: average secured aid per converted student.
-    // Conservative €4,500 average tuition waiver / aid package per placement.
-    const avgAidPerStudentEur = 4500;
-    const scholarshipsValueEur = (convertedCases ?? 0) * avgAidPerStudentEur;
-
-    // KPB operates across 9 destination countries (MVP scope).
-    const countriesCovered = 9;
+    const reviewsCount = reviewAgg?._count?._all ?? 0;
+    const avgRating = reviewAgg?._avg?.rating ?? null;
+    // ratings are 1–5 → scale to 0–100; null when there are no reviews.
+    const satisfactionRate =
+      reviewsCount > 0 && avgRating != null
+        ? Math.round(avgRating * 20)
+        : null;
 
     return {
       studentsGuided: studentsGuided ?? 0,
-      admissionsSecured: admissions,
-      scholarshipsValueEur,
+      // Admissions = completed dossiers (a completed case == a placed student).
+      admissionsSecured: completedCases ?? 0,
+      scholarshipsTracked: scholarshipsTracked ?? 0,
       orientationSessions: orientationSessions ?? 0,
-      countriesCovered,
+      countriesCovered: countriesCovered ?? 0,
       partnerInstitutions: partnerInstitutions ?? 0,
-      // Satisfaction is a placeholder until in-app NPS lands; surfaced so the
-      // board has the slot ready. Computed when survey data exists.
-      satisfactionRate: 96,
+      satisfactionRate,
+      reviewsCount,
       generatedAt: new Date().toISOString(),
     };
   }
