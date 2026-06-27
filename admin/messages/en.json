@@ -7,7 +7,11 @@
     "loading": "Loading admin workspace…",
     "description": "Mobile-facing content, case operations, and team workflows live from this workspace.",
     "logout": "Log out",
-    "language": "Language"
+    "language": "Language",
+    "primaryNav": "Primary navigation",
+    "skipToContent": "Skip to content",
+    "switchToFrench": "Switch to French",
+    "switchToEnglish": "Switch to English"
   },
   "nav": {
     "overview": "Overview",
@@ -36,5 +40,13 @@
     "activeStudents": "Active students",
     "recentCases": "Recent cases",
     "noRecent": "No recent cases."
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. You can try again, or contact the platform team if it persists.",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has moved.",
+    "backHome": "Back to overview"
   }
 }

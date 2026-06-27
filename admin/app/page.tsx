@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../components/admin-auth-provider';
 import { DashboardShell } from '../components/dashboard-shell';
+import { Alert, Card, Skeleton, StatCard } from '../components/ui';
 import { apiFetch } from '../lib/api-client';
-import { mutedTextStyle, panelStyle } from '../lib/ui';
+import { mutedTextStyle } from '../lib/ui';
 
 interface OverviewMetrics {
   activeCases: number;
@@ -42,69 +43,73 @@ export default function OverviewPage() {
     };
   }, [session]);
 
+  const loadingValue = <Skeleton width={72} height={26} />;
+  const stats: { label: string; value: ReactNode }[] = [
+    {
+      label: 'Active cases',
+      value: overview ? String(overview.activeCases) : loadingValue,
+    },
+    {
+      label: 'Awaiting docs',
+      value: overview ? String(overview.awaitingDocuments) : loadingValue,
+    },
+    {
+      label: 'Submitted this week',
+      value: overview ? String(overview.submittedThisWeek) : loadingValue,
+    },
+    {
+      label: 'Premium conversions',
+      value: overview ? String(overview.premiumConversions) : loadingValue,
+    },
+    {
+      label: 'Counselor response SLA',
+      value: overview
+        ? `${overview.counselorResponseSlaHours.toFixed(1)}h`
+        : loadingValue,
+    },
+  ];
+
   return (
     <DashboardShell title="Overview">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
         <div
           style={{
             display: 'grid',
-            gap: 16,
+            gap: 'var(--space-4)',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           }}
         >
-          {[
-            ['Active cases', String(overview?.activeCases ?? '...')],
-            ['Awaiting docs', String(overview?.awaitingDocuments ?? '...')],
-          [
-              'Submitted this week',
-              String(overview?.submittedThisWeek ?? '...'),
-            ],
-            [
-              'Premium conversions',
-              String(overview?.premiumConversions ?? '...'),
-            ],
-            [
-              'Counselor response SLA',
-              overview
-                ? `${overview.counselorResponseSlaHours.toFixed(1)}h`
-                : '...',
-            ],
-          ].map(([label, value]) => (
-            <div key={label} style={panelStyle}>
-              <p style={{ margin: 0, color: '#64748b' }}>{label}</p>
-              <h3 style={{ marginBottom: 0, fontSize: 28 }}>{value}</h3>
-            </div>
+          {stats.map((stat) => (
+            <StatCard key={stat.label} label={stat.label} value={stat.value} />
           ))}
         </div>
         <div
           style={{
             display: 'grid',
-            gap: 16,
+            gap: 'var(--space-4)',
             gridTemplateColumns: '1.2fr 1fr',
           }}
         >
-          <div style={panelStyle}>
+          <Card>
             <h3 style={{ marginTop: 0 }}>Operational focus this week</h3>
             <ul style={{ marginBottom: 0, lineHeight: 1.8 }}>
               <li>Unify all serious student requests under My Cases.</li>
               <li>Launch support offers and destination coverage by market.</li>
               <li>Segment reminder campaigns for missing documents.</li>
-              <li>Track counselor response times and conversion to premium support.</li>
+              <li>
+                Track counselor response times and conversion to premium support.
+              </li>
             </ul>
-          </div>
-          <div style={panelStyle}>
+          </Card>
+          <Card>
             <h3 style={{ marginTop: 0 }}>Team permissions</h3>
             <p style={mutedTextStyle}>
               Admins manage platform operations, counselors move cases forward,
               commercials own follow-up, and content/moderation roles keep the
               student-facing surfaces fresh and safe.
             </p>
-          </div>
+          </Card>
         </div>
       </div>
     </DashboardShell>
