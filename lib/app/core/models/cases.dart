@@ -97,6 +97,7 @@ class StudentCase {
     this.advisorPhone,
     this.advisorWhatsapp,
     this.scheduledAt,
+    this.parentCanView = false,
   });
 
   final String id;
@@ -119,6 +120,18 @@ class StudentCase {
   final String? advisorWhatsapp;
   final DateTime? scheduledAt;
 
+  /// Whether the student has opted into sharing this case with a linked parent.
+  /// Drives the parent-visibility toggle and what the parent dashboard shows.
+  /// Defaults to false — students opt in explicitly, per case.
+  final bool parentCanView;
+
+  /// True while the case still carries a client-generated temporary id
+  /// (`case-<millis>`). On a successful remote create the backend swaps in the
+  /// canonical id + referenceCode, so a non-temp id means the reference is the
+  /// authoritative one. Used to mark the reference as provisional in the UI and
+  /// to avoid quoting a not-yet-registered reference to a WhatsApp advisor.
+  bool get isReferenceProvisional => id.startsWith('case-');
+
   StudentCase copyWith({
     CaseStatus? status,
     DateTime? updatedAt,
@@ -131,6 +144,7 @@ class StudentCase {
     String? advisorPhone,
     String? advisorWhatsapp,
     DateTime? scheduledAt,
+    bool? parentCanView,
   }) {
     return StudentCase(
       id: id,
@@ -152,6 +166,7 @@ class StudentCase {
       advisorPhone: advisorPhone ?? this.advisorPhone,
       advisorWhatsapp: advisorWhatsapp ?? this.advisorWhatsapp,
       scheduledAt: scheduledAt ?? this.scheduledAt,
+      parentCanView: parentCanView ?? this.parentCanView,
     );
   }
 }

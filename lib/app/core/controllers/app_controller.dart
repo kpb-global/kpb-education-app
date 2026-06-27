@@ -455,6 +455,62 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// GDPR / store-required account deletion (KPB-67). When remote sync is on we
+  /// require the server delete to succeed first — a local-only wipe would
+  /// orphan the backend + Supabase records — so a failure throws and nothing is
+  /// erased, letting the UI ask the user to retry online. On success we erase
+  /// every local store (snapshot, offline outbox, catalog cache), drop the push
+  /// identity + session, and reset in-memory state.
+  Future<void> deleteAccount() async {
+    if (AppConfig.enableRemoteSync) {
+      await _apiClient.deleteAccount();
+    }
+    unawaited(OneSignalService.instance.logout());
+    if (Get.isRegistered<AuthService>()) {
+      await Get.find<AuthService>().clearSession();
+    }
+    await _wipeLocalData();
+    profile = null;
+    _profileNeedsPush = false;
+    hasCompletedOnboarding = false;
+    isGuestMode = false;
+    latestOrientationSession = null;
+    _savedItems.clear();
+    _savedItemTombstones.clear();
+    _cases.clear();
+    _orientationHistory.clear();
+    _searchHistory.clear();
+    _pendingOrientationAnswers = {};
+    pendingOrientationQuestionIndex = 0;
+    update();
+  }
+
+  Future<void> _wipeLocalData() async {
+    await _repository.clear();
+    try {
+      await CaseMessageOutbox.instance.clear();
+    } catch (_) {
+      // Outbox not initialized in this session — nothing to clear.
+    }
+    if (CatalogCacheService.isInitialized) {
+      await CatalogCacheService.instance.clear();
+    }
+  }
+
+  /// GDPR data export (portability). Prefers the backend's authoritative
+  /// aggregate of all user-owned records; falls back to the local profile when
+  /// remote sync is off.
+  Future<Map<String, dynamic>> exportData() async {
+    if (AppConfig.enableRemoteSync) {
+      return _apiClient.getAccountExport();
+    }
+    final current = profile;
+    return <String, dynamic>{
+      'exportedAt': DateTime.now().toIso8601String(),
+      'profile': current == null ? null : _userProfilePayload(current),
+    };
+  }
+
   void goToTab(int index) {
     final safeIndex = index.clamp(0, shellTabCount - 1);
     shellIndex = safeIndex;
@@ -798,6 +854,51 @@ abstract class _AppControllerBase extends GetxController {
     );
     unawaited(_createRemoteCase(created));
     return created;
+  }
+
+  /// Toggle whether a linked parent can view a given case. Optimistically flips
+  /// the local flag (so the switch reacts instantly) then persists to the
+  /// backend; reverts and surfaces an error if the call fails. This is what
+  /// makes a linked parent actually able to see the case — `parentCanView`
+  /// defaults to false server-side.
+  Future<void> setCaseParentVisibility(String caseId, bool canView) async {
+    final index = _cases.indexWhere((item) => item.id == caseId);
+    if (index < 0) return;
+    final previous = _cases[index];
+    if (previous.parentCanView == canView) return;
+
+    _cases[index] = previous.copyWith(parentCanView: canView);
+    _persist();
+    update();
+
+    if (!AppConfig.enableRemoteSync) return;
+    try {
+      await _apiClient.setCaseParentVisibility(
+        caseId: caseId,
+        parentCanView: canView,
+      );
+    } catch (e, s) {
+      // Revert the optimistic flip so the UI reflects the real backend state.
+      final i = _cases.indexWhere((item) => item.id == caseId);
+      if (i >= 0) {
+        _cases[i] = _cases[i].copyWith(parentCanView: previous.parentCanView);
+        _persist();
+        update();
+      }
+      safeRecordError(
+        e,
+        s,
+        reason: 'setCaseParentVisibility',
+        domain: CrashlyticsObsDomain.cases,
+        operation: 'set_parent_visibility',
+      );
+      Get.snackbar(
+        'KPB Education',
+        'parent_visibility_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    }
   }
 
   void addCaseMessage(String caseId, String text) {
@@ -1250,32 +1351,9 @@ abstract class _AppControllerBase extends GetxController {
     throw StateError('Country not found: $countryKey');
   }
 
-  Future<CountryQuizResultModel> submitCountryQuiz(
-    String countryKey,
-    Map<String, String> answers,
-  ) async {
-    final normalized = normalizeCountryId(countryKey);
-    if (!AppConfig.enableRemoteSync) {
-      final detail = await loadCountryDetail(normalized);
-      final quiz = detail.eligibilityQuiz;
-      if (quiz == null || quiz.questions.isEmpty) {
-        throw StateError('Quiz unavailable offline');
-      }
-      return CountryQuizResultModel(
-        verdict: EligibilityVerdict.eligibleWithConditions,
-        verdictTitle: quiz.verdicts['eligible_with_conditions']?.titleFor(localeCode) ??
-            'Résultat provisoire',
-        verdictMessage: quiz.verdicts['eligible_with_conditions']?.messageFor(localeCode) ??
-            '',
-        ctaLabel: quiz.verdicts['eligible_with_conditions']?.ctaFor(localeCode) ??
-            'Continuer',
-        countryId: detail.id,
-      );
-    }
-
-    final json = await _apiClient.submitCountryQuiz(normalized, answers);
-    return CountryQuizResultModel.fromJson(json, localeCode: localeCode);
-  }
+  // submitCountryQuiz removed (KPB-62): the explore quiz now scores via the
+  // single client-side EligibilityEngine (see EligibilityQuizScreen), so there
+  // is no backend round-trip or second scorer.
   InstitutionModel institutionById(String id) =>
       institutions.firstWhere((item) => item.id == id);
   ProgramModel programById(String id) =>
@@ -1583,6 +1661,17 @@ abstract class _AppControllerBase extends GetxController {
       'gradeRange': profile.bacSeries ?? profile.gradeRange,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
+      if (profile.monthlyBudgetEur != null)
+        'monthlyBudgetEur': profile.monthlyBudgetEur,
+      if (profile.aiConsentedAt != null)
+        'aiConsentedAt': profile.aiConsentedAt!.toIso8601String(),
+      if (profile.birthDate != null)
+        'birthDate': profile.birthDate!.toIso8601String(),
+      if (profile.guardianName != null) 'guardianName': profile.guardianName,
+      if (profile.guardianContact != null)
+        'guardianContact': profile.guardianContact,
+      if (profile.guardianConsentedAt != null)
+        'guardianConsentedAt': profile.guardianConsentedAt!.toIso8601String(),
     };
   }
 

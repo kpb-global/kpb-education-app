@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../alumni/alumni_directory_screen.dart';
+import '../parcours/parcours_screen.dart';
+import '../salon/salon_screen.dart';
 import '../search/search_screen.dart';
 import 'forum_category_screen.dart';
 
@@ -66,7 +69,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ? Navigator.pop(context)
                       : null,
                 ),
-                title: Text('Communauté', style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
+                title: Text('nav_community'.tr, style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
                 actions: [
                   // Search icon opens SearchScreen
                   IconButton(
@@ -89,7 +92,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Apprendre ensemble 🌍',
                         style: TextStyle(
                           color: Colors.white,
@@ -97,13 +100,52 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
-                        'Articles, guides et conseils de nos experts pour réussir votre projet d\'études.',
+                        'community_intro'.tr,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 15,
                           height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Community hub (KPB-70): mentors · salons · parcours ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.lg, KpbSpacing.pagePad, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _CommunityHubTile(
+                          icon: Icons.school_rounded,
+                          label: 'community_hub_alumni'.tr,
+                          color: KpbColors.success,
+                          onTap: () =>
+                              Get.to(() => const AlumniDirectoryScreen()),
+                        ),
+                      ),
+                      const SizedBox(width: KpbSpacing.sm),
+                      Expanded(
+                        child: _CommunityHubTile(
+                          icon: Icons.event_rounded,
+                          label: 'community_hub_salon'.tr,
+                          color: KpbColors.blue,
+                          onTap: () => Get.to(() => const SalonScreen()),
+                        ),
+                      ),
+                      const SizedBox(width: KpbSpacing.sm),
+                      Expanded(
+                        child: _CommunityHubTile(
+                          icon: Icons.route_rounded,
+                          label: 'community_hub_parcours'.tr,
+                          color: KpbColors.gold,
+                          onTap: () => Get.to(() => const ParcoursScreen()),
                         ),
                       ),
                     ],
@@ -329,7 +371,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Rejoindre le groupe WhatsApp',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -337,9 +379,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6),
                                 Text(
-                                  '+2 000 étudiants — Conseils, entraide & actu',
+                                  'community_members'.tr,
                                   style: TextStyle(
                                     color: Colors.white
                                         .withValues(alpha: 0.8),
@@ -664,7 +706,7 @@ void _openArticleSheet(
                           .map((tag) => KpbBadgeLight(label: '#$tag'))
                           .toList(),
                     ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     controller.resolve(article.title),
                     style: TextStyle(
@@ -674,7 +716,7 @@ void _openArticleSheet(
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     controller.resolve(article.body ?? article.summary),
                     style: TextStyle(
@@ -683,10 +725,10 @@ void _openArticleSheet(
                       height: 1.6,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   if (article.publishedAt != null)
                     Text(
-                      'Publié le ${_formatDate(article.publishedAt as DateTime)}',
+                      '${'published_on'.tr} ${_formatDate(article.publishedAt as DateTime)}',
                       style: TextStyle(
                           fontSize: 13, color: context.kpb.textMuted),
                     ),
@@ -706,4 +748,49 @@ String _formatDate(DateTime dt) {
     'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
   ];
   return '${dt.day} ${months[dt.month]} ${dt.year}';
+}
+
+/// Community hub entry (KPB-70): a compact tappable tile leading to a community
+/// surface (alumni mentors, salons, parcours) without consuming a nav tab.
+class _CommunityHubTile extends StatelessWidget {
+  const _CommunityHubTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return KpbCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(vertical: KpbSpacing.md),
+      child: Column(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: KpbRadius.mdBr,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
 }

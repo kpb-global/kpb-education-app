@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
@@ -10,6 +13,7 @@ import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';
 import '../eligibility/eligibility_simulator_screen.dart';
 import '../parcours/parcours_screen.dart';
+import '../referral/referral_screen.dart';
 import '../legal/legal_pages.dart';
 import '../onboarding/onboarding_m2_constants.dart';
 import '../orientation/orientation_screen.dart';
@@ -144,16 +148,16 @@ class ProfileScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('profile_security'.tr, style: KpbTextStyles.titleMd),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.face_unlock_outlined,
+                                    Icon(Icons.face_unlock_outlined,
                                         color: KpbColors.blue, size: 24),
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12),
                                     Flexible(
                                       child: Column(
                                         crossAxisAlignment:
@@ -163,7 +167,7 @@ class ProfileScreen extends StatelessWidget {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600)),
                                           Text(
-                                            'Protéger l\'accès à l\'application',
+                                            'protect_app_access'.tr,
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: context.kpb.textMuted),
@@ -381,6 +385,13 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           if (controller.isStudent) ...[
                             _QuickAccessTile(
+                              icon: Icons.card_giftcard_outlined,
+                              label: 'referral_title'.tr,
+                              color: KpbColors.gold,
+                              onTap: () => Get.to(() => const ReferralScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
                               icon: Icons.psychology_outlined,
                               label: 'Test d\'orientation',
                               color: KpbColors.blue,
@@ -530,6 +541,32 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: KpbSpacing.lg),
 
+                    // ── Mes données / RGPD ─────────────────────────────
+                    Text('data_rights_section'.tr,
+                        style: KpbTextStyles.title),
+                    const SizedBox(height: KpbSpacing.sm),
+                    KpbCard(
+                      child: Column(
+                        children: [
+                          _QuickAccessTile(
+                            icon: Icons.download_outlined,
+                            label: 'export_data'.tr,
+                            color: context.kpb.textSecondary,
+                            onTap: () => _exportData(context, controller),
+                          ),
+                          const KpbDivider(indent: 52),
+                          _QuickAccessTile(
+                            icon: Icons.delete_outline_rounded,
+                            label: 'delete_account'.tr,
+                            color: KpbColors.error,
+                            onTap: () =>
+                                _confirmDeleteAccount(context, controller),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: KpbSpacing.lg),
+
                     // ── Logout ────────────────────────────────────────
                     SizedBox(
                       width: double.infinity,
@@ -561,8 +598,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('logout_confirm_title'.tr),
-        content: const Text(
-          'Vous serez redirigé vers l\'écran d\'accueil. Vos données locales seront effacées.',
+        content: Text(
+          'logout_redirect_notice'.tr,
         ),
         actions: [
           TextButton(
@@ -579,6 +616,61 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: KpbColors.error,
             ),
             child: Text('logout'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _exportData(
+      BuildContext context, AppController controller) async {
+    try {
+      final data = await controller.exportData();
+      const encoder = JsonEncoder.withIndent('  ');
+      await SharePlus.instance.share(
+        ShareParams(
+          text: encoder.convert(data),
+          subject: 'export_data_subject'.tr,
+        ),
+      );
+    } catch (_) {
+      Get.snackbar(
+        'data_rights_section'.tr,
+        'export_data_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void _confirmDeleteAccount(BuildContext context, AppController controller) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('delete_account_confirm_title'.tr),
+        content: Text('delete_account_confirm_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('cancel'.tr),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await controller.deleteAccount();
+                Get.offAll(() => const AppBootScreen());
+              } catch (_) {
+                Get.snackbar(
+                  'delete_account'.tr,
+                  'delete_account_error'.tr,
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: KpbColors.error,
+            ),
+            child: Text('delete_account_cta'.tr),
           ),
         ],
       ),
@@ -985,10 +1077,10 @@ class _ProfileCompletionGuide extends StatelessWidget {
           Row(
             children: [
               Text('profile_completed'.tr, style: KpbTextStyles.titleMd),
-              const Spacer(),
+              Spacer(),
               Text(
                 '$completion%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: KpbColors.blue,
@@ -996,7 +1088,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ClipRRect(
             borderRadius: KpbRadius.pillBr,
             child: LinearProgressIndicator(
@@ -1009,14 +1101,14 @@ class _ProfileCompletionGuide extends StatelessWidget {
             ),
           ),
           if (completion >= 100) ...[
-            const SizedBox(height: 12),
-            const Row(
+            SizedBox(height: 12),
+            Row(
               children: [
                 Icon(Icons.check_circle_rounded,
                     color: KpbColors.success, size: 16),
                 SizedBox(width: 6),
                 Text(
-                  'Profil complet — recommandations optimisées ✨',
+                  'profile_complete_optimized'.tr,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

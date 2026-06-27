@@ -33,6 +33,13 @@ abstract final class ProfileApiCodec {
           json['wantsScholarship'] as bool? ??
           false,
       availableDocuments: stringListFromJson(json['availableDocuments']),
+      consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
+      aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
+      birthDate: DateTime.tryParse(json['birthDate'] as String? ?? ''),
+      guardianName: json['guardianName'] as String?,
+      guardianContact: json['guardianContact'] as String?,
+      guardianConsentedAt:
+          DateTime.tryParse(json['guardianConsentedAt'] as String? ?? ''),
     );
   }
 }

@@ -92,7 +92,7 @@ class SavedScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -106,7 +106,7 @@ class SavedScreen extends StatelessWidget {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Suivez les échéances de vos admissions',
+                                  'track_admission_deadlines'.tr,
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
@@ -409,8 +409,8 @@ class _SavedGroupState extends State<_SavedGroup> {
                             widget.controller
                                 .toggleSaved(item.type, item.itemId);
                             Get.showSnackbar(GetSnackBar(
-                              messageText: const Text(
-                                'Élément supprimé',
+                              messageText: Text(
+                                'item_deleted'.tr,
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 14),
                               ),

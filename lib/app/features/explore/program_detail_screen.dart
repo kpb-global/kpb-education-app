@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
@@ -153,7 +154,8 @@ class ProgramDetailScreen extends StatelessWidget {
                             iconColor: KpbColors.blue,
                           ),
                         ],
-                        if (institution != null) ...[
+                        if (institution != null &&
+                            program.campusOfferings.isEmpty) ...[
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.location_on_outlined,
@@ -204,6 +206,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           style: KpbTextStyles.caption,
                         ),
                         if (institution != null &&
+                            program.campusOfferings.isEmpty &&
                             institution.tuitionLabel.fr.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
@@ -213,9 +216,31 @@ class ProgramDetailScreen extends StatelessWidget {
                             style: KpbTextStyles.bodySm,
                           ),
                         ],
+                        const SizedBox(height: 8),
+                        KpbSourceLink(url: program.sourceUrl),
                       ],
                     ),
                   ),
+                  if (program.campusOfferings.isNotEmpty)
+                    _Section(
+                      icon: Icons.location_city_outlined,
+                      title:
+                          'Disponible sur ${program.campusOfferings.length} campus',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0;
+                              i < program.campusOfferings.length;
+                              i++) ...[
+                            if (i > 0) const KpbDivider(indent: 48),
+                            _CampusOfferingRow(
+                              offering: program.campusOfferings[i],
+                              localeCode: controller.localeCode,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   if (program.requirements.isNotEmpty)
                     _Section(
                       icon: Icons.fact_check_outlined,
@@ -333,6 +358,55 @@ class _Section extends StatelessWidget {
             child,
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CampusOfferingRow extends StatelessWidget {
+  const _CampusOfferingRow({
+    required this.offering,
+    required this.localeCode,
+  });
+
+  final CampusOffering offering;
+  final String localeCode;
+
+  @override
+  Widget build(BuildContext context) {
+    final intake = offering.intake;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.location_on_outlined,
+              size: 18, color: KpbColors.blue),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offering.campus,
+                  style: KpbTextStyles.bodySm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (intake != null && intake.isNotEmpty)
+                  Text('${'intake_label'.tr} $intake', style: KpbTextStyles.caption),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            offering.tuitionLabel(localeCode),
+            style: KpbTextStyles.bodySm.copyWith(
+              color: KpbColors.gold,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

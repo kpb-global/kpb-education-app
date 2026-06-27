@@ -12,6 +12,19 @@ EligibilityVerdict eligibilityVerdictFromKey(String key) {
       return EligibilityVerdict.eligibleWithConditions;
   }
 }
+
+/// Inverse of [eligibilityVerdictFromKey]: maps a verdict back to the catalog
+/// key used in `CountryEligibilityQuiz.verdicts` (title/message/CTA templates).
+String eligibilityVerdictToKey(EligibilityVerdict verdict) {
+  switch (verdict) {
+    case EligibilityVerdict.eligible:
+      return 'eligible';
+    case EligibilityVerdict.notEligible:
+      return 'not_eligible';
+    case EligibilityVerdict.eligibleWithConditions:
+      return 'eligible_with_conditions';
+  }
+}
 class QuizOptionModel {
   const QuizOptionModel({
     required this.value,

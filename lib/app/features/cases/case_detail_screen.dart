@@ -10,14 +10,27 @@ import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/anti_fraud_notice.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/services/document_upload_service.dart';
-import '../../core/utils/whatsapp_utils.dart';
 import 'case_status_timeline.dart';
 import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
 
-Future<void> _openWhatsapp({String? phone, String? prefill}) async {
-  await openWhatsAppOrToast(phone: phone, prefill: prefill);
+Future<void> _openWhatsapp({
+  String? phone,
+  String? prefill,
+  String? advisorName,
+}) async {
+  // Gate every case hand-off behind the verified-advisor card so an impostor
+  // number is obvious before the user leaves the app.
+  await showVerifiedAdvisorThenWhatsApp(
+    advisorName: advisorName,
+    phone: phone,
+    prefill: prefill,
+    source: 'case_detail',
+    contextType: 'case',
+  );
 }
 
 Future<void> _callPhone(String phone) async {
@@ -192,11 +205,22 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                               color: statusInfo.color,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              c.referenceCode,
-                              style: const TextStyle(
-                                  color: Colors.white60, fontSize: 12),
+                            Flexible(
+                              child: Text(
+                                c.referenceCode,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white60, fontSize: 12),
+                              ),
                             ),
+                            if (c.isReferenceProvisional) ...[
+                              const SizedBox(width: 6),
+                              const Text(
+                                '⏳ provisoire',
+                                style: TextStyle(
+                                    color: Colors.white60, fontSize: 11),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -226,14 +250,14 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     color: KpbColors.warning.withValues(alpha: 0.1),
                     padding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.wifi_off_rounded,
                             color: KpbColors.warning, size: 16),
                         SizedBox(width: 8),
                         Text(
-                          'Mode hors ligne. Affichage des données en cache.',
+                          'offline_cache_notice'.tr,
                           style: TextStyle(
                               color: KpbColors.warning,
                               fontSize: 12,
@@ -251,9 +275,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     children: [
                       if (_ctrl.isSyncing && _ctrl.cases.isEmpty) ...[
                         SkeletonLoader.card(height: 120),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         SkeletonLoader.card(height: 200),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         SkeletonLoader.card(height: 150),
                       ] else ...[
                         // ── Prochaine étape ──────────────────────────────────────────
@@ -271,16 +295,16 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                   color: KpbColors.blue.withValues(alpha: 0.12),
                                   borderRadius: KpbRadius.mdBr,
                                 ),
-                                child: const Icon(Icons.arrow_right_alt_rounded,
+                                child: Icon(Icons.arrow_right_alt_rounded,
                                     color: KpbColors.blue, size: 22),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Prochaine étape',
+                                    Text(
+                                      'next_step'.tr,
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
@@ -369,8 +393,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                     color: KpbColors.success,
                                     onTap: () => _openWhatsapp(
                                       phone: c.advisorWhatsapp,
-                                      prefill:
-                                          'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
+                                      advisorName: c.assignedAdvisorName,
+                                      prefill: c.isReferenceProvisional
+                                          ? 'Bonjour, je reviens vers toi au sujet de ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
+                                          : 'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
                                     ),
                                   ),
                                 if (c.advisorPhone != null) ...[
@@ -394,10 +420,38 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         _WhatsappContinueButton(
                           onTap: () => _openWhatsapp(
                             phone: c.advisorWhatsapp,
-                            prefill:
-                                'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
+                            advisorName: c.assignedAdvisorName,
+                            prefill: c.isReferenceProvisional
+                                ? 'Bonjour KPB, je souhaite continuer sur ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
+                                : 'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
                           ),
                           hasAdvisor: c.advisorWhatsapp != null,
+                        ),
+                        const SizedBox(height: KpbSpacing.sm),
+                        const KpbAntiFraudNotice(source: 'case_detail'),
+                        const SizedBox(height: KpbSpacing.md),
+
+                        // ── Partage avec un parent ───────────────────────────────────
+                        // Opt-in, per case: lets a linked parent (the usual
+                        // decision-maker/financier) follow this dossier read-only.
+                        KpbCard(
+                          padding: EdgeInsets.zero,
+                          // Transparent Material so the ListTile paints its ink
+                          // on a Material below KpbCard's DecoratedBox (otherwise
+                          // Flutter asserts the splash/bg may be invisible).
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: SwitchListTile.adaptive(
+                              value: c.parentCanView,
+                              onChanged: (v) =>
+                                  _ctrl.setCaseParentVisibility(c.id, v),
+                              secondary: const Icon(Icons.family_restroom,
+                                  color: KpbColors.gold),
+                              title: Text('parent_share_case_title'.tr),
+                              subtitle: Text('parent_share_case_subtitle'.tr,
+                                  style: KpbTextStyles.caption),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: KpbSpacing.md),
 

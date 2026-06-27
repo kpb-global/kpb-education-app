@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/ui/app_tokens.dart';
@@ -105,7 +106,7 @@ class _TimelineRow extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
@@ -123,7 +124,7 @@ class _TimelineRow extends StatelessWidget {
                     ),
                   ),
                   if (step.subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       step.subtitle!,
                       style: KpbTextStyles.caption.copyWith(
@@ -132,7 +133,7 @@ class _TimelineRow extends StatelessWidget {
                     ),
                   ],
                   if (dateLabel != null) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       step.state == CaseTimelineStepState.current
                           ? 'Depuis le $dateLabel'
@@ -143,9 +144,9 @@ class _TimelineRow extends StatelessWidget {
                       ),
                     ),
                   ] else if (step.state == CaseTimelineStepState.upcoming) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
-                      'À venir',
+                      'upcoming'.tr,
                       style: TextStyle(
                         fontSize: 12,
                         color: context.kpb.textMuted,

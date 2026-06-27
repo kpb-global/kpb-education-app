@@ -200,12 +200,12 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Préparez votre départ',
+              'prepare_departure'.tr,
               style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
-              'Estimez le prix du billet pour votre pays d\'études et achetez au meilleur moment.',
+              'travel_intro'.tr,
               style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
             ),
             const SizedBox(height: 32),
@@ -264,12 +264,12 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               child: Column(
                 children: [
                    _buildSelectorField('Départ', _origin?.city ?? 'Choisir', Icons.flight_takeoff_rounded, () => _showAirportPicker(true), isDark),
-                   const Padding(
+                   Padding(
                      padding: EdgeInsets.symmetric(vertical: 8),
                      child: Divider(),
                    ),
                    _buildSelectorField('Arrivée', _destination?.city ?? 'Choisir', Icons.flight_land_rounded, () => _showAirportPicker(false), isDark),
-                   const Padding(
+                   Padding(
                      padding: EdgeInsets.symmetric(vertical: 8),
                      child: Divider(),
                    ),
@@ -278,7 +278,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               ),
             ),
             
-            const SizedBox(height: 48),
+            SizedBox(height: 48),
 
             // ── Magic Button ────────────────────────────────────────────────
             KpbButton(
@@ -288,9 +288,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               bgColor: KpbColors.sky,
             ),
             
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
-              'Propulsé par le comparateur indépendant Kayak. Les prix sont affichés en direct.',
+              'travel_powered_by'.tr,
               style: KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
               textAlign: TextAlign.center,
             ),

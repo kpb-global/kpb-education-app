@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/app_tokens.dart';
@@ -128,9 +129,9 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
           const SizedBox(height: KpbSpacing.lg),
         ],
         if (messages.isNotEmpty) ...[
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
-            child: Text('Derniers échanges', style: KpbTextStyles.label),
+            child: Text('latest_messages'.tr, style: KpbTextStyles.label),
           ),
           ...messages.reversed.take(5).toList().reversed.map(_messageTile),
         ],
@@ -158,15 +159,15 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
           const SizedBox(height: KpbSpacing.md),
           Container(
             padding: const EdgeInsets.all(KpbSpacing.md),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: KpbColors.skyLight,
               borderRadius: KpbRadius.mdBr,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Prochaine étape',
+                Text(
+                  'next_step'.tr,
                   style: KpbTextStyles.label,
                 ),
                 const SizedBox(height: 4),

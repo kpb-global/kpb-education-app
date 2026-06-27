@@ -62,6 +62,15 @@ const _langLevels = [
   ('Advanced', 'Avancé'),
 ];
 const _grades = ['10 - 12/20', '12 - 14/20', '15+/20'];
+// Monthly-budget ranges (EUR). Stored as a representative midpoint so it feeds
+// the eligibility engine + coach budget anchoring; the field label carries the
+// "per month" meaning bilingually, so the item labels stay language-neutral.
+const _budgetRanges = <(int, String)>[
+  (400, '< 500 €'),
+  (750, '500 – 1 000 €'),
+  (1250, '1 000 – 1 500 €'),
+  (1800, '> 1 500 €'),
+];
 const _documentKeys = [
   ('Passport', 'Passeport'), ('CV', 'CV'),
   ('Transcripts', 'Relevés de notes'), ('Test score', 'Score de test'),
@@ -106,6 +115,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _targetLevel = 'Bachelor';
   String _languageLevel = 'Intermediate';
   String _gradeRange = '12 - 14/20';
+  int? _monthlyBudgetEur;
   bool _wantsScholarship = true;
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
@@ -114,6 +124,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final Set<String> _countryIds = {'canada', 'france'};
   final Set<String> _docs = {'Passport', 'Transcripts'};
   bool _hasConsented = false;
+
+  // Age gate + self-attested guardian consent for declared minors (<18).
+  DateTime? _birthDate;
+  final _guardianNameCtrl = TextEditingController();
+  final _guardianContactCtrl = TextEditingController();
+  bool _guardianConsented = false;
+
+  int? get _age {
+    final b = _birthDate;
+    if (b == null) return null;
+    final now = DateTime.now();
+    var years = now.year - b.year;
+    if (now.month < b.month || (now.month == b.month && now.day < b.day)) {
+      years--;
+    }
+    return years;
+  }
+
+  /// Declared minor. False when no birth date is set — we never assume.
+  bool get _isMinor => (_age ?? 99) < 18;
+
+  /// Snap an arbitrary persisted budget to the nearest selectable range value
+  /// so the dropdown never asserts on an off-grid value.
+  int? _snapBudget(int? raw) {
+    if (raw == null || raw <= 0) return null;
+    var best = _budgetRanges.first.$1;
+    var bestDiff = (best - raw).abs();
+    for (final r in _budgetRanges) {
+      final d = (r.$1 - raw).abs();
+      if (d < bestDiff) {
+        bestDiff = d;
+        best = r.$1;
+      }
+    }
+    return best;
+  }
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -157,6 +203,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_grades.contains(profile.gradeRange)) {
       _gradeRange = profile.gradeRange!;
     }
+    _monthlyBudgetEur = _snapBudget(profile.monthlyBudgetEur);
     _wantsScholarship = profile.wantsScholarshipSupport;
     if (profile.fieldIds.isNotEmpty) {
       _fieldIds
@@ -186,6 +233,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (profile.consentedAt != null) {
       _hasConsented = true;
     }
+    _birthDate = profile.birthDate;
+    if (profile.guardianName != null) {
+      _guardianNameCtrl.text = profile.guardianName!;
+    }
+    if (profile.guardianContact != null) {
+      _guardianContactCtrl.text = profile.guardianContact!;
+    }
+    if (profile.guardianConsentedAt != null) {
+      _guardianConsented = true;
+    }
   }
 
   @override
@@ -196,6 +253,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _whatsAppCtrl.dispose();
+    _guardianNameCtrl.dispose();
+    _guardianContactCtrl.dispose();
     super.dispose();
   }
 
@@ -231,11 +290,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       fieldIds: isPartner ? const [] : _fieldIds.toList(),
       targetCountryIds: isPartner ? const [] : _countryIds.toList(),
       gradeRange: isPartner ? null : _gradeRange,
+      monthlyBudgetEur: isPartner ? null : _monthlyBudgetEur,
       wantsScholarshipSupport:
           _accountType == AccountType.student && _wantsScholarship,
       availableDocuments: isPartner ? const [] : _docs.toList(),
       consentedAt:
           _hasConsented ? (existing?.consentedAt ?? DateTime.now()) : null,
+      birthDate: _birthDate,
+      guardianName: _isMinor && _guardianNameCtrl.text.trim().isNotEmpty
+          ? _guardianNameCtrl.text.trim()
+          : null,
+      guardianContact: _isMinor && _guardianContactCtrl.text.trim().isNotEmpty
+          ? _guardianContactCtrl.text.trim()
+          : null,
+      guardianConsentedAt: _isMinor && _guardianConsented
+          ? (existing?.guardianConsentedAt ?? DateTime.now())
+          : null,
     );
   }
 
@@ -254,6 +324,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               icon: const Icon(Icons.privacy_tip_outlined, color: KpbColors.error),
             );
             return false;
+          }
+          if (_accountType == AccountType.student) {
+            if (_birthDate == null) {
+              Get.snackbar(
+                'onboarding_birthdate_required_title'.tr,
+                'onboarding_birthdate_required'.tr,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+                icon: const Icon(Icons.cake_outlined, color: KpbColors.error),
+              );
+              return false;
+            }
+            // Declared minor: a guardian must be named, reachable, and consent
+            // recorded before any data sync or AI processing.
+            if (_isMinor &&
+                (_guardianNameCtrl.text.trim().isEmpty ||
+                    _guardianContactCtrl.text.trim().isEmpty ||
+                    !_guardianConsented)) {
+              Get.snackbar(
+                'guardian_consent_required_title'.tr,
+                'guardian_consent_required'.tr,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+                icon: const Icon(Icons.family_restroom_outlined,
+                    color: KpbColors.error),
+              );
+              return false;
+            }
           }
           return true;
         }(),
@@ -354,6 +454,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     sameWhatsApp: _sameWhatsApp,
                     country: _country,
                     hasConsented: _hasConsented,
+                    birthDate: _birthDate,
+                    isMinor: _isMinor,
+                    guardianNameCtrl: _guardianNameCtrl,
+                    guardianContactCtrl: _guardianContactCtrl,
+                    guardianConsented: _guardianConsented,
                     onAccountType: (v) => setState(() => _accountType = v),
                     onLanguage: (v) => setState(() => _language = v),
                     onPhoneCode: (v) => setState(() => _phoneCode = v),
@@ -361,6 +466,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onSameWhatsApp: (v) => setState(() => _sameWhatsApp = v),
                     onCountry: (v) => setState(() => _country = v ?? _country),
                     onConsent: (v) => setState(() => _hasConsented = v),
+                    onBirthDate: (v) => setState(() => _birthDate = v),
+                    onGuardianConsent: (v) =>
+                        setState(() => _guardianConsented = v),
                   ),
                 ),
 
@@ -375,11 +483,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       targetLevel: _targetLevel,
                       languageLevel: _languageLevel,
                       gradeRange: _gradeRange,
+                      monthlyBudgetEur: _monthlyBudgetEur,
                       wantsScholarship: _wantsScholarship,
                       onCurrentLevel: (v) => setState(() => _currentLevel = v ?? _currentLevel),
                       onTargetLevel: (v) => setState(() => _targetLevel = v ?? _targetLevel),
                       onLanguageLevel: (v) => setState(() => _languageLevel = v ?? _languageLevel),
                       onGradeRange: (v) => setState(() => _gradeRange = v ?? _gradeRange),
+                      onMonthlyBudget: (v) =>
+                          setState(() => _monthlyBudgetEur = v),
                       onWantsScholarship: (v) => setState(() => _wantsScholarship = v),
                     ),
                   )
@@ -615,6 +726,13 @@ class _PageIdentity extends StatelessWidget {
     required this.onCountry,
     required this.hasConsented,
     required this.onConsent,
+    required this.birthDate,
+    required this.isMinor,
+    required this.guardianNameCtrl,
+    required this.guardianContactCtrl,
+    required this.guardianConsented,
+    required this.onBirthDate,
+    required this.onGuardianConsent,
   });
 
   final AccountType accountType;
@@ -631,6 +749,11 @@ class _PageIdentity extends StatelessWidget {
   final ValueChanged<String?> onCountry;
   final bool hasConsented;
   final ValueChanged<bool> onConsent;
+  final DateTime? birthDate;
+  final bool isMinor, guardianConsented;
+  final TextEditingController guardianNameCtrl, guardianContactCtrl;
+  final ValueChanged<DateTime> onBirthDate;
+  final ValueChanged<bool> onGuardianConsent;
 
   String? _req(String? v) =>
       (v == null || v.trim().isEmpty) ? 'field_required'.tr : null;
@@ -787,6 +910,95 @@ class _PageIdentity extends StatelessWidget {
         ),
         const SizedBox(height: KpbSpacing.lg),
 
+        // ── Âge + consentement tuteur (mineurs) ────────────────────
+        if (accountType == AccountType.student) ...[
+          InkWell(
+            onTap: () async {
+              final now = DateTime.now();
+              final initial =
+                  birthDate ?? DateTime(now.year - 18, now.month, now.day);
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: initial,
+                firstDate: DateTime(now.year - 80),
+                lastDate: now,
+                helpText: 'birth_date'.tr,
+              );
+              if (picked != null) onBirthDate(picked);
+            },
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'birth_date'.tr,
+                suffixIcon:
+                    const Icon(Icons.calendar_today_outlined, size: 18),
+              ),
+              child: Text(
+                birthDate == null
+                    ? 'birth_date_hint'.tr
+                    : '${birthDate!.day.toString().padLeft(2, '0')}/${birthDate!.month.toString().padLeft(2, '0')}/${birthDate!.year}',
+                style: birthDate == null
+                    ? TextStyle(color: context.kpb.textSecondary)
+                    : null,
+              ),
+            ),
+          ),
+          if (isMinor) ...[
+            const SizedBox(height: KpbSpacing.md),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: guardianConsented
+                    ? KpbColors.successLight
+                    : context.kpb.gray50,
+                borderRadius: KpbRadius.mdBr,
+                border: Border.all(
+                  color: guardianConsented
+                      ? KpbColors.success
+                      : context.kpb.gray200,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('minor_guardian_title'.tr,
+                      style: KpbTextStyles.titleMd),
+                  const SizedBox(height: 4),
+                  Text(
+                    'minor_guardian_intro'.tr,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.kpb.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: KpbSpacing.sm),
+                  TextFormField(
+                    controller: guardianNameCtrl,
+                    decoration:
+                        InputDecoration(labelText: 'guardian_name'.tr),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: KpbSpacing.sm),
+                  TextFormField(
+                    controller: guardianContactCtrl,
+                    decoration:
+                        InputDecoration(labelText: 'guardian_contact'.tr),
+                  ),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: guardianConsented,
+                    activeColor: KpbColors.success,
+                    title: Text('guardian_consent_checkbox'.tr,
+                        style: KpbTextStyles.bodySm),
+                    onChanged: (v) => onGuardianConsent(v ?? false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: KpbSpacing.lg),
+        ],
+
         // ── GDPR Consent ──────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(12),
@@ -816,7 +1028,7 @@ class _PageIdentity extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text.rich(
                   TextSpan(
@@ -826,15 +1038,15 @@ class _PageIdentity extends StatelessWidget {
                       height: 1.4,
                     ),
                     children: [
-                      const TextSpan(text: 'J\'accepte la '),
+                      TextSpan(text: 'J\'accepte la '),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                         child: GestureDetector(
                           onTap: () => Get.to(
-                              () => const PrivacyPolicyScreen()),
-                          child: const Text(
-                            'politique de confidentialité',
+                              () => PrivacyPolicyScreen()),
+                          child: Text(
+                            'privacy_policy_inline'.tr,
                             style: TextStyle(
                               fontSize: 13,
                               color: KpbColors.blue,
@@ -887,18 +1099,22 @@ class _PageAcademic extends StatelessWidget {
     required this.targetLevel,
     required this.languageLevel,
     required this.gradeRange,
+    required this.monthlyBudgetEur,
     required this.wantsScholarship,
     required this.onCurrentLevel,
     required this.onTargetLevel,
     required this.onLanguageLevel,
     required this.onGradeRange,
+    required this.onMonthlyBudget,
     required this.onWantsScholarship,
   });
 
   final String currentLevel, targetLevel, languageLevel, gradeRange;
+  final int? monthlyBudgetEur;
   final bool wantsScholarship;
   final ValueChanged<String?> onCurrentLevel, onTargetLevel,
       onLanguageLevel, onGradeRange;
+  final ValueChanged<int?> onMonthlyBudget;
   final ValueChanged<bool> onWantsScholarship;
 
   @override
@@ -934,6 +1150,15 @@ class _PageAcademic extends StatelessWidget {
               .map((g) => DropdownMenuItem(value: g, child: Text(g)))
               .toList(),
           onChanged: onGradeRange,
+        ),
+        const SizedBox(height: KpbSpacing.md),
+        DropdownButtonFormField<int>(
+          initialValue: monthlyBudgetEur,
+          decoration: InputDecoration(labelText: 'monthly_budget'.tr),
+          items: _budgetRanges
+              .map((r) => DropdownMenuItem(value: r.$1, child: Text(r.$2)))
+              .toList(),
+          onChanged: onMonthlyBudget,
         ),
         const SizedBox(height: KpbSpacing.lg),
         KpbPressable(

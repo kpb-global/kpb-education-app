@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
+import 'package:karatou/app/core/translations/app_translations.dart';
 import 'package:karatou/app/core/ui/components/kpb_network_image.dart';
 import 'package:karatou/app/core/ui/components/kpb_offline_banner.dart';
 
@@ -12,6 +13,15 @@ import '../widget_test_helpers.dart';
 void main() {
   group('kpbFreshnessLabel', () {
     final now = DateTime(2026, 6, 20, 10, 0);
+
+    // The label is localized via `.tr`; register translations + a FR locale so
+    // these assert the real French output rather than the raw key.
+    setUp(() {
+      Get.reset();
+      Get.addTranslations(AppTranslations().keys);
+      Get.locale = const Locale('fr');
+    });
+    tearDown(Get.reset);
 
     test('null sync time → generic label', () {
       expect(kpbFreshnessLabel(null, now: now), 'données enregistrées');
@@ -32,9 +42,9 @@ void main() {
       expect(label, contains('il y a 3 jours'));
     });
 
-    test('over a week ago → absolute French date', () {
+    test('over a week ago → absolute numeric date', () {
       final label = kpbFreshnessLabel(DateTime(2026, 6, 8), now: now);
-      expect(label, contains('8 juin'));
+      expect(label, contains('8/6'));
     });
   });
 

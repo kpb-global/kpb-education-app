@@ -620,6 +620,9 @@ export class CasesService {
       contextLabel: c.contextLabel,
       preferredContactMethod: c.preferredContactMethod ?? 'in_app',
       scheduledAt: c.scheduledAt?.toISOString() ?? null,
+      // Whether the student has opted into sharing this case with a linked
+      // parent. Surfaced so the app can render (and toggle) the share switch.
+      parentCanView: c.parentCanView ?? false,
       leadTag: c.leadTag ?? null,
       discussionMotive: c.discussionMotive ?? null,
       lastCommercialInteractionAt:

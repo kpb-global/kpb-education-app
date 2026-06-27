@@ -3,7 +3,14 @@ import { Observable } from 'rxjs';
 
 import { LlmService } from '../ai/llm.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { buildCoachSystemPrompt, buildCoachSuggestions } from './coach-prompt.builder';
+import {
+  buildCoachSystemPrompt,
+  buildCoachSuggestions,
+  freshnessAnnotation,
+  resolveCoachLanguage,
+  unsourcedFigureCaveat,
+  type CoachLanguage,
+} from './coach-prompt.builder';
 import { CoachQuotaService } from './coach-quota.service';
 
 type CoachRole = 'user' | 'assistant';
@@ -41,13 +48,20 @@ export class CoachService {
       suggestions: buildCoachSuggestions({
         fullName: profile.fullName as string | undefined,
         targetCountryIds: profile.targetCountryIds as string[] | undefined,
+        language: resolveCoachLanguage(profile.preferredLanguage as string),
       }),
     };
   }
 
   async createConversation(userId: string, profile: Record<string, unknown>) {
-    const firstName = String(profile.fullName ?? 'Étudiant').split(' ')[0];
-    const greetingContent = `Salut ${firstName} ! Je suis ton Coach KPB. Pose-moi tes questions sur les études à l'étranger, le budget ou les écoles partenaires.`;
+    const lang = resolveCoachLanguage(profile.preferredLanguage as string);
+    // No name in the greeting: it is persisted and later replayed to Groq as
+    // conversation history, so personalizing it here would leak the identity
+    // we deliberately keep out of the prompt. The client shows a name locally.
+    const greetingContent =
+      lang === 'en'
+        ? `Hi! I'm your KPB Coach. Ask me anything about studying abroad, your budget, or partner schools.`
+        : `Salut ! Je suis ton Coach KPB. Pose-moi tes questions sur les études à l'étranger, le budget ou les écoles partenaires.`;
 
     const persisted = await this.prisma.tryExecute((client) =>
       client.coachConversation.create({
@@ -130,6 +144,23 @@ export class CoachService {
           return;
         }
 
+        // AI-processing consent gate (defense-in-depth; the client also gates
+        // entry to the coach). When the DB is available and the authoritative
+        // profile has not opted into AI processing, refuse before any PII
+        // reaches Groq.
+        const consented = await this.hasAiConsent(params.userId);
+        if (!consented) {
+          subscriber.next({
+            data: {
+              type: 'error',
+              code: 'ai_consent_required',
+              message: 'AI processing consent required.',
+            },
+          } as MessageEvent);
+          subscriber.complete();
+          return;
+        }
+
         const quota = this.quotaService.consume(params.userId);
         if (!quota.allowed) {
           subscriber.next({
@@ -145,18 +176,25 @@ export class CoachService {
 
         await this.appendMessage(conversation, 'user', params.message);
 
+        const lang = resolveCoachLanguage(
+          params.profile.preferredLanguage as string,
+        );
+
         // RAG: ground the reply in verified catalog facts for this question.
         const verifiedContext = await this.retrieveContext(
           params.message,
           (params.profile.targetCountryIds as string[] | undefined) ?? [],
+          lang,
         );
 
+        // PII minimization: the student's name is intentionally NOT forwarded
+        // to the LLM (the prompt builder pseudonymizes the remaining context).
         const system = buildCoachSystemPrompt({
-          fullName: params.profile.fullName as string | undefined,
           currentLevel: params.profile.currentLevel as string | undefined,
           targetCountryIds: params.profile.targetCountryIds as string[] | undefined,
           monthlyBudgetEur: params.profile.monthlyBudgetEur as number | undefined,
           verifiedContext,
+          language: lang,
         });
 
         const history = conversation.messages.slice(-8).map((item) => ({
@@ -169,9 +207,20 @@ export class CoachService {
           for await (const chunk of this.llmService.streamText({
             system,
             messages: history,
+            lang,
           })) {
             full += chunk;
             subscriber.next({ data: { type: 'token', text: chunk } } as MessageEvent);
+          }
+          // Output guardrail: if the model emitted a concrete figure while we
+          // had NO verified context to ground it, it was invented — append a
+          // localized caveat (streamed as a normal token so it persists too).
+          const caveat = unsourcedFigureCaveat(full, verifiedContext, lang);
+          if (caveat) {
+            full += caveat;
+            subscriber.next({
+              data: { type: 'token', text: caveat },
+            } as MessageEvent);
           }
           await this.appendMessage(conversation, 'assistant', full.trim());
           subscriber.next({
@@ -200,6 +249,7 @@ export class CoachService {
   private async retrieveContext(
     message: string,
     targetCountryIds: string[],
+    lang: CoachLanguage = 'fr',
   ): Promise<string> {
     const q = ' ' + message.toLowerCase() + ' ';
     const targets = new Set(targetCountryIds.map((c) => c.toLowerCase()));
@@ -238,28 +288,54 @@ export class CoachService {
       )
       .slice(0, 6);
 
+    const en = lang === 'en';
+    const na = en ? 'n/a' : 'n/d';
     const lines: string[] = [];
     if (relCountries.length) {
-      lines.push('PAYS:');
+      lines.push(en ? 'COUNTRIES:' : 'PAYS:');
       for (const c of relCountries) {
-        const verified = c.lastVerifiedAt
-          ? `vérifié ${c.lastVerifiedAt.toISOString().slice(0, 10)}`
-          : 'à confirmer';
+        // Decay the trust signal over time: a fact verified long ago is
+        // flagged STALE so the coach won't quote a year-old figure as current.
+        const verified = freshnessAnnotation(c.lastVerifiedAt, lang);
+        const src = en ? 'KPB catalogue' : 'catalogue KPB';
         lines.push(
-          `- ${c.nameFr}: frais ${c.tuitionRangeFr || 'n/d'}; coût de vie ${c.livingCostRangeFr || 'n/d'}; visa ${c.visaOverviewFr || 'n/d'}; admission ${c.admissionDifficultyFr || 'n/d'} [source: catalogue KPB, ${verified}]`,
+          en
+            ? `- ${c.nameEn}: tuition ${c.tuitionRangeEn || na}; living cost ${c.livingCostRangeEn || na}; visa ${c.visaOverviewEn || na}; admission ${c.admissionDifficultyEn || na} [source: ${src}, ${verified}]`
+            : `- ${c.nameFr}: frais ${c.tuitionRangeFr || na}; coût de vie ${c.livingCostRangeFr || na}; visa ${c.visaOverviewFr || na}; admission ${c.admissionDifficultyFr || na} [source: ${src}, ${verified}]`,
         );
       }
     }
     if (relScholarships.length) {
-      lines.push('BOURSES:');
+      lines.push(en ? 'SCHOLARSHIPS:' : 'BOURSES:');
       for (const s of relScholarships) {
-        const elig = (s.eligibilityFr ?? []).slice(0, 2).join(' / ');
+        const elig = en
+          ? (s.eligibilityEn ?? []).slice(0, 2).join(' / ')
+          : (s.eligibilityFr ?? []).slice(0, 2).join(' / ');
+        const fallbackSrc = en ? 'KPB catalogue' : 'catalogue KPB';
         lines.push(
-          `- ${s.nameFr} (${s.countryNameFr || s.countryId}): financement ${s.typeOfFundingFr || 'n/d'}; date limite ${s.deadlineLabelFr || 'n/d'}; éligibilité ${elig || 'voir détail'} [source: ${s.sourceUrl || 'catalogue KPB'}]`,
+          en
+            ? `- ${s.nameEn} (${s.countryNameEn || s.countryId}): funding ${s.typeOfFundingEn || na}; deadline ${s.deadlineLabelEn || na}; eligibility ${elig || 'see details'} [source: ${s.sourceUrl || fallbackSrc}]`
+            : `- ${s.nameFr} (${s.countryNameFr || s.countryId}): financement ${s.typeOfFundingFr || na}; date limite ${s.deadlineLabelFr || na}; éligibilité ${elig || 'voir détail'} [source: ${s.sourceUrl || fallbackSrc}]`,
         );
       }
     }
     return lines.join('\n');
+  }
+
+  // ── Consent + output guardrail ──────────────────────────────────────────────
+
+  /// Whether the authoritative profile has opted into third-party AI
+  /// processing. When the DB is unavailable (tryExecute → null) we cannot
+  /// verify, so we allow and rely on the client-side gate (local/dev mode).
+  private async hasAiConsent(userId: string): Promise<boolean> {
+    const profile = await this.prisma.tryExecute((client) =>
+      client.userProfile.findUnique({
+        where: { id: userId },
+        select: { aiConsentedAt: true },
+      }),
+    );
+    if (!profile) return true; // DB down or no row → don't hard-block.
+    return profile.aiConsentedAt != null;
   }
 
   // ── Storage helpers ─────────────────────────────────────────────────────────

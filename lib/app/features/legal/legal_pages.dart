@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
@@ -13,7 +14,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Politique de Confidentialité'),
+        title: Text('privacy_policy'.tr),
         backgroundColor: context.kpb.pageBg,
         surfaceTintColor: Colors.transparent,
       ),
@@ -24,16 +25,16 @@ class PrivacyPolicyScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Politique de Confidentialité',
+              'privacy_policy'.tr,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: context.kpb.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
-              'Dernière mise à jour : Avril 2026',
+              'last_updated_april_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -152,16 +153,16 @@ class TermsOfServiceScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Conditions Générales d\'Utilisation',
+              'terms_of_use'.tr,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: context.kpb.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
-              'Dernière mise à jour : Avril 2026',
+              'last_updated_april_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),

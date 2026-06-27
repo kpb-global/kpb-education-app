@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../services/catalog_cache_service.dart';
 import '../../services/connectivity_service.dart';
 import '../app_tokens.dart';
 
-const _months = <String>[
-  'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-  'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.',
-];
-
-/// French relative label describing how fresh the cached catalog is.
+/// Localized relative label describing how fresh the cached catalog is.
 ///
-/// Pure and with an injectable [now] so it is unit-testable. Examples:
-/// `aujourd'hui`, `hier`, `il y a 3 jours`, `du 14 juin`.
+/// Pure and with an injectable [now] so it is unit-testable. Strings resolve
+/// against the active GetX locale (`.tr`), so the banner is bilingual. The
+/// "older than a week" case uses a numeric `d/m` date to avoid month-name
+/// localization. Examples: `aujourd'hui`, `hier`, `il y a 3 jours`, `du 14/6`.
 String kpbFreshnessLabel(DateTime? lastSynced, {DateTime? now}) {
-  if (lastSynced == null) return 'données enregistrées';
+  if (lastSynced == null) return 'freshness_saved'.tr;
   final ref = now ?? DateTime.now();
   final today = DateTime(ref.year, ref.month, ref.day);
   final then = DateTime(lastSynced.year, lastSynced.month, lastSynced.day);
   final days = today.difference(then).inDays;
-  if (days <= 0) return "données enregistrées aujourd'hui";
-  if (days == 1) return 'données enregistrées hier';
-  if (days < 7) return 'données enregistrées il y a $days jours';
-  return 'données du ${lastSynced.day} ${_months[lastSynced.month - 1]}';
+  if (days <= 0) return 'freshness_today'.tr;
+  if (days == 1) return 'freshness_yesterday'.tr;
+  if (days < 7) return 'freshness_days'.trParams({'n': '$days'});
+  return 'freshness_date'
+      .trParams({'date': '${lastSynced.day}/${lastSynced.month}'});
 }
 
 /// Slim, reactive "you are offline" banner for the app shell.
@@ -64,7 +63,7 @@ class KpbOfflineBanner extends StatelessWidget {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'Mode hors-ligne · ${kpbFreshnessLabel(lastSync)}',
+                      '${'offline_mode'.tr} · ${kpbFreshnessLabel(lastSync)}',
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

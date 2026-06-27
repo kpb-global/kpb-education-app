@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../core/ui/app_tokens.dart';
@@ -100,13 +101,13 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Coût de la vie étudiante',
+                    'student_living_cost'.tr,
                     style: KpbTextStyles.headline.copyWith(
                         color: context.kpb.textPrimary),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
-                    'Anticipez vos dépenses mensuelles selon votre destination et votre mode de vie.',
+                    'budget_intro'.tr,
                     style: KpbTextStyles.bodySm.copyWith(
                         color: context.kpb.textSecondary),
                   ),
@@ -199,7 +200,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Budget Mensuel Estimé',
+                      'estimated_monthly_budget'.tr,
                       style: KpbTextStyles.label.copyWith(
                           color: context.kpb.textSecondary),
                     ),
@@ -257,7 +258,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Text(
-                'Détails par catégorie',
+                'details_by_category'.tr,
                 style: KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
               ),
             ),

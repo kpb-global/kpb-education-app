@@ -172,7 +172,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Icon(Icons.history_rounded,
                     size: 16, color: context.kpb.gray400),
                 const SizedBox(width: 6),
-                Text('Recherches récentes',
+                Text('recent_searches'.tr,
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -285,7 +285,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.xs),
           child: Text(
-            '${_results.length} résultat${_results.length > 1 ? 's' : ''}',
+            'search_results_count'.trParams({'n': '${_results.length}'}),
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class _ResultSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.xs),
             child: Text(
-              '+${results.length - 5} autres résultats',
+              '+${results.length - 5} ${'other_results'.tr}',
               style: TextStyle(
                   fontSize: 12,
                   color: context.kpb.textMuted,
@@ -583,7 +583,7 @@ void _openFieldDetail(
             ),
             const SizedBox(height: KpbSpacing.lg),
             if (field.careers.isNotEmpty) ...[
-              Text('Débouchés possibles',
+              Text('possible_careers'.tr,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -613,7 +613,7 @@ void _openFieldDetail(
               const SizedBox(height: KpbSpacing.lg),
             ],
             if (field.subjects.isNotEmpty) ...[
-              Text('Matières principales',
+              Text('main_subjects'.tr,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

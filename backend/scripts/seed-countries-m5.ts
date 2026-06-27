@@ -54,6 +54,10 @@ async function main() {
         popularFieldIds: seed.popularFieldIds,
         displayOrder: seed.displayOrder,
         isActive: true,
+        lastVerifiedAt: seed.lastVerifiedAt
+          ? new Date(seed.lastVerifiedAt)
+          : null,
+        sourceUrl: seed.sourceUrl ?? null,
       },
       create: {
         id: seed.id,
@@ -98,6 +102,10 @@ async function main() {
         popularFieldIds: seed.popularFieldIds,
         displayOrder: seed.displayOrder,
         isActive: true,
+        lastVerifiedAt: seed.lastVerifiedAt
+          ? new Date(seed.lastVerifiedAt)
+          : null,
+        sourceUrl: seed.sourceUrl ?? null,
       },
     });
 

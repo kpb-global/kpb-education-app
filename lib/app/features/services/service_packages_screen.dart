@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
+import '../../core/ui/components/anti_fraud_notice.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
@@ -55,7 +58,11 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     // No in-app checkout — route to a KPB advisor on WhatsApp, pre-filled with
     // the package name so they know which service the student is asking about.
     final name = (pkg['nameFr'] as String?)?.trim();
-    await openWhatsAppOrToast(prefill: kpbWhatsAppPrefill(service: name));
+    await showVerifiedAdvisorThenWhatsApp(
+      prefill: kpbWhatsAppPrefill(service: name),
+      source: 'service_packages',
+      contextType: 'service',
+    );
   }
 
   @override
@@ -98,12 +105,17 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: _packages.length,
+      itemCount: _packages.length + 1,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) => _PackageCard(
-        pkg: _packages[i] as Map<String, dynamic>,
-        onContact: _contactAdvisor,
-      ),
+      itemBuilder: (context, i) {
+        if (i == 0) {
+          return const KpbAntiFraudNotice(source: 'service_packages');
+        }
+        return _PackageCard(
+          pkg: _packages[i - 1] as Map<String, dynamic>,
+          onContact: _contactAdvisor,
+        );
+      },
     );
   }
 }
@@ -153,7 +165,7 @@ class _PackageCard extends StatelessWidget {
             ),
             if (turnaround.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Délai : $turnaround',
+              Text('${'turnaround_label'.tr} : $turnaround',
                   style: Theme.of(context).textTheme.bodySmall),
             ],
             if (deliverables.isNotEmpty) ...[

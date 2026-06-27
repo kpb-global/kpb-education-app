@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
-import 'package:karatou/app/core/utils/program_recommendation_utils.dart';
 
 import '../widget_test_helpers.dart';
 
@@ -27,29 +26,11 @@ ProgramModel _program({
   );
 }
 
-InstitutionModel _institution({
-  required String id,
-  required String nameFr,
-  String countryId = 'fra',
-}) {
-  return InstitutionModel(
-    id: id,
-    name: LocalizedText(fr: nameFr, en: nameFr),
-    countryId: countryId,
-    location: const LocalizedText(fr: 'Lyon', en: 'Lyon'),
-    overview: const LocalizedText(fr: 'Campus', en: 'Campus'),
-    studyLevels: const ['Bachelor'],
-    tuitionLabel: const LocalizedText(fr: 'Voir programme', en: 'See program'),
-    languageRequirements:
-        const LocalizedText(fr: 'Français', en: 'French'),
-    intakePeriods: const ['Septembre'],
-    programIds: const [],
-    isPartner: true,
-  );
-}
-
 void main() {
-  group('ProgramRecommendationUtils', () {
+  // The old France/ECE-Lyon-only stub (ProgramRecommendationUtils) was replaced
+  // by AppController.topProgramForCountry, which ranks via the shared search
+  // scorer and works for every destination — verified here.
+  group('AppController.topProgramForCountry', () {
     late AppController controller;
 
     setUp(() async {
@@ -58,26 +39,24 @@ void main() {
         localeCode: 'fr',
         hasCompletedOnboarding: true,
         profile: createTestProfile(),
-        institutions: [
-          _institution(
-            id: 'omnes-ece-lyon',
-            nameFr: 'ECE — Lyon',
-          ),
-          _institution(
-            id: 'omnes-ece-paris',
-            nameFr: 'ECE — Paris',
-          ),
-        ],
         programs: [
           _program(
-            id: 'omnes-p-paris',
-            institutionId: 'omnes-ece-paris',
+            id: 'fra-paris',
+            institutionId: 'ece-paris',
+            countryId: 'fra',
             nameFr: 'ECE Paris — Bachelor',
           ),
           _program(
-            id: 'omnes-p-lyon',
-            institutionId: 'omnes-ece-lyon',
+            id: 'fra-lyon',
+            institutionId: 'ece-lyon',
+            countryId: 'fra',
             nameFr: 'ECE Lyon — Bachelor IA',
+          ),
+          _program(
+            id: 'can-mcgill',
+            institutionId: 'mcgill',
+            countryId: 'can',
+            nameFr: 'McGill — CS',
           ),
         ],
       );
@@ -86,9 +65,6 @@ void main() {
         apiClient: MockApiClient(),
       );
       await controller.hydrate();
-      controller.institutions
-        ..clear()
-        ..addAll(snapshot.institutions);
       controller.programs
         ..clear()
         ..addAll(snapshot.programs);
@@ -96,24 +72,21 @@ void main() {
 
     tearDown(resetGetxSingleton);
 
-    test('returns ECE Lyon program for France conversion CTA', () {
-      final program =
-          ProgramRecommendationUtils.recommendedEceLyonProgram(controller);
-
+    test('recommends a France program for the conversion CTA', () {
+      final program = controller.topProgramForCountry('fra');
       expect(program, isNotNull);
-      expect(program!.id, 'omnes-p-lyon');
-      expect(program.institutionId, 'omnes-ece-lyon');
+      expect(program!.countryId, 'fra');
     });
 
-    test('returns null for non-France countries', () {
-      final program = ProgramRecommendationUtils.recommendedProgramForCountry(
-        controller,
-        'can',
-        schoolHint: 'ece',
-        campusHint: 'lyon',
-      );
+    test('also recommends for a non-France country (no longer France-only)',
+        () {
+      final program = controller.topProgramForCountry('can');
+      expect(program, isNotNull);
+      expect(program!.id, 'can-mcgill');
+    });
 
-      expect(program, isNull);
+    test('returns null when the catalog has no program for that country', () {
+      expect(controller.topProgramForCountry('deu'), isNull);
     });
   });
 }

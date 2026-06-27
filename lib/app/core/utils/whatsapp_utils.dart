@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config/app_config.dart';
+import '../services/analytics_service.dart';
 
 /// Builds a context-aware WhatsApp greeting for the KPB advisor line so the
 /// advisor immediately sees what the person is reaching out about. Each page
@@ -70,9 +73,18 @@ Future<void> openWhatsAppOrToast({
   bool group = false,
   String title = 'WhatsApp',
   String message = "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
+  // Funnel attribution: where the hand-off was triggered and what context it
+  // carried. The single choke-point for every WhatsApp hand-off, so logging
+  // here measures the core lead→advisor-contact conversion step everywhere.
+  String source = 'unknown',
+  String contextType = 'unknown',
 }) async {
   final uri = buildWhatsAppUri(phone: phone, prefill: prefill, group: group);
   if (await canLaunchUrl(uri)) {
+    unawaited(
+      AnalyticsService.instance
+          .logWhatsAppHandoff(source: source, contextType: contextType),
+    );
     await launchUrl(uri, mode: LaunchMode.externalApplication);
     return;
   }

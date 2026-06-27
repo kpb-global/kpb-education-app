@@ -142,6 +142,8 @@ export function mapProgram(row: Program) {
     tuition: localized(row.tuitionFr, row.tuitionEn),
     language: localized(row.languageFr, row.languageEn),
     requirements: localizedList(row.requirementsFr, row.requirementsEn),
+    // Multi-campus formations (OMNES): per-campus price/intake. Null otherwise.
+    campusOfferings: row.campusOfferings ?? null,
     // Flat keys kept for backward compatibility with older clients.
     nameFr: row.nameFr,
     nameEn: row.nameEn,

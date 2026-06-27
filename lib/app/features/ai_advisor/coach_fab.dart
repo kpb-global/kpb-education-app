@@ -27,8 +27,43 @@ class CoachFab extends StatelessWidget {
         backgroundColor: KpbColors.navy,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.psychology_rounded),
-        label: const Text('Coach IA'),
-        onPressed: () => Get.to(() => const AiChatScreen()),
+        label: Text('coach_ai'.tr),
+        onPressed: () => _openCoach(context, controller),
+      ),
+    );
+  }
+
+  /// Gate the coach behind explicit, separately-stored AI-processing consent
+  /// (KPB-66). The first time, ask; once granted we persist the timestamp so we
+  /// never re-prompt. Declining keeps the rest of the app usable.
+  Future<void> _openCoach(BuildContext context, AppController controller) async {
+    final profile = controller.profile;
+    if (profile != null && !profile.hasAiConsent) {
+      final granted = await _askAiConsent(context);
+      if (granted != true) return;
+      controller.updateProfile(
+        profile.copyWith(aiConsentedAt: DateTime.now()),
+      );
+    }
+    await Get.to(() => const AiChatScreen());
+  }
+
+  Future<bool?> _askAiConsent(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('ai_consent_title'.tr),
+        content: Text('ai_consent_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('ai_consent_decline'.tr),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text('ai_consent_accept'.tr),
+          ),
+        ],
       ),
     );
   }

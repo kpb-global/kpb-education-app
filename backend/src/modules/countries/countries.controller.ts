@@ -1,14 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 
 import { CountriesService } from './countries.service';
-import { SubmitCountryQuizDto } from './dto/submit-country-quiz.dto';
 
 @Controller('countries')
 export class CountriesController {
@@ -25,11 +17,7 @@ export class CountriesController {
     return this.countriesService.getCountryDetail(code);
   }
 
-  @Post(':code/quiz/submit')
-  submitQuiz(
-    @Param('code') code: string,
-    @Body() body: SubmitCountryQuizDto,
-  ) {
-    return this.countriesService.submitQuiz(code, body.answers);
-  }
+  // POST :code/quiz/submit removed (KPB-62): eligibility is scored client-side
+  // by the single EligibilityEngine. The quiz questions/verdict copy are still
+  // served via GET :code (country detail).
 }

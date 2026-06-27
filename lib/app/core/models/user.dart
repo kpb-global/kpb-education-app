@@ -55,6 +55,11 @@ class UserProfile {
     this.wantsScholarshipSupport = false,
     this.availableDocuments = const [],
     this.consentedAt,
+    this.aiConsentedAt,
+    this.birthDate,
+    this.guardianName,
+    this.guardianContact,
+    this.guardianConsentedAt,
   });
 
   final String id;
@@ -77,6 +82,41 @@ class UserProfile {
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
+  /// Timestamp of explicit consent to third-party AI (Groq) processing. Null
+  /// until the user opts into the AI coach. Distinct from [consentedAt].
+  final DateTime? aiConsentedAt;
+
+  /// Whether the user has granted explicit consent to AI processing.
+  bool get hasAiConsent => aiConsentedAt != null;
+
+  /// Declared birth date (onboarding age gate). Null until provided.
+  final DateTime? birthDate;
+
+  /// Self-attested guardian details + consent for users who declared an age
+  /// under 18. [guardianConsentedAt] gates data sync and AI processing.
+  final String? guardianName;
+  final String? guardianContact;
+  final DateTime? guardianConsentedAt;
+
+  /// Age in whole years from [birthDate], or null if no birth date is set.
+  int? get age {
+    final b = birthDate;
+    if (b == null) return null;
+    final now = DateTime.now();
+    var years = now.year - b.year;
+    if (now.month < b.month || (now.month == b.month && now.day < b.day)) {
+      years--;
+    }
+    return years;
+  }
+
+  /// Whether the user declared an age under 18. False when no birth date is
+  /// set (we never assume someone is a minor without a declaration).
+  bool get isMinor => (age ?? 99) < 18;
+
+  /// Whether a declared minor has recorded guardian consent.
+  bool get hasGuardianConsent => guardianConsentedAt != null;
+
   UserProfile copyWith({
     String? fullName,
     String? email,
@@ -95,6 +135,11 @@ class UserProfile {
     bool? wantsScholarshipSupport,
     List<String>? availableDocuments,
     DateTime? consentedAt,
+    DateTime? aiConsentedAt,
+    DateTime? birthDate,
+    String? guardianName,
+    String? guardianContact,
+    DateTime? guardianConsentedAt,
   }) {
     return UserProfile(
       id: id,
@@ -117,6 +162,11 @@ class UserProfile {
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
+      aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,
+      birthDate: birthDate ?? this.birthDate,
+      guardianName: guardianName ?? this.guardianName,
+      guardianContact: guardianContact ?? this.guardianContact,
+      guardianConsentedAt: guardianConsentedAt ?? this.guardianConsentedAt,
     );
   }
 

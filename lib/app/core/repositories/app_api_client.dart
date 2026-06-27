@@ -58,18 +58,9 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  // ── Device tokens ─────────────────────────────────────────────
-
-  Future<void> registerDeviceToken(String token, String platform) async {
-    await _dio.post<void>(
-      '/device-tokens',
-      data: {'token': token, 'platform': platform},
-    );
-  }
-
-  Future<void> unregisterDeviceToken(String token) async {
-    await _dio.delete<void>('/device-tokens/$token');
-  }
+  // Legacy /device-tokens registration removed: push identity is now owned
+  // end-to-end by OneSignal (see OneSignalService), and these client methods
+  // were never called. The backend table is retained for now.
 
   Future<Map<String, dynamic>> getProfile() async {
     final response = await _dio.get<Map<String, dynamic>>('/profiles/me');
@@ -81,6 +72,38 @@ class AppApiClient {
     final response = await _dio.patch<Map<String, dynamic>>(
       '/profiles/me',
       data: payload,
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// GDPR data export (portability): the backend aggregates every user-owned
+  /// record into one JSON document.
+  Future<Map<String, dynamic>> getAccountExport() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/profiles/me/export');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// GDPR / store-required account deletion: hard-deletes all server-side data
+  /// (and, best-effort, the Supabase auth identity).
+  Future<void> deleteAccount() async {
+    await _dio.delete<void>('/profiles/me');
+  }
+
+  // ── Referrals (KPB-69) ────────────────────────────────────────
+
+  /// The caller's stable referral code + attribution stats.
+  Future<Map<String, dynamic>> getMyReferral() async {
+    final response = await _dio.get<Map<String, dynamic>>('/referrals/me');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Attribute the caller to the owner of [code]. Returns
+  /// `{attributed, alreadyReferred}`.
+  Future<Map<String, dynamic>> redeemReferral(String code) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/referrals/redeem',
+      data: {'code': code},
     );
     return response.data ?? <String, dynamic>{};
   }
@@ -164,6 +187,7 @@ class AppApiClient {
         'currentLevel': profile['currentLevel'],
         'targetCountryIds':
             (profile['targetCountryIds'] as List<dynamic>?)?.join(',') ?? '',
+        'lang': profile['preferredLanguage'] ?? '',
       },
       options: Options(responseType: ResponseType.stream),
     );
@@ -269,16 +293,8 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> submitCountryQuiz(
-    String countryKey,
-    Map<String, String> answers,
-  ) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/countries/${Uri.encodeComponent(countryKey)}/quiz/submit',
-      data: {'answers': answers},
-    );
-    return response.data ?? <String, dynamic>{};
-  }
+  // Country quiz submit endpoint removed (KPB-62): eligibility is scored
+  // client-side by the single EligibilityEngine.
 
   /// Fetch live scraped scholarships, filtered and scored by the user's profile.
   Future<List<dynamic>> fetchLiveScholarships({
@@ -644,10 +660,11 @@ class AppApiClient {
   Future<Map<String, dynamic>> reviewDocument({
     required String kind,
     required String text,
+    String language = 'fr',
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/document-review',
-      data: {'kind': kind, 'text': text},
+      data: {'kind': kind, 'text': text, 'language': language},
     );
     return response.data ?? <String, dynamic>{};
   }

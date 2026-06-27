@@ -18,12 +18,29 @@ void main() {
       );
     });
 
-    test('rejects the live-scholarships route under the MVP lock', () {
-      // `/scholarships` (live aggregator) is a V1.1+ module gated by
-      // KPB_MVP_ONLY (default true in the test environment).
+    test('resolves the high-intent deep-link targets (KPB-63)', () {
+      for (final route in [
+        AppRoutes.orientation,
+        AppRoutes.eligibility,
+        AppRoutes.saved,
+        AppRoutes.alumni,
+        AppRoutes.salon,
+        AppRoutes.services,
+        AppRoutes.profile,
+      ]) {
+        expect(AppRoutes.normalizeExternalRoute(route), route);
+        // …and surrounding whitespace from a payload is tolerated.
+        expect(AppRoutes.normalizeExternalRoute('  $route '), route);
+      }
+    });
+
+    test('resolves /scholarships even under the MVP lock (graceful)', () {
+      // `/scholarships` always normalizes now: under the MVP lock its page
+      // renders a "coming soon" placeholder, so a deep-link never dies
+      // silently (it no longer returns null).
       expect(
         AppRoutes.normalizeExternalRoute(AppRoutes.scholarships),
-        isNull,
+        AppRoutes.scholarships,
       );
     });
 
@@ -66,9 +83,22 @@ void main() {
       expect(names, contains(AppRoutes.search));
       expect(names, contains(AppRoutes.caseCreate));
       expect(names, contains(AppRoutes.caseDetail));
-      // `/scholarships` (live aggregator) is gated out under the MVP lock.
-      expect(names, isNot(contains(AppRoutes.scholarships)));
-      expect(names.length, equals(4));
+      // `/scholarships` is always registered (renders a "coming soon" under the
+      // MVP lock) so deep-links to it resolve gracefully.
+      expect(names, contains(AppRoutes.scholarships));
+      // High-intent re-engagement targets (KPB-63).
+      for (final route in [
+        AppRoutes.orientation,
+        AppRoutes.eligibility,
+        AppRoutes.saved,
+        AppRoutes.alumni,
+        AppRoutes.salon,
+        AppRoutes.services,
+        AppRoutes.profile,
+      ]) {
+        expect(names, contains(route));
+      }
+      expect(names.length, equals(12));
     });
   });
 }

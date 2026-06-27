@@ -124,7 +124,7 @@ class _ParcoursIntro extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Ils l\'ont fait avant toi',
             style: TextStyle(
               color: Colors.white,
@@ -132,9 +132,9 @@ class _ParcoursIntro extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
-            'Témoignages, conseils et parcours d\'étudiants accompagnés par KPB. Inspire-toi de leur expérience.',
+            'parcours_intro'.tr,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 13,
@@ -244,7 +244,7 @@ class _ParcoursEmptyState extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Réessayer'),
+                label: Text('retry'.tr),
               ),
             ],
           ],

@@ -5,8 +5,8 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
-import '../../core/utils/program_recommendation_utils.dart';
 import '../cases/case_composer_sheet.dart';
+import '../eligibility/eligibility_simulator_data.dart';
 import 'country_detail_screen.dart';
 
 class EligibilityQuizScreen extends StatefulWidget {
@@ -22,7 +22,6 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
   late final AppController _controller;
   CountryModel? _country;
   var _loading = true;
-  var _submitting = false;
   String? _error;
   var _questionIndex = 0;
   final Map<String, String> _answers = <String, String>{};
@@ -64,28 +63,30 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
     }
   }
 
-  Future<void> _submit() async {
-    setState(() => _submitting = true);
-    try {
-      final result = await _controller.submitCountryQuiz(
-        widget.countryId,
-        _answers,
+  void _submit() {
+    final country = _country;
+    final quiz = country?.eligibilityQuiz;
+    if (country == null || quiz == null) return;
+
+    // KPB-62: the verdict comes from the single client-side EligibilityEngine
+    // (no backend round-trip, no second scorer); the display copy comes from
+    // the country's verdict templates already loaded with the detail.
+    final normalized = normalizeCountryId(widget.countryId);
+    final verdict = const EligibilityEngine().scoreCountryQuiz(
+      normalized,
+      _answers,
+    );
+    final copy = quiz.verdicts[eligibilityVerdictToKey(verdict)];
+    setState(() {
+      _result = CountryQuizResultModel(
+        verdict: verdict,
+        verdictTitle: copy?.titleFor(_controller.localeCode) ?? '',
+        verdictMessage: copy?.messageFor(_controller.localeCode) ?? '',
+        ctaLabel: copy?.ctaFor(_controller.localeCode) ?? 'continue'.tr,
+        countryId: country.id,
+        alternativeCountryIds: copy?.alternativeCountryIds ?? const [],
       );
-      if (!mounted) return;
-      setState(() {
-        _result = result;
-        _submitting = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _submitting = false);
-      Get.snackbar(
-        'Erreur',
-        'Impossible de calculer ton éligibilité. Réessaie.',
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
-    }
+    });
   }
 
   void _selectOption(String questionId, String value) {
@@ -204,7 +205,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _submitting ? null : _back,
+                    onPressed: _back,
                     child: Text(_questionIndex == 0 ? 'Annuler' : 'Retour'),
                   ),
                 ),
@@ -212,21 +213,12 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
                 Expanded(
                   flex: 2,
                   child: FilledButton(
-                    onPressed: selected == null || _submitting ? null : _next,
-                    child: _submitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            _questionIndex == quiz.questions.length - 1
-                                ? 'Voir mon verdict'
-                                : 'Suivant',
-                          ),
+                    onPressed: selected == null ? null : _next,
+                    child: Text(
+                      _questionIndex == quiz.questions.length - 1
+                          ? 'Voir mon verdict'
+                          : 'Suivant',
+                    ),
                   ),
                 ),
               ],
@@ -338,12 +330,7 @@ class _ResultView extends StatelessWidget {
 
     final normalizedCountryId = normalizeCountryId(country.id);
     final recommended = result.verdict != EligibilityVerdict.notEligible
-        ? ProgramRecommendationUtils.recommendedProgramForCountry(
-            controller,
-            normalizedCountryId,
-            schoolHint: 'ece',
-            campusHint: 'lyon',
-          )
+        ? controller.topProgramForCountry(normalizedCountryId)
         : null;
     final institution = recommended != null
         ? controller.institutionByIdOrNull(recommended.institutionId)

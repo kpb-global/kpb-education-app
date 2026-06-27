@@ -161,6 +161,9 @@ model UserProfile {
   targetLevel          String?
   languageLevel        String?
   gradeRange           String?
+  // Indicative monthly budget in EUR. Powers eligibility scoring + coach budget
+  // anchoring, and is the field that lets profile completion reach 100%.
+  monthlyBudgetEur     Int?
   wantsScholarship     Boolean                  @default(false)
   // Per-user interest selections (previously held in a shared in-memory
   // singleton, which leaked across users). Now persisted per profile.
@@ -168,6 +171,18 @@ model UserProfile {
   targetCountryIds     String[]                 @default([])
   availableDocuments   String[]                 @default([])
   consentedAt          DateTime?
+  // Separate, explicit consent for third-party AI processing (Groq). Gates the
+  // AI coach independently of the general onboarding consent above.
+  aiConsentedAt        DateTime?
+  // Age gate + self-attested guardian consent for declared minors (<18).
+  // guardianConsentedAt gates data sync and AI processing for minors.
+  birthDate            DateTime?
+  guardianName         String?
+  guardianContact      String?
+  guardianConsentedAt  DateTime?
+  // Stable per-student referral code (KPB-69) — generated on first read, shared
+  // via WhatsApp. Friends who redeem it are attributed back to this profile.
+  referralCode         String?                  @unique
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
   cases                Case[]
@@ -199,10 +214,27 @@ model UserProfile {
   alumniBadgeVisible   Boolean                  @default(true)
   servicePurchases     ServicePurchase[]
   salonRegistrations   SalonRegistration[]
+  referralsMade        Referral[]               @relation("referral_referrer")
+  referralReceived     Referral?                @relation("referral_referee")
 
   @@index([accountType])
   @@index([createdAt])
   @@index([alumniStatus])
+}
+
+// WhatsApp-native referral attribution (KPB-69). One row per redeemed referral:
+// the referrer (code owner) → the referee (the friend who redeemed). A profile
+// can be referred at most once (`refereeProfileId @unique`). The "case created"
+// milestone is derived on read (referee has ≥1 case), so no write-side hook.
+model Referral {
+  id               String      @id @default(cuid())
+  referrerId       String
+  refereeProfileId String      @unique
+  createdAt        DateTime    @default(now())
+  referrer         UserProfile @relation("referral_referrer", fields: [referrerId], references: [id])
+  referee          UserProfile @relation("referral_referee", fields: [refereeProfileId], references: [id])
+
+  @@index([referrerId])
 }
 
 model StudentCredential {
@@ -679,6 +711,13 @@ model Program {
   languageEn     String
   requirementsFr String[]
   requirementsEn String[]
+  // Multi-campus formations (OMNES, and any future school whose programme is
+  // delivered on several campuses). Same formation = one Program row; the
+  // per-campus price/intake live here instead of duplicating the row.
+  // Null for single-campus programs. Shape:
+  // [{ campus: string, tuitionUpfront: number|null,
+  //    tuitionInstallments: number|null, intake: string|null }]
+  campusOfferings Json?
   lastVerifiedAt DateTime?
   sourceUrl      String?
   createdAt      DateTime @default(now())

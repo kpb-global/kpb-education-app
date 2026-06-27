@@ -19,6 +19,7 @@ import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../tools/student_tools_screen.dart';
+import 'home_impact_proof.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flag helpers
@@ -150,6 +151,10 @@ class HomeScreen extends StatelessWidget {
                           child: _HeroCard(controller: controller),
                         ),
                         const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 1.5 Preuve sociale vérifiable & datée ────
+                        // Self-hides until real impact data is available.
+                        const HomeImpactProof(),
 
                         // ── 2. Prochaine étape ──────────────────────
                         if (controller.isStudent) ...[
@@ -952,8 +957,8 @@ class _AiAdvisorBanner extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !",
+                Text(
+                  'home_find_school_desc'.tr,
                   style: TextStyle(
                     fontSize: 12,
                     color: KpbColors.textDarkSecondary,
@@ -1329,7 +1334,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Clôture : $deadline',
+                    '${'closing_label'.tr} : $deadline',
                     style: const TextStyle(
                         fontSize: 12, color: KpbColors.textMuted),
                   ),
@@ -1475,17 +1480,17 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       BoxShadow(
                         color: KpbColors.gold.withValues(alpha: 0.4),
                         blurRadius: 10,
-                        offset: const Offset(0, 2),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.public_rounded,
                     color: Colors.white,
                     size: 28,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 // Content
                 Expanded(
                   child: Column(
@@ -1493,9 +1498,9 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Flexible(
+                          Flexible(
                             child: Text(
-                              "Inscriptions à l'Étranger",
+                              'register_abroad_title'.tr,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -1528,8 +1533,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        "Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).",
+                      Text(
+                        'home_apply_world_desc'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: KpbColors.textDarkSecondary,
@@ -1574,11 +1579,11 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       .toList(),
                 ),
                 // CTA text & arrow
-                const Row(
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Découvrir",
+                      'discover'.tr,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1651,9 +1656,9 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
             const SizedBox(height: 20),
             // Header Title
             Row(
-              children: const [
+              children: [
                 Text(
-                  "S'inscrire à l'Étranger",
+                  'register_abroad_cta'.tr,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -1669,8 +1674,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
-              "Découvrez les destinations d'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.",
+            Text(
+              'home_destinations_desc'.tr,
               style: TextStyle(
                 fontSize: 13,
                 color: KpbColors.textDarkSecondary,
@@ -1777,7 +1782,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              "Scolarité : ",
+                                              'tuition_prefix'.tr,
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,

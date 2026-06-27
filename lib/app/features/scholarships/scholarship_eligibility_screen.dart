@@ -67,7 +67,7 @@ class _ScholarshipEligibilityScreenState
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Suis-je éligible ?'),
+        title: Text('am_i_eligible'.tr),
         backgroundColor: context.kpb.pageBg,
         foregroundColor: context.kpb.textPrimary,
         elevation: 0,
@@ -81,15 +81,14 @@ class _ScholarshipEligibilityScreenState
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       children: [
         Text(_name, style: KpbTextStyles.titleLg),
-        const SizedBox(height: KpbSpacing.sm),
+        SizedBox(height: KpbSpacing.sm),
         Align(
           alignment: Alignment.centerLeft,
           child: ScholarshipStatusBadge(scholarship: widget.scholarship),
         ),
-        const SizedBox(height: KpbSpacing.sm),
+        SizedBox(height: KpbSpacing.sm),
         Text(
-          'Réponds honnêtement à chaque critère pour estimer ton éligibilité. '
-          'Ce n’est qu’une indication — un conseiller confirmera ton cas.',
+          'eligibility_honest_hint'.tr,
           style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
         ),
         const SizedBox(height: KpbSpacing.lg),
@@ -107,7 +106,7 @@ class _ScholarshipEligibilityScreenState
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              'Réponds à tous les critères pour voir ton résultat.',
+              'answer_all_criteria'.tr,
               style:
                   KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
               textAlign: TextAlign.center,
@@ -239,7 +238,7 @@ class _ScholarshipEligibilityScreenState
           if (unmet.isNotEmpty &&
               verdict != ScholarshipEligibilityVerdict.eligible) ...[
             const SizedBox(height: KpbSpacing.md),
-            Text('À vérifier :', style: KpbTextStyles.label),
+            Text('to_check'.tr, style: KpbTextStyles.label),
             const SizedBox(height: 4),
             ...unmet.map(
               (c) => Padding(
@@ -274,8 +273,7 @@ class _ScholarshipEligibilityScreenState
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Les critères d’éligibilité de cette bourse ne sont pas encore '
-            'détaillés. Un conseiller KPB peut vérifier ton cas directement.',
+            'eligibility_not_detailed'.tr,
             textAlign: TextAlign.center,
             style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
           ),
