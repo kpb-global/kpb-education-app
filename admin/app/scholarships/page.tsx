@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
-import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  mutedTextStyle,
-  panelStyle,
-  secondaryButtonStyle,
-} from '../../lib/ui';
+  Alert,
+  Badge,
+  BadgeVariant,
+  Button,
+  Card,
+  ConfirmDialog,
+  EmptyState,
+} from '../../components/ui';
+import { apiFetch } from '../../lib/api-client';
+import { mutedTextStyle } from '../../lib/ui';
 
 type ModerationStatus = 'pending' | 'approved' | 'rejected';
 
@@ -45,26 +48,10 @@ const STATUS_FILTERS: { value: ModerationStatus; label: string }[] = [
   { value: 'rejected', label: 'Rejetées' },
 ];
 
-const approveButtonStyle = {
-  ...buttonStyle,
-  background: '#16A34A',
-};
-
-const rejectButtonStyle = {
-  ...buttonStyle,
-  background: '#DC2626',
-};
-
-const chipStyle = {
-  ...badgeStyle,
-  background: '#E9EEF6',
-  color: '#334155',
-};
-
-const statusBadgeStyles: Record<ModerationStatus, typeof badgeStyle> = {
-  pending: { ...badgeStyle, background: '#FEF3C7', color: '#92400E' },
-  approved: { ...badgeStyle, background: '#ECFDF5', color: '#166534' },
-  rejected: { ...badgeStyle, background: '#FEF2F2', color: '#B91C1C' },
+const STATUS_VARIANT: Record<ModerationStatus, BadgeVariant> = {
+  pending: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
 const statusLabels: Record<ModerationStatus, string> = {
@@ -94,6 +81,7 @@ export default function ScholarshipsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rejecting, setRejecting] = useState<ScholarshipEntry | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -174,10 +162,9 @@ export default function ScholarshipsPage() {
       // The row no longer matches the active filter, so drop it from the list.
       setItems((current) => current.filter((item) => item.id !== entry.id));
       setStatusMessage(
-        action === 'approve'
-          ? 'Bourse approuvée.'
-          : 'Bourse rejetée.',
+        action === 'approve' ? 'Bourse approuvée.' : 'Bourse rejetée.',
       );
+      setRejecting(null);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -191,37 +178,29 @@ export default function ScholarshipsPage() {
 
   function renderActions(entry: ScholarshipEntry) {
     const isPending = pendingId === entry.id;
-    const buttons: React.ReactNode[] = [];
-
-    if (entry.moderationStatus === 'pending' || entry.moderationStatus === 'rejected') {
-      buttons.push(
-        <button
-          key="approve"
-          type="button"
-          onClick={() => moderate(entry, 'approve')}
-          disabled={isPending}
-          style={{ ...approveButtonStyle, opacity: isPending ? 0.6 : 1 }}
-        >
-          Approuver
-        </button>,
-      );
-    }
-
-    if (entry.moderationStatus === 'pending' || entry.moderationStatus === 'approved') {
-      buttons.push(
-        <button
-          key="reject"
-          type="button"
-          onClick={() => moderate(entry, 'reject')}
-          disabled={isPending}
-          style={{ ...rejectButtonStyle, opacity: isPending ? 0.6 : 1 }}
-        >
-          Rejeter
-        </button>,
-      );
-    }
-
-    return <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{buttons}</div>;
+    return (
+      <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+        {entry.moderationStatus !== 'approved' ? (
+          <Button
+            size="sm"
+            loading={isPending}
+            onClick={() => moderate(entry, 'approve')}
+          >
+            Approuver
+          </Button>
+        ) : null}
+        {entry.moderationStatus !== 'rejected' ? (
+          <Button
+            size="sm"
+            variant="danger"
+            disabled={isPending}
+            onClick={() => setRejecting(entry)}
+          >
+            Rejeter
+          </Button>
+        ) : null}
+      </div>
+    );
   }
 
   function renderEntry(entry: ScholarshipEntry) {
@@ -229,10 +208,10 @@ export default function ScholarshipsPage() {
       <div
         key={entry.id}
         style={{
-          borderTop: '1px solid #E2E8F0',
-          paddingTop: 12,
+          borderTop: '1px solid var(--border)',
+          paddingTop: 'var(--space-3)',
           display: 'grid',
-          gap: 10,
+          gap: 'var(--space-2)',
         }}
       >
         <div
@@ -245,9 +224,9 @@ export default function ScholarshipsPage() {
           }}
         >
           <strong>{entry.nameFr}</strong>
-          <span style={statusBadgeStyles[entry.moderationStatus]}>
+          <Badge variant={STATUS_VARIANT[entry.moderationStatus]}>
             {statusLabels[entry.moderationStatus]}
-          </span>
+          </Badge>
         </div>
         <div style={{ ...mutedTextStyle, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <span>Pays : {entry.countryId || '—'}</span>
@@ -258,7 +237,7 @@ export default function ScholarshipsPage() {
             href={entry.sourceUrl}
             target="_blank"
             rel="noreferrer"
-            style={{ color: '#004aad', wordBreak: 'break-all' }}
+            style={{ color: 'var(--brand)', wordBreak: 'break-all' }}
           >
             {entry.sourceUrl}
           </a>
@@ -268,9 +247,9 @@ export default function ScholarshipsPage() {
         {entry.tags.length > 0 ? (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {entry.tags.map((tag) => (
-              <span key={tag} style={chipStyle}>
+              <Badge key={tag} variant="neutral">
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         ) : null}
@@ -281,19 +260,11 @@ export default function ScholarshipsPage() {
 
   return (
     <DashboardShell title="Modération des bourses">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+        <Card style={{ display: 'grid', gap: 'var(--space-4)' }}>
           <div
             style={{
               display: 'flex',
@@ -303,45 +274,55 @@ export default function ScholarshipsPage() {
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {STATUS_FILTERS.map((filter) => {
-                const active = filter.value === statusFilter;
-                return (
-                  <button
-                    key={filter.value}
-                    type="button"
-                    onClick={() => changeFilter(filter.value)}
-                    style={{
-                      ...(active ? buttonStyle : secondaryButtonStyle),
-                      padding: '10px 14px',
-                    }}
-                  >
-                    {filter.label}
-                  </button>
-                );
-              })}
+            <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+              {STATUS_FILTERS.map((filter) => (
+                <Button
+                  key={filter.value}
+                  size="sm"
+                  variant={filter.value === statusFilter ? 'primary' : 'secondary'}
+                  onClick={() => changeFilter(filter.value)}
+                >
+                  {filter.label}
+                </Button>
+              ))}
             </div>
-            <button
-              type="button"
-              onClick={refreshFeed}
-              disabled={refreshing}
-              style={{ ...buttonStyle, opacity: refreshing ? 0.6 : 1 }}
-            >
-              {refreshing ? 'Rafraîchissement…' : 'Rafraîchir le flux'}
-            </button>
+            <Button loading={refreshing} onClick={refreshFeed}>
+              Rafraîchir le flux
+            </Button>
           </div>
 
           {loading ? (
             <p style={mutedTextStyle}>Chargement des bourses…</p>
           ) : items.length === 0 ? (
-            <p style={mutedTextStyle}>Aucune bourse à modérer</p>
+            <EmptyState
+              title="Aucune bourse à modérer"
+              description="Aucune bourse ne correspond à ce filtre pour le moment."
+            />
           ) : (
-            <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
               {items.map((entry) => renderEntry(entry))}
             </div>
           )}
-        </section>
+        </Card>
       </div>
+
+      <ConfirmDialog
+        open={rejecting !== null}
+        title="Rejeter cette bourse ?"
+        description={
+          rejecting
+            ? `« ${rejecting.nameFr} » ne sera plus visible par les étudiants.`
+            : undefined
+        }
+        confirmLabel="Rejeter"
+        cancelLabel="Annuler"
+        variant="danger"
+        loading={rejecting !== null && pendingId === rejecting.id}
+        onConfirm={() => {
+          if (rejecting) void moderate(rejecting, 'reject');
+        }}
+        onCancel={() => setRejecting(null)}
+      />
     </DashboardShell>
   );
 }
