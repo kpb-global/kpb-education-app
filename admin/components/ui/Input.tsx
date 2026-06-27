@@ -1,4 +1,9 @@
-import { InputHTMLAttributes, TextareaHTMLAttributes, forwardRef } from 'react';
+import {
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+  forwardRef,
+} from 'react';
 
 import { cx } from './cx';
 import styles from './ui.module.css';
@@ -18,6 +23,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       className={cx(styles.input, invalid && styles.invalid, className)}
       {...rest}
     />
+  );
+});
+
+export interface SelectProps
+  extends SelectHTMLAttributes<HTMLSelectElement> {
+  invalid?: boolean;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
+  { invalid, className, children, ...rest },
+  ref,
+) {
+  return (
+    <select
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cx(styles.input, invalid && styles.invalid, className)}
+      {...rest}
+    >
+      {children}
+    </select>
   );
 });
 

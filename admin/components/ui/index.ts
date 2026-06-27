@@ -1,7 +1,7 @@
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
-export { Input, Textarea } from './Input';
-export type { InputProps, TextareaProps } from './Input';
+export { Input, Textarea, Select } from './Input';
+export type { InputProps, TextareaProps, SelectProps } from './Input';
 export { Field } from './Field';
 export type { FieldProps } from './Field';
 export { Card } from './Card';

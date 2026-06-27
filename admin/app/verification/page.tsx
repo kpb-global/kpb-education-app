@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
-import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  mutedTextStyle,
-  panelStyle,
-} from '../../lib/ui';
+  Alert,
+  Badge,
+  Button,
+  Card,
+  ConfirmDialog,
+  Field,
+  Input,
+} from '../../components/ui';
+import { apiFetch } from '../../lib/api-client';
+import { mutedTextStyle } from '../../lib/ui';
 
 interface CatalogEntry {
   id: string;
@@ -27,24 +30,6 @@ interface CatalogResponse {
 
 type Entity = 'country' | 'program';
 
-const verifiedBadgeStyle = {
-  ...badgeStyle,
-  background: '#ECFDF5',
-  color: '#166534',
-};
-
-const pendingBadgeStyle = {
-  ...badgeStyle,
-  background: '#FEF3C7',
-  color: '#92400E',
-};
-
-const resetButtonStyle = {
-  ...buttonStyle,
-  background: '#E2E8F0',
-  color: '#122033',
-};
-
 function formatVerifiedDate(iso: string): string {
   const date = new Date(iso);
   const day = String(date.getDate()).padStart(2, '0');
@@ -59,6 +44,10 @@ export default function VerificationPage() {
   const [programs, setPrograms] = useState<CatalogEntry[]>([]);
   const [sourceInputs, setSourceInputs] = useState<Record<string, string>>({});
   const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [resetting, setResetting] = useState<{
+    entity: Entity;
+    entry: CatalogEntry;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -148,6 +137,9 @@ export default function VerificationPage() {
           ? 'Entrée marquée comme vérifiée.'
           : 'Vérification réinitialisée.',
       );
+      if (!verified) {
+        setResetting(null);
+      }
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -168,10 +160,10 @@ export default function VerificationPage() {
       <div
         key={entry.id}
         style={{
-          borderTop: '1px solid #E2E8F0',
-          paddingTop: 12,
+          borderTop: '1px solid var(--border)',
+          paddingTop: 'var(--space-3)',
           display: 'grid',
-          gap: 10,
+          gap: 'var(--space-2)',
         }}
       >
         <div
@@ -184,40 +176,46 @@ export default function VerificationPage() {
           }}
         >
           <strong>{entry.name.fr}</strong>
-          <span style={verified ? verifiedBadgeStyle : pendingBadgeStyle}>
+          <Badge variant={verified ? 'success' : 'warning'}>
             {verified
               ? `Vérifié le ${formatVerifiedDate(entry.lastVerifiedAt as string)}`
               : 'À confirmer'}
-          </span>
+          </Badge>
         </div>
-        <input
-          value={sourceInputs[key] ?? ''}
-          onChange={(event) =>
-            setSourceInputs((current) => ({
-              ...current,
-              [key]: event.target.value,
-            }))
-          }
-          placeholder="https://source-officielle.example"
-          style={inputStyle}
-        />
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button
-            type="button"
+        <Field label="Source officielle">
+          {({ id }) => (
+            <Input
+              id={id}
+              value={sourceInputs[key] ?? ''}
+              onChange={(event) =>
+                setSourceInputs((current) => ({
+                  ...current,
+                  [key]: event.target.value,
+                }))
+              }
+              placeholder="https://source-officielle.example"
+              inputMode="url"
+            />
+          )}
+        </Field>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+          <Button
+            size="sm"
+            loading={isPending}
             onClick={() => verifyEntry(entity, entry, true)}
-            disabled={isPending}
-            style={{ ...buttonStyle, opacity: isPending ? 0.6 : 1 }}
           >
             Marquer vérifié
-          </button>
-          <button
-            type="button"
-            onClick={() => verifyEntry(entity, entry, false)}
-            disabled={isPending}
-            style={{ ...resetButtonStyle, opacity: isPending ? 0.6 : 1 }}
-          >
-            Réinitialiser
-          </button>
+          </Button>
+          {verified ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={isPending}
+              onClick={() => setResetting({ entity, entry })}
+            >
+              Réinitialiser
+            </Button>
+          ) : null}
         </div>
       </div>
     );
@@ -225,23 +223,15 @@ export default function VerificationPage() {
 
   return (
     <DashboardShell title="Vérification catalogue">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
         {loading ? (
-          <div style={panelStyle}>Chargement du catalogue…</div>
+          <Card>Chargement du catalogue…</Card>
         ) : (
           <>
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+            <Card style={{ display: 'grid', gap: 'var(--space-4)' }}>
               <div>
                 <h3 style={{ marginTop: 0 }}>Pays</h3>
                 <p style={mutedTextStyle}>
@@ -249,16 +239,16 @@ export default function VerificationPage() {
                   officielle pour le signal de confiance.
                 </p>
               </div>
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 {countries.length === 0 ? (
                   <p style={mutedTextStyle}>Aucun pays à vérifier.</p>
                 ) : (
                   countries.map((country) => renderEntry('country', country))
                 )}
               </div>
-            </section>
+            </Card>
 
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+            <Card style={{ display: 'grid', gap: 'var(--space-4)' }}>
               <div>
                 <h3 style={{ marginTop: 0 }}>Formations</h3>
                 <p style={mutedTextStyle}>
@@ -266,17 +256,38 @@ export default function VerificationPage() {
                   officielle pour le signal de confiance.
                 </p>
               </div>
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 {programs.length === 0 ? (
                   <p style={mutedTextStyle}>Aucune formation à vérifier.</p>
                 ) : (
                   programs.map((program) => renderEntry('program', program))
                 )}
               </div>
-            </section>
+            </Card>
           </>
         )}
       </div>
+
+      <ConfirmDialog
+        open={resetting !== null}
+        title="Réinitialiser la vérification ?"
+        description={
+          resetting
+            ? `Le signal de confiance de « ${resetting.entry.name.fr} » (date et source) sera effacé.`
+            : undefined
+        }
+        confirmLabel="Réinitialiser"
+        cancelLabel="Annuler"
+        variant="danger"
+        loading={
+          resetting !== null &&
+          pendingKey === `${resetting.entity}:${resetting.entry.id}`
+        }
+        onConfirm={() => {
+          if (resetting) void verifyEntry(resetting.entity, resetting.entry, false);
+        }}
+        onCancel={() => setResetting(null)}
+      />
     </DashboardShell>
   );
 }

@@ -4,15 +4,18 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
-import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-} from '../../lib/ui';
+  Alert,
+  Badge,
+  Button,
+  Card,
+  ConfirmDialog,
+  Field,
+  Input,
+  Select,
+} from '../../components/ui';
+import { apiFetch } from '../../lib/api-client';
+import { mutedTextStyle } from '../../lib/ui';
 
 interface AdminUserItem {
   id: string;
@@ -23,6 +26,15 @@ interface AdminUserItem {
   languageScope: string[];
   workload: number;
 }
+
+const ROLE_OPTIONS = [
+  { value: 'counselor', label: 'Counselor' },
+  { value: 'commercial', label: 'Commercial' },
+  { value: 'content_manager', label: 'Content manager' },
+  { value: 'moderator', label: 'Moderator' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'super_admin', label: 'Super admin' },
+];
 
 function splitList(value: string) {
   return value
@@ -37,6 +49,9 @@ export default function UsersPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [createForm, setCreateForm] = useState({
     fullName: '',
     email: '',
@@ -93,6 +108,7 @@ export default function UsersPage() {
     event.preventDefault();
     setStatusMessage(null);
     setErrorMessage(null);
+    setCreating(true);
 
     try {
       await apiFetch('/admin/users', {
@@ -118,17 +134,18 @@ export default function UsersPage() {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to create user.',
       );
+    } finally {
+      setCreating(false);
     }
   }
 
-  async function submitUpdate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function applyUpdate() {
     if (!selectedUser) {
       return;
     }
-
     setStatusMessage(null);
     setErrorMessage(null);
+    setSaving(true);
 
     try {
       await apiFetch(`/admin/users/${selectedUser.id}`, {
@@ -140,129 +157,155 @@ export default function UsersPage() {
         },
       });
       setStatusMessage('User role and activation updated.');
+      setConfirmDeactivate(false);
       await loadUsers();
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to update user.',
       );
+    } finally {
+      setSaving(false);
     }
+  }
+
+  function submitUpdate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedUser) {
+      return;
+    }
+    // Deactivating a teammate is consequential — confirm first.
+    if (selectedUser.isActive && !updateForm.isActive) {
+      setConfirmDeactivate(true);
+      return;
+    }
+    void applyUpdate();
   }
 
   return (
     <DashboardShell title="Users and roles">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1.1fr 0.9fr' }}>
-          <section style={panelStyle}>
+        <div
+          style={{
+            display: 'grid',
+            gap: 'var(--space-5)',
+            gridTemplateColumns: '1.1fr 0.9fr',
+          }}
+        >
+          <Card>
             <h3 style={{ marginTop: 0 }}>Internal operators</h3>
             <p style={mutedTextStyle}>
               Manage counselor, commercial, moderator, content, and admin access
               for the KPB team.
             </p>
-            <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
               {users.map((user) => (
                 <button
                   key={user.id}
+                  type="button"
                   onClick={() => setSelectedUserId(user.id)}
+                  aria-pressed={selectedUserId === user.id}
                   style={{
                     textAlign: 'left',
                     border:
                       selectedUserId === user.id
-                        ? '2px solid #1D4ED8'
-                        : '1px solid #E2E8F0',
-                    borderRadius: 16,
-                    padding: 14,
-                    background: '#fff',
+                        ? '2px solid var(--brand)'
+                        : '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: 'var(--space-3)',
+                    background: 'var(--surface)',
                     cursor: 'pointer',
+                    display: 'grid',
+                    gap: 'var(--space-2)',
                   }}
                 >
                   <strong>{user.fullName}</strong>
-                  <p style={{ margin: '6px 0' }}>
+                  <span style={{ ...mutedTextStyle, fontSize: 'var(--text-sm)' }}>
                     {user.role} • {user.email}
-                  </p>
-                  <span style={badgeStyle}>
-                    {user.isActive ? 'active' : 'inactive'} • load {user.workload}
+                  </span>
+                  <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <Badge variant={user.isActive ? 'success' : 'neutral'}>
+                      {user.isActive ? 'active' : 'inactive'}
+                    </Badge>
+                    <span style={{ ...mutedTextStyle, fontSize: 'var(--text-xs)' }}>
+                      load {user.workload}
+                    </span>
                   </span>
                 </button>
               ))}
             </div>
-          </section>
+          </Card>
 
-          <div style={{ display: 'grid', gap: 18 }}>
-            <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+          <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+            <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
               <h3 style={{ marginTop: 0 }}>Create internal account</h3>
-              <form onSubmit={submitCreate} style={{ display: 'grid', gap: 12 }}>
-                <label style={labelStyle}>
-                  Full name
-                  <input
-                    value={createForm.fullName}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        fullName: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Email
-                  <input
-                    value={createForm.email}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        email: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Role
-                  <select
-                    value={createForm.role}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        role: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  >
-                    <option value="counselor">Counselor</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="content_manager">Content manager</option>
-                    <option value="moderator">Moderator</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super admin</option>
-                  </select>
-                </label>
-                <label style={labelStyle}>
-                  Language scope
-                  <input
-                    value={createForm.languageScope}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        languageScope: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={{ ...labelStyle, alignContent: 'end' }}>
-                  <span>Active</span>
+              <form onSubmit={submitCreate} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                <Field label="Full name">
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={createForm.fullName}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          fullName: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label="Email">
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      type="email"
+                      value={createForm.email}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          email: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label="Role">
+                  {({ id }) => (
+                    <Select
+                      id={id}
+                      value={createForm.role}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          role: event.target.value,
+                        }))
+                      }
+                    >
+                      {ROLE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+                <Field label="Language scope (comma-separated)">
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={createForm.languageScope}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          languageScope: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <label style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', fontWeight: 600 }}>
                   <input
                     type="checkbox"
                     checked={createForm.isActive}
@@ -273,55 +316,57 @@ export default function UsersPage() {
                       }))
                     }
                   />
+                  Active
                 </label>
-                <button type="submit" style={buttonStyle}>
+                <Button type="submit" loading={creating}>
                   Create operator
-                </button>
+                </Button>
               </form>
-            </section>
+            </Card>
 
             {selectedUser ? (
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+              <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 <h3 style={{ marginTop: 0 }}>Update selected operator</h3>
                 <p style={mutedTextStyle}>
                   {selectedUser.fullName} • {selectedUser.email}
                 </p>
-                <form onSubmit={submitUpdate} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Role
-                    <select
-                      value={updateForm.role}
-                      onChange={(event) =>
-                        setUpdateForm((current) => ({
-                          ...current,
-                          role: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    >
-                      <option value="counselor">Counselor</option>
-                      <option value="commercial">Commercial</option>
-                      <option value="content_manager">Content manager</option>
-                      <option value="moderator">Moderator</option>
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super admin</option>
-                    </select>
-                  </label>
-                  <label style={labelStyle}>
-                    Workload
-                    <input
-                      value={updateForm.workload}
-                      onChange={(event) =>
-                        setUpdateForm((current) => ({
-                          ...current,
-                          workload: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={{ ...labelStyle, alignContent: 'end' }}>
-                    <span>Active</span>
+                <form onSubmit={submitUpdate} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                  <Field label="Role">
+                    {({ id }) => (
+                      <Select
+                        id={id}
+                        value={updateForm.role}
+                        onChange={(event) =>
+                          setUpdateForm((current) => ({
+                            ...current,
+                            role: event.target.value,
+                          }))
+                        }
+                      >
+                        {ROLE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </Field>
+                  <Field label="Workload">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="number"
+                        value={updateForm.workload}
+                        onChange={(event) =>
+                          setUpdateForm((current) => ({
+                            ...current,
+                            workload: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <label style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', fontWeight: 600 }}>
                     <input
                       type="checkbox"
                       checked={updateForm.isActive}
@@ -332,16 +377,33 @@ export default function UsersPage() {
                         }))
                       }
                     />
+                    Active
                   </label>
-                  <button type="submit" style={buttonStyle}>
+                  <Button type="submit" loading={saving}>
                     Save role changes
-                  </button>
+                  </Button>
                 </form>
-              </section>
+              </Card>
             ) : null}
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDeactivate}
+        title="Deactivate this operator?"
+        description={
+          selectedUser
+            ? `${selectedUser.fullName} will lose access to the admin workspace until reactivated.`
+            : undefined
+        }
+        confirmLabel="Deactivate"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={saving}
+        onConfirm={() => void applyUpdate()}
+        onCancel={() => setConfirmDeactivate(false)}
+      />
     </DashboardShell>
   );
 }
