@@ -600,11 +600,11 @@ class _AdmissionHook extends StatelessWidget {
                   color: KpbColors.warning.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.warning_amber_rounded,
+                child: Icon(Icons.warning_amber_rounded,
                     color: KpbColors.warning, size: 18),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 'Chances d\'admission : Faibles',
                 style: TextStyle(
                   color: KpbColors.warning,
@@ -614,9 +614,9 @@ class _AdmissionHook extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
-            'Ton dossier actuel est à $score%. Pour une bourse comme "$scholarshipName", le seuil de sécurité est de 85%.',
+            'scholarship_gap_msg'.trParams({'score': '$score', 'name': scholarshipName}),
             style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white70 : context.kpb.textSecondary,
@@ -676,7 +676,7 @@ class _AcademyCtaCard extends StatelessWidget {
                 ),
                 child: Icon(Icons.school_rounded, color: themeColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Text(
                 'KPB Academy',
                 style: TextStyle(
@@ -688,7 +688,7 @@ class _AcademyCtaCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             isPurchased
                 ? 'Continue ta formation'
@@ -698,9 +698,9 @@ class _AcademyCtaCard extends StatelessWidget {
                 fontSize: 16,
                 color: context.kpb.textPrimary),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
-            'Accède au pack de tutoriels vidéos exclusifs pour réussir ton dossier.',
+            'scholarship_tutorials'.tr,
             style: TextStyle(
                 color: context.kpb.textSecondary, fontSize: 13, height: 1.4),
           ),

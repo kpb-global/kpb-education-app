@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
 
@@ -83,9 +84,9 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Candidature envoyée. Un admin examinera ton dossier sous 48h.',
+            'application_sent_admin'.tr,
           ),
         ),
       );

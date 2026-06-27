@@ -153,8 +153,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
           Text(
-            'Colle ton brouillon et obtiens un retour structuré en quelques '
-            'secondes — points forts, axes d’amélioration et éléments manquants.',
+            'doc_review_paste_hint'.tr,
             style:
                 KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
           ),

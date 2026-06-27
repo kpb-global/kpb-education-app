@@ -58,28 +58,28 @@ class _AppLockScreenState extends State<AppLockScreen> {
                   height: 180,
                   repeat: true,
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Application Verrouillée',
+                SizedBox(height: 12),
+                Text(
+                  'app_locked'.tr,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
-                  'Veuillez vous authentifier pour accéder à vos documents et suivis KPB.',
+                  'app_lock_prompt'.tr,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: 48),
                 if (_hasError) ...[
-                  const Text(
-                    'Authentification échouée.',
+                  Text(
+                    'auth_failed'.tr,
                     style: TextStyle(color: KpbColors.error, fontSize: 14),
                   ),
                   const SizedBox(height: 16),

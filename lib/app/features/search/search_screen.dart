@@ -285,7 +285,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.xs),
           child: Text(
-            '${_results.length} résultat${_results.length > 1 ? 's' : ''}',
+            'search_results_count'.trParams({'n': '${_results.length}'}),
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class _ResultSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.xs),
             child: Text(
-              '+${results.length - 5} autres résultats',
+              '+${results.length - 5} ${'other_results'.tr}',
               style: TextStyle(
                   fontSize: 12,
                   color: context.kpb.textMuted,

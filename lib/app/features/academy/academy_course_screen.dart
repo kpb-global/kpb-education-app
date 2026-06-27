@@ -174,7 +174,7 @@ class AcademyCourseScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Reste à payer',
+                      'remaining_to_pay'.tr,
                       style: KpbTextStyles.label.copyWith(color: context.kpb.textSecondary),
                     ),
                     Text(
@@ -221,14 +221,14 @@ class AcademyCourseScreen extends StatelessWidget {
                  ),
                  child: Icon(Icons.shopping_bag_outlined, color: KpbColors.blue, size: 48),
                ),
-               const SizedBox(height: 24),
+               SizedBox(height: 24),
                Text(
                  'Finaliser l\'achat',
                  style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
                ),
-               const SizedBox(height: 12),
+               SizedBox(height: 12),
                Text(
-                 'Vous allez débloquer la formation "${controller.resolve(course.title)}" définitevement sur votre compte.',
+                 'academy_unlock_msg'.trParams({'title': controller.resolve(course.title)}),
                  textAlign: TextAlign.center,
                  style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
                ),

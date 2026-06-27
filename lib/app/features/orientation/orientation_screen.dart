@@ -87,7 +87,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   const CircularProgressIndicator(),
                   const SizedBox(height: KpbSpacing.md),
                   Text(
-                    'Analyse de vos réponses…',
+                    'analyzing_answers'.tr,
                     style: KpbTextStyles.body,
                   ),
                 ],
@@ -219,7 +219,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         if (question.multiSelect) ...[
                           const SizedBox(height: 6),
                           Text(
-                            'Plusieurs réponses possibles',
+                            'multiple_answers_allowed'.tr,
                             style: TextStyle(
                               fontSize: 12,
                               color: context.kpb.textMuted,
@@ -752,7 +752,7 @@ class _ResultsHero extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Voici les filières qui vous correspondent le mieux.',
+            'orientation_results_intro'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.85),
@@ -1001,7 +1001,7 @@ class _RecommendationCard extends StatelessWidget {
           if ((rec.jobs as List<String>).isNotEmpty) ...[
             const SizedBox(height: KpbSpacing.md),
             Text(
-              'Métiers visés',
+              'target_careers'.tr,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -1026,7 +1026,7 @@ class _RecommendationCard extends StatelessWidget {
           // ── Countries ────────────────────────────────────────────────
           if (countries.isNotEmpty) ...[
             Text(
-              'Pays recommandés',
+              'recommended_countries'.tr,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,

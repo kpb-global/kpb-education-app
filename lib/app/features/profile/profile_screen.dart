@@ -144,16 +144,16 @@ class ProfileScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('profile_security'.tr, style: KpbTextStyles.titleMd),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.face_unlock_outlined,
+                                    Icon(Icons.face_unlock_outlined,
                                         color: KpbColors.blue, size: 24),
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12),
                                     Flexible(
                                       child: Column(
                                         crossAxisAlignment:
@@ -163,7 +163,7 @@ class ProfileScreen extends StatelessWidget {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600)),
                                           Text(
-                                            'Protéger l\'accès à l\'application',
+                                            'protect_app_access'.tr,
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: context.kpb.textMuted),
@@ -561,8 +561,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('logout_confirm_title'.tr),
-        content: const Text(
-          'Vous serez redirigé vers l\'écran d\'accueil. Vos données locales seront effacées.',
+        content: Text(
+          'logout_redirect_notice'.tr,
         ),
         actions: [
           TextButton(
@@ -985,10 +985,10 @@ class _ProfileCompletionGuide extends StatelessWidget {
           Row(
             children: [
               Text('profile_completed'.tr, style: KpbTextStyles.titleMd),
-              const Spacer(),
+              Spacer(),
               Text(
                 '$completion%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: KpbColors.blue,
@@ -996,7 +996,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ClipRRect(
             borderRadius: KpbRadius.pillBr,
             child: LinearProgressIndicator(
@@ -1009,14 +1009,14 @@ class _ProfileCompletionGuide extends StatelessWidget {
             ),
           ),
           if (completion >= 100) ...[
-            const SizedBox(height: 12),
-            const Row(
+            SizedBox(height: 12),
+            Row(
               children: [
                 Icon(Icons.check_circle_rounded,
                     color: KpbColors.success, size: 16),
                 SizedBox(width: 6),
                 Text(
-                  'Profil complet — recommandations optimisées ✨',
+                  'profile_complete_optimized'.tr,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

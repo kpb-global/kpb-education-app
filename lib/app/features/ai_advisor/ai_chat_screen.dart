@@ -219,7 +219,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     vertical: 8,
                   ),
                   child: Text(
-                    'Quota épuisé — Premium bientôt disponible ou contacte un conseiller KPB.',
+                    'coach_quota_exhausted'.tr,
                     style: TextStyle(
                       color: KpbColors.gold.withValues(alpha: 0.95),
                       fontSize: 12,

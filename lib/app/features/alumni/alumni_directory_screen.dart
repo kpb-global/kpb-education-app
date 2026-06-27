@@ -116,11 +116,11 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
     }
     if (_alumni.isEmpty) {
       return ListView(
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Text(
-              "Aucun mentor vérifié ne correspond à cette recherche pour l'instant.",
+              'no_verified_mentor'.tr,
               textAlign: TextAlign.center,
             ),
           ),

@@ -102,9 +102,9 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     style: KpbTextStyles.headline.copyWith(
                         color: context.kpb.textPrimary),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
-                    'Garantir votre hébergement est primordial pour l\'obtention de votre visa étudiant.',
+                    'housing_intro'.tr,
                     style: KpbTextStyles.bodySm.copyWith(
                         color: context.kpb.textSecondary),
                   ),
@@ -128,17 +128,17 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                 padding: const EdgeInsets.all(KpbSpacing.lg),
                 child: Column(
                   children: [
-                    const Icon(Icons.maps_home_work_rounded, color: Colors.white, size: 36),
-                    const SizedBox(height: 12),
+                    Icon(Icons.maps_home_work_rounded, color: Colors.white, size: 36),
+                    SizedBox(height: 12),
                     Text(
-                      'Loyer Mensuel Estimé à ${_selectedCity?.name}',
-                      style: const TextStyle(
+                      '${'estimated_monthly_rent_in'.tr} ${_selectedCity?.name}',
+                      style: TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     if (_selectedCity != null)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -146,7 +146,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            '${_selectedCity!.minRent} à ${_selectedCity!.maxRent}',
+                            '${_selectedCity!.minRent} ${'to_range'.tr} ${_selectedCity!.maxRent}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 36,
