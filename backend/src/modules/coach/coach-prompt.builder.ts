@@ -36,6 +36,31 @@ export function budgetBucket(
   return lang === 'en' ? `${range} €/month (range)` : `${range} €/mois (tranche)`;
 }
 
+/// Verification freshness annotation for a RAG fact, with time decay. A fact
+/// verified longer ago than [staleDays] is flagged STALE so the coach can warn
+/// rather than present a year-old figure as currently verified. Returns the
+/// bracket text used in `[source: …, <annotation>]`.
+export function freshnessAnnotation(
+  lastVerifiedAt: Date | null | undefined,
+  lang: CoachLanguage,
+  opts?: { now?: Date; staleDays?: number },
+): string {
+  const en = lang === 'en';
+  if (!lastVerifiedAt) return en ? 'to confirm' : 'à confirmer';
+  const now = opts?.now ?? new Date();
+  const staleDays = opts?.staleDays ?? 180;
+  const ageDays = Math.floor(
+    (now.getTime() - lastVerifiedAt.getTime()) / 86_400_000,
+  );
+  const date = lastVerifiedAt.toISOString().slice(0, 10);
+  if (ageDays > staleDays) {
+    return en
+      ? `verified ${date} — STALE, re-verify before quoting`
+      : `vérifié ${date} — PÉRIMÉ, à revérifier avant de citer`;
+  }
+  return en ? `verified ${date}` : `vérifié ${date}`;
+}
+
 /// Output guardrail: returns a localized caveat to append when the reply
 /// states a concrete figure (currency amount or percentage) but NO verified
 /// context grounded it. Conservative by design — only fires when grounding was

@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   buildCoachSystemPrompt,
   buildCoachSuggestions,
+  freshnessAnnotation,
   resolveCoachLanguage,
   unsourcedFigureCaveat,
   type CoachLanguage,
@@ -293,16 +294,9 @@ export class CoachService {
     if (relCountries.length) {
       lines.push(en ? 'COUNTRIES:' : 'PAYS:');
       for (const c of relCountries) {
-        const date = c.lastVerifiedAt
-          ? c.lastVerifiedAt.toISOString().slice(0, 10)
-          : null;
-        const verified = en
-          ? date
-            ? `verified ${date}`
-            : 'to confirm'
-          : date
-            ? `vérifié ${date}`
-            : 'à confirmer';
+        // Decay the trust signal over time: a fact verified long ago is
+        // flagged STALE so the coach won't quote a year-old figure as current.
+        const verified = freshnessAnnotation(c.lastVerifiedAt, lang);
         const src = en ? 'KPB catalogue' : 'catalogue KPB';
         lines.push(
           en

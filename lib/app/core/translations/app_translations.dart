@@ -86,6 +86,19 @@ class AppTranslations extends Translations {
           'back_to_country': 'Retour à la fiche pays',
           'student_tools_title': 'Outils étudiants',
           'updated_on': 'Mis à jour @date',
+          // ── Signal de confiance : badge vérifié + fraîcheur ────
+          'verified_on': 'Vérifié le @date',
+          'verified_semantics': 'Information vérifiée le @date',
+          'reverify_label': 'À revérifier',
+          'reverify_semantics': 'Information à revérifier — vérifiée le @date',
+          'to_confirm_label': 'À confirmer',
+          'to_confirm_semantics': 'Information à confirmer, non vérifiée',
+          'offline_mode': 'Mode hors-ligne',
+          'freshness_saved': 'données enregistrées',
+          'freshness_today': 'données enregistrées aujourd\'hui',
+          'freshness_yesterday': 'données enregistrées hier',
+          'freshness_days': 'données enregistrées il y a @n jours',
+          'freshness_date': 'données du @date',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'L\'accompagnement KPB',
           'kpb_offer_intro':
@@ -543,6 +556,19 @@ class AppTranslations extends Translations {
           'back_to_country': 'Back to country page',
           'student_tools_title': 'Student tools',
           'updated_on': 'Updated @date',
+          // ── Trust signal: verified badge + freshness ───────────
+          'verified_on': 'Verified on @date',
+          'verified_semantics': 'Information verified on @date',
+          'reverify_label': 'Re-verify',
+          'reverify_semantics': 'Information to re-verify — verified on @date',
+          'to_confirm_label': 'To confirm',
+          'to_confirm_semantics': 'Information to confirm, not verified',
+          'offline_mode': 'Offline mode',
+          'freshness_saved': 'saved data',
+          'freshness_today': 'data saved today',
+          'freshness_yesterday': 'data saved yesterday',
+          'freshness_days': 'data saved @n days ago',
+          'freshness_date': 'data from @date',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'KPB support',
           'kpb_offer_intro':
