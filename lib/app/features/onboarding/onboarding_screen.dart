@@ -62,6 +62,15 @@ const _langLevels = [
   ('Advanced', 'Avancé'),
 ];
 const _grades = ['10 - 12/20', '12 - 14/20', '15+/20'];
+// Monthly-budget ranges (EUR). Stored as a representative midpoint so it feeds
+// the eligibility engine + coach budget anchoring; the field label carries the
+// "per month" meaning bilingually, so the item labels stay language-neutral.
+const _budgetRanges = <(int, String)>[
+  (400, '< 500 €'),
+  (750, '500 – 1 000 €'),
+  (1250, '1 000 – 1 500 €'),
+  (1800, '> 1 500 €'),
+];
 const _documentKeys = [
   ('Passport', 'Passeport'), ('CV', 'CV'),
   ('Transcripts', 'Relevés de notes'), ('Test score', 'Score de test'),
@@ -106,6 +115,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _targetLevel = 'Bachelor';
   String _languageLevel = 'Intermediate';
   String _gradeRange = '12 - 14/20';
+  int? _monthlyBudgetEur;
   bool _wantsScholarship = true;
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
@@ -134,6 +144,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// Declared minor. False when no birth date is set — we never assume.
   bool get _isMinor => (_age ?? 99) < 18;
+
+  /// Snap an arbitrary persisted budget to the nearest selectable range value
+  /// so the dropdown never asserts on an off-grid value.
+  int? _snapBudget(int? raw) {
+    if (raw == null || raw <= 0) return null;
+    var best = _budgetRanges.first.$1;
+    var bestDiff = (best - raw).abs();
+    for (final r in _budgetRanges) {
+      final d = (r.$1 - raw).abs();
+      if (d < bestDiff) {
+        bestDiff = d;
+        best = r.$1;
+      }
+    }
+    return best;
+  }
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -177,6 +203,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_grades.contains(profile.gradeRange)) {
       _gradeRange = profile.gradeRange!;
     }
+    _monthlyBudgetEur = _snapBudget(profile.monthlyBudgetEur);
     _wantsScholarship = profile.wantsScholarshipSupport;
     if (profile.fieldIds.isNotEmpty) {
       _fieldIds
@@ -263,6 +290,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       fieldIds: isPartner ? const [] : _fieldIds.toList(),
       targetCountryIds: isPartner ? const [] : _countryIds.toList(),
       gradeRange: isPartner ? null : _gradeRange,
+      monthlyBudgetEur: isPartner ? null : _monthlyBudgetEur,
       wantsScholarshipSupport:
           _accountType == AccountType.student && _wantsScholarship,
       availableDocuments: isPartner ? const [] : _docs.toList(),
@@ -455,11 +483,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       targetLevel: _targetLevel,
                       languageLevel: _languageLevel,
                       gradeRange: _gradeRange,
+                      monthlyBudgetEur: _monthlyBudgetEur,
                       wantsScholarship: _wantsScholarship,
                       onCurrentLevel: (v) => setState(() => _currentLevel = v ?? _currentLevel),
                       onTargetLevel: (v) => setState(() => _targetLevel = v ?? _targetLevel),
                       onLanguageLevel: (v) => setState(() => _languageLevel = v ?? _languageLevel),
                       onGradeRange: (v) => setState(() => _gradeRange = v ?? _gradeRange),
+                      onMonthlyBudget: (v) =>
+                          setState(() => _monthlyBudgetEur = v),
                       onWantsScholarship: (v) => setState(() => _wantsScholarship = v),
                     ),
                   )
@@ -1068,18 +1099,22 @@ class _PageAcademic extends StatelessWidget {
     required this.targetLevel,
     required this.languageLevel,
     required this.gradeRange,
+    required this.monthlyBudgetEur,
     required this.wantsScholarship,
     required this.onCurrentLevel,
     required this.onTargetLevel,
     required this.onLanguageLevel,
     required this.onGradeRange,
+    required this.onMonthlyBudget,
     required this.onWantsScholarship,
   });
 
   final String currentLevel, targetLevel, languageLevel, gradeRange;
+  final int? monthlyBudgetEur;
   final bool wantsScholarship;
   final ValueChanged<String?> onCurrentLevel, onTargetLevel,
       onLanguageLevel, onGradeRange;
+  final ValueChanged<int?> onMonthlyBudget;
   final ValueChanged<bool> onWantsScholarship;
 
   @override
@@ -1115,6 +1150,15 @@ class _PageAcademic extends StatelessWidget {
               .map((g) => DropdownMenuItem(value: g, child: Text(g)))
               .toList(),
           onChanged: onGradeRange,
+        ),
+        const SizedBox(height: KpbSpacing.md),
+        DropdownButtonFormField<int>(
+          initialValue: monthlyBudgetEur,
+          decoration: InputDecoration(labelText: 'monthly_budget'.tr),
+          items: _budgetRanges
+              .map((r) => DropdownMenuItem(value: r.$1, child: Text(r.$2)))
+              .toList(),
+          onChanged: onMonthlyBudget,
         ),
         const SizedBox(height: KpbSpacing.lg),
         KpbPressable(

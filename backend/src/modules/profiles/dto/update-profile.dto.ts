@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsEmail,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -56,6 +57,10 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   gradeRange?: string;
+
+  @IsOptional()
+  @IsInt()
+  monthlyBudgetEur?: number;
 
   @IsOptional()
   @IsBoolean()
