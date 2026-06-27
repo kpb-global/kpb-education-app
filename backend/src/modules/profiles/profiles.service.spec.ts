@@ -27,6 +27,7 @@ describe('ProfilesService — account deletion & export', () => {
     'orientationSession',
     'parentChildLink',
     'referral',
+    'creditTransaction',
     'deviceToken',
     'partnerLead',
     'studentCredential',

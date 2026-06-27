@@ -498,6 +498,23 @@ class AppTranslations extends Translations {
           'referral_redeemed_already':
               'Tu as déjà utilisé un code de parrainage.',
           'referral_redeem_error': 'Code invalide. Vérifie et réessaie.',
+          // ── Récompenses parrainage no-cash (KPB-77) ──
+          'referral_credits_title': 'Mes crédits parrainage',
+          'referral_credits_label': 'crédit(s)',
+          'referral_credits_intro':
+              'Un ami qui crée son dossier = 1 crédit. Échange tes crédits contre une relecture approfondie de ton dossier par un conseiller KPB.',
+          'referral_redeem_voucher_cta':
+              'Échanger contre une relecture conseiller',
+          'referral_credits_none':
+              'Pas encore de crédit — invite un ami pour en gagner.',
+          'referral_voucher_title': 'Ton bon KPB 🎁',
+          'referral_voucher_body':
+              'Montre ce code à ton conseiller sur WhatsApp pour débloquer ta relecture approfondie.',
+          'referral_voucher_whatsapp_cta': 'Contacter mon conseiller',
+          'referral_voucher_whatsapp_prefill':
+              'Bonjour KPB Education, je souhaite utiliser mon bon parrainage @code pour une relecture approfondie de mon dossier.',
+          'referral_voucher_error':
+              'Échec de l\'échange. Réessaie plus tard.',
           // ── Consentement IA (Coach) ──
           'coach_ai': 'Coach IA',
           'ai_consent_title': 'Activer le Coach IA',
@@ -1034,6 +1051,21 @@ class AppTranslations extends Translations {
           'referral_redeemed_ok': 'Code applied — thanks! Your referrer is credited.',
           'referral_redeemed_already': 'You have already used a referral code.',
           'referral_redeem_error': 'Invalid code. Check it and try again.',
+          // ── No-cash referral rewards (KPB-77) ──
+          'referral_credits_title': 'My referral credits',
+          'referral_credits_label': 'credit(s)',
+          'referral_credits_intro':
+              'A friend who creates their case = 1 credit. Redeem your credits for an in-depth review of your application by a KPB advisor.',
+          'referral_redeem_voucher_cta': 'Redeem for an advisor review',
+          'referral_credits_none':
+              'No credits yet — invite a friend to earn one.',
+          'referral_voucher_title': 'Your KPB voucher 🎁',
+          'referral_voucher_body':
+              'Show this code to your advisor on WhatsApp to unlock your in-depth review.',
+          'referral_voucher_whatsapp_cta': 'Message my advisor',
+          'referral_voucher_whatsapp_prefill':
+              'Hello KPB Education, I would like to use my referral voucher @code for an in-depth review of my application.',
+          'referral_voucher_error': 'Redemption failed. Try again later.',
           // ── AI consent (Coach) ──
           'coach_ai': 'AI Coach',
           'ai_consent_title': 'Enable the AI Coach',

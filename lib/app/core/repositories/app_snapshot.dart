@@ -25,6 +25,7 @@ class AppSnapshot {
     this.programs = const [],
     this.scholarships = const [],
     this.purchasedCourseIds = const [],
+    this.reviewCredits = 0,
     this.completedRoadmapSteps = const {},
     this.profileNeedsPush = false,
     this.onboardingStep = 0,
@@ -60,6 +61,8 @@ class AppSnapshot {
   final List<ProgramModel> programs;
   final List<ScholarshipModel> scholarships;
   final List<String> purchasedCourseIds;
+  /// No-cash referral reward balance (KPB-77) — last value synced from backend.
+  final int reviewCredits;
   final Map<String, List<String>> completedRoadmapSteps;
   final int onboardingStep;
   final bool onboardingSkipped;

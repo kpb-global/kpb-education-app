@@ -41,6 +41,7 @@ part 'app_controller/roadmap.dart';
 part 'app_controller/commercial.dart';
 part 'app_controller/parcours.dart';
 part 'app_controller/academy.dart';
+part 'app_controller/referral_credits.dart';
 
 class AppController extends _AppControllerBase
     with
@@ -48,7 +49,8 @@ class AppController extends _AppControllerBase
         _RoadmapMixin,
         _CommercialMixin,
         _ParcoursMixin,
-        _AcademyMixin {
+        _AcademyMixin,
+        _ReferralCreditsMixin {
   AppController({required super.repository, super.apiClient});
 
   static const int shellTabCount = StudentShellTab.count;
@@ -131,6 +133,9 @@ abstract class _AppControllerBase extends GetxController {
   final List<String> _searchHistory = <String>[];
   Map<String, List<String>> _pendingOrientationAnswers = {};
   final List<String> _purchasedCourseIds = <String>[];
+  // No-cash referral reward balance (KPB-77). Backend is the source of truth;
+  // this is the last-synced value, persisted for cold-start display.
+  int _reviewCredits = 0;
   Map<String, List<String>> _completedRoadmapSteps = {};
   int pendingOrientationQuestionIndex = 0;
   bool isSubmittingOrientation = false;
@@ -157,6 +162,7 @@ abstract class _AppControllerBase extends GetxController {
       List.unmodifiable(_orientationHistory);
   List<String> get searchHistory => List.unmodifiable(_searchHistory);
   List<String> get purchasedCourseIds => List.unmodifiable(_purchasedCourseIds);
+  int get reviewCredits => _reviewCredits;
   Map<String, List<String>> get pendingOrientationAnswers =>
       Map.unmodifiable(_pendingOrientationAnswers);
 
@@ -221,6 +227,7 @@ abstract class _AppControllerBase extends GetxController {
     _purchasedCourseIds
       ..clear()
       ..addAll(snapshot.purchasedCourseIds);
+    _reviewCredits = snapshot.reviewCredits;
     _completedRoadmapSteps = Map.from(snapshot.completedRoadmapSteps);
     _caseLastReadAt
       ..clear()
@@ -1383,6 +1390,7 @@ abstract class _AppControllerBase extends GetxController {
         programs: const [],
         scholarships: const [],
         purchasedCourseIds: _purchasedCourseIds,
+        reviewCredits: _reviewCredits,
         completedRoadmapSteps: _completedRoadmapSteps,
         profileNeedsPush: _profileNeedsPush,
         onboardingStep: onboardingStep,
