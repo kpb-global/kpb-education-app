@@ -131,6 +131,8 @@ abstract class _AppControllerBase extends GetxController {
   final List<String> _searchHistory = <String>[];
   Map<String, List<String>> _pendingOrientationAnswers = {};
   final List<String> _purchasedCourseIds = <String>[];
+  // Cases the student has already been prompted to review at admission (KPB-75).
+  final List<String> _reviewedCaseIds = <String>[];
   Map<String, List<String>> _completedRoadmapSteps = {};
   int pendingOrientationQuestionIndex = 0;
   bool isSubmittingOrientation = false;
@@ -157,6 +159,17 @@ abstract class _AppControllerBase extends GetxController {
       List.unmodifiable(_orientationHistory);
   List<String> get searchHistory => List.unmodifiable(_searchHistory);
   List<String> get purchasedCourseIds => List.unmodifiable(_purchasedCourseIds);
+
+  /// Whether the admission-milestone review prompt has already been shown for
+  /// this case (KPB-75) — so we ask at most once.
+  bool hasReviewedCase(String caseId) => _reviewedCaseIds.contains(caseId);
+
+  /// Mark a case's review prompt as handled (submitted or dismissed) + persist.
+  void markCaseReviewed(String caseId) {
+    if (_reviewedCaseIds.contains(caseId)) return;
+    _reviewedCaseIds.add(caseId);
+    _persist();
+  }
   Map<String, List<String>> get pendingOrientationAnswers =>
       Map.unmodifiable(_pendingOrientationAnswers);
 
@@ -221,6 +234,9 @@ abstract class _AppControllerBase extends GetxController {
     _purchasedCourseIds
       ..clear()
       ..addAll(snapshot.purchasedCourseIds);
+    _reviewedCaseIds
+      ..clear()
+      ..addAll(snapshot.reviewedCaseIds);
     _completedRoadmapSteps = Map.from(snapshot.completedRoadmapSteps);
     _caseLastReadAt
       ..clear()
@@ -1390,6 +1406,7 @@ abstract class _AppControllerBase extends GetxController {
         caseLastReadAt: _caseLastReadAt.map(
           (key, value) => MapEntry(key, value.toIso8601String()),
         ),
+        reviewedCaseIds: _reviewedCaseIds,
       );
 
   void _persist() {

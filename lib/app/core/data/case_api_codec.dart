@@ -149,6 +149,7 @@ abstract final class CaseApiCodec {
           json['advisorPhone'] as String?,
       advisorWhatsapp: json['assignedAdvisorWhatsapp'] as String? ??
           json['advisorWhatsapp'] as String?,
+      counsellorId: json['counsellorId'] as String?,
       scheduledAt: DateTime.tryParse(json['scheduledAt'] as String? ?? ''),
       parentCanView: json['parentCanView'] as bool? ?? false,
     );
