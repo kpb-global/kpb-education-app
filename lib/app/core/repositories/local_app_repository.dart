@@ -137,6 +137,9 @@ class LocalAppRepository implements AppRepository {
       'monthlyBudgetEur': profile.monthlyBudgetEur,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
+      // Consent timestamps must survive a cold start so we don't re-prompt.
+      'consentedAt': profile.consentedAt?.toIso8601String(),
+      'aiConsentedAt': profile.aiConsentedAt?.toIso8601String(),
     };
   }
 
@@ -163,6 +166,8 @@ class LocalAppRepository implements AppRepository {
       wantsScholarshipSupport:
           json['wantsScholarshipSupport'] as bool? ?? false,
       availableDocuments: _stringList(json['availableDocuments']),
+      consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
+      aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
     );
   }
 

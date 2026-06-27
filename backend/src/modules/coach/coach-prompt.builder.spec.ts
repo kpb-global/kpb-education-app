@@ -1,7 +1,9 @@
 import {
+  budgetBucket,
   buildCoachSystemPrompt,
   buildCoachSuggestions,
   resolveCoachLanguage,
+  unsourcedFigureCaveat,
 } from './coach-prompt.builder';
 
 describe('buildCoachSystemPrompt (RAG grounding)', () => {
@@ -42,6 +44,60 @@ describe('buildCoachSystemPrompt (RAG grounding)', () => {
   it('declares no verified data in English when context is empty (en)', () => {
     const prompt = buildCoachSystemPrompt({ fullName: 'Test', language: 'en' });
     expect(prompt).toContain('No verified data');
+  });
+
+  it('does NOT send the student name to the LLM (PII minimization)', () => {
+    const fr = buildCoachSystemPrompt({
+      fullName: 'Awa Diallo',
+      currentLevel: 'Licence',
+    });
+    expect(fr).not.toContain('Awa');
+    expect(fr).not.toContain('Diallo');
+    expect(fr).not.toContain('Prénom');
+    expect(fr).toContain('pseudonymisé');
+
+    const en = buildCoachSystemPrompt({
+      fullName: 'John Mensah',
+      language: 'en',
+    });
+    expect(en).not.toContain('John');
+    expect(en).not.toContain('Mensah');
+    expect(en).not.toContain('First name');
+    expect(en).toContain('pseudonymized');
+  });
+
+  it('buckets the budget into a coarse range, never the exact figure', () => {
+    const fr = buildCoachSystemPrompt({ monthlyBudgetEur: 1450 });
+    expect(fr).toContain('1000–2000');
+    expect(fr).not.toContain('1450');
+    expect(budgetBucket(300, 'en')).toBe('< 500 €/month (range)');
+    expect(budgetBucket(750, 'fr')).toBe('500–1000 €/mois (tranche)');
+    expect(budgetBucket(5000, 'en')).toBe('> 2000 €/month (range)');
+    expect(budgetBucket(undefined, 'fr')).toBe('non renseigné');
+    expect(budgetBucket(0, 'en')).toBe('not specified');
+  });
+
+  describe('unsourcedFigureCaveat (output guardrail)', () => {
+    it('flags a currency figure when there was no verified context', () => {
+      expect(
+        unsourcedFigureCaveat('Les frais sont 3 000 € par an.', '', 'fr'),
+      ).toContain('conseiller KPB');
+      expect(
+        unsourcedFigureCaveat('Tuition is about $20,000.', '', 'en'),
+      ).toContain('KPB advisor');
+    });
+
+    it('stays silent when verified context grounded the answer', () => {
+      expect(
+        unsourcedFigureCaveat('Les frais sont 3 000 €.', 'PAYS:\n- France: …', 'fr'),
+      ).toBeNull();
+    });
+
+    it('stays silent when the reply has no concrete figure', () => {
+      expect(
+        unsourcedFigureCaveat('Contacte un conseiller KPB pour les détails.', '', 'fr'),
+      ).toBeNull();
+    });
   });
 
   it('localizes suggestions and resolves locale strings', () => {

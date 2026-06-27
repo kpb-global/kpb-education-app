@@ -1628,6 +1628,8 @@ abstract class _AppControllerBase extends GetxController {
       'gradeRange': profile.bacSeries ?? profile.gradeRange,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
+      if (profile.aiConsentedAt != null)
+        'aiConsentedAt': profile.aiConsentedAt!.toIso8601String(),
     };
   }
 

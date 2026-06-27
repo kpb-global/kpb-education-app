@@ -20,23 +20,54 @@ export function resolveCoachLanguage(raw?: string | null): CoachLanguage {
   return String(raw ?? '').trim().toLowerCase().startsWith('en') ? 'en' : 'fr';
 }
 
+/// Pseudonymize the monthly budget into a coarse range before it leaves the
+/// server for the LLM. We never send the exact euro figure (a re-identifying
+/// data point); a bucket is enough for budget-aware guidance.
+export function budgetBucket(
+  eur: number | undefined,
+  lang: CoachLanguage,
+): string {
+  if (!eur || eur <= 0) return lang === 'en' ? 'not specified' : 'non renseigné';
+  let range: string;
+  if (eur < 500) range = '< 500';
+  else if (eur < 1000) range = '500–1000';
+  else if (eur < 2000) range = '1000–2000';
+  else range = '> 2000';
+  return lang === 'en' ? `${range} €/month (range)` : `${range} €/mois (tranche)`;
+}
+
+/// Output guardrail: returns a localized caveat to append when the reply
+/// states a concrete figure (currency amount or percentage) but NO verified
+/// context grounded it. Conservative by design — only fires when grounding was
+/// entirely absent, so it never second-guesses a properly-sourced figure.
+export function unsourcedFigureCaveat(
+  reply: string,
+  verifiedContext: string,
+  lang: CoachLanguage,
+): string | null {
+  if ((verifiedContext ?? '').trim().length > 0) return null;
+  const hasFigure =
+    /(€|\$|£)\s?\d|\d[\d  .,]*\s?(€|\$|£|eur|usd|cad|gbp|%)/i.test(reply);
+  if (!hasFigure) return null;
+  return lang === 'en'
+    ? '\n\n⚠️ The figures above are not from the verified KPB catalogue — confirm them with a KPB advisor.'
+    : '\n\n⚠️ Les chiffres ci-dessus ne proviennent pas du catalogue vérifié KPB — confirme-les avec un conseiller KPB.';
+}
+
 export function buildCoachSystemPrompt(profile: CoachProfileContext): string {
   const lang: CoachLanguage = profile.language === 'en' ? 'en' : 'fr';
   const verified = profile.verifiedContext?.trim();
   const hasVerified = !!verified && verified.length > 0;
 
   if (lang === 'en') {
-    const firstName = (profile.fullName ?? 'Student').split(' ')[0];
     const countries =
       (profile.targetCountryIds ?? []).join(', ') || 'not specified';
-    const budget = profile.monthlyBudgetEur
-      ? `€${profile.monthlyBudgetEur}/month`
-      : 'not specified';
+    const budget = budgetBucket(profile.monthlyBudgetEur, 'en');
     const cases = (profile.openCases ?? []).join(', ') || 'none';
 
+    // PII minimization: the student's name is deliberately NOT sent to the LLM.
     return `You are KPB Coach, a study-abroad guidance assistant for African students.
-Student context:
-- First name: ${firstName}
+Student context (pseudonymized — no name is shared):
 - Level: ${profile.currentLevel ?? 'not specified'}
 - Target countries: ${countries}
 - Indicative budget: ${budget}
@@ -56,17 +87,14 @@ Rules:
 - End with: "For important decisions, contact a KPB advisor."`;
   }
 
-  const firstName = (profile.fullName ?? 'Étudiant').split(' ')[0];
   const countries =
     (profile.targetCountryIds ?? []).join(', ') || 'non renseignés';
-  const budget = profile.monthlyBudgetEur
-    ? `${profile.monthlyBudgetEur} €/mois`
-    : 'non renseigné';
+  const budget = budgetBucket(profile.monthlyBudgetEur, 'fr');
   const cases = (profile.openCases ?? []).join(', ') || 'aucune';
 
+  // Minimisation : le nom de l'étudiant n'est volontairement PAS envoyé au LLM.
   return `Tu es Coach KPB, assistant d'orientation pour étudiants francophones d'Afrique.
-Contexte étudiant:
-- Prénom: ${firstName}
+Contexte étudiant (pseudonymisé — aucun nom n'est transmis):
 - Niveau: ${profile.currentLevel ?? 'non renseigné'}
 - Pays visés: ${countries}
 - Budget indicatif: ${budget}
