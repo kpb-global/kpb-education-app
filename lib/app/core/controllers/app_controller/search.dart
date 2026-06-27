@@ -14,6 +14,26 @@ mixin _SearchMixin on _AppControllerBase {
 
   AppSearchService get _searchService => AppSearchService(_searchContext);
 
+  /// Best-matching program in [countryId] for the current profile, ranked by
+  /// the shared search scorer. Replaces the old France/ECE-Lyon-only stub so
+  /// the eligibility-quiz CTA recommends a real program for all 9 destinations.
+  /// Returns null when the catalog has no program for that country.
+  ProgramModel? topProgramForCountry(String countryId) {
+    final norm = normalizeCountryId(countryId);
+    final svc = _searchService;
+    ProgramModel? best;
+    var bestScore = -1;
+    for (final program in programs) {
+      if (normalizeCountryId(program.countryId) != norm) continue;
+      final score = svc.programMatch(program);
+      if (score > bestScore) {
+        bestScore = score;
+        best = program;
+      }
+    }
+    return best;
+  }
+
   void addSearchQuery(String query) {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return;

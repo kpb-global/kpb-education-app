@@ -58,18 +58,9 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  // ── Device tokens ─────────────────────────────────────────────
-
-  Future<void> registerDeviceToken(String token, String platform) async {
-    await _dio.post<void>(
-      '/device-tokens',
-      data: {'token': token, 'platform': platform},
-    );
-  }
-
-  Future<void> unregisterDeviceToken(String token) async {
-    await _dio.delete<void>('/device-tokens/$token');
-  }
+  // Legacy /device-tokens registration removed: push identity is now owned
+  // end-to-end by OneSignal (see OneSignalService), and these client methods
+  // were never called. The backend table is retained for now.
 
   Future<Map<String, dynamic>> getProfile() async {
     final response = await _dio.get<Map<String, dynamic>>('/profiles/me');

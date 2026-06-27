@@ -101,15 +101,20 @@ class OneSignalService {
 
   void _onNotificationClicked(OSNotificationClickEvent event) {
     final data = event.notification.additionalData;
-    final route = data?['route'];
-    if (route is String && route.isNotEmpty) {
-      try {
+    final raw = data?['route'];
+    // Normalize the external payload and fall back to the home shell when it
+    // resolves to nothing (e.g. an unknown or MVP-locked route) so a tap never
+    // dies silently. `/scholarships` resolves to a graceful "coming soon".
+    final route =
+        raw is String ? AppRoutes.normalizeExternalRoute(raw) : null;
+    try {
+      if (route == null) {
+        Get.offAllNamed(AppRoutes.home);
+      } else {
         Get.toNamed(route);
-      } catch (error) {
-        debugPrint('[OneSignal] route "$route" not navigable: $error');
       }
-    } else {
-      // No explicit route → land on the home shell.
+    } catch (error) {
+      debugPrint('[OneSignal] route "$raw" not navigable: $error');
       try {
         Get.offAllNamed(AppRoutes.home);
       } catch (_) {}

@@ -99,6 +99,9 @@ class AppTranslations extends Translations {
           'freshness_yesterday': 'données enregistrées hier',
           'freshness_days': 'données enregistrées il y a @n jours',
           'freshness_date': 'données du @date',
+          'coming_soon_title': 'Bientôt disponible',
+          'coming_soon_body':
+              'Ce module arrive dans une prochaine version de KPB. Reste connecté !',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'L\'accompagnement KPB',
           'kpb_offer_intro':
@@ -569,6 +572,9 @@ class AppTranslations extends Translations {
           'freshness_yesterday': 'data saved yesterday',
           'freshness_days': 'data saved @n days ago',
           'freshness_date': 'data from @date',
+          'coming_soon_title': 'Coming soon',
+          'coming_soon_body':
+              'This module is arriving in an upcoming KPB version. Stay tuned!',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'KPB support',
           'kpb_offer_intro':

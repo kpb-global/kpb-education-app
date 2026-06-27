@@ -5,7 +5,6 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
-import '../../core/utils/program_recommendation_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import 'country_detail_screen.dart';
 
@@ -338,12 +337,7 @@ class _ResultView extends StatelessWidget {
 
     final normalizedCountryId = normalizeCountryId(country.id);
     final recommended = result.verdict != EligibilityVerdict.notEligible
-        ? ProgramRecommendationUtils.recommendedProgramForCountry(
-            controller,
-            normalizedCountryId,
-            schoolHint: 'ece',
-            campusHint: 'lyon',
-          )
+        ? controller.topProgramForCountry(normalizedCountryId)
         : null;
     final institution = recommended != null
         ? controller.institutionByIdOrNull(recommended.institutionId)
