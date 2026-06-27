@@ -18,6 +18,22 @@ void main() {
       );
     });
 
+    test('resolves the high-intent deep-link targets (KPB-63)', () {
+      for (final route in [
+        AppRoutes.orientation,
+        AppRoutes.eligibility,
+        AppRoutes.saved,
+        AppRoutes.alumni,
+        AppRoutes.salon,
+        AppRoutes.services,
+        AppRoutes.profile,
+      ]) {
+        expect(AppRoutes.normalizeExternalRoute(route), route);
+        // …and surrounding whitespace from a payload is tolerated.
+        expect(AppRoutes.normalizeExternalRoute('  $route '), route);
+      }
+    });
+
     test('resolves /scholarships even under the MVP lock (graceful)', () {
       // `/scholarships` always normalizes now: under the MVP lock its page
       // renders a "coming soon" placeholder, so a deep-link never dies
@@ -70,7 +86,19 @@ void main() {
       // `/scholarships` is always registered (renders a "coming soon" under the
       // MVP lock) so deep-links to it resolve gracefully.
       expect(names, contains(AppRoutes.scholarships));
-      expect(names.length, equals(5));
+      // High-intent re-engagement targets (KPB-63).
+      for (final route in [
+        AppRoutes.orientation,
+        AppRoutes.eligibility,
+        AppRoutes.saved,
+        AppRoutes.alumni,
+        AppRoutes.salon,
+        AppRoutes.services,
+        AppRoutes.profile,
+      ]) {
+        expect(names, contains(route));
+      }
+      expect(names.length, equals(12));
     });
   });
 }
