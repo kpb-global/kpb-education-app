@@ -117,6 +117,11 @@ class LocalAppRepository implements AppRepository {
     await _preferences.setString(_storageKey, jsonEncode(json));
   }
 
+  @override
+  Future<void> clear() async {
+    await _preferences.remove(_storageKey);
+  }
+
   Map<String, dynamic>? _userProfileToJson(UserProfile? profile) {
     if (profile == null) return null;
     // GDPR: Do NOT persist email, phone, or whatsApp to SharedPreferences.
@@ -137,9 +142,14 @@ class LocalAppRepository implements AppRepository {
       'monthlyBudgetEur': profile.monthlyBudgetEur,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
-      // Consent timestamps must survive a cold start so we don't re-prompt.
+      // Consent timestamps + age gate must survive a cold start so we don't
+      // re-prompt. Guardian *contact* is PII (like the user's own contact
+      // above) — it is reloaded from the API, not persisted locally.
       'consentedAt': profile.consentedAt?.toIso8601String(),
       'aiConsentedAt': profile.aiConsentedAt?.toIso8601String(),
+      'birthDate': profile.birthDate?.toIso8601String(),
+      'guardianName': profile.guardianName,
+      'guardianConsentedAt': profile.guardianConsentedAt?.toIso8601String(),
     };
   }
 
@@ -168,6 +178,10 @@ class LocalAppRepository implements AppRepository {
       availableDocuments: _stringList(json['availableDocuments']),
       consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
       aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
+      birthDate: DateTime.tryParse(json['birthDate'] as String? ?? ''),
+      guardianName: json['guardianName'] as String?,
+      guardianConsentedAt:
+          DateTime.tryParse(json['guardianConsentedAt'] as String? ?? ''),
     );
   }
 

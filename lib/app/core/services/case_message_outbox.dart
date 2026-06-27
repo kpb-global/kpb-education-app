@@ -58,6 +58,10 @@ class CaseMessageOutbox {
 
   Future<void> remove(dynamic key) => _box.delete(key);
 
+  /// Drop every queued message (used by account deletion — these entries hold
+  /// personal data: case bodies + sender names typed offline).
+  Future<void> clear() => _box.clear();
+
   Future<void> markFailure(dynamic key, OutboxEntry entry) async {
     final next = entry.withRetries(entry.retries + 1);
     // On max retries, mark as permanently failed instead of silently deleting.

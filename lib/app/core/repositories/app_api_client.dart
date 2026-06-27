@@ -85,6 +85,20 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// GDPR data export (portability): the backend aggregates every user-owned
+  /// record into one JSON document.
+  Future<Map<String, dynamic>> getAccountExport() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/profiles/me/export');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// GDPR / store-required account deletion: hard-deletes all server-side data
+  /// (and, best-effort, the Supabase auth identity).
+  Future<void> deleteAccount() async {
+    await _dio.delete<void>('/profiles/me');
+  }
+
   Future<Map<String, dynamic>> submitOrientation(
     Map<String, dynamic> payload,
   ) async {

@@ -455,6 +455,62 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// GDPR / store-required account deletion (KPB-67). When remote sync is on we
+  /// require the server delete to succeed first — a local-only wipe would
+  /// orphan the backend + Supabase records — so a failure throws and nothing is
+  /// erased, letting the UI ask the user to retry online. On success we erase
+  /// every local store (snapshot, offline outbox, catalog cache), drop the push
+  /// identity + session, and reset in-memory state.
+  Future<void> deleteAccount() async {
+    if (AppConfig.enableRemoteSync) {
+      await _apiClient.deleteAccount();
+    }
+    unawaited(OneSignalService.instance.logout());
+    if (Get.isRegistered<AuthService>()) {
+      await Get.find<AuthService>().clearSession();
+    }
+    await _wipeLocalData();
+    profile = null;
+    _profileNeedsPush = false;
+    hasCompletedOnboarding = false;
+    isGuestMode = false;
+    latestOrientationSession = null;
+    _savedItems.clear();
+    _savedItemTombstones.clear();
+    _cases.clear();
+    _orientationHistory.clear();
+    _searchHistory.clear();
+    _pendingOrientationAnswers = {};
+    pendingOrientationQuestionIndex = 0;
+    update();
+  }
+
+  Future<void> _wipeLocalData() async {
+    await _repository.clear();
+    try {
+      await CaseMessageOutbox.instance.clear();
+    } catch (_) {
+      // Outbox not initialized in this session — nothing to clear.
+    }
+    if (CatalogCacheService.isInitialized) {
+      await CatalogCacheService.instance.clear();
+    }
+  }
+
+  /// GDPR data export (portability). Prefers the backend's authoritative
+  /// aggregate of all user-owned records; falls back to the local profile when
+  /// remote sync is off.
+  Future<Map<String, dynamic>> exportData() async {
+    if (AppConfig.enableRemoteSync) {
+      return _apiClient.getAccountExport();
+    }
+    final current = profile;
+    return <String, dynamic>{
+      'exportedAt': DateTime.now().toIso8601String(),
+      'profile': current == null ? null : _userProfilePayload(current),
+    };
+  }
+
   void goToTab(int index) {
     final safeIndex = index.clamp(0, shellTabCount - 1);
     shellIndex = safeIndex;
@@ -1630,6 +1686,13 @@ abstract class _AppControllerBase extends GetxController {
       'availableDocuments': profile.availableDocuments,
       if (profile.aiConsentedAt != null)
         'aiConsentedAt': profile.aiConsentedAt!.toIso8601String(),
+      if (profile.birthDate != null)
+        'birthDate': profile.birthDate!.toIso8601String(),
+      if (profile.guardianName != null) 'guardianName': profile.guardianName,
+      if (profile.guardianContact != null)
+        'guardianContact': profile.guardianContact,
+      if (profile.guardianConsentedAt != null)
+        'guardianConsentedAt': profile.guardianConsentedAt!.toIso8601String(),
     };
   }
 
