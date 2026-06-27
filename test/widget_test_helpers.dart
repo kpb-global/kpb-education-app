@@ -48,6 +48,11 @@ class FakeRepository implements AppRepository {
   Future<void> saveSnapshot(AppSnapshot snapshot) async {
     _snapshot = snapshot;
   }
+
+  @override
+  Future<void> clear() async {
+    _snapshot = AppSnapshot.initial();
+  }
 }
 
 class MockApiClient extends Mock implements AppApiClient {}

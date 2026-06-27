@@ -117,6 +117,11 @@ class LocalAppRepository implements AppRepository {
     await _preferences.setString(_storageKey, jsonEncode(json));
   }
 
+  @override
+  Future<void> clear() async {
+    await _preferences.remove(_storageKey);
+  }
+
   Map<String, dynamic>? _userProfileToJson(UserProfile? profile) {
     if (profile == null) return null;
     // GDPR: Do NOT persist email, phone, or whatsApp to SharedPreferences.
