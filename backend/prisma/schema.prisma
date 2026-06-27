@@ -171,6 +171,12 @@ model UserProfile {
   // Separate, explicit consent for third-party AI processing (Groq). Gates the
   // AI coach independently of the general onboarding consent above.
   aiConsentedAt        DateTime?
+  // Age gate + self-attested guardian consent for declared minors (<18).
+  // guardianConsentedAt gates data sync and AI processing for minors.
+  birthDate            DateTime?
+  guardianName         String?
+  guardianContact      String?
+  guardianConsentedAt  DateTime?
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
   cases                Case[]

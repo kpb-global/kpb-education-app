@@ -115,6 +115,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final Set<String> _docs = {'Passport', 'Transcripts'};
   bool _hasConsented = false;
 
+  // Age gate + self-attested guardian consent for declared minors (<18).
+  DateTime? _birthDate;
+  final _guardianNameCtrl = TextEditingController();
+  final _guardianContactCtrl = TextEditingController();
+  bool _guardianConsented = false;
+
+  int? get _age {
+    final b = _birthDate;
+    if (b == null) return null;
+    final now = DateTime.now();
+    var years = now.year - b.year;
+    if (now.month < b.month || (now.month == b.month && now.day < b.day)) {
+      years--;
+    }
+    return years;
+  }
+
+  /// Declared minor. False when no birth date is set — we never assume.
+  bool get _isMinor => (_age ?? 99) < 18;
+
   AppController get _ctrl => Get.find<AppController>();
 
   int get _totalPages =>
@@ -186,6 +206,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (profile.consentedAt != null) {
       _hasConsented = true;
     }
+    _birthDate = profile.birthDate;
+    if (profile.guardianName != null) {
+      _guardianNameCtrl.text = profile.guardianName!;
+    }
+    if (profile.guardianContact != null) {
+      _guardianContactCtrl.text = profile.guardianContact!;
+    }
+    if (profile.guardianConsentedAt != null) {
+      _guardianConsented = true;
+    }
   }
 
   @override
@@ -196,6 +226,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _whatsAppCtrl.dispose();
+    _guardianNameCtrl.dispose();
+    _guardianContactCtrl.dispose();
     super.dispose();
   }
 
@@ -236,6 +268,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       availableDocuments: isPartner ? const [] : _docs.toList(),
       consentedAt:
           _hasConsented ? (existing?.consentedAt ?? DateTime.now()) : null,
+      birthDate: _birthDate,
+      guardianName: _isMinor && _guardianNameCtrl.text.trim().isNotEmpty
+          ? _guardianNameCtrl.text.trim()
+          : null,
+      guardianContact: _isMinor && _guardianContactCtrl.text.trim().isNotEmpty
+          ? _guardianContactCtrl.text.trim()
+          : null,
+      guardianConsentedAt: _isMinor && _guardianConsented
+          ? (existing?.guardianConsentedAt ?? DateTime.now())
+          : null,
     );
   }
 
@@ -254,6 +296,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               icon: const Icon(Icons.privacy_tip_outlined, color: KpbColors.error),
             );
             return false;
+          }
+          if (_accountType == AccountType.student) {
+            if (_birthDate == null) {
+              Get.snackbar(
+                'onboarding_birthdate_required_title'.tr,
+                'onboarding_birthdate_required'.tr,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+                icon: const Icon(Icons.cake_outlined, color: KpbColors.error),
+              );
+              return false;
+            }
+            // Declared minor: a guardian must be named, reachable, and consent
+            // recorded before any data sync or AI processing.
+            if (_isMinor &&
+                (_guardianNameCtrl.text.trim().isEmpty ||
+                    _guardianContactCtrl.text.trim().isEmpty ||
+                    !_guardianConsented)) {
+              Get.snackbar(
+                'guardian_consent_required_title'.tr,
+                'guardian_consent_required'.tr,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+                icon: const Icon(Icons.family_restroom_outlined,
+                    color: KpbColors.error),
+              );
+              return false;
+            }
           }
           return true;
         }(),
@@ -354,6 +426,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     sameWhatsApp: _sameWhatsApp,
                     country: _country,
                     hasConsented: _hasConsented,
+                    birthDate: _birthDate,
+                    isMinor: _isMinor,
+                    guardianNameCtrl: _guardianNameCtrl,
+                    guardianContactCtrl: _guardianContactCtrl,
+                    guardianConsented: _guardianConsented,
                     onAccountType: (v) => setState(() => _accountType = v),
                     onLanguage: (v) => setState(() => _language = v),
                     onPhoneCode: (v) => setState(() => _phoneCode = v),
@@ -361,6 +438,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onSameWhatsApp: (v) => setState(() => _sameWhatsApp = v),
                     onCountry: (v) => setState(() => _country = v ?? _country),
                     onConsent: (v) => setState(() => _hasConsented = v),
+                    onBirthDate: (v) => setState(() => _birthDate = v),
+                    onGuardianConsent: (v) =>
+                        setState(() => _guardianConsented = v),
                   ),
                 ),
 
@@ -615,6 +695,13 @@ class _PageIdentity extends StatelessWidget {
     required this.onCountry,
     required this.hasConsented,
     required this.onConsent,
+    required this.birthDate,
+    required this.isMinor,
+    required this.guardianNameCtrl,
+    required this.guardianContactCtrl,
+    required this.guardianConsented,
+    required this.onBirthDate,
+    required this.onGuardianConsent,
   });
 
   final AccountType accountType;
@@ -631,6 +718,11 @@ class _PageIdentity extends StatelessWidget {
   final ValueChanged<String?> onCountry;
   final bool hasConsented;
   final ValueChanged<bool> onConsent;
+  final DateTime? birthDate;
+  final bool isMinor, guardianConsented;
+  final TextEditingController guardianNameCtrl, guardianContactCtrl;
+  final ValueChanged<DateTime> onBirthDate;
+  final ValueChanged<bool> onGuardianConsent;
 
   String? _req(String? v) =>
       (v == null || v.trim().isEmpty) ? 'field_required'.tr : null;
@@ -786,6 +878,95 @@ class _PageIdentity extends StatelessWidget {
           onChanged: onCountry,
         ),
         const SizedBox(height: KpbSpacing.lg),
+
+        // ── Âge + consentement tuteur (mineurs) ────────────────────
+        if (accountType == AccountType.student) ...[
+          InkWell(
+            onTap: () async {
+              final now = DateTime.now();
+              final initial =
+                  birthDate ?? DateTime(now.year - 18, now.month, now.day);
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: initial,
+                firstDate: DateTime(now.year - 80),
+                lastDate: now,
+                helpText: 'birth_date'.tr,
+              );
+              if (picked != null) onBirthDate(picked);
+            },
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'birth_date'.tr,
+                suffixIcon:
+                    const Icon(Icons.calendar_today_outlined, size: 18),
+              ),
+              child: Text(
+                birthDate == null
+                    ? 'birth_date_hint'.tr
+                    : '${birthDate!.day.toString().padLeft(2, '0')}/${birthDate!.month.toString().padLeft(2, '0')}/${birthDate!.year}',
+                style: birthDate == null
+                    ? TextStyle(color: context.kpb.textSecondary)
+                    : null,
+              ),
+            ),
+          ),
+          if (isMinor) ...[
+            const SizedBox(height: KpbSpacing.md),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: guardianConsented
+                    ? KpbColors.successLight
+                    : context.kpb.gray50,
+                borderRadius: KpbRadius.mdBr,
+                border: Border.all(
+                  color: guardianConsented
+                      ? KpbColors.success
+                      : context.kpb.gray200,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('minor_guardian_title'.tr,
+                      style: KpbTextStyles.titleMd),
+                  const SizedBox(height: 4),
+                  Text(
+                    'minor_guardian_intro'.tr,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.kpb.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: KpbSpacing.sm),
+                  TextFormField(
+                    controller: guardianNameCtrl,
+                    decoration:
+                        InputDecoration(labelText: 'guardian_name'.tr),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: KpbSpacing.sm),
+                  TextFormField(
+                    controller: guardianContactCtrl,
+                    decoration:
+                        InputDecoration(labelText: 'guardian_contact'.tr),
+                  ),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: guardianConsented,
+                    activeColor: KpbColors.success,
+                    title: Text('guardian_consent_checkbox'.tr,
+                        style: KpbTextStyles.bodySm),
+                    onChanged: (v) => onGuardianConsent(v ?? false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: KpbSpacing.lg),
+        ],
 
         // ── GDPR Consent ──────────────────────────────────────────
         Container(

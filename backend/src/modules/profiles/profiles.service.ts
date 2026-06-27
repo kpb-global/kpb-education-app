@@ -80,6 +80,18 @@ export class ProfilesService {
           ...(input.aiConsentedAt !== undefined
             ? { aiConsentedAt: new Date(input.aiConsentedAt) }
             : {}),
+          ...(input.birthDate !== undefined
+            ? { birthDate: new Date(input.birthDate) }
+            : {}),
+          ...(input.guardianName !== undefined
+            ? { guardianName: input.guardianName }
+            : {}),
+          ...(input.guardianContact !== undefined
+            ? { guardianContact: input.guardianContact }
+            : {}),
+          ...(input.guardianConsentedAt !== undefined
+            ? { guardianConsentedAt: new Date(input.guardianConsentedAt) }
+            : {}),
         },
       }),
     );
@@ -289,6 +301,12 @@ export class ProfilesService {
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,
       aiConsentedAt: p.aiConsentedAt ? p.aiConsentedAt.toISOString() : null,
+      birthDate: p.birthDate ? p.birthDate.toISOString() : null,
+      guardianName: p.guardianName,
+      guardianContact: p.guardianContact,
+      guardianConsentedAt: p.guardianConsentedAt
+        ? p.guardianConsentedAt.toISOString()
+        : null,
       updatedAt: p.updatedAt.toISOString(),
     };
   }

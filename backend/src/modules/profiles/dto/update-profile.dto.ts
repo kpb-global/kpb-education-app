@@ -70,4 +70,21 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsDateString()
   aiConsentedAt?: string;
+
+  // Age gate + self-attested guardian consent for declared minors (<18).
+  @IsOptional()
+  @IsDateString()
+  birthDate?: string;
+
+  @IsOptional()
+  @IsString()
+  guardianName?: string;
+
+  @IsOptional()
+  @IsString()
+  guardianContact?: string;
+
+  @IsOptional()
+  @IsDateString()
+  guardianConsentedAt?: string;
 }

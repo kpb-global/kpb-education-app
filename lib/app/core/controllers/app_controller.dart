@@ -1686,6 +1686,13 @@ abstract class _AppControllerBase extends GetxController {
       'availableDocuments': profile.availableDocuments,
       if (profile.aiConsentedAt != null)
         'aiConsentedAt': profile.aiConsentedAt!.toIso8601String(),
+      if (profile.birthDate != null)
+        'birthDate': profile.birthDate!.toIso8601String(),
+      if (profile.guardianName != null) 'guardianName': profile.guardianName,
+      if (profile.guardianContact != null)
+        'guardianContact': profile.guardianContact,
+      if (profile.guardianConsentedAt != null)
+        'guardianConsentedAt': profile.guardianConsentedAt!.toIso8601String(),
     };
   }
 
