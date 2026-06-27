@@ -129,6 +129,93 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
     );
   }
 
+  /// Admission-milestone review (KPB-75): rate the counsellor 1–5 + optional
+  /// testimonial → POST to the moderation queue. Marked handled either way so
+  /// it is asked at most once.
+  Future<void> _promptReview(StudentCase c) async {
+    final counsellorId = c.counsellorId;
+    if (counsellorId == null) return;
+    final textCtrl = TextEditingController();
+    var rating = 5;
+
+    final submitted = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: StatefulBuilder(
+          builder: (ctx, setSheet) => Padding(
+            padding: const EdgeInsets.all(KpbSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('review_prompt_title'.tr, style: KpbTextStyles.title),
+                const SizedBox(height: 4),
+                Text('review_prompt_sheet_body'.tr,
+                    style: KpbTextStyles.bodySm),
+                const SizedBox(height: KpbSpacing.md),
+                Row(
+                  children: List.generate(
+                    5,
+                    (i) => IconButton(
+                      icon: Icon(
+                        i < rating
+                            ? Icons.star_rounded
+                            : Icons.star_border_rounded,
+                        color: KpbColors.gold,
+                        size: 32,
+                      ),
+                      onPressed: () => setSheet(() => rating = i + 1),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: KpbSpacing.sm),
+                TextField(
+                  controller: textCtrl,
+                  maxLines: 3,
+                  decoration:
+                      InputDecoration(labelText: 'review_prompt_hint'.tr),
+                ),
+                const SizedBox(height: KpbSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text('review_prompt_submit'.tr),
+                  ),
+                ),
+                const SizedBox(height: KpbSpacing.sm),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (submitted == true) {
+      try {
+        await _ctrl.apiClient.submitCounsellorReview(
+          counsellorId: counsellorId,
+          rating: rating,
+          body: textCtrl.text.trim(),
+          reviewerName: _ctrl.profile?.fullName ?? 'KPB',
+          caseId: c.id,
+        );
+        Get.snackbar('review_prompt_title'.tr, 'review_prompt_thanks'.tr,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12));
+      } catch (_) {
+        Get.snackbar('review_prompt_title'.tr, 'review_prompt_error'.tr,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12));
+      }
+    }
+    textCtrl.dispose();
+    // Asked once — don't re-prompt whether or not they submitted.
+    if (mounted) setState(() => _ctrl.markCaseReviewed(c.id));
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<AppController>(
@@ -243,6 +330,57 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
             body: ListView(
               padding: const EdgeInsets.only(bottom: 100),
               children: [
+                // ── Admission-milestone review prompt (KPB-75) ───────────────
+                // Shown once, only when the case is completed and was handled by
+                // a marketplace counsellor we can attribute the review to.
+                if (c.status == CaseStatus.completed &&
+                    c.counsellorId != null &&
+                    !_ctrl.hasReviewedCase(c.id))
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                        KpbSpacing.md, KpbSpacing.pagePad, 0),
+                    child: KpbCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.star_rounded,
+                                  color: KpbColors.gold),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text('review_prompt_title'.tr,
+                                    style: KpbTextStyles.titleMd),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text('review_prompt_body'.tr,
+                              style: KpbTextStyles.bodySm),
+                          const SizedBox(height: KpbSpacing.sm),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => setState(
+                                      () => _ctrl.markCaseReviewed(c.id)),
+                                  child: Text('review_prompt_later'.tr),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: FilledButton(
+                                  onPressed: () => _promptReview(c),
+                                  child: Text('review_prompt_cta'.tr),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 // ── Offline Banner ───────────────────────────────────────────
                 if (!ConnectivityService.instance.isOnline)
                   Container(

@@ -543,6 +543,26 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Submit an admission-milestone review for a counsellor (KPB-75). Enters
+  /// moderation (isPublished=false) until an admin publishes it.
+  Future<void> submitCounsellorReview({
+    required String counsellorId,
+    required int rating,
+    required String body,
+    required String reviewerName,
+    String? caseId,
+  }) async {
+    await _dio.post<void>(
+      '/counsellors/${Uri.encodeComponent(counsellorId)}/reviews',
+      data: {
+        'rating': rating,
+        'body': body,
+        'reviewerName': reviewerName,
+        if (caseId != null) 'caseId': caseId,
+      },
+    );
+  }
+
   // ── Phase 3 — Service packages ("Dossier prêt" + kits) ────────────────────
 
   Future<List<dynamic>> listServicePackages({String? category}) async {

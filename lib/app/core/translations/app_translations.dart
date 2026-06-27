@@ -233,6 +233,18 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
           'offline_cache_notice': 'Mode hors ligne. Affichage des données en cache.',
           'next_step': 'Prochaine étape',
+          // ── Avis conseiller au jalon d'admission (KPB-75) ──
+          'review_prompt_title': 'Note ton conseiller',
+          'review_prompt_body':
+              'Félicitations pour ton admission ! Ton retour aide d\'autres étudiants à choisir KPB.',
+          'review_prompt_later': 'Plus tard',
+          'review_prompt_cta': 'Laisser un avis',
+          'review_prompt_sheet_body':
+              'Donne une note et, si tu veux, quelques mots sur ton accompagnement.',
+          'review_prompt_hint': 'Ton témoignage (optionnel)',
+          'review_prompt_submit': 'Envoyer mon avis',
+          'review_prompt_thanks': 'Merci ! Ton avis sera publié après modération.',
+          'review_prompt_error': 'Envoi impossible. Réessaie plus tard.',
           // ── Vue parent : argent & échéances (KPB-58) ──
           'parent_tuition_estimate': 'Frais de scolarité estimés',
           'parent_next_deadline': 'Prochaine échéance',
@@ -770,6 +782,18 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Answer 5 questions and get a 🟢 🟡 🔴 verdict for each of the 9 KPB destinations, then export your report as a PDF.',
           'offline_cache_notice': 'Offline mode. Showing cached data.',
           'next_step': 'Next step',
+          // ── Counsellor review at admission milestone (KPB-75) ──
+          'review_prompt_title': 'Rate your advisor',
+          'review_prompt_body':
+              'Congrats on your admission! Your feedback helps other students choose KPB.',
+          'review_prompt_later': 'Later',
+          'review_prompt_cta': 'Leave a review',
+          'review_prompt_sheet_body':
+              'Give a rating and, if you like, a few words about your support.',
+          'review_prompt_hint': 'Your testimonial (optional)',
+          'review_prompt_submit': 'Send my review',
+          'review_prompt_thanks': 'Thanks! Your review will be published after moderation.',
+          'review_prompt_error': 'Could not send. Try again later.',
           // ── Parent view: money & deadlines (KPB-58) ──
           'parent_tuition_estimate': 'Estimated tuition',
           'parent_next_deadline': 'Next deadline',

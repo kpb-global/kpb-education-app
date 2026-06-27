@@ -614,6 +614,9 @@ export class CasesService {
       assignedAdvisorName: c.assignedAdvisorName,
       assignedAdvisorPhone: c.assignedAdvisorPhone,
       assignedAdvisorWhatsapp: c.assignedAdvisorWhatsapp,
+      // Marketplace counsellor id (Track B) — used by the app to attribute an
+      // admission-milestone review to the right counsellor (KPB-75).
+      counsellorId: c.counsellorId ?? null,
       createdAt: c.createdAt.toISOString(),
       updatedAt: c.updatedAt.toISOString(),
       description: c.description,
