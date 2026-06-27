@@ -5,6 +5,7 @@ import '../../features/cases/case_detail_screen.dart';
 import '../../features/scholarships/live_scholarships_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/shell/app_shell.dart';
+import '../ui/components/coming_soon_screen.dart';
 
 /// Define named routes specifically for handling deep links and push notifications.
 ///
@@ -45,8 +46,10 @@ class AppRoutes {
       home,
       search,
       caseCreate,
-      // Live-scholarships aggregator is a V1.1+ module.
-      if (!AppConfig.mvpOnly) scholarships,
+      // `/scholarships` always resolves: the live aggregator is a V1.1+ module,
+      // but under the MVP lock the route renders a graceful "coming soon" (see
+      // pages) so a push to it never dies silently.
+      scholarships,
     };
     if (known.contains(route)) return route;
     return null;
@@ -61,12 +64,15 @@ class AppRoutes {
       name: search,
       page: () => const SearchScreen(),
     ),
-    // Live-scholarships aggregator is a V1.1+ module (hidden under MVP lock).
-    if (!AppConfig.mvpOnly)
-      GetPage(
-        name: scholarships,
-        page: () => const LiveScholarshipsScreen(),
-      ),
+    // Live-scholarships aggregator is a V1.1+ module. The route is always
+    // registered so external deep-links resolve; under the MVP lock it renders
+    // a graceful "coming soon" instead of the live aggregator.
+    GetPage(
+      name: scholarships,
+      page: () => AppConfig.mvpOnly
+          ? const ComingSoonScreen()
+          : const LiveScholarshipsScreen(),
+    ),
     GetPage(
       name: caseCreate,
       page: () => const CaseCreateScreen(),
