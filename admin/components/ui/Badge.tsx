@@ -50,6 +50,14 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
   cancelled: 'danger',
   draft: 'neutral',
   archived: 'neutral',
+  // notification campaign + delivery lifecycle
+  scheduled: 'info',
+  sending: 'warning',
+  queued: 'warning',
+  sent: 'success',
+  delivered: 'success',
+  failed: 'danger',
+  bounced: 'danger',
 };
 
 export function StatusBadge({ status }: { status: string }) {
