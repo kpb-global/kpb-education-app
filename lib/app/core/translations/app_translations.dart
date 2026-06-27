@@ -102,6 +102,11 @@ class AppTranslations extends Translations {
           'coming_soon_title': 'Bientôt disponible',
           'coming_soon_body':
               'Ce module arrive dans une prochaine version de KPB. Reste connecté !',
+          // ── Preuve sociale (impact) ──
+          'impact_proof_title': 'Notre impact, vérifié',
+          'impact_proof_line':
+              '@students étudiants accompagnés · @admissions admissions',
+          'reviews_basis': 'basé sur @n avis',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'L\'accompagnement KPB',
           'kpb_offer_intro':
@@ -575,6 +580,11 @@ class AppTranslations extends Translations {
           'coming_soon_title': 'Coming soon',
           'coming_soon_body':
               'This module is arriving in an upcoming KPB version. Stay tuned!',
+          // ── Social proof (impact) ──
+          'impact_proof_title': 'Our impact, verified',
+          'impact_proof_line':
+              '@students students guided · @admissions admissions',
+          'reviews_basis': 'based on @n reviews',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'KPB support',
           'kpb_offer_intro':

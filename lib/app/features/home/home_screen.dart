@@ -19,6 +19,7 @@ import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../tools/student_tools_screen.dart';
+import 'home_impact_proof.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flag helpers
@@ -150,6 +151,10 @@ class HomeScreen extends StatelessWidget {
                           child: _HeroCard(controller: controller),
                         ),
                         const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 1.5 Preuve sociale vérifiable & datée ────
+                        // Self-hides until real impact data is available.
+                        const HomeImpactProof(),
 
                         // ── 2. Prochaine étape ──────────────────────
                         if (controller.isStudent) ...[
