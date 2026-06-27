@@ -508,6 +508,13 @@ class AppTranslations extends Translations {
           'guardian_consent_required_title': 'Accord parental requis',
           'guardian_consent_required':
               'Renseigne le nom et le contact de ton parent/tuteur et coche son accord pour continuer.',
+          // ── Communauté & alumni (KPB-70) ──
+          'contact_mentor': 'Contacter ce mentor',
+          'mentor_intro_prefill':
+              'Bonjour KPB Education, je souhaite être mis(e) en relation avec votre mentor vérifié @who pour des conseils sur mon projet d\'études.',
+          'community_hub_alumni': 'Mentors',
+          'community_hub_salon': 'Salons',
+          'community_hub_parcours': 'Parcours',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -1014,6 +1021,13 @@ class AppTranslations extends Translations {
           'guardian_consent_required_title': 'Guardian consent required',
           'guardian_consent_required':
               'Enter your guardian\'s name and contact and tick their consent to continue.',
+          // ── Community & alumni (KPB-70) ──
+          'contact_mentor': 'Contact this mentor',
+          'mentor_intro_prefill':
+              'Hello KPB Education, I\'d like to be connected with your verified mentor @who for advice on my study plans.',
+          'community_hub_alumni': 'Mentors',
+          'community_hub_salon': 'Fairs',
+          'community_hub_parcours': 'Journeys',
         },
       };
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 /// Verified alumni mentor directory (Phase 3).
 ///
@@ -149,7 +151,12 @@ class _AlumnusCard extends StatelessWidget {
     final programme = (a['alumniProgramme'] as String?) ?? '';
     final year = a['alumniGraduationYear'] as int?;
     final country = (a['alumniCountryCode'] as String?) ?? '';
-    final bio = (a['alumniBioFr'] as String?) ?? '';
+    // Locale-aware bio: render the English bio for EN users (was FR-only).
+    final en = Get.find<AppController>().localeCode.startsWith('en');
+    final bioFr = (a['alumniBioFr'] as String?) ?? '';
+    final bioEn = (a['alumniBioEn'] as String?) ?? '';
+    final bio = en ? (bioEn.isNotEmpty ? bioEn : bioFr)
+                   : (bioFr.isNotEmpty ? bioFr : bioEn);
 
     return Card(
       child: Padding(
@@ -210,6 +217,24 @@ class _AlumnusCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(bio),
             ],
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.chat_outlined, size: 18),
+                label: Text('contact_mentor'.tr),
+                // Structured intro brokered by KPB on WhatsApp — the mentor's
+                // personal number is never exposed; KPB connects them.
+                onPressed: () {
+                  final who = university.isNotEmpty ? '$name ($university)' : name;
+                  openWhatsAppOrToast(
+                    prefill: 'mentor_intro_prefill'.trParams({'who': who}),
+                    source: 'alumni_directory',
+                    contextType: 'mentor_intro',
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
