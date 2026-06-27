@@ -1171,7 +1171,9 @@ model SalonRegistration {
   // "registered" | "attended" | "cancelled" — kept as string to avoid a
   // dedicated enum for three values that rarely change.
   status     String       @default("registered")
-  remindedAt DateTime?
+  // KPB-78 reminder markers — set once each so the 24h/1h pushes never repeat.
+  remindedAt DateTime? // 24h-before reminder sent at
+  reminded1hAt DateTime? // 1h-before reminder sent at
   createdAt  DateTime     @default(now())
   session    SalonSession @relation(fields: [sessionId], references: [id])
   user       UserProfile  @relation(fields: [userId], references: [id])
