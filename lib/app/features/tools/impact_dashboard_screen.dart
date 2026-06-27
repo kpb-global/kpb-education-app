@@ -36,10 +36,11 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
 
   int _int(String k) => (_stats?[k] as num?)?.toInt() ?? 0;
 
-  String _money(int v) {
-    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)} M€';
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)} k€';
-    return '$v €';
+  /// Date of the live aggregate snapshot (the board is dated, verifiable).
+  String get _generatedDate {
+    final raw = _stats?['generatedAt'] as String?;
+    final d = raw == null ? null : DateTime.tryParse(raw);
+    return d == null ? '' : '${d.day}/${d.month}/${d.year}';
   }
 
   @override
@@ -109,8 +110,8 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                       _StatCard(
                         icon: Icons.savings_rounded,
                         color: KpbColors.gold,
-                        value: _money(_int('scholarshipsValueEur')),
-                        label: 'Bourses débloquées',
+                        value: '${_int('scholarshipsTracked')}',
+                        label: 'Bourses référencées',
                       ),
                       _StatCard(
                         icon: Icons.public_rounded,
@@ -135,48 +136,70 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
 
                   const SizedBox(height: KpbSpacing.lg),
 
-                  // Satisfaction bar
-                  KpbCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.favorite_rounded,
-                                color: KpbColors.error, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Taux de satisfaction',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: context.kpb.textPrimary,
+                  // Satisfaction — only shown once real published reviews
+                  // exist; never a fabricated rate.
+                  if (_stats?['satisfactionRate'] != null) ...[
+                    KpbCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.favorite_rounded,
+                                  color: KpbColors.error, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Taux de satisfaction',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: context.kpb.textPrimary,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              '${_int('satisfactionRate')}%',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: KpbColors.success,
-                                fontSize: 18,
+                              const Spacer(),
+                              Text(
+                                '${_int('satisfactionRate')}%',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: KpbColors.success,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: KpbSpacing.sm),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            value: _int('satisfactionRate') / 100,
-                            minHeight: 10,
-                            backgroundColor: context.kpb.gray200,
-                            valueColor: const AlwaysStoppedAnimation(
-                                KpbColors.success),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: KpbSpacing.sm),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: _int('satisfactionRate') / 100,
+                              minHeight: 10,
+                              backgroundColor: context.kpb.gray200,
+                              valueColor: const AlwaysStoppedAnimation(
+                                  KpbColors.success),
+                            ),
+                          ),
+                          const SizedBox(height: KpbSpacing.sm),
+                          Text(
+                            'reviews_basis'
+                                .trParams({'n': '${_int('reviewsCount')}'}),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: context.kpb.textSecondary),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: KpbSpacing.lg),
+                  ],
+
+                  // Dated snapshot — the board is a live, verifiable figure.
+                  if (_generatedDate.isNotEmpty)
+                    Center(
+                      child: Text(
+                        'updated_on'.trParams({'date': _generatedDate}),
+                        style: TextStyle(
+                            fontSize: 12, color: context.kpb.textSecondary),
+                      ),
+                    ),
 
                   const SizedBox(height: KpbSpacing.xl),
                 ],
