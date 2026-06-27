@@ -2,6 +2,7 @@ import {
   budgetBucket,
   buildCoachSystemPrompt,
   buildCoachSuggestions,
+  freshnessAnnotation,
   resolveCoachLanguage,
   unsourcedFigureCaveat,
 } from './coach-prompt.builder';
@@ -97,6 +98,42 @@ describe('buildCoachSystemPrompt (RAG grounding)', () => {
       expect(
         unsourcedFigureCaveat('Contacte un conseiller KPB pour les détails.', '', 'fr'),
       ).toBeNull();
+    });
+  });
+
+  describe('freshnessAnnotation (RAG time decay)', () => {
+    const now = new Date('2026-06-27T00:00:00Z');
+
+    it('marks a recently-verified fact as verified', () => {
+      const recent = new Date('2026-06-01T00:00:00Z');
+      expect(freshnessAnnotation(recent, 'fr', { now })).toBe(
+        'vérifié 2026-06-01',
+      );
+      expect(freshnessAnnotation(recent, 'en', { now })).toBe(
+        'verified 2026-06-01',
+      );
+    });
+
+    it('flags a fact older than the staleness threshold', () => {
+      const old = new Date('2024-01-01T00:00:00Z');
+      expect(freshnessAnnotation(old, 'fr', { now })).toContain('PÉRIMÉ');
+      expect(freshnessAnnotation(old, 'en', { now })).toContain('STALE');
+    });
+
+    it('honors a tighter per-category threshold (deadlines)', () => {
+      const fortyDaysAgo = new Date('2026-05-18T00:00:00Z');
+      expect(
+        freshnessAnnotation(fortyDaysAgo, 'en', { now, staleDays: 31 }),
+      ).toContain('STALE');
+      // Same date under the default 180d horizon is still fresh.
+      expect(freshnessAnnotation(fortyDaysAgo, 'en', { now })).not.toContain(
+        'STALE',
+      );
+    });
+
+    it('says "to confirm" when never verified', () => {
+      expect(freshnessAnnotation(null, 'fr', { now })).toBe('à confirmer');
+      expect(freshnessAnnotation(undefined, 'en', { now })).toBe('to confirm');
     });
   });
 
