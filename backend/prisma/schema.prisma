@@ -180,6 +180,9 @@ model UserProfile {
   guardianName         String?
   guardianContact      String?
   guardianConsentedAt  DateTime?
+  // Stable per-student referral code (KPB-69) — generated on first read, shared
+  // via WhatsApp. Friends who redeem it are attributed back to this profile.
+  referralCode         String?                  @unique
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
   cases                Case[]
@@ -211,10 +214,27 @@ model UserProfile {
   alumniBadgeVisible   Boolean                  @default(true)
   servicePurchases     ServicePurchase[]
   salonRegistrations   SalonRegistration[]
+  referralsMade        Referral[]               @relation("referral_referrer")
+  referralReceived     Referral?                @relation("referral_referee")
 
   @@index([accountType])
   @@index([createdAt])
   @@index([alumniStatus])
+}
+
+// WhatsApp-native referral attribution (KPB-69). One row per redeemed referral:
+// the referrer (code owner) → the referee (the friend who redeemed). A profile
+// can be referred at most once (`refereeProfileId @unique`). The "case created"
+// milestone is derived on read (referee has ≥1 case), so no write-side hook.
+model Referral {
+  id               String      @id @default(cuid())
+  referrerId       String
+  refereeProfileId String      @unique
+  createdAt        DateTime    @default(now())
+  referrer         UserProfile @relation("referral_referrer", fields: [referrerId], references: [id])
+  referee          UserProfile @relation("referral_referee", fields: [refereeProfileId], references: [id])
+
+  @@index([referrerId])
 }
 
 model StudentCredential {

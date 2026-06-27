@@ -90,6 +90,24 @@ class AppApiClient {
     await _dio.delete<void>('/profiles/me');
   }
 
+  // ── Referrals (KPB-69) ────────────────────────────────────────
+
+  /// The caller's stable referral code + attribution stats.
+  Future<Map<String, dynamic>> getMyReferral() async {
+    final response = await _dio.get<Map<String, dynamic>>('/referrals/me');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Attribute the caller to the owner of [code]. Returns
+  /// `{attributed, alreadyReferred}`.
+  Future<Map<String, dynamic>> redeemReferral(String code) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/referrals/redeem',
+      data: {'code': code},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<Map<String, dynamic>> submitOrientation(
     Map<String, dynamic> payload,
   ) async {

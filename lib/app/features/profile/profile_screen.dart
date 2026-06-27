@@ -13,6 +13,7 @@ import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';
 import '../eligibility/eligibility_simulator_screen.dart';
 import '../parcours/parcours_screen.dart';
+import '../referral/referral_screen.dart';
 import '../legal/legal_pages.dart';
 import '../onboarding/onboarding_m2_constants.dart';
 import '../orientation/orientation_screen.dart';
@@ -383,6 +384,13 @@ class ProfileScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           if (controller.isStudent) ...[
+                            _QuickAccessTile(
+                              icon: Icons.card_giftcard_outlined,
+                              label: 'referral_title'.tr,
+                              color: KpbColors.gold,
+                              onTap: () => Get.to(() => const ReferralScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.psychology_outlined,
                               label: 'Test d\'orientation',

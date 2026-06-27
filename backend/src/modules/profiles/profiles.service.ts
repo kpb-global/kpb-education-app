@@ -164,6 +164,9 @@ export class ProfilesService {
         prisma.parentChildLink.deleteMany({
           where: { OR: [{ parentId: id }, { childId: id }] },
         }),
+        prisma.referral.deleteMany({
+          where: { OR: [{ referrerId: id }, { refereeProfileId: id }] },
+        }),
         prisma.deviceToken.deleteMany({ where: { userProfileId: id } }),
         prisma.partnerLead.deleteMany({ where: { userId: id } }),
         prisma.studentCredential.deleteMany({ where: { userProfileId: id } }),

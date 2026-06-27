@@ -26,6 +26,7 @@ describe('ProfilesService — account deletion & export', () => {
     'coachConversation',
     'orientationSession',
     'parentChildLink',
+    'referral',
     'deviceToken',
     'partnerLead',
     'studentCredential',

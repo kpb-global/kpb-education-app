@@ -82,6 +82,8 @@ import { CinetpayAdapter } from './modules/payments/cinetpay.adapter';
 import { PaydunyaAdapter } from './modules/payments/paydunya.adapter';
 import { ParentLinksController } from './modules/parent-links/parent-links.controller';
 import { ParentLinksService } from './modules/parent-links/parent-links.service';
+import { ReferralsController } from './modules/referrals/referrals.controller';
+import { ReferralsService } from './modules/referrals/referrals.service';
 import { AdminScholarshipsController, ScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
 import { ScholarshipsIndexService } from './modules/scholarships-index/scholarships-index.service';
 import { GreatYopScraper } from './modules/scholarships-index/scrapers/greatyop.scraper';
@@ -166,6 +168,7 @@ import { SalonService } from './modules/salon/salon.service';
     CounsellorsController,
     AdminCounsellorsController,
     ParentLinksController,
+    ReferralsController,
     AdminScholarshipsController,
     ScholarshipsController,
     VisaAvailabilityController,
@@ -226,6 +229,7 @@ import { SalonService } from './modules/salon/salon.service';
     CinetpayAdapter,
     PaydunyaAdapter,
     ParentLinksService,
+    ReferralsService,
     ScholarshipsIndexService,
     GreatYopScraper,
     MastereTnScraper,
