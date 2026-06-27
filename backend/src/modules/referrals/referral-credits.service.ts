@@ -117,13 +117,17 @@ export class ReferralCreditsService {
     userId: string,
     clientRef: string,
   ): Promise<RedeemResult> {
+    // Idempotency key is scoped to the caller, so a clientRef collision across
+    // users can never replay another account's voucher.
+    const dedupeKey = `voucher:${userId}:${clientRef}`;
+
     const result = await this.prisma.execute(async (db) => {
-      // If this clientRef was already redeemed, return its voucher (idempotent).
+      // Already redeemed under this key → return the SAME persisted voucher.
       const prior = await db.creditTransaction.findUnique({
-        where: { dedupeKey: `voucher:${clientRef}` },
-        select: { metadata: true },
+        where: { dedupeKey },
+        select: { profileId: true, metadata: true },
       });
-      if (prior) {
+      if (prior && prior.profileId === userId) {
         const profile = await db.userProfile.findUnique({
           where: { id: userId },
           select: { reviewCredits: true },
@@ -151,7 +155,7 @@ export class ReferralCreditsService {
               profileId: userId,
               amount: -VOUCHER_COST,
               reason: 'reviewVoucherRedeemed',
-              dedupeKey: `voucher:${clientRef}`,
+              dedupeKey,
               metadata: { voucherCode },
             },
           });
@@ -165,16 +169,25 @@ export class ReferralCreditsService {
         if (!out) return { ok: false as const, reason: 'insufficient' as const };
         return { ok: true as const, balance: out.balance, voucherCode: out.voucherCode };
       } catch (error) {
-        // Concurrent redeem with the same clientRef collided on dedupeKey.
+        // Lost a concurrent race on the same key — return the PERSISTED winner's
+        // voucher (re-read), not our rolled-back local code, so the caller and
+        // the ledger agree on a single code the advisor can validate.
         if (isUniqueViolation(error)) {
-          const profile = await db.userProfile.findUnique({
-            where: { id: userId },
-            select: { reviewCredits: true },
-          });
+          const [persisted, profile] = await Promise.all([
+            db.creditTransaction.findUnique({
+              where: { dedupeKey },
+              select: { metadata: true },
+            }),
+            db.userProfile.findUnique({
+              where: { id: userId },
+              select: { reviewCredits: true },
+            }),
+          ]);
+          const meta = (persisted?.metadata ?? {}) as { voucherCode?: string };
           return {
             ok: true as const,
             balance: profile?.reviewCredits ?? 0,
-            voucherCode,
+            voucherCode: meta.voucherCode ?? voucherCode,
           };
         }
         throw error;

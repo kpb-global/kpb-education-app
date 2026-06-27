@@ -235,4 +235,21 @@ describe('ReferralCreditsService — redeem (spend)', () => {
     expect(s.profiles.get('me')!.reviewCredits).toBe(0);
     expect(s.txns).toHaveLength(1);
   });
+
+  it('scopes the clientRef per user — a shared clientRef never replays another user\'s voucher', async () => {
+    const s = emptySetup();
+    s.profiles.set('alice', { reviewCredits: 1 });
+    s.profiles.set('bob', { reviewCredits: 1 });
+    const svc = makeService(s);
+    const a = await svc.redeemReviewVoucher('alice', 'shared-ref');
+    const b = await svc.redeemReviewVoucher('bob', 'shared-ref');
+    expect(a.ok && b.ok).toBe(true);
+    if (a.ok && b.ok) {
+      // Bob mints his OWN voucher and spends his OWN credit — not Alice's.
+      expect(b.voucherCode).not.toBe(a.voucherCode);
+    }
+    expect(s.profiles.get('alice')!.reviewCredits).toBe(0);
+    expect(s.profiles.get('bob')!.reviewCredits).toBe(0);
+    expect(s.txns).toHaveLength(2);
+  });
 });
