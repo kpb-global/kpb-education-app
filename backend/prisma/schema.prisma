@@ -180,6 +180,9 @@ model UserProfile {
   guardianName         String?
   guardianContact      String?
   guardianConsentedAt  DateTime?
+  // Last time the profile-completion nudge (KPB-76) was sent — throttles the
+  // re-engagement push so an incomplete profile is reminded at most monthly.
+  profileNudgedAt      DateTime?
   // Stable per-student referral code (KPB-69) — generated on first read, shared
   // via WhatsApp. Friends who redeem it are attributed back to this profile.
   referralCode         String?                  @unique
