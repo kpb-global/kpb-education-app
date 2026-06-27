@@ -250,14 +250,14 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     color: KpbColors.warning.withValues(alpha: 0.1),
                     padding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.wifi_off_rounded,
                             color: KpbColors.warning, size: 16),
                         SizedBox(width: 8),
                         Text(
-                          'Mode hors ligne. Affichage des données en cache.',
+                          'offline_cache_notice'.tr,
                           style: TextStyle(
                               color: KpbColors.warning,
                               fontSize: 12,
@@ -275,9 +275,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     children: [
                       if (_ctrl.isSyncing && _ctrl.cases.isEmpty) ...[
                         SkeletonLoader.card(height: 120),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         SkeletonLoader.card(height: 200),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         SkeletonLoader.card(height: 150),
                       ] else ...[
                         // ── Prochaine étape ──────────────────────────────────────────
@@ -295,16 +295,16 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                   color: KpbColors.blue.withValues(alpha: 0.12),
                                   borderRadius: KpbRadius.mdBr,
                                 ),
-                                child: const Icon(Icons.arrow_right_alt_rounded,
+                                child: Icon(Icons.arrow_right_alt_rounded,
                                     color: KpbColors.blue, size: 22),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Prochaine étape',
+                                    Text(
+                                      'next_step'.tr,
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,

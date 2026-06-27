@@ -331,9 +331,9 @@ class _StepHeader extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
-          'Étape ${step + 1}/$total · ${labels[step]}',
+          '${'step_label'.tr} ${step + 1}/$total · ${labels[step]}',
           style: KpbTextStyles.caption,
         ),
         const SizedBox(height: 8),
@@ -431,8 +431,8 @@ class _ContextStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        const Text(
-          'Contexte pré-rempli depuis ta navigation. Tu peux continuer ou revenir en arrière pour modifier.',
+        Text(
+          'case_context_prefilled'.tr,
           style: KpbTextStyles.bodySm,
         ),
         const SizedBox(height: 12),
@@ -689,7 +689,7 @@ class _MessageStepState extends State<_MessageStep> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              'Écoute en cours… parle clairement.',
+              'listening_speak_clearly'.tr,
               style: KpbTextStyles.caption.copyWith(color: KpbColors.blue),
             ),
           ),
@@ -749,8 +749,8 @@ class _ConfirmStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        const Text(
-          'Vérifie le récapitulatif avant envoi. KPB te répond sous 24–48 h.',
+        Text(
+          'review_before_send'.tr,
           style: KpbTextStyles.bodySm,
         ),
         const SizedBox(height: 12),

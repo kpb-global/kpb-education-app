@@ -115,7 +115,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                     )
                   : null,
               title: Text(
-                'Bourses d\'études',
+                'scholarships_title'.tr,
                 style: KpbTextStyles.headline
                     .copyWith(color: context.kpb.textPrimary),
               ),
@@ -137,13 +137,13 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Opportunités recommandées',
+                      'recommended_opportunities'.tr,
                       style: KpbTextStyles.titleLg
                           .copyWith(color: context.kpb.textPrimary),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
-                      'Classées selon ton profil et tes objectifs académiques.',
+                      'ranked_by_profile'.tr,
                       style: KpbTextStyles.body
                           .copyWith(color: context.kpb.textSecondary),
                     ),
@@ -602,13 +602,13 @@ class _LiveScholarshipDetail extends StatelessWidget {
             child: Row(
               children: [
                 AdmissionMeter(score: s.matchScore, size: 52, strokeWidth: 5),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Compatibilité avec ton profil',
+                        'profile_compatibility'.tr,
                         style: TextStyle(
                           color: accent,
                           fontWeight: FontWeight.w800,

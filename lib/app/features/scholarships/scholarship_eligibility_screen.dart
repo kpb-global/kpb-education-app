@@ -107,7 +107,7 @@ class _ScholarshipEligibilityScreenState
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              'Réponds à tous les critères pour voir ton résultat.',
+              'answer_all_criteria'.tr,
               style:
                   KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
               textAlign: TextAlign.center,
