@@ -386,4 +386,169 @@ class EligibilityEngine {
         return 'Concentre-toi d\'abord sur le blocage principal. ${rule.noteFr}';
     }
   }
+
+  // ── Per-country quiz scoring (KPB-62) ──────────────────────────────────────
+  // Single source of truth for the explore per-country eligibility quiz, ported
+  // verbatim from the former backend `country-quiz.scorer.ts` so the quiz and
+  // the simulator share ONE deterministic engine (no divergent backend scorer).
+  EligibilityVerdict scoreCountryQuiz(
+    String countryId,
+    Map<String, String> answers,
+  ) =>
+      eligibilityVerdictFromKey(_scoreQuizKey(countryId, answers));
+
+  String _scoreQuizKey(String countryId, Map<String, String> a) {
+    switch (countryId) {
+      case 'fra':
+        return _scoreFrance(a);
+      case 'deu':
+        return _scoreGermany(a);
+      case 'usa':
+        return _scoreUsa(a);
+      case 'can':
+        return _scoreCanada(a);
+      case 'mar':
+        return _scoreMorocco(a);
+      case 'tur':
+        return _scoreTurkey(a);
+      case 'are':
+        return _scoreUae(a);
+      case 'gbr':
+        return _scoreUk(a);
+      case 'esp':
+        return _scoreSpain(a);
+      default:
+        return 'eligible_with_conditions';
+    }
+  }
+
+  String _scoreFrance(Map<String, String> a) {
+    final diploma = _qp(a, 'q2_diploma');
+    final french = _qp(a, 'q5_french_level');
+    final funds = _qp(a, 'q7_financial_proof');
+    final visa = _qp(a, 'q6_visa_history');
+    if (diploma == 'no') return 'not_eligible';
+    if (french == 'basic' && funds == 'no') return 'not_eligible';
+    if (_qin(diploma, const ['yes_obtained', 'yes_this_year']) &&
+        _qin(french, const ['native', 'fluent', 'intermediate']) &&
+        funds != 'no' &&
+        visa != 'yes_recent') {
+      return 'eligible';
+    }
+    if (_qin(diploma, const ['yes_obtained', 'yes_this_year']) &&
+        (french == 'basic' || funds == 'no' || visa == 'yes_recent')) {
+      return 'eligible_with_conditions';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreGermany(Map<String, String> a) {
+    final german = _qp(a, 'q2_german_level');
+    final track = _qp(a, 'q4_language_track');
+    final blocked = _qp(a, 'q5_blocked_account');
+    if (blocked == 'no' && track == 'no_only_english') return 'not_eligible';
+    if (blocked == 'no') return 'not_eligible';
+    if (track == 'yes_partial' && blocked == 'yes_difficult') {
+      return 'eligible_with_conditions';
+    }
+    if (german == 'advanced' || (track != null && track != 'no_only_english')) {
+      return 'eligible';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreUsa(Map<String, String> a) {
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    final diploma = _qp(a, 'q2_diploma');
+    if (diploma == 'no') return 'not_eligible';
+    if (budget == 'low') return 'not_eligible';
+    if (english == 'advanced' && budget != 'low') return 'eligible';
+    if (english == 'intermediate' || budget == 'medium') {
+      return 'eligible_with_conditions';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreCanada(Map<String, String> a) {
+    final diploma = _qp(a, 'q2_diploma');
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    if (diploma == 'no') return 'not_eligible';
+    if (budget == 'low') return 'not_eligible';
+    if (_qin(diploma, const ['yes_obtained', 'yes_this_year']) &&
+        _qin(english, const ['advanced', 'intermediate']) &&
+        budget != 'low') {
+      return 'eligible';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreMorocco(Map<String, String> a) {
+    final diploma = _qp(a, 'q2_diploma');
+    final french = _qp(a, 'q3_french_level');
+    final budget = _qp(a, 'q4_budget');
+    if (diploma == 'no' && budget == 'low') return 'not_eligible';
+    if (_qin(diploma, const ['yes_obtained', 'yes_this_year']) &&
+        _qin(french, const ['native', 'fluent', 'intermediate'])) {
+      return 'eligible';
+    }
+    if (french == 'basic' || budget == 'low') {
+      return 'eligible_with_conditions';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreTurkey(Map<String, String> a) {
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    final diploma = _qp(a, 'q2_diploma');
+    if (diploma == 'no') return 'not_eligible';
+    if (budget == 'low') return 'eligible_with_conditions';
+    if (_qin(english, const ['advanced', 'intermediate']) && budget != 'low') {
+      return 'eligible';
+    }
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreUae(Map<String, String> a) {
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    if (budget == 'low') return 'not_eligible';
+    if (english == 'advanced' && budget != 'low') return 'eligible';
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreUk(Map<String, String> a) {
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    final diploma = _qp(a, 'q2_diploma');
+    if (diploma == 'no') return 'not_eligible';
+    if (budget == 'low') return 'not_eligible';
+    if (english == 'advanced') return 'eligible';
+    return 'eligible_with_conditions';
+  }
+
+  String _scoreSpain(Map<String, String> a) {
+    final english = _qp(a, 'q3_english_level');
+    final budget = _qp(a, 'q4_budget');
+    final diploma = _qp(a, 'q2_diploma');
+    if (diploma == 'no') return 'not_eligible';
+    if (_qin(english, const ['advanced', 'intermediate']) && budget != 'low') {
+      return 'eligible';
+    }
+    if (budget == 'low' || english == 'basic') {
+      return 'eligible_with_conditions';
+    }
+    return 'eligible_with_conditions';
+  }
 }
+
+// Quiz answer helpers (mirror the former backend scorer's pick/inValues).
+String? _qp(Map<String, String> a, String key) {
+  final v = a[key]?.trim();
+  return (v == null || v.isEmpty) ? null : v;
+}
+
+bool _qin(String? value, List<String> allowed) =>
+    value != null && allowed.contains(value);

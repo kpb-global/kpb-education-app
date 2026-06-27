@@ -1351,32 +1351,9 @@ abstract class _AppControllerBase extends GetxController {
     throw StateError('Country not found: $countryKey');
   }
 
-  Future<CountryQuizResultModel> submitCountryQuiz(
-    String countryKey,
-    Map<String, String> answers,
-  ) async {
-    final normalized = normalizeCountryId(countryKey);
-    if (!AppConfig.enableRemoteSync) {
-      final detail = await loadCountryDetail(normalized);
-      final quiz = detail.eligibilityQuiz;
-      if (quiz == null || quiz.questions.isEmpty) {
-        throw StateError('Quiz unavailable offline');
-      }
-      return CountryQuizResultModel(
-        verdict: EligibilityVerdict.eligibleWithConditions,
-        verdictTitle: quiz.verdicts['eligible_with_conditions']?.titleFor(localeCode) ??
-            'Résultat provisoire',
-        verdictMessage: quiz.verdicts['eligible_with_conditions']?.messageFor(localeCode) ??
-            '',
-        ctaLabel: quiz.verdicts['eligible_with_conditions']?.ctaFor(localeCode) ??
-            'Continuer',
-        countryId: detail.id,
-      );
-    }
-
-    final json = await _apiClient.submitCountryQuiz(normalized, answers);
-    return CountryQuizResultModel.fromJson(json, localeCode: localeCode);
-  }
+  // submitCountryQuiz removed (KPB-62): the explore quiz now scores via the
+  // single client-side EligibilityEngine (see EligibilityQuizScreen), so there
+  // is no backend round-trip or second scorer.
   InstitutionModel institutionById(String id) =>
       institutions.firstWhere((item) => item.id == id);
   ProgramModel programById(String id) =>
