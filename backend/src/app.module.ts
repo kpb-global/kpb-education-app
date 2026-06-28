@@ -84,6 +84,7 @@ import { CinetpayAdapter } from './modules/payments/cinetpay.adapter';
 import { PaydunyaAdapter } from './modules/payments/paydunya.adapter';
 import { ParentLinksController } from './modules/parent-links/parent-links.controller';
 import { ParentLinksService } from './modules/parent-links/parent-links.service';
+import { ReferralCreditsReconcileCronService } from './modules/referrals/referral-credits-reconcile-cron.service';
 import { ReferralCreditsService } from './modules/referrals/referral-credits.service';
 import { ReferralsController } from './modules/referrals/referrals.controller';
 import { ReferralsService } from './modules/referrals/referrals.service';
@@ -236,6 +237,7 @@ import { SalonService } from './modules/salon/salon.service';
     ParentLinksService,
     ReferralsService,
     ReferralCreditsService,
+    ReferralCreditsReconcileCronService,
     ScholarshipsIndexService,
     GreatYopScraper,
     MastereTnScraper,
