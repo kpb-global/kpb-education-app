@@ -75,25 +75,16 @@ export class ReferralCreditsReconcileCronService {
     let creditsBackfilled = 0;
     for (const refereeId of refereeIds) {
       // Idempotent: only mints when caseCount === 1 and the dedupeKey is free.
-      // We snapshot the balance via the ledger to know whether THIS call minted.
-      const before = await this.countEarnRows();
-      await this.credits.creditReferrerForFirstCase(refereeId);
-      const after = await this.countEarnRows();
-      if (after > before) creditsBackfilled++;
+      // The call reports whether it actually minted, so backfills are counted
+      // directly — no extra ledger scans.
+      if (await this.credits.creditReferrerForFirstCase(refereeId)) {
+        creditsBackfilled++;
+      }
     }
 
     this.logger.log(
       `Referral credits reconcile: ${refereeIds.length} candidate(s) checked, ${creditsBackfilled} credit(s) backfilled.`,
     );
     return { referralsChecked: refereeIds.length, creditsBackfilled };
-  }
-
-  /// Count of earn rows in the ledger — used to detect whether a backfill call
-  /// actually minted a new credit (vs. idempotently no-op'd).
-  private async countEarnRows(): Promise<number> {
-    const n = await this.prisma.execute((db) =>
-      db.creditTransaction.count({ where: { reason: 'referralFirstCase' } }),
-    );
-    return n ?? 0;
   }
 }
