@@ -74,6 +74,8 @@ const levelOptions = PROGRAM_LEVELS.map((level) => ({
   label: level,
 }));
 
+const PAGE_SIZE = 50;
+
 export default function ProgramsPage() {
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -83,6 +85,7 @@ export default function ProgramsPage() {
   const [search, setSearch] = useState('');
   const [filterCountryId, setFilterCountryId] = useState('');
   const [filterFieldId, setFilterFieldId] = useState('');
+  const [offset, setOffset] = useState(0);
   const [form, setForm] = useState<ProgramForm>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -113,7 +116,8 @@ export default function ProgramsPage() {
         q: search.trim() || undefined,
         countryId: filterCountryId || undefined,
         fieldId: filterFieldId || undefined,
-        limit: 200,
+        limit: PAGE_SIZE,
+        offset,
       });
       setPrograms(response.items);
       setTotal(response.total);
@@ -134,7 +138,7 @@ export default function ProgramsPage() {
     }, 300);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, filterCountryId, filterFieldId]);
+  }, [search, filterCountryId, filterFieldId, offset]);
 
   const countryName = useMemo(() => {
     const map = new Map<string, string>();
@@ -446,7 +450,10 @@ export default function ProgramsPage() {
               Search
               <input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setOffset(0);
+                }}
                 placeholder="Name or level…"
                 style={inputStyle}
               />
@@ -455,7 +462,10 @@ export default function ProgramsPage() {
               Country
               <select
                 value={filterCountryId}
-                onChange={(event) => setFilterCountryId(event.target.value)}
+                onChange={(event) => {
+                  setFilterCountryId(event.target.value);
+                  setOffset(0);
+                }}
                 style={inputStyle}
               >
                 <option value="">All countries</option>
@@ -470,7 +480,10 @@ export default function ProgramsPage() {
               Field
               <select
                 value={filterFieldId}
-                onChange={(event) => setFilterFieldId(event.target.value)}
+                onChange={(event) => {
+                  setFilterFieldId(event.target.value);
+                  setOffset(0);
+                }}
                 style={inputStyle}
               >
                 <option value="">All fields</option>
@@ -482,9 +495,52 @@ export default function ProgramsPage() {
               </select>
             </label>
           </div>
-          <p style={mutedTextStyle}>
-            Showing {programs.length} of {total} program(s).
-          </p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <p style={{ ...mutedTextStyle, margin: 0 }}>
+              {total === 0
+                ? 'No programs match the current filters.'
+                : `Showing ${offset + 1}–${offset + programs.length} of ${total} program(s).`}
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                type="button"
+                onClick={() =>
+                  setOffset((current) => Math.max(0, current - PAGE_SIZE))
+                }
+                disabled={offset === 0}
+                style={{
+                  ...secondaryButtonStyle,
+                  padding: '8px 12px',
+                  opacity: offset === 0 ? 0.5 : 1,
+                  cursor: offset === 0 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffset((current) => current + PAGE_SIZE)}
+                disabled={offset + PAGE_SIZE >= total}
+                style={{
+                  ...secondaryButtonStyle,
+                  padding: '8px 12px',
+                  opacity: offset + PAGE_SIZE >= total ? 0.5 : 1,
+                  cursor:
+                    offset + PAGE_SIZE >= total ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
           <div style={{ display: 'grid', gap: 12 }}>
             {programs.map((program) => (
               <div

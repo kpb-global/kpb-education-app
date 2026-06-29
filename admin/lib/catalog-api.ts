@@ -96,10 +96,46 @@ export interface CountryOption {
   isActive: boolean;
 }
 
+// Full back-office row (the writable subset the admin-catalog service maps).
+export interface CountryRow extends CountryOption {
+  taglineFr: string;
+  taglineEn: string;
+  whyStudyFr: string;
+  whyStudyEn: string;
+  tuitionRangeFr: string;
+  tuitionRangeEn: string;
+  livingCostRangeFr: string;
+  livingCostRangeEn: string;
+  visaOverviewFr: string;
+  visaOverviewEn: string;
+  admissionDifficultyFr: string;
+  admissionDifficultyEn: string;
+  popularFieldIds: string[];
+  displayOrder: number;
+}
+
 export interface FieldOption {
   id: string;
   nameFr: string;
   nameEn: string;
+}
+
+export interface FieldRow extends FieldOption {
+  descriptionFr: string;
+  descriptionEn: string;
+  subjectsFr: string[];
+  subjectsEn: string[];
+  careersFr: string[];
+  careersEn: string[];
+  dailyLifeFr: string[];
+  dailyLifeEn: string[];
+  skillsFr: string[];
+  skillsEn: string[];
+  personalityTraitsFr: string[];
+  personalityTraitsEn: string[];
+  relatedCountryIds: string[];
+  relatedScholarshipIds: string[];
+  accentColorHex: string | null;
 }
 
 interface ListResponse<T> {
@@ -149,11 +185,11 @@ export function fetchScholarships() {
 }
 
 export function fetchCountries() {
-  return apiFetch<ListResponse<CountryOption>>('/admin/catalog/countries');
+  return apiFetch<ListResponse<CountryRow>>('/admin/catalog/countries');
 }
 
 export function fetchFields() {
-  return apiFetch<ListResponse<FieldOption>>('/admin/catalog/fields');
+  return apiFetch<ListResponse<FieldRow>>('/admin/catalog/fields');
 }
 
 /** Textarea (one item per line) → trimmed, non-empty string array. */
