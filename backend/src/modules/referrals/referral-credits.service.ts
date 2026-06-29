@@ -45,16 +45,19 @@ export class ReferralCreditsService {
   /// with a UNIQUE dedupeKey, so a concurrent/retried call collides on insert
   /// (Prisma P2002) and no-ops. Runs via tryExecute (fire-and-forget) — a
   /// crediting failure must never roll back or block the student's case.
-  async creditReferrerForFirstCase(refereeId: string): Promise<void> {
-    await this.prisma.tryExecute(async (db) => {
+  /// Returns true iff THIS call minted a new credit (false on every no-op:
+  /// not-referred, not-first-case, already-credited, or no DB) — lets the
+  /// reconciliation cron count backfills without re-scanning the ledger.
+  async creditReferrerForFirstCase(refereeId: string): Promise<boolean> {
+    const minted = await this.prisma.tryExecute(async (db) => {
       const referral = await db.referral.findUnique({
         where: { refereeProfileId: refereeId },
         select: { id: true, referrerId: true },
       });
-      if (!referral) return; // referee was never referred — nothing to credit
+      if (!referral) return false; // referee was never referred — nothing to credit
 
       const caseCount = await db.case.count({ where: { userId: refereeId } });
-      if (caseCount !== 1) return; // only the FIRST case earns
+      if (caseCount !== 1) return false; // only the FIRST case earns
 
       try {
         await db.$transaction([
@@ -75,11 +78,13 @@ export class ReferralCreditsService {
         this.logger.log(
           `Referral credit: +${CREDITS_PER_REFERRAL} to ${referral.referrerId} (referral ${referral.id}).`,
         );
+        return true;
       } catch (error) {
-        if (isUniqueViolation(error)) return; // already credited — idempotent no-op
+        if (isUniqueViolation(error)) return false; // already credited — idempotent no-op
         throw error;
       }
     });
+    return minted ?? false;
   }
 
   /// Caller's credit balance + recent ledger entries.
