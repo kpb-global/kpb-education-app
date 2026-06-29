@@ -136,6 +136,8 @@ abstract class _AppControllerBase extends GetxController {
   // No-cash referral reward balance (KPB-77). Backend is the source of truth;
   // this is the last-synced value, persisted for cold-start display.
   int _reviewCredits = 0;
+  // Cases the student has already been prompted to review at admission (KPB-75).
+  final List<String> _reviewedCaseIds = <String>[];
   Map<String, List<String>> _completedRoadmapSteps = {};
   int pendingOrientationQuestionIndex = 0;
   bool isSubmittingOrientation = false;
@@ -163,6 +165,18 @@ abstract class _AppControllerBase extends GetxController {
   List<String> get searchHistory => List.unmodifiable(_searchHistory);
   List<String> get purchasedCourseIds => List.unmodifiable(_purchasedCourseIds);
   int get reviewCredits => _reviewCredits;
+
+  /// Whether the admission-milestone review prompt has already been shown for
+  /// this case (KPB-75) — so we ask at most once.
+  bool hasReviewedCase(String caseId) => _reviewedCaseIds.contains(caseId);
+
+  /// Mark a case's review prompt as handled (submitted or dismissed) + persist.
+  void markCaseReviewed(String caseId) {
+    if (_reviewedCaseIds.contains(caseId)) return;
+    _reviewedCaseIds.add(caseId);
+    _persist();
+  }
+
   Map<String, List<String>> get pendingOrientationAnswers =>
       Map.unmodifiable(_pendingOrientationAnswers);
 
@@ -228,6 +242,9 @@ abstract class _AppControllerBase extends GetxController {
       ..clear()
       ..addAll(snapshot.purchasedCourseIds);
     _reviewCredits = snapshot.reviewCredits;
+    _reviewedCaseIds
+      ..clear()
+      ..addAll(snapshot.reviewedCaseIds);
     _completedRoadmapSteps = Map.from(snapshot.completedRoadmapSteps);
     _caseLastReadAt
       ..clear()
@@ -1398,6 +1415,7 @@ abstract class _AppControllerBase extends GetxController {
         caseLastReadAt: _caseLastReadAt.map(
           (key, value) => MapEntry(key, value.toIso8601String()),
         ),
+        reviewedCaseIds: _reviewedCaseIds,
       );
 
   void _persist() {

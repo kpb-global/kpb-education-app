@@ -26,6 +26,22 @@ export interface ImpactStats {
   generatedAt: string;
 }
 
+/// A single published counsellor review, reduced to public-safe fields only.
+/// PII columns (reviewerUserId, caseId) are deliberately never exposed.
+export interface PublishedReview {
+  id: string;
+  counsellorId: string;
+  reviewerName: string;
+  rating: number;
+  body: string;
+  createdAt: string;
+}
+
+export interface PublishedReviews {
+  reviews: PublishedReview[];
+  count: number;
+}
+
 @Injectable()
 export class ImpactService {
   constructor(private readonly prisma: PrismaService) {}
@@ -90,5 +106,43 @@ export class ImpactService {
       reviewsCount,
       generatedAt: new Date().toISOString(),
     };
+  }
+
+  /// Top published counsellor reviews for the public social-proof carousel.
+  ///
+  /// Only `isPublished` reviews are returned, newest first, capped at [limit].
+  /// The Prisma `select` enumerates public-safe fields only — reviewerUserId
+  /// and caseId are never selected, so no PII can leak to the client. Degrades
+  /// to an empty list (never fabricated reviews) when the DB is unavailable.
+  async getPublishedReviews(limit = 10): Promise<PublishedReviews> {
+    const rows = await this.prisma.tryExecute((db) =>
+      db.counsellorReview.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        select: {
+          id: true,
+          counsellorId: true,
+          reviewerName: true,
+          rating: true,
+          body: true,
+          createdAt: true,
+        },
+      }),
+    );
+
+    const reviews: PublishedReview[] = (rows ?? []).map((r) => ({
+      id: r.id,
+      counsellorId: r.counsellorId,
+      reviewerName: r.reviewerName,
+      rating: r.rating,
+      body: r.body,
+      createdAt:
+        r.createdAt instanceof Date
+          ? r.createdAt.toISOString()
+          : String(r.createdAt),
+    }));
+
+    return { reviews, count: reviews.length };
   }
 }

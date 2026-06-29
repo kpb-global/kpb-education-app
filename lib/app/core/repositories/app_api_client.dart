@@ -98,6 +98,14 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Top published counsellor reviews for the Home social-proof carousel.
+  /// Returns `{reviews: [{id, counsellorId, reviewerName, rating, body,
+  /// createdAt}, ...], count}`. Public endpoint — no auth required.
+  Future<Map<String, dynamic>> getPublishedReviews() async {
+    final response = await _dio.get<Map<String, dynamic>>('/impact/reviews');
+    return response.data ?? <String, dynamic>{};
+  }
+
   /// Attribute the caller to the owner of [code]. Returns
   /// `{attributed, alreadyReferred}`.
   Future<Map<String, dynamic>> redeemReferral(String code) async {
@@ -560,6 +568,26 @@ class AppApiClient {
       '/counsellors/$counsellorId',
     );
     return response.data ?? <String, dynamic>{};
+  }
+
+  /// Submit an admission-milestone review for a counsellor (KPB-75). Enters
+  /// moderation (isPublished=false) until an admin publishes it.
+  Future<void> submitCounsellorReview({
+    required String counsellorId,
+    required int rating,
+    required String body,
+    required String reviewerName,
+    String? caseId,
+  }) async {
+    await _dio.post<void>(
+      '/counsellors/${Uri.encodeComponent(counsellorId)}/reviews',
+      data: {
+        'rating': rating,
+        'body': body,
+        'reviewerName': reviewerName,
+        if (caseId != null) 'caseId': caseId,
+      },
+    );
   }
 
   // ── Phase 3 — Service packages ("Dossier prêt" + kits) ────────────────────

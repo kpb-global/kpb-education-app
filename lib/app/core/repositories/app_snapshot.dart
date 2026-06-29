@@ -31,6 +31,7 @@ class AppSnapshot {
     this.onboardingStep = 0,
     this.onboardingSkipped = false,
     this.caseLastReadAt = const {},
+    this.reviewedCaseIds = const [],
   });
 
   /// Local profile edits not yet confirmed by PATCH `/profiles/me`; avoids overwriting on sync.
@@ -67,6 +68,10 @@ class AppSnapshot {
   final int onboardingStep;
   final bool onboardingSkipped;
   final Map<String, String> caseLastReadAt;
+
+  /// Case ids the student has already been prompted to review at admission
+  /// (KPB-75) — so the rating prompt is shown at most once per case.
+  final List<String> reviewedCaseIds;
 
   factory AppSnapshot.initial() {
     return const AppSnapshot(

@@ -79,6 +79,7 @@ class LocalAppRepository implements AppRepository {
       onboardingStep: json['onboardingStep'] as int? ?? 0,
       onboardingSkipped: json['onboardingSkipped'] as bool? ?? false,
       caseLastReadAt: _stringMap(json['caseLastReadAt']),
+      reviewedCaseIds: _stringList(json['reviewedCaseIds']),
     );
   }
 
@@ -115,6 +116,7 @@ class LocalAppRepository implements AppRepository {
       'onboardingStep': snapshot.onboardingStep,
       'onboardingSkipped': snapshot.onboardingSkipped,
       'caseLastReadAt': snapshot.caseLastReadAt,
+      'reviewedCaseIds': snapshot.reviewedCaseIds,
     };
     await _preferences.setString(_storageKey, jsonEncode(json));
   }
@@ -299,6 +301,7 @@ class LocalAppRepository implements AppRepository {
       'assignedAdvisorName': caseItem.assignedAdvisorName,
       'advisorPhone': caseItem.advisorPhone,
       'advisorWhatsapp': caseItem.advisorWhatsapp,
+      'counsellorId': caseItem.counsellorId,
       'scheduledAt': caseItem.scheduledAt?.toIso8601String(),
       'parentCanView': caseItem.parentCanView,
     };
@@ -345,6 +348,7 @@ class LocalAppRepository implements AppRepository {
       assignedAdvisorName: json['assignedAdvisorName'] as String?,
       advisorPhone: json['advisorPhone'] as String?,
       advisorWhatsapp: json['advisorWhatsapp'] as String?,
+      counsellorId: json['counsellorId'] as String?,
       scheduledAt: DateTime.tryParse(json['scheduledAt'] as String? ?? ''),
       parentCanView: json['parentCanView'] as bool? ?? false,
     );

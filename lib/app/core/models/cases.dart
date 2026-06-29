@@ -96,6 +96,7 @@ class StudentCase {
     this.assignedAdvisorName,
     this.advisorPhone,
     this.advisorWhatsapp,
+    this.counsellorId,
     this.scheduledAt,
     this.parentCanView = false,
   });
@@ -118,6 +119,12 @@ class StudentCase {
   final String? assignedAdvisorName;
   final String? advisorPhone;
   final String? advisorWhatsapp;
+
+  /// Marketplace counsellor id (Track B), when one is assigned. Null for cases
+  /// handled by a free-text advisor. Used to attribute an admission-milestone
+  /// review to the right counsellor (KPB-75).
+  final String? counsellorId;
+
   final DateTime? scheduledAt;
 
   /// Whether the student has opted into sharing this case with a linked parent.
@@ -143,6 +150,7 @@ class StudentCase {
     String? assignedAdvisorName,
     String? advisorPhone,
     String? advisorWhatsapp,
+    String? counsellorId,
     DateTime? scheduledAt,
     bool? parentCanView,
   }) {
@@ -165,6 +173,7 @@ class StudentCase {
       assignedAdvisorName: assignedAdvisorName ?? this.assignedAdvisorName,
       advisorPhone: advisorPhone ?? this.advisorPhone,
       advisorWhatsapp: advisorWhatsapp ?? this.advisorWhatsapp,
+      counsellorId: counsellorId ?? this.counsellorId,
       scheduledAt: scheduledAt ?? this.scheduledAt,
       parentCanView: parentCanView ?? this.parentCanView,
     );
