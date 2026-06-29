@@ -12,9 +12,13 @@ services:
       - "127.0.0.1:3000:3000" # Expose only to localhost, let Nginx proxy it
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-kpb}?schema=public
-      - JWT_SECRET=${JWT_SECRET:-your_dev_jwt_secret}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-kpb}?schema=public
+      # Auth secrets — the API refuses to boot in production without these, and
+      # the `:?` guards make `docker compose up` fail fast instead of silently
+      # falling back to a weak default. Names must match what the app reads.
+      - KPB_JWT_SECRET=${KPB_JWT_SECRET:?KPB_JWT_SECRET must be set}
+      - KPB_JWT_REFRESH_SECRET=${KPB_JWT_REFRESH_SECRET:?KPB_JWT_REFRESH_SECRET must be set}
+      - KPB_ADMIN_REFRESH_SECRET=${KPB_ADMIN_REFRESH_SECRET:?KPB_ADMIN_REFRESH_SECRET must be set}
     depends_on:
       db:
         condition: service_healthy # Wait for DB to be genuinely ready
@@ -27,7 +31,7 @@ services:
       - "127.0.0.1:5432:5432" # Secure port
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       POSTGRES_DB: ${POSTGRES_DB:-kpb}
     volumes:
       - kpb-db-data:/var/lib/postgresql/data
