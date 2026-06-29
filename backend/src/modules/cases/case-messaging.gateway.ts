@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 import { StudentAuthService } from '../auth/student-auth.service';
@@ -31,6 +31,9 @@ export class CaseMessagingGateway
 
   constructor(
     private readonly studentAuthService: StudentAuthService,
+    // Circular: CasesService reaches this gateway via ModuleRef to emit events,
+    // and this gateway injects CasesService — forwardRef breaks the cycle.
+    @Inject(forwardRef(() => CasesService))
     private readonly casesService: CasesService,
     private readonly pushService: OneSignalSenderService,
   ) {}
