@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { Alert, Badge, Card } from '../../components/ui';
 import { apiFetch } from '../../lib/api-client';
-import { badgeStyle, mutedTextStyle, panelStyle } from '../../lib/ui';
+import { mutedTextStyle } from '../../lib/ui';
 
 interface FunnelRow {
   label: string;
@@ -35,18 +36,28 @@ function ReportSection({
   rows,
 }: Readonly<{ title: string; rows: PerformanceRow[] }>) {
   return (
-    <section style={panelStyle}>
+    <Card>
       <h3 style={{ marginTop: 0 }}>{title}</h3>
-      <div style={{ display: 'grid', gap: 12 }}>
+      <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
         {rows.map((row) => (
-          <div key={`${title}-${row.label}`} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+          <div
+            key={`${title}-${row.label}`}
+            style={{
+              borderTop: '1px solid var(--border)',
+              paddingTop: 'var(--space-3)',
+              display: 'grid',
+              gap: 'var(--space-2)',
+            }}
+          >
             <strong>{row.label}</strong>
-            <p style={{ margin: '6px 0' }}>{row.value}</p>
-            <span style={badgeStyle}>{row.secondary}</span>
+            <p style={{ margin: 0 }}>{row.value}</p>
+            <span>
+              <Badge variant="neutral">{row.secondary}</Badge>
+            </span>
           </div>
         ))}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -102,14 +113,10 @@ export default function ReportsPage() {
 
   return (
     <DashboardShell title="Reports">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <section style={panelStyle}>
+        <Card>
           <h3 style={{ marginTop: 0 }}>Funnel</h3>
           <p style={mutedTextStyle}>
             Live pipeline view from lead capture to paid service conversion.
@@ -117,27 +124,29 @@ export default function ReportsPage() {
           <div
             style={{
               display: 'grid',
-              gap: 12,
+              gap: 'var(--space-3)',
               gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             }}
           >
             {funnel.map((row) => (
-              <div key={row.label} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+              <div
+                key={row.label}
+                style={{
+                  borderTop: '1px solid var(--border)',
+                  paddingTop: 'var(--space-3)',
+                }}
+              >
                 <strong>{row.label}</strong>
-                <p style={{ marginBottom: 0, fontSize: 26 }}>{row.value}</p>
+                <p style={{ marginBottom: 0, fontSize: 'var(--text-2xl)' }}>
+                  {row.value}
+                </p>
               </div>
             ))}
           </div>
-        </section>
+        </Card>
 
-        <ReportSection
-          title="Counselor performance"
-          rows={counselorPerformance}
-        />
-        <ReportSection
-          title="Notification campaigns"
-          rows={campaignPerformance}
-        />
+        <ReportSection title="Counselor performance" rows={counselorPerformance} />
+        <ReportSection title="Notification campaigns" rows={campaignPerformance} />
       </div>
     </DashboardShell>
   );

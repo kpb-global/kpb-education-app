@@ -84,9 +84,25 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
-    const text = await response.text().catch(() => '');
+    const raw = await response.text().catch(() => '');
+    // NestJS errors come back as {statusCode, message, ...} where message is a
+    // string or string[]. Surface that clean message instead of the raw JSON
+    // blob (operators were seeing `{"statusCode":503,"message":...}`).
+    let message = raw;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { message?: unknown };
+        if (Array.isArray(parsed.message)) {
+          message = parsed.message.filter(Boolean).join(', ');
+        } else if (typeof parsed.message === 'string' && parsed.message) {
+          message = parsed.message;
+        }
+      } catch {
+        // Body was not JSON — keep the raw text as-is.
+      }
+    }
     const error = new Error(
-      text || `Request failed with status ${response.status}`,
+      message || `Request failed with status ${response.status}`,
     ) as Error & { status?: number };
     error.status = response.status;
     throw error;

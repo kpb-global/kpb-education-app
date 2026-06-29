@@ -81,42 +81,13 @@ async function main() {
     });
   }
 
-  for (const country of mockCatalog.countries as any[]) {
-    await prisma.country.upsert({
-      where: { id: country.id },
-      update: {
-        nameFr: country.name.fr,
-        nameEn: country.name.en,
-        whyStudyFr: country.whyStudy?.fr ?? '',
-        whyStudyEn: country.whyStudy?.en ?? '',
-        tuitionRangeFr: country.tuitionRange?.fr ?? '',
-        tuitionRangeEn: country.tuitionRange?.en ?? '',
-        livingCostRangeFr: country.livingCostRange?.fr ?? '',
-        livingCostRangeEn: country.livingCostRange?.en ?? '',
-        visaOverviewFr: country.visaOverview?.fr ?? '',
-        visaOverviewEn: country.visaOverview?.en ?? '',
-        admissionDifficultyFr: country.admissionDifficulty?.fr ?? '',
-        admissionDifficultyEn: country.admissionDifficulty?.en ?? '',
-        popularFieldIds: country.popularFieldIds ?? [],
-      },
-      create: {
-        id: country.id,
-        nameFr: country.name.fr,
-        nameEn: country.name.en,
-        whyStudyFr: country.whyStudy?.fr ?? '',
-        whyStudyEn: country.whyStudy?.en ?? '',
-        tuitionRangeFr: country.tuitionRange?.fr ?? '',
-        tuitionRangeEn: country.tuitionRange?.en ?? '',
-        livingCostRangeFr: country.livingCostRange?.fr ?? '',
-        livingCostRangeEn: country.livingCostRange?.en ?? '',
-        visaOverviewFr: country.visaOverview?.fr ?? '',
-        visaOverviewEn: country.visaOverview?.en ?? '',
-        admissionDifficultyFr: country.admissionDifficulty?.fr ?? '',
-        admissionDifficultyEn: country.admissionDifficulty?.en ?? '',
-        popularFieldIds: country.popularFieldIds ?? [],
-      },
-    });
-  }
+  // Countries are owned by `seed:countries-m5` (run via `seed:catalog`), which
+  // seeds the active ISO-coded destinations (can, fra, deu, ...) with the full
+  // marketing content and the required unique `code`. We deliberately do NOT
+  // upsert countries from mockCatalog here: doing so would either fail on a
+  // fresh M5 schema (Country.code is required & unique) or clobber the rich M5
+  // content with the sparse demo copy. The demo institutions/programs below
+  // reference those ISO ids.
 
   for (const param of mockCatalog.institutions as any[]) {
     await prisma.institution.upsert({

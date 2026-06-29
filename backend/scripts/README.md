@@ -40,6 +40,24 @@ Total attendu en base : **~825 programmes** (747 OMNES + 76 partenaires).
 npm --prefix backend run seed:partners
 ```
 
+## 5) Verify catalog country references
+
+```bash
+npm --prefix backend run verify:catalog
+```
+
+Checks that every destination country reference points to an **active**
+`Country` — `Institution.countryId`, `Program.countryId`,
+`SupportDestination.countryId` and `ServiceOffer.destinationIds[]` (these are
+plain indexes, not FKs, so nothing enforces this in the DB). Exits non-zero on
+any orphan — safe to use as a CI gate after a seed. Scholarships are excluded on
+purpose: a scholarship may target a country KPB does not actively place students
+in (e.g. Japan).
+
+> Note: countries are owned by `seed:countries-m5` (run via `seed:catalog`).
+> `prisma:seed` no longer upserts countries — doing so would clobber the rich M5
+> content or fail on the required unique `Country.code`.
+
 ## Prerequisites
 
 - `DATABASE_URL` must be exported in your shell before running `seed:countries`.

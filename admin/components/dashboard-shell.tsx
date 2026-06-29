@@ -44,8 +44,8 @@ export function DashboardShell({
           minHeight: '100vh',
           display: 'grid',
           placeItems: 'center',
-          background: '#F4F7FB',
-          color: '#334155',
+          background: 'var(--bg)',
+          color: 'var(--text-muted)',
         }}
       >
         {t('shell.loading')}
@@ -55,9 +55,13 @@ export function DashboardShell({
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 260px) 1fr', minHeight: '100vh' }}>
+      <a className="kpb-skip-link" href="#main">
+        {t('shell.skipToContent')}
+      </a>
       <aside
+        className="kpb-sidebar"
         style={{
-          background: '#122033',
+          background: 'var(--ink)',
           color: '#fff',
           padding: '32px 20px',
         }}
@@ -77,18 +81,23 @@ export function DashboardShell({
             {session.user.role} • {session.user.email}
           </span>
         </div>
-        <nav style={{ display: 'grid', gap: 12, marginTop: 28 }}>
+        <nav
+          aria-label={t('shell.primaryNav')}
+          style={{ display: 'grid', gap: 12, marginTop: 28 }}
+        >
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? 'page' : undefined}
               style={{
                 padding: '12px 14px',
-                borderRadius: 14,
+                borderRadius: 'var(--radius-md)',
                 background:
                   pathname === link.href
-                    ? 'rgba(255,255,255,0.16)'
+                    ? 'var(--brand)'
                     : 'rgba(255,255,255,0.06)',
+                fontWeight: pathname === link.href ? 700 : 400,
               }}
             >
               {t(link.labelKey)}
@@ -99,13 +108,15 @@ export function DashboardShell({
           <button
             type="button"
             onClick={() => setLocale('fr')}
+            aria-pressed={locale === 'fr'}
+            aria-label={t('shell.switchToFrench')}
             style={{
               flex: 1,
               padding: '8px 10px',
               borderRadius: 10,
               border: 'none',
               background:
-                locale === 'fr' ? '#F97316' : 'rgba(255,255,255,0.10)',
+                locale === 'fr' ? '#C2410C' : 'rgba(255,255,255,0.10)',
               color: '#fff',
               cursor: 'pointer',
               fontWeight: 600,
@@ -116,13 +127,15 @@ export function DashboardShell({
           <button
             type="button"
             onClick={() => setLocale('en')}
+            aria-pressed={locale === 'en'}
+            aria-label={t('shell.switchToEnglish')}
             style={{
               flex: 1,
               padding: '8px 10px',
               borderRadius: 10,
               border: 'none',
               background:
-                locale === 'en' ? '#F97316' : 'rgba(255,255,255,0.10)',
+                locale === 'en' ? '#C2410C' : 'rgba(255,255,255,0.10)',
               color: '#fff',
               cursor: 'pointer',
               fontWeight: 600,
@@ -142,7 +155,7 @@ export function DashboardShell({
             border: 'none',
             borderRadius: 14,
             padding: '12px 14px',
-            background: '#F97316',
+            background: '#C2410C',
             color: '#fff',
             cursor: 'pointer',
             fontWeight: 600,
@@ -151,9 +164,11 @@ export function DashboardShell({
           {t('shell.logout')}
         </button>
       </aside>
-      <main style={{ padding: 28, background: '#F4F7FB' }}>
+      <main id="main" style={{ padding: 28, background: 'var(--bg)' }}>
         <h2 style={{ marginTop: 0, marginBottom: 8 }}>{title}</h2>
-        <p style={{ marginTop: 0, color: '#64748b' }}>{t('shell.description')}</p>
+        <p style={{ marginTop: 0, color: 'var(--text-muted)' }}>
+          {t('shell.description')}
+        </p>
         {children}
       </main>
     </div>

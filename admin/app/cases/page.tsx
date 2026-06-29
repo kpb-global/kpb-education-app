@@ -4,17 +4,19 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
-import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  softPanelStyle,
-  textareaStyle,
-} from '../../lib/ui';
+  Alert,
+  Button,
+  Card,
+  ConfirmDialog,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Textarea,
+} from '../../components/ui';
+import { apiFetch } from '../../lib/api-client';
+import { mutedTextStyle, softPanelStyle } from '../../lib/ui';
 
 interface CaseTaskItem {
   id: string;
@@ -57,14 +59,34 @@ interface AdminCaseItem {
   timeline: CaseTimelineItem[];
 }
 
-const visibleStatuses = ['submitted', 'documents_needed', 'counselor_assigned', 'in_progress', 'application_submitted', 'completed'];
+const visibleStatuses = [
+  'submitted',
+  'documents_needed',
+  'counselor_assigned',
+  'in_progress',
+  'application_submitted',
+  'completed',
+];
 
 const allStatuses = [
-  'draft', 'submitted', 'under_review', 'documents_needed', 
-  'counselor_assigned', 'awaiting_student', 'scheduled', 
-  'in_progress', 'application_submitted', 'waiting_decision', 
-  'awaiting_payment', 'completed', 'rejected', 'cancelled'
+  'draft',
+  'submitted',
+  'under_review',
+  'documents_needed',
+  'counselor_assigned',
+  'awaiting_student',
+  'scheduled',
+  'in_progress',
+  'application_submitted',
+  'waiting_decision',
+  'awaiting_payment',
+  'completed',
+  'rejected',
+  'cancelled',
 ];
+
+// Setting a case to one of these is consequential — confirm before applying.
+const DESTRUCTIVE_STATUSES = new Set(['rejected', 'cancelled']);
 
 export default function CasesPage() {
   const { session } = useAdminAuth();
@@ -72,6 +94,8 @@ export default function CasesPage() {
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [savingStatus, setSavingStatus] = useState(false);
+  const [confirmStatus, setConfirmStatus] = useState(false);
   const [assignForm, setAssignForm] = useState({
     assignedAdvisorName: '',
     assignedAdvisorPhone: '',
@@ -173,14 +197,13 @@ export default function CasesPage() {
     }
   }
 
-  async function submitStatus(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function applyStatus() {
     if (!selectedCase) {
       return;
     }
-
     setStatusMessage(null);
     setErrorMessage(null);
+    setSavingStatus(true);
     try {
       await apiFetch(`/admin/cases/${selectedCase.id}`, {
         method: 'PATCH',
@@ -189,12 +212,30 @@ export default function CasesPage() {
         },
       });
       setStatusMessage('Case status updated successfully.');
+      setConfirmStatus(false);
       await loadCases();
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to update case status.',
       );
+    } finally {
+      setSavingStatus(false);
     }
+  }
+
+  function submitStatus(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedCase) {
+      return;
+    }
+    if (
+      DESTRUCTIVE_STATUSES.has(statusForm.status) &&
+      statusForm.status !== selectedCase.status
+    ) {
+      setConfirmStatus(true);
+      return;
+    }
+    void applyStatus();
   }
 
   async function submitTask(event: FormEvent<HTMLFormElement>) {
@@ -263,23 +304,15 @@ export default function CasesPage() {
 
   return (
     <DashboardShell title="Cases">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+      <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
         <div
           style={{
             display: 'grid',
-            gap: 16,
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 'var(--space-4)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           }}
         >
           {visibleStatuses.map((status) => (
@@ -287,29 +320,39 @@ export default function CasesPage() {
               <h3 style={{ marginTop: 0, textTransform: 'capitalize' }}>
                 {status.replaceAll('_', ' ')}
               </h3>
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 {cases
                   .filter((item) => item.status === status)
                   .map((item) => (
                     <button
                       key={item.id}
+                      type="button"
                       onClick={() => setSelectedCaseId(item.id)}
+                      aria-pressed={selectedCaseId === item.id}
+                      aria-label={`${item.referenceCode} — ${item.studentName}`}
                       style={{
                         textAlign: 'left',
-                        border: selectedCaseId === item.id ? '2px solid #1D4ED8' : 'none',
-                        borderRadius: 18,
-                        padding: 16,
-                        background: '#fff',
-                        boxShadow: '0 12px 32px rgba(18,32,51,0.06)',
+                        border:
+                          selectedCaseId === item.id
+                            ? '2px solid var(--brand)'
+                            : '1px solid var(--border)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-3)',
+                        background: 'var(--surface)',
+                        boxShadow: 'var(--shadow-sm)',
                         cursor: 'pointer',
+                        display: 'grid',
+                        gap: 'var(--space-1)',
                       }}
                     >
                       <strong>{item.referenceCode}</strong>
-                      <p style={{ marginBottom: 6 }}>{item.studentName}</p>
-                      <p style={{ margin: '6px 0', color: '#64748b' }}>
+                      <span>{item.studentName}</span>
+                      <span style={{ ...mutedTextStyle, fontSize: 'var(--text-xs)' }}>
                         {item.type} • {item.contextLabel} • {item.preferredLanguage}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>{item.nextStepTitle}</p>
+                      </span>
+                      <span style={{ fontSize: 'var(--text-sm)' }}>
+                        {item.nextStepTitle}
+                      </span>
                     </button>
                   ))}
               </div>
@@ -318,14 +361,22 @@ export default function CasesPage() {
         </div>
 
         {selectedCase ? (
-          <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1.15fr 0.85fr' }}>
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-              <div>
-                <h3 style={{ marginTop: 0 }}>{selectedCase.referenceCode}</h3>
-                <p style={{ margin: '6px 0' }}>
+          <div
+            style={{
+              display: 'grid',
+              gap: 'var(--space-5)',
+              gridTemplateColumns: '1.15fr 0.85fr',
+            }}
+          >
+            <Card style={{ display: 'grid', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
+                <h3 style={{ margin: 0 }}>{selectedCase.referenceCode}</h3>
+                <span style={mutedTextStyle}>
                   {selectedCase.studentName} • {selectedCase.studentEmail}
-                </p>
-                <span style={badgeStyle}>{selectedCase.status}</span>
+                </span>
+                <span>
+                  <StatusBadge status={selectedCase.status} />
+                </span>
               </div>
               <div>
                 <strong>Next step</strong>
@@ -335,239 +386,289 @@ export default function CasesPage() {
               </div>
               <div>
                 <strong>Timeline</strong>
-                <div style={{ display: 'grid', gap: 12, marginTop: 10 }}>
+                <div style={{ display: 'grid', gap: 'var(--space-3)', marginTop: 10 }}>
                   {selectedCase.timeline.map((item) => (
-                    <div key={item.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                    <div
+                      key={item.id}
+                      style={{
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: 'var(--space-3)',
+                        display: 'grid',
+                        gap: 'var(--space-2)',
+                      }}
+                    >
                       <strong>{item.title}</strong>
-                      <p style={{ margin: '6px 0' }}>{item.description}</p>
-                      <span style={badgeStyle}>{item.status}</span>
+                      <p style={{ margin: 0 }}>{item.description}</p>
+                      <span>
+                        <StatusBadge status={item.status} />
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
                 <strong>Internal notes</strong>
-                <div style={{ display: 'grid', gap: 12, marginTop: 10 }}>
+                <div style={{ display: 'grid', gap: 'var(--space-3)', marginTop: 10 }}>
                   {selectedCase.internalNotes.map((item) => (
-                    <div key={item.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                    <div
+                      key={item.id}
+                      style={{
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: 'var(--space-3)',
+                      }}
+                    >
                       <strong>
                         {item.authorName} • {item.authorRole}
                       </strong>
-                      <p style={{ margin: '6px 0' }}>{item.body}</p>
+                      <p style={{ margin: '6px 0 0' }}>{item.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            </section>
+            </Card>
 
-            <div style={{ display: 'grid', gap: 18 }}>
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Update Status</h3>
-                <form onSubmit={submitStatus} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Status
-                    <select
-                      value={statusForm.status}
-                      onChange={(event) =>
-                        setStatusForm({ status: event.target.value })
-                      }
-                      style={inputStyle}
-                    >
-                      {allStatuses.map((s) => (
-                        <option key={s} value={s}>
-                          {s.replaceAll('_', ' ')}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button type="submit" style={buttonStyle}>
+            <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+              <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                <h3 style={{ marginTop: 0 }}>Update status</h3>
+                <form onSubmit={submitStatus} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                  <Field label="Status">
+                    {({ id }) => (
+                      <Select
+                        id={id}
+                        value={statusForm.status}
+                        onChange={(event) =>
+                          setStatusForm({ status: event.target.value })
+                        }
+                      >
+                        {allStatuses.map((s) => (
+                          <option key={s} value={s}>
+                            {s.replaceAll('_', ' ')}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </Field>
+                  <Button type="submit" loading={savingStatus}>
                     Update status
-                  </button>
+                  </Button>
                 </form>
-              </section>
+              </Card>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+              <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 <h3 style={{ marginTop: 0 }}>Assign counselor</h3>
-                <form onSubmit={submitAssignment} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Advisor name
-                    <input
-                      value={assignForm.assignedAdvisorName}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorName: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Phone
-                    <input
-                      value={assignForm.assignedAdvisorPhone}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorPhone: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    WhatsApp
-                    <input
-                      value={assignForm.assignedAdvisorWhatsapp}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorWhatsapp: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Next step title
-                    <input
-                      value={assignForm.nextStepTitle}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          nextStepTitle: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Next step description
-                    <textarea
-                      value={assignForm.nextStepDescription}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          nextStepDescription: event.target.value,
-                        }))
-                      }
-                      style={textareaStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Scheduled at
-                    <input
-                      type="datetime-local"
-                      value={assignForm.scheduledAt}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          scheduledAt: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Save assignment
-                  </button>
+                <form onSubmit={submitAssignment} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                  <Field label="Advisor name">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.assignedAdvisorName}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            assignedAdvisorName: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Phone">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.assignedAdvisorPhone}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            assignedAdvisorPhone: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="WhatsApp">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.assignedAdvisorWhatsapp}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            assignedAdvisorWhatsapp: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Next step title">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.nextStepTitle}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            nextStepTitle: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Next step description">
+                    {({ id }) => (
+                      <Textarea
+                        id={id}
+                        value={assignForm.nextStepDescription}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            nextStepDescription: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Scheduled at">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="datetime-local"
+                        value={assignForm.scheduledAt}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            scheduledAt: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">Save assignment</Button>
                 </form>
-              </section>
+              </Card>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+              <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 <h3 style={{ marginTop: 0 }}>Create task</h3>
-                <form onSubmit={submitTask} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Task title
-                    <input
-                      value={taskForm.title}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          title: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Assignee name
-                    <input
-                      value={taskForm.assigneeName}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          assigneeName: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Assignee role
-                    <input
-                      value={taskForm.assigneeRole}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          assigneeRole: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Due at
-                    <input
-                      type="datetime-local"
-                      value={taskForm.dueAt}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          dueAt: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Add task
-                  </button>
+                <form onSubmit={submitTask} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                  <Field label="Task title">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.title}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            title: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Assignee name">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.assigneeName}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            assigneeName: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Assignee role">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.assigneeRole}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            assigneeRole: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label="Due at">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="datetime-local"
+                        value={taskForm.dueAt}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            dueAt: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">Add task</Button>
                 </form>
-                <div style={{ display: 'grid', gap: 12 }}>
+                <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
                   {selectedCase.tasks.map((task) => (
-                    <div key={task.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                      <strong>{task.title}</strong>
-                      <p style={{ margin: '6px 0' }}>
-                        {task.assigneeName ?? 'Unassigned'} • {task.status}
-                      </p>
+                    <div
+                      key={task.id}
+                      style={{
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: 'var(--space-3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <span>
+                        <strong>{task.title}</strong>
+                        <span style={{ ...mutedTextStyle, marginLeft: 8 }}>
+                          {task.assigneeName ?? 'Unassigned'}
+                        </span>
+                      </span>
+                      <StatusBadge status={task.status} />
                     </div>
                   ))}
                 </div>
-              </section>
+              </Card>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
+              <Card style={{ display: 'grid', gap: 'var(--space-3)' }}>
                 <h3 style={{ marginTop: 0 }}>Add internal note</h3>
-                <form onSubmit={submitNote} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Note
-                    <textarea
-                      value={noteForm.body}
-                      onChange={(event) =>
-                        setNoteForm({ body: event.target.value })
-                      }
-                      style={textareaStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Save note
-                  </button>
+                <form onSubmit={submitNote} style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                  <Field label="Note">
+                    {({ id }) => (
+                      <Textarea
+                        id={id}
+                        value={noteForm.body}
+                        onChange={(event) => setNoteForm({ body: event.target.value })}
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">Save note</Button>
                 </form>
-              </section>
+              </Card>
             </div>
           </div>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={confirmStatus}
+        title={`Set this case to "${statusForm.status.replaceAll('_', ' ')}"?`}
+        description={
+          selectedCase
+            ? `Case ${selectedCase.referenceCode} for ${selectedCase.studentName} will be marked as ${statusForm.status.replaceAll('_', ' ')}.`
+            : undefined
+        }
+        confirmLabel="Apply"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={savingStatus}
+        onConfirm={() => void applyStatus()}
+        onCancel={() => setConfirmStatus(false)}
+      />
     </DashboardShell>
   );
 }

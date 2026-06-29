@@ -5,13 +5,13 @@ import { FormEvent, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { useLocale } from '../../components/locale-provider';
+import { Alert, Button, Field, Input } from '../../components/ui';
 
 export default function LoginPage() {
   const router = useRouter();
   const { isReady, login, session } = useAdminAuth();
   const { t } = useLocale();
-  const [email, setEmail] = useState('fatou@kpb.education');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,7 +27,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await login(email);
       router.replace('/');
     } catch (submissionError) {
       setError(
@@ -55,81 +55,40 @@ export default function LoginPage() {
         style={{
           width: '100%',
           maxWidth: 460,
-          background: '#fff',
-          borderRadius: 28,
+          background: 'var(--surface)',
+          borderRadius: 'var(--radius-lg)',
           padding: 32,
-          boxShadow: '0 24px 60px rgba(15,23,42,0.28)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
-        <p style={{ marginTop: 0, color: '#F97316', fontWeight: 700 }}>
+        <p style={{ marginTop: 0, color: 'var(--accent)', fontWeight: 700 }}>
           KPB Operations
         </p>
         <h1 style={{ marginTop: 0, marginBottom: 8 }}>{t('login.title')}</h1>
-        <p style={{ color: '#64748B', lineHeight: 1.6 }}>{t('login.subtitle')}</p>
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
-          <label style={{ display: 'grid', gap: 8 }}>
-            <span style={{ fontWeight: 600 }}>{t('login.emailLabel')}</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="fatou@kpb.education"
-              style={{
-                border: '1px solid #CBD5E1',
-                borderRadius: 14,
-                padding: '13px 14px',
-                fontSize: 15,
-              }}
-            />
-          </label>
-          <label style={{ display: 'grid', gap: 8 }}>
-            <span style={{ fontWeight: 600 }}>Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              style={{
-                border: '1px solid #CBD5E1',
-                borderRadius: 14,
-                padding: '13px 14px',
-                fontSize: 15,
-              }}
-            />
-          </label>
-          {error ? (
-            <div
-              style={{
-                borderRadius: 14,
-                background: '#FEF2F2',
-                color: '#B91C1C',
-                padding: '12px 14px',
-              }}
-            >
-              {error}
-            </div>
-          ) : null}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            style={{
-              border: 'none',
-              borderRadius: 14,
-              padding: '14px 16px',
-              background: '#122033',
-              color: '#fff',
-              fontWeight: 700,
-              cursor: isSubmitting ? 'wait' : 'pointer',
-            }}
-          >
-            {isSubmitting ? t('login.loading') : t('login.submit')}
-          </button>
-        </form>
-        <p style={{ marginBottom: 0, marginTop: 18, color: '#64748B' }}>
-          Demo accounts already seeded in the backend include
-          `fatou@kpb.education`, `amina@kpb.education`, and
-          `moussa@kpb.education`.
+        <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>
+          {t('login.subtitle')}
         </p>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'grid', gap: 'var(--space-4)' }}
+        >
+          <Field label={t('login.emailLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="fatou@kpb.education"
+                autoComplete="email"
+              />
+            )}
+          </Field>
+          {error ? <Alert variant="danger">{error}</Alert> : null}
+          <Button type="submit" loading={isSubmitting} block>
+            {isSubmitting ? t('login.loading') : t('login.submit')}
+          </Button>
+        </form>
       </div>
     </main>
   );

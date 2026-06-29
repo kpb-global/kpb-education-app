@@ -7,7 +7,11 @@
     "loading": "Chargement de l'espace admin…",
     "description": "Contenus mobiles, gestion des dossiers et workflows équipe depuis cet espace.",
     "logout": "Se déconnecter",
-    "language": "Langue"
+    "language": "Langue",
+    "primaryNav": "Navigation principale",
+    "skipToContent": "Aller au contenu",
+    "switchToFrench": "Passer en français",
+    "switchToEnglish": "Passer en anglais"
   },
   "nav": {
     "overview": "Tableau de bord",
@@ -36,5 +40,13 @@
     "activeStudents": "Étudiants actifs",
     "recentCases": "Dossiers récents",
     "noRecent": "Aucun dossier récent."
+  },
+  "errors": {
+    "title": "Une erreur est survenue",
+    "body": "Une erreur inattendue s'est produite. Vous pouvez réessayer ou contacter l'équipe plateforme si le problème persiste.",
+    "retry": "Réessayer",
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour au tableau de bord"
   }
 }

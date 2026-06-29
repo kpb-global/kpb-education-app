@@ -1,10 +1,76 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   KPB Admin — design tokens (single source of truth)
+   Consume via var(--token). lib/ui.ts and inline styles read these so that
+   brand, spacing, radius, type, and elevation live in exactly one place.
+   Dark mode later is a one-file [data-theme="dark"] override of this block.
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand — KPB blue. The single accent: primary actions, active state, focus, links. */
+  --brand: #004aad;
+  --brand-strong: #003a87; /* hover / pressed */
+  --brand-soft: #e6eef8; /* tinted background */
+  --brand-fg: #ffffff; /* text/icon on brand */
+
+  /* Surfaces & neutrals */
+  --bg: #f4f7fb; /* app background */
+  --surface: #ffffff; /* cards / panels */
+  --surface-2: #e9eef6; /* soft panel / secondary button */
+  --border: #cbd5e1;
+  --ink: #122033; /* sidebar surface + strongest text */
+
+  /* Text */
+  --text: #122033;
+  --text-muted: #475569; /* AA on --surface */
+  --text-on-ink: #ffffff;
+
+  /* Semantic status (bg / fg pairs) */
+  --success-bg: #ecfdf5;
+  --success-fg: #166534;
+  --warning-bg: #fef3c7;
+  --warning-fg: #92400e;
+  --danger-bg: #fef2f2;
+  --danger-fg: #b91c1c;
+  --info-bg: #eef2ff;
+  --info-fg: #4338ca;
+  --accent: #c2410c; /* single warm accent (AA on white) */
+
+  /* Spacing scale (4 / 8) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Type ramp */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+  /* Elevation */
+  --shadow-sm: 0 12px 32px rgba(18, 32, 51, 0.06);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.28);
+
+  /* Focus */
+  --focus-ring: var(--brand);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f7fafc;
-  color: #122033;
+  background: var(--bg);
+  color: var(--text);
 }
 
 * {
@@ -14,4 +80,34 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Visible keyboard focus on every interactive control (WCAG 2.4.7). */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* The sidebar is dark — use a light ring there so focus stays visible. */
+.kpb-sidebar :focus-visible {
+  outline-color: #fff;
+}
+
+/* Skip-to-content link: off-screen until focused. */
+.kpb-skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -48px;
+  z-index: 100;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--brand);
+  color: var(--brand-fg);
+  font-weight: 700;
+  transition: top 0.15s ease;
+}
+
+.kpb-skip-link:focus {
+  top: var(--space-3);
 }
