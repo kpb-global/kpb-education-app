@@ -58,3 +58,31 @@ describe('CasesService — createMessage role enforcement', () => {
     expect(result.senderRole).toBe('student');
   });
 });
+
+describe('CasesService — referral crediting is fire-and-forget (KPB-77)', () => {
+  it('still returns the created case even when crediting throws', async () => {
+    const prisma = {
+      isEnabled: true,
+      // create() awaits this and treats the result as the persisted case.
+      execute: async () => ({ id: 'case-1' }),
+    } as unknown as PrismaService;
+    const push = { sendToUser: async () => {} } as unknown as OneSignalSenderService;
+    // The credits service blows up — the case path must not.
+    const moduleRef = {
+      get: () => ({
+        creditReferrerForFirstCase: async () => {
+          throw new Error('boom');
+        },
+      }),
+    } as unknown as ModuleRef;
+
+    const svc = new CasesService(prisma, moduleRef, push);
+    (svc as any).mapDbCase = () => ({ id: 'case-1', assignedAdvisorName: 'KPB' });
+
+    const result = await svc.create(
+      { type: 'study_abroad', title: 'x', description: 'y' } as any,
+      'user-1',
+    );
+    expect(result.id).toBe('case-1');
+  });
+});

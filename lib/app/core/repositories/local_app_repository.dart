@@ -73,6 +73,7 @@ class LocalAppRepository implements AppRepository {
       pendingOrientationQuestionIndex:
           json['pendingOrientationQuestionIndex'] as int? ?? 0,
       purchasedCourseIds: _stringList(json['purchasedCourseIds']),
+      reviewCredits: (json['reviewCredits'] as num?)?.toInt() ?? 0,
       completedRoadmapSteps: _stringListMap(json['completedRoadmapSteps']),
       profileNeedsPush: json['profileNeedsPush'] as bool? ?? false,
       onboardingStep: json['onboardingStep'] as int? ?? 0,
@@ -109,6 +110,7 @@ class LocalAppRepository implements AppRepository {
       'pendingOrientationQuestionIndex':
           snapshot.pendingOrientationQuestionIndex,
       'purchasedCourseIds': snapshot.purchasedCourseIds,
+      'reviewCredits': snapshot.reviewCredits,
       'completedRoadmapSteps': snapshot.completedRoadmapSteps,
       'profileNeedsPush': snapshot.profileNeedsPush,
       'onboardingStep': snapshot.onboardingStep,

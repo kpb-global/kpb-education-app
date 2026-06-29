@@ -116,6 +116,25 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// The caller's no-cash reward balance + recent ledger (KPB-77). Returns
+  /// `{balance, history}`.
+  Future<Map<String, dynamic>> getMyReferralCredits() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/referrals/credits');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Spend credits to mint a WhatsApp advisor review voucher. [clientRef] is a
+  /// per-tap idempotency key so a retried call never double-spends. Returns
+  /// `{ok, balance, voucherCode}` or `{ok:false, reason}`.
+  Future<Map<String, dynamic>> redeemReviewVoucher(String clientRef) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/referrals/credits/redeem-voucher',
+      data: {'clientRef': clientRef},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<Map<String, dynamic>> submitOrientation(
     Map<String, dynamic> payload,
   ) async {

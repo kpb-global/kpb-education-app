@@ -167,6 +167,8 @@ export class ProfilesService {
         prisma.referral.deleteMany({
           where: { OR: [{ referrerId: id }, { refereeProfileId: id }] },
         }),
+        // Referral-reward ledger (KPB-77) — FK is ON DELETE RESTRICT.
+        prisma.creditTransaction.deleteMany({ where: { profileId: id } }),
         prisma.deviceToken.deleteMany({ where: { userProfileId: id } }),
         prisma.partnerLead.deleteMany({ where: { userId: id } }),
         prisma.studentCredential.deleteMany({ where: { userProfileId: id } }),

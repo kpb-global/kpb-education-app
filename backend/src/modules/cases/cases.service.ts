@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { CaseStatus } from '../../common/enums/case-status.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ReferralCreditsService } from '../referrals/referral-credits.service';
 import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
@@ -29,6 +31,8 @@ const CASE_INCLUDE = {
 
 @Injectable()
 export class CasesService {
+  private readonly logger = new Logger(CasesService.name);
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly moduleRef: ModuleRef,
@@ -205,6 +209,19 @@ export class CasesService {
     }
     const mapped = this.mapDbCase(created);
     if (userId) {
+      // No-cash referral reward (KPB-77): if this student was referred, credit
+      // their referrer on the FIRST case. Fire-and-forget and OUTSIDE the
+      // case-creation transaction — a crediting failure must never roll back or
+      // block the student's case. Idempotency is enforced in the service.
+      void this.moduleRef
+        .get(ReferralCreditsService, { strict: false })
+        .creditReferrerForFirstCase(userId)
+        .catch((e) =>
+          this.logger.warn(
+            `Referral credit failed for ${userId}: ${e?.message ?? e}`,
+          ),
+        );
+
       const advisorName = mapped.assignedAdvisorName ?? 'KPB';
       await this.pushService.sendToUser(
         userId,

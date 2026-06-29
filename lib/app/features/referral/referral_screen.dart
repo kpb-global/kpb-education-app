@@ -5,13 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
-/// WhatsApp-native referral loop (KPB-69): the student shares a tracked code,
-/// and can redeem a friend's code. Rewards (doc-review credits) are a follow-up.
+/// WhatsApp-native referral loop (KPB-69 + KPB-77): the student shares a tracked
+/// code, can redeem a friend's code, and spends earned credits (one per referred
+/// friend who creates a case) on a no-cash WhatsApp advisor review voucher.
 class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
 
@@ -25,6 +28,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _redeeming = false;
+  bool _redeemingVoucher = false;
 
   @override
   void initState() {
@@ -41,12 +45,92 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Future<void> _load() async {
     try {
       final data = await _ctrl.apiClient.getMyReferral();
+      await _ctrl.refreshReviewCredits();
       if (mounted) setState(() => _data = data);
     } catch (_) {
       // Stay graceful — the screen shows a retry-able empty state.
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  /// Spend a credit for a WhatsApp advisor review voucher (KPB-77). No cash:
+  /// on success the student gets a code to show their advisor on WhatsApp.
+  Future<void> _redeemVoucher() async {
+    if (_ctrl.reviewCredits < 1 || _redeemingVoucher) return;
+    setState(() => _redeemingVoucher = true);
+    try {
+      final res = await _ctrl.redeemReviewVoucher(const Uuid().v4());
+      if (!mounted) return;
+      setState(() {}); // reflect the new balance
+      if (res['ok'] == true) {
+        await _showVoucherDialog((res['voucherCode'] as String?) ?? '');
+      } else {
+        Get.snackbar(
+          'referral_credits_title'.tr,
+          'referral_credits_none'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      Get.snackbar(
+        'referral_credits_title'.tr,
+        'referral_voucher_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    } finally {
+      if (mounted) setState(() => _redeemingVoucher = false);
+    }
+  }
+
+  Future<void> _showVoucherDialog(String code) {
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('referral_voucher_title'.tr),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('referral_voucher_body'.tr),
+            const SizedBox(height: KpbSpacing.md),
+            SelectableText(
+              code.isEmpty ? '—' : code,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+                color: KpbColors.blue,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('close'.tr),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openWhatsAppOrToast(
+                prefill: kpbWhatsAppPrefill(
+                  custom: 'referral_voucher_whatsapp_prefill'
+                      .trParams({'code': code}),
+                ),
+                source: 'referral_voucher',
+                contextType: 'referral_reward',
+              );
+            },
+            icon: const Icon(Icons.chat_rounded, size: 18),
+            label: Text('referral_voucher_whatsapp_cta'.tr),
+          ),
+        ],
+      ),
+    );
   }
 
   String get _code => (_data?['code'] as String?) ?? '';
@@ -160,6 +244,62 @@ class _ReferralScreenState extends State<ReferralScreen> {
                           onPressed: _code.isEmpty ? null : _inviteOnWhatsApp,
                           icon: const Icon(Icons.share_rounded, size: 18),
                           label: Text('referral_invite_whatsapp'.tr),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: KpbSpacing.lg),
+
+                // ── Referral reward credits (KPB-77) ────────────────
+                KpbCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text('referral_credits_title'.tr,
+                                style: KpbTextStyles.titleMd),
+                          ),
+                          Text(
+                            '${_ctrl.reviewCredits}',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: KpbColors.blue,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text('referral_credits_label'.tr,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: context.kpb.textSecondary)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text('referral_credits_intro'.tr,
+                          style: TextStyle(
+                              fontSize: 13, color: context.kpb.textSecondary)),
+                      const SizedBox(height: KpbSpacing.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed:
+                              (_ctrl.reviewCredits < 1 || _redeemingVoucher)
+                                  ? null
+                                  : _redeemVoucher,
+                          icon: _redeemingVoucher
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.card_giftcard_rounded,
+                                  size: 18),
+                          label: Text('referral_redeem_voucher_cta'.tr),
                         ),
                       ),
                     ],

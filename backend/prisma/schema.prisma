@@ -186,6 +186,11 @@ model UserProfile {
   // Stable per-student referral code (KPB-69) — generated on first read, shared
   // via WhatsApp. Friends who redeem it are attributed back to this profile.
   referralCode         String?                  @unique
+  // No-cash referral rewards (KPB-77). Denormalized credit balance: +1 when a
+  // referee reaches the first-case milestone, spent into a WhatsApp advisor
+  // voucher. The signed CreditTransaction log is the audit trail and reconciles
+  // this counter via SUM(amount); both are always written in one $transaction.
+  reviewCredits        Int                      @default(0)
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
   cases                Case[]
@@ -219,6 +224,7 @@ model UserProfile {
   salonRegistrations   SalonRegistration[]
   referralsMade        Referral[]               @relation("referral_referrer")
   referralReceived     Referral?                @relation("referral_referee")
+  creditTransactions   CreditTransaction[]
 
   @@index([accountType])
   @@index([createdAt])
@@ -238,6 +244,33 @@ model Referral {
   referee          UserProfile @relation("referral_referee", fields: [refereeProfileId], references: [id])
 
   @@index([referrerId])
+}
+
+// No-cash referral rewards ledger (KPB-77). Append-only, signed-amount log of
+// every credit movement. Earns are +N (referee reached the first-case
+// milestone); spends are −N (redeemed into a WhatsApp advisor voucher). The
+// `dedupeKey` @unique is the entire idempotency mechanism: earns are keyed
+// `firstcase:<referralId>` (credit a referrer at most once per referral, ever);
+// spends are keyed `voucher:<clientRef>` (a retried redeem tap cannot
+// double-spend). Reading the balance is the denormalized UserProfile.reviewCredits
+// counter; this table is the audit trail that reconciles it via SUM(amount).
+enum CreditReason {
+  referralFirstCase // +N earn: referee created their 1st case
+  reviewVoucherRedeemed // −N spend: redeemed into an advisor review voucher
+  adminAdjust // +/−N manual ops correction (reserved)
+}
+
+model CreditTransaction {
+  id        String       @id @default(cuid())
+  profileId String // owner whose balance moved (the REFERRER on an earn)
+  amount    Int // signed: + earn / − spend; never 0
+  reason    CreditReason
+  dedupeKey String       @unique // earn: firstcase:<referralId> | spend: voucher:<clientRef>
+  metadata  Json? // e.g. { refereeId } on earn, { voucherCode } on spend — NO PII
+  createdAt DateTime     @default(now())
+  profile   UserProfile  @relation(fields: [profileId], references: [id])
+
+  @@index([profileId])
 }
 
 model StudentCredential {
