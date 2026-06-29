@@ -98,6 +98,14 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Top published counsellor reviews for the Home social-proof carousel.
+  /// Returns `{reviews: [{id, counsellorId, reviewerName, rating, body,
+  /// createdAt}, ...], count}`. Public endpoint — no auth required.
+  Future<Map<String, dynamic>> getPublishedReviews() async {
+    final response = await _dio.get<Map<String, dynamic>>('/impact/reviews');
+    return response.data ?? <String, dynamic>{};
+  }
+
   /// Attribute the caller to the owner of [code]. Returns
   /// `{attributed, alreadyReferred}`.
   Future<Map<String, dynamic>> redeemReferral(String code) async {

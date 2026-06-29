@@ -108,6 +108,11 @@ class AppTranslations extends Translations {
           'impact_proof_line':
               '@students étudiants accompagnés · @admissions admissions',
           'reviews_basis': 'basé sur @n avis',
+          // ── Testimonials carousel (Home social proof, KPB-79) ──
+          'testimonials_carousel_title': 'Avis de nos étudiants',
+          'testimonials_carousel_body': '@count avis vérifiés',
+          'testimonials_empty_state':
+              'Aucun avis publié pour le moment.',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'L\'accompagnement KPB',
           'kpb_offer_intro':
@@ -658,6 +663,10 @@ class AppTranslations extends Translations {
           'impact_proof_line':
               '@students students guided · @admissions admissions',
           'reviews_basis': 'based on @n reviews',
+          // ── Testimonials carousel (Home social proof, KPB-79) ──
+          'testimonials_carousel_title': 'Student reviews',
+          'testimonials_carousel_body': '@count verified reviews',
+          'testimonials_empty_state': 'No published reviews yet.',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'KPB support',
           'kpb_offer_intro':

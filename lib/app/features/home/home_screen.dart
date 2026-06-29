@@ -19,6 +19,7 @@ import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../tools/student_tools_screen.dart';
+import 'counsellor_testimonials_carousel.dart';
 import 'home_impact_proof.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,10 +157,17 @@ class HomeScreen extends StatelessWidget {
                         // Self-hides until real impact data is available.
                         const HomeImpactProof(),
 
+                        // ── 1.6 Avis publiés (preuve sociale) ────────
+                        // Self-hides until real published reviews exist.
+                        const StaggeredSlide(
+                          index: 1,
+                          child: CounsellorTestimonialsCarousel(),
+                        ),
+
                         // ── 2. Prochaine étape ──────────────────────
                         if (controller.isStudent) ...[
                           StaggeredSlide(
-                            index: 1,
+                            index: 2,
                             child: _NextStepCard(
                               controller: controller,
                               activeCases: activeCases,
@@ -170,21 +178,21 @@ class HomeScreen extends StatelessWidget {
 
                         // ── 3. Quick Actions ────────────────────────
                         StaggeredSlide(
-                          index: 2,
+                          index: 3,
                           child: _QuickActions(controller: controller),
                         ),
                         const SizedBox(height: KpbSpacing.lg),
 
                         // ── 3.5 Assistant d'Orientation IA ──────────
                         const StaggeredSlide(
-                          index: 3,
+                          index: 4,
                           child: _AiAdvisorBanner(),
                         ),
                         const SizedBox(height: KpbSpacing.lg),
 
                         // ── 3.6 Inscriptions à l'Étranger ───────────
                         StaggeredSlide(
-                          index: 4,
+                          index: 5,
                           child: _AbroadEnrollmentCard(controller: controller),
                         ),
                         const SizedBox(height: KpbSpacing.lg),
@@ -192,7 +200,7 @@ class HomeScreen extends StatelessWidget {
                         // ── 3.7 Outils étudiants ────────────────────
                         if (controller.isStudent)
                           StaggeredSlide(
-                            index: 5,
+                            index: 6,
                             child: _StudentToolsBanner(),
                           ),
                         const SizedBox(height: KpbSpacing.xl),
