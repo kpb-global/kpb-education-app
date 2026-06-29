@@ -10,6 +10,9 @@ import { useLocale } from './locale-provider';
 const NAV_LINKS = [
   { href: '/', labelKey: 'nav.overview' },
   { href: '/cases', labelKey: 'nav.cases' },
+  { href: '/programs', labelKey: 'nav.programs' },
+  { href: '/institutions', labelKey: 'nav.institutions' },
+  { href: '/scholarships', labelKey: 'nav.scholarships' },
   { href: '/content', labelKey: 'nav.content' },
   { href: '/community', labelKey: 'nav.community' },
   { href: '/notifications', labelKey: 'nav.notifications' },

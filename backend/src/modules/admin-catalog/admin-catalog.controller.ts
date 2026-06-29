@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -21,6 +23,46 @@ import { AdminCatalogService } from './admin-catalog.service';
 @Roles(InternalRole.Admin, InternalRole.SuperAdmin, InternalRole.ContentManager)
 export class AdminCatalogController {
   constructor(private readonly service: AdminCatalogService) {}
+
+  // ── Read / list (full-fidelity for the back-office) ───────────────────────
+  @Get('programs')
+  listPrograms(
+    @Query('q') q?: string,
+    @Query('countryId') countryId?: string,
+    @Query('fieldId') fieldId?: string,
+    @Query('institutionId') institutionId?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.service.listPrograms({
+      q: q?.trim() || undefined,
+      countryId: countryId?.trim() || undefined,
+      fieldId: fieldId?.trim() || undefined,
+      institutionId: institutionId?.trim() || undefined,
+      limit: limit ? Number(limit) : undefined,
+      offset: offset ? Number(offset) : undefined,
+    });
+  }
+
+  @Get('institutions')
+  listInstitutions(@Query('countryId') countryId?: string) {
+    return this.service.listInstitutions(countryId?.trim() || undefined);
+  }
+
+  @Get('scholarships')
+  listScholarships() {
+    return this.service.listScholarships();
+  }
+
+  @Get('countries')
+  listCountries() {
+    return this.service.listCountries();
+  }
+
+  @Get('fields')
+  listFields() {
+    return this.service.listFields();
+  }
 
   // ── Programs (formations) ─────────────────────────────────────────────────
   @Post('programs')

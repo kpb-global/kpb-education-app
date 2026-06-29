@@ -12,6 +12,9 @@
   "nav": {
     "overview": "Tableau de bord",
     "cases": "Dossiers",
+    "programs": "Formations",
+    "institutions": "Établissements",
+    "scholarships": "Bourses",
     "content": "Contenus",
     "community": "Communauté",
     "notifications": "Notifications",

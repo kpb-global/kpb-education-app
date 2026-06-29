@@ -98,6 +98,92 @@ export class AdminCatalogService {
   }
 
   // ════════════════════════════════════════════════════════════════════════
+  // READ / LIST (admin full-fidelity)
+  //
+  // Returns raw Prisma rows — not the mobile-mapped catalogue shape. The
+  // back-office needs every writable column (incl. inactive rows and the
+  // scholarship fields the public mapper drops) to round-trip edits without
+  // data loss.
+  // ════════════════════════════════════════════════════════════════════════
+  async listPrograms(
+    query: {
+      q?: string;
+      countryId?: string;
+      fieldId?: string;
+      institutionId?: string;
+      limit?: number;
+      offset?: number;
+    } = {},
+  ) {
+    this.assertDb();
+    const where: Prisma.ProgramWhereInput = {};
+    if (query.countryId) where.countryId = query.countryId;
+    if (query.fieldId) where.fieldId = query.fieldId;
+    if (query.institutionId) where.institutionId = query.institutionId;
+    const q = query.q?.trim();
+    if (q) {
+      where.OR = [
+        { nameFr: { contains: q, mode: 'insensitive' } },
+        { nameEn: { contains: q, mode: 'insensitive' } },
+        { levelFr: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+    const limit = Math.min(Math.max(query.limit ?? 100, 1), 500);
+    const offset = Math.max(query.offset ?? 0, 0);
+    const result = await this.prisma.execute((db) =>
+      db.$transaction([
+        db.program.findMany({
+          where,
+          orderBy: { nameFr: 'asc' },
+          take: limit,
+          skip: offset,
+        }),
+        db.program.count({ where }),
+      ]),
+    );
+    const [items, total] = result ?? [[], 0];
+    return { items, total, limit, offset };
+  }
+
+  async listInstitutions(countryId?: string) {
+    this.assertDb();
+    const where: Prisma.InstitutionWhereInput = {};
+    if (countryId) where.countryId = countryId;
+    const items =
+      (await this.prisma.execute((db) =>
+        db.institution.findMany({ where, orderBy: { nameFr: 'asc' } }),
+      )) ?? [];
+    return { items, total: items.length };
+  }
+
+  async listScholarships() {
+    this.assertDb();
+    const items =
+      (await this.prisma.execute((db) =>
+        db.scholarship.findMany({ orderBy: { nameFr: 'asc' } }),
+      )) ?? [];
+    return { items, total: items.length };
+  }
+
+  async listCountries() {
+    this.assertDb();
+    const items =
+      (await this.prisma.execute((db) =>
+        db.country.findMany({ orderBy: { displayOrder: 'asc' } }),
+      )) ?? [];
+    return { items, total: items.length };
+  }
+
+  async listFields() {
+    this.assertDb();
+    const items =
+      (await this.prisma.execute((db) =>
+        db.field.findMany({ orderBy: { nameFr: 'asc' } }),
+      )) ?? [];
+    return { items, total: items.length };
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
   // PROGRAMS (formations)
   // ════════════════════════════════════════════════════════════════════════
   async createProgram(input: Record<string, unknown>) {
