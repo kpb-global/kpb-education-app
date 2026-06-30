@@ -236,8 +236,9 @@ class AppSearchService {
       case SearchResultType.field:
         final f = _fieldByIdOrNull(id);
         if (f == null) break;
-        if (p.fieldIds.contains(f.id))
+        if (p.fieldIds.contains(f.id)) {
           reasons.add('match_field_in_interests'.tr);
+        }
         final session = _ctx.latestOrientationSession;
         if (session != null &&
             session.recommendations.any((r) => r.fieldId == f.id)) {
@@ -248,8 +249,9 @@ class AppSearchService {
           reasons.add('match_available_target_country'.tr);
         }
       case SearchResultType.country:
-        if (p.targetCountryIds.contains(id))
+        if (p.targetCountryIds.contains(id)) {
           reasons.add('match_target_country'.tr);
+        }
       case SearchResultType.institution:
         final inst = _institutionByIdOrNull(id);
         if (inst == null) break;
