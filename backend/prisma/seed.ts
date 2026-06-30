@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { loadEnvFile } from 'node:process';
 
 import {
@@ -208,30 +209,70 @@ async function main() {
     });
   }
 
-  const defaultAdminPasswordHash = await bcrypt.hash('password', 12);
-
+  // Seed internal operators. New accounts get a per-user random temporary
+  // password (bcrypt-hashed; plaintext printed once below). Re-seeding an
+  // existing account refreshes its profile but NEVER overwrites a set password.
+  const seededAdminCredentials: { email: string; tempPassword: string }[] = [];
   for (const user of mockAdminData.adminUsers) {
-    await prisma.adminUser.upsert({
+    const existing = await prisma.adminUser.findUnique({
       where: { email: user.email },
-      update: {
-        fullName: user.fullName,
-        role: user.role as InternalRole,
-        isActive: user.isActive,
-        languageScope: user.languageScope,
-        workload: user.workload,
-        passwordHash: defaultAdminPasswordHash,
-      },
-      create: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role as InternalRole,
-        isActive: user.isActive,
-        languageScope: user.languageScope,
-        workload: user.workload,
-        passwordHash: defaultAdminPasswordHash,
-      },
+      select: { id: true },
     });
+    if (existing) {
+      await prisma.adminUser.update({
+        where: { email: user.email },
+        data: {
+          fullName: user.fullName,
+          role: user.role as InternalRole,
+          isActive: user.isActive,
+          languageScope: user.languageScope,
+          workload: user.workload,
+        },
+      });
+    } else {
+      const tempPassword = randomBytes(9).toString('base64url');
+      const passwordHash = await bcrypt.hash(tempPassword, 12);
+      await prisma.adminUser.create({
+        data: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role as InternalRole,
+          isActive: user.isActive,
+          languageScope: user.languageScope,
+          workload: user.workload,
+          passwordHash,
+        },
+      });
+      seededAdminCredentials.push({ email: user.email, tempPassword });
+    }
+  }
+
+  // Retire the legacy demo accounts so they can no longer log in (deactivate
+  // rather than delete — they may be referenced by historical case assignments).
+  await prisma.adminUser.updateMany({
+    where: {
+      email: {
+        in: [
+          'amina@kpb.education',
+          'moussa@kpb.education',
+          'fatou@kpb.education',
+        ],
+      },
+    },
+    data: { isActive: false },
+  });
+
+  if (seededAdminCredentials.length > 0) {
+    console.log(
+      '\n=== Admin temporary passwords (store securely, share privately) ===',
+    );
+    for (const cred of seededAdminCredentials) {
+      console.log(`  ${cred.email}: ${cred.tempPassword}`);
+    }
+    console.log(
+      'Each admin can re-issue one later from Users → Reset temp password.\n',
+    );
   }
 
   for (const offer of mockAdminData.serviceOffers) {

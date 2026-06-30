@@ -10,8 +10,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { isReady, login, session } = useAdminAuth();
   const { t } = useLocale();
-  const [email, setEmail] = useState('fatou@kpb.education');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="fatou@kpb.education"
+              placeholder="you@karatoupostbac.com"
               style={{
                 border: '1px solid #CBD5E1',
                 borderRadius: 14,
@@ -125,11 +125,6 @@ export default function LoginPage() {
             {isSubmitting ? t('login.loading') : t('login.submit')}
           </button>
         </form>
-        <p style={{ marginBottom: 0, marginTop: 18, color: '#64748B' }}>
-          Demo accounts already seeded in the backend include
-          `fatou@kpb.education`, `amina@kpb.education`, and
-          `moussa@kpb.education`.
-        </p>
       </div>
     </main>
   );
