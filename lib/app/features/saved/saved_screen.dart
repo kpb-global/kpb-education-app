@@ -97,7 +97,7 @@ class SavedScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Calendrier des deadlines',
+                                  'deadlines_title'.tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,

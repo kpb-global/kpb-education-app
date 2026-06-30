@@ -106,6 +106,8 @@ export function mapCountry(row: Country) {
     admissionDifficultyEn: row.admissionDifficultyEn,
     lastVerifiedAt: row.lastVerifiedAt,
     sourceUrl: row.sourceUrl,
+    verifiedById: row.verifiedById,
+    verifiedByName: row.verifiedByName,
   };
 }
 
@@ -127,6 +129,8 @@ export function mapInstitution(row: Institution) {
     isPartner: row.isPartner,
     lastVerifiedAt: row.lastVerifiedAt,
     sourceUrl: row.sourceUrl,
+    verifiedById: row.verifiedById,
+    verifiedByName: row.verifiedByName,
   };
 }
 
@@ -159,6 +163,8 @@ export function mapProgram(row: Program) {
     requirementsEn: row.requirementsEn,
     lastVerifiedAt: row.lastVerifiedAt,
     sourceUrl: row.sourceUrl,
+    verifiedById: row.verifiedById,
+    verifiedByName: row.verifiedByName,
   };
 }
 
@@ -178,5 +184,9 @@ export function mapScholarship(row: Scholarship) {
     relatedFieldIds: row.relatedFieldIds,
     baseMatch: row.baseMatch,
     deadlineAt: row.deadlineAt,
+    lastVerifiedAt: row.lastVerifiedAt,
+    sourceUrl: row.sourceUrl,
+    verifiedById: row.verifiedById,
+    verifiedByName: row.verifiedByName,
   };
 }

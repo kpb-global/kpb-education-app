@@ -614,6 +614,22 @@ class AppApiClient {
   // checkout. Students arrange payment with an advisor on WhatsApp (see
   // service_packages_screen). The backend purchase endpoint remains available.
 
+  Future<Map<String, dynamic>> createWhatsAppServicePurchase({
+    required String packageCode,
+    String? caseId,
+    String source = 'service_packages',
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/me/purchases/whatsapp',
+      data: {
+        'packageCode': packageCode,
+        if (caseId != null) 'caseId': caseId,
+        'source': source,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<List<dynamic>> listMyPurchases() async {
     final response = await _dio.get<Map<String, dynamic>>('/me/purchases');
     final data = response.data ?? <String, dynamic>{};

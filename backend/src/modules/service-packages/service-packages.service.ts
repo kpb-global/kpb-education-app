@@ -9,6 +9,22 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 
 type ProviderName = 'cinetpay' | 'paydunya' | 'stripe' | 'manual';
+type PurchaseStatus =
+  | 'pending_payment'
+  | 'paid'
+  | 'in_progress'
+  | 'delivered'
+  | 'cancelled'
+  | 'refunded';
+
+const PURCHASE_STATUSES: PurchaseStatus[] = [
+  'pending_payment',
+  'paid',
+  'in_progress',
+  'delivered',
+  'cancelled',
+  'refunded',
+];
 
 /**
  * Catalog + purchase orchestration for Phase 3 monetized bundles.
@@ -121,6 +137,7 @@ export class ServicePackagesService {
           caseId: input.caseId,
           amountXOF: pkg.priceXOF,
           status: 'pending_payment',
+          source: 'checkout',
         },
       }),
     );
@@ -147,10 +164,103 @@ export class ServicePackagesService {
       prisma.servicePurchase.update({
         where: { id: purchase.id },
         data: { paymentIntentId: intent.id },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     return linked;
+  }
+
+  /**
+   * WhatsApp-first sales flow: create the purchase row and let a counsellor
+   * collect/confirm payment manually. No PaymentIntent or checkout URL.
+   */
+  async createWhatsAppPurchase(input: {
+    userId: string;
+    packageCode: string;
+    caseId?: string;
+    source?: string;
+  }) {
+    const pkg = await this.getPublic(input.packageCode);
+    const source = this.normalizeSource(input.source);
+    const linkedCase = input.caseId
+      ? await this.getOwnedCase(input.userId, input.caseId)
+      : null;
+
+    const notes = [
+      'Created from mobile WhatsApp CTA.',
+      `SKU: ${pkg.code}`,
+      `Source: ${source}`,
+      linkedCase ? `Case: ${linkedCase.referenceCode}` : null,
+      linkedCase?.requestedCountryId
+        ? `Destination: ${linkedCase.requestedCountryId}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    // Idempotency: tapping the WhatsApp CTA repeatedly (the normal
+    // tap → WhatsApp → return → tap-again loop, or pull-to-refresh then
+    // re-tap) must not mint duplicate pending rows — that would inflate the
+    // per-SKU / per-destination demand + pipeline signal KPB-56 exists to make
+    // legible. Reuse the open WhatsApp-arranged request for the same
+    // (user, package, case) instead of creating another.
+    const existing = await this.prismaService.execute((prisma) =>
+      prisma.servicePurchase.findFirst({
+        where: {
+          userId: input.userId,
+          packageId: pkg.id,
+          caseId: linkedCase?.id ?? null,
+          status: 'pending_payment',
+          source: { not: 'checkout' },
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          package: true,
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
+          paymentIntent: true,
+        },
+      }),
+    );
+    if (existing) {
+      return existing;
+    }
+
+    const purchase = await this.prismaService.execute((prisma) =>
+      prisma.servicePurchase.create({
+        data: {
+          packageId: pkg.id,
+          userId: input.userId,
+          caseId: linkedCase?.id,
+          amountXOF: pkg.priceXOF,
+          status: 'pending_payment',
+          source,
+          internalNotes: notes,
+        },
+        include: {
+          package: true,
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
+          paymentIntent: true,
+        },
+      }),
+    );
+    if (!purchase) {
+      throw new Error('Failed to create WhatsApp service purchase.');
+    }
+    return purchase;
   }
 
   /** Student's own purchase history (most-recent first). */
@@ -159,7 +269,7 @@ export class ServicePackagesService {
       prisma.servicePurchase.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     return { items: items ?? [] };
@@ -169,7 +279,7 @@ export class ServicePackagesService {
     const purchase = await this.prismaService.execute((prisma) =>
       prisma.servicePurchase.findFirst({
         where: { id, userId },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     if (!purchase) {
@@ -252,6 +362,14 @@ export class ServicePackagesService {
         include: {
           package: true,
           user: { select: { id: true, fullName: true, email: true } },
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
           paymentIntent: true,
         },
       }),
@@ -264,15 +382,7 @@ export class ServicePackagesService {
     status: string,
     internalNotes?: string,
   ) {
-    const allowed = [
-      'pending_payment',
-      'paid',
-      'in_progress',
-      'delivered',
-      'cancelled',
-      'refunded',
-    ];
-    if (!allowed.includes(status)) {
+    if (!PURCHASE_STATUSES.includes(status as PurchaseStatus)) {
       throw new BadRequestException(`Unknown purchase status: ${status}`);
     }
     return this.prismaService.execute((prisma) =>
@@ -316,5 +426,32 @@ export class ServicePackagesService {
       `Purchase ${purchase.id} reconciled → paid (intent ${paymentIntentId})`,
     );
     return updated;
+  }
+
+  private normalizeSource(source?: string) {
+    const normalized = (source ?? 'service_packages')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '_')
+      .slice(0, 64);
+    return normalized || 'service_packages';
+  }
+
+  private async getOwnedCase(userId: string, caseId: string) {
+    const linkedCase = await this.prismaService.execute((prisma) =>
+      prisma.case.findFirst({
+        where: { id: caseId, userId },
+        select: {
+          id: true,
+          referenceCode: true,
+          requestedCountryId: true,
+          source: true,
+        },
+      }),
+    );
+    if (!linkedCase) {
+      throw new NotFoundException(`Case ${caseId} not found.`);
+    }
+    return linkedCase;
   }
 }

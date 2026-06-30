@@ -91,7 +91,6 @@ export default function CommunityPage() {
       return;
     }
     void loadCommunity();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   async function submitCategory(event: FormEvent<HTMLFormElement>) {

@@ -121,7 +121,6 @@ export default function ScholarshipsPage() {
       return;
     }
     void loadScholarships(statusFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, statusFilter]);
 
   function changeFilter(next: ModerationStatus) {

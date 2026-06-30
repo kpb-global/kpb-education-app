@@ -30,6 +30,35 @@ interface CampaignPerformanceRow {
   opened: number;
 }
 
+interface RevenueSkuRow {
+  sku: string;
+  packageName: string;
+  category: string;
+  purchasesCount: number;
+  paidCount: number;
+  pendingCount: number;
+  recognizedRevenueXOF: number;
+  pendingPipelineXOF: number;
+}
+
+interface RevenueDestinationRow {
+  destinationId: string;
+  purchasesCount: number;
+  paidCount: number;
+  pendingCount: number;
+  recognizedRevenueXOF: number;
+  pendingPipelineXOF: number;
+}
+
+interface ServiceRevenueResponse {
+  bySku: RevenueSkuRow[];
+  byDestination: RevenueDestinationRow[];
+}
+
+function formatFcfa(value: number) {
+  return new Intl.NumberFormat('fr-FR').format(value);
+}
+
 function ReportSection({
   title,
   rows,
@@ -59,6 +88,10 @@ export default function ReportsPage() {
   const [campaignPerformance, setCampaignPerformance] = useState<
     PerformanceRow[]
   >([]);
+  const [serviceRevenue, setServiceRevenue] = useState<ServiceRevenueResponse>({
+    bySku: [],
+    byDestination: [],
+  });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,8 +106,15 @@ export default function ReportsPage() {
       apiFetch<{ items: CampaignPerformanceRow[] }>(
         '/admin/reports/campaign-performance',
       ),
+      apiFetch<ServiceRevenueResponse>('/admin/reports/service-revenue'),
     ])
-      .then(([funnelResponse, counselorResponse, campaignResponse]) => {
+      .then(
+        ([
+          funnelResponse,
+          counselorResponse,
+          campaignResponse,
+          serviceRevenueResponse,
+        ]) => {
         setFunnel(funnelResponse.items);
         setCounselorPerformance(
           counselorResponse.items.map((row) => ({
@@ -90,6 +130,7 @@ export default function ReportsPage() {
             secondary: `${row.opened} opened`,
           })),
         );
+        setServiceRevenue(serviceRevenueResponse);
         setErrorMessage(null);
       })
       .catch((error) =>
@@ -97,7 +138,6 @@ export default function ReportsPage() {
           error instanceof Error ? error.message : 'Unable to load reports.',
         ),
       );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   return (
@@ -138,6 +178,56 @@ export default function ReportsPage() {
           title="Notification campaigns"
           rows={campaignPerformance}
         />
+        <section style={panelStyle}>
+          <h3 style={{ marginTop: 0 }}>Service revenue attribution</h3>
+          <p style={mutedTextStyle}>
+            Revenue recognized after manual or provider payment, grouped by
+            in-app SKU and originating destination.
+          </p>
+          <div
+            style={{
+              display: 'grid',
+              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            }}
+          >
+            <div>
+              <h4>By SKU</h4>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {serviceRevenue.bySku.map((row) => (
+                  <div key={row.sku} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                    <strong>{row.packageName}</strong>
+                    <p style={{ margin: '6px 0' }}>
+                      {formatFcfa(row.recognizedRevenueXOF)} FCFA recognized ·{' '}
+                      {formatFcfa(row.pendingPipelineXOF)} FCFA pending
+                    </p>
+                    <span style={badgeStyle}>
+                      {row.sku} · {row.paidCount}/{row.purchasesCount} paid
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4>By destination</h4>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {serviceRevenue.byDestination.map((row) => (
+                  <div key={row.destinationId} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
+                    <strong>{row.destinationId}</strong>
+                    <p style={{ margin: '6px 0' }}>
+                      {formatFcfa(row.recognizedRevenueXOF)} FCFA recognized ·{' '}
+                      {formatFcfa(row.pendingPipelineXOF)} FCFA pending
+                    </p>
+                    <span style={badgeStyle}>
+                      {row.paidCount}/{row.purchasesCount} paid ·{' '}
+                      {row.pendingCount} pending
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </DashboardShell>
   );

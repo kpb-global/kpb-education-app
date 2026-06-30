@@ -79,6 +79,24 @@ export class MyPurchasesController {
     });
   }
 
+  @Post('whatsapp')
+  createWhatsAppPurchase(
+    @Req() req: AuthedReq,
+    @Body()
+    body: {
+      packageCode: string;
+      caseId?: string;
+      source?: string;
+    },
+  ) {
+    return this.servicePackagesService.createWhatsAppPurchase({
+      userId: req.studentUser!.id,
+      packageCode: body.packageCode,
+      caseId: body.caseId,
+      source: body.source,
+    });
+  }
+
   @Get()
   list(@Req() req: AuthedReq) {
     return this.servicePackagesService.listForUser(req.studentUser!.id);

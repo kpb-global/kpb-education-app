@@ -1,9 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { fetchVerificationDue } from '../../lib/catalog-api';
+import type {
+  VerificationPolicy,
+  VerificationQueueItem,
+} from '../../lib/catalog-api';
 import { apiFetch } from '../../lib/api-client';
 import {
   badgeStyle,
@@ -13,218 +18,129 @@ import {
   panelStyle,
 } from '../../lib/ui';
 
-interface CatalogEntry {
-  id: string;
-  name: { fr: string; en: string };
-  lastVerifiedAt: string | null;
-  sourceUrl: string | null;
-}
-
-interface CatalogResponse {
-  items: CatalogEntry[];
-  total: number;
-}
-
-type Entity = 'country' | 'program';
-
-const verifiedBadgeStyle = {
-  ...badgeStyle,
-  background: '#ECFDF5',
-  color: '#166534',
-};
-
-const pendingBadgeStyle = {
-  ...badgeStyle,
-  background: '#FEF3C7',
-  color: '#92400E',
-};
-
 const resetButtonStyle = {
   ...buttonStyle,
   background: '#E2E8F0',
   color: '#122033',
 };
 
-function formatVerifiedDate(iso: string): string {
-  const date = new Date(iso);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+function formatDate(value: string | null) {
+  if (!value) return 'Jamais';
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value));
 }
 
 export default function VerificationPage() {
   const { session } = useAdminAuth();
-  const [countries, setCountries] = useState<CatalogEntry[]>([]);
-  const [programs, setPrograms] = useState<CatalogEntry[]>([]);
+  const [items, setItems] = useState<VerificationQueueItem[]>([]);
+  const [policies, setPolicies] = useState<VerificationPolicy[]>([]);
   const [sourceInputs, setSourceInputs] = useState<Record<string, string>>({});
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function loadCatalog() {
+  const loadQueue = useCallback(async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
-      const [countriesResponse, programsResponse] = await Promise.all([
-        apiFetch<CatalogResponse>('/catalog/countries'),
-        apiFetch<CatalogResponse>('/catalog/programs?limit=1000'),
-      ]);
-      setCountries(countriesResponse.items);
-      setPrograms(programsResponse.items);
-      const initialSources: Record<string, string> = {};
-      for (const country of countriesResponse.items) {
-        initialSources[`country:${country.id}`] = country.sourceUrl ?? '';
-      }
-      for (const program of programsResponse.items) {
-        initialSources[`program:${program.id}`] = program.sourceUrl ?? '';
-      }
-      setSourceInputs(initialSources);
+      const response = await fetchVerificationDue();
+      setItems(response.items);
+      setPolicies(response.policies);
+      setSourceInputs(
+        Object.fromEntries(
+          response.items.map((item) => [
+            `${item.entityType}:${item.id}`,
+            item.sourceUrl ?? '',
+          ]),
+        ),
+      );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to load catalog.',
+        error instanceof Error
+          ? error.message
+          : 'Impossible de charger la file de verification.',
       );
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     if (!session) {
       return;
     }
-    void loadCatalog();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+    void loadQueue();
+  }, [loadQueue, session]);
 
-  async function verifyEntry(
-    entity: Entity,
-    entry: CatalogEntry,
-    verified: boolean,
-  ) {
-    const key = `${entity}:${entry.id}`;
+  async function verifyItem(item: VerificationQueueItem, verified: boolean) {
+    const key = `${item.entityType}:${item.id}`;
+    const sourceUrl = (sourceInputs[key] ?? '').trim();
     setPendingKey(key);
     setStatusMessage(null);
     setErrorMessage(null);
-
-    const sourceUrl = (sourceInputs[key] ?? '').trim();
-
     try {
-      const updated = await apiFetch<CatalogEntry>('/admin/catalog/verify', {
+      const updated = await apiFetch<{
+        lastVerifiedAt: string | null;
+        verifiedByName: string | null;
+        sourceUrl: string | null;
+      }>('/admin/catalog/verify', {
         method: 'POST',
         body: {
-          entity,
-          id: entry.id,
+          entity: item.entityType,
+          id: item.id,
           verified,
           sourceUrl: verified && sourceUrl ? sourceUrl : undefined,
         },
       });
 
-      const applyUpdate = (current: CatalogEntry[]) =>
-        current.map((item) =>
-          item.id === entry.id
-            ? {
-                ...item,
-                lastVerifiedAt: updated?.lastVerifiedAt ?? null,
-                sourceUrl: updated?.sourceUrl ?? null,
-              }
-            : item,
+      if (verified) {
+        setItems((current) =>
+          current.filter(
+            (entry) =>
+              entry.id !== item.id || entry.entityType !== item.entityType,
+          ),
         );
-
-      if (entity === 'country') {
-        setCountries(applyUpdate);
       } else {
-        setPrograms(applyUpdate);
+        setItems((current) =>
+          current.map((entry) =>
+            entry.id === item.id && entry.entityType === item.entityType
+              ? {
+                  ...entry,
+                  lastVerifiedAt: updated?.lastVerifiedAt ?? null,
+                  verifiedByName: updated?.verifiedByName ?? null,
+                  sourceUrl: updated?.sourceUrl ?? null,
+                }
+              : entry,
+          ),
+        );
       }
 
       setSourceInputs((current) => ({
         ...current,
         [key]: updated?.sourceUrl ?? '',
       }));
-
       setStatusMessage(
         verified
-          ? 'Entrée marquée comme vérifiée.'
-          : 'Vérification réinitialisée.',
+          ? 'Entree marquee comme verifiee.'
+          : 'Verification reinitialisee.',
       );
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : 'Unable to update verification.',
+          : 'Impossible de mettre a jour la verification.',
       );
     } finally {
       setPendingKey(null);
     }
   }
 
-  function renderEntry(entity: Entity, entry: CatalogEntry) {
-    const key = `${entity}:${entry.id}`;
-    const isPending = pendingKey === key;
-    const verified = Boolean(entry.lastVerifiedAt);
-
-    return (
-      <div
-        key={entry.id}
-        style={{
-          borderTop: '1px solid #E2E8F0',
-          paddingTop: 12,
-          display: 'grid',
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            flexWrap: 'wrap',
-          }}
-        >
-          <strong>{entry.name.fr}</strong>
-          <span style={verified ? verifiedBadgeStyle : pendingBadgeStyle}>
-            {verified
-              ? `Vérifié le ${formatVerifiedDate(entry.lastVerifiedAt as string)}`
-              : 'À confirmer'}
-          </span>
-        </div>
-        <input
-          value={sourceInputs[key] ?? ''}
-          onChange={(event) =>
-            setSourceInputs((current) => ({
-              ...current,
-              [key]: event.target.value,
-            }))
-          }
-          placeholder="https://source-officielle.example"
-          style={inputStyle}
-        />
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => verifyEntry(entity, entry, true)}
-            disabled={isPending}
-            style={{ ...buttonStyle, opacity: isPending ? 0.6 : 1 }}
-          >
-            Marquer vérifié
-          </button>
-          <button
-            type="button"
-            onClick={() => verifyEntry(entity, entry, false)}
-            disabled={isPending}
-            style={{ ...resetButtonStyle, opacity: isPending ? 0.6 : 1 }}
-          >
-            Réinitialiser
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <DashboardShell title="Vérification catalogue">
+    <DashboardShell title="Verification catalogue">
       <div style={{ display: 'grid', gap: 18 }}>
         {statusMessage ? (
           <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
@@ -237,45 +153,133 @@ export default function VerificationPage() {
           </div>
         ) : null}
 
-        {loading ? (
-          <div style={panelStyle}>Chargement du catalogue…</div>
-        ) : (
-          <>
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-              <div>
-                <h3 style={{ marginTop: 0 }}>Pays</h3>
-                <p style={mutedTextStyle}>
-                  Confirmez les pays du catalogue et renseignez la source
-                  officielle pour le signal de confiance.
-                </p>
-              </div>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {countries.length === 0 ? (
-                  <p style={mutedTextStyle}>Aucun pays à vérifier.</p>
-                ) : (
-                  countries.map((country) => renderEntry('country', country))
-                )}
-              </div>
-            </section>
+        <div
+          style={{
+            display: 'grid',
+            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          }}
+        >
+          {policies.map((policy) => (
+            <div key={policy.key} style={panelStyle}>
+              <span style={badgeStyle}>{policy.cadenceDays} jours</span>
+              <h3 style={{ marginBottom: 8 }}>{policy.label}</h3>
+              <p style={{ ...mutedTextStyle, margin: 0 }}>{policy.owner}</p>
+            </div>
+          ))}
+        </div>
 
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-              <div>
-                <h3 style={{ marginTop: 0 }}>Formations</h3>
-                <p style={mutedTextStyle}>
-                  Confirmez les formations du catalogue et renseignez la source
-                  officielle pour le signal de confiance.
-                </p>
-              </div>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {programs.length === 0 ? (
-                  <p style={mutedTextStyle}>Aucune formation à vérifier.</p>
-                ) : (
-                  programs.map((program) => renderEntry('program', program))
-                )}
-              </div>
-            </section>
-          </>
-        )}
+        <section style={panelStyle}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 16,
+              alignItems: 'center',
+              marginBottom: 14,
+            }}
+          >
+            <h3 style={{ margin: 0 }}>Lignes a revoir</h3>
+            <span style={badgeStyle}>{items.length} ouvertes</span>
+          </div>
+
+          {loading ? (
+            <p style={mutedTextStyle}>Chargement...</p>
+          ) : items.length === 0 ? (
+            <p style={mutedTextStyle}>Aucune ligne catalogue a revoir.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  minWidth: 980,
+                }}
+              >
+                <thead>
+                  <tr style={{ textAlign: 'left', color: '#64748B' }}>
+                    <th style={{ padding: '10px 8px' }}>Ligne</th>
+                    <th style={{ padding: '10px 8px' }}>Categorie</th>
+                    <th style={{ padding: '10px 8px' }}>Responsable</th>
+                    <th style={{ padding: '10px 8px' }}>Dernier check</th>
+                    <th style={{ padding: '10px 8px' }}>Verifie par</th>
+                    <th style={{ padding: '10px 8px' }}>Source</th>
+                    <th style={{ padding: '10px 8px' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => {
+                    const key = `${item.entityType}:${item.id}`;
+                    const isPending = pendingKey === key;
+                    return (
+                      <tr key={key}>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          <strong>{item.label}</strong>
+                          <br />
+                          <span style={mutedTextStyle}>
+                            {item.entityType}
+                            {item.context ? ` / ${item.context}` : ''}
+                          </span>
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          {item.categoryLabel}
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          {item.owner}
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          {formatDate(item.lastVerifiedAt)}
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          {item.verifiedByName ?? 'Non renseigne'}
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          <input
+                            value={sourceInputs[key] ?? ''}
+                            onChange={(event) =>
+                              setSourceInputs((current) => ({
+                                ...current,
+                                [key]: event.target.value,
+                              }))
+                            }
+                            placeholder="https://source-officielle.example"
+                            style={{ ...inputStyle, minWidth: 260 }}
+                          />
+                        </td>
+                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <button
+                              type="button"
+                              onClick={() => verifyItem(item, true)}
+                              disabled={isPending}
+                              style={{
+                                ...buttonStyle,
+                                opacity: isPending ? 0.6 : 1,
+                              }}
+                            >
+                              Valider
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => verifyItem(item, false)}
+                              disabled={isPending}
+                              style={{
+                                ...resetButtonStyle,
+                                opacity: isPending ? 0.6 : 1,
+                              }}
+                            >
+                              Reset
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
     </DashboardShell>
   );

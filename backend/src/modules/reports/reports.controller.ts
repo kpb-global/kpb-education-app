@@ -36,4 +36,9 @@ export class ReportsController {
   getCampaignPerformance() {
     return this.reportsService.getCampaignPerformance();
   }
+
+  @Get('service-revenue')
+  getServiceRevenue() {
+    return this.reportsService.getServiceRevenue();
+  }
 }
