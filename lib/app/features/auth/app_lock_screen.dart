@@ -85,10 +85,14 @@ class _AppLockScreenState extends State<AppLockScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: KpbColors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KpbRadius.pill)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(KpbRadius.pill)),
                   ),
-                  child: const Text('Déverrouiller', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('Déverrouiller',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),

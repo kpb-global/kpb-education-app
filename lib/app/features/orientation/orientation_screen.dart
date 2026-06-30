@@ -266,9 +266,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                                   _answers, _questionIndex);
                             } else {
                               setState(() => _isSubmitting = true);
-                              _ctrl
-                                  .submitOrientation(_answers)
-                                  .then((_) {
+                              _ctrl.submitOrientation(_answers).then((_) {
                                 if (!mounted) return;
                                 setState(() {
                                   _isSubmitting = false;
@@ -411,8 +409,8 @@ class _ResultsView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -852,8 +850,8 @@ class _ConsultativeView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -116,7 +116,10 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
     final message = _messageController.text.trim();
     final defaultTitle = widget.prefill.title;
     final descriptionParts = <String>[
-      if (message.isNotEmpty) message else 'case_default_title'.trParams({'title': defaultTitle}),
+      if (message.isNotEmpty)
+        message
+      else
+        'case_default_title'.trParams({'title': defaultTitle}),
       if (_attachedDocs.isNotEmpty)
         'Documents joints:\n${_attachedDocs.entries.map((e) => '• ${e.key}: ${e.value.split('/').last}').join('\n')}',
     ];
@@ -204,8 +207,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       final size = await file.length();
       setState(() {
         _attachedDocs[label] = file!.path;
-        _attachedDocSizes[label] =
-            DocumentUploadService.formatFileSize(size);
+        _attachedDocSizes[label] = DocumentUploadService.formatFileSize(size);
       });
     }
   }
@@ -288,8 +290,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
           controller: _messageController,
           contactMethod: _contactMethod,
           localeCode: _controller.localeCode,
-          onContactChanged: (method) =>
-              setState(() => _contactMethod = method),
+          onContactChanged: (method) => setState(() => _contactMethod = method),
         );
       case 4:
         return _ConfirmStep(
@@ -387,7 +388,8 @@ class _TypeStep extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(icon,
-                        color: isSelected ? KpbColors.blue : context.kpb.gray400),
+                        color:
+                            isSelected ? KpbColors.blue : context.kpb.gray400),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -448,7 +450,9 @@ class _ContextStep extends StatelessWidget {
                 _ContextRow(
                   icon: Icons.public_outlined,
                   label: 'Pays',
-                  value: countryFlag != null ? '$countryFlag $countryLabel' : countryLabel!,
+                  value: countryFlag != null
+                      ? '$countryFlag $countryLabel'
+                      : countryLabel!,
                 ),
               ],
               if (institutionLabel != null) ...[
@@ -770,7 +774,8 @@ class _ConfirmStep extends StatelessWidget {
               if (programLabel != null)
                 _RecapRow(label: 'Programme', value: programLabel!),
               _RecapRow(label: 'Contact', value: _contactLabel(contactMethod)),
-              if (message.isNotEmpty) _RecapRow(label: 'Message', value: message),
+              if (message.isNotEmpty)
+                _RecapRow(label: 'Message', value: message),
               if (attachedDocs.isNotEmpty)
                 _RecapRow(
                   label: 'Documents',

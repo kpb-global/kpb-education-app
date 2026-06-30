@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // KpbErrorState — full-screen error with retry button
 //
@@ -13,8 +12,7 @@ class KpbErrorState extends StatelessWidget {
   const KpbErrorState({
     super.key,
     this.title = 'Connexion impossible',
-    this.subtitle =
-        'Vérifiez votre connexion internet et réessayez.',
+    this.subtitle = 'Vérifiez votre connexion internet et réessayez.',
     this.onRetry,
   });
 
@@ -46,7 +44,8 @@ class KpbErrorState extends StatelessWidget {
             const SizedBox(height: KpbSpacing.lg),
             Text(
               title,
-              style: KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
+              style:
+                  KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: KpbSpacing.sm),

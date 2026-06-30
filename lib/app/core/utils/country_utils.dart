@@ -60,10 +60,13 @@ String normalizeCountryId(String id) =>
 
 /// True when [id] (full-word or ISO-3) resolves to one of the nine MVP
 /// destination countries.
-bool isMvpCountryId(String id) => kMvpCountryIds.contains(normalizeCountryId(id));
+bool isMvpCountryId(String id) =>
+    kMvpCountryIds.contains(normalizeCountryId(id));
 
 String countryFlag(String id, {String fallbackEmoji = '🌍'}) =>
-    countryFlagById[id] ?? countryFlagById[normalizeCountryId(id)] ?? fallbackEmoji;
+    countryFlagById[id] ??
+    countryFlagById[normalizeCountryId(id)] ??
+    fallbackEmoji;
 
 String displayCountryFlag({required String id, String flagEmoji = ''}) =>
     flagEmoji.isNotEmpty ? flagEmoji : countryFlag(id);

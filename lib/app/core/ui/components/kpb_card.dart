@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
-
 // ── KPB Card (base) ───────────────────────────────────────────────────────────
 class KpbCard extends StatelessWidget {
   const KpbCard({
@@ -30,7 +29,8 @@ class KpbCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.kpb;
     final effectiveColor = color == KpbColors.bgCard ? c.cardBg : color;
-    final effectiveShadow = identical(shadow, KpbShadow.card) ? c.cardShadow : shadow;
+    final effectiveShadow =
+        identical(shadow, KpbShadow.card) ? c.cardShadow : shadow;
     return GestureDetector(
       onTap: onTap,
       child: Container(

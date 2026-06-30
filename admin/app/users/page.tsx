@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
@@ -48,24 +48,22 @@ export default function UsersPage() {
     workload: '0',
   });
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     setErrorMessage(null);
     try {
       const response = await apiFetch<{ items: AdminUserItem[] }>('/admin/users');
       setUsers(response.items);
-      if (!selectedUserId && response.items[0]) {
-        setSelectedUserId(response.items[0].id);
-      }
+      setSelectedUserId((current) => current ?? response.items[0]?.id ?? null);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to load users.',
       );
     }
-  }
+  }, []);
 
   useEffect(() => {
     void loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   const selectedUser = useMemo(
     () => users.find((item) => item.id === selectedUserId) ?? null,

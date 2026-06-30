@@ -101,14 +101,14 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 children: [
                   Text(
                     'Coût de la vie étudiante',
-                    style: KpbTextStyles.headline.copyWith(
-                        color: context.kpb.textPrimary),
+                    style: KpbTextStyles.headline
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Anticipez vos dépenses mensuelles selon votre destination et votre mode de vie.',
-                    style: KpbTextStyles.bodySm.copyWith(
-                        color: context.kpb.textSecondary),
+                    style: KpbTextStyles.bodySm
+                        .copyWith(color: context.kpb.textSecondary),
                   ),
                   const SizedBox(height: KpbSpacing.xl),
                 ],
@@ -121,7 +121,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             child: SizedBox(
               height: 48,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
                 scrollDirection: Axis.horizontal,
                 itemCount: mockBudgetProfiles.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -132,7 +133,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                     label: Text(
                       '${countryFlag(profile.country)} ${profile.country}',
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                     selected: isSelected,
@@ -145,15 +147,20 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                         : KpbColors.skyLight,
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (isDark
+                              ? KpbColors.stitchCyberCyan
+                              : KpbColors.blue)
                           : context.kpb.textSecondary,
                     ),
                     side: BorderSide(
                       color: isSelected
-                          ? (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue)
+                          ? (isDark
+                              ? KpbColors.stitchCyberCyan
+                              : KpbColors.blue)
                           : context.kpb.gray200,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   );
                 },
               ),
@@ -164,7 +171,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Lifestyle Toggle ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.surfaceBg,
@@ -175,7 +183,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 child: Row(
                   children: [
                     _buildLifestyleButton('Économe', Lifestyle.econome, isDark),
-                    _buildLifestyleButton('Standard', Lifestyle.standard, isDark),
+                    _buildLifestyleButton(
+                        'Standard', Lifestyle.standard, isDark),
                     _buildLifestyleButton('Confort', Lifestyle.confort, isDark),
                   ],
                 ),
@@ -187,7 +196,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Hero Chart Card ───────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.cardBg,
@@ -200,8 +210,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                   children: [
                     Text(
                       'Budget Mensuel Estimé',
-                      style: KpbTextStyles.label.copyWith(
-                          color: context.kpb.textSecondary),
+                      style: KpbTextStyles.label
+                          .copyWith(color: context.kpb.textSecondary),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -255,15 +265,17 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Detail List ───────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Text(
                 'Détails par catégorie',
-                style: KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
+                style: KpbTextStyles.title
+                    .copyWith(color: context.kpb.textPrimary),
               ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.md)),
-          
+
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
             sliver: SliverList.separated(
@@ -309,9 +321,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? Colors.white
-                    : context.kpb.textSecondary,
+                color: isSelected ? Colors.white : context.kpb.textSecondary,
               ),
             ),
           ),
@@ -320,7 +330,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     );
   }
 
-  List<PieChartSectionData> _generateChartSections(LivingBudgetProfile p, double mult, bool isDark) {
+  List<PieChartSectionData> _generateChartSections(
+      LivingBudgetProfile p, double mult, bool isDark) {
     PieChartSectionData createSection(double val, Color color) {
       return PieChartSectionData(
         color: color,
@@ -384,15 +395,15 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               children: [
                 Text(
                   cat.name,
-                  style: KpbTextStyles.titleMd.copyWith(
-                      color: context.kpb.textPrimary),
+                  style: KpbTextStyles.titleMd
+                      .copyWith(color: context.kpb.textPrimary),
                 ),
                 if (cat.note != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     cat.note!,
-                    style: KpbTextStyles.caption.copyWith(
-                        color: context.kpb.textMuted),
+                    style: KpbTextStyles.caption
+                        .copyWith(color: context.kpb.textMuted),
                   ),
                 ],
               ],

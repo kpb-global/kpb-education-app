@@ -25,7 +25,8 @@ Future<void> openWhatsAppOrToast({
   String? phone,
   String? prefill,
   String title = 'WhatsApp',
-  String message = "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
+  String message =
+      "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
 }) async {
   final uri = buildWhatsAppUri(phone: phone, prefill: prefill);
   if (await canLaunchUrl(uri)) {

@@ -170,8 +170,8 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                             value: _int('satisfactionRate') / 100,
                             minHeight: 10,
                             backgroundColor: context.kpb.gray200,
-                            valueColor: const AlwaysStoppedAnimation(
-                                KpbColors.success),
+                            valueColor:
+                                const AlwaysStoppedAnimation(KpbColors.success),
                           ),
                         ),
                       ],

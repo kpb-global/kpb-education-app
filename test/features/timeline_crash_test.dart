@@ -32,27 +32,34 @@ void main() {
         id: 'case-123',
         referenceCode: 'KPB-999',
         type: CaseType.applicationSupport,
-        title: const LocalizedText(fr: 'Mon dossier master', en: 'My master case'),
+        title:
+            const LocalizedText(fr: 'Mon dossier master', en: 'My master case'),
         description: const LocalizedText(fr: 'Description', en: 'Description'),
         contextLabel: const LocalizedText(fr: 'KPB', en: 'KPB'),
         status: CaseStatus.underReview,
         preferredContactMethod: ContactMethod.inApp,
         createdAt: now.subtract(const Duration(days: 2)),
         updatedAt: now,
-        nextStepTitle: const LocalizedText(fr: 'Attente de validation', en: 'Awaiting validation'),
-        nextStepDescription: const LocalizedText(fr: 'Description de validation', en: 'Validation description'),
+        nextStepTitle: const LocalizedText(
+            fr: 'Attente de validation', en: 'Awaiting validation'),
+        nextStepDescription: const LocalizedText(
+            fr: 'Description de validation', en: 'Validation description'),
         timeline: <CaseTimelineEvent>[
           CaseTimelineEvent(
             id: 'evt-1',
-            title: const LocalizedText(fr: 'Dossier soumis', en: 'Case submitted'),
-            description: const LocalizedText(fr: 'Soumission initiale', en: 'Initial submission'),
+            title:
+                const LocalizedText(fr: 'Dossier soumis', en: 'Case submitted'),
+            description: const LocalizedText(
+                fr: 'Soumission initiale', en: 'Initial submission'),
             createdAt: now.subtract(const Duration(days: 1)),
             status: CaseStatus.submitted,
           ),
           CaseTimelineEvent(
             id: 'evt-2',
-            title: const LocalizedText(fr: 'Dossier en revue', en: 'Under review'),
-            description: const LocalizedText(fr: 'Revue par le conseiller', en: 'Review by advisor'),
+            title:
+                const LocalizedText(fr: 'Dossier en revue', en: 'Under review'),
+            description: const LocalizedText(
+                fr: 'Revue par le conseiller', en: 'Review by advisor'),
             createdAt: now,
             status: CaseStatus.underReview,
           ),

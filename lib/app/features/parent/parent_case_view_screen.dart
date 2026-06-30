@@ -167,7 +167,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         const SizedBox(height: KpbSpacing.lg),
         if (timeline.isNotEmpty) ...[
           const Padding(
-            padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
+            padding:
+                EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
             child: Text('Historique', style: KpbTextStyles.label),
           ),
           ...timeline.take(6).map(_timelineTile),
@@ -175,7 +176,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         ],
         if (messages.isNotEmpty) ...[
           const Padding(
-            padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
+            padding:
+                EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
             child: Text('Derniers échanges', style: KpbTextStyles.label),
           ),
           ...messages.reversed.take(5).toList().reversed.map(_messageTile),

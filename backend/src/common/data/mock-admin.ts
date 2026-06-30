@@ -318,5 +318,47 @@ export const mockAdminData = {
       { campaign: 'Orientation webinar invite', delivered: 420, opened: 210 },
       { campaign: 'Cases missing docs - April batch', delivered: 64, opened: 33 },
     ],
+    serviceRevenue: {
+      bySku: [
+        {
+          sku: 'dossier-pret-fr-en',
+          packageName: 'Dossier prêt FR + EN',
+          category: 'dossier_pret',
+          purchasesCount: 8,
+          paidCount: 5,
+          pendingCount: 3,
+          recognizedRevenueXOF: 125000,
+          pendingPipelineXOF: 75000,
+        },
+        {
+          sku: 'kit-bourse',
+          packageName: 'Kit bourse',
+          category: 'scholarship_kit',
+          purchasesCount: 4,
+          paidCount: 2,
+          pendingCount: 2,
+          recognizedRevenueXOF: 30000,
+          pendingPipelineXOF: 30000,
+        },
+      ],
+      byDestination: [
+        {
+          destinationId: 'france',
+          purchasesCount: 5,
+          paidCount: 3,
+          pendingCount: 2,
+          recognizedRevenueXOF: 75000,
+          pendingPipelineXOF: 50000,
+        },
+        {
+          destinationId: 'canada',
+          purchasesCount: 3,
+          paidCount: 2,
+          pendingCount: 1,
+          recognizedRevenueXOF: 50000,
+          pendingPipelineXOF: 25000,
+        },
+      ],
+    },
   },
 };

@@ -33,6 +33,13 @@ function makeDb() {
 describe('AdminCatalogService', () => {
   let service: AdminCatalogService;
   let db: ReturnType<typeof makeDb>;
+  const verifier = {
+    id: 'admin-1',
+    fullName: 'Amina KPB',
+    email: 'amina@kpb.education',
+    role: 'admin',
+    languageScope: ['fr', 'en'],
+  };
   const prismaMock = {
     isEnabled: true,
     execute: jest.fn(),
@@ -91,7 +98,15 @@ describe('AdminCatalogService', () => {
 
     const arg = db.program.update.mock.calls[0][0];
     expect(arg.where).toEqual({ id: 'p1' });
-    expect(arg.data).toEqual({ nameFr: 'X', levelFr: 'BBA' });
+    expect(arg.data).toEqual(
+      expect.objectContaining({
+        nameFr: 'X',
+        levelFr: 'BBA',
+        lastVerifiedAt: expect.any(Date),
+        verifiedById: 'system',
+        verifiedByName: 'System verification',
+      }),
+    );
   });
 
   it('maps a Prisma P2025 to NotFoundException on updateProgram', async () => {
@@ -156,6 +171,31 @@ describe('AdminCatalogService', () => {
     expect(data.isActive).toBe(true);
   });
 
+  it('stamps scholarship edits with the admin verifier and source URL', async () => {
+    db.scholarship.update.mockResolvedValue({ id: 's1' });
+
+    await service.updateScholarship(
+      's1',
+      {
+        deadlineLabelFr: '15 janvier 2027',
+        sourceUrl: 'https://official.example/scholarship',
+      },
+      verifier,
+    );
+
+    const data = db.scholarship.update.mock.calls[0][0].data;
+    expect(data).toEqual(
+      expect.objectContaining({
+        deadlineLabelFr: '15 janvier 2027',
+        sourceUrl: 'https://official.example/scholarship',
+        verificationSourceUrl: 'https://official.example/scholarship',
+        lastVerifiedAt: expect.any(Date),
+        verifiedById: 'admin-1',
+        verifiedByName: 'Amina KPB',
+      }),
+    );
+  });
+
   // ── Countries ────────────────────────────────────────────────────────────
   it('refuses to delete a country still referenced by institutions', async () => {
     db.program.count.mockResolvedValue(0);
@@ -195,5 +235,67 @@ describe('AdminCatalogService', () => {
     const result = await service.listScholarships();
 
     expect(result).toEqual({ items: [{ id: 's1' }], total: 1 });
+  });
+
+  it('lists catalog rows due for operational verification', async () => {
+    const now = new Date('2026-06-30T10:00:00.000Z');
+    db.country.findMany.mockResolvedValue([
+      {
+        id: 'fra',
+        code: 'fra',
+        nameFr: 'France',
+        lastVerifiedAt: null,
+        verifiedByName: null,
+        verificationSourceUrl: null,
+      },
+    ]);
+    db.institution.findMany.mockResolvedValue([]);
+    db.program.findMany.mockResolvedValue([]);
+    db.scholarship.findMany.mockResolvedValue([
+      {
+        id: 's1',
+        countryId: 'can',
+        nameFr: 'Bourse Canada',
+        lastVerifiedAt: new Date('2026-05-01T10:00:00.000Z'),
+        verifiedByName: 'Fatou Admin',
+        verificationSourceUrl: null,
+        sourceUrl: 'https://official.example/canada',
+      },
+    ]);
+
+    const result = await service.listVerificationDue(now);
+
+    expect(result.total).toBe(2);
+    expect(result.policies).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'country_visa',
+          cadenceDays: 30,
+          owner: 'Amina KPB',
+        }),
+        expect.objectContaining({
+          key: 'scholarship_deadline',
+          cadenceDays: 30,
+        }),
+      ]),
+    );
+    expect(result.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          entityType: 'country',
+          id: 'fra',
+          category: 'country_visa',
+          owner: 'Amina KPB',
+          isOverdue: true,
+        }),
+        expect.objectContaining({
+          entityType: 'scholarship',
+          id: 's1',
+          category: 'scholarship_deadline',
+          verificationSourceUrl: 'https://official.example/canada',
+          daysSinceVerification: 60,
+        }),
+      ]),
+    );
   });
 });

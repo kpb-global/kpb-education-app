@@ -18,7 +18,9 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { ServicePackagesService } from './service-packages.service';
 
-type AuthedReq = Request & { studentUser?: { id: string; email: string; fullName: string; phone: string } };
+type AuthedReq = Request & {
+  studentUser?: { id: string; email: string; fullName: string; phone: string };
+};
 
 /**
  * Public catalog — no auth. Parents browsing the app before login still
@@ -51,6 +53,24 @@ export class MyPurchasesController {
   constructor(
     private readonly servicePackagesService: ServicePackagesService,
   ) {}
+
+  @Post('whatsapp')
+  createWhatsAppPurchase(
+    @Req() req: AuthedReq,
+    @Body()
+    body: {
+      packageCode: string;
+      caseId?: string;
+      source?: string;
+    },
+  ) {
+    return this.servicePackagesService.createWhatsAppPurchase({
+      userId: req.studentUser!.id,
+      packageCode: body.packageCode,
+      caseId: body.caseId,
+      source: body.source,
+    });
+  }
 
   @Post()
   purchase(

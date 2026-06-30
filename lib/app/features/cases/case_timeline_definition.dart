@@ -1,6 +1,12 @@
 import '../../core/models/app_models.dart';
 
-enum CaseTimelineStepState { passed, current, upcoming, terminalSuccess, terminalError }
+enum CaseTimelineStepState {
+  passed,
+  current,
+  upcoming,
+  terminalSuccess,
+  terminalError
+}
 
 class CaseTimelineStepViewModel {
   const CaseTimelineStepViewModel({
@@ -127,9 +133,8 @@ List<CaseTimelineStepViewModel> buildCaseTimelineSteps({
       status: isRejected && stepStatus == CaseStatus.completed
           ? CaseStatus.rejected
           : stepStatus,
-      titleFr: isRejected && stepStatus == CaseStatus.completed
-          ? 'Refusée'
-          : title,
+      titleFr:
+          isRejected && stepStatus == CaseStatus.completed ? 'Refusée' : title,
       state: state,
       date: _latestEventDate(events, stepStatus),
       subtitle: subtitle,

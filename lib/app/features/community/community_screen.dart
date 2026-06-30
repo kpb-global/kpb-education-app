@@ -47,8 +47,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
         final articles = _selectedTag == null
             ? allArticles.take(10).toList()
             : allArticles
-                .where((a) =>
-                    (a.tags as List).contains(_selectedTag))
+                .where((a) => (a.tags as List).contains(_selectedTag))
                 .toList();
 
         return KpbRefresh(
@@ -61,16 +60,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 snap: true,
                 backgroundColor: context.kpb.pageBg,
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: context.kpb.textPrimary),
-                  onPressed: () => Navigator.canPop(context)
-                      ? Navigator.pop(context)
-                      : null,
+                  icon: Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 20, color: context.kpb.textPrimary),
+                  onPressed: () =>
+                      Navigator.canPop(context) ? Navigator.pop(context) : null,
                 ),
-                title: Text('Communauté', style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary)),
+                title: Text('Communauté',
+                    style: KpbTextStyles.headline
+                        .copyWith(color: context.kpb.textPrimary)),
                 actions: [
                   // Search icon opens SearchScreen
                   IconButton(
-                    icon: Icon(Icons.search_rounded, color: context.kpb.textPrimary),
+                    icon: Icon(Icons.search_rounded,
+                        color: context.kpb.textPrimary),
                     onPressed: () => Get.to(() => const SearchScreen()),
                     tooltip: 'Rechercher',
                   ),
@@ -81,11 +83,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
               SliverToBoxAdapter(
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+                    gradient: isDark
+                        ? KpbColors.heroGradientDark
+                        : KpbColors.heroGradient,
                   ),
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.xl,
-                      KpbSpacing.pagePad, KpbSpacing.xl),
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.xl),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -116,8 +119,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     color: context.kpb.cardBg,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: KpbSpacing.sm),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: KpbSpacing.sm),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(
@@ -129,23 +132,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             label: 'Tous',
                             selected: _selectedTag == null,
                             isDark: isDark,
-                            onTap: () =>
-                                setState(() => _selectedTag = null),
+                            onTap: () => setState(() => _selectedTag = null),
                           ),
                           const SizedBox(width: 8),
                           ...tags.map((tag) {
-                            final label =
-                                controller.resolve(tag.label);
+                            final label = controller.resolve(tag.label);
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: _TagChip(
                                 label: '#$label',
                                 selected: _selectedTag == label,
                                 isDark: isDark,
-                                onTap: () => setState(() =>
-                                    _selectedTag = _selectedTag == label
-                                        ? null
-                                        : label),
+                                onTap: () => setState(() => _selectedTag =
+                                    _selectedTag == label ? null : label),
                               ),
                             );
                           }),
@@ -158,18 +157,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
               // ── Articles section ──────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.xl,
-                      KpbSpacing.pagePad, KpbSpacing.sm),
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
                   child: Row(
                     children: [
-                      Text('Articles', style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary)),
+                      Text('Articles',
+                          style: KpbTextStyles.titleLg
+                              .copyWith(color: context.kpb.textPrimary)),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: (isDark ? KpbColors.stitchCyberCyan : KpbColors.blue).withValues(alpha: 0.15),
+                          color: (isDark
+                                  ? KpbColors.stitchCyberCyan
+                                  : KpbColors.blue)
+                              .withValues(alpha: 0.15),
                           borderRadius: KpbRadius.pillBr,
                         ),
                         child: Text(
@@ -177,7 +180,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: isDark ? KpbColors.stitchCyberCyan : KpbColors.blue,
+                            color: isDark
+                                ? KpbColors.stitchCyberCyan
+                                : KpbColors.blue,
                           ),
                         ),
                       ),
@@ -247,10 +252,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
               if (categories.isNotEmpty) ...[
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        KpbSpacing.pagePad, KpbSpacing.xl,
-                        KpbSpacing.pagePad, KpbSpacing.sm),
-                    child: Text('Forum', style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary)),
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                        KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
+                    child: Text('Forum',
+                        style: KpbTextStyles.titleLg
+                            .copyWith(color: context.kpb.textPrimary)),
                   ),
                 ),
                 SliverPadding(
@@ -278,25 +284,27 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               width: 54,
                               height: 54,
                               decoration: BoxDecoration(
-                                color: isDark ? colors.fg.withValues(alpha: 0.15) : colors.bg,
+                                color: isDark
+                                    ? colors.fg.withValues(alpha: 0.15)
+                                    : colors.bg,
                                 borderRadius: KpbRadius.mdBr,
                               ),
-                              child: Icon(colors.icon,
-                                  color: colors.fg, size: 28),
+                              child:
+                                  Icon(colors.icon, color: colors.fg, size: 28),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(controller.resolve(cat.label),
-                                      style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
+                                      style: KpbTextStyles.titleMd.copyWith(
+                                          color: context.kpb.textPrimary)),
                                   const SizedBox(height: 4),
                                   Text(
-                                    controller
-                                        .resolve(cat.description),
-                                    style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+                                    controller.resolve(cat.description),
+                                    style: KpbTextStyles.caption.copyWith(
+                                        color: context.kpb.textSecondary),
                                     maxLines: 2,
                                   ),
                                 ],
@@ -316,9 +324,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
               // ── WhatsApp CTA ──────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.xl,
-                      KpbSpacing.pagePad, KpbSpacing.xl),
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.xl),
                   child: GestureDetector(
                     onTap: _launchWhatsApp,
                     child: GradientHeroCard(
@@ -341,8 +348,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                 Text(
                                   '+2 000 étudiants — Conseils, entraide & actu',
                                   style: TextStyle(
-                                    color: Colors.white
-                                        .withValues(alpha: 0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 13,
                                   ),
                                 ),
@@ -383,31 +389,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   ({Color bg, Color fg, IconData icon}) _categoryColors(int i) {
     const list = [
-      (
-        bg: Color(0xFFEEF2FF),
-        fg: KpbColors.blue,
-        icon: Icons.school_outlined
-      ),
+      (bg: Color(0xFFEEF2FF), fg: KpbColors.blue, icon: Icons.school_outlined),
       (
         bg: Color(0xFFF0FDF4),
         fg: KpbColors.success,
         icon: Icons.workspace_premium_outlined
       ),
-      (
-        bg: Color(0xFFFFFBEB),
-        fg: KpbColors.gold,
-        icon: Icons.home_outlined
-      ),
-      (
-        bg: Color(0xFFEFF6FF),
-        fg: KpbColors.sky,
-        icon: Icons.language_outlined
-      ),
-      (
-        bg: Color(0xFFFFF1F2),
-        fg: KpbColors.error,
-        icon: Icons.forum_outlined
-      ),
+      (bg: Color(0xFFFFFBEB), fg: KpbColors.gold, icon: Icons.home_outlined),
+      (bg: Color(0xFFEFF6FF), fg: KpbColors.sky, icon: Icons.language_outlined),
+      (bg: Color(0xFFFFF1F2), fg: KpbColors.error, icon: Icons.forum_outlined),
     ];
     return list[i % list.length];
   }
@@ -418,7 +408,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
-    message: 'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+    message:
+        'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
   );
 }
 
@@ -445,14 +436,12 @@ class _TagChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? activeColor : context.kpb.cardBg,
           borderRadius: KpbRadius.pillBr,
           border: Border.all(
-            color:
-                selected ? activeColor : context.kpb.gray200,
+            color: selected ? activeColor : context.kpb.gray200,
           ),
           boxShadow: selected ? (isDark ? null : KpbShadow.blue) : null,
         ),
@@ -492,7 +481,8 @@ class _FeaturedArticle extends StatelessWidget {
           Container(
             height: 140,
             decoration: BoxDecoration(
-              gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+              gradient:
+                  isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(KpbRadius.lg),
                 topRight: Radius.circular(KpbRadius.lg),
@@ -515,12 +505,14 @@ class _FeaturedArticle extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   controller.resolve(article.title),
-                  style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
+                  style: KpbTextStyles.titleLg
+                      .copyWith(color: context.kpb.textPrimary),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   controller.resolve(article.summary),
-                  style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
+                  style: KpbTextStyles.bodySm
+                      .copyWith(color: context.kpb.textSecondary),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -578,22 +570,23 @@ class _ArticleCard extends StatelessWidget {
               children: [
                 Text(
                   controller.resolve(article.title),
-                  style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary, height: 1.2),
+                  style: KpbTextStyles.titleMd
+                      .copyWith(color: context.kpb.textPrimary, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   controller.resolve(article.summary),
-                  style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+                  style: KpbTextStyles.caption
+                      .copyWith(color: context.kpb.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if ((article.tags as List<String>).isNotEmpty) ...[
                   const SizedBox(height: 8),
                   KpbBadgeLight(
-                      label:
-                          '#${(article.tags as List<String>).first}'),
+                      label: '#${(article.tags as List<String>).first}'),
                 ],
               ],
             ),
@@ -638,7 +631,9 @@ void _openArticleSheet(
             Container(
               height: 160,
               decoration: BoxDecoration(
-                gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+                gradient: isDark
+                    ? KpbColors.heroGradientDark
+                    : KpbColors.heroGradient,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
@@ -686,8 +681,8 @@ void _openArticleSheet(
                   if (article.publishedAt != null)
                     Text(
                       'Publié le ${_formatDate(article.publishedAt as DateTime)}',
-                      style: TextStyle(
-                          fontSize: 13, color: context.kpb.textMuted),
+                      style:
+                          TextStyle(fontSize: 13, color: context.kpb.textMuted),
                     ),
                 ],
               ),
@@ -701,8 +696,19 @@ void _openArticleSheet(
 
 String _formatDate(DateTime dt) {
   const months = [
-    '', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-    'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
+    '',
+    'janv.',
+    'févr.',
+    'mars',
+    'avr.',
+    'mai',
+    'juin',
+    'juil.',
+    'août',
+    'sept.',
+    'oct.',
+    'nov.',
+    'déc.'
   ];
   return '${dt.day} ${months[dt.month]} ${dt.year}';
 }

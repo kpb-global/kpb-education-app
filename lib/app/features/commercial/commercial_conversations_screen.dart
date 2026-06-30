@@ -25,8 +25,7 @@ class _CommercialConversationsScreenState
     });
   }
 
-  Future<void> _refresh() =>
-      Get.find<AppController>().fetchCommercialLeads();
+  Future<void> _refresh() => Get.find<AppController>().fetchCommercialLeads();
 
   /// Conversations are leads sorted with unread first, then most recent.
   List<CommercialLead> _conversationOrder(List<CommercialLead> leads) {
@@ -95,7 +94,8 @@ class _CommercialConversationsScreenState
               ),
             ),
             title: Text(lead.studentName),
-            subtitle: Text(lead.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle:
+                Text(lead.title, maxLines: 1, overflow: TextOverflow.ellipsis),
             trailing: hasUnread
                 ? CircleAvatar(
                     radius: 12,

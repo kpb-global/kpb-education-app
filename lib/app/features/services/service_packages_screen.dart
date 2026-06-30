@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/repositories/app_api_client.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
 ///
@@ -10,11 +10,20 @@ import '../../core/repositories/app_api_client.dart';
 /// letters in FR + EN before submission. Parents have a concrete, tangible
 /// thing to pay for.
 ///
-/// The screen splits the catalog by category and opens a purchase flow
-/// via [AppApiClient.purchaseServicePackage], which creates a PaymentIntent
-/// and returns the provider-hosted checkout URL (CinetPay / Paydunya).
+/// The screen splits the catalog by category and opens a WhatsApp-assisted
+/// sales flow. The CTA first creates a pending [ServicePurchase] row, then
+/// opens WhatsApp so ops can collect payment and advance delivery manually.
 class ServicePackagesScreen extends StatefulWidget {
-  const ServicePackagesScreen({super.key});
+  const ServicePackagesScreen({
+    super.key,
+    this.caseId,
+    this.caseReference,
+    this.source = 'service_package_whatsapp',
+  });
+
+  final String? caseId;
+  final String? caseReference;
+  final String source;
 
   @override
   State<ServicePackagesScreen> createState() => _ServicePackagesScreenState();
@@ -53,37 +62,44 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     }
   }
 
-  Future<void> _purchase(Map<String, dynamic> pkg) async {
+  Future<void> _requestOnWhatsApp(Map<String, dynamic> pkg) async {
     final code = pkg['code'] as String?;
     if (code == null) return;
-    // Deep-link the CinetPay/Paydunya return journey back into the app.
-    const returnUrl = 'kpb://payment/success';
-    const cancelUrl = 'kpb://payment/cancel';
 
     try {
-      final result = await _api.purchaseServicePackage(
+      final result = await _api.requestServicePackageViaWhatsApp(
         packageCode: code,
-        returnUrl: returnUrl,
-        cancelUrl: cancelUrl,
+        caseId: widget.caseId,
+        source: widget.source,
       );
-      final intent = result['paymentIntent'] as Map<String, dynamic>?;
-      final checkoutUrl = intent?['checkoutUrl'] as String?;
-      if (checkoutUrl == null || checkoutUrl.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paiement préparé. Un conseiller te contactera.'),
-          ),
-        );
-        return;
-      }
-      final uri = Uri.parse(checkoutUrl);
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final purchaseId = result['id'] as String? ?? '';
+      final name = (pkg['nameFr'] as String?) ?? code;
+      final price = (pkg['priceXOF'] as num?)?.toInt() ?? 0;
+      final dossier = widget.caseReference?.trim().isNotEmpty == true
+          ? widget.caseReference!.trim()
+          : 'non rattaché';
+
+      await openWhatsAppOrToast(
+        prefill: [
+          'Bonjour KPB, je souhaite réserver le service $name.',
+          'SKU : $code.',
+          'Prix : ${_PackageCard.formatFcfa(price)} FCFA.',
+          if (purchaseId.isNotEmpty) 'Référence demande : $purchaseId.',
+          'Dossier : $dossier.',
+        ].join('\n'),
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Demande créée. Un conseiller suivra le paiement.'),
+        ),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Impossible de démarrer le paiement.'),
+          content: Text('Impossible de créer la demande WhatsApp.'),
         ),
       );
     }
@@ -131,8 +147,10 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
       padding: const EdgeInsets.all(16),
       itemCount: _packages.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) =>
-          _PackageCard(pkg: _packages[i] as Map<String, dynamic>, onBuy: _purchase),
+      itemBuilder: (context, i) => _PackageCard(
+        pkg: _packages[i] as Map<String, dynamic>,
+        onBuy: _requestOnWhatsApp,
+      ),
     );
   }
 }
@@ -175,7 +193,7 @@ class _PackageCard extends StatelessWidget {
             Text(summary, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 12),
             Text(
-              '${_formatFcfa(price)} FCFA',
+              '${formatFcfa(price)} FCFA',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -205,7 +223,7 @@ class _PackageCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 icon: const Icon(Icons.payments),
-                label: const Text('Payer maintenant'),
+                label: const Text('Réserver sur WhatsApp'),
                 onPressed: () => onBuy(pkg),
               ),
             ),
@@ -230,7 +248,7 @@ class _PackageCard extends StatelessWidget {
     }
   }
 
-  static String _formatFcfa(int value) {
+  static String formatFcfa(int value) {
     // Group thousands with a non-breaking space — matches local convention.
     final s = value.toString();
     final buf = StringBuffer();

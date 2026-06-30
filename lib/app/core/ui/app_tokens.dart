@@ -61,7 +61,7 @@ class KpbColors {
   static const stitchCyberCyan = Color(0xFF00E5FF);
   static const stitchDeepPurple = Color(0xFF6B21A8);
   static const stitchNeonRed = Color(0xFFFF2A5F);
-  
+
   // ── Aliases ──────────────────────────────────────────────────────────────
   static const primary = blue;
   static const primaryLight = skyLight;

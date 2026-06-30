@@ -39,14 +39,16 @@ Future<void> main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
         return true;
       };
       firebaseInitialized = true;
     } catch (firebaseError) {
-      debugPrint('Firebase/Crashlytics boot skipped (running offline/local-only): $firebaseError');
+      debugPrint(
+          'Firebase/Crashlytics boot skipped (running offline/local-only): $firebaseError');
     }
 
     // ── Supabase Auth ────────────────────────────────────────────────────────
@@ -75,7 +77,7 @@ Future<void> main() async {
     if (authService.isLoggedIn) {
       await controller.finishAuthSession();
     }
-    
+
     Get.put(SecurityService());
     // ── Push notifications (OneSignal) ─────────────────────────────────────────
     await OneSignalService.instance.initialize();
@@ -84,7 +86,7 @@ Future<void> main() async {
     if (controller.profile != null) {
       unawaited(controller.syncOneSignalIdentity());
     }
-    
+
     ConnectivityService.instance.startMonitoring();
     ConnectivityService.instance.bindReconnectSync(() async {
       await controller.flushPendingCaseMessages();

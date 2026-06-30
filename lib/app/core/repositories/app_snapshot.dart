@@ -39,6 +39,7 @@ class AppSnapshot {
   final bool hasSeenIntro;
   final bool isGuestMode;
   final bool isAppLockEnabled;
+
   /// Data-saver: skip non-essential network image loads on low-bandwidth links.
   final bool dataSaverEnabled;
   final ThemeMode themeMode;

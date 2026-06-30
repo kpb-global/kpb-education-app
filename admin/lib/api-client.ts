@@ -35,7 +35,7 @@ export function readStoredSession(): AdminSession | null {
 
   try {
     return JSON.parse(raw) as AdminSession;
-  } catch (_) {
+  } catch {
     window.localStorage.removeItem(STORAGE_KEY);
     return null;
   }

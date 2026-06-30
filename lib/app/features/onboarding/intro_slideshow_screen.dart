@@ -20,17 +20,20 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
     _SlideData(
       icon: Icons.explore_rounded,
       title: "Explorez vos Destinations",
-      description: "Découvrez des centaines de programmes d'études au Canada, en France et partout dans le monde.",
+      description:
+          "Découvrez des centaines de programmes d'études au Canada, en France et partout dans le monde.",
     ),
     _SlideData(
       icon: Icons.apartment_rounded,
       title: "Grandes Écoles Privées",
-      description: "Postulez dans les plus prestigieuses écoles de commerce, d'informatique et d'ingénierie en France.",
+      description:
+          "Postulez dans les plus prestigieuses écoles de commerce, d'informatique et d'ingénierie en France.",
     ),
     _SlideData(
       icon: Icons.folder_copy_rounded,
       title: "Suivi en Temps Réel",
-      description: "Suivez l'avancement de votre dossier et échangez avec nos conseillers KPB directement dans l'application.",
+      description:
+          "Suivez l'avancement de votre dossier et échangez avec nos conseillers KPB directement dans l'application.",
     ),
   ];
 
@@ -77,7 +80,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
               ),
             ),
           ),
-          
+
           // Slides
           PageView.builder(
             controller: _pageController,
@@ -87,7 +90,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
               return _SlideView(data: _slides[index]);
             },
           ),
-          
+
           // Skip Button
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
@@ -96,11 +99,14 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
               onPressed: _finishIntro,
               child: const Text(
                 "Passer",
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600),
               ),
             ),
           ),
-          
+
           // Bottom Navigation
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 32,
@@ -125,25 +131,32 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
                     );
                   }),
                 ),
-                
+
                 // Next/Start Button
                 ElevatedButton(
                   onPressed: _onNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: KpbColors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KpbRadius.pill)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(KpbRadius.pill)),
                   ),
                   child: Row(
                     children: [
                       Text(
-                        _currentPage == _slides.length - 1 ? "Commencer" : "Continuer",
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        _currentPage == _slides.length - 1
+                            ? "Commencer"
+                            : "Continuer",
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 8),
                       Icon(
-                        _currentPage == _slides.length - 1 ? Icons.check_circle_rounded : Icons.arrow_forward_rounded,
+                        _currentPage == _slides.length - 1
+                            ? Icons.check_circle_rounded
+                            : Icons.arrow_forward_rounded,
                         size: 20,
                       ),
                     ],
@@ -163,7 +176,8 @@ class _SlideData {
   final String title;
   final String description;
 
-  const _SlideData({required this.icon, required this.title, required this.description});
+  const _SlideData(
+      {required this.icon, required this.title, required this.description});
 }
 
 class _SlideView extends StatelessWidget {
@@ -193,7 +207,7 @@ class _SlideView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 64),
-          
+
           // Title
           Text(
             data.title,
@@ -206,7 +220,7 @@ class _SlideView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Description
           Text(
             data.description,

@@ -36,32 +36,92 @@ class _CasesScreenState extends State<CasesScreen> {
         final Widget body = KpbRefresh(
           onRefresh: controller.pullToRefresh,
           child: CustomScrollView(
-          slivers: [
-            // ── Header ───────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  KpbSpacing.pagePad, KpbSpacing.lg,
-                  KpbSpacing.pagePad, KpbSpacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('nav_cases'.tr, style: KpbTextStyles.headline),
-                          const SizedBox(height: 3),
-                          Text(
-                            '${items.length} dossier${items.length > 1 ? 's' : ''}',
-                            style: KpbTextStyles.bodySm,
-                          ),
-                        ],
+            slivers: [
+              // ── Header ───────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    KpbSpacing.pagePad,
+                    KpbSpacing.lg,
+                    KpbSpacing.pagePad,
+                    KpbSpacing.md,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('nav_cases'.tr, style: KpbTextStyles.headline),
+                            const SizedBox(height: 3),
+                            Text(
+                              '${items.length} dossier${items.length > 1 ? 's' : ''}',
+                              style: KpbTextStyles.bodySm,
+                            ),
+                          ],
+                        ),
                       ),
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(64, 48),
+                        ),
+                        icon: const Icon(Icons.add_rounded, size: 18),
+                        label: Text('new_case'.tr),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => CaseComposerSheet(
+                            caseType: CaseType.consultation,
+                            title: 'new_case'.tr,
+                            contextLabel: 'KPB Education',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Filtres ───────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 40,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: KpbSpacing.pagePad,
                     ),
-                    FilledButton.icon(
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: Text('new_case'.tr),
+                    children: [
+                      _FilterChip(
+                        label: 'Tous',
+                        selected: _selectedType == null,
+                        onTap: () => setState(() => _selectedType = null),
+                      ),
+                      const SizedBox(width: 8),
+                      ...CaseType.values.map((type) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: _FilterChip(
+                            label: _typeLabel(type),
+                            selected: _selectedType == type,
+                            onTap: () => setState(() => _selectedType = type),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.md)),
+
+              // ── Liste ─────────────────────────────────────────────────
+              if (items.isEmpty)
+                SliverFillRemaining(
+                  child: KpbEmptyState(
+                    icon: Icons.folder_open_outlined,
+                    title: 'no_cases'.tr,
+                    subtitle: 'case_empty_hint'.tr,
+                    action: FilledButton(
                       onPressed: () => showModalBottomSheet<void>(
                         context: context,
                         isScrollControlled: true,
@@ -71,85 +131,30 @@ class _CasesScreenState extends State<CasesScreen> {
                           contextLabel: 'KPB Education',
                         ),
                       ),
+                      child: Text('create_case'.tr),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Filtres ───────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 40,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
+                  ),
+                )
+              else
+                SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: KpbSpacing.pagePad,
                   ),
-                  children: [
-                    _FilterChip(
-                      label: 'Tous',
-                      selected: _selectedType == null,
-                      onTap: () => setState(() => _selectedType = null),
-                    ),
-                    const SizedBox(width: 8),
-                    ...CaseType.values.map((type) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _FilterChip(
-                          label: _typeLabel(type),
-                          selected: _selectedType == type,
-                          onTap: () => setState(() => _selectedType = type),
-                        ),
+                  sliver: SliverList.separated(
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: KpbSpacing.sm),
+                    itemBuilder: (context, index) {
+                      return _CaseCard(
+                        item: items[index],
+                        controller: controller,
                       );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.md)),
-
-            // ── Liste ─────────────────────────────────────────────────
-            if (items.isEmpty)
-              SliverFillRemaining(
-                child: KpbEmptyState(
-                  icon: Icons.folder_open_outlined,
-                  title: 'no_cases'.tr,
-                  subtitle: 'case_empty_hint'.tr,
-                  action: FilledButton(
-                    onPressed: () => showModalBottomSheet<void>(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) => CaseComposerSheet(
-                        caseType: CaseType.consultation,
-                        title: 'new_case'.tr,
-                        contextLabel: 'KPB Education',
-                      ),
-                    ),
-                    child: Text('create_case'.tr),
+                    },
                   ),
                 ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: KpbSpacing.pagePad,
-                ),
-                sliver: SliverList.separated(
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: KpbSpacing.sm),
-                  itemBuilder: (context, index) {
-                    return _CaseCard(
-                      item: items[index],
-                      controller: controller,
-                    );
-                  },
-                ),
-              ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
           ),
         );
 
@@ -169,11 +174,16 @@ class _CasesScreenState extends State<CasesScreen> {
 
   String _typeLabel(CaseType type) {
     switch (type) {
-      case CaseType.consultation: return 'Consultation';
-      case CaseType.applicationSupport: return 'Candidature';
-      case CaseType.scholarshipSupport: return 'Bourse';
-      case CaseType.housingSupport: return 'Logement';
-      case CaseType.mentorship: return 'Mentorat';
+      case CaseType.consultation:
+        return 'Consultation';
+      case CaseType.applicationSupport:
+        return 'Candidature';
+      case CaseType.scholarshipSupport:
+        return 'Bourse';
+      case CaseType.housingSupport:
+        return 'Logement';
+      case CaseType.mentorship:
+        return 'Mentorat';
     }
   }
 }
@@ -189,8 +199,8 @@ class _CaseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusInfo = _statusInfo(context, item.status);
-    final date = DateFormat('dd MMM yyyy', controller.localeCode)
-        .format(item.updatedAt);
+    final date =
+        DateFormat('dd MMM yyyy', controller.localeCode).format(item.updatedAt);
     final unread = controller.unreadMessagesForCase(item.id);
 
     return KpbCard(
@@ -307,8 +317,7 @@ class _CaseCard extends StatelessWidget {
               child: FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: _contextualActionColor(item.status),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   textStyle: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -357,15 +366,21 @@ class _CaseCard extends StatelessWidget {
 
   IconData _typeIcon(CaseType type) {
     switch (type) {
-      case CaseType.consultation: return Icons.support_agent_outlined;
-      case CaseType.applicationSupport: return Icons.folder_copy_outlined;
-      case CaseType.scholarshipSupport: return Icons.workspace_premium_outlined;
-      case CaseType.housingSupport: return Icons.home_outlined;
-      case CaseType.mentorship: return Icons.psychology_outlined;
+      case CaseType.consultation:
+        return Icons.support_agent_outlined;
+      case CaseType.applicationSupport:
+        return Icons.folder_copy_outlined;
+      case CaseType.scholarshipSupport:
+        return Icons.workspace_premium_outlined;
+      case CaseType.housingSupport:
+        return Icons.home_outlined;
+      case CaseType.mentorship:
+        return Icons.psychology_outlined;
     }
   }
 
-  ({String label, Color color}) _statusInfo(BuildContext context, CaseStatus status) {
+  ({String label, Color color}) _statusInfo(
+      BuildContext context, CaseStatus status) {
     switch (status) {
       case CaseStatus.submitted:
         return (label: 'Envoyé', color: KpbColors.sky);

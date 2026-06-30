@@ -123,9 +123,8 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                         labelText: 'Université / école',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Requis'
-                          : null,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Requis' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -134,9 +133,8 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                         labelText: 'Programme / filière',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Requis'
-                          : null,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Requis' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -159,7 +157,8 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                     TextFormField(
                       controller: _countryCtrl,
                       decoration: const InputDecoration(
-                        labelText: "Pays de l'université (code ISO, ex. FR, CA)",
+                        labelText:
+                            "Pays de l'université (code ISO, ex. FR, CA)",
                         border: OutlineInputBorder(),
                       ),
                     ),

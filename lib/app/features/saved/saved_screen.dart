@@ -59,7 +59,7 @@ class SavedScreen extends StatelessWidget {
                 ),
               ),
 
-              // ── Deadline calendar banner ────────────────────────────────
+              // ── Unified milestone tracker banner ────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -97,7 +97,7 @@ class SavedScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Calendrier des deadlines',
+                                  'Mes échéances',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -106,7 +106,7 @@ class SavedScreen extends StatelessWidget {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Suivez les échéances de vos admissions',
+                                  'Bourses, roadmap et dossiers au même endroit',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,

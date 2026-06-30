@@ -92,7 +92,8 @@ abstract final class CaseApiCodec {
       title: plainLocalized(json['title'] as String? ?? ''),
       description: plainLocalized(json['description'] as String? ?? ''),
       contextLabel: plainLocalized(json['contextLabel'] as String? ?? ''),
-      status: decodeCaseStatus(json['status'] as String?) ?? CaseStatus.submitted,
+      status:
+          decodeCaseStatus(json['status'] as String?) ?? CaseStatus.submitted,
       preferredContactMethod: decodeContactMethod(
             json['preferredContactMethod'] as String?,
           ) ??
@@ -110,7 +111,8 @@ abstract final class CaseApiCodec {
             (event) => CaseTimelineEvent(
               id: event['id'] as String? ?? '',
               title: plainLocalized(event['title'] as String? ?? ''),
-              description: plainLocalized(event['description'] as String? ?? ''),
+              description:
+                  plainLocalized(event['description'] as String? ?? ''),
               createdAt:
                   DateTime.tryParse(event['createdAt'] as String? ?? '') ??
                       DateTime.now(),

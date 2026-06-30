@@ -7,14 +7,19 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import type { AdminSessionUser } from '../auth/auth.service';
 import { AdminCatalogService } from './admin-catalog.service';
+
+type AdminReq = Request & { adminUser?: AdminSessionUser };
 
 /// Catalogue write API for the back-office. Read access stays on the public
 /// `/catalog/*` controller; these mutations are admin-only.
@@ -24,7 +29,24 @@ import { AdminCatalogService } from './admin-catalog.service';
 export class AdminCatalogController {
   constructor(private readonly service: AdminCatalogService) {}
 
+  private verifier(req: AdminReq): AdminSessionUser {
+    return (
+      req.adminUser ?? {
+        id: 'unknown-admin',
+        fullName: 'Unknown admin',
+        email: 'unknown-admin@kpb.education',
+        role: InternalRole.Admin,
+        languageScope: [],
+      }
+    );
+  }
+
   // ── Read / list (full-fidelity for the back-office) ───────────────────────
+  @Get('verification-due')
+  listVerificationDue() {
+    return this.service.listVerificationDue();
+  }
+
   @Get('programs')
   listPrograms(
     @Query('q') q?: string,
@@ -66,13 +88,17 @@ export class AdminCatalogController {
 
   // ── Programs (formations) ─────────────────────────────────────────────────
   @Post('programs')
-  createProgram(@Body() input: Record<string, unknown>) {
-    return this.service.createProgram(input);
+  createProgram(@Req() req: AdminReq, @Body() input: Record<string, unknown>) {
+    return this.service.createProgram(input, this.verifier(req));
   }
 
   @Patch('programs/:id')
-  updateProgram(@Param('id') id: string, @Body() input: Record<string, unknown>) {
-    return this.service.updateProgram(id, input);
+  updateProgram(
+    @Req() req: AdminReq,
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.updateProgram(id, input, this.verifier(req));
   }
 
   @Delete('programs/:id')
@@ -82,16 +108,20 @@ export class AdminCatalogController {
 
   // ── Institutions (universités) ────────────────────────────────────────────
   @Post('institutions')
-  createInstitution(@Body() input: Record<string, unknown>) {
-    return this.service.createInstitution(input);
+  createInstitution(
+    @Req() req: AdminReq,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.createInstitution(input, this.verifier(req));
   }
 
   @Patch('institutions/:id')
   updateInstitution(
+    @Req() req: AdminReq,
     @Param('id') id: string,
     @Body() input: Record<string, unknown>,
   ) {
-    return this.service.updateInstitution(id, input);
+    return this.service.updateInstitution(id, input, this.verifier(req));
   }
 
   @Delete('institutions/:id')
@@ -101,16 +131,20 @@ export class AdminCatalogController {
 
   // ── Scholarships (bourses) ────────────────────────────────────────────────
   @Post('scholarships')
-  createScholarship(@Body() input: Record<string, unknown>) {
-    return this.service.createScholarship(input);
+  createScholarship(
+    @Req() req: AdminReq,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.createScholarship(input, this.verifier(req));
   }
 
   @Patch('scholarships/:id')
   updateScholarship(
+    @Req() req: AdminReq,
     @Param('id') id: string,
     @Body() input: Record<string, unknown>,
   ) {
-    return this.service.updateScholarship(id, input);
+    return this.service.updateScholarship(id, input, this.verifier(req));
   }
 
   @Delete('scholarships/:id')
@@ -120,13 +154,17 @@ export class AdminCatalogController {
 
   // ── Countries (pays) ──────────────────────────────────────────────────────
   @Post('countries')
-  createCountry(@Body() input: Record<string, unknown>) {
-    return this.service.createCountry(input);
+  createCountry(@Req() req: AdminReq, @Body() input: Record<string, unknown>) {
+    return this.service.createCountry(input, this.verifier(req));
   }
 
   @Patch('countries/:id')
-  updateCountry(@Param('id') id: string, @Body() input: Record<string, unknown>) {
-    return this.service.updateCountry(id, input);
+  updateCountry(
+    @Req() req: AdminReq,
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.updateCountry(id, input, this.verifier(req));
   }
 
   @Delete('countries/:id')

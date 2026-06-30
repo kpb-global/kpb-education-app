@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Pull-to-refresh wrapper ───────────────────────────────────────────────────
 /// Wraps a scrollable child with a styled RefreshIndicator.
 class KpbRefresh extends StatelessWidget {

@@ -22,10 +22,10 @@ flutter analyze
 flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
 ```
 
-Optional stricter gate (when the repo is fully formatted):
+Format gate:
 
 ```bash
-dart format --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test
 ```
 
 ## 3. Test inventory (baseline)

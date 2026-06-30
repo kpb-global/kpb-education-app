@@ -13,6 +13,10 @@ void main() {
         AppRoutes.search,
       );
       expect(
+        AppRoutes.normalizeExternalRoute(AppRoutes.deadlines),
+        AppRoutes.deadlines,
+      );
+      expect(
         AppRoutes.normalizeExternalRoute(AppRoutes.caseCreate),
         AppRoutes.caseCreate,
       );
@@ -64,11 +68,12 @@ void main() {
 
       expect(names, contains(AppRoutes.home));
       expect(names, contains(AppRoutes.search));
+      expect(names, contains(AppRoutes.deadlines));
       expect(names, contains(AppRoutes.caseCreate));
       expect(names, contains(AppRoutes.caseDetail));
       // `/scholarships` (live aggregator) is gated out under the MVP lock.
       expect(names, isNot(contains(AppRoutes.scholarships)));
-      expect(names.length, equals(4));
+      expect(names.length, equals(5));
     });
   });
 }

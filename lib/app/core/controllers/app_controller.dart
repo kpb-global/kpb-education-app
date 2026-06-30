@@ -65,6 +65,7 @@ abstract class _AppControllerBase extends GetxController {
 
   final AppRepository _repository;
   final AppApiClient _apiClient;
+
   /// Expose the API client for feature screens that need direct calls.
   AppApiClient get apiClient => _apiClient;
 
@@ -72,6 +73,7 @@ abstract class _AppControllerBase extends GetxController {
   bool hasSeenIntro = false;
   bool isGuestMode = false;
   bool isAppLockEnabled = false;
+
   /// Data-saver mode — when on, the UI skips non-essential network images.
   bool dataSaverEnabled = false;
   bool hasCompletedOnboarding = false;
@@ -112,7 +114,8 @@ abstract class _AppControllerBase extends GetxController {
 
   final List<SavedItem> _savedItems = <SavedItem>[];
   final List<StudentCase> _cases = <StudentCase>[];
-  final Map<String, CountryModel> _countryDetailCache = <String, CountryModel>{};
+  final Map<String, CountryModel> _countryDetailCache =
+      <String, CountryModel>{};
   final CaseSocketService _caseSocket = CaseSocketService();
   final Map<String, DateTime> _caseLastReadAt = <String, DateTime>{};
   String? _activeCaseSocketId;
@@ -238,35 +241,45 @@ abstract class _AppControllerBase extends GetxController {
       fields
         ..clear()
         ..addAll(cachedFields.isNotEmpty
-            ? cachedFields.whereType<Map<String, dynamic>>().map(FieldModel.fromJson)
+            ? cachedFields
+                .whereType<Map<String, dynamic>>()
+                .map(FieldModel.fromJson)
             : MockCatalog.fields);
 
       final cachedCountries = cache.read('countries');
       countries
         ..clear()
         ..addAll(cachedCountries.isNotEmpty
-            ? cachedCountries.whereType<Map<String, dynamic>>().map(CountryModel.fromJson)
+            ? cachedCountries
+                .whereType<Map<String, dynamic>>()
+                .map(CountryModel.fromJson)
             : MockCatalog.countries);
 
       final cachedInstitutions = cache.read('institutions');
       institutions
         ..clear()
         ..addAll(cachedInstitutions.isNotEmpty
-            ? cachedInstitutions.whereType<Map<String, dynamic>>().map(InstitutionModel.fromJson)
+            ? cachedInstitutions
+                .whereType<Map<String, dynamic>>()
+                .map(InstitutionModel.fromJson)
             : MockCatalog.institutions);
 
       final cachedPrograms = cache.read('programs');
       programs
         ..clear()
         ..addAll(cachedPrograms.isNotEmpty
-            ? cachedPrograms.whereType<Map<String, dynamic>>().map(ProgramModel.fromJson)
+            ? cachedPrograms
+                .whereType<Map<String, dynamic>>()
+                .map(ProgramModel.fromJson)
             : MockCatalog.programs);
 
       final cachedScholarships = cache.read('scholarships');
       scholarships
         ..clear()
         ..addAll(cachedScholarships.isNotEmpty
-            ? cachedScholarships.whereType<Map<String, dynamic>>().map(ScholarshipModel.fromJson)
+            ? cachedScholarships
+                .whereType<Map<String, dynamic>>()
+                .map(ScholarshipModel.fromJson)
             : MockCatalog.scholarships);
     } else {
       fields
@@ -444,8 +457,7 @@ abstract class _AppControllerBase extends GetxController {
   }
 
   void goToCommercialTab(int index) {
-    commercialShellIndex =
-        index.clamp(0, CommercialShellTab.count - 1);
+    commercialShellIndex = index.clamp(0, CommercialShellTab.count - 1);
     update();
   }
 
@@ -483,17 +495,7 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
-
-
-
-
   // ── Roadmap Management ───────────────────────────────────────────────────
-
-
-
-
-
-
 
   /// Public pull-to-refresh — calls syncRemoteData and returns when done.
   ///
@@ -590,9 +592,9 @@ abstract class _AppControllerBase extends GetxController {
           final jobsPayload = map['jobs'];
           final jobs = <String>[];
           if (jobsPayload is Map<String, dynamic>) {
-            final localized =
-                (locale.startsWith('en') ? jobsPayload['en'] : jobsPayload['fr'])
-                    as List<dynamic>?;
+            final localized = (locale.startsWith('en')
+                ? jobsPayload['en']
+                : jobsPayload['fr']) as List<dynamic>?;
             jobs.addAll(localized?.cast<String>() ?? const []);
           }
           final partnerCountries =
@@ -632,10 +634,6 @@ abstract class _AppControllerBase extends GetxController {
     );
   }
 
-
-
-
-
   // ── Orientation progress persistence ──────────────────────────
 
   void saveOrientationProgress(
@@ -664,20 +662,6 @@ abstract class _AppControllerBase extends GetxController {
   }
 
   // ── Search ──────────────────────────────────────────────────
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   StudentCase submitCase({
     required CaseType type,
@@ -919,8 +903,8 @@ abstract class _AppControllerBase extends GetxController {
     final withoutOptimistic = senderRole == 'student'
         ? caseItem.messages
             .where(
-              (existing) =>
-                  !(existing.id.startsWith('user-') && existing.body.fr == body),
+              (existing) => !(existing.id.startsWith('user-') &&
+                  existing.body.fr == body),
             )
             .toList()
         : caseItem.messages;
@@ -959,7 +943,9 @@ abstract class _AppControllerBase extends GetxController {
     if (isSyncing) return;
 
     final now = DateTime.now();
-    if (!force && _syncBackoffUntil != null && now.isBefore(_syncBackoffUntil!)) {
+    if (!force &&
+        _syncBackoffUntil != null &&
+        now.isBefore(_syncBackoffUntil!)) {
       return;
     }
     if (!force &&
@@ -1011,8 +997,8 @@ abstract class _AppControllerBase extends GetxController {
           final remoteCasesRaw = await _apiClient.listCases();
           final remoteCases =
               remoteCasesRaw.map(CaseApiCodec.studentCaseFromApi).toList();
-          final (mergedCases, caseStats) =
-              mergeCasesRemoteWithLocal(remoteCases, List<StudentCase>.of(_cases));
+          final (mergedCases, caseStats) = mergeCasesRemoteWithLocal(
+              remoteCases, List<StudentCase>.of(_cases));
           SyncTelemetry.casesMerged(
             remoteCount: caseStats.remoteCount,
             localWinCount: caseStats.localWinCount,
@@ -1175,6 +1161,7 @@ abstract class _AppControllerBase extends GetxController {
       (item) => item.id == id || item.id == normalized,
     );
   }
+
   InstitutionModel? institutionByIdOrNull(String id) =>
       institutions.firstWhereOrNull((item) => item.id == id);
   ProgramModel? programByIdOrNull(String id) =>
@@ -1233,12 +1220,15 @@ abstract class _AppControllerBase extends GetxController {
       }
       return CountryQuizResultModel(
         verdict: EligibilityVerdict.eligibleWithConditions,
-        verdictTitle: quiz.verdicts['eligible_with_conditions']?.titleFor(localeCode) ??
-            'Résultat provisoire',
-        verdictMessage: quiz.verdicts['eligible_with_conditions']?.messageFor(localeCode) ??
-            '',
-        ctaLabel: quiz.verdicts['eligible_with_conditions']?.ctaFor(localeCode) ??
-            'Continuer',
+        verdictTitle:
+            quiz.verdicts['eligible_with_conditions']?.titleFor(localeCode) ??
+                'Résultat provisoire',
+        verdictMessage:
+            quiz.verdicts['eligible_with_conditions']?.messageFor(localeCode) ??
+                '',
+        ctaLabel:
+            quiz.verdicts['eligible_with_conditions']?.ctaFor(localeCode) ??
+                'Continuer',
         countryId: detail.id,
       );
     }
@@ -1246,6 +1236,7 @@ abstract class _AppControllerBase extends GetxController {
     final json = await _apiClient.submitCountryQuiz(normalized, answers);
     return CountryQuizResultModel.fromJson(json, localeCode: localeCode);
   }
+
   InstitutionModel institutionById(String id) =>
       institutions.firstWhere((item) => item.id == id);
   ProgramModel programById(String id) =>

@@ -101,7 +101,7 @@ Useful local commands:
 
 Quality gates (recommended before each PR):
 
-- mobile: `dart format --set-exit-if-changed . && flutter analyze && flutter test`
+- mobile: `dart format --output=none --set-exit-if-changed lib test && flutter analyze && flutter test`
 - backend: `cd backend && npm ci && npm run lint && npm run build`
 - admin: `cd admin && npm ci && npm run lint && npm run build`
 

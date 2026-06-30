@@ -15,6 +15,8 @@ const NAV_LINKS = [
   { href: '/scholarships', labelKey: 'nav.scholarships' },
   { href: '/countries', labelKey: 'nav.countries' },
   { href: '/fields', labelKey: 'nav.fields' },
+  { href: '/verification', labelKey: 'nav.verification' },
+  { href: '/service-sales', labelKey: 'nav.serviceSales' },
   { href: '/content', labelKey: 'nav.content' },
   { href: '/community', labelKey: 'nav.community' },
   { href: '/notifications', labelKey: 'nav.notifications' },

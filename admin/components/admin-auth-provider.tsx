@@ -49,7 +49,7 @@ export function AdminAuthProvider({
         if (!cancelled) {
           setSession({ ...storedSession, user });
         }
-      } catch (_) {
+      } catch {
         clearStoredSession();
         if (!cancelled) {
           setSession(null);

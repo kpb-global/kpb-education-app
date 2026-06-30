@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Match Score Badge ─────────────────────────────────────────────────────────
 class MatchBadge extends StatelessWidget {
   const MatchBadge({super.key, required this.score});

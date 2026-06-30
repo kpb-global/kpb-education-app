@@ -37,8 +37,7 @@ class LocalAppRepository implements AppRepository {
 
     return AppSnapshot(
       localeCode: json['localeCode'] as String? ?? 'fr',
-      hasCompletedOnboarding:
-          json['hasCompletedOnboarding'] as bool? ?? false,
+      hasCompletedOnboarding: json['hasCompletedOnboarding'] as bool? ?? false,
       hasSeenIntro: json['hasSeenIntro'] as bool? ?? false,
       isGuestMode: json['isGuestMode'] as bool? ?? false,
       isAppLockEnabled: json['isAppLockEnabled'] as bool? ?? false,
@@ -95,7 +94,7 @@ class LocalAppRepository implements AppRepository {
           snapshot.orientationHistory.map(_orientationSessionToJson).toList(),
       'searchHistory': snapshot.searchHistory,
       'pendingOrientationAnswers': snapshot.pendingOrientationAnswers,
-            'fields': const [],
+      'fields': const [],
       'countries': const [],
       'institutions': const [],
       'programs': const [],
@@ -139,8 +138,8 @@ class LocalAppRepository implements AppRepository {
     if (json == null) return null;
     return UserProfile(
       id: json['id'] as String? ?? 'local-profile',
-      accountType:
-          _parseAccountType(json['accountType'] as String?) ?? AccountType.student,
+      accountType: _parseAccountType(json['accountType'] as String?) ??
+          AccountType.student,
       fullName: json['fullName'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
@@ -297,8 +296,8 @@ class LocalAppRepository implements AppRepository {
           DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0),
-      nextStepTitle:
-          _localizedTextFromJson(json['nextStepTitle'] as Map<String, dynamic>?),
+      nextStepTitle: _localizedTextFromJson(
+          json['nextStepTitle'] as Map<String, dynamic>?),
       nextStepDescription: _localizedTextFromJson(
         json['nextStepDescription'] as Map<String, dynamic>?,
       ),
@@ -358,8 +357,9 @@ class LocalAppRepository implements AppRepository {
       'answers': session.answers.map(
         (key, value) => MapEntry(key, value),
       ),
-      'recommendations':
-          session.recommendations.map(_orientationRecommendationToJson).toList(),
+      'recommendations': session.recommendations
+          .map(_orientationRecommendationToJson)
+          .toList(),
     };
   }
 

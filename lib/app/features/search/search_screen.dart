@@ -88,8 +88,8 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             // ── Search bar ─────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  KpbSpacing.sm, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.sm),
+              padding: const EdgeInsets.fromLTRB(KpbSpacing.sm, KpbSpacing.sm,
+                  KpbSpacing.pagePad, KpbSpacing.sm),
               child: Row(
                 children: [
                   IconButton(
@@ -111,7 +111,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         onSubmitted: _onSubmitted,
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Rechercher une filière, un pays, une école...',
+                          hintText:
+                              'Rechercher une filière, un pays, une école...',
                           hintStyle: TextStyle(
                             fontSize: 14,
                             color: context.kpb.textMuted,
@@ -181,8 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 GestureDetector(
                   onTap: _ctrl.clearSearchHistory,
                   child: const Text('Effacer',
-                      style: TextStyle(
-                          fontSize: 12, color: KpbColors.blue)),
+                      style: TextStyle(fontSize: 12, color: KpbColors.blue)),
                 ),
               ],
             ),
@@ -352,8 +352,8 @@ class _ResultSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-              KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, KpbSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, KpbSpacing.md,
+              KpbSpacing.pagePad, KpbSpacing.xs),
           child: Row(
             children: [
               Icon(_icons[type], size: 16, color: color),
@@ -361,14 +361,11 @@ class _ResultSection extends StatelessWidget {
               Text(
                 _labels[type] ?? '',
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: color),
+                    fontSize: 13, fontWeight: FontWeight.w700, color: color),
               ),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: KpbRadius.pillBr,
@@ -376,9 +373,7 @@ class _ResultSection extends StatelessWidget {
                 child: Text(
                   '${results.length}',
                   style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color),
+                      fontSize: 11, fontWeight: FontWeight.w700, color: color),
                 ),
               ),
             ],
@@ -574,9 +569,7 @@ void _openFieldDetail(
                   Text(
                     controller.resolve(field.description),
                     style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.white70,
-                        height: 1.4),
+                        fontSize: 13, color: Colors.white70, height: 1.4),
                   ),
                 ],
               ),
@@ -594,8 +587,8 @@ void _openFieldDetail(
                 runSpacing: 6,
                 children: field.careers.take(8).map((c) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: field.accentColor.withValues(alpha: 0.1),
                       borderRadius: KpbRadius.pillBr,
@@ -643,4 +636,3 @@ void _openFieldDetail(
     ),
   );
 }
-

@@ -45,8 +45,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '2. Données collectées',
-              body:
-                  'Nous collectons les données suivantes :\n\n'
+              body: 'Nous collectons les données suivantes :\n\n'
                   '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
                   '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
                   '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
@@ -55,8 +54,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '3. Finalités du traitement',
-              body:
-                  'Vos données sont utilisées pour :\n\n'
+              body: 'Vos données sont utilisées pour :\n\n'
                   '• Personnaliser vos recommandations de filières, pays et bourses\n'
                   '• Gérer vos dossiers de candidature et vos rendez-vous\n'
                   '• Vous envoyer des notifications pertinentes (mises à jour de dossier, deadlines)\n'
@@ -72,8 +70,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '5. Partage des données',
-              body:
-                  'Vos données ne sont PAS vendues à des tiers.\n\n'
+              body: 'Vos données ne sont PAS vendues à des tiers.\n\n'
                   'Elles peuvent être partagées avec :\n'
                   '• Nos conseillers internes pour le suivi de vos dossiers\n'
                   '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
@@ -90,8 +87,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '7. Sécurité',
-              body:
-                  '• Communication chiffrée via HTTPS/TLS\n'
+              body: '• Communication chiffrée via HTTPS/TLS\n'
                   '• Mots de passe hachés (bcrypt)\n'
                   '• Tokens d\'authentification sécurisés (JWT)\n'
                   '• Données sensibles (tokens) stockées dans le Keychain (iOS) / Keystore (Android)\n'
@@ -187,8 +183,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '4. Services proposés',
-              body:
-                  'KPB Education propose :\n\n'
+              body: 'KPB Education propose :\n\n'
                   '• Un test d\'orientation personnalisé\n'
                   '• Un catalogue de filières, pays, institutions, programmes et bourses\n'
                   '• Un système de mise en relation avec des conseillers\n'
@@ -205,8 +200,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '6. Obligations de l\'utilisateur',
-              body:
-                  'Vous vous engagez à :\n\n'
+              body: 'Vous vous engagez à :\n\n'
                   '• Utiliser l\'application de manière loyale et conformément aux lois en vigueur\n'
                   '• Ne pas fournir de fausses informations\n'
                   '• Ne pas tenter d\'accéder de manière non autorisée aux systèmes de KPB Education\n'
@@ -237,14 +231,12 @@ class TermsOfServiceScreen extends StatelessWidget {
             ),
             const _LegalSection(
               title: '10. Droit applicable',
-              body:
-                  'Les présentes CGU sont soumises au droit en vigueur.\n\n'
+              body: 'Les présentes CGU sont soumises au droit en vigueur.\n\n'
                   'En cas de litige, les parties s\'engagent à chercher une résolution amiable avant tout recours judiciaire.',
             ),
             const _LegalSection(
               title: '11. Contact',
-              body:
-                  'Pour toute question relative aux présentes CGU :\n\n'
+              body: 'Pour toute question relative aux présentes CGU :\n\n'
                   'Email : contact@kpbeducation.com\n'
                   'Site web : www.kpbeducation.com',
             ),

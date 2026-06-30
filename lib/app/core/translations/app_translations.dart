@@ -166,11 +166,13 @@ class AppTranslations extends Translations {
           'auth_magic_resend_wait': 'Renvoyer dans @seconds s',
           'auth_magic_resend_cooldown':
               'Veuillez patienter avant de renvoyer un code.',
-          'auth_guest_profile_title': 'Connectez-vous pour accéder à votre profil',
+          'auth_guest_profile_title':
+              'Connectez-vous pour accéder à votre profil',
           'auth_guest_profile_body':
               'Créez un compte pour suivre vos dossiers, sauvegarder des programmes et personnaliser votre parcours.',
           // Match explanations
-          'match_complete_profile': 'Complétez votre profil pour un matching personnalisé',
+          'match_complete_profile':
+              'Complétez votre profil pour un matching personnalisé',
           'match_field_in_interests': 'Filière dans vos intérêts',
           'match_from_orientation': 'Recommandée par votre orientation',
           'match_available_target_country': 'Disponible dans vos pays cibles',
@@ -205,13 +207,16 @@ class AppTranslations extends Translations {
           'message_input_hint': 'Écrire un message…',
           // Cases screen
           'new_case': 'Nouvelle demande',
-          'case_empty_hint': 'Crée ton premier dossier pour commencer avec KPB.',
+          'case_empty_hint':
+              'Crée ton premier dossier pour commencer avec KPB.',
           // Case composer
-          'case_description_hint': 'Dis à KPB ce dont tu as besoin, où tu en es dans ton projet, et ce que tu veux obtenir.',
+          'case_description_hint':
+              'Dis à KPB ce dont tu as besoin, où tu en es dans ton projet, et ce que tu veux obtenir.',
           'case_default_title': 'J\'ai besoin d\'aide pour @title',
           // Connectivity
           'offline_title': 'Hors ligne',
-          'offline_body': 'Pas de connexion internet. Certaines fonctionnalités ne sont pas disponibles.',
+          'offline_body':
+              'Pas de connexion internet. Certaines fonctionnalités ne sont pas disponibles.',
           'online_title': 'En ligne',
           'online_body': 'Connexion rétablie.',
           // Auth screens
@@ -221,7 +226,8 @@ class AppTranslations extends Translations {
           'no_account_prompt': 'Pas encore de compte ? ',
           'create_account_link': 'Créer un compte',
           'create_account_title': 'Créer un compte',
-          'create_account_subtitle': 'Rejoignez +5 000 étudiants sur KPB Education',
+          'create_account_subtitle':
+              'Rejoignez +5 000 étudiants sur KPB Education',
           'create_account_button': 'Créer mon compte',
           'already_have_account': 'Déjà un compte ? ',
           'login_link': 'Se connecter',
@@ -232,22 +238,28 @@ class AppTranslations extends Translations {
           'phone_optional': 'Téléphone (optionnel)',
           'password_required': 'Entrez votre mot de passe',
           'password_choose': 'Choisissez un mot de passe',
-          'password_min_length': 'Le mot de passe doit contenir au moins 8 caractères',
+          'password_min_length':
+              'Le mot de passe doit contenir au moins 8 caractères',
           'password_helper': 'Minimum 8 caractères',
           // Forgot password
           'forgot_password_title': 'Mot de passe oublié',
           'reset_password_title': 'Réinitialiser le mot de passe',
-          'reset_password_body': 'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+          'reset_password_body':
+              'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
           'email_label': 'Adresse email',
           'send_link_button': 'Envoyer le lien',
           'back_to_login': 'Retour à la connexion',
           'email_sent_title': 'Email envoyé !',
-          'email_sent_body': 'Vérifiez votre boîte email et suivez le lien pour réinitialiser votre mot de passe.',
-          'forgot_password_error': 'Une erreur est survenue. Vérifiez l\'adresse email.',
+          'email_sent_body':
+              'Vérifiez votre boîte email et suivez le lien pour réinitialiser votre mot de passe.',
+          'forgot_password_error':
+              'Une erreur est survenue. Vérifiez l\'adresse email.',
           // Register errors
           'register_error_generic': 'Une erreur est survenue. Réessayez.',
-          'register_error_email_exists': 'Un compte avec cet email existe déjà.',
-          'register_error_network': 'Problème de connexion. Vérifiez votre réseau.',
+          'register_error_email_exists':
+              'Un compte avec cet email existe déjà.',
+          'register_error_network':
+              'Problème de connexion. Vérifiez votre réseau.',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -417,10 +429,12 @@ class AppTranslations extends Translations {
           'auth_guest_profile_body':
               'Create an account to track cases, save programs, and personalize your journey.',
           // Match explanations
-          'match_complete_profile': 'Complete your profile for a personalised match',
+          'match_complete_profile':
+              'Complete your profile for a personalised match',
           'match_field_in_interests': 'In your fields of interest',
           'match_from_orientation': 'Recommended by your orientation',
-          'match_available_target_country': 'Available in your target countries',
+          'match_available_target_country':
+              'Available in your target countries',
           'match_target_country': 'Target country',
           'match_in_target_country': 'Located in a target country',
           'match_kpb_partner': 'KPB partner',
@@ -454,11 +468,13 @@ class AppTranslations extends Translations {
           'new_case': 'New request',
           'case_empty_hint': 'Create your first case to get started with KPB.',
           // Case composer
-          'case_description_hint': 'Tell KPB what you need, where you are in your project, and what you want to happen.',
+          'case_description_hint':
+              'Tell KPB what you need, where you are in your project, and what you want to happen.',
           'case_default_title': 'I need help with @title',
           // Connectivity
           'offline_title': 'Offline',
-          'offline_body': 'No internet connection. Some features are unavailable.',
+          'offline_body':
+              'No internet connection. Some features are unavailable.',
           'online_title': 'Online',
           'online_body': 'Connection restored.',
           // Auth screens
@@ -484,16 +500,20 @@ class AppTranslations extends Translations {
           // Forgot password
           'forgot_password_title': 'Forgot password',
           'reset_password_title': 'Reset password',
-          'reset_password_body': 'Enter your email address and we will send you a link to reset your password.',
+          'reset_password_body':
+              'Enter your email address and we will send you a link to reset your password.',
           'email_label': 'Email address',
           'send_link_button': 'Send link',
           'back_to_login': 'Back to sign in',
           'email_sent_title': 'Email sent!',
-          'email_sent_body': 'Check your inbox and follow the link to reset your password.',
-          'forgot_password_error': 'An error occurred. Check the email address.',
+          'email_sent_body':
+              'Check your inbox and follow the link to reset your password.',
+          'forgot_password_error':
+              'An error occurred. Check the email address.',
           // Register errors
           'register_error_generic': 'An error occurred. Please try again.',
-          'register_error_email_exists': 'An account with this email already exists.',
+          'register_error_email_exists':
+              'An account with this email already exists.',
           'register_error_network': 'Connection issue. Check your network.',
         },
       };

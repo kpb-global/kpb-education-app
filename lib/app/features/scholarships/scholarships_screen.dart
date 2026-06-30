@@ -45,7 +45,8 @@ class ScholarshipsScreen extends StatelessWidget {
                 ),
                 if (controller.syncError != null)
                   SliverToBoxAdapter(
-                    child: KpbSyncErrorBanner(onRetry: controller.pullToRefresh),
+                    child:
+                        KpbSyncErrorBanner(onRetry: controller.pullToRefresh),
                   ),
                 SliverToBoxAdapter(
                   child: Padding(

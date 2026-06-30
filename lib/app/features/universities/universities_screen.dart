@@ -225,9 +225,8 @@ class _PaginatedProgramList extends StatelessWidget {
 
         return ProgramCatalogCard(
           name: controller.resolve(program.name),
-          institution: institution != null
-              ? controller.resolve(institution.name)
-              : null,
+          institution:
+              institution != null ? controller.resolve(institution.name) : null,
           level: programLevelLabel(controller.resolve(program.level)),
           tuition: controller.resolve(program.tuition),
           language: controller.resolve(program.language),
@@ -235,7 +234,8 @@ class _PaginatedProgramList extends StatelessWidget {
           flag: countryFlag(program.countryId),
           saved: controller.isSaved(SavedItemType.program, program.id),
           isPartner: isPartner,
-          onSave: () => controller.toggleSaved(SavedItemType.program, program.id),
+          onSave: () =>
+              controller.toggleSaved(SavedItemType.program, program.id),
           onTap: () => Get.to(() => ProgramDetailScreen(programId: program.id)),
         );
       },

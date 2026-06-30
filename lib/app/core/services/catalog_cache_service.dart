@@ -18,6 +18,7 @@ class CatalogCacheService {
   static const _boxName = 'kpb.catalog.cache';
   static const _lastSyncKey = '__last_synced_at';
   static const _formatVersionKey = '__cache_format_version';
+
   /// Bumped when JSON shape or semantics under each resource key change materially.
   static const _currentFormatVersion = 1;
   static const _staleAfter = Duration(days: 14);

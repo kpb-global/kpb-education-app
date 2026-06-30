@@ -173,12 +173,11 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                           ClipRRect(
                             borderRadius: KpbRadius.smBr,
                             child: LinearProgressIndicator(
-                              value: (stats.convertedLast30Days /
-                                      stats.totalLeads)
-                                  .clamp(0.0, 1.0),
+                              value:
+                                  (stats.convertedLast30Days / stats.totalLeads)
+                                      .clamp(0.0, 1.0),
                               minHeight: 8,
-                              backgroundColor:
-                                  context.kpb.gray100,
+                              backgroundColor: context.kpb.gray100,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 KpbColors.success,
                               ),

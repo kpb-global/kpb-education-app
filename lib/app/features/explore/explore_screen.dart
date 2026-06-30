@@ -264,7 +264,8 @@ class CountriesCatalogGrid extends StatelessWidget {
         }).toList();
 
         return _CountryGridCard(
-          flag: displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
+          flag:
+              displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
           name: controller.resolve(country.name),
           tuition: controller.resolve(country.tuitionRange),
           intake: intake,
@@ -451,7 +452,8 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
           return inst?.isPartner ?? false;
         }
 
-        final partnerCmp = (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
+        final partnerCmp =
+            (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
         if (partnerCmp != 0) return partnerCmp;
         return controller
             .resolve(a.name)
@@ -525,7 +527,8 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
               ),
               const SizedBox(height: 4),
               Text(
-                'catalog_program_count'.trParams({'count': '${programs.length}'}),
+                'catalog_program_count'
+                    .trParams({'count': '${programs.length}'}),
                 style: KpbTextStyles.caption.copyWith(
                   color: context.kpb.textMuted,
                 ),
@@ -566,7 +569,8 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       institution: institution != null
                           ? controller.resolve(institution.name)
                           : null,
-                      level: programLevelLabel(controller.resolve(program.level)),
+                      level:
+                          programLevelLabel(controller.resolve(program.level)),
                       tuition: controller.resolve(program.tuition),
                       language: controller.resolve(program.language),
                       duration: controller.resolve(program.duration),

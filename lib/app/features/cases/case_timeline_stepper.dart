@@ -38,9 +38,11 @@ class CaseTimelineStepper extends StatelessWidget {
             final isCompleted = index < currentIndex;
             final isActive = index == currentIndex;
             final isLast = index == steps.length - 1;
-            
+
             // Handle rejected/cancelled state styling
-            final isErrorState = isActive && (currentStatus == CaseStatus.rejected || currentStatus == CaseStatus.cancelled);
+            final isErrorState = isActive &&
+                (currentStatus == CaseStatus.rejected ||
+                    currentStatus == CaseStatus.cancelled);
 
             return IntrinsicHeight(
               child: Row(
@@ -65,13 +67,18 @@ class CaseTimelineStepper extends StatelessWidget {
                                         ? KpbColors.blue
                                         : context.kpb.gray200,
                             border: isActive && !isErrorState
-                                ? Border.all(color: KpbColors.blue.withValues(alpha: 0.3), width: 4)
+                                ? Border.all(
+                                    color:
+                                        KpbColors.blue.withValues(alpha: 0.3),
+                                    width: 4)
                                 : null,
                           ),
                           child: isCompleted
-                              ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                              ? const Icon(Icons.check_rounded,
+                                  color: Colors.white, size: 14)
                               : isActive && isErrorState
-                                  ? const Icon(Icons.close_rounded, color: Colors.white, size: 14)
+                                  ? const Icon(Icons.close_rounded,
+                                      color: Colors.white, size: 14)
                                   : null,
                         ),
                         // Line
@@ -79,7 +86,9 @@ class CaseTimelineStepper extends StatelessWidget {
                           Expanded(
                             child: Container(
                               width: 2,
-                              color: isCompleted ? KpbColors.success : context.kpb.gray200,
+                              color: isCompleted
+                                  ? KpbColors.success
+                                  : context.kpb.gray200,
                             ),
                           ),
                       ],
@@ -97,7 +106,8 @@ class CaseTimelineStepper extends StatelessWidget {
                             step.title,
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                              fontWeight:
+                                  isActive ? FontWeight.w700 : FontWeight.w600,
                               color: isErrorState
                                   ? KpbColors.error
                                   : isActive || isCompleted
@@ -111,7 +121,9 @@ class CaseTimelineStepper extends StatelessWidget {
                               step.description,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isActive ? context.kpb.textSecondary : context.kpb.textMuted,
+                                color: isActive
+                                    ? context.kpb.textSecondary
+                                    : context.kpb.textMuted,
                               ),
                             ),
                           ]

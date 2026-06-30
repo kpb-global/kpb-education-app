@@ -9,6 +9,28 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 
 type ProviderName = 'cinetpay' | 'paydunya' | 'stripe' | 'manual';
+type PurchaseStatus =
+  | 'pending_payment'
+  | 'paid'
+  | 'in_progress'
+  | 'delivered'
+  | 'cancelled'
+  | 'refunded';
+
+const PURCHASE_STATUSES: PurchaseStatus[] = [
+  'pending_payment',
+  'paid',
+  'in_progress',
+  'delivered',
+  'cancelled',
+  'refunded',
+];
+
+const RECOGNIZED_REVENUE_STATUSES = new Set<PurchaseStatus>([
+  'paid',
+  'in_progress',
+  'delivered',
+]);
 
 /**
  * Catalog + purchase orchestration for Phase 3 monetized bundles.
@@ -109,6 +131,7 @@ export class ServicePackagesService {
           caseId: input.caseId,
           amountXOF: pkg.priceXOF,
           status: 'pending_payment',
+          source: 'checkout',
         },
       }),
     );
@@ -135,10 +158,69 @@ export class ServicePackagesService {
       prisma.servicePurchase.update({
         where: { id: purchase.id },
         data: { paymentIntentId: intent.id },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     return linked;
+  }
+
+  /**
+   * WhatsApp-first sales flow: create the purchase row and let a counsellor
+   * collect/confirm payment manually. No PaymentIntent or checkout URL.
+   */
+  async createWhatsAppPurchase(input: {
+    userId: string;
+    packageCode: string;
+    caseId?: string;
+    source?: string;
+  }) {
+    const pkg = await this.getPublic(input.packageCode);
+    const source = this.normalizeSource(input.source);
+    const linkedCase = input.caseId
+      ? await this.getOwnedCase(input.userId, input.caseId)
+      : null;
+
+    const notes = [
+      'Created from mobile WhatsApp CTA.',
+      `SKU: ${pkg.code}`,
+      `Source: ${source}`,
+      linkedCase ? `Case: ${linkedCase.referenceCode}` : null,
+      linkedCase?.requestedCountryId
+        ? `Destination: ${linkedCase.requestedCountryId}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const purchase = await this.prismaService.execute((prisma) =>
+      prisma.servicePurchase.create({
+        data: {
+          packageId: pkg.id,
+          userId: input.userId,
+          caseId: linkedCase?.id,
+          amountXOF: pkg.priceXOF,
+          status: 'pending_payment',
+          source,
+          internalNotes: notes,
+        },
+        include: {
+          package: true,
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
+          paymentIntent: true,
+        },
+      }),
+    );
+    if (!purchase) {
+      throw new Error('Failed to create WhatsApp service purchase.');
+    }
+    return purchase;
   }
 
   /** Student's own purchase history (most-recent first). */
@@ -147,7 +229,7 @@ export class ServicePackagesService {
       prisma.servicePurchase.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     return { items: items ?? [] };
@@ -157,7 +239,7 @@ export class ServicePackagesService {
     const purchase = await this.prismaService.execute((prisma) =>
       prisma.servicePurchase.findFirst({
         where: { id, userId },
-        include: { package: true, paymentIntent: true },
+        include: { package: true, case: true, paymentIntent: true },
       }),
     );
     if (!purchase) {
@@ -240,6 +322,14 @@ export class ServicePackagesService {
         include: {
           package: true,
           user: { select: { id: true, fullName: true, email: true } },
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
           paymentIntent: true,
         },
       }),
@@ -252,15 +342,7 @@ export class ServicePackagesService {
     status: string,
     internalNotes?: string,
   ) {
-    const allowed = [
-      'pending_payment',
-      'paid',
-      'in_progress',
-      'delivered',
-      'cancelled',
-      'refunded',
-    ];
-    if (!allowed.includes(status)) {
+    if (!PURCHASE_STATUSES.includes(status as PurchaseStatus)) {
       throw new BadRequestException(`Unknown purchase status: ${status}`);
     }
     return this.prismaService.execute((prisma) =>
@@ -304,5 +386,137 @@ export class ServicePackagesService {
       `Purchase ${purchase.id} reconciled → paid (intent ${paymentIntentId})`,
     );
     return updated;
+  }
+
+  async getRevenueAttribution() {
+    const purchases = await this.prismaService.execute((prisma) =>
+      prisma.servicePurchase.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          package: {
+            select: {
+              code: true,
+              nameFr: true,
+              category: true,
+            },
+          },
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
+        },
+      }),
+    );
+
+    const skuRows = new Map<
+      string,
+      {
+        sku: string;
+        packageName: string;
+        category: string;
+        purchasesCount: number;
+        paidCount: number;
+        pendingCount: number;
+        recognizedRevenueXOF: number;
+        pendingPipelineXOF: number;
+      }
+    >();
+    const destinationRows = new Map<
+      string,
+      {
+        destinationId: string;
+        purchasesCount: number;
+        paidCount: number;
+        pendingCount: number;
+        recognizedRevenueXOF: number;
+        pendingPipelineXOF: number;
+      }
+    >();
+
+    for (const purchase of purchases ?? []) {
+      const status = purchase.status as PurchaseStatus;
+      const isRecognized = RECOGNIZED_REVENUE_STATUSES.has(status);
+      const isPending = status === 'pending_payment';
+      const amount = purchase.amountXOF;
+      const skuKey = purchase.package.code;
+      const destinationKey = purchase.case?.requestedCountryId ?? 'unassigned';
+
+      const skuRow =
+        skuRows.get(skuKey) ??
+        {
+          sku: skuKey,
+          packageName: purchase.package.nameFr,
+          category: purchase.package.category,
+          purchasesCount: 0,
+          paidCount: 0,
+          pendingCount: 0,
+          recognizedRevenueXOF: 0,
+          pendingPipelineXOF: 0,
+        };
+      skuRow.purchasesCount += 1;
+      skuRow.paidCount += isRecognized ? 1 : 0;
+      skuRow.pendingCount += isPending ? 1 : 0;
+      skuRow.recognizedRevenueXOF += isRecognized ? amount : 0;
+      skuRow.pendingPipelineXOF += isPending ? amount : 0;
+      skuRows.set(skuKey, skuRow);
+
+      const destinationRow =
+        destinationRows.get(destinationKey) ??
+        {
+          destinationId: destinationKey,
+          purchasesCount: 0,
+          paidCount: 0,
+          pendingCount: 0,
+          recognizedRevenueXOF: 0,
+          pendingPipelineXOF: 0,
+        };
+      destinationRow.purchasesCount += 1;
+      destinationRow.paidCount += isRecognized ? 1 : 0;
+      destinationRow.pendingCount += isPending ? 1 : 0;
+      destinationRow.recognizedRevenueXOF += isRecognized ? amount : 0;
+      destinationRow.pendingPipelineXOF += isPending ? amount : 0;
+      destinationRows.set(destinationKey, destinationRow);
+    }
+
+    const bySku = Array.from(skuRows.values()).sort(
+      (a, b) => b.recognizedRevenueXOF - a.recognizedRevenueXOF,
+    );
+    const byDestination = Array.from(destinationRows.values()).sort(
+      (a, b) => b.recognizedRevenueXOF - a.recognizedRevenueXOF,
+    );
+
+    return { bySku, byDestination };
+  }
+
+  private normalizeSource(source?: string) {
+    const normalized = (source ?? 'service_package_whatsapp')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 80);
+    return normalized || 'service_package_whatsapp';
+  }
+
+  private async getOwnedCase(userId: string, caseId: string) {
+    const linkedCase = await this.prismaService.execute((prisma) =>
+      prisma.case.findFirst({
+        where: { id: caseId, userId },
+        select: {
+          id: true,
+          referenceCode: true,
+          requestedCountryId: true,
+          source: true,
+        },
+      }),
+    );
+    if (!linkedCase) {
+      throw new NotFoundException(`Case ${caseId} not found.`);
+    }
+    return linkedCase;
   }
 }

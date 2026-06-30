@@ -40,8 +40,7 @@ InstitutionModel _institution({
     overview: const LocalizedText(fr: 'Campus', en: 'Campus'),
     studyLevels: const ['Bachelor'],
     tuitionLabel: const LocalizedText(fr: 'Voir programme', en: 'See program'),
-    languageRequirements:
-        const LocalizedText(fr: 'Français', en: 'French'),
+    languageRequirements: const LocalizedText(fr: 'Français', en: 'French'),
     intakePeriods: const ['Septembre'],
     programIds: const [],
     isPartner: true,

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 import { DashboardShell } from '../../components/dashboard-shell';
 import {
@@ -103,12 +103,6 @@ export default function CountriesPage() {
     void loadCountries();
     void loadFields();
   }, []);
-
-  const fieldName = useMemo(() => {
-    const map = new Map<string, string>();
-    fields.forEach((field) => map.set(field.id, field.nameFr));
-    return map;
-  }, [fields]);
 
   function togglePopularField(fieldId: string) {
     setForm((current) => ({

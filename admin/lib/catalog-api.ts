@@ -138,6 +138,30 @@ export interface FieldRow extends FieldOption {
   accentColorHex: string | null;
 }
 
+export interface VerificationPolicy {
+  key: string;
+  label: string;
+  cadenceDays: number;
+  owner: string;
+}
+
+export interface VerificationQueueItem {
+  entityType: 'country' | 'institution' | 'program' | 'scholarship';
+  id: string;
+  label: string;
+  context: string | null;
+  category: string;
+  categoryLabel: string;
+  cadenceDays: number;
+  owner: string;
+  lastVerifiedAt: string | null;
+  verifiedByName: string | null;
+  verificationSourceUrl: string | null;
+  dueAt: string | null;
+  daysSinceVerification: number | null;
+  isOverdue: boolean;
+}
+
 interface ListResponse<T> {
   items: T[];
   total: number;
@@ -146,6 +170,10 @@ interface ListResponse<T> {
 interface ProgramListResponse extends ListResponse<ProgramRow> {
   limit: number;
   offset: number;
+}
+
+interface VerificationDueResponse extends ListResponse<VerificationQueueItem> {
+  policies: VerificationPolicy[];
 }
 
 export interface ProgramQuery {
@@ -190,6 +218,10 @@ export function fetchCountries() {
 
 export function fetchFields() {
   return apiFetch<ListResponse<FieldRow>>('/admin/catalog/fields');
+}
+
+export function fetchVerificationDue() {
+  return apiFetch<VerificationDueResponse>('/admin/catalog/verification-due');
 }
 
 /** Textarea (one item per line) → trimmed, non-empty string array. */

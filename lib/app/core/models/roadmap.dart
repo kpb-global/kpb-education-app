@@ -1,7 +1,7 @@
 part of 'app_models.dart';
 
-
 enum RoadmapStepType { audit, language, writing, review, submission }
+
 class RoadmapStepModel {
   const RoadmapStepModel({
     required this.type,

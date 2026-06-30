@@ -102,7 +102,8 @@ class _CommercialNavBar extends StatelessWidget {
                     icon: Icons.chat_bubble_outline_rounded,
                     selectedIcon: Icons.chat_bubble_rounded,
                     label: 'nav_commercial_chat'.tr,
-                    isSelected: currentIndex == CommercialShellTab.conversations,
+                    isSelected:
+                        currentIndex == CommercialShellTab.conversations,
                     onTap: () => onTap(CommercialShellTab.conversations),
                   ),
                   _NavItem(

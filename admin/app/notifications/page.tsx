@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 import { DashboardShell } from '../../components/dashboard-shell';
 import { apiFetch } from '../../lib/api-client';
@@ -71,7 +71,7 @@ export default function NotificationsPage() {
     linkedCaseId: '',
   });
 
-  async function loadNotifications() {
+  const loadNotifications = useCallback(async () => {
     setErrorMessage(null);
     try {
       const [templatesResponse, campaignsResponse] = await Promise.all([
@@ -85,18 +85,9 @@ export default function NotificationsPage() {
 
       setTemplates(templatesResponse.items);
       setCampaigns(campaignsResponse.items);
-      const nextCampaignId =
-        selectedCampaignId ?? campaignsResponse.items[0]?.id ?? null;
-      setSelectedCampaignId(nextCampaignId);
-
-      if (nextCampaignId) {
-        const deliveriesResponse = await apiFetch<{
-          items: NotificationDeliveryItem[];
-        }>(`/admin/notifications/campaigns/${nextCampaignId}/deliveries`);
-        setDeliveries(deliveriesResponse.items);
-      } else {
-        setDeliveries([]);
-      }
+      setSelectedCampaignId(
+        (current) => current ?? campaignsResponse.items[0]?.id ?? null,
+      );
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -104,11 +95,11 @@ export default function NotificationsPage() {
           : 'Unable to load notifications.',
       );
     }
-  }
+  }, []);
 
   useEffect(() => {
     void loadNotifications();
-  }, []);
+  }, [loadNotifications]);
 
   useEffect(() => {
     if (!selectedCampaignId) {

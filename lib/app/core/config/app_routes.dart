@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'app_config.dart';
 import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
+import '../../features/deadlines/deadline_calendar_screen.dart';
 import '../../features/scholarships/live_scholarships_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/shell/app_shell.dart';
@@ -15,6 +16,8 @@ class AppRoutes {
   static const String home = '/';
   static const String search = '/search';
   static const String scholarships = '/scholarships';
+  static const String deadlines = '/deadlines';
+
   /// Intentionally not under `/cases/...` so it never collides with `/cases/:id` (e.g. id "create").
   static const String caseCreate = '/new-case';
   static const String caseDetail = '/cases/:id';
@@ -44,6 +47,7 @@ class AppRoutes {
     final known = <String>{
       home,
       search,
+      deadlines,
       caseCreate,
       // Live-scholarships aggregator is a V1.1+ module.
       if (!AppConfig.mvpOnly) scholarships,
@@ -60,6 +64,10 @@ class AppRoutes {
     GetPage(
       name: search,
       page: () => const SearchScreen(),
+    ),
+    GetPage(
+      name: deadlines,
+      page: () => const DeadlineCalendarScreen(),
     ),
     // Live-scholarships aggregator is a V1.1+ module (hidden under MVP lock).
     if (!AppConfig.mvpOnly)

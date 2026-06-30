@@ -47,8 +47,10 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
   @override
   void initState() {
     super.initState();
-    _origin = popularAirports.firstWhere((a) => a.code == 'ABJ', orElse: () => popularAirports.last);
-    _destination = popularAirports.firstWhere((a) => a.code == 'CDG', orElse: () => popularAirports.first);
+    _origin = popularAirports.firstWhere((a) => a.code == 'ABJ',
+        orElse: () => popularAirports.last);
+    _destination = popularAirports.firstWhere((a) => a.code == 'CDG',
+        orElse: () => popularAirports.first);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -90,7 +92,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
 
   Future<void> _showAirportPicker(bool isOrigin) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -100,7 +102,8 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           height: MediaQuery.of(context).size.height * 0.7,
           decoration: BoxDecoration(
             color: context.kpb.pageBg,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
           ),
           child: Column(
             children: [
@@ -115,14 +118,17 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               ),
               Text(
                 isOrigin ? 'Sélectionner le départ' : 'Sélectionner l\'arrivée',
-                style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
+                style: KpbTextStyles.titleLg
+                    .copyWith(color: context.kpb.textPrimary),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg, vertical: KpbSpacing.sm),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: KpbSpacing.lg, vertical: KpbSpacing.sm),
                   itemCount: popularAirports.length,
-                  separatorBuilder: (_, __) => Divider(color: context.kpb.gray100, height: 1),
+                  separatorBuilder: (_, __) =>
+                      Divider(color: context.kpb.gray100, height: 1),
                   itemBuilder: (context, index) {
                     final airport = popularAirports[index];
                     return ListTile(
@@ -141,8 +147,12 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                           ),
                         ),
                       ),
-                      title: Text(airport.city, style: TextStyle(color: context.kpb.textPrimary, fontWeight: FontWeight.w600)),
-                      subtitle: Text(airport.country, style: TextStyle(color: context.kpb.textSecondary)),
+                      title: Text(airport.city,
+                          style: TextStyle(
+                              color: context.kpb.textPrimary,
+                              fontWeight: FontWeight.w600)),
+                      subtitle: Text(airport.country,
+                          style: TextStyle(color: context.kpb.textSecondary)),
                       onTap: () {
                         setState(() {
                           if (isOrigin) {
@@ -166,9 +176,10 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
 
   Future<void> _launchKayak() async {
     if (_origin == null || _destination == null) return;
-    
+
     final formattedDate = DateFormat('yyyy-MM-dd').format(_departureDate);
-    final urlStr = 'https://www.kayak.fr/flights/${_origin!.code}-${_destination!.code}/$formattedDate?sort=price_a';
+    final urlStr =
+        'https://www.kayak.fr/flights/${_origin!.code}-${_destination!.code}/$formattedDate?sort=price_a';
     final uri = Uri.parse(urlStr);
 
     if (await canLaunchUrl(uri)) {
@@ -201,19 +212,23 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           children: [
             Text(
               'Préparez votre départ',
-              style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
+              style: KpbTextStyles.headline
+                  .copyWith(color: context.kpb.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               'Estimez le prix du billet pour votre pays d\'études et achetez au meilleur moment.',
-              style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
+              style: KpbTextStyles.bodySm
+                  .copyWith(color: context.kpb.textSecondary),
             ),
             const SizedBox(height: 32),
-            
+
             // ── Hero Flight Card ─────────────────────────────────────────────
             Container(
               decoration: BoxDecoration(
-                gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+                gradient: isDark
+                    ? KpbColors.heroGradientDark
+                    : KpbColors.heroGradient,
                 borderRadius: KpbRadius.xlBr,
                 boxShadow: KpbShadow.blue,
               ),
@@ -224,13 +239,15 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildHeroAirport(_origin, CrossAxisAlignment.start),
-                      Icon(Icons.flight_takeoff_rounded, color: Colors.white.withValues(alpha: 0.8), size: 32),
+                      Icon(Icons.flight_takeoff_rounded,
+                          color: Colors.white.withValues(alpha: 0.8), size: 32),
                       _buildHeroAirport(_destination, CrossAxisAlignment.end),
                     ],
                   ),
                   const SizedBox(height: 24),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: KpbRadius.pillBr,
@@ -238,11 +255,16 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 16),
+                        const Icon(Icons.calendar_month_rounded,
+                            color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat('dd MMMM yyyy', 'fr_FR').format(_departureDate),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                          DateFormat('dd MMMM yyyy', 'fr_FR')
+                              .format(_departureDate),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -251,7 +273,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // ── Form Box ────────────────────────────────────────────────────
             Container(
               decoration: BoxDecoration(
@@ -263,21 +285,36 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               padding: const EdgeInsets.all(KpbSpacing.lg),
               child: Column(
                 children: [
-                   _buildSelectorField('Départ', _origin?.city ?? 'Choisir', Icons.flight_takeoff_rounded, () => _showAirportPicker(true), isDark),
-                   const Padding(
-                     padding: EdgeInsets.symmetric(vertical: 8),
-                     child: Divider(),
-                   ),
-                   _buildSelectorField('Arrivée', _destination?.city ?? 'Choisir', Icons.flight_land_rounded, () => _showAirportPicker(false), isDark),
-                   const Padding(
-                     padding: EdgeInsets.symmetric(vertical: 8),
-                     child: Divider(),
-                   ),
-                   _buildSelectorField('Date', DateFormat('dd MMM yyyy', 'fr_FR').format(_departureDate), Icons.event_rounded, () => _selectDate(context), isDark),
+                  _buildSelectorField(
+                      'Départ',
+                      _origin?.city ?? 'Choisir',
+                      Icons.flight_takeoff_rounded,
+                      () => _showAirportPicker(true),
+                      isDark),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(),
+                  ),
+                  _buildSelectorField(
+                      'Arrivée',
+                      _destination?.city ?? 'Choisir',
+                      Icons.flight_land_rounded,
+                      () => _showAirportPicker(false),
+                      isDark),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(),
+                  ),
+                  _buildSelectorField(
+                      'Date',
+                      DateFormat('dd MMM yyyy', 'fr_FR').format(_departureDate),
+                      Icons.event_rounded,
+                      () => _selectDate(context),
+                      isDark),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 48),
 
             // ── Magic Button ────────────────────────────────────────────────
@@ -287,11 +324,12 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               icon: Icons.search_rounded,
               bgColor: KpbColors.sky,
             ),
-            
+
             const SizedBox(height: 16),
             Text(
               'Propulsé par le comparateur indépendant Kayak. Les prix sont affichés en direct.',
-              style: KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
+              style:
+                  KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
               textAlign: TextAlign.center,
             ),
           ],
@@ -306,18 +344,26 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
       children: [
         Text(
           a?.code ?? '???',
-          style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800, height: 1),
+          style: const TextStyle(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.w800,
+              height: 1),
         ),
         const SizedBox(height: 4),
         Text(
           a?.city ?? 'Sélectionner',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 
-  Widget _buildSelectorField(String label, String value, IconData icon, VoidCallback onTap, bool isDark) {
+  Widget _buildSelectorField(String label, String value, IconData icon,
+      VoidCallback onTap, bool isDark) {
     return InkWell(
       onTap: onTap,
       borderRadius: KpbRadius.mdBr,
@@ -328,19 +374,25 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isDark ? KpbColors.sky : KpbColors.blue).withValues(alpha: 0.1),
+                color: (isDark ? KpbColors.sky : KpbColors.blue)
+                    .withValues(alpha: 0.1),
                 borderRadius: KpbRadius.mdBr,
               ),
-              child: Icon(icon, color: isDark ? KpbColors.sky : KpbColors.blue, size: 20),
+              child: Icon(icon,
+                  color: isDark ? KpbColors.sky : KpbColors.blue, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: KpbTextStyles.labelSm.copyWith(color: context.kpb.textSecondary)),
+                  Text(label,
+                      style: KpbTextStyles.labelSm
+                          .copyWith(color: context.kpb.textSecondary)),
                   const SizedBox(height: 2),
-                  Text(value, style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
+                  Text(value,
+                      style: KpbTextStyles.titleMd
+                          .copyWith(color: context.kpb.textPrimary)),
                 ],
               ),
             ),

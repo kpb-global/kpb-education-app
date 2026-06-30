@@ -251,9 +251,10 @@ class AppApiClient {
   }
 
   Future<List<dynamic>> listCatalog(String resource) async {
-    final queryParameters = (resource == 'programs' || resource == 'institutions')
-        ? <String, dynamic>{'limit': 1000}
-        : null;
+    final queryParameters =
+        (resource == 'programs' || resource == 'institutions')
+            ? <String, dynamic>{'limit': 1000}
+            : null;
     final response = await _dio.get<Map<String, dynamic>>(
       '/catalog/$resource',
       queryParameters: queryParameters,
@@ -500,7 +501,8 @@ class AppApiClient {
   // ── Payments (Track C3) ───────────────────────────────────────────────────
 
   Future<List<String>> listPaymentProviders() async {
-    final response = await _dio.get<Map<String, dynamic>>('/payments/providers');
+    final response =
+        await _dio.get<Map<String, dynamic>>('/payments/providers');
     final data = response.data ?? <String, dynamic>{};
     return (data['providers'] as List<dynamic>? ?? <dynamic>[])
         .map((e) => e.toString())
@@ -597,6 +599,22 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  Future<Map<String, dynamic>> requestServicePackageViaWhatsApp({
+    required String packageCode,
+    String? caseId,
+    String source = 'service_package_whatsapp',
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/me/purchases/whatsapp',
+      data: {
+        'packageCode': packageCode,
+        'source': source,
+        if (caseId != null) 'caseId': caseId,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<List<dynamic>> listMyPurchases() async {
     final response = await _dio.get<Map<String, dynamic>>('/me/purchases');
     final data = response.data ?? <String, dynamic>{};
@@ -661,7 +679,8 @@ class AppApiClient {
 
   // ── Phase 3 — Partners (credibility layer) ────────────────────────────────
 
-  Future<List<dynamic>> listPartners({String? category, String? country}) async {
+  Future<List<dynamic>> listPartners(
+      {String? category, String? country}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/partners',
       queryParameters: {

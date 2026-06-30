@@ -229,45 +229,46 @@ model DeviceToken {
 }
 
 model Case {
-  id                      String                 @id @default(cuid())
-  referenceCode           String                 @unique
-  userId                  String
-  type                    CaseType
-  status                  CaseStatus
-  title                   String
-  description             String
-  contextLabel            String
-  nextStepTitle           String
-  nextStepDescription     String
-  assignedAdvisorName     String?
-  assignedAdvisorPhone    String?
-  assignedAdvisorWhatsapp String?
-  source                  String                 @default("mobile_app")
-  requestedCountryId      String?
-  preferredContactMethod  String                 @default("in_app")
-  scheduledAt             DateTime?
+  id                          String                 @id @default(cuid())
+  referenceCode               String                 @unique
+  userId                      String
+  type                        CaseType
+  status                      CaseStatus
+  title                       String
+  description                 String
+  contextLabel                String
+  nextStepTitle               String
+  nextStepDescription         String
+  assignedAdvisorName         String?
+  assignedAdvisorPhone        String?
+  assignedAdvisorWhatsapp     String?
+  source                      String                 @default("mobile_app")
+  requestedCountryId          String?
+  preferredContactMethod      String                 @default("in_app")
+  scheduledAt                 DateTime?
   // ── Marketplace (Track B) ───────────────────────────────────────────────
-  counsellorId            String?
+  counsellorId                String?
   // ── Parent mode (Track C1) ──────────────────────────────────────────────
-  parentCanView           Boolean                @default(false)
+  parentCanView               Boolean                @default(false)
   // ── Phase 3 — Zero-friction entry ───────────────────────────────────────
-  freeMessageConsumed     Boolean                @default(false)
+  freeMessageConsumed         Boolean                @default(false)
   // ── M9 Commercial ops ───────────────────────────────────────────────────
-  leadTag                 String?
-  discussionMotive        String?
+  leadTag                     String?
+  discussionMotive            String?
   lastCommercialInteractionAt DateTime?
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
-  user                    UserProfile            @relation(fields: [userId], references: [id])
-  counsellor              Counsellor?            @relation(fields: [counsellorId], references: [id])
-  messages                CaseMessage[]
-  timelineEvents          CaseTimelineEvent[]
-  tasks                   CaseTask[]
-  documents               CaseDocument[]
-  appointments            Appointment[]
-  internalNotes           CaseInternalNote[]
-  notificationDeliveries  NotificationDelivery[]
-  paymentIntents          PaymentIntent[]
+  createdAt                   DateTime               @default(now())
+  updatedAt                   DateTime               @updatedAt
+  user                        UserProfile            @relation(fields: [userId], references: [id])
+  counsellor                  Counsellor?            @relation(fields: [counsellorId], references: [id])
+  messages                    CaseMessage[]
+  timelineEvents              CaseTimelineEvent[]
+  tasks                       CaseTask[]
+  documents                   CaseDocument[]
+  appointments                Appointment[]
+  internalNotes               CaseInternalNote[]
+  notificationDeliveries      NotificationDelivery[]
+  paymentIntents              PaymentIntent[]
+  servicePurchases            ServicePurchase[]
 
   @@index([userId])
   @@index([status])
@@ -559,53 +560,58 @@ model Field {
 }
 
 model Country {
-  id                    String   @id @default(cuid())
-  code                  String   @unique
-  flagEmoji             String   @default("🌍")
-  nameFr                String
-  nameEn                String
-  taglineFr             String   @default("")
-  taglineEn             String   @default("")
-  nextIntakeLabelFr     String   @default("")
-  nextIntakeLabelEn     String   @default("")
-  mainLanguageFr        String   @default("")
-  mainLanguageEn        String   @default("")
-  whyStudyFr            String
-  whyStudyEn            String
-  marketingDescriptionFr String  @default("")
-  marketingDescriptionEn String  @default("")
-  whyStudyBulletsFr     String[] @default([])
-  whyStudyBulletsEn     String[] @default([])
-  howItWorksFr          String   @default("")
-  howItWorksEn          String   @default("")
-  costsOverviewFr       String   @default("")
-  costsOverviewEn       String   @default("")
-  languageSectionFr     String   @default("")
-  languageSectionEn     String   @default("")
-  partnerSchoolsFr      String   @default("")
-  partnerSchoolsEn      String   @default("")
-  scholarshipsSectionFr String   @default("")
-  scholarshipsSectionEn String   @default("")
-  whatsAppPrefillFr     String   @default("")
-  whatsAppPrefillEn     String   @default("")
-  mvpNoteFr             String   @default("")
-  mvpNoteEn             String   @default("")
-  tuitionRangeFr        String
-  tuitionRangeEn        String
-  livingCostRangeFr     String
-  livingCostRangeEn     String
-  visaOverviewFr        String
-  visaOverviewEn        String
-  admissionDifficultyFr String
-  admissionDifficultyEn String
-  popularFieldIds       String[]
-  displayOrder          Int      @default(0)
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  eligibilityQuiz       CountryEligibilityQuiz?
+  id                     String                  @id @default(cuid())
+  code                   String                  @unique
+  flagEmoji              String                  @default("🌍")
+  nameFr                 String
+  nameEn                 String
+  taglineFr              String                  @default("")
+  taglineEn              String                  @default("")
+  nextIntakeLabelFr      String                  @default("")
+  nextIntakeLabelEn      String                  @default("")
+  mainLanguageFr         String                  @default("")
+  mainLanguageEn         String                  @default("")
+  whyStudyFr             String
+  whyStudyEn             String
+  marketingDescriptionFr String                  @default("")
+  marketingDescriptionEn String                  @default("")
+  whyStudyBulletsFr      String[]                @default([])
+  whyStudyBulletsEn      String[]                @default([])
+  howItWorksFr           String                  @default("")
+  howItWorksEn           String                  @default("")
+  costsOverviewFr        String                  @default("")
+  costsOverviewEn        String                  @default("")
+  languageSectionFr      String                  @default("")
+  languageSectionEn      String                  @default("")
+  partnerSchoolsFr       String                  @default("")
+  partnerSchoolsEn       String                  @default("")
+  scholarshipsSectionFr  String                  @default("")
+  scholarshipsSectionEn  String                  @default("")
+  whatsAppPrefillFr      String                  @default("")
+  whatsAppPrefillEn      String                  @default("")
+  mvpNoteFr              String                  @default("")
+  mvpNoteEn              String                  @default("")
+  tuitionRangeFr         String
+  tuitionRangeEn         String
+  livingCostRangeFr      String
+  livingCostRangeEn      String
+  visaOverviewFr         String
+  visaOverviewEn         String
+  admissionDifficultyFr  String
+  admissionDifficultyEn  String
+  popularFieldIds        String[]
+  displayOrder           Int                     @default(0)
+  isActive               Boolean                 @default(true)
+  verificationSourceUrl  String?
+  lastVerifiedAt         DateTime?
+  verifiedById           String?
+  verifiedByName         String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  eligibilityQuiz        CountryEligibilityQuiz?
 
   @@index([isActive, displayOrder])
+  @@index([lastVerifiedAt])
 }
 
 model CountryEligibilityQuiz {
@@ -619,7 +625,7 @@ model CountryEligibilityQuiz {
 }
 
 model Institution {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
   nameFr                 String
   nameEn                 String
   countryId              String
@@ -634,78 +640,92 @@ model Institution {
   languageRequirementsEn String
   intakePeriods          String[]
   programIds             String[]
-  isPartner              Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  isPartner              Boolean   @default(false)
+  verificationSourceUrl  String?
+  lastVerifiedAt         DateTime?
+  verifiedById           String?
+  verifiedByName         String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   @@index([countryId])
+  @@index([lastVerifiedAt])
 }
 
 model Program {
-  id             String   @id @default(cuid())
-  institutionId  String
-  countryId      String
-  fieldId        String
-  nameFr         String
-  nameEn         String
-  levelFr        String
-  levelEn        String
-  durationFr     String
-  durationEn     String
-  tuitionFr      String
-  tuitionEn      String
-  languageFr     String
-  languageEn     String
-  requirementsFr String[]
-  requirementsEn String[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                    String    @id @default(cuid())
+  institutionId         String
+  countryId             String
+  fieldId               String
+  nameFr                String
+  nameEn                String
+  levelFr               String
+  levelEn               String
+  durationFr            String
+  durationEn            String
+  tuitionFr             String
+  tuitionEn             String
+  languageFr            String
+  languageEn            String
+  requirementsFr        String[]
+  requirementsEn        String[]
+  verificationSourceUrl String?
+  lastVerifiedAt        DateTime?
+  verifiedById          String?
+  verifiedByName        String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@index([institutionId])
   @@index([countryId])
   @@index([fieldId])
+  @@index([lastVerifiedAt])
 }
 
 model Scholarship {
-  id                String         @id @default(cuid())
-  nameFr            String
-  nameEn            String
-  countryId         String
-  countryNameFr     String         @default("")
-  countryNameEn     String         @default("")
-  levelEligibleFr   String
-  levelEligibleEn   String
-  typeOfFundingFr   String
-  typeOfFundingEn   String
-  fundingType       FundingType    @default(unknown)
-  deadlineLabelFr   String
-  deadlineLabelEn   String
-  descriptionFr     String         @default("")
-  descriptionEn     String         @default("")
-  advantagesFr      String[]       @default([])
-  advantagesEn      String[]       @default([])
-  eligibilityFr     String[]       @default([])
-  eligibilityEn     String[]       @default([])
-  keyRequirementsFr String[]
-  keyRequirementsEn String[]
-  relatedFieldIds   String[]
-  baseMatch         Int            @default(30)
-  academyCourseId   String?
+  id                    String         @id @default(cuid())
+  nameFr                String
+  nameEn                String
+  countryId             String
+  countryNameFr         String         @default("")
+  countryNameEn         String         @default("")
+  levelEligibleFr       String
+  levelEligibleEn       String
+  typeOfFundingFr       String
+  typeOfFundingEn       String
+  fundingType           FundingType    @default(unknown)
+  deadlineLabelFr       String
+  deadlineLabelEn       String
+  descriptionFr         String         @default("")
+  descriptionEn         String         @default("")
+  advantagesFr          String[]       @default([])
+  advantagesEn          String[]       @default([])
+  eligibilityFr         String[]       @default([])
+  eligibilityEn         String[]       @default([])
+  keyRequirementsFr     String[]
+  keyRequirementsEn     String[]
+  relatedFieldIds       String[]
+  baseMatch             Int            @default(30)
+  academyCourseId       String?
   // ── Live-index fields (Track A1) ────────────────────────────────────────
   // Populated by the 48h refresh job; null for legacy seed data.
-  sourceKey         String?        @unique // e.g. "greatyop-ajinomoto-2026"
-  sourceUrl         String?
-  applicationUrl    String?
-  deadlineAt        DateTime?
-  lastVerifiedAt    DateTime?
-  isActive          Boolean        @default(true)
-  tags              String[]       @default([])
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  academyCourse     AcademyCourse? @relation(fields: [academyCourseId], references: [id])
+  sourceKey             String?        @unique // e.g. "greatyop-ajinomoto-2026"
+  sourceUrl             String?
+  verificationSourceUrl String?
+  applicationUrl        String?
+  deadlineAt            DateTime?
+  lastVerifiedAt        DateTime?
+  verifiedById          String?
+  verifiedByName        String?
+  isActive              Boolean        @default(true)
+  tags                  String[]       @default([])
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  academyCourse         AcademyCourse? @relation(fields: [academyCourseId], references: [id])
 
   @@index([countryId])
   @@index([deadlineAt])
+  @@index([lastVerifiedAt])
   @@index([isActive])
   @@index([fundingType])
 }
@@ -980,6 +1000,8 @@ model ServicePurchase {
   // Exactly one PaymentIntent per purchase. Null while we're still setting up.
   paymentIntentId String?               @unique
   status          ServicePurchaseStatus @default(pending_payment)
+  // Origin channel for non-checkout purchases, e.g. "service_package_whatsapp".
+  source          String                @default("checkout")
   // Price snapshot at purchase time — protects against later SKU edits.
   amountXOF       Int
   // Freeform handoff notes from KPB back-office (not shown to student).
@@ -989,11 +1011,14 @@ model ServicePurchase {
   updatedAt       DateTime              @updatedAt
   package         ServicePackage        @relation(fields: [packageId], references: [id])
   user            UserProfile           @relation(fields: [userId], references: [id])
+  case            Case?                 @relation(fields: [caseId], references: [id])
   paymentIntent   PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
 
   @@index([packageId])
   @@index([userId])
+  @@index([caseId])
   @@index([status])
+  @@index([source])
   @@index([createdAt])
 }
 

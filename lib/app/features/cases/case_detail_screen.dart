@@ -12,6 +12,7 @@ import '../../core/ui/skeleton_loader.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../services/service_packages_screen.dart';
 import 'case_status_timeline.dart';
 import 'case_timeline_definition.dart';
 
@@ -397,6 +398,17 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         ),
                         const SizedBox(height: KpbSpacing.md),
 
+                        _ServicePackageCaseButton(
+                          onTap: () => Get.to(
+                            () => ServicePackagesScreen(
+                              caseId: c.id,
+                              caseReference: c.referenceCode,
+                              source: 'case_detail_whatsapp',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
+
                         // ── Documents ────────────────────────────────────────────────
                         if (c.documentRequests.isNotEmpty) ...[
                           const SectionHeader(
@@ -640,12 +652,12 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                         _TypingDot(delay: Duration.zero),
                                         const SizedBox(width: 4),
                                         _TypingDot(
-                                            delay:
-                                                const Duration(milliseconds: 200)),
+                                            delay: const Duration(
+                                                milliseconds: 200)),
                                         const SizedBox(width: 4),
                                         _TypingDot(
-                                            delay:
-                                                const Duration(milliseconds: 400)),
+                                            delay: const Duration(
+                                                milliseconds: 400)),
                                       ],
                                     ),
                                   ),
@@ -941,6 +953,79 @@ class _WhatsappContinueButton extends StatelessWidget {
               const Icon(
                 Icons.open_in_new_rounded,
                 color: KpbColors.success,
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ServicePackageCaseButton extends StatelessWidget {
+  const _ServicePackageCaseButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Get.locale?.languageCode ?? 'fr';
+    final label = locale == 'en' ? 'Prepare my file' : 'Préparer mon dossier';
+    final subtitle = locale == 'en'
+        ? 'Reserve a paid KPB service on WhatsApp and keep it attached to this case.'
+        : 'Réserve un service KPB sur WhatsApp, rattaché à ce dossier.';
+
+    return Material(
+      color: KpbColors.blue.withValues(alpha: 0.07),
+      borderRadius: KpbRadius.lgBr,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: KpbRadius.lgBr,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: KpbRadius.lgBr,
+            border: Border.all(
+              color: KpbColors.blue.withValues(alpha: 0.18),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: KpbColors.blue,
+                  borderRadius: KpbRadius.mdBr,
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: KpbColors.blue,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: KpbTextStyles.caption),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: KpbColors.blue,
                 size: 18,
               ),
             ],

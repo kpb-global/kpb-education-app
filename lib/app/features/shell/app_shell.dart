@@ -25,8 +25,7 @@ class AppShell extends StatelessWidget {
 
     return GetBuilder<AppController>(
       builder: (_) {
-        final index =
-            controller.shellIndex.clamp(0, StudentShellTab.count - 1);
+        final index = controller.shellIndex.clamp(0, StudentShellTab.count - 1);
         final fieldFilter = controller.universitiesInitialFieldId;
 
         final pages = <Widget>[
@@ -132,7 +131,8 @@ class _KpbFloatingNavBar extends StatelessWidget {
                     label: 'nav_cases'.tr,
                     isSelected: currentIndex == StudentShellTab.cases,
                     onTap: () => onTap(StudentShellTab.cases),
-                    badgeCount: Get.find<AppController>().totalUnreadCaseMessages,
+                    badgeCount:
+                        Get.find<AppController>().totalUnreadCaseMessages,
                   ),
                   _NavItem(
                     icon: Icons.person_outline_rounded,

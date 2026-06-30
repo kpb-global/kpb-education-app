@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class FieldModel {
   const FieldModel({
     required this.id,
@@ -99,6 +98,7 @@ class FieldModel {
             '#${accentColor.toARGB32().toRadixString(16).substring(2)}',
       };
 }
+
 class CountryModel {
   const CountryModel({
     required this.id,
@@ -336,6 +336,7 @@ class CountryModel {
           },
       };
 }
+
 class InstitutionModel {
   const InstitutionModel({
     required this.id,
@@ -404,6 +405,7 @@ class InstitutionModel {
         'isPartner': isPartner,
       };
 }
+
 class ProgramModel {
   const ProgramModel({
     required this.id,
@@ -485,6 +487,7 @@ class ProgramModel {
         'requirements': requirements.map((e) => e.toJson()).toList(),
       };
 }
+
 class ScholarshipModel {
   const ScholarshipModel({
     required this.id,
@@ -615,7 +618,8 @@ class LiveScholarshipModel {
       fundingType: json['fundingType'] as String? ?? 'unknown',
       description: json['description'] as String? ?? '',
       advantages: (json['advantages'] as List<dynamic>?)?.cast<String>() ?? [],
-      eligibility: (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
+      eligibility:
+          (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
       level: json['level'] as String? ?? '',
       deadlineLabel: json['deadlineLabel'] as String? ?? '',
       deadlineAt: json['deadlineAt'] != null

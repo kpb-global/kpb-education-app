@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class ArticleModel {
   const ArticleModel({
     required this.id,
@@ -26,6 +25,7 @@ class ArticleModel {
   final PublicationStatus status;
   final DateTime? publishedAt;
 }
+
 class ForumCategoryModel {
   const ForumCategoryModel({
     required this.id,
@@ -41,6 +41,7 @@ class ForumCategoryModel {
   final int displayOrder;
   final PublicationStatus status;
 }
+
 class ForumTopicTagModel {
   const ForumTopicTagModel({
     required this.id,

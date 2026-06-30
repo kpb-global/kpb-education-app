@@ -9,25 +9,44 @@ import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
 
 const _flagMap = <String, String>{
-  'Japan': '🇯🇵', 'Japon': '🇯🇵',
+  'Japan': '🇯🇵',
+  'Japon': '🇯🇵',
   'France': '🇫🇷',
-  'Germany': '🇩🇪', 'Allemagne': '🇩🇪',
-  'United States': '🇺🇸', 'États-Unis': '🇺🇸', 'USA': '🇺🇸',
+  'Germany': '🇩🇪',
+  'Allemagne': '🇩🇪',
+  'United States': '🇺🇸',
+  'États-Unis': '🇺🇸',
+  'USA': '🇺🇸',
   'Canada': '🇨🇦',
-  'United Kingdom': '🇬🇧', 'Royaume-Uni': '🇬🇧', 'UK': '🇬🇧',
-  'Australia': '🇦🇺', 'Australie': '🇦🇺',
-  'China': '🇨🇳', 'Chine': '🇨🇳',
-  'South Korea': '🇰🇷', 'Corée du Sud': '🇰🇷',
-  'Turkey': '🇹🇷', 'Turquie': '🇹🇷',
-  'Italy': '🇮🇹', 'Italie': '🇮🇹',
-  'Spain': '🇪🇸', 'Espagne': '🇪🇸',
-  'Morocco': '🇲🇦', 'Maroc': '🇲🇦',
-  'Tunisia': '🇹🇳', 'Tunisie': '🇹🇳',
-  'Switzerland': '🇨🇭', 'Suisse': '🇨🇭',
-  'Belgium': '🇧🇪', 'Belgique': '🇧🇪',
-  'Netherlands': '🇳🇱', 'Pays-Bas': '🇳🇱',
-  'Sweden': '🇸🇪', 'Suède': '🇸🇪',
-  'Senegal': '🇸🇳', 'Sénégal': '🇸🇳',
+  'United Kingdom': '🇬🇧',
+  'Royaume-Uni': '🇬🇧',
+  'UK': '🇬🇧',
+  'Australia': '🇦🇺',
+  'Australie': '🇦🇺',
+  'China': '🇨🇳',
+  'Chine': '🇨🇳',
+  'South Korea': '🇰🇷',
+  'Corée du Sud': '🇰🇷',
+  'Turkey': '🇹🇷',
+  'Turquie': '🇹🇷',
+  'Italy': '🇮🇹',
+  'Italie': '🇮🇹',
+  'Spain': '🇪🇸',
+  'Espagne': '🇪🇸',
+  'Morocco': '🇲🇦',
+  'Maroc': '🇲🇦',
+  'Tunisia': '🇹🇳',
+  'Tunisie': '🇹🇳',
+  'Switzerland': '🇨🇭',
+  'Suisse': '🇨🇭',
+  'Belgium': '🇧🇪',
+  'Belgique': '🇧🇪',
+  'Netherlands': '🇳🇱',
+  'Pays-Bas': '🇳🇱',
+  'Sweden': '🇸🇪',
+  'Suède': '🇸🇪',
+  'Senegal': '🇸🇳',
+  'Sénégal': '🇸🇳',
   'International': '🌍',
 };
 
@@ -102,177 +121,177 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
           onRefresh: _load,
           child: CustomScrollView(
             slivers: [
-            // ── App Bar ────────────────────────────────────────────────────
-            SliverAppBar(
-              floating: true,
-              snap: true,
-              backgroundColor: context.kpb.pageBg,
-              automaticallyImplyLeading: false,
-              leading: Navigator.canPop(context)
-                  ? IconButton(
-                      icon: Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20, color: context.kpb.textPrimary),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  : null,
-              title: Text(
-                'Bourses d\'études',
-                style: KpbTextStyles.headline
-                    .copyWith(color: context.kpb.textPrimary),
+              // ── App Bar ────────────────────────────────────────────────────
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                backgroundColor: context.kpb.pageBg,
+                automaticallyImplyLeading: false,
+                leading: Navigator.canPop(context)
+                    ? IconButton(
+                        icon: Icon(Icons.arrow_back_ios_new_rounded,
+                            size: 20, color: context.kpb.textPrimary),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    : null,
+                title: Text(
+                  'Bourses d\'études',
+                  style: KpbTextStyles.headline
+                      .copyWith(color: context.kpb.textPrimary),
+                ),
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.refresh_rounded,
+                        color: context.kpb.textSecondary),
+                    onPressed: _load,
+                  ),
+                ],
               ),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.refresh_rounded,
-                      color: context.kpb.textSecondary),
-                  onPressed: _load,
-                ),
-              ],
-            ),
 
-            // ── Header ─────────────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Opportunités recommandées',
-                      style: KpbTextStyles.titleLg
-                          .copyWith(color: context.kpb.textPrimary),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Classées selon ton profil et tes objectifs académiques.',
-                      style: KpbTextStyles.body
-                          .copyWith(color: context.kpb.textSecondary),
-                    ),
-                    const SizedBox(height: KpbSpacing.md),
-                    // Funding filter chips
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _FilterChip(
-                            label: 'Toutes',
-                            active: _fundingFilter == 'all',
-                            accent: accent,
-                            onTap: () => setState(() {
-                              _fundingFilter = 'all';
-                              _load();
-                            }),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip(
-                            label: 'Entièrement financées',
-                            active: _fundingFilter == 'fully_funded',
-                            accent: accent,
-                            onTap: () => setState(() {
-                              _fundingFilter = 'fully_funded';
-                              _load();
-                            }),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip(
-                            label: 'Partiellement financées',
-                            active: _fundingFilter == 'partially_funded',
-                            accent: accent,
-                            onTap: () => setState(() {
-                              _fundingFilter = 'partially_funded';
-                              _load();
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Content ────────────────────────────────────────────────────
-            if (_loading)
-              const SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    _buildShimmerCard,
-                    childCount: 5,
-                  ),
-                ),
-              )
-            else if (_error != null)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: KpbEmptyState(
-                    icon: Icons.wifi_off_rounded,
-                    title: 'Erreur de connexion',
-                    subtitle: 'Vérifie ta connexion et réessaie.',
-                    action: KpbButton(
-                      text: 'Réessayer',
-                      onPressed: _load,
-                      bgColor: accent,
-                    ),
-                  ),
-                ),
-              )
-            else if (_items.isEmpty)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: KpbEmptyState(
-                    icon: Icons.search_off_rounded,
-                    title: 'Aucune bourse trouvée',
-                    subtitle:
-                        'Modifie tes critères ou vérifie ton profil académique.',
-                  ),
-                ),
-              )
-            else ...[
-              // Result count
+              // ── Header ─────────────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, 0, KpbSpacing.pagePad, KpbSpacing.md),
-                  child: Text(
-                    '${_items.length} bourse${_items.length > 1 ? 's' : ''} trouvée${_items.length > 1 ? 's' : ''}',
-                    style: KpbTextStyles.caption.copyWith(
-                        color: context.kpb.textMuted),
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: KpbSpacing.pagePad),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final s = _items[index];
-                      return StaggeredSlide(
-                        index: index,
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: KpbSpacing.md),
-                          child: _LiveScholarshipCard(
-                            scholarship: s,
-                            accent: accent,
-                            onTap: () => _openDetail(context, s, accent),
-                          ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Opportunités recommandées',
+                        style: KpbTextStyles.titleLg
+                            .copyWith(color: context.kpb.textPrimary),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Classées selon ton profil et tes objectifs académiques.',
+                        style: KpbTextStyles.body
+                            .copyWith(color: context.kpb.textSecondary),
+                      ),
+                      const SizedBox(height: KpbSpacing.md),
+                      // Funding filter chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _FilterChip(
+                              label: 'Toutes',
+                              active: _fundingFilter == 'all',
+                              accent: accent,
+                              onTap: () => setState(() {
+                                _fundingFilter = 'all';
+                                _load();
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _FilterChip(
+                              label: 'Entièrement financées',
+                              active: _fundingFilter == 'fully_funded',
+                              accent: accent,
+                              onTap: () => setState(() {
+                                _fundingFilter = 'fully_funded';
+                                _load();
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _FilterChip(
+                              label: 'Partiellement financées',
+                              active: _fundingFilter == 'partially_funded',
+                              accent: accent,
+                              onTap: () => setState(() {
+                                _fundingFilter = 'partially_funded';
+                                _load();
+                              }),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    childCount: _items.length,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
 
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              // ── Content ────────────────────────────────────────────────────
+              if (_loading)
+                const SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      _buildShimmerCard,
+                      childCount: 5,
+                    ),
+                  ),
+                )
+              else if (_error != null)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: KpbEmptyState(
+                      icon: Icons.wifi_off_rounded,
+                      title: 'Erreur de connexion',
+                      subtitle: 'Vérifie ta connexion et réessaie.',
+                      action: KpbButton(
+                        text: 'Réessayer',
+                        onPressed: _load,
+                        bgColor: accent,
+                      ),
+                    ),
+                  ),
+                )
+              else if (_items.isEmpty)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: KpbEmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: 'Aucune bourse trouvée',
+                      subtitle:
+                          'Modifie tes critères ou vérifie ton profil académique.',
+                    ),
+                  ),
+                )
+              else ...[
+                // Result count
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 0,
+                        KpbSpacing.pagePad, KpbSpacing.md),
+                    child: Text(
+                      '${_items.length} bourse${_items.length > 1 ? 's' : ''} trouvée${_items.length > 1 ? 's' : ''}',
+                      style: KpbTextStyles.caption
+                          .copyWith(color: context.kpb.textMuted),
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: KpbSpacing.pagePad),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final s = _items[index];
+                        return StaggeredSlide(
+                          index: index,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: KpbSpacing.md),
+                            child: _LiveScholarshipCard(
+                              scholarship: s,
+                              accent: accent,
+                              onTap: () => _openDetail(context, s, accent),
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: _items.length,
+                    ),
+                  ),
+                ),
+              ],
+
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -285,8 +304,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
     );
   }
 
-  void _openDetail(
-      BuildContext context, LiveScholarshipModel s, Color accent) {
+  void _openDetail(BuildContext context, LiveScholarshipModel s, Color accent) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -388,7 +406,8 @@ class _LiveScholarshipCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  AdmissionMeter(score: s.matchScore, size: 34, strokeWidth: 3.5),
+                  AdmissionMeter(
+                      score: s.matchScore, size: 34, strokeWidth: 3.5),
                 ],
               ),
             ],
@@ -436,8 +455,8 @@ class _LiveScholarshipCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           s.deadlineLabel,
-                          style: KpbTextStyles.caption.copyWith(
-                              color: context.kpb.textSecondary),
+                          style: KpbTextStyles.caption
+                              .copyWith(color: context.kpb.textSecondary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -535,8 +554,8 @@ class _LiveScholarshipDetail extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       s.title,
-                      style: KpbTextStyles.displaySm
-                          .copyWith(color: context.kpb.textPrimary, height: 1.1),
+                      style: KpbTextStyles.displaySm.copyWith(
+                          color: context.kpb.textPrimary, height: 1.1),
                     ),
                   ],
                 ),
@@ -587,7 +606,9 @@ class _LiveScholarshipDetail extends StatelessWidget {
           _InfoRow(
             icon: Icons.event_outlined,
             label: 'Date limite',
-            value: s.deadlineLabel.isEmpty ? 'Voir site officiel' : s.deadlineLabel,
+            value: s.deadlineLabel.isEmpty
+                ? 'Voir site officiel'
+                : s.deadlineLabel,
             accent: accent,
           ),
           const SizedBox(height: KpbSpacing.xl),
@@ -639,12 +660,13 @@ class _LiveScholarshipDetail extends StatelessWidget {
 
           // ── Description ───────────────────────────────────────────────────
           if (s.description.isNotEmpty) ...[
-            _SectionHeader(label: 'Description', icon: Icons.info_outline_rounded),
+            _SectionHeader(
+                label: 'Description', icon: Icons.info_outline_rounded),
             const SizedBox(height: 10),
             Text(
               s.description,
-              style: KpbTextStyles.body.copyWith(
-                  color: context.kpb.textSecondary, height: 1.6),
+              style: KpbTextStyles.body
+                  .copyWith(color: context.kpb.textSecondary, height: 1.6),
             ),
             const SizedBox(height: KpbSpacing.xl),
           ],
@@ -654,7 +676,8 @@ class _LiveScholarshipDetail extends StatelessWidget {
             _SectionHeader(
                 label: 'Avantages', icon: Icons.star_outline_rounded),
             const SizedBox(height: 10),
-            ...s.advantages.map((a) => _BulletItem(text: a, color: KpbColors.success)),
+            ...s.advantages
+                .map((a) => _BulletItem(text: a, color: KpbColors.success)),
             const SizedBox(height: KpbSpacing.xl),
           ],
 
@@ -695,8 +718,7 @@ class _LiveScholarshipDetail extends StatelessWidget {
               onTap: () async {
                 final uri = Uri.tryParse(s.applicationUrl);
                 if (uri != null && await canLaunchUrl(uri)) {
-                  await launchUrl(uri,
-                      mode: LaunchMode.externalApplication);
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
                 }
               },
               child: Container(
@@ -973,4 +995,3 @@ class _ShimmerCardState extends State<_ShimmerCard>
     );
   }
 }
-

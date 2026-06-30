@@ -53,7 +53,8 @@ class ProgramDetailScreen extends StatelessWidget {
             surfaceTintColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
+                decoration:
+                    const BoxDecoration(gradient: KpbColors.heroGradient),
                 padding: const EdgeInsets.fromLTRB(20, 88, 20, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

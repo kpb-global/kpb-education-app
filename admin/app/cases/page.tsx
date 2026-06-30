@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
@@ -94,24 +94,22 @@ export default function CasesPage() {
     status: '',
   });
 
-  async function loadCases() {
+  const loadCases = useCallback(async () => {
     setErrorMessage(null);
     try {
       const response = await apiFetch<AdminCaseItem[]>('/admin/cases');
       setCases(response);
-      if (!selectedCaseId && response[0]) {
-        setSelectedCaseId(response[0].id);
-      }
+      setSelectedCaseId((current) => current ?? response[0]?.id ?? null);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to load cases.',
       );
     }
-  }
+  }, []);
 
   useEffect(() => {
     void loadCases();
-  }, []);
+  }, [loadCases]);
 
   const selectedCase = useMemo(
     () => cases.find((item) => item.id === selectedCaseId) ?? null,

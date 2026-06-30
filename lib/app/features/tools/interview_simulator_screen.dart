@@ -42,16 +42,18 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       final p = _ctrl.profile;
       final fieldId = p?.fieldIds.isNotEmpty == true ? p!.fieldIds.first : '';
       final field = _ctrl.fields
-          .where((f) => f.id == fieldId)
-          .map((f) => _ctrl.resolve(f.name))
-          .firstOrNull ?? '';
+              .where((f) => f.id == fieldId)
+              .map((f) => _ctrl.resolve(f.name))
+              .firstOrNull ??
+          '';
       final targetId = p?.targetCountryIds.isNotEmpty == true
           ? p!.targetCountryIds.first
           : '';
       final country = _ctrl.countries
-          .where((c) => c.id == targetId)
-          .map((c) => _ctrl.resolve(c.name))
-          .firstOrNull ?? '';
+              .where((c) => c.id == targetId)
+              .map((c) => _ctrl.resolve(c.name))
+              .firstOrNull ??
+          '';
 
       final result = await _ctrl.apiClient.post('tools/interview/questions', {
         'type': type,
@@ -167,8 +169,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     );
   }
 
-  Widget _typeCard(String type, IconData icon, Color color, String title,
-      String subtitle) {
+  Widget _typeCard(
+      String type, IconData icon, Color color, String title, String subtitle) {
     return KpbCard(
       onTap: () => _start(type),
       child: Row(
@@ -193,8 +195,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                         color: context.kpb.textPrimary)),
                 const SizedBox(height: 2),
                 Text(subtitle,
-                    style: TextStyle(
-                        fontSize: 12, color: context.kpb.textMuted)),
+                    style:
+                        TextStyle(fontSize: 12, color: context.kpb.textMuted)),
               ],
             ),
           ),

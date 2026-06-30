@@ -63,10 +63,8 @@ class HomeScreen extends StatelessWidget {
         final firstName = profile?.fullName.split(' ').first ?? '';
 
         // Data — limited, curated
-        final institutions = 
-            controller.institutions.take(4).toList();
-        final articles =
-            controller.publishedArticles.take(2).toList();
+        final institutions = controller.institutions.take(4).toList();
+        final articles = controller.publishedArticles.take(2).toList();
         final activeCases = controller.cases
             .where((c) =>
                 c.status != CaseStatus.completed &&
@@ -89,228 +87,229 @@ class HomeScreen extends StatelessWidget {
                   toolbarHeight: 64,
                   backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
-                title: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        firstName.isNotEmpty
-                            ? 'Bonjour, $firstName 👋'
-                            : 'Bonjour 👋',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          firstName.isNotEmpty
+                              ? 'Bonjour, $firstName 👋'
+                              : 'Bonjour 👋',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                      Text(
-                        controller.isStudent
-                            ? 'Votre tableau de bord'
-                            : controller.isParent
-                                ? 'Espace parent'
-                                : 'Espace partenaire',
-                        style: KpbTextStyles.caption.copyWith(color: KpbColors.textDarkSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: [
-                  // Search
-                  IconButton(
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: KpbColors.glassBg,
-                        border: Border.all(color: KpbColors.glassBorder),
-                        borderRadius: KpbRadius.pillBr,
-                      ),
-                      child: const Icon(Icons.search_rounded,
-                          size: 20, color: Colors.white),
+                        Text(
+                          controller.isStudent
+                              ? 'Votre tableau de bord'
+                              : controller.isParent
+                                  ? 'Espace parent'
+                                  : 'Espace partenaire',
+                          style: KpbTextStyles.caption
+                              .copyWith(color: KpbColors.textDarkSecondary),
+                        ),
+                      ],
                     ),
-                    onPressed: () => Get.to(() => const SearchScreen()),
                   ),
-                  // Saved items
-                  IconButton(
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: KpbColors.glassBg,
-                        border: Border.all(color: KpbColors.glassBorder),
-                        borderRadius: KpbRadius.pillBr,
-                      ),
-                      child: const Icon(Icons.bookmark_border_rounded,
-                          size: 20, color: Colors.white),
-                    ),
-                    onPressed: () => Get.to(() => const SavedScreen()),
-                  ),
-                  // Profile
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => controller.goToTab(StudentShellTab.profile),
-                      child: Container(
+                  actions: [
+                    // Search
+                    IconButton(
+                      icon: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: KpbColors.glassBg,
                           border: Border.all(color: KpbColors.glassBorder),
                           borderRadius: KpbRadius.pillBr,
                         ),
-                        child: const Icon(Icons.person_outline_rounded,
+                        child: const Icon(Icons.search_rounded,
                             size: 20, color: Colors.white),
+                      ),
+                      onPressed: () => Get.to(() => const SearchScreen()),
+                    ),
+                    // Saved items
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: KpbColors.glassBg,
+                          border: Border.all(color: KpbColors.glassBorder),
+                          borderRadius: KpbRadius.pillBr,
+                        ),
+                        child: const Icon(Icons.bookmark_border_rounded,
+                            size: 20, color: Colors.white),
+                      ),
+                      onPressed: () => Get.to(() => const SavedScreen()),
+                    ),
+                    // Profile
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () =>
+                            controller.goToTab(StudentShellTab.profile),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: KpbColors.glassBg,
+                            border: Border.all(color: KpbColors.glassBorder),
+                            borderRadius: KpbRadius.pillBr,
+                          ),
+                          child: const Icon(Icons.person_outline_rounded,
+                              size: 20, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                        KpbSpacing.sm, KpbSpacing.pagePad, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── 1. Hero Card ──────────────────────────────
+                        StaggeredSlide(
+                          index: 0,
+                          child: _HeroCard(controller: controller),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 2. Prochaine étape (contextual) ──────────
+                        if (controller.isStudent) ...[
+                          StaggeredSlide(
+                            index: 1,
+                            child: _NextStepCard(
+                              controller: controller,
+                              activeCases: activeCases,
+                            ),
+                          ),
+                          const SizedBox(height: KpbSpacing.lg),
+                        ],
+
+                        // ── 3. Quick Actions ──────────────────────────
+                        StaggeredSlide(
+                          index: 2,
+                          child: _QuickActions(controller: controller),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.5 Assistant d'Orientation IA ───────────
+                        const StaggeredSlide(
+                          index: 3,
+                          child: _AiAdvisorBanner(),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.6 Inscriptions à l'Étranger ───────────────────
+                        StaggeredSlide(
+                          index: 4,
+                          child: _AbroadEnrollmentCard(controller: controller),
+                        ),
+                        const SizedBox(height: KpbSpacing.lg),
+
+                        // ── 3.7 Outils étudiants ─────────────────────────────
+                        if (controller.isStudent)
+                          StaggeredSlide(
+                            index: 5,
+                            child: _StudentToolsBanner(),
+                          ),
+                        const SizedBox(height: KpbSpacing.xl),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── 4. Dossiers actifs ────────────────────────────────
+                if (activeCases.isNotEmpty && controller.isStudent) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: 'Dossiers actifs',
+                      actionLabel: 'Voir tout',
+                      onAction: () => controller.goToTab(StudentShellTab.cases),
+                      textColor: Colors.white,
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: KpbSpacing.pagePad),
+                    sliver: SliverList.separated(
+                      itemCount: activeCases.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: KpbSpacing.sm),
+                      itemBuilder: (ctx, i) => _ActiveCaseCard(
+                        item: activeCases[i],
+                        controller: controller,
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
+                ],
+
+                // ── 5.5 Universités recommandées ───────────────────────────────
+                if (institutions.isNotEmpty &&
+                    (controller.isStudent || controller.isParent)) ...[
+                  SliverToBoxAdapter(
+                    child: HScrollSection(
+                      title: 'Universités recommandées',
+                      actionLabel: 'Voir tout',
+                      onAction: () =>
+                          controller.goToTab(StudentShellTab.universities),
+                      textColor: Colors.white,
+                      itemCount: institutions.length,
+                      height: 160,
+                      itemWidth: 200,
+                      itemBuilder: (ctx, i) {
+                        final institution = institutions[i];
+                        return InstitutionMiniCard(
+                          name: controller.resolve(institution.name),
+                          countryFlag: _flag(institution.countryId),
+                          location: controller.resolve(institution.location),
+                          tuitionLabel:
+                              controller.resolve(institution.tuitionLabel),
+                          isPartner: institution.isPartner,
+                          score: controller.institutionMatch(institution),
+                          onTap: () =>
+                              controller.goToTab(StudentShellTab.universities),
+                          width: 200,
+                        );
+                      },
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
+                ],
+
+                // ── 7. Articles récents ───────────────────────────────
+                // Community/articles is a V1.1+ module (hidden under MVP lock).
+                if (!AppConfig.mvpOnly && articles.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: 'latest_articles'.tr,
+                      actionLabel: 'Voir tout',
+                      onAction: () => Get.to(() => const CommunityScreen()),
+                      textColor: Colors.white,
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: KpbSpacing.pagePad),
+                    sliver: SliverList.separated(
+                      itemCount: articles.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: KpbSpacing.sm),
+                      itemBuilder: (ctx, i) => _ArticleCard(
+                        article: articles[i],
+                        controller: controller,
                       ),
                     ),
                   ),
                 ],
-              ),
-
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      KpbSpacing.pagePad, KpbSpacing.sm,
-                      KpbSpacing.pagePad, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      // ── 1. Hero Card ──────────────────────────────
-                      StaggeredSlide(
-                        index: 0,
-                        child: _HeroCard(controller: controller),
-                      ),
-                      const SizedBox(height: KpbSpacing.lg),
-
-                      // ── 2. Prochaine étape (contextual) ──────────
-                      if (controller.isStudent) ...[
-                        StaggeredSlide(
-                          index: 1,
-                          child: _NextStepCard(
-                            controller: controller,
-                            activeCases: activeCases,
-                          ),
-                        ),
-                        const SizedBox(height: KpbSpacing.lg),
-                      ],
-
-                      // ── 3. Quick Actions ──────────────────────────
-                      StaggeredSlide(
-                        index: 2,
-                        child: _QuickActions(controller: controller),
-                      ),
-                      const SizedBox(height: KpbSpacing.lg),
-
-                      // ── 3.5 Assistant d'Orientation IA ───────────
-                      const StaggeredSlide(
-                        index: 3,
-                        child: _AiAdvisorBanner(),
-                      ),
-                      const SizedBox(height: KpbSpacing.lg),
-
-                      // ── 3.6 Inscriptions à l'Étranger ───────────────────
-                      StaggeredSlide(
-                        index: 4,
-                        child: _AbroadEnrollmentCard(controller: controller),
-                      ),
-                      const SizedBox(height: KpbSpacing.lg),
-
-                      // ── 3.7 Outils étudiants ─────────────────────────────
-                      if (controller.isStudent)
-                        StaggeredSlide(
-                          index: 5,
-                          child: _StudentToolsBanner(),
-                        ),
-                      const SizedBox(height: KpbSpacing.xl),
-                    ],
-                  ),
-                ),
-              ),
-
-
-              // ── 4. Dossiers actifs ────────────────────────────────
-              if (activeCases.isNotEmpty && controller.isStudent) ...[
-                SliverToBoxAdapter(
-                  child: SectionHeader(
-                    title: 'Dossiers actifs',
-                    actionLabel: 'Voir tout',
-                    onAction: () => controller.goToTab(StudentShellTab.cases),
-                    textColor: Colors.white,
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: KpbSpacing.pagePad),
-                  sliver: SliverList.separated(
-                    itemCount: activeCases.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: KpbSpacing.sm),
-                    itemBuilder: (ctx, i) =>
-                        _ActiveCaseCard(
-                          item: activeCases[i],
-                          controller: controller,
-                        ),
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                    child: SizedBox(height: KpbSpacing.xl)),
-              ],
-
-              // ── 5.5 Universités recommandées ───────────────────────────────
-              if (institutions.isNotEmpty && (controller.isStudent || controller.isParent)) ...[
-                SliverToBoxAdapter(
-                  child: HScrollSection(
-                    title: 'Universités recommandées',
-                    actionLabel: 'Voir tout',
-                    onAction: () => controller.goToTab(StudentShellTab.universities),
-                    textColor: Colors.white,
-                    itemCount: institutions.length,
-                    height: 160,
-                    itemWidth: 200,
-                    itemBuilder: (ctx, i) {
-                      final institution = institutions[i];
-                      return InstitutionMiniCard(
-                        name: controller.resolve(institution.name),
-                        countryFlag: _flag(institution.countryId),
-                        location: controller.resolve(institution.location),
-                        tuitionLabel: controller.resolve(institution.tuitionLabel),
-                        isPartner: institution.isPartner,
-                        score: controller.institutionMatch(institution),
-                        onTap: () => controller.goToTab(StudentShellTab.universities),
-                        width: 200,
-                      );
-                    },
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                    child: SizedBox(height: KpbSpacing.xl)),
-              ],
-
-              // ── 7. Articles récents ───────────────────────────────
-              // Community/articles is a V1.1+ module (hidden under MVP lock).
-              if (!AppConfig.mvpOnly && articles.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: SectionHeader(
-                    title: 'latest_articles'.tr,
-                    actionLabel: 'Voir tout',
-                    onAction: () =>
-                        Get.to(() => const CommunityScreen()),
-                    textColor: Colors.white,
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: KpbSpacing.pagePad),
-                  sliver: SliverList.separated(
-                    itemCount: articles.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: KpbSpacing.sm),
-                    itemBuilder: (ctx, i) => _ArticleCard(
-                      article: articles[i],
-                      controller: controller,
-                    ),
-                  ),
-                ),
-              ],
 
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
@@ -381,28 +380,30 @@ class _HeroCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    _HeroCta(
-                      label: controller.isStudent
-                          ? 'Orientation'
-                          : controller.isParent
-                              ? 'Consultation'
-                              : 'Devenir partenaire',
-                      primary: true,
-                      onTap: () {
-                        if (controller.isStudent) {
-                          Get.to(() => const OrientationScreen());
-                        } else {
-                          showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (_) => const CaseComposerSheet(
-                              caseType: CaseType.consultation,
-                              title: 'Prendre rendez-vous',
-                              contextLabel: 'KPB Education',
-                            ),
-                          );
-                        }
-                      },
+                    Flexible(
+                      child: _HeroCta(
+                        label: controller.isStudent
+                            ? 'Orientation'
+                            : controller.isParent
+                                ? 'Consultation'
+                                : 'Devenir partenaire',
+                        primary: true,
+                        onTap: () {
+                          if (controller.isStudent) {
+                            Get.to(() => const OrientationScreen());
+                          } else {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (_) => const CaseComposerSheet(
+                                caseType: CaseType.consultation,
+                                title: 'Prendre rendez-vous',
+                                contextLabel: 'KPB Education',
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -425,7 +426,8 @@ class _HeroCard extends StatelessWidget {
                           value: progress,
                           strokeWidth: 6,
                           backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                         Center(
                           child: Text(
@@ -496,12 +498,16 @@ class _HeroCta extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Démarrer ➔',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                color: KpbColors.stitchCyberCyan,
+            const Flexible(
+              fit: FlexFit.loose,
+              child: Text(
+                'Démarrer ➔',
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: KpbColors.stitchCyberCyan,
+                ),
               ),
             ),
           ],
@@ -528,7 +534,7 @@ class _NextStepCard extends StatelessWidget {
 
     // Dark mode variant formatting
     final isAlert = step.iconColor == KpbColors.error;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -547,9 +553,10 @@ class _NextStepCard extends StatelessWidget {
             color: KpbColors.bgDarkCard,
             borderRadius: KpbRadius.lgBr,
             border: Border.all(
-              color: isAlert ? KpbColors.stitchNeonRed.withValues(alpha: 0.5) : KpbColors.glassBorder, 
-              width: 1.5
-            ),
+                color: isAlert
+                    ? KpbColors.stitchNeonRed.withValues(alpha: 0.5)
+                    : KpbColors.glassBorder,
+                width: 1.5),
             boxShadow: [
               if (isAlert)
                 BoxShadow(
@@ -563,7 +570,9 @@ class _NextStepCard extends StatelessWidget {
           child: Row(
             children: [
               // Icon
-              Icon(step.icon, color: isAlert ? KpbColors.stitchNeonRed : step.iconColor, size: 28),
+              Icon(step.icon,
+                  color: isAlert ? KpbColors.stitchNeonRed : step.iconColor,
+                  size: 28),
               const SizedBox(width: 16),
 
               // Text
@@ -576,7 +585,8 @@ class _NextStepCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: isAlert ? KpbColors.stitchNeonRed : step.iconColor,
+                        color:
+                            isAlert ? KpbColors.stitchNeonRed : step.iconColor,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -605,11 +615,13 @@ class _NextStepCard extends StatelessWidget {
               GestureDetector(
                 onTap: step.onTap,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: KpbRadius.pillBr,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.2)),
                   ),
                   child: const Text(
                     'Gérer',
@@ -638,19 +650,15 @@ class _NextStepCard extends StatelessWidget {
           c.status == CaseStatus.documentsNeeded ||
           c.status == CaseStatus.awaitingStudent ||
           c.status == CaseStatus.awaitingPayment,
-      orElse: () => activeCases.isEmpty
-          ? _placeholder
-          : activeCases.first,
+      orElse: () => activeCases.isEmpty ? _placeholder : activeCases.first,
     );
 
     if (activeCases.isNotEmpty &&
         (urgentCase.status == CaseStatus.documentsNeeded ||
             urgentCase.status == CaseStatus.awaitingStudent ||
             urgentCase.status == CaseStatus.awaitingPayment)) {
-      final isPayment =
-          urgentCase.status == CaseStatus.awaitingPayment;
-      final isDocs =
-          urgentCase.status == CaseStatus.documentsNeeded;
+      final isPayment = urgentCase.status == CaseStatus.awaitingPayment;
+      final isDocs = urgentCase.status == CaseStatus.documentsNeeded;
       return _StepData(
         label: '⚡ ACTION REQUISE',
         labelColor: KpbColors.error,
@@ -669,8 +677,7 @@ class _NextStepCard extends StatelessWidget {
         iconBg: KpbColors.errorLight,
         bgColor: const Color(0xFFFEF2F2),
         borderColor: const Color(0xFFFCA5A5),
-        onTap: () =>
-            Get.to(() => CaseDetailScreen(caseId: urgentCase.id)),
+        onTap: () => Get.to(() => CaseDetailScreen(caseId: urgentCase.id)),
       );
     }
 
@@ -699,8 +706,7 @@ class _NextStepCard extends StatelessWidget {
         label: '🧭 DÉCOUVERTE',
         labelColor: KpbColors.blue,
         title: 'Fais ton test d\'orientation',
-        subtitle:
-            '5 questions pour trouver les filières qui te correspondent',
+        subtitle: '5 questions pour trouver les filières qui te correspondent',
         icon: Icons.psychology_rounded,
         iconColor: KpbColors.blue,
         iconBg: KpbColors.skyLight,
@@ -838,8 +844,7 @@ class _QuickActions extends StatelessWidget {
       children: actions
           .map((a) => Expanded(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      right: a == actions.last ? 0 : 8),
+                  padding: EdgeInsets.only(right: a == actions.last ? 0 : 8),
                   child: GestureDetector(
                     onTap: a.$4,
                     child: Container(
@@ -947,12 +952,14 @@ class _AiAdvisorBanner extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: KpbColors.stitchCyberCyan.withValues(alpha: 0.2),
                         borderRadius: KpbRadius.xsBr,
                         border: Border.all(
-                          color: KpbColors.stitchCyberCyan.withValues(alpha: 0.5),
+                          color:
+                              KpbColors.stitchCyberCyan.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),
@@ -1012,8 +1019,7 @@ class _AiAdvisorBanner extends StatelessWidget {
 // Active Case Card — compact, status-driven
 // ─────────────────────────────────────────────────────────────────────────────
 class _ActiveCaseCard extends StatelessWidget {
-  const _ActiveCaseCard(
-      {required this.item, required this.controller});
+  const _ActiveCaseCard({required this.item, required this.controller});
   final StudentCase item;
   final AppController controller;
 
@@ -1101,8 +1107,7 @@ class _ActiveCaseCard extends StatelessWidget {
 // Article Card — compact, 2-line summary
 // ─────────────────────────────────────────────────────────────────────────────
 class _ArticleCard extends StatelessWidget {
-  const _ArticleCard(
-      {required this.article, required this.controller});
+  const _ArticleCard({required this.article, required this.controller});
   final ArticleModel article;
   final AppController controller;
 
@@ -1227,7 +1232,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: KpbColors.gold.withValues(alpha: 0.15),
                               borderRadius: KpbRadius.xsBr,
@@ -1277,7 +1283,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                   children: const ['canada', 'usa', 'uk', 'germany', 'morocco']
                       .map((id) => Container(
                             margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: KpbRadius.xsBr,
@@ -1420,7 +1427,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                           child: InkWell(
                             onTap: () {
                               Get.back();
-                              Get.to(() => CountryDetailScreen(countryId: country.id));
+                              Get.to(() =>
+                                  CountryDetailScreen(countryId: country.id));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(KpbSpacing.md),
@@ -1432,7 +1440,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.06),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.06),
                                       shape: BoxShape.circle,
                                     ),
                                     alignment: Alignment.center,
@@ -1445,10 +1454,12 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                   // Text contents
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               controller.resolve(country.name),
@@ -1460,10 +1471,13 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             ),
                                             // Difficulty Badge
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 6, vertical: 2),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withValues(alpha: 0.05),
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.05),
                                                 borderRadius: KpbRadius.xsBr,
                                               ),
                                               child: Text(
@@ -1471,7 +1485,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                                 style: const TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.w600,
-                                                  color: KpbColors.textDarkSecondary,
+                                                  color: KpbColors
+                                                      .textDarkSecondary,
                                                 ),
                                               ),
                                             ),
@@ -1501,11 +1516,13 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,
-                                                color: Colors.white.withValues(alpha: 0.6),
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             Text(
-                                              controller.resolve(country.tuitionRange),
+                                              controller.resolve(
+                                                  country.tuitionRange),
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,

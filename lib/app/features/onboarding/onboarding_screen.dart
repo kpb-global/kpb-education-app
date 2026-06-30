@@ -30,8 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   AppController get _ctrl => Get.find<AppController>();
 
   bool get _isStudentLike =>
-      _accountType == AccountType.student ||
-      _accountType == AccountType.parent;
+      _accountType == AccountType.student || _accountType == AccountType.parent;
 
   @override
   void initState() {
@@ -65,8 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   UserProfile _buildProfile() {
     final existing = _ctrl.profile;
-    final isStudentLike =
-        _accountType == AccountType.student ||
+    final isStudentLike = _accountType == AccountType.student ||
         _accountType == AccountType.parent;
 
     return UserProfile(
@@ -228,7 +226,9 @@ class _Header extends StatelessWidget {
             Row(
               children: [
                 if (onBack != null)
-                  IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back_rounded))
+                  IconButton(
+                      onPressed: onBack,
+                      icon: const Icon(Icons.arrow_back_rounded))
                 else
                   const SizedBox(width: 48),
                 Expanded(
@@ -280,7 +280,8 @@ class _BottomBar extends StatelessWidget {
 }
 
 class _StepShell extends StatelessWidget {
-  const _StepShell({required this.title, required this.subtitle, required this.child});
+  const _StepShell(
+      {required this.title, required this.subtitle, required this.child});
 
   final String title;
   final String subtitle;

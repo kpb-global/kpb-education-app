@@ -132,8 +132,7 @@ class ProfileScreen extends StatelessWidget {
                     _ProfileCompletionGuide(
                       profile: profile,
                       completion: completion,
-                      onEdit: () =>
-                          _openEditSheet(context, controller),
+                      onEdit: () => _openEditSheet(context, controller),
                     ),
                     const SizedBox(height: KpbSpacing.md),
 
@@ -150,15 +149,21 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.face_unlock_outlined, color: KpbColors.blue, size: 24),
+                                  const Icon(Icons.face_unlock_outlined,
+                                      color: KpbColors.blue, size: 24),
                                   const SizedBox(width: 12),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Verrouillage biométrique', style: TextStyle(fontWeight: FontWeight.w600)),
+                                      const Text('Verrouillage biométrique',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600)),
                                       Text(
                                         'Protéger l\'accès à l\'application',
-                                        style: TextStyle(fontSize: 12, color: context.kpb.textMuted),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: context.kpb.textMuted),
                                       ),
                                     ],
                                   ),
@@ -167,7 +172,8 @@ class ProfileScreen extends StatelessWidget {
                               Switch.adaptive(
                                 value: controller.isAppLockEnabled,
                                 activeTrackColor: KpbColors.blue,
-                                onChanged: (val) => controller.toggleAppLock(val),
+                                onChanged: (val) =>
+                                    controller.toggleAppLock(val),
                               ),
                             ],
                           ),
@@ -346,16 +352,14 @@ class ProfileScreen extends StatelessWidget {
                               icon: Icons.play_circle_outline_rounded,
                               label: 'Parcours & témoignages',
                               color: KpbColors.error,
-                              onTap: () =>
-                                  Get.to(() => const ParcoursScreen()),
+                              onTap: () => Get.to(() => const ParcoursScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.bookmark_outlined,
                               label: 'Éléments sauvegardés',
                               color: KpbColors.sky,
-                              onTap: () =>
-                                  Get.to(() => const SavedScreen()),
+                              onTap: () => Get.to(() => const SavedScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
@@ -451,7 +455,8 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: KpbSpacing.md),
 
                     // ── Legal ──────────────────────────────────────────
-                    const Text('Informations légales', style: KpbTextStyles.title),
+                    const Text('Informations légales',
+                        style: KpbTextStyles.title),
                     const SizedBox(height: KpbSpacing.sm),
                     KpbCard(
                       child: Column(
@@ -460,16 +465,16 @@ class ProfileScreen extends StatelessWidget {
                             icon: Icons.privacy_tip_outlined,
                             label: 'Politique de confidentialité',
                             color: context.kpb.textSecondary,
-                            onTap: () => Get.to(
-                                () => const PrivacyPolicyScreen()),
+                            onTap: () =>
+                                Get.to(() => const PrivacyPolicyScreen()),
                           ),
                           const KpbDivider(indent: 52),
                           _QuickAccessTile(
                             icon: Icons.description_outlined,
                             label: 'Conditions d\'utilisation',
                             color: context.kpb.textSecondary,
-                            onTap: () => Get.to(
-                                () => const TermsOfServiceScreen()),
+                            onTap: () =>
+                                Get.to(() => const TermsOfServiceScreen()),
                           ),
                         ],
                       ),
@@ -588,7 +593,12 @@ class _ProfileEditSheet extends StatefulWidget {
 
 /// Documents the student can flag as available, in display order.
 /// Keys match `_docLabel` and the `availableDocuments` payload field.
-const _kEditableDocuments = <String>['Passport', 'CV', 'Transcripts', 'Test score'];
+const _kEditableDocuments = <String>[
+  'Passport',
+  'CV',
+  'Transcripts',
+  'Test score'
+];
 
 class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   final _formKey = GlobalKey<FormState>();
@@ -613,8 +623,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     // Normalise legacy/raw levels ("L1", "M1"…) to a canonical label so the
     // dropdown selects the right item instead of resetting to null.
     _currentLevel = normalizeStudentLevel(p.currentLevel)?.labelFr;
-    _bacSeries =
-        onboardingBacSeries.contains(p.bacSeries) ? p.bacSeries : null;
+    _bacSeries = onboardingBacSeries.contains(p.bacSeries) ? p.bacSeries : null;
     _countryIds = p.targetCountryIds.toSet();
     _documents = p.availableDocuments.toSet();
   }
@@ -1079,8 +1088,8 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: KpbSpacing.md, vertical: 12),
+      padding:
+          const EdgeInsets.symmetric(horizontal: KpbSpacing.md, vertical: 12),
       child: Row(
         children: [
           Container(
@@ -1138,8 +1147,8 @@ class _QuickAccessTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: KpbRadius.mdBr,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: KpbSpacing.md, vertical: 14),
+        padding:
+            const EdgeInsets.symmetric(horizontal: KpbSpacing.md, vertical: 14),
         child: Row(
           children: [
             Container(

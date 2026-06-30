@@ -89,7 +89,7 @@ This is the execution checklist used to move the app from feature-complete to pr
 ## Phase 7 - Test & CI Gates (In progress)
 - [x] Phase 7 baseline — [`phase7-test-ci.md`](phase7-test-ci.md): CI jobs, local commands, test inventory; widget tests for Salon list (error / empty / data / retry) with injectable [`SalonScreen.apiClient`](../lib/app/features/salon/salon_screen.dart); workflow triggers include `docs/**`.
 - [ ] Expand unit/widget/integration coverage on additional async screens and optional E2E (Patrol) when you want device-farm gates — tracked in same doc §4.
-- [x] CI merge gate — GitHub Actions [`.github/workflows/flutter-ci.yml`](../.github/workflows/flutter-ci.yml): `flutter analyze`, `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` on PRs/pushes to **`master`** / **`main`**; Android APK + iOS (no codesign) build after the quality job succeeds. (Optional: add `dart format --set-exit-if-changed lib test` after a repo-wide format commit.)
+- [x] CI merge gate — GitHub Actions [`.github/workflows/flutter-ci.yml`](../.github/workflows/flutter-ci.yml): `dart format --output=none --set-exit-if-changed lib test`, `flutter analyze`, `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` on PRs/pushes to **`master`** / **`main`**; Android APK + iOS (no codesign) build after the quality job succeeds.
 - **Local test runs:** use `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` (and the same for targeted test files) so `AppController.hydrate()` does not start remote catalog sync; the default `KPB_ENABLE_REMOTE_SYNC` is `true` in non-CI runs and can cause network I/O during widget tests.
 
 ### Phase 7 artifacts
@@ -103,4 +103,3 @@ This is the execution checklist used to move the app from feature-complete to pr
 ### Phase 8 artifacts
 - [`docs/phase8-release-operations.md`](phase8-release-operations.md) — dart-defines, store readiness, rollout/rollback.
 - [`test/core/config/app_config_test.dart`](../test/core/config/app_config_test.dart) — URL resolution for env overrides.
-

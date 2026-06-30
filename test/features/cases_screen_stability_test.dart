@@ -71,7 +71,8 @@ void main() {
       expect(find.byType(CasesScreenSkeleton), findsNothing);
     });
 
-    testWidgets('keeps rendered case list when syncError exists but data is present',
+    testWidgets(
+        'keeps rendered case list when syncError exists but data is present',
         (tester) async {
       final snapshot = AppSnapshot(
         localeCode: 'fr',

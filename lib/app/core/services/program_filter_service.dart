@@ -82,7 +82,8 @@ abstract final class ProgramFilterService {
     final query = filters.query.trim().toLowerCase();
 
     final filtered = programs.where((program) {
-      final institution = controller.institutionByIdOrNull(program.institutionId);
+      final institution =
+          controller.institutionByIdOrNull(program.institutionId);
       final isPartner = institution?.isPartner ?? false;
 
       if (filters.partnerOnly && !isPartner) return false;
@@ -133,8 +134,7 @@ abstract final class ProgramFilterService {
       bool isPartner(ProgramModel p) =>
           controller.institutionByIdOrNull(p.institutionId)?.isPartner ?? false;
 
-      final partnerCmp =
-          (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
+      final partnerCmp = (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
       if (partnerCmp != 0) return partnerCmp;
 
       final tuitionA = TuitionUtils.parseEurAnnual(
