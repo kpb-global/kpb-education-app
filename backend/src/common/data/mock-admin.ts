@@ -9,7 +9,7 @@ export const mockAdminData = {
       id: 'offer-application-pack',
       name: { fr: 'Pack admission guidée', en: 'Guided application pack' },
       offerType: 'application_support',
-      destinationIds: ['canada', 'france', 'uk'],
+      destinationIds: ['can', 'fra', 'gbr'],
       studyLevels: ['Bachelor', 'Master'],
       priceLabel: { fr: 'Sur devis', en: 'Quoted on request' },
       benefits: {
@@ -31,7 +31,7 @@ export const mockAdminData = {
       id: 'offer-scholarship-boost',
       name: { fr: 'Boost bourse', en: 'Scholarship boost' },
       offerType: 'scholarship_support',
-      destinationIds: ['canada', 'france'],
+      destinationIds: ['can', 'fra'],
       studyLevels: ['Bachelor', 'Master', 'PhD'],
       priceLabel: { fr: 'À partir de 75 000 FCFA', en: 'From 75,000 XOF' },
       benefits: {
@@ -53,7 +53,7 @@ export const mockAdminData = {
   supportDestinations: [
     {
       id: 'support-canada',
-      countryId: 'canada',
+      countryId: 'can',
       countryName: { fr: 'Canada', en: 'Canada' },
       supportLanguages: ['fr', 'en'],
       availableServiceTypes: [
@@ -71,7 +71,7 @@ export const mockAdminData = {
     },
     {
       id: 'support-france',
-      countryId: 'france',
+      countryId: 'fra',
       countryName: { fr: 'France', en: 'France' },
       supportLanguages: ['fr'],
       availableServiceTypes: [
