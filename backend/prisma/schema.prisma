@@ -352,6 +352,7 @@ model Case {
   internalNotes           CaseInternalNote[]
   notificationDeliveries  NotificationDelivery[]
   paymentIntents          PaymentIntent[]
+  servicePurchases        ServicePurchase[]
 
   @@index([userId])
   @@index([status])
@@ -688,11 +689,14 @@ model Country {
   // Data-trust signal: when the facts were last confirmed, and the source.
   lastVerifiedAt        DateTime?
   sourceUrl             String?
+  verifiedById          String?
+  verifiedByName        String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   eligibilityQuiz       CountryEligibilityQuiz?
 
   @@index([isActive, displayOrder])
+  @@index([lastVerifiedAt])
 }
 
 model CountryEligibilityQuiz {
@@ -724,10 +728,13 @@ model Institution {
   isPartner              Boolean  @default(false)
   lastVerifiedAt         DateTime?
   sourceUrl              String?
+  verifiedById           String?
+  verifiedByName         String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
   @@index([countryId])
+  @@index([lastVerifiedAt])
 }
 
 model Program {
@@ -756,12 +763,15 @@ model Program {
   campusOfferings Json?
   lastVerifiedAt DateTime?
   sourceUrl      String?
+  verifiedById   String?
+  verifiedByName String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@index([institutionId])
   @@index([countryId])
   @@index([fieldId])
+  @@index([lastVerifiedAt])
 }
 
 model Scholarship {
@@ -796,6 +806,8 @@ model Scholarship {
   applicationUrl    String?
   deadlineAt        DateTime?
   lastVerifiedAt    DateTime?
+  verifiedById      String?
+  verifiedByName    String?
   isActive          Boolean        @default(true)
   // Approved for curated/seeded rows; scraper inserts land as pending.
   moderationStatus  ScholarshipModeration @default(approved)
@@ -806,6 +818,7 @@ model Scholarship {
 
   @@index([countryId])
   @@index([deadlineAt])
+  @@index([lastVerifiedAt])
   @@index([isActive])
   @@index([fundingType])
   @@index([moderationStatus])
@@ -1078,6 +1091,8 @@ model ServicePurchase {
   userId          String
   // Optional — a purchase may be linked to an existing case for document flow.
   caseId          String?
+  // Origin of the sale request: checkout, service_packages, case_detail, etc.
+  source          String                @default("checkout")
   // Exactly one PaymentIntent per purchase. Null while we're still setting up.
   paymentIntentId String?               @unique
   status          ServicePurchaseStatus @default(pending_payment)
@@ -1090,10 +1105,13 @@ model ServicePurchase {
   updatedAt       DateTime              @updatedAt
   package         ServicePackage        @relation(fields: [packageId], references: [id])
   user            UserProfile           @relation(fields: [userId], references: [id])
+  case            Case?                 @relation(fields: [caseId], references: [id])
   paymentIntent   PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
 
   @@index([packageId])
   @@index([userId])
+  @@index([caseId])
+  @@index([source])
   @@index([status])
   @@index([createdAt])
 }

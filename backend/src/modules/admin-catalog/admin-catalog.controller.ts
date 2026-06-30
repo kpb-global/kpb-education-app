@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -12,7 +14,10 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import type { AdminSessionUser } from '../auth/auth.service';
 import { AdminCatalogService } from './admin-catalog.service';
+
+type AdminRequest = { adminUser?: AdminSessionUser };
 
 /// Catalogue write API for the back-office. Read access stays on the public
 /// `/catalog/*` controller; these mutations are admin-only.
@@ -22,9 +27,27 @@ import { AdminCatalogService } from './admin-catalog.service';
 export class AdminCatalogController {
   constructor(private readonly service: AdminCatalogService) {}
 
+  private verifier(req: AdminRequest): AdminSessionUser {
+    return (
+      req.adminUser ?? {
+        id: 'unknown-admin',
+        fullName: 'Unknown admin',
+        email: 'unknown-admin@kpb.education',
+        role: InternalRole.Admin,
+        languageScope: [],
+      }
+    );
+  }
+
   // ── Verification (data-trust signal) ──────────────────────────────────────
+  @Get('verification-due')
+  listVerificationDue() {
+    return this.service.listVerificationDue();
+  }
+
   @Post('verify')
   setVerification(
+    @Req() req: AdminRequest,
     @Body()
     body: { entity: string; id: string; verified?: boolean; sourceUrl?: string },
   ) {
@@ -33,6 +56,7 @@ export class AdminCatalogController {
       body.id,
       body.verified ?? true,
       body.sourceUrl,
+      this.verifier(req),
     );
   }
 

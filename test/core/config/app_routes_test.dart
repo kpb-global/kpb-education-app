@@ -23,6 +23,7 @@ void main() {
         AppRoutes.orientation,
         AppRoutes.eligibility,
         AppRoutes.saved,
+        AppRoutes.deadlines,
         AppRoutes.alumni,
         AppRoutes.salon,
         AppRoutes.services,
@@ -91,6 +92,7 @@ void main() {
         AppRoutes.orientation,
         AppRoutes.eligibility,
         AppRoutes.saved,
+        AppRoutes.deadlines,
         AppRoutes.alumni,
         AppRoutes.salon,
         AppRoutes.services,
@@ -98,7 +100,7 @@ void main() {
       ]) {
         expect(names, contains(route));
       }
-      expect(names.length, equals(12));
+      expect(names.length, equals(13));
     });
   });
 }

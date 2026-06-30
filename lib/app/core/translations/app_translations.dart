@@ -238,6 +238,7 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
           'offline_cache_notice': 'Mode hors ligne. Affichage des données en cache.',
           'next_step': 'Prochaine étape',
+          'deadlines_title': 'Mes échéances',
           // ── Avis conseiller au jalon d'admission (KPB-75) ──
           'review_prompt_title': 'Note ton conseiller',
           'review_prompt_body':
@@ -250,6 +251,9 @@ class AppTranslations extends Translations {
           'review_prompt_submit': 'Envoyer mon avis',
           'review_prompt_thanks': 'Merci ! Ton avis sera publié après modération.',
           'review_prompt_error': 'Envoi impossible. Réessaie plus tard.',
+          'case_prepare_package_title': 'Préparer mon dossier',
+          'case_prepare_package_subtitle':
+              'CV, lettre de motivation et pièces relues par KPB avant paiement WhatsApp.',
           // ── Vue parent : argent & échéances (KPB-58) ──
           'parent_tuition_estimate': 'Frais de scolarité estimés',
           'parent_next_deadline': 'Prochaine échéance',
@@ -808,6 +812,7 @@ class AppTranslations extends Translations {
           'eligibility_intro': 'Answer 5 questions and get a 🟢 🟡 🔴 verdict for each of the 9 KPB destinations, then export your report as a PDF.',
           'offline_cache_notice': 'Offline mode. Showing cached data.',
           'next_step': 'Next step',
+          'deadlines_title': 'My deadlines',
           // ── Counsellor review at admission milestone (KPB-75) ──
           'review_prompt_title': 'Rate your advisor',
           'review_prompt_body':
@@ -820,6 +825,9 @@ class AppTranslations extends Translations {
           'review_prompt_submit': 'Send my review',
           'review_prompt_thanks': 'Thanks! Your review will be published after moderation.',
           'review_prompt_error': 'Could not send. Try again later.',
+          'case_prepare_package_title': 'Prepare my application',
+          'case_prepare_package_subtitle':
+              'CV, motivation letter and documents reviewed by KPB before WhatsApp payment.',
           // ── Parent view: money & deadlines (KPB-58) ──
           'parent_tuition_estimate': 'Estimated tuition',
           'parent_next_deadline': 'Next deadline',

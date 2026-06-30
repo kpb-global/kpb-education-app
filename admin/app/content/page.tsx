@@ -23,14 +23,18 @@ interface ServiceOfferItem {
   destinationIds: string[];
   studyLevels: string[];
   priceLabel: { fr: string; en: string };
+  benefits?: { fr?: string[]; en?: string[] };
+  ctaLabel?: { fr?: string; en?: string };
   status: string;
 }
 
 interface SupportDestinationItem {
   id: string;
+  countryId?: string;
   countryName: { fr: string; en: string };
   supportLanguages: string[];
   availableServiceTypes: string[];
+  conditions?: { fr?: string[]; en?: string[] };
   counselorNames: string[];
   isVisible: boolean;
   status: string;
@@ -38,8 +42,12 @@ interface SupportDestinationItem {
 
 interface ArticleItem {
   id: string;
+  slug?: string;
   title: { fr: string; en: string };
   category: string;
+  summary?: { fr?: string; en?: string };
+  content?: { fr?: string; en?: string };
+  tags?: string[];
   authorName: string;
   status: string;
 }
@@ -122,7 +130,6 @@ export default function ContentPage() {
       return;
     }
     void loadContent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   async function submitOffer(event: FormEvent<HTMLFormElement>) {
@@ -588,10 +595,10 @@ export default function ContentPage() {
                     studyLevels: offer.studyLevels.join(','),
                     priceFr: offer.priceLabel.fr,
                     priceEn: offer.priceLabel.en,
-                    benefitsFr: 'fr' in (offer as any).benefits ? (offer as any).benefits.fr.join('\n') : '',
-                    benefitsEn: 'en' in (offer as any).benefits ? (offer as any).benefits.en.join('\n') : '',
-                    ctaFr: 'fr' in (offer as any).ctaLabel ? (offer as any).ctaLabel.fr : '',
-                    ctaEn: 'en' in (offer as any).ctaLabel ? (offer as any).ctaLabel.en : '',
+                    benefitsFr: offer.benefits?.fr?.join('\n') ?? '',
+                    benefitsEn: offer.benefits?.en?.join('\n') ?? '',
+                    ctaFr: offer.ctaLabel?.fr ?? '',
+                    ctaEn: offer.ctaLabel?.en ?? '',
                     status: offer.status,
                   });
                 }}
@@ -795,13 +802,13 @@ export default function ContentPage() {
                 onClick={() => {
                   setEditingDestinationId(destination.id);
                   setDestinationForm({
-                    countryId: (destination as any).countryId || '',
+                    countryId: destination.countryId ?? '',
                     countryFr: destination.countryName.fr,
                     countryEn: destination.countryName.en,
                     supportLanguages: destination.supportLanguages.join(','),
                     serviceTypes: destination.availableServiceTypes.join(','),
-                    conditionsFr: 'fr' in (destination as any).conditions ? (destination as any).conditions.fr.join('\n') : '',
-                    conditionsEn: 'en' in (destination as any).conditions ? (destination as any).conditions.en.join('\n') : '',
+                    conditionsFr: destination.conditions?.fr?.join('\n') ?? '',
+                    conditionsEn: destination.conditions?.en?.join('\n') ?? '',
                     counselors: destination.counselorNames.join(','),
                     isVisible: destination.isVisible,
                     status: destination.status,
@@ -1023,15 +1030,15 @@ export default function ContentPage() {
                 onClick={() => {
                   setEditingArticleId(article.id);
                   setArticleForm({
-                    slug: (article as any).slug || '',
+                    slug: article.slug ?? '',
                     category: article.category,
                     titleFr: article.title.fr,
                     titleEn: article.title.en,
-                    summaryFr: 'fr' in (article as any).summary ? (article as any).summary.fr : '',
-                    summaryEn: 'en' in (article as any).summary ? (article as any).summary.en : '',
-                    contentFr: 'fr' in (article as any).content ? (article as any).content.fr : '',
-                    contentEn: 'en' in (article as any).content ? (article as any).content.en : '',
-                    tags: (article as any).tags ? (article as any).tags.join(',') : '',
+                    summaryFr: article.summary?.fr ?? '',
+                    summaryEn: article.summary?.en ?? '',
+                    contentFr: article.content?.fr ?? '',
+                    contentEn: article.content?.en ?? '',
+                    tags: article.tags?.join(',') ?? '',
                     authorName: article.authorName,
                     status: article.status,
                   });

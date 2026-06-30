@@ -15,7 +15,14 @@ import '../../core/utils/whatsapp_utils.dart';
 /// our (largely African) audience arranges payment directly with an advisor,
 /// so each package's CTA opens WhatsApp pre-filled with that service's name.
 class ServicePackagesScreen extends StatefulWidget {
-  const ServicePackagesScreen({super.key});
+  const ServicePackagesScreen({
+    super.key,
+    this.caseId,
+    this.caseReference,
+  });
+
+  final String? caseId;
+  final String? caseReference;
 
   @override
   State<ServicePackagesScreen> createState() => _ServicePackagesScreenState();
@@ -58,9 +65,25 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     // No in-app checkout — route to a KPB advisor on WhatsApp, pre-filled with
     // the package name so they know which service the student is asking about.
     final name = (pkg['nameFr'] as String?)?.trim();
+    final code = (pkg['code'] as String?)?.trim();
+    if (code != null && code.isNotEmpty) {
+      try {
+        await _api.createWhatsAppServicePurchase(
+          packageCode: code,
+          caseId: widget.caseId,
+          source: widget.caseId == null ? 'service_packages' : 'case_detail',
+        );
+      } catch (_) {
+        // The WhatsApp handoff remains available offline / during transient API
+        // failures; ops can still create the row manually from the conversation.
+      }
+    }
     await showVerifiedAdvisorThenWhatsApp(
-      prefill: kpbWhatsAppPrefill(service: name),
-      source: 'service_packages',
+      prefill: kpbWhatsAppPrefill(
+        service: name,
+        reference: widget.caseReference,
+      ),
+      source: widget.caseId == null ? 'service_packages' : 'case_detail',
       contextType: 'service',
     );
   }

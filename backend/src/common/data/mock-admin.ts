@@ -318,5 +318,9 @@ export const mockAdminData = {
       { campaign: 'Orientation webinar invite', delivered: 420, opened: 210 },
       { campaign: 'Cases missing docs - April batch', delivered: 64, opened: 33 },
     ],
+    serviceRevenue: {
+      bySku: [],
+      byDestination: [],
+    },
   },
 };

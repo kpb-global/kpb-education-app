@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/roadmap_engine.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
-import '../cases/case_composer_sheet.dart';
 
 const _frMonths = <String, int>{
   'janvier': 1,
@@ -23,9 +24,18 @@ const _frMonths = <String, int>{
 };
 
 const _monthNames = <int, String>{
-  1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
-  5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
-  9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre',
+  1: 'Janvier',
+  2: 'Février',
+  3: 'Mars',
+  4: 'Avril',
+  5: 'Mai',
+  6: 'Juin',
+  7: 'Juillet',
+  8: 'Août',
+  9: 'Septembre',
+  10: 'Octobre',
+  11: 'Novembre',
+  12: 'Décembre',
 };
 
 DateTime? _parseDeadline(String text) {
@@ -39,18 +49,29 @@ DateTime? _parseDeadline(String text) {
   return DateTime(year, month, day);
 }
 
-class _DeadlineEntry {
-  const _DeadlineEntry({
-    required this.scholarship,
+enum _MilestoneKind { scholarship, roadmap, caseStep, document }
+
+enum _MilestoneFilter { all, saved, cases, upcoming }
+
+class _MilestoneEntry {
+  const _MilestoneEntry({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.kind,
     required this.deadline,
     required this.isSaved,
+    required this.route,
   });
-  final ScholarshipModel scholarship;
+
+  final String id;
+  final String title;
+  final String subtitle;
+  final _MilestoneKind kind;
   final DateTime? deadline;
   final bool isSaved;
+  final String? route;
 }
-
-enum _DeadlineFilter { all, saved, upcoming }
 
 class DeadlineCalendarScreen extends StatefulWidget {
   const DeadlineCalendarScreen({super.key});
@@ -60,7 +81,7 @@ class DeadlineCalendarScreen extends StatefulWidget {
 }
 
 class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
-  _DeadlineFilter _filter = _DeadlineFilter.all;
+  _MilestoneFilter _filter = _MilestoneFilter.all;
 
   @override
   Widget build(BuildContext context) {
@@ -78,64 +99,32 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
           onPressed: () => Get.back(),
         ),
         title: Text(
-          'Calendrier deadlines',
+          'deadlines_title'.tr,
           style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
         ),
         centerTitle: true,
       ),
       body: GetBuilder<AppController>(
         builder: (_) {
-          final savedIds = controller.savedItems
-              .where((e) => e.type == SavedItemType.scholarship)
-              .map((e) => e.itemId)
-              .toSet();
+          final entries = _buildMilestones(controller, now);
+          final filtered = _applyFilter(entries, now)
+            ..sort((a, b) {
+              if (a.deadline == null && b.deadline == null) return 0;
+              if (a.deadline == null) return 1;
+              if (b.deadline == null) return -1;
+              return a.deadline!.compareTo(b.deadline!);
+            });
 
-          // Build deadline entries. Prefer the structured deadlineAt (now
-          // populated server-side); fall back to parsing the label text.
-          final entries = controller.scholarships.map((s) {
-            final labelText = controller.resolve(s.deadlineLabel);
-            return _DeadlineEntry(
-              scholarship: s,
-              deadline: s.deadlineAt ?? _parseDeadline(labelText),
-              isSaved: savedIds.contains(s.id),
-            );
-          }).toList();
-
-          // Apply filter
-          List<_DeadlineEntry> filtered;
-          switch (_filter) {
-            case _DeadlineFilter.saved:
-              filtered = entries.where((e) => e.isSaved).toList();
-            case _DeadlineFilter.upcoming:
-              filtered = entries
-                  .where((e) => e.deadline != null && e.deadline!.isAfter(now))
-                  .toList();
-            case _DeadlineFilter.all:
-              filtered = entries;
-          }
-
-          // Sort: entries with parsed dates first (by date), then undated ones
-          filtered.sort((a, b) {
-            if (a.deadline == null && b.deadline == null) return 0;
-            if (a.deadline == null) return 1;
-            if (b.deadline == null) return -1;
-            return a.deadline!.compareTo(b.deadline!);
-          });
-
-          // Group by month+year
-          final Map<String, List<_DeadlineEntry>> grouped = {};
+          final grouped = <String, List<_MilestoneEntry>>{};
           for (final entry in filtered) {
             final key = entry.deadline != null
                 ? '${_monthNames[entry.deadline!.month]} ${entry.deadline!.year}'
-                : 'Date non précisée';
+                : 'Date à confirmer';
             grouped.putIfAbsent(key, () => []).add(entry);
           }
 
-          final stats = _buildStats(entries, now);
-
           return CustomScrollView(
             slivers: [
-              // ── Stats banner ───────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -144,55 +133,66 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                     KpbSpacing.pagePad,
                     KpbSpacing.md,
                   ),
-                  child: _StatsBanner(stats: stats, isDark: isDark),
+                  child: _StatsBanner(
+                    stats: _buildStats(entries, now),
+                    isDark: isDark,
+                  ),
                 ),
               ),
-
-              // ── Filter chips ───────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: KpbSpacing.pagePad,
+                  ),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       _FilterChip(
                         label: 'Toutes',
-                        active: _filter == _DeadlineFilter.all,
+                        active: _filter == _MilestoneFilter.all,
                         isDark: isDark,
-                        onTap: () => setState(() => _filter = _DeadlineFilter.all),
+                        onTap: () =>
+                            setState(() => _filter = _MilestoneFilter.all),
                       ),
-                      const SizedBox(width: 8),
                       _FilterChip(
                         label: 'Sauvegardées',
-                        active: _filter == _DeadlineFilter.saved,
+                        active: _filter == _MilestoneFilter.saved,
                         isDark: isDark,
-                        onTap: () => setState(() => _filter = _DeadlineFilter.saved),
+                        onTap: () =>
+                            setState(() => _filter = _MilestoneFilter.saved),
                       ),
-                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Dossiers',
+                        active: _filter == _MilestoneFilter.cases,
+                        isDark: isDark,
+                        onTap: () =>
+                            setState(() => _filter = _MilestoneFilter.cases),
+                      ),
                       _FilterChip(
                         label: 'À venir',
-                        active: _filter == _DeadlineFilter.upcoming,
+                        active: _filter == _MilestoneFilter.upcoming,
                         isDark: isDark,
-                        onTap: () => setState(() => _filter = _DeadlineFilter.upcoming),
+                        onTap: () =>
+                            setState(() => _filter = _MilestoneFilter.upcoming),
                       ),
                     ],
                   ),
                 ),
               ),
-
-              // ── Empty state ─────────────────────────────────────────────
               if (filtered.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
                     child: KpbEmptyState(
                       icon: Icons.event_busy_outlined,
-                      title: 'Aucune deadline',
-                      subtitle: 'Sauvegardez des éléments pour les suivre ici.',
+                      title: 'Aucune échéance',
+                      subtitle:
+                          'Sauvegarde une bourse ou ouvre un dossier pour construire ton tracker.',
                     ),
                   ),
                 )
               else
-                // ── Timeline ─────────────────────────────────────────────
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(
                     KpbSpacing.pagePad,
@@ -203,13 +203,10 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        final keys = grouped.keys.toList();
-                        final key = keys[index];
-                        final groupEntries = grouped[key]!;
+                        final key = grouped.keys.elementAt(index);
                         return _MonthGroup(
                           monthLabel: key,
-                          entries: groupEntries,
-                          controller: controller,
+                          entries: grouped[key]!,
                           now: now,
                           isDark: isDark,
                         );
@@ -225,24 +222,141 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
     );
   }
 
-  Map<String, int> _buildStats(List<_DeadlineEntry> entries, DateTime now) {
-    final upcoming = entries.where((e) =>
-        e.deadline != null && e.deadline!.isAfter(now)).length;
-    final urgent = entries.where((e) =>
-        e.deadline != null &&
-        e.deadline!.isAfter(now) &&
-        e.deadline!.difference(now).inDays <= 30).length;
-    final expired = entries.where((e) =>
-        e.deadline != null && e.deadline!.isBefore(now)).length;
-    return {'upcoming': upcoming, 'urgent': urgent, 'expired': expired};
+  List<_MilestoneEntry> _applyFilter(
+    List<_MilestoneEntry> entries,
+    DateTime now,
+  ) {
+    switch (_filter) {
+      case _MilestoneFilter.saved:
+        return entries.where((entry) => entry.isSaved).toList();
+      case _MilestoneFilter.cases:
+        return entries
+            .where((entry) =>
+                entry.kind == _MilestoneKind.caseStep ||
+                entry.kind == _MilestoneKind.document)
+            .toList();
+      case _MilestoneFilter.upcoming:
+        return entries
+            .where((entry) =>
+                entry.deadline != null && !entry.deadline!.isBefore(now))
+            .toList();
+      case _MilestoneFilter.all:
+        return entries.toList();
+    }
+  }
+
+  Map<String, int> _buildStats(List<_MilestoneEntry> entries, DateTime now) {
+    final upcoming = entries
+        .where(
+            (entry) => entry.deadline != null && !entry.deadline!.isBefore(now))
+        .length;
+    final urgent = entries
+        .where((entry) =>
+            entry.deadline != null &&
+            !entry.deadline!.isBefore(now) &&
+            entry.deadline!.difference(now).inDays <= 30)
+        .length;
+    final caseLinked = entries
+        .where((entry) =>
+            entry.kind == _MilestoneKind.caseStep ||
+            entry.kind == _MilestoneKind.document)
+        .length;
+    return {'upcoming': upcoming, 'urgent': urgent, 'cases': caseLinked};
+  }
+
+  List<_MilestoneEntry> _buildMilestones(
+    AppController controller,
+    DateTime now,
+  ) {
+    final entries = <_MilestoneEntry>[];
+    final savedScholarshipIds = controller.savedItems
+        .where((item) => item.type == SavedItemType.scholarship)
+        .map((item) => item.itemId)
+        .toSet();
+
+    for (final scholarship in controller.scholarships) {
+      final title = controller.resolve(scholarship.name);
+      final deadline = scholarship.deadlineAt ??
+          _parseDeadline(controller.resolve(scholarship.deadlineLabel));
+      final isSaved = savedScholarshipIds.contains(scholarship.id);
+      entries.add(
+        _MilestoneEntry(
+          id: 'scholarship-${scholarship.id}',
+          title: title,
+          subtitle:
+              '${countryFlag(scholarship.countryId)} ${controller.resolve(scholarship.typeOfFunding)}',
+          kind: _MilestoneKind.scholarship,
+          deadline: deadline,
+          isSaved: isSaved,
+          route: AppRoutes.deadlines,
+        ),
+      );
+
+      if (!isSaved) continue;
+      final roadmapDeadline = deadline ?? now.add(const Duration(days: 90));
+      for (final step in RoadmapEngine.getSteps()) {
+        if (controller.isStepCompleted(scholarship.id, step.type)) continue;
+        entries.add(
+          _MilestoneEntry(
+            id: 'roadmap-${scholarship.id}-${step.type.name}',
+            title: controller.resolve(step.title),
+            subtitle: '$title · ${controller.resolve(step.description)}',
+            kind: _MilestoneKind.roadmap,
+            deadline: RoadmapEngine.calculateDate(
+              roadmapDeadline,
+              step.daysBeforeDeadline,
+            ),
+            isSaved: true,
+            route: AppRoutes.deadlines,
+          ),
+        );
+      }
+    }
+
+    for (final item in controller.cases) {
+      if (_isClosedCase(item.status)) continue;
+      final fallbackDue = item.updatedAt.add(const Duration(days: 7));
+      entries.add(
+        _MilestoneEntry(
+          id: 'case-next-${item.id}',
+          title: controller.resolve(item.nextStepTitle),
+          subtitle: '${item.referenceCode} · ${controller.resolve(item.title)}',
+          kind: _MilestoneKind.caseStep,
+          deadline: item.scheduledAt ?? fallbackDue,
+          isSaved: false,
+          route: '/cases/${item.id}',
+        ),
+      );
+
+      for (final document
+          in item.documentRequests.where((d) => !d.isProvided)) {
+        entries.add(
+          _MilestoneEntry(
+            id: 'case-doc-${item.id}-${document.id}',
+            title: controller.resolve(document.title),
+            subtitle: 'Document manquant · ${item.referenceCode}',
+            kind: _MilestoneKind.document,
+            deadline: fallbackDue,
+            isSaved: false,
+            route: '/cases/${item.id}',
+          ),
+        );
+      }
+    }
+
+    return entries;
+  }
+
+  bool _isClosedCase(CaseStatus status) {
+    return status == CaseStatus.completed ||
+        status == CaseStatus.rejected ||
+        status == CaseStatus.cancelled;
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Stats banner
-// ─────────────────────────────────────────────────────────────────────────────
 class _StatsBanner extends StatelessWidget {
   const _StatsBanner({required this.stats, required this.isDark});
+
   final Map<String, int> stats;
   final bool isDark;
 
@@ -261,7 +375,7 @@ class _StatsBanner extends StatelessWidget {
           _StatItem(
             count: stats['upcoming']!,
             label: 'À venir',
-            color: KpbColors.blue,
+            color: isDark ? KpbColors.sky : KpbColors.blue,
             icon: Icons.upcoming_outlined,
           ),
           _StatDivider(),
@@ -273,10 +387,10 @@ class _StatsBanner extends StatelessWidget {
           ),
           _StatDivider(),
           _StatItem(
-            count: stats['expired']!,
-            label: 'Passées',
-            color: context.kpb.textMuted,
-            icon: Icons.event_busy_outlined,
+            count: stats['cases']!,
+            label: 'Dossiers',
+            color: KpbColors.success,
+            icon: Icons.folder_open_outlined,
           ),
         ],
       ),
@@ -291,6 +405,7 @@ class _StatItem extends StatelessWidget {
     required this.color,
     required this.icon,
   });
+
   final int count;
   final String label;
   final Color color;
@@ -318,7 +433,13 @@ class _StatItem extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(label, style: KpbTextStyles.labelSm.copyWith(color: context.kpb.textSecondary), textAlign: TextAlign.center),
+          Text(
+            label,
+            style: KpbTextStyles.labelSm.copyWith(
+              color: context.kpb.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -337,9 +458,6 @@ class _StatDivider extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Filter chip
-// ─────────────────────────────────────────────────────────────────────────────
 class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,
@@ -347,6 +465,7 @@ class _FilterChip extends StatelessWidget {
     required this.isDark,
     required this.onTap,
   });
+
   final String label;
   final bool active;
   final bool isDark;
@@ -354,7 +473,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = KpbColors.blue;
+    final activeColor = isDark ? KpbColors.sky : KpbColors.blue;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -379,20 +498,16 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Month group
-// ─────────────────────────────────────────────────────────────────────────────
 class _MonthGroup extends StatelessWidget {
   const _MonthGroup({
     required this.monthLabel,
     required this.entries,
-    required this.controller,
     required this.now,
     required this.isDark,
   });
+
   final String monthLabel;
-  final List<_DeadlineEntry> entries;
-  final AppController controller;
+  final List<_MilestoneEntry> entries;
   final DateTime now;
   final bool isDark;
 
@@ -401,16 +516,16 @@ class _MonthGroup extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Month header
         Padding(
-          padding: const EdgeInsets.only(bottom: KpbSpacing.md, top: KpbSpacing.sm),
+          padding:
+              const EdgeInsets.only(bottom: KpbSpacing.md, top: KpbSpacing.sm),
           child: Row(
             children: [
               Container(
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: KpbColors.blue,
+                  color: isDark ? KpbColors.sky : KpbColors.blue,
                   borderRadius: KpbRadius.pillBr,
                 ),
               ),
@@ -419,7 +534,7 @@ class _MonthGroup extends StatelessWidget {
                 monthLabel.toUpperCase(),
                 style: KpbTextStyles.label.copyWith(
                   color: context.kpb.textSecondary,
-                  letterSpacing: 1.0,
+                  letterSpacing: 1,
                 ),
               ),
               const SizedBox(width: 8),
@@ -448,8 +563,8 @@ class _MonthGroup extends StatelessWidget {
             border: Border.all(color: context.kpb.gray100),
           ),
           child: Column(
-            children: entries.asMap().entries.map((e) {
-              final i = e.key;
+            children: entries.asMap().entries.map((entry) {
+              final i = entry.key;
               return Column(
                 children: [
                   if (i > 0)
@@ -459,11 +574,7 @@ class _MonthGroup extends StatelessWidget {
                       endIndent: 16,
                       color: context.kpb.gray100,
                     ),
-                  _DeadlineTile(
-                    entry: e.value,
-                    controller: controller,
-                    now: now,
-                  ),
+                  _MilestoneTile(entry: entry.value, now: now),
                 ],
               );
             }).toList(),
@@ -475,173 +586,117 @@ class _MonthGroup extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Deadline tile
-// ─────────────────────────────────────────────────────────────────────────────
-class _DeadlineTile extends StatelessWidget {
-  const _DeadlineTile({
-    required this.entry,
-    required this.controller,
-    required this.now,
-  });
-  final _DeadlineEntry entry;
-  final AppController controller;
-  final DateTime now;
+class _MilestoneTile extends StatelessWidget {
+  const _MilestoneTile({required this.entry, required this.now});
 
-  _DeadlineStatus get _status {
-    final d = entry.deadline;
-    if (d == null) return _DeadlineStatus.unknown;
-    if (d.isBefore(now)) return _DeadlineStatus.expired;
-    if (d.difference(now).inDays <= 30) return _DeadlineStatus.urgent;
-    return _DeadlineStatus.upcoming;
-  }
+  final _MilestoneEntry entry;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
-    final scholarship = entry.scholarship;
-    final name = controller.resolve(scholarship.name);
-    final funding = controller.resolve(scholarship.typeOfFunding);
-    final deadlineText = controller.resolve(scholarship.deadlineLabel);
-    final status = _status;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: KpbRadius.lgBr,
-        onTap: () => showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (_) => CaseComposerSheet(
-            caseType: CaseType.scholarshipSupport,
-            title: name,
-            contextLabel: funding,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: KpbSpacing.lg, vertical: KpbSpacing.md),
-          child: Row(
-            children: [
-              // Status indicator
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: status.bgColor(context, isDark),
-                  borderRadius: KpbRadius.mdBr,
-                  border: Border.all(color: status.borderColor(context, isDark)),
-                ),
-                child: Center(
-                  child: Text(
-                    countryFlag(scholarship.countryId),
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                ),
+    final status = _status(context);
+    return InkWell(
+      onTap: entry.route == null ? null : () => Get.toNamed(entry.route!),
+      child: Padding(
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: status.color.withValues(alpha: 0.12),
+                borderRadius: KpbRadius.mdBr,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Text(funding, style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Icon(_icon, color: status.color, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: status.bgColor(context, isDark),
-                      borderRadius: KpbRadius.pillBr,
-                    ),
-                    child: Text(
-                      status.label(entry.deadline, now),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: status.textColor(context, isDark),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          entry.title,
+                          style: KpbTextStyles.body.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (entry.isSaved)
+                        const KpbBadge(label: 'Suivi', color: KpbColors.blue),
+                    ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    deadlineText,
-                    style: KpbTextStyles.labelSm.copyWith(color: context.kpb.textSecondary),
-                    maxLines: 1,
+                  const SizedBox(height: 4),
+                  Text(entry.subtitle, style: KpbTextStyles.bodySm),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      KpbBadge(label: _kindLabel, color: status.color),
+                      KpbBadge(label: status.label, color: status.color),
+                    ],
                   ),
                 ],
               ),
+            ),
+            if (entry.route != null) ...[
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: context.kpb.textMuted,
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Deadline status
-// ─────────────────────────────────────────────────────────────────────────────
-enum _DeadlineStatus { expired, urgent, upcoming, unknown }
-
-extension _DeadlineStatusExt on _DeadlineStatus {
-  Color bgColor(BuildContext context, bool isDark) {
-    switch (this) {
-      case _DeadlineStatus.expired:
-        return context.kpb.surfaceBg;
-      case _DeadlineStatus.urgent:
-        return KpbColors.warning.withValues(alpha: 0.15);
-      case _DeadlineStatus.upcoming:
-        return (KpbColors.blue).withValues(alpha: 0.1);
-      case _DeadlineStatus.unknown:
-        return context.kpb.surfaceBg;
+  IconData get _icon {
+    switch (entry.kind) {
+      case _MilestoneKind.scholarship:
+        return Icons.school_outlined;
+      case _MilestoneKind.roadmap:
+        return Icons.route_outlined;
+      case _MilestoneKind.caseStep:
+        return Icons.folder_open_outlined;
+      case _MilestoneKind.document:
+        return Icons.description_outlined;
     }
   }
 
-  Color borderColor(BuildContext context, bool isDark) {
-    switch (this) {
-      case _DeadlineStatus.expired:
-        return context.kpb.gray100;
-      case _DeadlineStatus.urgent:
-        return KpbColors.warning.withValues(alpha: 0.3);
-      case _DeadlineStatus.upcoming:
-        return (KpbColors.blue).withValues(alpha: 0.2);
-      case _DeadlineStatus.unknown:
-        return context.kpb.gray100;
+  String get _kindLabel {
+    switch (entry.kind) {
+      case _MilestoneKind.scholarship:
+        return 'Bourse';
+      case _MilestoneKind.roadmap:
+        return 'Roadmap';
+      case _MilestoneKind.caseStep:
+        return 'Dossier';
+      case _MilestoneKind.document:
+        return 'Document';
     }
   }
 
-  Color textColor(BuildContext context, bool isDark) {
-    switch (this) {
-      case _DeadlineStatus.expired:
-        return context.kpb.textMuted;
-      case _DeadlineStatus.urgent:
-        return KpbColors.warning;
-      case _DeadlineStatus.upcoming:
-        return KpbColors.blue;
-      case _DeadlineStatus.unknown:
-        return context.kpb.textMuted;
+  ({String label, Color color}) _status(BuildContext context) {
+    final deadline = entry.deadline;
+    if (deadline == null) {
+      return (label: 'Date à confirmer', color: context.kpb.textMuted);
     }
-  }
-
-  String label(DateTime? deadline, DateTime now) {
-    switch (this) {
-      case _DeadlineStatus.expired:
-        return 'Passée';
-      case _DeadlineStatus.urgent:
-        final days = deadline!.difference(now).inDays;
-        return days == 0 ? 'Aujourd\'hui' : '$days j';
-      case _DeadlineStatus.upcoming:
-        return 'À venir';
-      case _DeadlineStatus.unknown:
-        return '?';
+    if (deadline.isBefore(now)) {
+      return (label: 'Passée', color: context.kpb.textMuted);
     }
+    final days = deadline.difference(now).inDays;
+    if (days <= 1) {
+      return (label: 'Aujourd’hui / demain', color: KpbColors.error);
+    }
+    if (days <= 30) {
+      return (label: '$days jours', color: KpbColors.warning);
+    }
+    return (label: '$days jours', color: KpbColors.success);
   }
 }

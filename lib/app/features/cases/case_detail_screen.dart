@@ -13,6 +13,7 @@ import '../../core/ui/kpb_components.dart';
 import '../../core/ui/components/anti_fraud_notice.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/services/document_upload_service.dart';
+import '../services/service_packages_screen.dart';
 import 'case_status_timeline.dart';
 import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
@@ -567,6 +568,36 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         ),
                         const SizedBox(height: KpbSpacing.sm),
                         const KpbAntiFraudNotice(source: 'case_detail'),
+                        const SizedBox(height: KpbSpacing.md),
+
+                        KpbCard(
+                          padding: EdgeInsets.zero,
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: KpbSpacing.md,
+                                vertical: KpbSpacing.xs,
+                              ),
+                              leading: const Icon(
+                                Icons.assignment_turned_in_rounded,
+                                color: KpbColors.blue,
+                              ),
+                              title: Text('case_prepare_package_title'.tr),
+                              subtitle: Text(
+                                'case_prepare_package_subtitle'.tr,
+                                style: KpbTextStyles.caption,
+                              ),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                              onTap: () => Get.to(
+                                () => ServicePackagesScreen(
+                                  caseId: c.id,
+                                  caseReference: c.referenceCode,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: KpbSpacing.md),
 
                         // ── Partage avec un parent ───────────────────────────────────

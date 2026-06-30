@@ -74,6 +74,10 @@ function mapCountry(
     visaOverviewEn: row.visaOverviewEn,
     admissionDifficultyFr: row.admissionDifficultyFr,
     admissionDifficultyEn: row.admissionDifficultyEn,
+    lastVerifiedAt: row.lastVerifiedAt,
+    sourceUrl: row.sourceUrl,
+    verifiedById: row.verifiedById,
+    verifiedByName: row.verifiedByName,
     ...(quiz
       ? {
           eligibilityQuiz: {
@@ -132,6 +136,8 @@ function seedToCountry(seed: (typeof M5_COUNTRY_SEEDS)[number]): CountryWithQuiz
     isActive: true,
     lastVerifiedAt: null,
     sourceUrl: null,
+    verifiedById: null,
+    verifiedByName: null,
     createdAt: now,
     updatedAt: now,
     eligibilityQuiz: {

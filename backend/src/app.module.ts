@@ -36,6 +36,7 @@ import { OneSignalSenderService } from './modules/notifications/onesignal-sender
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { DeadlineReminderCronService } from './modules/notifications/deadline-reminder-cron.service';
+import { MilestoneReminderService } from './modules/notifications/milestone-reminder.service';
 import { ProfileNudgeCronService } from './modules/notifications/profile-nudge-cron.service';
 import { SalonReminderCronService } from './modules/notifications/salon-reminder-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
@@ -210,6 +211,7 @@ import { SalonService } from './modules/salon/salon.service';
     CampaignExecutorService,
     CampaignCronService,
     DeadlineReminderCronService,
+    MilestoneReminderService,
     ProfileNudgeCronService,
     SalonReminderCronService,
     NotificationsService,

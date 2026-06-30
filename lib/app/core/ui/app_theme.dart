@@ -6,7 +6,6 @@ class AppTheme {
   static ThemeData buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: KpbColors.blue,
         primary: KpbColors.sky,
@@ -226,7 +225,6 @@ class AppTheme {
   static ThemeData buildTheme() {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: KpbColors.blue,
         primary: KpbColors.blue,

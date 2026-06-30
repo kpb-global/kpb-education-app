@@ -23,6 +23,7 @@ import {
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 
+import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /// Clean canonical degree label. Mirror of the Flutter referential.
@@ -52,6 +53,38 @@ function normalizeDegreeLevel(raw: string): string {
   return (raw ?? '').trim();
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const VERIFICATION_POLICIES = {
+  countryVisa: {
+    key: 'country_visa',
+    label: 'Pays: visa, couts et difficulte admission',
+    cadenceDays: 30,
+    owner: 'Amina KPB',
+  },
+  institutionScolarite: {
+    key: 'institution_scolarite',
+    label: 'Etablissements: frais, niveaux et exigences',
+    cadenceDays: 180,
+    owner: 'Fatou Admin',
+  },
+  programScolarite: {
+    key: 'program_scolarite',
+    label: 'Formations: frais, duree, langue et prerequis',
+    cadenceDays: 180,
+    owner: 'Fatou Admin',
+  },
+  scholarshipDeadline: {
+    key: 'scholarship_deadline',
+    label: 'Bourses: deadlines, financement et eligibilite',
+    cadenceDays: 30,
+    owner: 'Amina KPB',
+  },
+} as const;
+
+type VerificationPolicyName = keyof typeof VERIFICATION_POLICIES;
+type VerificationEntity = 'country' | 'institution' | 'program' | 'scholarship';
+
 @Injectable()
 export class AdminCatalogService {
   constructor(private readonly prisma: PrismaService) {}
@@ -67,6 +100,11 @@ export class AdminCatalogService {
   // ── small typed pickers ───────────────────────────────────────────────────
   private str(v: unknown): string | undefined {
     return typeof v === 'string' ? v : undefined;
+  }
+
+  private nonEmptyStr(v: unknown): string | undefined {
+    const value = this.str(v)?.trim();
+    return value ? value : undefined;
   }
 
   private strArr(v: unknown): string[] | undefined {
@@ -97,6 +135,65 @@ export class AdminCatalogService {
     ) as T;
   }
 
+  private verificationDueWhere(cadenceDays: number, now = new Date()) {
+    const cutoff = new Date(now.getTime() - cadenceDays * DAY_MS);
+    return {
+      OR: [{ lastVerifiedAt: null }, { lastVerifiedAt: { lt: cutoff } }],
+    };
+  }
+
+  private verificationData(
+    verified: boolean,
+    sourceUrl?: unknown,
+    verifier?: AdminSessionUser,
+  ) {
+    const srcStr = this.nonEmptyStr(sourceUrl);
+    return this.clean({
+      lastVerifiedAt: verified ? new Date() : null,
+      verifiedById: verified ? (verifier?.id ?? 'system') : null,
+      verifiedByName: verified
+        ? (verifier?.fullName ?? verifier?.email ?? 'System verification')
+        : null,
+      ...(srcStr !== undefined ? { sourceUrl: srcStr } : {}),
+    });
+  }
+
+  private buildVerificationItem(input: {
+    policy: VerificationPolicyName;
+    entityType: VerificationEntity;
+    id: string;
+    label: string;
+    context?: string | null;
+    lastVerifiedAt?: Date | null;
+    verifiedByName?: string | null;
+    sourceUrl?: string | null;
+    now: Date;
+  }) {
+    const policy = VERIFICATION_POLICIES[input.policy];
+    const dueAt = input.lastVerifiedAt
+      ? new Date(input.lastVerifiedAt.getTime() + policy.cadenceDays * DAY_MS)
+      : null;
+    const daysSinceVerification = input.lastVerifiedAt
+      ? Math.floor((input.now.getTime() - input.lastVerifiedAt.getTime()) / DAY_MS)
+      : null;
+    return {
+      entityType: input.entityType,
+      id: input.id,
+      label: input.label,
+      context: input.context ?? null,
+      category: policy.key,
+      categoryLabel: policy.label,
+      cadenceDays: policy.cadenceDays,
+      owner: policy.owner,
+      lastVerifiedAt: input.lastVerifiedAt ?? null,
+      verifiedByName: input.verifiedByName ?? null,
+      sourceUrl: input.sourceUrl ?? null,
+      dueAt,
+      daysSinceVerification,
+      isOverdue: dueAt == null || dueAt.getTime() <= input.now.getTime(),
+    };
+  }
+
   // ════════════════════════════════════════════════════════════════════════
   // VERIFICATION (data-trust signal)
   // ════════════════════════════════════════════════════════════════════════
@@ -110,13 +207,10 @@ export class AdminCatalogService {
     id: string,
     verified: boolean,
     sourceUrl?: unknown,
+    verifier?: AdminSessionUser,
   ) {
     this.assertDb();
-    const srcStr = this.str(sourceUrl);
-    const data = {
-      lastVerifiedAt: verified ? new Date() : null,
-      ...(srcStr !== undefined ? { sourceUrl: srcStr } : {}),
-    };
+    const data = this.verificationData(verified, sourceUrl, verifier);
     switch (entity) {
       case 'program':
         return this.runUpdate(
@@ -145,6 +239,156 @@ export class AdminCatalogService {
       default:
         throw new BadRequestException(`Unknown catalog entity "${entity}".`);
     }
+  }
+
+  async listVerificationDue() {
+    this.assertDb();
+    const now = new Date();
+    const result = await this.prisma.execute((db) =>
+      db.$transaction([
+        db.country.findMany({
+          where: {
+            isActive: true,
+            ...this.verificationDueWhere(
+              VERIFICATION_POLICIES.countryVisa.cadenceDays,
+              now,
+            ),
+          } as Prisma.CountryWhereInput,
+          orderBy: [{ lastVerifiedAt: 'asc' }, { displayOrder: 'asc' }],
+          select: {
+            id: true,
+            nameFr: true,
+            nameEn: true,
+            lastVerifiedAt: true,
+            verifiedByName: true,
+            sourceUrl: true,
+          },
+        }),
+        db.institution.findMany({
+          where: this.verificationDueWhere(
+            VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
+            now,
+          ) as Prisma.InstitutionWhereInput,
+          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          select: {
+            id: true,
+            nameFr: true,
+            nameEn: true,
+            countryId: true,
+            lastVerifiedAt: true,
+            verifiedByName: true,
+            sourceUrl: true,
+          },
+        }),
+        db.program.findMany({
+          where: this.verificationDueWhere(
+            VERIFICATION_POLICIES.programScolarite.cadenceDays,
+            now,
+          ) as Prisma.ProgramWhereInput,
+          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          select: {
+            id: true,
+            nameFr: true,
+            nameEn: true,
+            countryId: true,
+            institutionId: true,
+            lastVerifiedAt: true,
+            verifiedByName: true,
+            sourceUrl: true,
+          },
+        }),
+        db.scholarship.findMany({
+          where: {
+            isActive: true,
+            moderationStatus: 'approved',
+            ...this.verificationDueWhere(
+              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+              now,
+            ),
+          } as Prisma.ScholarshipWhereInput,
+          orderBy: [{ lastVerifiedAt: 'asc' }, { deadlineAt: 'asc' }],
+          select: {
+            id: true,
+            nameFr: true,
+            nameEn: true,
+            countryId: true,
+            deadlineLabelFr: true,
+            lastVerifiedAt: true,
+            verifiedByName: true,
+            sourceUrl: true,
+          },
+        }),
+      ]),
+    );
+
+    const [countries, institutions, programs, scholarships] =
+      result ?? [[], [], [], []];
+    const items = [
+      ...countries.map((row) =>
+        this.buildVerificationItem({
+          policy: 'countryVisa',
+          entityType: 'country',
+          id: row.id,
+          label: row.nameFr || row.nameEn,
+          lastVerifiedAt: row.lastVerifiedAt,
+          verifiedByName: row.verifiedByName,
+          sourceUrl: row.sourceUrl,
+          now,
+        }),
+      ),
+      ...institutions.map((row) =>
+        this.buildVerificationItem({
+          policy: 'institutionScolarite',
+          entityType: 'institution',
+          id: row.id,
+          label: row.nameFr || row.nameEn,
+          context: row.countryId,
+          lastVerifiedAt: row.lastVerifiedAt,
+          verifiedByName: row.verifiedByName,
+          sourceUrl: row.sourceUrl,
+          now,
+        }),
+      ),
+      ...programs.map((row) =>
+        this.buildVerificationItem({
+          policy: 'programScolarite',
+          entityType: 'program',
+          id: row.id,
+          label: row.nameFr || row.nameEn,
+          context: `${row.countryId} / ${row.institutionId}`,
+          lastVerifiedAt: row.lastVerifiedAt,
+          verifiedByName: row.verifiedByName,
+          sourceUrl: row.sourceUrl,
+          now,
+        }),
+      ),
+      ...scholarships.map((row) =>
+        this.buildVerificationItem({
+          policy: 'scholarshipDeadline',
+          entityType: 'scholarship',
+          id: row.id,
+          label: row.nameFr || row.nameEn,
+          context: row.deadlineLabelFr || row.countryId,
+          lastVerifiedAt: row.lastVerifiedAt,
+          verifiedByName: row.verifiedByName,
+          sourceUrl: row.sourceUrl,
+          now,
+        }),
+      ),
+    ].sort((a, b) => {
+      if (a.lastVerifiedAt == null && b.lastVerifiedAt != null) return -1;
+      if (a.lastVerifiedAt != null && b.lastVerifiedAt == null) return 1;
+      return (
+        (b.daysSinceVerification ?? Number.MAX_SAFE_INTEGER) -
+        (a.daysSinceVerification ?? Number.MAX_SAFE_INTEGER)
+      );
+    });
+
+    return {
+      items,
+      total: items.length,
+      policies: Object.values(VERIFICATION_POLICIES),
+    };
   }
 
   // ════════════════════════════════════════════════════════════════════════
