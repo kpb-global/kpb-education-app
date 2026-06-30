@@ -1,14 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
 /**
  * Sprint 8 — pushes a reminder to every user who saved a scholarship when its
- * deadline is approaching. Sends at fixed thresholds (7 days, then 1 day); the
- * once-a-day cron + day-equality means each threshold fires exactly once, so no
- * "already sent" table is needed.
+ * deadline is approaching. Sends at fixed thresholds (7 days, then 1 day).
+ *
+ * KPB-64: the daily auto-fire was removed when MilestoneReminderService took
+ * over the unified, bilingual deadline/milestone cron — running both at 08:00
+ * double-sent scholarship reminders. `run()` is kept as a manual-only helper,
+ * still triggered on demand by the admin push controller.
  */
 @Injectable()
 export class DeadlineReminderCronService {
@@ -20,13 +22,6 @@ export class DeadlineReminderCronService {
     private readonly prisma: PrismaService,
     private readonly push: OneSignalSenderService,
   ) {}
-
-  /// Daily at 08:00 UTC.
-  @Cron('0 8 * * *')
-  async scheduledRun(): Promise<void> {
-    if (!this.prisma.isEnabled) return;
-    await this.run();
-  }
 
   /// Core logic, also callable from an admin endpoint for testing.
   async run(): Promise<{ scholarshipsDue: number; remindersSent: number }> {

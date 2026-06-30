@@ -100,6 +100,7 @@ export class MilestoneReminderService {
           where: {
             id: { in: scholarshipIds },
             isActive: true,
+            moderationStatus: 'approved',
             deadlineAt: { gte: startOfDay(now), lte: horizon },
           },
           select: {

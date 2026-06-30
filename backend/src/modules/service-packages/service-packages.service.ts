@@ -198,6 +198,40 @@ export class ServicePackagesService {
       .filter(Boolean)
       .join('\n');
 
+    // Idempotency: tapping the WhatsApp CTA repeatedly (the normal
+    // tap → WhatsApp → return → tap-again loop, or pull-to-refresh then
+    // re-tap) must not mint duplicate pending rows — that would inflate the
+    // per-SKU / per-destination demand + pipeline signal KPB-56 exists to make
+    // legible. Reuse the open WhatsApp-arranged request for the same
+    // (user, package, case) instead of creating another.
+    const existing = await this.prismaService.execute((prisma) =>
+      prisma.servicePurchase.findFirst({
+        where: {
+          userId: input.userId,
+          packageId: pkg.id,
+          caseId: linkedCase?.id ?? null,
+          status: 'pending_payment',
+          source: { not: 'checkout' },
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          package: true,
+          case: {
+            select: {
+              id: true,
+              referenceCode: true,
+              requestedCountryId: true,
+              source: true,
+            },
+          },
+          paymentIntent: true,
+        },
+      }),
+    );
+    if (existing) {
+      return existing;
+    }
+
     const purchase = await this.prismaService.execute((prisma) =>
       prisma.servicePurchase.create({
         data: {
