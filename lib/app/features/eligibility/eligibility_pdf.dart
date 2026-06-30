@@ -41,8 +41,7 @@ Future<void> shareEligibilityPdf({
             pw.SizedBox(
               width: 130,
               child: pw.Text(label,
-                  style: pw.TextStyle(
-                      fontSize: 9, color: PdfColors.grey600)),
+                  style: pw.TextStyle(fontSize: 9, color: PdfColors.grey600)),
             ),
             pw.Expanded(
               child: pw.Text(value, style: const pw.TextStyle(fontSize: 9)),

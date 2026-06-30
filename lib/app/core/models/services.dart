@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class ServiceOffer {
   const ServiceOffer({
     required this.id,
@@ -24,6 +23,7 @@ class ServiceOffer {
   final LocalizedText ctaLabel;
   final PublicationStatus status;
 }
+
 class SupportDestination {
   const SupportDestination({
     required this.id,

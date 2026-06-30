@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Gradient Hero Card ────────────────────────────────────────────────────────
 class GradientHeroCard extends StatelessWidget {
   const GradientHeroCard({

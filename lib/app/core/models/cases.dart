@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 enum CaseType {
   consultation,
   applicationSupport,
@@ -8,6 +7,7 @@ enum CaseType {
   housingSupport,
   mentorship,
 }
+
 enum CaseStatus {
   draft,
   submitted,
@@ -24,7 +24,9 @@ enum CaseStatus {
   rejected,
   cancelled,
 }
+
 enum ContactMethod { inApp, whatsapp, phone }
+
 class CaseTimelineEvent {
   const CaseTimelineEvent({
     required this.id,
@@ -40,6 +42,7 @@ class CaseTimelineEvent {
   final DateTime createdAt;
   final CaseStatus status;
 }
+
 class CaseMessage {
   const CaseMessage({
     required this.id,
@@ -55,6 +58,7 @@ class CaseMessage {
   final LocalizedText body;
   final DateTime createdAt;
 }
+
 class DocumentRequest {
   const DocumentRequest({
     required this.id,
@@ -76,6 +80,7 @@ class DocumentRequest {
     );
   }
 }
+
 class StudentCase {
   const StudentCase({
     required this.id,

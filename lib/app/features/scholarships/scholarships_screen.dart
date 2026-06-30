@@ -47,7 +47,8 @@ class ScholarshipsScreen extends StatelessWidget {
                 ),
                 if (controller.syncError != null)
                   SliverToBoxAdapter(
-                    child: KpbSyncErrorBanner(onRetry: controller.pullToRefresh),
+                    child:
+                        KpbSyncErrorBanner(onRetry: controller.pullToRefresh),
                   ),
                 SliverToBoxAdapter(
                   child: Padding(
@@ -504,10 +505,8 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           label: Text('am_i_eligible'.tr),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            foregroundColor:
-                KpbColors.blue,
-            side: BorderSide(
-                color: KpbColors.blue),
+            foregroundColor: KpbColors.blue,
+            side: BorderSide(color: KpbColors.blue),
           ),
         ),
         const SizedBox(height: KpbSpacing.sm),
@@ -616,7 +615,8 @@ class _AdmissionHook extends StatelessWidget {
           ),
           SizedBox(height: 12),
           Text(
-            'scholarship_gap_msg'.trParams({'score': '$score', 'name': scholarshipName}),
+            'scholarship_gap_msg'
+                .trParams({'score': '$score', 'name': scholarshipName}),
             style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white70 : context.kpb.textSecondary,

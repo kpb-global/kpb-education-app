@@ -182,8 +182,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                             'reviews_basis'
                                 .trParams({'n': '${_int('reviewsCount')}'}),
                             style: TextStyle(
-                                fontSize: 12,
-                                color: context.kpb.textSecondary),
+                                fontSize: 12, color: context.kpb.textSecondary),
                           ),
                         ],
                       ),

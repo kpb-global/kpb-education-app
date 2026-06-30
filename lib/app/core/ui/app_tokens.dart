@@ -58,7 +58,7 @@ class KpbColors {
   static const textDarkSecondary = Color(0xFF94A3B8);
   static const glassBorder = Color(0x33FFFFFF);
   static const glassBg = Color(0x19FFFFFF);
-  
+
   // ── Aliases ──────────────────────────────────────────────────────────────
   static const primary = blue;
   static const primaryLight = skyLight;
@@ -91,7 +91,6 @@ class KpbColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

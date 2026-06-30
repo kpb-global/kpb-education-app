@@ -100,8 +100,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
   String? _error;
   _DocumentReview? _review;
 
-  bool get _canSubmit =>
-      !_loading && _textController.text.trim().isNotEmpty;
+  bool get _canSubmit => !_loading && _textController.text.trim().isNotEmpty;
 
   @override
   void dispose() {
@@ -192,8 +191,8 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: _kind.hint,
-                hintStyle: KpbTextStyles.body
-                    .copyWith(color: context.kpb.textMuted),
+                hintStyle:
+                    KpbTextStyles.body.copyWith(color: context.kpb.textMuted),
               ),
             ),
           ),
@@ -432,8 +431,8 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('À améliorer', Icons.tips_and_updates_rounded,
-            KpbColors.blue),
+        _sectionTitle(
+            'À améliorer', Icons.tips_and_updates_rounded, KpbColors.blue),
         const SizedBox(height: KpbSpacing.sm),
         KpbCard(
           child: Column(

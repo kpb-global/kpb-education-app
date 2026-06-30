@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 // ── Profile Completion Ring ───────────────────────────────────────────────────
 class CompletionRing extends StatelessWidget {
   const CompletionRing({

@@ -17,7 +17,8 @@ void main() {
       resetGetxSingleton();
     });
 
-    testWidgets('renders questionnaire view by default for student', (tester) async {
+    testWidgets('renders questionnaire view by default for student',
+        (tester) async {
       final profile = createTestProfile(accountType: AccountType.student);
       final snapshot = AppSnapshot(
         localeCode: 'fr',
@@ -113,7 +114,7 @@ void main() {
       // Verify that ConsultativeView is rendered and wrapped in Scaffold
       expect(find.byType(OrientationScreen), findsOneWidget);
       expect(find.text('nav_orientation'), findsOneWidget);
-      
+
       // Verify back button is visible
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
     });

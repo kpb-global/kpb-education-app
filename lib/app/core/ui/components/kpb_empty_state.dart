@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
-
 // ── Empty State ───────────────────────────────────────────────────────────────
 class KpbEmptyState extends StatelessWidget {
   const KpbEmptyState({
@@ -22,6 +21,7 @@ class KpbEmptyState extends StatelessWidget {
   final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
+
   /// Optional fully custom action widget (takes priority over actionLabel+onAction).
   final Widget? action;
   final Color? iconColor;
@@ -43,8 +43,7 @@ class KpbEmptyState extends StatelessWidget {
               tween: Tween(begin: 0.8, end: 1.0),
               duration: const Duration(milliseconds: 500),
               curve: Curves.elasticOut,
-              builder: (_, v, child) =>
-                  Transform.scale(scale: v, child: child),
+              builder: (_, v, child) => Transform.scale(scale: v, child: child),
               child: Container(
                 width: 88,
                 height: 88,

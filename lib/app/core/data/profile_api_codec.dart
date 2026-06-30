@@ -19,8 +19,7 @@ abstract final class ProfileApiCodec {
       phone: json['phone'] as String? ?? '',
       whatsApp: json['whatsApp'] as String? ?? '',
       countryOfResidence: json['countryOfResidence'] as String? ?? '',
-      preferredLanguage:
-          json['preferredLanguage'] as String? ?? fallbackLocale,
+      preferredLanguage: json['preferredLanguage'] as String? ?? fallbackLocale,
       currentLevel: json['currentLevel'] as String?,
       targetLevel: json['targetLevel'] as String?,
       languageLevel: json['languageLevel'] as String?,

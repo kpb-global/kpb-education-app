@@ -15,7 +15,8 @@ void main() {
     mock = _MockApi();
   });
 
-  testWidgets('shows KpbErrorState when listSalonEvents throws', (tester) async {
+  testWidgets('shows KpbErrorState when listSalonEvents throws',
+      (tester) async {
     when(() => mock.listSalonEvents()).thenThrow(Exception('network'));
 
     await tester.pumpWidget(MaterialApp(home: SalonScreen(apiClient: mock)));
@@ -56,7 +57,8 @@ void main() {
     expect(find.text('Voir les sessions'), findsOneWidget);
   });
 
-  testWidgets('retry calls listSalonEvents again after failure', (tester) async {
+  testWidgets('retry calls listSalonEvents again after failure',
+      (tester) async {
     var calls = 0;
     when(() => mock.listSalonEvents()).thenAnswer((_) async {
       calls++;

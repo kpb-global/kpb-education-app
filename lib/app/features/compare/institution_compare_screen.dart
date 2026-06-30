@@ -45,7 +45,8 @@ class InstitutionCompareScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.ios_share_rounded, color: isDark ? KpbColors.sky : KpbColors.blue),
+            icon: Icon(Icons.ios_share_rounded,
+                color: isDark ? KpbColors.sky : KpbColors.blue),
             onPressed: () => _shareComparison(controller, inst1, inst2),
           ),
         ],
@@ -279,7 +280,8 @@ class _InstitutionHeader extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(KpbSpacing.md),
         decoration: BoxDecoration(
-          gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+          gradient:
+              isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
           borderRadius: KpbRadius.xlBr,
           boxShadow: isDark ? null : KpbShadow.blue,
         ),
@@ -330,7 +332,8 @@ class _InstitutionHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: KpbColors.gold.withValues(alpha: 0.25),
                   borderRadius: KpbRadius.pillBr,
-                  border: Border.all(color: KpbColors.gold.withValues(alpha: 0.5)),
+                  border:
+                      Border.all(color: KpbColors.gold.withValues(alpha: 0.5)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -416,7 +419,10 @@ class _RowDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Divider(
-        height: 1, color: context.kpb.gray100, indent: KpbSpacing.lg, endIndent: KpbSpacing.lg);
+        height: 1,
+        color: context.kpb.gray100,
+        indent: KpbSpacing.lg,
+        endIndent: KpbSpacing.lg);
   }
 }
 
@@ -446,7 +452,8 @@ class _TagsCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tags.isEmpty) {
-      return Text('—', style: TextStyle(color: context.kpb.textMuted, fontSize: 13));
+      return Text('—',
+          style: TextStyle(color: context.kpb.textMuted, fontSize: 13));
     }
     return Wrap(
       spacing: 6,

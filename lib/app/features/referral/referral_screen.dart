@@ -351,8 +351,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
                               ? const SizedBox(
                                   width: 18,
                                   height: 18,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : Text('referral_redeem_cta'.tr),
                         ),
@@ -379,13 +379,13 @@ class _StatTile extends StatelessWidget {
         children: [
           Text(value,
               style: const TextStyle(
-                  fontSize: 26, fontWeight: FontWeight.w900,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
                   color: KpbColors.blue)),
           const SizedBox(height: 4),
           Text(label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 12, color: context.kpb.textSecondary)),
+              style: TextStyle(fontSize: 12, color: context.kpb.textSecondary)),
         ],
       ),
     );

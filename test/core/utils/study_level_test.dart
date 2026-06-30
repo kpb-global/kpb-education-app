@@ -70,9 +70,11 @@ void main() {
       expect(normalizeProgramLevel('Bachelor · Bac+3'), ProgramLevel.bachelor);
       expect(normalizeProgramLevel('MSc · Bac+5'), ProgramLevel.master);
       expect(normalizeProgramLevel('PGE · Bac+5'), ProgramLevel.master);
-      expect(normalizeProgramLevel('Grande Ecole · Bac+5'), ProgramLevel.master);
+      expect(
+          normalizeProgramLevel('Grande Ecole · Bac+5'), ProgramLevel.master);
       expect(normalizeProgramLevel('BBA · Bac+4'), ProgramLevel.bba);
-      expect(normalizeProgramLevel('Visa (Bac +5) · Bac+5'), ProgramLevel.master);
+      expect(
+          normalizeProgramLevel('Visa (Bac +5) · Bac+5'), ProgramLevel.master);
     });
 
     test('maps mock catalog tokens', () {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Outlined Badge (light bg) ─────────────────────────────────────────────────
 class KpbBadgeLight extends StatelessWidget {
   const KpbBadgeLight({

@@ -30,7 +30,8 @@ void main() {
     Get.reset();
 
     final mockApi = _MockApiClient();
-    when(() => mockApi.getProfile()).thenAnswer((_) async => <String, dynamic>{});
+    when(() => mockApi.getProfile())
+        .thenAnswer((_) async => <String, dynamic>{});
     when(() => mockApi.listCases()).thenAnswer((_) async => []);
     when(() => mockApi.listSavedItems()).thenAnswer((_) async => []);
     when(() => mockApi.listCatalog(any())).thenAnswer((_) async => []);

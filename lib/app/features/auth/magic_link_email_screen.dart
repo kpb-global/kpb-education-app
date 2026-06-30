@@ -111,7 +111,8 @@ class _MagicLinkEmailScreenState extends State<MagicLinkEmailScreen> {
                   const SizedBox(height: KpbSpacing.md),
                   Text(
                     _error!,
-                    style: const TextStyle(color: KpbColors.error, fontSize: 13),
+                    style:
+                        const TextStyle(color: KpbColors.error, fontSize: 13),
                   ),
                 ],
                 const SizedBox(height: KpbSpacing.lg),

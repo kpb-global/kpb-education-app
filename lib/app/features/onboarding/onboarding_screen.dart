@@ -51,14 +51,19 @@ const _dialCodes = <_DialCode>[
 // Data
 // ─────────────────────────────────────────────────────────────────────────────
 const _studyLevels = [
-  ('High school', 'Lycée'), ('Bachelor', 'Licence'),
-  ('Master', 'Master'), ('PhD', 'Doctorat'),
+  ('High school', 'Lycée'),
+  ('Bachelor', 'Licence'),
+  ('Master', 'Master'),
+  ('PhD', 'Doctorat'),
 ];
 const _targetLevels = [
-  ('Bachelor', 'Licence'), ('Master', 'Master'), ('PhD', 'Doctorat'),
+  ('Bachelor', 'Licence'),
+  ('Master', 'Master'),
+  ('PhD', 'Doctorat'),
 ];
 const _langLevels = [
-  ('Beginner', 'Débutant'), ('Intermediate', 'Intermédiaire'),
+  ('Beginner', 'Débutant'),
+  ('Intermediate', 'Intermédiaire'),
   ('Advanced', 'Avancé'),
 ];
 const _grades = ['10 - 12/20', '12 - 14/20', '15+/20'];
@@ -72,14 +77,37 @@ const _budgetRanges = <(int, String)>[
   (1800, '> 1 500 €'),
 ];
 const _documentKeys = [
-  ('Passport', 'Passeport'), ('CV', 'CV'),
-  ('Transcripts', 'Relevés de notes'), ('Test score', 'Score de test'),
+  ('Passport', 'Passeport'),
+  ('CV', 'CV'),
+  ('Transcripts', 'Relevés de notes'),
+  ('Test score', 'Score de test'),
 ];
 const _countries = [
-  'Niger','Nigeria','Sénégal','Côte d\'Ivoire','Mali','Guinée',
-  'Burkina Faso','Togo','Bénin','Mauritanie','Ghana','Cameroun',
-  'Sierra Leone','Gambie','Liberia','Guinée-Bissau','Cap-Vert',
-  'Maroc','Tunisie','Algérie','France','Belgique','Suisse','Canada','Autre',
+  'Niger',
+  'Nigeria',
+  'Sénégal',
+  'Côte d\'Ivoire',
+  'Mali',
+  'Guinée',
+  'Burkina Faso',
+  'Togo',
+  'Bénin',
+  'Mauritanie',
+  'Ghana',
+  'Cameroun',
+  'Sierra Leone',
+  'Gambie',
+  'Liberia',
+  'Guinée-Bissau',
+  'Cap-Vert',
+  'Maroc',
+  'Tunisie',
+  'Algérie',
+  'France',
+  'Belgique',
+  'Suisse',
+  'Canada',
+  'Autre',
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -163,8 +191,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   AppController get _ctrl => Get.find<AppController>();
 
-  int get _totalPages =>
-      _accountType == AccountType.partner ? 2 : 3;
+  int get _totalPages => _accountType == AccountType.partner ? 2 : 3;
 
   @override
   void initState() {
@@ -321,7 +348,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
-              icon: const Icon(Icons.privacy_tip_outlined, color: KpbColors.error),
+              icon: const Icon(Icons.privacy_tip_outlined,
+                  color: KpbColors.error),
             );
             return false;
           }
@@ -366,7 +394,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
-              icon: const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
+              icon:
+                  const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
             );
             return false;
           }
@@ -377,7 +406,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
-              icon: const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
+              icon:
+                  const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
             );
             return false;
           }
@@ -485,13 +515,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       gradeRange: _gradeRange,
                       monthlyBudgetEur: _monthlyBudgetEur,
                       wantsScholarship: _wantsScholarship,
-                      onCurrentLevel: (v) => setState(() => _currentLevel = v ?? _currentLevel),
-                      onTargetLevel: (v) => setState(() => _targetLevel = v ?? _targetLevel),
-                      onLanguageLevel: (v) => setState(() => _languageLevel = v ?? _languageLevel),
-                      onGradeRange: (v) => setState(() => _gradeRange = v ?? _gradeRange),
+                      onCurrentLevel: (v) =>
+                          setState(() => _currentLevel = v ?? _currentLevel),
+                      onTargetLevel: (v) =>
+                          setState(() => _targetLevel = v ?? _targetLevel),
+                      onLanguageLevel: (v) =>
+                          setState(() => _languageLevel = v ?? _languageLevel),
+                      onGradeRange: (v) =>
+                          setState(() => _gradeRange = v ?? _gradeRange),
                       onMonthlyBudget: (v) =>
                           setState(() => _monthlyBudgetEur = v),
-                      onWantsScholarship: (v) => setState(() => _wantsScholarship = v),
+                      onWantsScholarship: (v) =>
+                          setState(() => _wantsScholarship = v),
                     ),
                   )
                 else
@@ -572,7 +607,10 @@ class _ProgressHeader extends StatelessWidget {
       bottom: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          KpbSpacing.pagePad, KpbSpacing.md, KpbSpacing.pagePad, 0,
+          KpbSpacing.pagePad,
+          KpbSpacing.md,
+          KpbSpacing.pagePad,
+          0,
         ),
         child: Column(
           children: [
@@ -622,8 +660,7 @@ class _ProgressHeader extends StatelessWidget {
                 value: (page + 1) / total,
                 minHeight: 4,
                 backgroundColor: context.kpb.gray200,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(KpbColors.blue),
+                valueColor: const AlwaysStoppedAnimation<Color>(KpbColors.blue),
               ),
             ),
           ],
@@ -683,7 +720,8 @@ class _BottomBar extends StatelessWidget {
     final isLast = page == total - 1;
     return Container(
       padding: EdgeInsets.fromLTRB(
-        KpbSpacing.pagePad, KpbSpacing.md,
+        KpbSpacing.pagePad,
+        KpbSpacing.md,
         KpbSpacing.pagePad,
         KpbSpacing.md + MediaQuery.of(context).padding.bottom,
       ),
@@ -737,8 +775,11 @@ class _PageIdentity extends StatelessWidget {
 
   final AccountType accountType;
   final String language, country;
-  final TextEditingController firstNameCtrl, lastNameCtrl, emailCtrl,
-      phoneCtrl, whatsAppCtrl;
+  final TextEditingController firstNameCtrl,
+      lastNameCtrl,
+      emailCtrl,
+      phoneCtrl,
+      whatsAppCtrl;
   final _DialCode phoneCode, waCode;
   final bool sameWhatsApp;
   final ValueChanged<AccountType> onAccountType;
@@ -883,8 +924,7 @@ class _PageIdentity extends StatelessWidget {
         CheckboxListTile(
           contentPadding: EdgeInsets.zero,
           value: sameWhatsApp,
-          title: Text('whatsapp_same_as_phone'.tr,
-              style: KpbTextStyles.bodySm),
+          title: Text('whatsapp_same_as_phone'.tr, style: KpbTextStyles.bodySm),
           onChanged: (v) => onSameWhatsApp(v ?? true),
         ),
         if (!sameWhatsApp) ...[
@@ -929,8 +969,7 @@ class _PageIdentity extends StatelessWidget {
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: 'birth_date'.tr,
-                suffixIcon:
-                    const Icon(Icons.calendar_today_outlined, size: 18),
+                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
               ),
               child: Text(
                 birthDate == null
@@ -960,8 +999,7 @@ class _PageIdentity extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('minor_guardian_title'.tr,
-                      style: KpbTextStyles.titleMd),
+                  Text('minor_guardian_title'.tr, style: KpbTextStyles.titleMd),
                   const SizedBox(height: 4),
                   Text(
                     'minor_guardian_intro'.tr,
@@ -974,8 +1012,7 @@ class _PageIdentity extends StatelessWidget {
                   const SizedBox(height: KpbSpacing.sm),
                   TextFormField(
                     controller: guardianNameCtrl,
-                    decoration:
-                        InputDecoration(labelText: 'guardian_name'.tr),
+                    decoration: InputDecoration(labelText: 'guardian_name'.tr),
                     textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: KpbSpacing.sm),
@@ -1003,14 +1040,10 @@ class _PageIdentity extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: hasConsented
-                ? KpbColors.successLight
-                : context.kpb.gray50,
+            color: hasConsented ? KpbColors.successLight : context.kpb.gray50,
             borderRadius: KpbRadius.mdBr,
             border: Border.all(
-              color: hasConsented
-                  ? KpbColors.success
-                  : context.kpb.gray200,
+              color: hasConsented ? KpbColors.success : context.kpb.gray200,
             ),
           ),
           child: Row(
@@ -1043,8 +1076,7 @@ class _PageIdentity extends StatelessWidget {
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                         child: GestureDetector(
-                          onTap: () => Get.to(
-                              () => PrivacyPolicyScreen()),
+                          onTap: () => Get.to(() => PrivacyPolicyScreen()),
                           child: Text(
                             'privacy_policy_inline'.tr,
                             style: TextStyle(
@@ -1062,8 +1094,8 @@ class _PageIdentity extends StatelessWidget {
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                         child: GestureDetector(
-                          onTap: () => Get.to(
-                              () => const TermsOfServiceScreen()),
+                          onTap: () =>
+                              Get.to(() => const TermsOfServiceScreen()),
                           child: const Text(
                             'conditions d\'utilisation',
                             style: TextStyle(
@@ -1112,8 +1144,10 @@ class _PageAcademic extends StatelessWidget {
   final String currentLevel, targetLevel, languageLevel, gradeRange;
   final int? monthlyBudgetEur;
   final bool wantsScholarship;
-  final ValueChanged<String?> onCurrentLevel, onTargetLevel,
-      onLanguageLevel, onGradeRange;
+  final ValueChanged<String?> onCurrentLevel,
+      onTargetLevel,
+      onLanguageLevel,
+      onGradeRange;
   final ValueChanged<int?> onMonthlyBudget;
   final ValueChanged<bool> onWantsScholarship;
 
@@ -1164,9 +1198,7 @@ class _PageAcademic extends StatelessWidget {
         KpbPressable(
           onTap: () => onWantsScholarship(!wantsScholarship),
           child: KpbCard(
-            color: wantsScholarship
-                ? KpbColors.goldLight
-                : context.kpb.cardBg,
+            color: wantsScholarship ? KpbColors.goldLight : context.kpb.cardBg,
             border: Border.all(
               color: wantsScholarship ? KpbColors.gold : context.kpb.gray200,
             ),
@@ -1183,9 +1215,8 @@ class _PageAcademic extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.workspace_premium_outlined,
-                    color: wantsScholarship
-                        ? KpbColors.gold
-                        : context.kpb.gray400,
+                    color:
+                        wantsScholarship ? KpbColors.gold : context.kpb.gray400,
                     size: 22,
                   ),
                 ),
@@ -1200,9 +1231,8 @@ class _PageAcademic extends StatelessWidget {
                   wantsScholarship
                       ? Icons.check_circle_rounded
                       : Icons.circle_outlined,
-                  color: wantsScholarship
-                      ? KpbColors.gold
-                      : context.kpb.gray300,
+                  color:
+                      wantsScholarship ? KpbColors.gold : context.kpb.gray300,
                   size: 24,
                 ),
               ],
@@ -1225,8 +1255,7 @@ class _PagePartner extends StatelessWidget {
       padding: const EdgeInsets.all(KpbSpacing.lg),
       child: Column(
         children: [
-          const Icon(Icons.handshake_outlined,
-              size: 48, color: KpbColors.blue),
+          const Icon(Icons.handshake_outlined, size: 48, color: KpbColors.blue),
           const SizedBox(height: KpbSpacing.md),
           const Text('Espace partenariat', style: KpbTextStyles.title),
           const SizedBox(height: 8),
@@ -1279,7 +1308,6 @@ class _PageInterests extends StatelessWidget {
           }).toList(),
         ),
         const SizedBox(height: KpbSpacing.lg),
-
         Text('explore_countries'.tr, style: KpbTextStyles.titleMd),
         const SizedBox(height: 10),
         Wrap(
@@ -1295,7 +1323,6 @@ class _PageInterests extends StatelessWidget {
           }).toList(),
         ),
         const SizedBox(height: KpbSpacing.lg),
-
         Text('available_documents'.tr, style: KpbTextStyles.titleMd),
         const SizedBox(height: 10),
         Wrap(
@@ -1416,11 +1443,13 @@ class _PhoneRow extends StatelessWidget {
               items: _dialCodes
                   .map((d) => DropdownMenuItem(
                         value: d,
-                        child: Text(d.label,
-                            style: const TextStyle(fontSize: 14)),
+                        child:
+                            Text(d.label, style: const TextStyle(fontSize: 14)),
                       ))
                   .toList(),
-              onChanged: (v) { if (v != null) onDialCode(v); },
+              onChanged: (v) {
+                if (v != null) onDialCode(v);
+              },
             ),
           ),
         ),
@@ -1430,9 +1459,8 @@ class _PhoneRow extends StatelessWidget {
             controller: controller,
             keyboardType: TextInputType.phone,
             validator: required
-                ? (v) => (v == null || v.trim().isEmpty)
-                    ? 'field_required'.tr
-                    : null
+                ? (v) =>
+                    (v == null || v.trim().isEmpty) ? 'field_required'.tr : null
                 : null,
             decoration: InputDecoration(labelText: label),
           ),

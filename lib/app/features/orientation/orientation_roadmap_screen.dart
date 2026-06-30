@@ -68,7 +68,8 @@ class OrientationRoadmapScreen extends StatelessWidget {
           Text('Ton parcours de candidature', style: KpbTextStyles.titleLg),
           SizedBox(height: KpbSpacing.xs),
           Text(
-            'roadmap_objective'.trParams({'intake': intakeLabel, 'field': fieldLabel}),
+            'roadmap_objective'
+                .trParams({'intake': intakeLabel, 'field': fieldLabel}),
             style:
                 KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
           ),

@@ -72,7 +72,8 @@ Future<void> openWhatsAppOrToast({
   String? prefill,
   bool group = false,
   String title = 'WhatsApp',
-  String message = "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
+  String message =
+      "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
   // Funnel attribution: where the hand-off was triggered and what context it
   // carried. The single choke-point for every WhatsApp hand-off, so logging
   // here measures the core lead→advisor-contact conversion step everywhere.

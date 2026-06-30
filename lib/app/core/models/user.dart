@@ -1,7 +1,7 @@
 part of 'app_models.dart';
 
-
 enum AccountType { student, parent, partner, commercial }
+
 enum InternalRole {
   admin,
   counselor,
@@ -10,7 +10,9 @@ enum InternalRole {
   moderator,
   superAdmin,
 }
+
 enum PublicationStatus { draft, published, archived }
+
 class LocalizedText {
   const LocalizedText({
     required this.fr,
@@ -34,6 +36,7 @@ class LocalizedText {
         'en': en,
       };
 }
+
 class UserProfile {
   const UserProfile({
     required this.id,
@@ -182,7 +185,8 @@ class UserProfile {
       (languageLevel ?? '').trim().isNotEmpty,
       fieldIds.isNotEmpty,
       targetCountryIds.isNotEmpty,
-      (gradeRange ?? '').trim().isNotEmpty || (bacSeries ?? '').trim().isNotEmpty,
+      (gradeRange ?? '').trim().isNotEmpty ||
+          (bacSeries ?? '').trim().isNotEmpty,
       monthlyBudgetEur != null && monthlyBudgetEur! > 0,
       availableDocuments.isNotEmpty,
     ];

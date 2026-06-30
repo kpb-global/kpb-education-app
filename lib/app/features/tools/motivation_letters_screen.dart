@@ -21,9 +21,7 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
 
   List<LetterTemplate> get _filtered => _selectedCategory == 'all'
       ? kLetterTemplates
-      : kLetterTemplates
-          .where((t) => t.category == _selectedCategory)
-          .toList();
+      : kLetterTemplates.where((t) => t.category == _selectedCategory).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -118,19 +116,20 @@ class _LetterCardState extends State<_LetterCard> {
       final p = _ctrl.profile;
       final fieldId = p?.fieldIds.isNotEmpty == true ? p!.fieldIds.first : '';
       final field = _ctrl.fields
-          .where((f) => f.id == fieldId)
-          .map((f) => _ctrl.resolve(f.name))
-          .firstOrNull ?? '';
+              .where((f) => f.id == fieldId)
+              .map((f) => _ctrl.resolve(f.name))
+              .firstOrNull ??
+          '';
       final targetId = p?.targetCountryIds.isNotEmpty == true
           ? p!.targetCountryIds.first
           : '';
       final country = _ctrl.countries
-          .where((c) => c.id == targetId)
-          .map((c) => _ctrl.resolve(c.name))
-          .firstOrNull ?? '';
+              .where((c) => c.id == targetId)
+              .map((c) => _ctrl.resolve(c.name))
+              .firstOrNull ??
+          '';
 
-      final result =
-          await _ctrl.apiClient.post('tools/personalize-letter', {
+      final result = await _ctrl.apiClient.post('tools/personalize-letter', {
         'templateKey': widget.template.key,
         'templateBody': widget.template.bodyFr,
         'name': p?.fullName ?? '',
@@ -158,12 +157,8 @@ class _LetterCardState extends State<_LetterCard> {
   String get _displayText {
     if (_personalizedFr.isNotEmpty || _personalizedEn.isNotEmpty) {
       return _showEnglish
-          ? (_personalizedEn.isNotEmpty
-              ? _personalizedEn
-              : _personalizedFr)
-          : (_personalizedFr.isNotEmpty
-              ? _personalizedFr
-              : _personalizedEn);
+          ? (_personalizedEn.isNotEmpty ? _personalizedEn : _personalizedFr)
+          : (_personalizedFr.isNotEmpty ? _personalizedFr : _personalizedEn);
     }
     return widget.template.bodyFr;
   }
@@ -243,8 +238,7 @@ class _LetterCardState extends State<_LetterCard> {
                       ),
                       child: const Text(
                         'Personnalisee',
-                        style:
-                            TextStyle(fontSize: 11, color: KpbColors.blue),
+                        style: TextStyle(fontSize: 11, color: KpbColors.blue),
                       ),
                     ),
                 ],
@@ -292,7 +286,8 @@ class _LetterCardState extends State<_LetterCard> {
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: _displayText));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copie dans le presse-papier')),
+                      const SnackBar(
+                          content: Text('Copie dans le presse-papier')),
                     );
                   },
                 ),

@@ -102,16 +102,25 @@ StudentLevel? normalizeStudentLevel(String? raw) {
     return StudentLevel.master2;
   }
   // Bachelor / Licence years (L1-L3, B1-B3).
-  if (s.contains('l1') || s.contains('b1') || s.contains('bachelor1') ||
-      s.contains('bachelor 1') || s.contains('licence1')) {
+  if (s.contains('l1') ||
+      s.contains('b1') ||
+      s.contains('bachelor1') ||
+      s.contains('bachelor 1') ||
+      s.contains('licence1')) {
     return StudentLevel.bachelor1;
   }
-  if (s.contains('l2') || s.contains('b2') || s.contains('bachelor2') ||
-      s.contains('bachelor 2') || s.contains('licence2')) {
+  if (s.contains('l2') ||
+      s.contains('b2') ||
+      s.contains('bachelor2') ||
+      s.contains('bachelor 2') ||
+      s.contains('licence2')) {
     return StudentLevel.bachelor2;
   }
-  if (s.contains('l3') || s.contains('b3') || s.contains('bachelor3') ||
-      s.contains('bachelor 3') || s.contains('licence3')) {
+  if (s.contains('l3') ||
+      s.contains('b3') ||
+      s.contains('bachelor3') ||
+      s.contains('bachelor 3') ||
+      s.contains('licence3')) {
     return StudentLevel.bachelor3;
   }
   // Bare "master" / "bachelor" without a year → assume the first year.
@@ -181,8 +190,11 @@ ProgramLevel normalizeProgramLevel(String? raw) {
   if (s.isEmpty) return ProgramLevel.other;
 
   // Highest-first so "bac+3 / bac+5" resolves to master.
-  if (s.contains('doctorat') || s.contains('phd') || s.contains('dba') ||
-      s.contains('bac8') || s.contains('bac+8')) {
+  if (s.contains('doctorat') ||
+      s.contains('phd') ||
+      s.contains('dba') ||
+      s.contains('bac8') ||
+      s.contains('bac+8')) {
     // DBA is a doctorate-level MBA; keep it under MBA only if no plain doctorate.
     if (s.contains('dba') && !s.contains('doctorat') && !s.contains('phd')) {
       return ProgramLevel.mba;
@@ -190,20 +202,30 @@ ProgramLevel normalizeProgramLevel(String? raw) {
     return ProgramLevel.doctorat;
   }
   if (s.contains('mba')) return ProgramLevel.mba;
-  if (s.contains('bac5') || s.contains('bac+5') || s.contains('master') ||
-      s.contains('msc') || s.contains('pge') || s.contains('grandeecole') ||
-      s.contains('grande ecole') || s.contains('mastere') || s.contains('m2') ||
+  if (s.contains('bac5') ||
+      s.contains('bac+5') ||
+      s.contains('master') ||
+      s.contains('msc') ||
+      s.contains('pge') ||
+      s.contains('grandeecole') ||
+      s.contains('grande ecole') ||
+      s.contains('mastere') ||
+      s.contains('m2') ||
       s.contains('m1')) {
     return ProgramLevel.master;
   }
   if (s.contains('bba') || s.contains('bac4') || s.contains('bac+4')) {
     return ProgramLevel.bba;
   }
-  if (s.contains('bac3') || s.contains('bac+3') || s.contains('bachelor') ||
+  if (s.contains('bac3') ||
+      s.contains('bac+3') ||
+      s.contains('bachelor') ||
       s.contains('licence')) {
     return ProgramLevel.bachelor;
   }
-  if (s.contains('bac2') || s.contains('bac+2') || s.contains('bts') ||
+  if (s.contains('bac2') ||
+      s.contains('bac+2') ||
+      s.contains('bts') ||
       s.contains('dut')) {
     return ProgramLevel.bac2;
   }
@@ -226,11 +248,20 @@ String programLevelLabel(String? raw) {
 String _slug(String input) {
   var s = input.toLowerCase().trim();
   const accents = {
-    'à': 'a', 'â': 'a', 'ä': 'a',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-    'î': 'i', 'ï': 'i',
-    'ô': 'o', 'ö': 'o',
-    'û': 'u', 'ù': 'u', 'ü': 'u',
+    'à': 'a',
+    'â': 'a',
+    'ä': 'a',
+    'é': 'e',
+    'è': 'e',
+    'ê': 'e',
+    'ë': 'e',
+    'î': 'i',
+    'ï': 'i',
+    'ô': 'o',
+    'ö': 'o',
+    'û': 'u',
+    'ù': 'u',
+    'ü': 'u',
     'ç': 'c',
   };
   accents.forEach((k, v) => s = s.replaceAll(k, v));

@@ -24,7 +24,6 @@ class StudentToolsScreen extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
           ),
           const SizedBox(height: KpbSpacing.lg),
-
           _ToolCard(
             icon: Icons.description_rounded,
             color: KpbColors.blue,
@@ -33,9 +32,7 @@ class StudentToolsScreen extends StatelessWidget {
                 'Cree un CV professionnel pre-rempli depuis ton profil, ameliore par l\'IA.',
             onTap: () => Get.to(() => const CvGeneratorScreen()),
           ),
-
           const SizedBox(height: KpbSpacing.md),
-
           _ToolCard(
             icon: Icons.mail_outline_rounded,
             color: KpbColors.success,
@@ -44,9 +41,7 @@ class StudentToolsScreen extends StatelessWidget {
                 '6 modeles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
             onTap: () => Get.to(() => const MotivationLettersScreen()),
           ),
-
           const SizedBox(height: KpbSpacing.md),
-
           _ToolCard(
             icon: Icons.record_voice_over_rounded,
             color: KpbColors.gold,
@@ -55,9 +50,7 @@ class StudentToolsScreen extends StatelessWidget {
                 'Entraine-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
             onTap: () => Get.to(() => const InterviewSimulatorScreen()),
           ),
-
           const SizedBox(height: KpbSpacing.md),
-
           _ToolCard(
             icon: Icons.document_scanner_rounded,
             color: KpbColors.sky,
@@ -66,9 +59,7 @@ class StudentToolsScreen extends StatelessWidget {
                 'Scanne et organise les pieces de ton dossier (passeport, diplomes...) en PDF.',
             onTap: () => Get.to(() => const DocumentScannerScreen()),
           ),
-
           const SizedBox(height: KpbSpacing.md),
-
           _ToolCard(
             icon: Icons.insights_rounded,
             color: KpbColors.navy,

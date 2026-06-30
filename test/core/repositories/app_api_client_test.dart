@@ -5,8 +5,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:karatou/app/core/repositories/app_api_client.dart';
 
 class MockDio extends Mock implements Dio {}
-class MockInterceptorHandler extends Mock implements RequestInterceptorHandler {}
-class MockErrorInterceptorHandler extends Mock implements ErrorInterceptorHandler {}
+
+class MockInterceptorHandler extends Mock
+    implements RequestInterceptorHandler {}
+
+class MockErrorInterceptorHandler extends Mock
+    implements ErrorInterceptorHandler {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +20,10 @@ void main() {
 
   setUp(() {
     // Mock Secure Storage Native Channel to avoid missing plugin exceptions
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
-        (MethodCall methodCall) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+            (MethodCall methodCall) async {
       if (methodCall.method == 'read') {
         final arguments = methodCall.arguments as Map<dynamic, dynamic>;
         if (arguments['key'] == 'kpb.auth.accessToken') {
@@ -32,10 +37,10 @@ void main() {
     });
 
     mockDio = MockDio();
-    
+
     // Stub interceptors mechanism to avoid null errors when AppApiClient injects it
     when(() => mockDio.interceptors).thenReturn(Interceptors());
-    
+
     apiClient = AppApiClient(dio: mockDio);
   });
 
@@ -49,7 +54,7 @@ void main() {
     });
   });
 
-  // Since testing private components in Dart is restricted, 
+  // Since testing private components in Dart is restricted,
   // we validate the public API signatures throw appropriately.
   group('Profiles Endpoint', () {
     test('getProfile throws exception when backend fails', () async {

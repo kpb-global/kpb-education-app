@@ -102,14 +102,14 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 children: [
                   Text(
                     'student_living_cost'.tr,
-                    style: KpbTextStyles.headline.copyWith(
-                        color: context.kpb.textPrimary),
+                    style: KpbTextStyles.headline
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'budget_intro'.tr,
-                    style: KpbTextStyles.bodySm.copyWith(
-                        color: context.kpb.textSecondary),
+                    style: KpbTextStyles.bodySm
+                        .copyWith(color: context.kpb.textSecondary),
                   ),
                   const SizedBox(height: KpbSpacing.xl),
                 ],
@@ -122,7 +122,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             child: SizedBox(
               height: 48,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
                 scrollDirection: Axis.horizontal,
                 itemCount: mockBudgetProfiles.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -133,7 +134,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                     label: Text(
                       '${countryFlag(profile.country)} ${profile.country}',
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                     selected: isSelected,
@@ -150,11 +152,11 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                           : context.kpb.textSecondary,
                     ),
                     side: BorderSide(
-                      color: isSelected
-                          ? (KpbColors.blue)
-                          : context.kpb.gray200,
+                      color:
+                          isSelected ? (KpbColors.blue) : context.kpb.gray200,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   );
                 },
               ),
@@ -165,7 +167,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Lifestyle Toggle ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.surfaceBg,
@@ -176,7 +179,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 child: Row(
                   children: [
                     _buildLifestyleButton('Économe', Lifestyle.econome, isDark),
-                    _buildLifestyleButton('Standard', Lifestyle.standard, isDark),
+                    _buildLifestyleButton(
+                        'Standard', Lifestyle.standard, isDark),
                     _buildLifestyleButton('Confort', Lifestyle.confort, isDark),
                   ],
                 ),
@@ -188,7 +192,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Hero Chart Card ───────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.cardBg,
@@ -201,8 +206,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                   children: [
                     Text(
                       'estimated_monthly_budget'.tr,
-                      style: KpbTextStyles.label.copyWith(
-                          color: context.kpb.textSecondary),
+                      style: KpbTextStyles.label
+                          .copyWith(color: context.kpb.textSecondary),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -256,10 +261,12 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           // ── Detail List ───────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Text(
                 'details_by_category'.tr,
-                style: KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
+                style: KpbTextStyles.title
+                    .copyWith(color: context.kpb.textPrimary),
               ),
             ),
           ),
@@ -298,9 +305,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected
-                ? (KpbColors.blue)
-                : Colors.transparent,
+            color: isSelected ? (KpbColors.blue) : Colors.transparent,
             borderRadius: KpbRadius.pillBr,
             boxShadow: isSelected && !isDark ? KpbShadow.soft : null,
           ),
@@ -310,9 +315,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? Colors.white
-                    : context.kpb.textSecondary,
+                color: isSelected ? Colors.white : context.kpb.textSecondary,
               ),
             ),
           ),
@@ -321,7 +324,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     );
   }
 
-  List<PieChartSectionData> _generateChartSections(LivingBudgetProfile p, double mult, bool isDark) {
+  List<PieChartSectionData> _generateChartSections(
+      LivingBudgetProfile p, double mult, bool isDark) {
     PieChartSectionData createSection(double val, Color color) {
       return PieChartSectionData(
         color: color,
@@ -385,15 +389,15 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               children: [
                 Text(
                   cat.name,
-                  style: KpbTextStyles.titleMd.copyWith(
-                      color: context.kpb.textPrimary),
+                  style: KpbTextStyles.titleMd
+                      .copyWith(color: context.kpb.textPrimary),
                 ),
                 if (cat.note != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     cat.note!,
-                    style: KpbTextStyles.caption.copyWith(
-                        color: context.kpb.textMuted),
+                    style: KpbTextStyles.caption
+                        .copyWith(color: context.kpb.textMuted),
                   ),
                 ],
               ],

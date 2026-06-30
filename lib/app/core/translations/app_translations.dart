@@ -111,8 +111,7 @@ class AppTranslations extends Translations {
           // ── Testimonials carousel (Home social proof, KPB-79) ──
           'testimonials_carousel_title': 'Avis de nos étudiants',
           'testimonials_carousel_body': '@count avis vérifiés',
-          'testimonials_empty_state':
-              'Aucun avis publié pour le moment.',
+          'testimonials_empty_state': 'Aucun avis publié pour le moment.',
           // ── KPB accompaniment offer (country detail) ───────────
           'kpb_offer_title': 'L\'accompagnement KPB',
           'kpb_offer_intro':
@@ -123,8 +122,7 @@ class AppTranslations extends Translations {
           'kpb_cond_guarantor': 'Un garant pour ton dossier visa',
           'kpb_offer_formulas': 'Nos formules d\'accompagnement',
           'pack_admission': 'Admission',
-          'pack_admission_desc':
-              'Sécurise ton admission dans une bonne école.',
+          'pack_admission_desc': 'Sécurise ton admission dans une bonne école.',
           'pack_envol': 'Pack Envol',
           'pack_envol_desc': 'Admission + procédure visa de bout en bout.',
           'svc_school_search': 'Recherche d\'une école adaptée',
@@ -133,7 +131,8 @@ class AppTranslations extends Translations {
           'svc_visa': 'Procédure visa accompagnée',
           'kpb_offer_partner_discount':
               '−30 % si tu étudies dans une école partenaire KPB',
-          'kpb_offer_price_note': 'Tarif indicatif · payable après échange avec un conseiller',
+          'kpb_offer_price_note':
+              'Tarif indicatif · payable après échange avec un conseiller',
           'onboarding_title': 'Construisons votre parcours',
           'partner_redirect':
               'Les partenariats sont gérés via un formulaire dédié et un suivi KPB.',
@@ -200,15 +199,19 @@ class AppTranslations extends Translations {
           'salon_rsvp_error': 'Impossible de mettre à jour l\'inscription.',
           'intake_label': 'Rentrée',
           'turnaround_label': 'Délai',
-          'home_find_school_desc': 'Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !',
+          'home_find_school_desc':
+              'Trouvez votre école privée en France selon votre budget et vos objectifs. Discutez instantanément !',
           'closing_label': 'Clôture',
-          'home_apply_world_desc': 'Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).',
+          'home_apply_world_desc':
+              'Postulez dans les meilleures universités du monde (Canada, USA, UK, Allemagne, Maroc).',
           'discover': 'Découvrir',
-          'home_destinations_desc': 'Découvrez les destinations d\'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.',
+          'home_destinations_desc':
+              'Découvrez les destinations d\'études où KPB Education vous accompagne de A à Z : orientation, admission et visa.',
           'tuition_prefix': 'Scolarité : ',
           'analyzing_answers': 'Analyse de vos réponses…',
           'multiple_answers_allowed': 'Plusieurs réponses possibles',
-          'orientation_results_intro': 'Voici les filières qui vous correspondent le mieux.',
+          'orientation_results_intro':
+              'Voici les filières qui vous correspondent le mieux.',
           'target_careers': 'Métiers visés',
           'recommended_countries': 'Pays recommandés',
           'track_admission_deadlines': 'Suivez les échéances de vos admissions',
@@ -217,26 +220,33 @@ class AppTranslations extends Translations {
           'france_admission_title': 'Admission France — Écoles privées',
           'france_sept_intake': 'Rentrée septembre 2026',
           'programs_available': 'programmes disponibles',
-          'france_public_unis_soon': 'Universités publiques — Bientôt disponible · Septembre 2026',
+          'france_public_unis_soon':
+              'Universités publiques — Bientôt disponible · Septembre 2026',
           'france_why_private': 'Pourquoi le privé au lancement ?',
-          'france_private_intro': 'Les écoles privées françaises partenaires KPB offrent un parcours d\'admission direct, avec des rentrées flexibles et un accompagnement personnalisé pour les étudiants africains.',
-          'france_sync_catalog': 'Synchronise le catalogue pour voir les écoles OMNES et partenaires.',
+          'france_private_intro':
+              'Les écoles privées françaises partenaires KPB offrent un parcours d\'admission direct, avec des rentrées flexibles et un accompagnement personnalisé pour les étudiants africains.',
+          'france_sync_catalog':
+              'Synchronise le catalogue pour voir les écoles OMNES et partenaires.',
           'last_updated_april_2026': 'Dernière mise à jour : Avril 2026',
           'terms_of_use': 'Conditions Générales d\'Utilisation',
           'student_living_cost': 'Coût de la vie étudiante',
-          'budget_intro': 'Anticipez vos dépenses mensuelles selon votre destination et votre mode de vie.',
+          'budget_intro':
+              'Anticipez vos dépenses mensuelles selon votre destination et votre mode de vie.',
           'estimated_monthly_budget': 'Budget Mensuel Estimé',
           'details_by_category': 'Détails par catégorie',
           'app_locked': 'Application Verrouillée',
-          'app_lock_prompt': 'Veuillez vous authentifier pour accéder à vos documents et suivis KPB.',
+          'app_lock_prompt':
+              'Veuillez vous authentifier pour accéder à vos documents et suivis KPB.',
           'auth_failed': 'Authentification échouée.',
           'logout_title': 'Déconnexion',
           'private_schools_admission': 'Admission écoles privées',
           'dedicated_path_sept_2026': 'Parcours dédié · Septembre 2026',
           'eligibility_simulator_title': 'Simulateur d\'éligibilité',
           'eligibility_hook': 'En 1 minute, découvre tes chances',
-          'eligibility_intro': 'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
-          'offline_cache_notice': 'Mode hors ligne. Affichage des données en cache.',
+          'eligibility_intro':
+              'Réponds à 5 questions et obtiens un verdict 🟢 🟡 🔴 pour chacune des 9 destinations KPB, puis exporte ton bilan en PDF.',
+          'offline_cache_notice':
+              'Mode hors ligne. Affichage des données en cache.',
           'next_step': 'Prochaine étape',
           'deadlines_title': 'Mes échéances',
           // ── Avis conseiller au jalon d'admission (KPB-75) ──
@@ -249,7 +259,8 @@ class AppTranslations extends Translations {
               'Donne une note et, si tu veux, quelques mots sur ton accompagnement.',
           'review_prompt_hint': 'Ton témoignage (optionnel)',
           'review_prompt_submit': 'Envoyer mon avis',
-          'review_prompt_thanks': 'Merci ! Ton avis sera publié après modération.',
+          'review_prompt_thanks':
+              'Merci ! Ton avis sera publié après modération.',
           'review_prompt_error': 'Envoi impossible. Réessaie plus tard.',
           'case_prepare_package_title': 'Préparer mon dossier',
           'case_prepare_package_subtitle':
@@ -260,49 +271,73 @@ class AppTranslations extends Translations {
           'parent_cost_note':
               'Estimation indicative — confirme le détail avec le conseiller.',
           'step_label': 'Étape',
-          'case_context_prefilled': 'Contexte pré-rempli depuis ta navigation. Tu peux continuer ou revenir en arrière pour modifier.',
+          'case_context_prefilled':
+              'Contexte pré-rempli depuis ta navigation. Tu peux continuer ou revenir en arrière pour modifier.',
           'listening_speak_clearly': 'Écoute en cours… parle clairement.',
-          'review_before_send': 'Vérifie le récapitulatif avant envoi. KPB te répond sous 24–48 h.',
+          'review_before_send':
+              'Vérifie le récapitulatif avant envoi. KPB te répond sous 24–48 h.',
           'upcoming': 'À venir',
-          'scholarship_gap_msg': 'Ton dossier actuel est à @score%. Pour une bourse comme "@name", le seuil de sécurité est de 85%.',
-          'scholarship_tutorials': 'Accède au pack de tutoriels vidéos exclusifs pour réussir ton dossier.',
-          'answer_all_criteria': 'Réponds à tous les critères pour voir ton résultat.',
+          'scholarship_gap_msg':
+              'Ton dossier actuel est à @score%. Pour une bourse comme "@name", le seuil de sécurité est de 85%.',
+          'scholarship_tutorials':
+              'Accède au pack de tutoriels vidéos exclusifs pour réussir ton dossier.',
+          'answer_all_criteria':
+              'Réponds à tous les critères pour voir ton résultat.',
           'scholarships_title': 'Bourses d\'études',
           'recommended_opportunities': 'Opportunités recommandées',
-          'ranked_by_profile': 'Classées selon ton profil et tes objectifs académiques.',
+          'ranked_by_profile':
+              'Classées selon ton profil et tes objectifs académiques.',
           'profile_compatibility': 'Compatibilité avec ton profil',
           'protect_app_access': 'Protéger l\'accès à l\'application',
-          'logout_redirect_notice': 'Vous serez redirigé vers l\'écran d\'accueil. Vos données locales seront effacées.',
-          'profile_complete_optimized': 'Profil complet — recommandations optimisées ✨',
+          'logout_redirect_notice':
+              'Vous serez redirigé vers l\'écran d\'accueil. Vos données locales seront effacées.',
+          'profile_complete_optimized':
+              'Profil complet — recommandations optimisées ✨',
           'remaining_to_pay': 'Reste à payer',
-          'academy_unlock_msg': 'Vous allez débloquer la formation "@title" définitivement sur votre compte.',
-          'coach_quota_exhausted': 'Quota épuisé — Premium bientôt disponible ou contacte un conseiller KPB.',
-          'application_sent_admin': 'Candidature envoyée. Un admin examinera ton dossier sous 48h.',
-          'no_verified_mentor': 'Aucun mentor vérifié ne correspond à cette recherche pour l\'instant.',
-          'community_intro': 'Articles, guides et conseils de nos experts pour réussir votre projet d\'études.',
+          'academy_unlock_msg':
+              'Vous allez débloquer la formation "@title" définitivement sur votre compte.',
+          'coach_quota_exhausted':
+              'Quota épuisé — Premium bientôt disponible ou contacte un conseiller KPB.',
+          'application_sent_admin':
+              'Candidature envoyée. Un admin examinera ton dossier sous 48h.',
+          'no_verified_mentor':
+              'Aucun mentor vérifié ne correspond à cette recherche pour l\'instant.',
+          'community_intro':
+              'Articles, guides et conseils de nos experts pour réussir votre projet d\'études.',
           'community_members': '+2 000 étudiants — Conseils, entraide & actu',
           'published_on': 'Publié le',
           'choose_second_uni': 'Choisissez une 2ème université',
           'compare_selected': '@n/2 sélectionnée(s)',
           'register_abroad_title': 'Inscriptions à l\'Étranger',
           'register_abroad_cta': 'S\'inscrire à l\'Étranger',
-          'housing_intro': 'Garantir votre hébergement est primordial pour l\'obtention de votre visa étudiant.',
+          'housing_intro':
+              'Garantir votre hébergement est primordial pour l\'obtention de votre visa étudiant.',
           'estimated_monthly_rent_in': 'Loyer Mensuel Estimé à',
           'to_range': 'à',
           'privacy_policy_inline': 'politique de confidentialité',
-          'parcours_intro': 'Témoignages, conseils et parcours d\'étudiants accompagnés par KPB. Inspire-toi de leur expérience.',
-          'parent_invite_share_hint': 'Envoie ce code à ton enfant par WhatsApp. Il l\'entrera dans son application pour te lier.',
-          'parent_create_code_hint': 'Crée un code à 8 caractères et envoie-le par WhatsApp. Ton enfant pourra ensuite partager ses dossiers avec toi.',
-          'parent_accept_code_hint': 'Si un parent t\'a envoyé un code à 8 caractères, saisis-le ci-dessous pour lui donner un accès lecture à tes dossiers.',
+          'parcours_intro':
+              'Témoignages, conseils et parcours d\'étudiants accompagnés par KPB. Inspire-toi de leur expérience.',
+          'parent_invite_share_hint':
+              'Envoie ce code à ton enfant par WhatsApp. Il l\'entrera dans son application pour te lier.',
+          'parent_create_code_hint':
+              'Crée un code à 8 caractères et envoie-le par WhatsApp. Ton enfant pourra ensuite partager ses dossiers avec toi.',
+          'parent_accept_code_hint':
+              'Si un parent t\'a envoyé un code à 8 caractères, saisis-le ci-dessous pour lui donner un accès lecture à tes dossiers.',
           'prepare_departure': 'Préparez votre départ',
-          'travel_intro': 'Estimez le prix du billet pour votre pays d\'études et achetez au meilleur moment.',
-          'travel_powered_by': 'Propulsé par le comparateur indépendant Kayak. Les prix sont affichés en direct.',
+          'travel_intro':
+              'Estimez le prix du billet pour votre pays d\'études et achetez au meilleur moment.',
+          'travel_powered_by':
+              'Propulsé par le comparateur indépendant Kayak. Les prix sont affichés en direct.',
           'other_results': 'autres résultats',
           'search_results_count': '@n résultat(s)',
-          'doc_review_paste_hint': 'Colle ton brouillon et obtiens un retour structuré en quelques secondes — points forts, axes d’amélioration et éléments manquants.',
-          'eligibility_honest_hint': 'Réponds honnêtement à chaque critère pour estimer ton éligibilité. Ce n’est qu’une indication — un conseiller confirmera ton cas.',
-          'eligibility_not_detailed': 'Les critères d’éligibilité de cette bourse ne sont pas encore détaillés. Un conseiller KPB peut vérifier ton cas directement.',
-          'roadmap_objective': 'Objectif : rentrée @intake · @field. Voici les étapes, datées à rebours de l’échéance — coche-les au fur et à mesure.',
+          'doc_review_paste_hint':
+              'Colle ton brouillon et obtiens un retour structuré en quelques secondes — points forts, axes d’amélioration et éléments manquants.',
+          'eligibility_honest_hint':
+              'Réponds honnêtement à chaque critère pour estimer ton éligibilité. Ce n’est qu’une indication — un conseiller confirmera ton cas.',
+          'eligibility_not_detailed':
+              'Les critères d’éligibilité de cette bourse ne sont pas encore détaillés. Un conseiller KPB peut vérifier ton cas directement.',
+          'roadmap_objective':
+              'Objectif : rentrée @intake · @field. Voici les étapes, datées à rebours de l’échéance — coche-les au fur et à mesure.',
           'parent_share_case_title': 'Partager avec mon parent',
           'parent_share_case_subtitle':
               'Ton parent lié pourra suivre ce dossier (lecture seule).',
@@ -404,11 +439,13 @@ class AppTranslations extends Translations {
           'auth_magic_resend_wait': 'Renvoyer dans @seconds s',
           'auth_magic_resend_cooldown':
               'Veuillez patienter avant de renvoyer un code.',
-          'auth_guest_profile_title': 'Connectez-vous pour accéder à votre profil',
+          'auth_guest_profile_title':
+              'Connectez-vous pour accéder à votre profil',
           'auth_guest_profile_body':
               'Créez un compte pour suivre vos dossiers, sauvegarder des programmes et personnaliser votre parcours.',
           // Match explanations
-          'match_complete_profile': 'Complétez votre profil pour un matching personnalisé',
+          'match_complete_profile':
+              'Complétez votre profil pour un matching personnalisé',
           'match_field_in_interests': 'Filière dans vos intérêts',
           'match_from_orientation': 'Recommandée par votre orientation',
           'match_available_target_country': 'Disponible dans vos pays cibles',
@@ -457,13 +494,16 @@ class AppTranslations extends Translations {
           'message_input_hint': 'Écrire un message…',
           // Cases screen
           'new_case': 'Nouvelle demande',
-          'case_empty_hint': 'Crée ton premier dossier pour commencer avec KPB.',
+          'case_empty_hint':
+              'Crée ton premier dossier pour commencer avec KPB.',
           // Case composer
-          'case_description_hint': 'Dis à KPB ce dont tu as besoin, où tu en es dans ton projet, et ce que tu veux obtenir.',
+          'case_description_hint':
+              'Dis à KPB ce dont tu as besoin, où tu en es dans ton projet, et ce que tu veux obtenir.',
           'case_default_title': 'J\'ai besoin d\'aide pour @title',
           // Connectivity
           'offline_title': 'Hors ligne',
-          'offline_body': 'Pas de connexion internet. Certaines fonctionnalités ne sont pas disponibles.',
+          'offline_body':
+              'Pas de connexion internet. Certaines fonctionnalités ne sont pas disponibles.',
           'online_title': 'En ligne',
           'online_body': 'Connexion rétablie.',
           // Auth screens
@@ -473,7 +513,8 @@ class AppTranslations extends Translations {
           'no_account_prompt': 'Pas encore de compte ? ',
           'create_account_link': 'Créer un compte',
           'create_account_title': 'Créer un compte',
-          'create_account_subtitle': 'Rejoignez +5 000 étudiants sur KPB Education',
+          'create_account_subtitle':
+              'Rejoignez +5 000 étudiants sur KPB Education',
           'create_account_button': 'Créer mon compte',
           'already_have_account': 'Déjà un compte ? ',
           'login_link': 'Se connecter',
@@ -484,22 +525,28 @@ class AppTranslations extends Translations {
           'phone_optional': 'Téléphone (optionnel)',
           'password_required': 'Entrez votre mot de passe',
           'password_choose': 'Choisissez un mot de passe',
-          'password_min_length': 'Le mot de passe doit contenir au moins 8 caractères',
+          'password_min_length':
+              'Le mot de passe doit contenir au moins 8 caractères',
           'password_helper': 'Minimum 8 caractères',
           // Forgot password
           'forgot_password_title': 'Mot de passe oublié',
           'reset_password_title': 'Réinitialiser le mot de passe',
-          'reset_password_body': 'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+          'reset_password_body':
+              'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
           'email_label': 'Adresse email',
           'send_link_button': 'Envoyer le lien',
           'back_to_login': 'Retour à la connexion',
           'email_sent_title': 'Email envoyé !',
-          'email_sent_body': 'Vérifiez votre boîte email et suivez le lien pour réinitialiser votre mot de passe.',
-          'forgot_password_error': 'Une erreur est survenue. Vérifiez l\'adresse email.',
+          'email_sent_body':
+              'Vérifiez votre boîte email et suivez le lien pour réinitialiser votre mot de passe.',
+          'forgot_password_error':
+              'Une erreur est survenue. Vérifiez l\'adresse email.',
           // Register errors
           'register_error_generic': 'Une erreur est survenue. Réessayez.',
-          'register_error_email_exists': 'Un compte avec cet email existe déjà.',
-          'register_error_network': 'Problème de connexion. Vérifiez votre réseau.',
+          'register_error_email_exists':
+              'Un compte avec cet email existe déjà.',
+          'register_error_network':
+              'Problème de connexion. Vérifiez votre réseau.',
           // ── Parrainage (KPB-69) ──
           'copy': 'Copier',
           'referral_title': 'Parrainer un ami',
@@ -515,7 +562,8 @@ class AppTranslations extends Translations {
           'referral_code_hint': 'Saisis le code',
           'referral_redeem_cta': 'Valider le code',
           'referral_code_copied': 'Code copié',
-          'referral_redeemed_ok': 'Code validé — merci ! Ton parrain est crédité.',
+          'referral_redeemed_ok':
+              'Code validé — merci ! Ton parrain est crédité.',
           'referral_redeemed_already':
               'Tu as déjà utilisé un code de parrainage.',
           'referral_redeem_error': 'Code invalide. Vérifie et réessaie.',
@@ -534,8 +582,7 @@ class AppTranslations extends Translations {
           'referral_voucher_whatsapp_cta': 'Contacter mon conseiller',
           'referral_voucher_whatsapp_prefill':
               'Bonjour KPB Education, je souhaite utiliser mon bon parrainage @code pour une relecture approfondie de mon dossier.',
-          'referral_voucher_error':
-              'Échec de l\'échange. Réessaie plus tard.',
+          'referral_voucher_error': 'Échec de l\'échange. Réessaie plus tard.',
           // ── Consentement IA (Coach) ──
           'coach_ai': 'Coach IA',
           'ai_consent_title': 'Activer le Coach IA',
@@ -550,7 +597,8 @@ class AppTranslations extends Translations {
           'export_data_error':
               'Impossible d\'exporter tes données pour le moment. Réessaie.',
           'delete_account': 'Supprimer mon compte',
-          'delete_account_confirm_title': 'Supprimer définitivement ton compte ?',
+          'delete_account_confirm_title':
+              'Supprimer définitivement ton compte ?',
           'delete_account_confirm_body':
               'Cette action est irréversible. Toutes tes données (profil, dossiers, messages, favoris) seront définitivement supprimées de nos serveurs.',
           'delete_account_cta': 'Supprimer',
@@ -567,7 +615,8 @@ class AppTranslations extends Translations {
               'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et Coach IA).',
           'guardian_name': 'Nom du parent / tuteur',
           'guardian_contact': 'Contact du parent / tuteur (WhatsApp ou email)',
-          'guardian_consent_checkbox': 'Mon parent / tuteur a donné son accord.',
+          'guardian_consent_checkbox':
+              'Mon parent / tuteur a donné son accord.',
           'guardian_consent_required_title': 'Accord parental requis',
           'guardian_consent_required':
               'Renseigne le nom et le contact de ton parent/tuteur et coche son accord pour continuer.',
@@ -707,7 +756,8 @@ class AppTranslations extends Translations {
           'svc_visa': 'Guided visa process',
           'kpb_offer_partner_discount':
               '−30% if you study at a KPB partner school',
-          'kpb_offer_price_note': 'Indicative price · payable after talking to an advisor',
+          'kpb_offer_price_note':
+              'Indicative price · payable after talking to an advisor',
           'onboarding_title': 'Let’s build your journey',
           'partner_redirect':
               'Partnerships are handled through a dedicated form and KPB follow-up.',
@@ -774,15 +824,19 @@ class AppTranslations extends Translations {
           'salon_rsvp_error': 'Could not update your RSVP.',
           'intake_label': 'Intake',
           'turnaround_label': 'Turnaround',
-          'home_find_school_desc': 'Find your private school in France based on your budget and goals. Chat instantly!',
+          'home_find_school_desc':
+              'Find your private school in France based on your budget and goals. Chat instantly!',
           'closing_label': 'Closing',
-          'home_apply_world_desc': 'Apply to the world\'s best universities (Canada, USA, UK, Germany, Morocco).',
+          'home_apply_world_desc':
+              'Apply to the world\'s best universities (Canada, USA, UK, Germany, Morocco).',
           'discover': 'Discover',
-          'home_destinations_desc': 'Discover the study destinations where KPB Education guides you end to end: orientation, admission and visa.',
+          'home_destinations_desc':
+              'Discover the study destinations where KPB Education guides you end to end: orientation, admission and visa.',
           'tuition_prefix': 'Tuition: ',
           'analyzing_answers': 'Analyzing your answers…',
           'multiple_answers_allowed': 'Multiple answers allowed',
-          'orientation_results_intro': 'Here are the fields that suit you best.',
+          'orientation_results_intro':
+              'Here are the fields that suit you best.',
           'target_careers': 'Target careers',
           'recommended_countries': 'Recommended countries',
           'track_admission_deadlines': 'Track your admission deadlines',
@@ -791,25 +845,31 @@ class AppTranslations extends Translations {
           'france_admission_title': 'France admission — Private schools',
           'france_sept_intake': 'September 2026 intake',
           'programs_available': 'programs available',
-          'france_public_unis_soon': 'Public universities — Coming soon · September 2026',
+          'france_public_unis_soon':
+              'Public universities — Coming soon · September 2026',
           'france_why_private': 'Why private at launch?',
-          'france_private_intro': 'KPB partner French private schools offer a direct admission path, with flexible intakes and personalized support for African students.',
-          'france_sync_catalog': 'Sync the catalogue to see OMNES and partner schools.',
+          'france_private_intro':
+              'KPB partner French private schools offer a direct admission path, with flexible intakes and personalized support for African students.',
+          'france_sync_catalog':
+              'Sync the catalogue to see OMNES and partner schools.',
           'last_updated_april_2026': 'Last updated: April 2026',
           'terms_of_use': 'Terms of Use',
           'student_living_cost': 'Student living cost',
-          'budget_intro': 'Anticipate your monthly expenses based on your destination and lifestyle.',
+          'budget_intro':
+              'Anticipate your monthly expenses based on your destination and lifestyle.',
           'estimated_monthly_budget': 'Estimated monthly budget',
           'details_by_category': 'Details by category',
           'app_locked': 'App locked',
-          'app_lock_prompt': 'Please authenticate to access your KPB documents and cases.',
+          'app_lock_prompt':
+              'Please authenticate to access your KPB documents and cases.',
           'auth_failed': 'Authentication failed.',
           'logout_title': 'Sign out',
           'private_schools_admission': 'Private schools admission',
           'dedicated_path_sept_2026': 'Dedicated path · September 2026',
           'eligibility_simulator_title': 'Eligibility simulator',
           'eligibility_hook': 'In 1 minute, discover your chances',
-          'eligibility_intro': 'Answer 5 questions and get a 🟢 🟡 🔴 verdict for each of the 9 KPB destinations, then export your report as a PDF.',
+          'eligibility_intro':
+              'Answer 5 questions and get a 🟢 🟡 🔴 verdict for each of the 9 KPB destinations, then export your report as a PDF.',
           'offline_cache_notice': 'Offline mode. Showing cached data.',
           'next_step': 'Next step',
           'deadlines_title': 'My deadlines',
@@ -823,7 +883,8 @@ class AppTranslations extends Translations {
               'Give a rating and, if you like, a few words about your support.',
           'review_prompt_hint': 'Your testimonial (optional)',
           'review_prompt_submit': 'Send my review',
-          'review_prompt_thanks': 'Thanks! Your review will be published after moderation.',
+          'review_prompt_thanks':
+              'Thanks! Your review will be published after moderation.',
           'review_prompt_error': 'Could not send. Try again later.',
           'case_prepare_package_title': 'Prepare my application',
           'case_prepare_package_subtitle':
@@ -834,49 +895,70 @@ class AppTranslations extends Translations {
           'parent_cost_note':
               'Indicative estimate — confirm details with the advisor.',
           'step_label': 'Step',
-          'case_context_prefilled': 'Context pre-filled from your browsing. You can continue or go back to edit.',
+          'case_context_prefilled':
+              'Context pre-filled from your browsing. You can continue or go back to edit.',
           'listening_speak_clearly': 'Listening… speak clearly.',
-          'review_before_send': 'Check the summary before sending. KPB replies within 24–48 h.',
+          'review_before_send':
+              'Check the summary before sending. KPB replies within 24–48 h.',
           'upcoming': 'Upcoming',
-          'scholarship_gap_msg': 'Your current profile is at @score%. For a scholarship like "@name", the safety threshold is 85%.',
-          'scholarship_tutorials': 'Access the exclusive video tutorial pack to ace your application.',
+          'scholarship_gap_msg':
+              'Your current profile is at @score%. For a scholarship like "@name", the safety threshold is 85%.',
+          'scholarship_tutorials':
+              'Access the exclusive video tutorial pack to ace your application.',
           'answer_all_criteria': 'Answer all criteria to see your result.',
           'scholarships_title': 'Scholarships',
           'recommended_opportunities': 'Recommended opportunities',
           'ranked_by_profile': 'Ranked by your profile and academic goals.',
           'profile_compatibility': 'Compatibility with your profile',
           'protect_app_access': 'Protect access to the app',
-          'logout_redirect_notice': 'You\'ll be redirected to the home screen. Your local data will be erased.',
-          'profile_complete_optimized': 'Complete profile — optimized recommendations ✨',
+          'logout_redirect_notice':
+              'You\'ll be redirected to the home screen. Your local data will be erased.',
+          'profile_complete_optimized':
+              'Complete profile — optimized recommendations ✨',
           'remaining_to_pay': 'Remaining to pay',
-          'academy_unlock_msg': 'You\'re about to unlock the "@title" course permanently on your account.',
-          'coach_quota_exhausted': 'Quota reached — Premium coming soon, or contact a KPB advisor.',
-          'application_sent_admin': 'Application sent. An admin will review your file within 48h.',
+          'academy_unlock_msg':
+              'You\'re about to unlock the "@title" course permanently on your account.',
+          'coach_quota_exhausted':
+              'Quota reached — Premium coming soon, or contact a KPB advisor.',
+          'application_sent_admin':
+              'Application sent. An admin will review your file within 48h.',
           'no_verified_mentor': 'No verified mentor matches this search yet.',
-          'community_intro': 'Articles, guides and expert advice to succeed in your study project.',
+          'community_intro':
+              'Articles, guides and expert advice to succeed in your study project.',
           'community_members': '+2,000 students — Advice, support & news',
           'published_on': 'Published on',
           'choose_second_uni': 'Choose a 2nd university',
           'compare_selected': '@n/2 selected',
           'register_abroad_title': 'Register Abroad',
           'register_abroad_cta': 'Register abroad',
-          'housing_intro': 'Securing your accommodation is essential to obtain your student visa.',
+          'housing_intro':
+              'Securing your accommodation is essential to obtain your student visa.',
           'estimated_monthly_rent_in': 'Estimated monthly rent in',
           'to_range': 'to',
           'privacy_policy_inline': 'privacy policy',
-          'parcours_intro': 'Testimonials, advice and journeys of students supported by KPB. Get inspired by their experience.',
-          'parent_invite_share_hint': 'Send this code to your child via WhatsApp. They\'ll enter it in their app to link with you.',
-          'parent_create_code_hint': 'Create an 8-character code and send it via WhatsApp. Your child can then share their cases with you.',
-          'parent_accept_code_hint': 'If a parent sent you an 8-character code, enter it below to give them read access to your cases.',
+          'parcours_intro':
+              'Testimonials, advice and journeys of students supported by KPB. Get inspired by their experience.',
+          'parent_invite_share_hint':
+              'Send this code to your child via WhatsApp. They\'ll enter it in their app to link with you.',
+          'parent_create_code_hint':
+              'Create an 8-character code and send it via WhatsApp. Your child can then share their cases with you.',
+          'parent_accept_code_hint':
+              'If a parent sent you an 8-character code, enter it below to give them read access to your cases.',
           'prepare_departure': 'Prepare your departure',
-          'travel_intro': 'Estimate the ticket price to your study country and buy at the best time.',
-          'travel_powered_by': 'Powered by the independent comparator Kayak. Prices shown live.',
+          'travel_intro':
+              'Estimate the ticket price to your study country and buy at the best time.',
+          'travel_powered_by':
+              'Powered by the independent comparator Kayak. Prices shown live.',
           'other_results': 'more results',
           'search_results_count': '@n result(s)',
-          'doc_review_paste_hint': 'Paste your draft and get structured feedback in seconds — strengths, areas to improve and missing elements.',
-          'eligibility_honest_hint': 'Answer each criterion honestly to estimate your eligibility. It\'s only an indication — an advisor will confirm your case.',
-          'eligibility_not_detailed': 'This scholarship\'s eligibility criteria aren\'t detailed yet. A KPB advisor can check your case directly.',
-          'roadmap_objective': 'Goal: @intake intake · @field. Here are the steps, dated backward from the deadline — tick them off as you go.',
+          'doc_review_paste_hint':
+              'Paste your draft and get structured feedback in seconds — strengths, areas to improve and missing elements.',
+          'eligibility_honest_hint':
+              'Answer each criterion honestly to estimate your eligibility. It\'s only an indication — an advisor will confirm your case.',
+          'eligibility_not_detailed':
+              'This scholarship\'s eligibility criteria aren\'t detailed yet. A KPB advisor can check your case directly.',
+          'roadmap_objective':
+              'Goal: @intake intake · @field. Here are the steps, dated backward from the deadline — tick them off as you go.',
           'parent_share_case_title': 'Share with my parent',
           'parent_share_case_subtitle':
               'Your linked parent can follow this case (read-only).',
@@ -982,10 +1064,12 @@ class AppTranslations extends Translations {
           'auth_guest_profile_body':
               'Create an account to track cases, save programs, and personalize your journey.',
           // Match explanations
-          'match_complete_profile': 'Complete your profile for a personalised match',
+          'match_complete_profile':
+              'Complete your profile for a personalised match',
           'match_field_in_interests': 'In your fields of interest',
           'match_from_orientation': 'Recommended by your orientation',
-          'match_available_target_country': 'Available in your target countries',
+          'match_available_target_country':
+              'Available in your target countries',
           'match_target_country': 'Target country',
           'match_in_target_country': 'Located in a target country',
           'match_kpb_partner': 'KPB partner',
@@ -1033,11 +1117,13 @@ class AppTranslations extends Translations {
           'new_case': 'New request',
           'case_empty_hint': 'Create your first case to get started with KPB.',
           // Case composer
-          'case_description_hint': 'Tell KPB what you need, where you are in your project, and what you want to happen.',
+          'case_description_hint':
+              'Tell KPB what you need, where you are in your project, and what you want to happen.',
           'case_default_title': 'I need help with @title',
           // Connectivity
           'offline_title': 'Offline',
-          'offline_body': 'No internet connection. Some features are unavailable.',
+          'offline_body':
+              'No internet connection. Some features are unavailable.',
           'online_title': 'Online',
           'online_body': 'Connection restored.',
           // Auth screens
@@ -1063,16 +1149,20 @@ class AppTranslations extends Translations {
           // Forgot password
           'forgot_password_title': 'Forgot password',
           'reset_password_title': 'Reset password',
-          'reset_password_body': 'Enter your email address and we will send you a link to reset your password.',
+          'reset_password_body':
+              'Enter your email address and we will send you a link to reset your password.',
           'email_label': 'Email address',
           'send_link_button': 'Send link',
           'back_to_login': 'Back to sign in',
           'email_sent_title': 'Email sent!',
-          'email_sent_body': 'Check your inbox and follow the link to reset your password.',
-          'forgot_password_error': 'An error occurred. Check the email address.',
+          'email_sent_body':
+              'Check your inbox and follow the link to reset your password.',
+          'forgot_password_error':
+              'An error occurred. Check the email address.',
           // Register errors
           'register_error_generic': 'An error occurred. Please try again.',
-          'register_error_email_exists': 'An account with this email already exists.',
+          'register_error_email_exists':
+              'An account with this email already exists.',
           'register_error_network': 'Connection issue. Check your network.',
           // ── Referral (KPB-69) ──
           'copy': 'Copy',
@@ -1089,7 +1179,8 @@ class AppTranslations extends Translations {
           'referral_code_hint': 'Enter the code',
           'referral_redeem_cta': 'Apply code',
           'referral_code_copied': 'Code copied',
-          'referral_redeemed_ok': 'Code applied — thanks! Your referrer is credited.',
+          'referral_redeemed_ok':
+              'Code applied — thanks! Your referrer is credited.',
           'referral_redeemed_already': 'You have already used a referral code.',
           'referral_redeem_error': 'Invalid code. Check it and try again.',
           // ── No-cash referral rewards (KPB-77) ──

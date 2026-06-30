@@ -267,11 +267,10 @@ class EligibilityEngine {
   const EligibilityEngine();
 
   List<EligibilityResult> evaluate(EligibilityInput input) {
-    final results = kEligibilityRules
-        .map((rule) => _evaluateCountry(rule, input))
-        .toList()
-      // Best matches first.
-      ..sort((a, b) => b.score.compareTo(a.score));
+    final results =
+        kEligibilityRules.map((rule) => _evaluateCountry(rule, input)).toList()
+          // Best matches first.
+          ..sort((a, b) => b.score.compareTo(a.score));
     return results;
   }
 
@@ -286,10 +285,12 @@ class EligibilityEngine {
     final int budgetPoints;
     if (budget == null) {
       budgetPoints = 1;
-      reasons.add('Budget à confirmer (≈ ${rule.budgetComfortEur} €/mois recommandé).');
+      reasons.add(
+          'Budget à confirmer (≈ ${rule.budgetComfortEur} €/mois recommandé).');
     } else if (budget >= rule.budgetComfortEur) {
       budgetPoints = 2;
-      reasons.add('Budget suffisant ($budget € ≥ ${rule.budgetComfortEur} €/mois).');
+      reasons.add(
+          'Budget suffisant ($budget € ≥ ${rule.budgetComfortEur} €/mois).');
     } else if (budget >= rule.budgetMinimumEur) {
       budgetPoints = 1;
       reasons.add(
@@ -369,9 +370,11 @@ class EligibilityEngine {
       case LangLevel.bon:
         reasons.add('Niveau de $langName courant : atout fort.');
       case LangLevel.moyen:
-        reasons.add('Niveau de $langName intermédiaire : une remise à niveau aidera.');
+        reasons.add(
+            'Niveau de $langName intermédiaire : une remise à niveau aidera.');
       case LangLevel.faible:
-        reasons.add('Niveau de $langName trop faible : test de langue à préparer.');
+        reasons.add(
+            'Niveau de $langName trop faible : test de langue à préparer.');
     }
     return relevant.points;
   }

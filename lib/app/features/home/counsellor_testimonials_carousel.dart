@@ -76,8 +76,7 @@ class _CounsellorTestimonialsCarouselState
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.zero,
             itemCount: _reviews.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(width: KpbSpacing.sm),
+            separatorBuilder: (_, __) => const SizedBox(width: KpbSpacing.sm),
             itemBuilder: (context, index) =>
                 _TestimonialCard(review: _reviews[index]),
           ),
@@ -115,9 +114,8 @@ class _TestimonialCard extends StatelessWidget {
                   return Icon(
                     filled ? Icons.star_rounded : Icons.star_outline_rounded,
                     size: 18,
-                    color: filled
-                        ? KpbColors.warning
-                        : context.kpb.textSecondary,
+                    color:
+                        filled ? KpbColors.warning : context.kpb.textSecondary,
                   );
                 }),
               ),

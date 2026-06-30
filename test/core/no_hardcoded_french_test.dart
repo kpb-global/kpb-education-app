@@ -18,7 +18,8 @@ void main() {
   // Remaining hardcoded-French Text() per file. MUST only shrink. See KPB-51.
   const baseline = <String, int>{};
 
-  test('no NEW hardcoded accented-French inside Text() (ratchet, target 0)', () {
+  test('no NEW hardcoded accented-French inside Text() (ratchet, target 0)',
+      () {
     final dir = Directory('lib/app/features');
     final accented = RegExp('[àâäéèêëîïôöùûüÿçœÀÂÄÉÈÊËÎÏÔÖÛÜÇŒ]');
     final textLiteral = RegExp(
@@ -40,7 +41,8 @@ void main() {
     counts.forEach((path, n) {
       final allowed = baseline[path] ?? 0;
       if (n > allowed) {
-        regressions.add('$path: $n hardcoded-French Text() (baseline $allowed)');
+        regressions
+            .add('$path: $n hardcoded-French Text() (baseline $allowed)');
       }
     });
 

@@ -134,8 +134,7 @@ class AppSearchService {
           .firstOrNull;
       if (rec != null) score += min((rec.score ~/ 4), 25);
     }
-    if (field.relatedCountryIds
-        .any((id) => p.targetCountryIds.contains(id))) {
+    if (field.relatedCountryIds.any((id) => p.targetCountryIds.contains(id))) {
       score += 10;
     }
     if (p.wantsScholarshipSupport && field.relatedScholarshipIds.isNotEmpty) {
@@ -186,8 +185,8 @@ class AppSearchService {
     score += min(matchingPrograms * 10, 30);
 
     if (p.targetLevel != null &&
-        institution.studyLevels.any((l) =>
-            l.toLowerCase().contains(p.targetLevel!.toLowerCase()))) {
+        institution.studyLevels.any(
+            (l) => l.toLowerCase().contains(p.targetLevel!.toLowerCase()))) {
       score += 15;
     }
 
@@ -206,9 +205,7 @@ class AppSearchService {
   }
 
   List<FieldModel> get recommendedFields {
-    final sorted = _ctx.fields
-        .map((f) => MapEntry(f, _matchField(f)))
-        .toList()
+    final sorted = _ctx.fields.map((f) => MapEntry(f, _matchField(f))).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return sorted.take(6).map((e) => e.key).toList();
   }
@@ -239,7 +236,8 @@ class AppSearchService {
       case SearchResultType.field:
         final f = _fieldByIdOrNull(id);
         if (f == null) break;
-        if (p.fieldIds.contains(f.id)) reasons.add('match_field_in_interests'.tr);
+        if (p.fieldIds.contains(f.id))
+          reasons.add('match_field_in_interests'.tr);
         final session = _ctx.latestOrientationSession;
         if (session != null &&
             session.recommendations.any((r) => r.fieldId == f.id)) {
@@ -250,7 +248,8 @@ class AppSearchService {
           reasons.add('match_available_target_country'.tr);
         }
       case SearchResultType.country:
-        if (p.targetCountryIds.contains(id)) reasons.add('match_target_country'.tr);
+        if (p.targetCountryIds.contains(id))
+          reasons.add('match_target_country'.tr);
       case SearchResultType.institution:
         final inst = _institutionByIdOrNull(id);
         if (inst == null) break;

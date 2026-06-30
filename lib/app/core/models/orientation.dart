@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class OrientationOption {
   const OrientationOption({
     required this.id,
@@ -12,6 +11,7 @@ class OrientationOption {
   final LocalizedText label;
   final Map<String, int> weights;
 }
+
 class OrientationQuestion {
   const OrientationQuestion({
     required this.id,
@@ -25,6 +25,7 @@ class OrientationQuestion {
   final List<OrientationOption> options;
   final bool multiSelect;
 }
+
 class OrientationRecommendation {
   const OrientationRecommendation({
     required this.fieldId,
@@ -44,6 +45,7 @@ class OrientationRecommendation {
   final List<String> jobs;
   final String iaResilience;
 }
+
 class OrientationSession {
   const OrientationSession({
     required this.id,

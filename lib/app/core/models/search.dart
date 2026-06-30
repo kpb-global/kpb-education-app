@@ -1,7 +1,7 @@
 part of 'app_models.dart';
 
-
 enum SearchResultType { field, country, institution, program, scholarship }
+
 class SearchResult {
   const SearchResult({
     required this.type,

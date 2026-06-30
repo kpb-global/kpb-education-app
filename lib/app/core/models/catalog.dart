@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class FieldModel {
   const FieldModel({
     required this.id,
@@ -107,6 +106,7 @@ class FieldModel {
         'iaResilience': iaResilience,
       };
 }
+
 class CountryModel {
   const CountryModel({
     required this.id,
@@ -282,7 +282,8 @@ class CountryModel {
       displayOrder: json['displayOrder'] as int? ?? 0,
       isActive: json['isActive'] as bool? ?? true,
       eligibilityQuiz: quiz,
-      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      lastVerifiedAt:
+          DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
       sourceUrl: json['sourceUrl'] as String?,
     );
   }
@@ -354,6 +355,7 @@ class CountryModel {
           },
       };
 }
+
 class InstitutionModel {
   const InstitutionModel({
     required this.id,
@@ -409,7 +411,8 @@ class InstitutionModel {
           (json['intakePeriods'] as List<dynamic>?)?.cast<String>() ?? [],
       programIds: (json['programIds'] as List<dynamic>?)?.cast<String>() ?? [],
       isPartner: json['isPartner'] as bool? ?? false,
-      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      lastVerifiedAt:
+          DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
       sourceUrl: json['sourceUrl'] as String?,
     );
   }
@@ -430,6 +433,7 @@ class InstitutionModel {
         'sourceUrl': sourceUrl,
       };
 }
+
 /// One campus on which a (multi-campus) formation is delivered, with its own
 /// price and intake. Used by OMNES formations, where the same programme runs on
 /// several campuses at different prices. Empty for single-campus programs.
@@ -572,7 +576,8 @@ class ProgramModel {
       language: parseLoc('language'),
       requirements: parseLocList('requirements'),
       campusOfferings: parseOfferings(),
-      lastVerifiedAt: DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
+      lastVerifiedAt:
+          DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
       sourceUrl: json['sourceUrl'] as String?,
     );
   }
@@ -594,6 +599,7 @@ class ProgramModel {
         'sourceUrl': sourceUrl,
       };
 }
+
 /// Application-window status for a scholarship (Ouvert / Bientôt clôturé /
 /// Clôturé), derived from [ScholarshipModel.deadlineAt].
 enum ScholarshipWindowStatus { open, closingSoon, closed }
@@ -755,7 +761,8 @@ class LiveScholarshipModel {
       fundingType: json['fundingType'] as String? ?? 'unknown',
       description: json['description'] as String? ?? '',
       advantages: (json['advantages'] as List<dynamic>?)?.cast<String>() ?? [],
-      eligibility: (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
+      eligibility:
+          (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
       level: json['level'] as String? ?? '',
       deadlineLabel: json['deadlineLabel'] as String? ?? '',
       deadlineAt: json['deadlineAt'] != null

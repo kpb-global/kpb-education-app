@@ -44,7 +44,8 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
               SliverAppBar(
                 pinned: true,
                 expandedHeight: 200,
-                backgroundColor: isDark ? context.kpb.cardBg : widget.accentColor,
+                backgroundColor:
+                    isDark ? context.kpb.cardBg : widget.accentColor,
                 foregroundColor: Colors.white,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -63,9 +64,15 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: isDark 
-                           ? [widget.accentColor.withValues(alpha: 0.8), widget.accentColor.withValues(alpha: 0.3)]
-                           : [widget.accentColor, widget.accentColor.withValues(alpha: 0.7)],
+                        colors: isDark
+                            ? [
+                                widget.accentColor.withValues(alpha: 0.8),
+                                widget.accentColor.withValues(alpha: 0.3)
+                              ]
+                            : [
+                                widget.accentColor,
+                                widget.accentColor.withValues(alpha: 0.7)
+                              ],
                       ),
                     ),
                     child: Align(
@@ -73,13 +80,13 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: Icon(widget.icon,
-                            size: 96, color: Colors.white.withValues(alpha: 0.15)),
+                            size: 96,
+                            color: Colors.white.withValues(alpha: 0.15)),
                       ),
                     ),
                   ),
                 ),
               ),
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(KpbSpacing.pagePad),
@@ -88,7 +95,8 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     children: [
                       Text(
                         controller.resolve(widget.category.description),
-                        style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary, height: 1.5),
+                        style: KpbTextStyles.body.copyWith(
+                            color: context.kpb.textSecondary, height: 1.5),
                       ),
                       const SizedBox(height: KpbSpacing.xl),
                       _JoinCtaCard(
@@ -100,17 +108,17 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                   ),
                 ),
               ),
-
               if (tags.isNotEmpty) ...[
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        KpbSpacing.pagePad, 0, KpbSpacing.pagePad, KpbSpacing.sm),
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 0,
+                        KpbSpacing.pagePad, KpbSpacing.sm),
                     child: Text(
                       Get.locale?.languageCode == 'en'
                           ? 'Filter by topic'
                           : 'Filtrer par sujet',
-                      style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
+                      style: KpbTextStyles.titleMd
+                          .copyWith(color: context.kpb.textPrimary),
                     ),
                   ),
                 ),
@@ -141,8 +149,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                           selected: _selectedTag == tag.id,
                           accent: widget.accentColor,
                           isDark: isDark,
-                          onTap: () =>
-                              setState(() => _selectedTag = tag.id),
+                          onTap: () => setState(() => _selectedTag = tag.id),
                         );
                       },
                     ),
@@ -151,7 +158,6 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                 const SliverToBoxAdapter(
                     child: SizedBox(height: KpbSpacing.lg)),
               ],
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -160,11 +166,11 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     Get.locale?.languageCode == 'en'
                         ? 'Related articles'
                         : 'Articles liés',
-                    style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
+                    style: KpbTextStyles.titleMd
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                 ),
               ),
-
               if (articles.isEmpty)
                 SliverToBoxAdapter(
                   child: Padding(
@@ -179,7 +185,8 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                             Get.locale?.languageCode == 'en'
                                 ? 'No articles tagged yet. Join the WhatsApp group to ask questions.'
                                 : 'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
-                            style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+                            style: KpbTextStyles.caption
+                                .copyWith(color: context.kpb.textSecondary),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -202,9 +209,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     ),
                   ),
                 ),
-
-              const SliverToBoxAdapter(
-                  child: SizedBox(height: KpbSpacing.xl)),
+              const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.xl)),
             ],
           );
         },
@@ -216,23 +221,28 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
     final all = controller.publishedArticles;
     final tags = controller.visibleForumTopicTags.map((t) => t.id).toSet();
     // Prefer articles matching the selected tag; else match category-level tags
-    return all.where((a) {
-      if (_selectedTag != null) return a.tags.contains(_selectedTag);
-      if (a.category == widget.category.id) return true;
-      return a.tags.any(tags.contains);
-    }).take(10).toList();
+    return all
+        .where((a) {
+          if (_selectedTag != null) return a.tags.contains(_selectedTag);
+          if (a.category == widget.category.id) return true;
+          return a.tags.any(tags.contains);
+        })
+        .take(10)
+        .toList();
   }
 }
 
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
     group: true,
-    message: 'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+    message:
+        'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
   );
 }
 
 class _JoinCtaCard extends StatelessWidget {
-  const _JoinCtaCard({required this.accent, required this.onWhatsApp, required this.isDark});
+  const _JoinCtaCard(
+      {required this.accent, required this.onWhatsApp, required this.isDark});
   final Color accent;
   final Future<void> Function() onWhatsApp;
   final bool isDark;
@@ -269,14 +279,16 @@ class _JoinCtaCard extends StatelessWidget {
                       Get.locale?.languageCode == 'en'
                           ? 'Join the conversation'
                           : 'Rejoins la conversation',
-                      style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
+                      style: KpbTextStyles.titleLg
+                          .copyWith(color: context.kpb.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       Get.locale?.languageCode == 'en'
                           ? 'The in-app forum is launching soon. Connect on WhatsApp to discuss with other students and KPB counselors now.'
                           : "Le forum in-app arrive bientôt. Rejoins WhatsApp pour discuter avec d'autres étudiants et les conseillers KPB dès maintenant.",
-                      style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary, height: 1.4),
+                      style: KpbTextStyles.bodySm.copyWith(
+                          color: context.kpb.textSecondary, height: 1.4),
                     ),
                   ],
                 ),
@@ -285,7 +297,9 @@ class _JoinCtaCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           KpbButton(
-            text: Get.locale?.languageCode == 'en' ? 'Open WhatsApp group' : 'Ouvrir le groupe WhatsApp',
+            text: Get.locale?.languageCode == 'en'
+                ? 'Open WhatsApp group'
+                : 'Ouvrir le groupe WhatsApp',
             onPressed: onWhatsApp,
             bgColor: resolvedAccent,
             icon: Icons.chat_bubble_rounded,
@@ -372,14 +386,16 @@ class _ArticleRow extends StatelessWidget {
               children: [
                 Text(
                   controller.resolve(article.title),
-                  style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary, height: 1.2),
+                  style: KpbTextStyles.titleMd
+                      .copyWith(color: context.kpb.textPrimary, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   controller.resolve(article.summary),
-                  style: KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+                  style: KpbTextStyles.caption
+                      .copyWith(color: context.kpb.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -387,7 +403,8 @@ class _ArticleRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, color: context.kpb.gray300, size: 22),
+          Icon(Icons.chevron_right_rounded,
+              color: context.kpb.gray300, size: 22),
         ],
       ),
     );

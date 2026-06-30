@@ -89,7 +89,8 @@ class _ScholarshipEligibilityScreenState
         SizedBox(height: KpbSpacing.sm),
         Text(
           'eligibility_honest_hint'.tr,
-          style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
+          style:
+              KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
         ),
         const SizedBox(height: KpbSpacing.lg),
         for (var i = 0; i < _criteria.length; i++) _criterionTile(i),
@@ -98,17 +99,16 @@ class _ScholarshipEligibilityScreenState
           text: 'Voir mon résultat',
           icon: Icons.fact_check_rounded,
           bgColor: _allAnswered ? KpbColors.blue : context.kpb.gray300,
-          onPressed: _allAnswered
-              ? () => setState(() => _showResult = true)
-              : () {},
+          onPressed:
+              _allAnswered ? () => setState(() => _showResult = true) : () {},
         ),
         if (!_allAnswered)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               'answer_all_criteria'.tr,
-              style:
-                  KpbTextStyles.caption.copyWith(color: context.kpb.textSecondary),
+              style: KpbTextStyles.caption
+                  .copyWith(color: context.kpb.textSecondary),
               textAlign: TextAlign.center,
             ),
           ),
@@ -139,8 +139,8 @@ class _ScholarshipEligibilityScreenState
             children: [
               _answerChip(i, CriterionAnswer.yes, 'Oui', KpbColors.success),
               const SizedBox(width: 8),
-              _answerChip(i, CriterionAnswer.maybe, 'Peut-être',
-                  KpbColors.warning),
+              _answerChip(
+                  i, CriterionAnswer.maybe, 'Peut-être', KpbColors.warning),
               const SizedBox(width: 8),
               _answerChip(i, CriterionAnswer.no, 'Non', KpbColors.error),
             ],
@@ -185,11 +185,12 @@ class _ScholarshipEligibilityScreenState
     final verdict = computeScholarshipEligibility(_answers.values);
     final unmet = <String>[
       for (var i = 0; i < _criteria.length; i++)
-        if (_answers[i] != CriterionAnswer.yes) _controller.resolve(_criteria[i]),
+        if (_answers[i] != CriterionAnswer.yes)
+          _controller.resolve(_criteria[i]),
     ];
 
-    final (Color color, IconData icon, String title, String body) = switch (
-        verdict) {
+    final (Color color, IconData icon, String title, String body) =
+        switch (verdict) {
       ScholarshipEligibilityVerdict.eligible => (
           KpbColors.success,
           Icons.verified_rounded,
@@ -247,8 +248,7 @@ class _ScholarshipEligibilityScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('• '),
-                    Expanded(
-                        child: Text(c, style: KpbTextStyles.bodySm)),
+                    Expanded(child: Text(c, style: KpbTextStyles.bodySm)),
                   ],
                 ),
               ),
@@ -275,7 +275,8 @@ class _ScholarshipEligibilityScreenState
           Text(
             'eligibility_not_detailed'.tr,
             textAlign: TextAlign.center,
-            style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
+            style:
+                KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
           ),
           const SizedBox(height: KpbSpacing.lg),
           KpbButton(

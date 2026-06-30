@@ -140,8 +140,8 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
           // Checklist
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               itemCount: _docs.length,
               separatorBuilder: (_, __) =>
                   const SizedBox(height: KpbSpacing.sm),
@@ -205,9 +205,8 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                         children: [
                           Expanded(
                             child: KpbButton(
-                              label: doc.isDone
-                                  ? 'Ajouter une page'
-                                  : 'Scanner',
+                              label:
+                                  doc.isDone ? 'Ajouter une page' : 'Scanner',
                               icon: Icons.camera_alt_rounded,
                               secondary: doc.isDone,
                               onTap: () => _scan(doc),

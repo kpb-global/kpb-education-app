@@ -19,7 +19,6 @@ class AppTheme {
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: const Color(0xFF111827),
-
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -32,7 +31,6 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-
       cardTheme: const CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,
@@ -42,7 +40,6 @@ class AppTheme {
           borderRadius: KpbRadius.lgBr,
         ),
       ),
-
       chipTheme: ChipThemeData(
         shape: const RoundedRectangleBorder(
           borderRadius: KpbRadius.pillBr,
@@ -69,7 +66,6 @@ class AppTheme {
         }),
         side: BorderSide.none,
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1E2535),
@@ -98,7 +94,6 @@ class AppTheme {
         labelStyle: const TextStyle(color: Color(0xFF9CA3AF)),
         hintStyle: const TextStyle(color: Color(0xFF6B7280)),
       ),
-
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: KpbColors.blue,
@@ -111,7 +106,6 @@ class AppTheme {
           elevation: 0,
         ),
       ),
-
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: KpbColors.sky,
@@ -120,22 +114,18 @@ class AppTheme {
             borderRadius: KpbRadius.mdBr,
           ),
           side: const BorderSide(color: KpbColors.sky),
-          textStyle:
-              const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: KpbColors.sky,
-          textStyle:
-              const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
-
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF1E2535),
         surfaceTintColor: Colors.transparent,
@@ -161,17 +151,14 @@ class AppTheme {
               fontWeight: FontWeight.w500);
         }),
       ),
-
       dividerTheme: const DividerThemeData(
         color: Color(0xFF2D3748),
         thickness: 1,
         space: 1,
       ),
-
       listTileTheme: const ListTileThemeData(
         contentPadding: EdgeInsets.symmetric(horizontal: KpbSpacing.md),
       ),
-
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Color(0xFF1E2535),
         surfaceTintColor: Colors.transparent,
@@ -181,7 +168,6 @@ class AppTheme {
         ),
         showDragHandle: true,
       ),
-
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return Colors.white;
@@ -192,7 +178,6 @@ class AppTheme {
           return const Color(0xFF374151);
         }),
       ),
-
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return KpbColors.blue;
@@ -201,13 +186,11 @@ class AppTheme {
         side: const BorderSide(color: Color(0xFF4B5563), width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
-
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: KpbColors.sky,
         linearTrackColor: Color(0xFF2D3748),
         linearMinHeight: 8,
       ),
-
       textTheme: const TextTheme(
         displayLarge: KpbTextStyles.display,
         headlineMedium: KpbTextStyles.headline,
@@ -324,7 +307,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(KpbRadius.md),
           borderSide: const BorderSide(color: KpbColors.error, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: const TextStyle(color: KpbColors.textSecondary),
         hintStyle: const TextStyle(color: KpbColors.textMuted),
       ),

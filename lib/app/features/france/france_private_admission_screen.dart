@@ -45,7 +45,8 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
+                decoration:
+                    const BoxDecoration(gradient: KpbColors.heroGradient),
                 padding: const EdgeInsets.fromLTRB(24, 96, 24, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +190,8 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 10),
                         child: KpbCard(
                           onTap: () {
-                            final program = controller.programs.firstWhereOrNull(
+                            final program =
+                                controller.programs.firstWhereOrNull(
                               (p) => p.institutionId == inst.id,
                             );
                             if (program != null) {

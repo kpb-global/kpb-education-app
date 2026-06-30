@@ -155,8 +155,9 @@ class _AlumnusCard extends StatelessWidget {
     final en = Get.find<AppController>().localeCode.startsWith('en');
     final bioFr = (a['alumniBioFr'] as String?) ?? '';
     final bioEn = (a['alumniBioEn'] as String?) ?? '';
-    final bio = en ? (bioEn.isNotEmpty ? bioEn : bioFr)
-                   : (bioFr.isNotEmpty ? bioFr : bioEn);
+    final bio = en
+        ? (bioEn.isNotEmpty ? bioEn : bioFr)
+        : (bioFr.isNotEmpty ? bioFr : bioEn);
 
     return Card(
       child: Padding(
@@ -226,7 +227,8 @@ class _AlumnusCard extends StatelessWidget {
                 // Structured intro brokered by KPB on WhatsApp — the mentor's
                 // personal number is never exposed; KPB connects them.
                 onPressed: () {
-                  final who = university.isNotEmpty ? '$name ($university)' : name;
+                  final who =
+                      university.isNotEmpty ? '$name ($university)' : name;
                   openWhatsAppOrToast(
                     prefill: 'mentor_intro_prefill'.trParams({'who': who}),
                     source: 'alumni_directory',

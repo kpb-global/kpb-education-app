@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
-
 // ── Field Card ────────────────────────────────────────────────────────────────
 class FieldCard extends StatelessWidget {
   const FieldCard({

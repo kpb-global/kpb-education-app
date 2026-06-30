@@ -5,7 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/ui/kpb_components.dart';
 
 class CityTarget {
-  const CityTarget(this.name, this.urlSlug, this.country, this.minRent, this.maxRent, this.currency);
+  const CityTarget(this.name, this.urlSlug, this.country, this.minRent,
+      this.maxRent, this.currency);
   final String name;
   final String urlSlug;
   final String country;
@@ -47,7 +48,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
 
   Future<void> _launchStudapart() async {
     if (_selectedCity == null) return;
-    
+
     if (_selectedCity!.country != 'France') {
       Get.snackbar(
         'Bientôt disponible',
@@ -59,7 +60,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
       return;
     }
 
-    final urlStr = 'https://www.studapart.com/fr/logement-etudiant-${_selectedCity!.urlSlug}';
+    final urlStr =
+        'https://www.studapart.com/fr/logement-etudiant-${_selectedCity!.urlSlug}';
     final uri = Uri.parse(urlStr);
 
     if (await canLaunchUrl(uri)) {
@@ -80,7 +82,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Filter cities by selected country tab
-    final filteredCities = popularCities.where((c) => c.country == _selectedCountry).toList();
+    final filteredCities =
+        popularCities.where((c) => c.country == _selectedCountry).toList();
 
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
@@ -99,14 +102,14 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                 children: [
                   Text(
                     'Trouvez votre cocon',
-                    style: KpbTextStyles.headline.copyWith(
-                        color: context.kpb.textPrimary),
+                    style: KpbTextStyles.headline
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'housing_intro'.tr,
-                    style: KpbTextStyles.bodySm.copyWith(
-                        color: context.kpb.textSecondary),
+                    style: KpbTextStyles.bodySm
+                        .copyWith(color: context.kpb.textSecondary),
                   ),
                   const SizedBox(height: KpbSpacing.xl),
                 ],
@@ -117,18 +120,22 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
           // ── Estimate Card ────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
+                  gradient: isDark
+                      ? KpbColors.heroGradientDark
+                      : KpbColors.heroGradient,
                   borderRadius: KpbRadius.xlBr,
                   boxShadow: KpbShadow.blue,
                 ),
                 padding: const EdgeInsets.all(KpbSpacing.lg),
                 child: Column(
                   children: [
-                    Icon(Icons.maps_home_work_rounded, color: Colors.white, size: 36),
+                    Icon(Icons.maps_home_work_rounded,
+                        color: Colors.white, size: 36),
                     SizedBox(height: 12),
                     Text(
                       '${'estimated_monthly_rent_in'.tr} ${_selectedCity?.name}',
@@ -174,7 +181,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
           // ── Country Tabs ──────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.surfaceBg,
@@ -196,7 +204,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
           // ── City Chips Grid ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Wrap(
                 spacing: 8,
                 runSpacing: 10,
@@ -206,7 +215,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     label: Text(
                       city.name,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                     selected: isSelected,
@@ -227,7 +237,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                           ? (isDark ? KpbColors.blueMid : KpbColors.blue)
                           : context.kpb.gray200,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                   );
                 }).toList(),
               ),
@@ -238,7 +249,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
           // ── Partnership Box ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
               child: Container(
                 decoration: BoxDecoration(
                   color: context.kpb.cardBg,
@@ -257,7 +269,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                             color: KpbColors.blueMid.withValues(alpha: 0.1),
                             borderRadius: KpbRadius.mdBr,
                           ),
-                          child: const Icon(Icons.holiday_village_rounded, color: KpbColors.blueMid),
+                          child: const Icon(Icons.holiday_village_rounded,
+                              color: KpbColors.blueMid),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -266,14 +279,14 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                             children: [
                               Text(
                                 'Partenariat Studapart',
-                                style: KpbTextStyles.titleMd.copyWith(
-                                    color: context.kpb.textPrimary),
+                                style: KpbTextStyles.titleMd
+                                    .copyWith(color: context.kpb.textPrimary),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 'Louez votre logement en France facilement avec ou sans garant local.',
-                                style: KpbTextStyles.caption.copyWith(
-                                    color: context.kpb.textMuted),
+                                style: KpbTextStyles.caption
+                                    .copyWith(color: context.kpb.textMuted),
                               ),
                             ],
                           ),
@@ -292,7 +305,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
               ),
             ),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -307,7 +320,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
           setState(() {
             _selectedCountry = country;
             // auto-select first city in that country
-            _selectedCity = popularCities.firstWhere((c) => c.country == country);
+            _selectedCity =
+                popularCities.firstWhere((c) => c.country == country);
           });
         },
         behavior: HitTestBehavior.opaque,

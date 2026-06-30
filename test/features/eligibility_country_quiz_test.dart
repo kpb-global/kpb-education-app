@@ -14,7 +14,8 @@ void main() {
 
   group('scoreCountryQuiz — single engine, per-country trees', () {
     test('France', () {
-      expect(score('fra', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
+      expect(
+          score('fra', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
       expect(
         score('fra', {
           'q2_diploma': 'yes_obtained',
@@ -25,7 +26,8 @@ void main() {
         EligibilityVerdict.eligible,
       );
       expect(
-        score('fra', {'q2_diploma': 'yes_obtained', 'q5_french_level': 'basic'}),
+        score(
+            'fra', {'q2_diploma': 'yes_obtained', 'q5_french_level': 'basic'}),
         EligibilityVerdict.eligibleWithConditions,
       );
       // basic French + no funds → hard fail.
@@ -41,14 +43,17 @@ void main() {
       expect(score('deu', {'q2_german_level': 'advanced'}),
           EligibilityVerdict.eligible);
       expect(
-        score('deu',
-            {'q4_language_track': 'yes_partial', 'q5_blocked_account': 'yes_difficult'}),
+        score('deu', {
+          'q4_language_track': 'yes_partial',
+          'q5_blocked_account': 'yes_difficult'
+        }),
         EligibilityVerdict.eligibleWithConditions,
       );
     });
 
     test('USA', () {
-      expect(score('usa', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
+      expect(
+          score('usa', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
       expect(
         score('usa', {'q3_english_level': 'advanced', 'q4_budget': 'high'}),
         EligibilityVerdict.eligible,
@@ -58,7 +63,8 @@ void main() {
     });
 
     test('Canada / UK / UAE require funds', () {
-      expect(score('can', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
+      expect(
+          score('can', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
       expect(
         score('can', {
           'q2_diploma': 'yes_obtained',
@@ -70,25 +76,39 @@ void main() {
       expect(score('gbr', {'q4_budget': 'low', 'q2_diploma': 'yes_obtained'}),
           EligibilityVerdict.notEligible);
       expect(
-        score('gbr', {'q3_english_level': 'advanced', 'q4_budget': 'high', 'q2_diploma': 'yes_obtained'}),
+        score('gbr', {
+          'q3_english_level': 'advanced',
+          'q4_budget': 'high',
+          'q2_diploma': 'yes_obtained'
+        }),
         EligibilityVerdict.eligible,
       );
-      expect(score('are', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
-      expect(score('are', {'q3_english_level': 'advanced', 'q4_budget': 'high'}),
+      expect(
+          score('are', {'q4_budget': 'low'}), EligibilityVerdict.notEligible);
+      expect(
+          score('are', {'q3_english_level': 'advanced', 'q4_budget': 'high'}),
           EligibilityVerdict.eligible);
     });
 
     test('Morocco / Turkey / Spain', () {
       expect(score('mar', {'q2_diploma': 'no', 'q4_budget': 'low'}),
           EligibilityVerdict.notEligible);
-      expect(score('mar', {'q2_diploma': 'yes_obtained', 'q3_french_level': 'fluent'}),
+      expect(
+          score('mar',
+              {'q2_diploma': 'yes_obtained', 'q3_french_level': 'fluent'}),
           EligibilityVerdict.eligible);
-      expect(score('tur', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
+      expect(
+          score('tur', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
       expect(score('tur', {'q4_budget': 'low', 'q2_diploma': 'yes_obtained'}),
           EligibilityVerdict.eligibleWithConditions);
-      expect(score('esp', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
       expect(
-        score('esp', {'q3_english_level': 'advanced', 'q4_budget': 'high', 'q2_diploma': 'yes_obtained'}),
+          score('esp', {'q2_diploma': 'no'}), EligibilityVerdict.notEligible);
+      expect(
+        score('esp', {
+          'q3_english_level': 'advanced',
+          'q4_budget': 'high',
+          'q2_diploma': 'yes_obtained'
+        }),
         EligibilityVerdict.eligible,
       );
     });

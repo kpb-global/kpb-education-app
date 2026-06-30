@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
 
-
 import '../controllers/app_controller.dart';
 import '../../features/auth/app_lock_screen.dart';
 
@@ -46,11 +45,12 @@ class SecurityService extends GetxService with WidgetsBindingObserver {
     // For now, let's assume it's stored in AppController.
     final controller = Get.find<AppController>();
     if (!controller.isAppLockEnabled) return;
-    
+
     // Don't show if we are already authenticating or currently showing the lock screen
     if (_isAuthenticating || Get.currentRoute == '/app_lock') return;
 
-    Get.to(() => const AppLockScreen(), transition: Transition.fadeIn, routeName: '/app_lock');
+    Get.to(() => const AppLockScreen(),
+        transition: Transition.fadeIn, routeName: '/app_lock');
   }
 
   /// Attempts to authenticate the user using biometrics or device PIN.
@@ -58,14 +58,16 @@ class SecurityService extends GetxService with WidgetsBindingObserver {
   Future<bool> authenticate() async {
     _isAuthenticating = true;
     try {
-      final canCheckBiometrics = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
+      final canCheckBiometrics =
+          await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
 
       if (!canCheckBiometrics) {
         return true; // Fallback to allowing access if device has no security
       }
 
       return await _auth.authenticate(
-        localizedReason: 'Déverrouillez pour accéder à vos documents sécurisés KPB',
+        localizedReason:
+            'Déverrouillez pour accéder à vos documents sécurisés KPB',
         persistAcrossBackgrounding: true,
       );
     } on PlatformException catch (_) {

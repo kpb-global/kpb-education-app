@@ -23,7 +23,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3–4 ans', en: '3–4 years'),
     tuition: LocalizedText(fr: 'CAD 19k–42k/an', en: 'CAD 19k–42k/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
     requirements: [
       LocalizedText(
           fr: 'Baccalauréat scientifique solide (maths, physique, chimie, biologie).',
@@ -42,7 +43,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: 'CAD 19k–42k/an', en: 'CAD 19k–42k/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
     requirements: [_contactKpb],
   ),
   // ── Université de Montréal ──────────────────────────────────────────────
@@ -52,8 +54,7 @@ const kProgramsCanada = <ProgramModel>[
     countryId: 'canada',
     fieldId: 'd01',
     name: LocalizedText(
-        fr: 'Baccalauréat en informatique',
-        en: 'Bachelor in Computer Science'),
+        fr: 'Baccalauréat en informatique', en: 'Bachelor in Computer Science'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: 'CAD 15k–27k/an', en: 'CAD 15k–27k/yr'),
@@ -84,8 +85,7 @@ const kProgramsCanada = <ProgramModel>[
     countryId: 'canada',
     fieldId: 'd10',
     name: LocalizedText(
-        fr: 'Baccalauréat en agronomie',
-        en: 'Bachelor in Agronomy'),
+        fr: 'Baccalauréat en agronomie', en: 'Bachelor in Agronomy'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: 'CAD 14k–22k/an', en: 'CAD 14k–22k/yr'),
@@ -121,7 +121,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: 'CAD 20k–30k/an', en: 'CAD 20k–30k/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5+)', en: 'English (IELTS 6.5+)'),
     requirements: [_contactKpb],
   ),
   // ── UQAM (communication, sciences sociales) ─────────────────────────────
@@ -166,7 +167,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: 'CAD 22 000/an', en: 'CAD 22,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── Fairleigh Dickinson University — Vancouver ──────────────────────────
@@ -181,7 +183,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: 'CAD 25 000/an', en: 'CAD 25,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   // ── University Canada West (MBA) ────────────────────────────────────────
@@ -197,7 +200,8 @@ const kProgramsCanada = <ProgramModel>[
     duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(
         fr: 'CAD 20 000–38 000/programme', en: 'CAD 20,000–38,000/program'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── York University (Schulich Business) ─────────────────────────────────
@@ -211,9 +215,10 @@ const kProgramsCanada = <ProgramModel>[
         en: 'Bachelor of Business Administration (Schulich)'),
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
-    tuition: LocalizedText(
-        fr: 'CAD 28 000–35 000/an', en: 'CAD 28,000–35,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    tuition:
+        LocalizedText(fr: 'CAD 28 000–35 000/an', en: 'CAD 28,000–35,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── Université de Moncton (francophone, partenaire) ─────────────────────
@@ -227,8 +232,8 @@ const kProgramsCanada = <ProgramModel>[
         en: 'Bachelor in Business Administration'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
-    tuition: LocalizedText(
-        fr: 'CAD 12 000–15 000/an', en: 'CAD 12,000–15,000/yr'),
+    tuition:
+        LocalizedText(fr: 'CAD 12 000–15 000/an', en: 'CAD 12,000–15,000/yr'),
     language: LocalizedText(fr: 'Français (B2)', en: 'French (B2)'),
     requirements: [_contactKpb],
   ),
@@ -243,9 +248,10 @@ const kProgramsCanada = <ProgramModel>[
         en: 'Bachelor of Science — Marine & Environmental Science'),
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
-    tuition: LocalizedText(
-        fr: 'CAD 20 000–26 000/an', en: 'CAD 20,000–26,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    tuition:
+        LocalizedText(fr: 'CAD 20 000–26 000/an', en: 'CAD 20,000–26,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── BCIT (informatique, génie civil) ────────────────────────────────────
@@ -260,7 +266,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Diplôme', en: 'Diploma'),
     duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(fr: 'CAD 18 000/an', en: 'CAD 18,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   // ── Seneca Polytechnic ──────────────────────────────────────────────────
@@ -275,7 +282,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Diplôme', en: 'Diploma'),
     duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
     tuition: LocalizedText(fr: 'CAD 16 000/an', en: 'CAD 16,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   // ── Queen's University (business, santé) ────────────────────────────────
@@ -284,13 +292,12 @@ const kProgramsCanada = <ProgramModel>[
     institutionId: 'queens_u',
     countryId: 'canada',
     fieldId: 'd02',
-    name: LocalizedText(
-        fr: 'Bachelor of Commerce',
-        en: 'Bachelor of Commerce'),
+    name: LocalizedText(fr: 'Bachelor of Commerce', en: 'Bachelor of Commerce'),
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: 'CAD 35 000/an', en: 'CAD 35,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 7.0)', en: 'English (IELTS 7.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 7.0)', en: 'English (IELTS 7.0)'),
     requirements: [_contactKpb],
   ),
   // ── Western University (Ivey Business) ──────────────────────────────────
@@ -305,7 +312,8 @@ const kProgramsCanada = <ProgramModel>[
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: 'CAD 32 000/an', en: 'CAD 32,000/yr'),
-    language: LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── Université de Sherbrooke (entrée alt., génie) ───────────────────────

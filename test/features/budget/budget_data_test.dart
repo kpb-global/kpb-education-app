@@ -6,9 +6,8 @@ void main() {
   group('Budget simulator data (MVP lock)', () {
     test('ships a budget profile for every MVP destination', () {
       expect(mockBudgetProfiles.length, equals(kMvpCountryIds.length));
-      final ids = mockBudgetProfiles
-          .map((p) => normalizeCountryId(p.country))
-          .toSet();
+      final ids =
+          mockBudgetProfiles.map((p) => normalizeCountryId(p.country)).toSet();
       expect(ids, equals(kMvpCountryIds));
     });
 

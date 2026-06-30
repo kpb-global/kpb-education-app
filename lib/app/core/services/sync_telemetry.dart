@@ -61,15 +61,15 @@ abstract final class SyncTelemetry {
     );
     AnalyticsService.instance.logSyncConflict(
       domain: 'cases',
-      resolution:
-          'merge:LWW=$localWinCount'
+      resolution: 'merge:LWW=$localWinCount'
           '_pending=$keptLocalOnlyCount:remote=$remoteCount',
     );
   }
 
   static void savedItemsMerged({required int unionExtraLocals}) {
     if (unionExtraLocals == 0) return;
-    AppLogger.info('saved_items_merge union_extra_locals=$unionExtraLocals', tag: _tag);
+    AppLogger.info('saved_items_merge union_extra_locals=$unionExtraLocals',
+        tag: _tag);
     AnalyticsService.instance.logSyncConflict(
       domain: 'saved_items',
       resolution: 'union_extra_local=$unionExtraLocals',

@@ -20,15 +20,18 @@ class AppConfig {
   static String get apiBaseUrl =>
       resolveApiBaseUrl(override: apiBaseUrlOverride, env: appEnv);
 
-  static bool get enableRemoteSync => _enableRemoteSyncOverride ?? const bool.fromEnvironment(
-    'KPB_ENABLE_REMOTE_SYNC',
-    defaultValue: true,
-  );
+  static bool get enableRemoteSync =>
+      _enableRemoteSyncOverride ??
+      const bool.fromEnvironment(
+        'KPB_ENABLE_REMOTE_SYNC',
+        defaultValue: true,
+      );
 
   static bool? _enableRemoteSyncOverride;
 
   @visibleForTesting
-  static set enableRemoteSyncOverride(bool? value) => _enableRemoteSyncOverride = value;
+  static set enableRemoteSyncOverride(bool? value) =>
+      _enableRemoteSyncOverride = value;
 
   static const requestTimeoutInSeconds = int.fromEnvironment(
     'KPB_REQUEST_TIMEOUT',

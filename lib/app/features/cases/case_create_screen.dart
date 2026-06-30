@@ -117,8 +117,7 @@ class _GuestCaseGate extends StatelessWidget {
                 FilledButton.icon(
                   icon: const Icon(Icons.login_rounded),
                   label: Text('guest_case_gate_cta'.tr),
-                  onPressed: () =>
-                      Get.offAll(() => const AppBootScreen()),
+                  onPressed: () => Get.offAll(() => const AppBootScreen()),
                 ),
               ],
             ),

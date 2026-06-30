@@ -164,7 +164,8 @@ class _VideoCard extends StatelessWidget {
           children: [
             // Thumbnail with a play overlay.
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Stack(
@@ -232,7 +233,8 @@ class _ParcoursEmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 56, color: context.kpb.gray400),
             const SizedBox(height: KpbSpacing.md),
-            Text(title, style: KpbTextStyles.titleLg, textAlign: TextAlign.center),
+            Text(title,
+                style: KpbTextStyles.titleLg, textAlign: TextAlign.center),
             const SizedBox(height: KpbSpacing.sm),
             Text(
               subtitle,
@@ -320,7 +322,9 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
             title: const Text(
               'Parcours KPB',
               style: TextStyle(
-                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
           ),
           body: Column(

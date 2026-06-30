@@ -48,10 +48,9 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
   /// official KPB number.
   final String? expectedNumber;
 
-  String get _name =>
-      (advisorName?.trim().isNotEmpty ?? false)
-          ? advisorName!.trim()
-          : 'verified_advisor_official_name'.tr;
+  String get _name => (advisorName?.trim().isNotEmpty ?? false)
+      ? advisorName!.trim()
+      : 'verified_advisor_official_name'.tr;
 
   String get _number {
     final n = (expectedNumber?.trim().isNotEmpty ?? false)

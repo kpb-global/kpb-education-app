@@ -90,7 +90,8 @@ class _TimelineRow extends StatelessWidget {
                         : null,
                   ),
                   child: Center(
-                    child: Text(icon, style: TextStyle(fontSize: 14, color: iconColor)),
+                    child: Text(icon,
+                        style: TextStyle(fontSize: 14, color: iconColor)),
                   ),
                 ),
                 if (!isLast)

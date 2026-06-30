@@ -53,8 +53,7 @@ class CaseMessageOutbox {
 
   int get pendingCount => _box.length;
 
-  bool hasPendingFor(String caseId) =>
-      pending.any((e) => e.caseId == caseId);
+  bool hasPendingFor(String caseId) => pending.any((e) => e.caseId == caseId);
 
   Future<void> remove(dynamic key) => _box.delete(key);
 

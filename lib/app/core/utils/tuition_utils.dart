@@ -4,8 +4,7 @@ abstract final class TuitionUtils {
 
   /// Extracts the first integer amount from a tuition label (EUR assumed).
   static int? parseEurAnnual(String tuition) {
-    final match =
-        RegExp(r'([\d\s]+)').firstMatch(tuition.replaceAll(',', ''));
+    final match = RegExp(r'([\d\s]+)').firstMatch(tuition.replaceAll(',', ''));
     if (match == null) return null;
     final digits = match.group(1)?.replaceAll(RegExp(r'\s'), '') ?? '';
     return int.tryParse(digits);
