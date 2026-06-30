@@ -27,19 +27,19 @@ export const mockCatalog = {
   ],
   countries: [
     {
-      id: 'canada',
+      id: 'can',
       name: { fr: 'Canada', en: 'Canada' },
       tuitionRange: { fr: '8 000 - 24 000 CAD/an', en: '8,000 - 24,000 CAD/year' },
       livingCostRange: { fr: '900 - 1 800 CAD/mois', en: '900 - 1,800 CAD/month' },
     },
     {
-      id: 'france',
+      id: 'fra',
       name: { fr: 'France', en: 'France' },
       tuitionRange: { fr: '2 700 - 12 000 EUR/an', en: '2,700 - 12,000 EUR/year' },
       livingCostRange: { fr: '700 - 1 500 EUR/mois', en: '700 - 1,500 EUR/month' },
     },
     {
-      id: 'uk',
+      id: 'gbr',
       name: { fr: 'Royaume-Uni', en: 'United Kingdom' },
       tuitionRange: { fr: '12 000 - 28 000 GBP/an', en: '12,000 - 28,000 GBP/year' },
       livingCostRange: { fr: '900 - 1 900 GBP/mois', en: '900 - 1,900 GBP/month' },
@@ -49,14 +49,14 @@ export const mockCatalog = {
     {
       id: 'uottawa',
       name: { fr: "Université d'Ottawa", en: 'University of Ottawa' },
-      countryId: 'canada',
+      countryId: 'can',
       levels: ['Bachelor', 'Master'],
       partner: true,
     },
     {
       id: 'essec',
       name: { fr: 'ESSEC Business School', en: 'ESSEC Business School' },
-      countryId: 'france',
+      countryId: 'fra',
       levels: ['Master'],
       partner: false,
     },
@@ -65,7 +65,7 @@ export const mockCatalog = {
     {
       id: 'uottawa-cs',
       institutionId: 'uottawa',
-      countryId: 'canada',
+      countryId: 'can',
       fieldId: 'computer_science',
       name: { fr: 'Bachelor en informatique', en: 'Bachelor in Computer Science' },
       level: { fr: 'Licence', en: 'Bachelor' },
@@ -73,7 +73,7 @@ export const mockCatalog = {
     {
       id: 'essec-mim',
       institutionId: 'essec',
-      countryId: 'france',
+      countryId: 'fra',
       fieldId: 'business',
       name: { fr: 'Master in Management', en: 'Master in Management' },
       level: { fr: 'Master', en: 'Master' },
@@ -87,7 +87,7 @@ export const mockCatalog = {
         fr: 'Bourse McCall MacBain (Université McGill)',
         en: 'McCall MacBain Scholarship (McGill University)',
       },
-      countryId: 'canada',
+      countryId: 'can',
       countryName: { fr: 'Canada', en: 'Canada' },
       levelEligible: {
         fr: 'Master / Études professionnelles',
@@ -157,7 +157,7 @@ export const mockCatalog = {
     {
       id: 'canada_future',
       name: { fr: 'Canada Future Leaders', en: 'Canada Future Leaders' },
-      countryId: 'canada',
+      countryId: 'can',
       levelEligible: { fr: 'Licence / Master', en: 'Bachelor / Master' },
       typeOfFunding: { fr: 'Partielle', en: 'Partial' },
       deadlineLabel: { fr: 'Mai 2026', en: 'May 2026' },
@@ -166,7 +166,7 @@ export const mockCatalog = {
     {
       id: 'france_excellence',
       name: { fr: 'France Excellence', en: 'France Excellence' },
-      countryId: 'france',
+      countryId: 'fra',
       levelEligible: { fr: 'Master', en: 'Master' },
       typeOfFunding: { fr: 'Complète', en: 'Full' },
       deadlineLabel: { fr: 'Juin 2026', en: 'June 2026' },
@@ -178,7 +178,7 @@ export const mockCatalog = {
         fr: "Bourse Rhodes (Université d'Oxford)",
         en: 'Rhodes Scholarship (University of Oxford)',
       },
-      countryId: 'uk',
+      countryId: 'gbr',
       countryName: { fr: 'Royaume-Uni', en: 'United Kingdom' },
       levelEligible: {
         fr: 'Master / MPhil / Doctorat (DPhil)',
@@ -266,7 +266,7 @@ export const mockCatalog = {
         fr: 'Programme de bourses Helmut-Schmidt (DAAD)',
         en: 'Helmut-Schmidt Programme (DAAD)',
       },
-      countryId: 'germany',
+      countryId: 'deu',
       countryName: { fr: 'Allemagne', en: 'Germany' },
       levelEligible: {
         fr: 'Master (politiques publiques / gouvernance)',
@@ -312,7 +312,7 @@ export const mockCatalog = {
         fr: 'Bourse Chevening (Royaume-Uni)',
         en: 'Chevening Scholarship (United Kingdom)',
       },
-      countryId: 'uk',
+      countryId: 'gbr',
       countryName: { fr: 'Royaume-Uni', en: 'United Kingdom' },
       levelEligible: { fr: "Master (1 an)", en: "One-year Master's" },
       typeOfFunding: { fr: 'Complète', en: 'Full' },
@@ -353,7 +353,7 @@ export const mockCatalog = {
         fr: 'Türkiye Bursları (Bourses de Turquie)',
         en: 'Türkiye Scholarships',
       },
-      countryId: 'turkey',
+      countryId: 'tur',
       countryName: { fr: 'Turquie', en: 'Türkiye' },
       levelEligible: {
         fr: 'Licence / Master / Doctorat',
@@ -480,7 +480,7 @@ export const mockCatalog = {
         fr: 'Programme Mastercard Foundation Scholars',
         en: 'Mastercard Foundation Scholars Program',
       },
-      countryId: 'canada',
+      countryId: 'can',
       countryName: { fr: 'Multi-destinations', en: 'Multi-destination' },
       levelEligible: { fr: 'Licence / Master', en: "Undergraduate / Master's" },
       typeOfFunding: { fr: 'Complète', en: 'Full' },
