@@ -37,8 +37,7 @@ class LivingBudgetProfile {
   /// 7 Vêtements & hygiène · 8 Loisirs & divers
   final List<BudgetCategory> categories;
 
-  double get totalTypical =>
-      categories.fold(0.0, (sum, c) => sum + c.typical);
+  double get totalTypical => categories.fold(0.0, (sum, c) => sum + c.typical);
 }
 
 // ── Nine MVP destination profiles · nine categories each ─────────────────────
@@ -49,7 +48,10 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 800,
     monthlyMax: 1000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 400, note: 'Hors capitale, coloc ou studio modeste'),
+      BudgetCategory(
+          name: 'Loyer',
+          typical: 400,
+          note: 'Hors capitale, coloc ou studio modeste'),
       BudgetCategory(name: 'Charges & énergie', typical: 60),
       BudgetCategory(name: 'Alimentation', typical: 230),
       BudgetCategory(name: 'Transport', typical: 40),
@@ -138,7 +140,10 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
       BudgetCategory(name: 'Charges & énergie', typical: 90),
       BudgetCategory(name: 'Alimentation', typical: 180),
       BudgetCategory(name: 'Transport', typical: 60),
-      BudgetCategory(name: 'Santé & assurance', typical: 65, note: 'IHS surcharge lissé sur l\'année'),
+      BudgetCategory(
+          name: 'Santé & assurance',
+          typical: 65,
+          note: 'IHS surcharge lissé sur l\'année'),
       BudgetCategory(name: 'Forfait & Internet', typical: 35),
       BudgetCategory(name: 'Fournitures & livres', typical: 40),
       BudgetCategory(name: 'Vêtements & hygiène', typical: 50),
@@ -155,7 +160,10 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
       BudgetCategory(name: 'Charges & énergie', typical: 90),
       BudgetCategory(name: 'Alimentation', typical: 200),
       BudgetCategory(name: 'Transport', typical: 40),
-      BudgetCategory(name: 'Santé & assurance', typical: 120, note: 'Assurance santé étudiante obligatoire'),
+      BudgetCategory(
+          name: 'Santé & assurance',
+          typical: 120,
+          note: 'Assurance santé étudiante obligatoire'),
       BudgetCategory(name: 'Forfait & Internet', typical: 35),
       BudgetCategory(name: 'Fournitures & livres', typical: 40),
       BudgetCategory(name: 'Vêtements & hygiène', typical: 50),
@@ -202,11 +210,17 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 2000,
     monthlyMax: 4000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 1200, note: 'Résidence universitaire ou coloc hors centre-ville'),
+      BudgetCategory(
+          name: 'Loyer',
+          typical: 1200,
+          note: 'Résidence universitaire ou coloc hors centre-ville'),
       BudgetCategory(name: 'Charges & énergie', typical: 150),
       BudgetCategory(name: 'Alimentation', typical: 800),
       BudgetCategory(name: 'Transport', typical: 150),
-      BudgetCategory(name: 'Santé & assurance', typical: 50, note: 'Assurance étudiante obligatoire ~600-800 CNY/an'),
+      BudgetCategory(
+          name: 'Santé & assurance',
+          typical: 50,
+          note: 'Assurance étudiante obligatoire ~600-800 CNY/an'),
       BudgetCategory(name: 'Forfait & Internet', typical: 100),
       BudgetCategory(name: 'Fournitures & livres', typical: 100),
       BudgetCategory(name: 'Vêtements & hygiène', typical: 150),

@@ -283,9 +283,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                                   _answers, _questionIndex);
                             } else {
                               setState(() => _isSubmitting = true);
-                              _ctrl
-                                  .submitOrientation(_answers)
-                                  .then((_) {
+                              _ctrl.submitOrientation(_answers).then((_) {
                                 if (!mounted) return;
                                 setState(() {
                                   _isSubmitting = false;
@@ -450,9 +448,8 @@ class _ResultsViewState extends State<_ResultsView>
     final controller = widget.controller;
     final recs = (widget.result.recommendations as List);
     final topScore = recs.isNotEmpty ? (recs.first.score as int) : 0;
-    final topField = recs.isNotEmpty
-        ? controller.fieldByIdOrNull(recs.first.fieldId)
-        : null;
+    final topField =
+        recs.isNotEmpty ? controller.fieldByIdOrNull(recs.first.fieldId) : null;
 
     // Sprint 4 — connect the result to concrete formations: programs in the
     // top recommended fields, best-match first, with a profile-aware fallback.
@@ -474,218 +471,217 @@ class _ResultsViewState extends State<_ResultsView>
       body: Stack(
         children: [
           CustomScrollView(
-          slivers: [
-            // ── Celebratory hero ───────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _ResultsHero(
-                controller: controller,
-                topScore: topScore,
-                topFieldName: topField != null
-                    ? controller.resolve(topField.name)
-                    : null,
+            slivers: [
+              // ── Celebratory hero ───────────────────────────────────────
+              SliverToBoxAdapter(
+                child: _ResultsHero(
+                  controller: controller,
+                  topScore: topScore,
+                  topFieldName: topField != null
+                      ? controller.resolve(topField.name)
+                      : null,
+                ),
               ),
-            ),
 
-            // ── Recommendations (staggered reveal) ─────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                  KpbSpacing.pagePad, KpbSpacing.lg,
-                  KpbSpacing.pagePad, 0),
-              sliver: SliverList.separated(
-                itemCount: recs.length,
-                separatorBuilder: (_, __) =>
-                    const SizedBox(height: KpbSpacing.md),
-                itemBuilder: (ctx, i) {
-                  final rec = recs[i];
-                  final field = controller.fieldByIdOrNull(rec.fieldId);
-                  if (field == null) return const SizedBox.shrink();
-                  final countries = (rec.relatedCountryIds as List<String>)
-                      .map(controller.countryByIdOrNull)
-                      .whereType<CountryModel>()
-                      .take(3)
-                      .toList();
-                  final scholarships =
-                      (rec.relatedScholarshipIds as List<String>)
-                          .map(controller.scholarshipByIdOrNull)
-                          .whereType<ScholarshipModel>()
-                          .take(3)
-                          .toList();
-                  return StaggeredSlide(
-                    index: i,
-                    delayMs: 130,
-                    child: _RecommendationCard(
-                      rec: rec,
-                      field: field,
-                      countries: countries,
-                      scholarships: scholarships,
-                      controller: controller,
-                      isBest: i == 0,
-                      context: ctx,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // ── Matched formations (Sprint 4) ──────────────────────────
-            if (matchedPrograms.isNotEmpty)
+              // ── Recommendations (staggered reveal) ─────────────────────
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
-                    KpbSpacing.pagePad, KpbSpacing.xl, KpbSpacing.pagePad, 0),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Formations qui te correspondent',
-                        style: KpbTextStyles.titleLg
-                            .copyWith(color: context.kpb.textPrimary),
+                    KpbSpacing.pagePad, KpbSpacing.lg, KpbSpacing.pagePad, 0),
+                sliver: SliverList.separated(
+                  itemCount: recs.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: KpbSpacing.md),
+                  itemBuilder: (ctx, i) {
+                    final rec = recs[i];
+                    final field = controller.fieldByIdOrNull(rec.fieldId);
+                    if (field == null) return const SizedBox.shrink();
+                    final countries = (rec.relatedCountryIds as List<String>)
+                        .map(controller.countryByIdOrNull)
+                        .whereType<CountryModel>()
+                        .take(3)
+                        .toList();
+                    final scholarships =
+                        (rec.relatedScholarshipIds as List<String>)
+                            .map(controller.scholarshipByIdOrNull)
+                            .whereType<ScholarshipModel>()
+                            .take(3)
+                            .toList();
+                    return StaggeredSlide(
+                      index: i,
+                      delayMs: 130,
+                      child: _RecommendationCard(
+                        rec: rec,
+                        field: field,
+                        countries: countries,
+                        scholarships: scholarships,
+                        controller: controller,
+                        isBest: i == 0,
+                        context: ctx,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        topField != null
-                            ? 'Des programmes liés à ${controller.resolve(topField.name)}.'
-                            : 'Des programmes liés à tes résultats.',
-                        style: KpbTextStyles.bodySm
-                            .copyWith(color: context.kpb.textSecondary),
+                    );
+                  },
+                ),
+              ),
+
+              // ── Matched formations (Sprint 4) ──────────────────────────
+              if (matchedPrograms.isNotEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                      KpbSpacing.pagePad, KpbSpacing.xl, KpbSpacing.pagePad, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Formations qui te correspondent',
+                          style: KpbTextStyles.titleLg
+                              .copyWith(color: context.kpb.textPrimary),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          topField != null
+                              ? 'Des programmes liés à ${controller.resolve(topField.name)}.'
+                              : 'Des programmes liés à tes résultats.',
+                          style: KpbTextStyles.bodySm
+                              .copyWith(color: context.kpb.textSecondary),
+                        ),
+                        const SizedBox(height: KpbSpacing.md),
+                        ...matchedPrograms.map((program) {
+                          final institution = controller
+                              .institutionByIdOrNull(program.institutionId);
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: KpbSpacing.sm),
+                            child: ProgramCatalogCard(
+                              name: controller.resolve(program.name),
+                              institution: institution != null
+                                  ? controller.resolve(institution.name)
+                                  : null,
+                              level: programLevelLabel(
+                                  controller.resolve(program.level)),
+                              tuition: controller.resolve(program.tuition),
+                              language: controller.resolve(program.language),
+                              duration: controller.resolve(program.duration),
+                              flag: countryFlag(program.countryId),
+                              saved: controller.isSaved(
+                                  SavedItemType.program, program.id),
+                              isPartner: institution?.isPartner ?? false,
+                              onSave: () => controller.toggleSaved(
+                                  SavedItemType.program, program.id),
+                              onTap: () => Get.to(() =>
+                                  ProgramDetailScreen(programId: program.id)),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ── Action buttons ─────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                      KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Primary: jump straight to the schools for the top match
+                      FilledButton.icon(
+                        icon: const Icon(Icons.school_rounded, size: 18),
+                        label: Text('see_schools'.tr),
+                        onPressed: () {
+                          final topFieldId = recs.isNotEmpty
+                              ? recs.first.fieldId as String
+                              : null;
+                          Get.back();
+                          controller.goToUniversitiesForField(topFieldId);
+                        },
+                      ),
+                      const SizedBox(height: KpbSpacing.sm),
+                      // Sprint 5 — a dated parcours toward the top match.
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.timeline_rounded, size: 18),
+                        label: Text('my_application_journey'.tr),
+                        onPressed: () {
+                          final topProgram = matchedPrograms.isNotEmpty
+                              ? matchedPrograms.first
+                              : null;
+                          Get.to(() => OrientationRoadmapScreen(
+                                fieldLabel: topField != null
+                                    ? controller.resolve(topField.name)
+                                    : 'tes résultats',
+                                programId: topProgram?.id,
+                                countryId: topProgram?.countryId,
+                              ));
+                        },
+                      ),
+                      const SizedBox(height: KpbSpacing.sm),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.explore_rounded, size: 18),
+                        label: Text('explore_my_results'.tr),
+                        onPressed: () {
+                          Get.back();
+                          controller.goToTab(StudentShellTab.universities);
+                        },
+                      ),
+                      const SizedBox(height: KpbSpacing.sm),
+                      // Secondary: open a support case
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.folder_open_rounded, size: 18),
+                        label: Text('start_a_case'.tr),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: Get.context!,
+                          isScrollControlled: true,
+                          builder: (_) => const CaseComposerSheet(
+                            caseType: CaseType.applicationSupport,
+                            title: 'Dossier de candidature',
+                            contextLabel: 'Suite orientation',
+                          ),
+                        ),
                       ),
                       const SizedBox(height: KpbSpacing.md),
-                      ...matchedPrograms.map((program) {
-                        final institution =
-                            controller.institutionByIdOrNull(program.institutionId);
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: KpbSpacing.sm),
-                          child: ProgramCatalogCard(
-                            name: controller.resolve(program.name),
-                            institution: institution != null
-                                ? controller.resolve(institution.name)
-                                : null,
-                            level: programLevelLabel(
-                                controller.resolve(program.level)),
-                            tuition: controller.resolve(program.tuition),
-                            language: controller.resolve(program.language),
-                            duration: controller.resolve(program.duration),
-                            flag: countryFlag(program.countryId),
-                            saved: controller.isSaved(
-                                SavedItemType.program, program.id),
-                            isPartner: institution?.isPartner ?? false,
-                            onSave: () => controller.toggleSaved(
-                                SavedItemType.program, program.id),
-                            onTap: () => Get.to(
-                                () => ProgramDetailScreen(programId: program.id)),
-                          ),
-                        );
-                      }),
+                      // Tertiary: retake
+                      TextButton.icon(
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: Text('retake_test'.tr),
+                        onPressed: widget.onRetake,
+                        style: TextButton.styleFrom(
+                          foregroundColor: context.kpb.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
 
-            // ── Action buttons ─────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    KpbSpacing.pagePad, KpbSpacing.xl,
-                    KpbSpacing.pagePad, KpbSpacing.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Primary: jump straight to the schools for the top match
-                    FilledButton.icon(
-                      icon: const Icon(Icons.school_rounded, size: 18),
-                      label: Text('see_schools'.tr),
-                      onPressed: () {
-                        final topFieldId = recs.isNotEmpty
-                            ? recs.first.fieldId as String
-                            : null;
-                        Get.back();
-                        controller.goToUniversitiesForField(topFieldId);
-                      },
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
+
+          // ── Confetti overlay (bursts once over the hero) ───────────────
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 400,
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _confetti,
+                builder: (_, __) {
+                  if (_confetti.value == 0 || _confetti.isDismissed) {
+                    return const SizedBox.shrink();
+                  }
+                  return CustomPaint(
+                    size: Size.infinite,
+                    painter: _ConfettiPainter(
+                      progress: _confetti.value,
+                      particles: _particles,
                     ),
-                    const SizedBox(height: KpbSpacing.sm),
-                    // Sprint 5 — a dated parcours toward the top match.
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.timeline_rounded, size: 18),
-                      label: Text('my_application_journey'.tr),
-                      onPressed: () {
-                        final topProgram = matchedPrograms.isNotEmpty
-                            ? matchedPrograms.first
-                            : null;
-                        Get.to(() => OrientationRoadmapScreen(
-                              fieldLabel: topField != null
-                                  ? controller.resolve(topField.name)
-                                  : 'tes résultats',
-                              programId: topProgram?.id,
-                              countryId: topProgram?.countryId,
-                            ));
-                      },
-                    ),
-                    const SizedBox(height: KpbSpacing.sm),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.explore_rounded, size: 18),
-                      label: Text('explore_my_results'.tr),
-                      onPressed: () {
-                        Get.back();
-                        controller.goToTab(StudentShellTab.universities);
-                      },
-                    ),
-                    const SizedBox(height: KpbSpacing.sm),
-                    // Secondary: open a support case
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.folder_open_rounded, size: 18),
-                      label: Text('start_a_case'.tr),
-                      onPressed: () => showModalBottomSheet<void>(
-                        context: Get.context!,
-                        isScrollControlled: true,
-                        builder: (_) => const CaseComposerSheet(
-                          caseType: CaseType.applicationSupport,
-                          title: 'Dossier de candidature',
-                          contextLabel: 'Suite orientation',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: KpbSpacing.md),
-                    // Tertiary: retake
-                    TextButton.icon(
-                      icon: const Icon(Icons.refresh_rounded, size: 16),
-                      label: Text('retake_test'.tr),
-                      onPressed: widget.onRetake,
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.kpb.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
-        ),
-
-        // ── Confetti overlay (bursts once over the hero) ───────────────
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 400,
-          child: IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _confetti,
-              builder: (_, __) {
-                if (_confetti.value == 0 || _confetti.isDismissed) {
-                  return const SizedBox.shrink();
-                }
-                return CustomPaint(
-                  size: Size.infinite,
-                  painter: _ConfettiPainter(
-                    progress: _confetti.value,
-                    particles: _particles,
-                  ),
-                );
-              },
-            ),
-          ),
           ),
         ],
       ),
@@ -767,8 +763,7 @@ class _ResultsHero extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.14),
                 borderRadius: KpbRadius.lgBr,
-                border:
-                    Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1188,8 +1183,8 @@ class _ConsultativeView extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: KpbColors.heroGradient,
             ),
-            padding: const EdgeInsets.fromLTRB(
-                KpbSpacing.pagePad, KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                KpbSpacing.sm, KpbSpacing.pagePad, KpbSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

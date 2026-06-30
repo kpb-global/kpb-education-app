@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class AcademyCourseModel {
   const AcademyCourseModel({
     required this.id,
@@ -41,6 +40,7 @@ class AcademyCourseModel {
     );
   }
 }
+
 class AcademyLessonModel {
   const AcademyLessonModel({
     required this.id,

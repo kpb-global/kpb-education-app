@@ -29,7 +29,7 @@ class AppLogger {
     bool fatal = false,
   }) {
     final prefix = tag != null ? '[$tag] ' : '';
-    
+
     if (kDebugMode) {
       debugPrint('🔴 ERROR: $prefix$message');
       if (error != null) debugPrint(error.toString());

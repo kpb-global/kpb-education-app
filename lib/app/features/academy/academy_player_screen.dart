@@ -102,11 +102,15 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
         return Scaffold(
           backgroundColor: context.kpb.pageBg,
           appBar: AppBar(
-            backgroundColor: Colors.black, // Keep video header black for cinematic feel
+            backgroundColor:
+                Colors.black, // Keep video header black for cinematic feel
             elevation: 0,
             title: Text(
               controller.resolve(widget.course.title),
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
@@ -121,7 +125,7 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
                   child: player,
                 ),
               ),
-              
+
               // Lesson Info
               Container(
                 color: context.kpb.surfaceBg,
@@ -131,46 +135,58 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
                   children: [
                     Text(
                       controller.resolve(currentLesson.title),
-                      style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
+                      style: KpbTextStyles.headline
+                          .copyWith(color: context.kpb.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Session ${_currentIndex + 1} sur ${_lessons.length}',
-                      style: KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
+                      style: KpbTextStyles.bodySm
+                          .copyWith(color: context.kpb.textSecondary),
                     ),
                   ],
                 ),
               ),
-              
+
               Divider(color: context.kpb.gray100, height: 1),
-              
+
               // Lessons List
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _lessons.length,
-                  separatorBuilder: (_, __) => Divider(color: context.kpb.gray100, height: 1, indent: 70),
+                  separatorBuilder: (_, __) => Divider(
+                      color: context.kpb.gray100, height: 1, indent: 70),
                   itemBuilder: (context, index) {
                     final lesson = _lessons[index];
                     final isCurrent = index == _currentIndex;
                     final activeColor = KpbColors.blue;
-                    
+
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: KpbSpacing.lg, vertical: 4),
                       onTap: () => _onLessonTap(index),
-                      tileColor: isCurrent ? activeColor.withValues(alpha: 0.05) : Colors.transparent,
+                      tileColor: isCurrent
+                          ? activeColor.withValues(alpha: 0.05)
+                          : Colors.transparent,
                       leading: Container(
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isCurrent ? activeColor : context.kpb.surfaceBg,
+                          color:
+                              isCurrent ? activeColor : context.kpb.surfaceBg,
                           borderRadius: KpbRadius.mdBr,
-                          border: isCurrent ? null : Border.all(color: context.kpb.gray200),
+                          border: isCurrent
+                              ? null
+                              : Border.all(color: context.kpb.gray200),
                         ),
                         child: Center(
                           child: Icon(
-                            isCurrent ? Icons.play_arrow_rounded : Icons.check_circle_outline_rounded,
-                            color: isCurrent ? Colors.white : context.kpb.gray400,
+                            isCurrent
+                                ? Icons.play_arrow_rounded
+                                : Icons.check_circle_outline_rounded,
+                            color:
+                                isCurrent ? Colors.white : context.kpb.gray400,
                             size: 24,
                           ),
                         ),
@@ -178,14 +194,17 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
                       title: Text(
                         controller.resolve(lesson.title),
                         style: TextStyle(
-                          color: isCurrent ? activeColor : context.kpb.textPrimary,
+                          color:
+                              isCurrent ? activeColor : context.kpb.textPrimary,
                           fontSize: 15,
-                          fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight:
+                              isCurrent ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                       subtitle: Text(
                         '${(lesson.durationSeconds / 60).floor()} min',
-                        style: KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
+                        style: KpbTextStyles.caption
+                            .copyWith(color: context.kpb.textMuted),
                       ),
                     );
                   },

@@ -400,7 +400,8 @@ class _SessionCard extends StatelessWidget {
     final status = (session['status'] as String?) ?? 'scheduled';
     final joinUrl = (session['joinUrl'] as String?) ?? '';
 
-    final start = startIso != null ? DateTime.tryParse(startIso)?.toLocal() : null;
+    final start =
+        startIso != null ? DateTime.tryParse(startIso)?.toLocal() : null;
     final isLive = status == 'live';
 
     return Card(
@@ -425,8 +426,7 @@ class _SessionCard extends StatelessWidget {
             ),
             if (host.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Avec $host',
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text('Avec $host', style: Theme.of(context).textTheme.bodySmall),
             ],
             if (start != null) ...[
               const SizedBox(height: 4),

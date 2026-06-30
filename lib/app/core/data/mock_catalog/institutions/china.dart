@@ -52,7 +52,8 @@ const kInstitutionsChina = <InstitutionModel>[
   // ── Zhejiang University (Hangzhou) ───────────────────────────────────────
   InstitutionModel(
     id: 'zju',
-    name: LocalizedText(fr: 'Université du Zhejiang', en: 'Zhejiang University'),
+    name:
+        LocalizedText(fr: 'Université du Zhejiang', en: 'Zhejiang University'),
     countryId: 'china',
     location: LocalizedText(fr: 'Hangzhou, Zhejiang', en: 'Hangzhou, Zhejiang'),
     overview: LocalizedText(
@@ -221,8 +222,8 @@ const kInstitutionsChina = <InstitutionModel>[
     tuitionLabel: LocalizedText(
         fr: 'CNY 15 000–25 000/an (bourse/réduction possible)',
         en: 'CNY 15,000–25,000/yr (scholarship/reduction possible)'),
-    languageRequirements: LocalizedText(
-        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    languageRequirements:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     intakePeriods: ['Septembre'],
     programIds: ['prog_cn_ctgu'],
     isPartner: false,

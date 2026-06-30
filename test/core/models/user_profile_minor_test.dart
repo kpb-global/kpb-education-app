@@ -27,13 +27,15 @@ void main() {
     });
 
     test('clearly under 18 → minor', () {
-      final p = _profile(birthDate: DateTime(now.year - 10, now.month, now.day));
+      final p =
+          _profile(birthDate: DateTime(now.year - 10, now.month, now.day));
       expect(p.age, anyOf(9, 10));
       expect(p.isMinor, isTrue);
     });
 
     test('clearly over 18 → not a minor', () {
-      final p = _profile(birthDate: DateTime(now.year - 25, now.month, now.day));
+      final p =
+          _profile(birthDate: DateTime(now.year - 25, now.month, now.day));
       expect(p.isMinor, isFalse);
     });
 

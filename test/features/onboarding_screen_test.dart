@@ -39,8 +39,7 @@ void main() {
       );
     });
 
-    testWidgets('displays page counter "1 / 3" on first page',
-        (tester) async {
+    testWidgets('displays page counter "1 / 3" on first page', (tester) async {
       await pumpTestApp(
         tester,
         child: const OnboardingScreen(),

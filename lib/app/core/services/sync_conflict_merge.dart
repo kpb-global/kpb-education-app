@@ -65,8 +65,9 @@ class CasesMergeStats {
   };
   // Filter remote: tombstoned items the user deleted while offline must not
   // come back from the server until the delete is confirmed.
-  final filteredRemote =
-      remote.where((s) => !tombstones.contains('${s.type.name}:${s.itemId}')).toList();
+  final filteredRemote = remote
+      .where((s) => !tombstones.contains('${s.type.name}:${s.itemId}'))
+      .toList();
   final merged = <SavedItem>[...filteredRemote];
   var extra = 0;
   for (final s in local) {

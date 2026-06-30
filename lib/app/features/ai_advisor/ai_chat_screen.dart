@@ -175,7 +175,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             if (event.quotaRemaining != null) {
               _remainingMessages = event.quotaRemaining!;
             } else {
-              _remainingMessages = (_remainingMessages - 1).clamp(0, _weeklyQuota);
+              _remainingMessages =
+                  (_remainingMessages - 1).clamp(0, _weeklyQuota);
             }
           });
         }
@@ -231,7 +232,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(KpbSpacing.pagePad),
-                  itemCount: _messages.length + (_isTyping && _assistantDraft == null ? 1 : 0),
+                  itemCount: _messages.length +
+                      (_isTyping && _assistantDraft == null ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length) {
                       return _buildTypingIndicator();
@@ -241,7 +243,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   },
                 ),
               ),
-              if (_messages.length <= 2 && !_isTyping && _suggestions.isNotEmpty)
+              if (_messages.length <= 2 &&
+                  !_isTyping &&
+                  _suggestions.isNotEmpty)
                 _buildSuggestions(),
               _buildInputBar(context),
             ],
@@ -276,7 +280,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               gradient: KpbColors.heroGradient,
               borderRadius: KpbRadius.mdBr,
             ),
-            child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 24),
+            child: const Icon(Icons.psychology_rounded,
+                color: Colors.white, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -449,7 +454,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               decoration: BoxDecoration(
                 color: KpbColors.bgDarkCard,
                 borderRadius: KpbRadius.pillBr,
-                border: Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
               ),
               child: Center(
                 child: Text(
@@ -498,7 +504,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: const InputDecoration(
                   hintText: 'Posez votre question sur les écoles, budgets...',
-                  hintStyle: TextStyle(color: KpbColors.textDarkSecondary, fontSize: 13),
+                  hintStyle: TextStyle(
+                      color: KpbColors.textDarkSecondary, fontSize: 13),
                   border: InputBorder.none,
                 ),
                 onSubmitted: _sendMessage,
@@ -516,7 +523,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 borderRadius: KpbRadius.mdBr,
                 boxShadow: KpbShadow.blue,
               ),
-              child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+              child:
+                  const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             ),
           ),
         ],
@@ -533,7 +541,8 @@ class _TypingDot extends StatefulWidget {
   State<_TypingDot> createState() => _TypingDotState();
 }
 
-class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMixin {
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _anim;
 

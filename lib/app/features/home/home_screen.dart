@@ -140,9 +140,8 @@ class HomeScreen extends StatelessWidget {
 
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        KpbSpacing.pagePad, KpbSpacing.sm,
-                        KpbSpacing.pagePad, 0),
+                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
+                        KpbSpacing.sm, KpbSpacing.pagePad, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -218,7 +217,8 @@ class HomeScreen extends StatelessWidget {
                       onAction: () => controller.goToTab(StudentShellTab.cases),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.sm)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.sm)),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: KpbSpacing.pagePad),
@@ -232,15 +232,15 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.xl)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
                 ],
 
                 // ── 5. Deadline urgente ───────────────────────────────
                 if (urgentScholarship != null && controller.isStudent)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          KpbSpacing.pagePad, 0,
+                      padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 0,
                           KpbSpacing.pagePad, KpbSpacing.xl),
                       child: _UrgentDeadlineCard(
                         scholarship: urgentScholarship,
@@ -267,8 +267,7 @@ class HomeScreen extends StatelessWidget {
                           name: controller.resolve(institution.name),
                           flag: _flag(institution.countryId),
                           location: controller.resolve(institution.location),
-                          tuition:
-                              controller.resolve(institution.tuitionLabel),
+                          tuition: controller.resolve(institution.tuitionLabel),
                           isPartner: institution.isPartner,
                           score: controller.institutionMatch(institution),
                           onTap: () =>
@@ -277,7 +276,8 @@ class HomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.xl)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
                 ],
 
                 // ── 6. Bourses pour toi ───────────────────────────────
@@ -303,7 +303,8 @@ class HomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.xl)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
                 ],
 
                 // ── 7. Articles récents ───────────────────────────────
@@ -316,7 +317,8 @@ class HomeScreen extends StatelessWidget {
                       onAction: () => Get.to(() => const CommunityScreen()),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: KpbSpacing.sm)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.sm)),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: KpbSpacing.pagePad),
@@ -362,9 +364,18 @@ class HomeScreen extends StatelessWidget {
 
   DateTime? _parseDeadline(String label) {
     const months = {
-      'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
-      'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
-      'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12,
+      'janvier': 1,
+      'février': 2,
+      'mars': 3,
+      'avril': 4,
+      'mai': 5,
+      'juin': 6,
+      'juillet': 7,
+      'août': 8,
+      'septembre': 9,
+      'octobre': 10,
+      'novembre': 11,
+      'décembre': 12,
     };
     final parts = label.toLowerCase().split(' ');
     if (parts.length < 3) return null;
@@ -692,8 +703,7 @@ class _NextStepCard extends StatelessWidget {
           c.status == CaseStatus.documentsNeeded ||
           c.status == CaseStatus.awaitingStudent ||
           c.status == CaseStatus.awaitingPayment,
-      orElse: () =>
-          activeCases.isEmpty ? _placeholder : activeCases.first,
+      orElse: () => activeCases.isEmpty ? _placeholder : activeCases.first,
     );
 
     if (activeCases.isNotEmpty &&
@@ -740,8 +750,7 @@ class _NextStepCard extends StatelessWidget {
       return _StepData(
         label: 'Découverte',
         title: 'Fais ton test d\'orientation',
-        subtitle:
-            '5 questions pour trouver les filières qui te correspondent',
+        subtitle: '5 questions pour trouver les filières qui te correspondent',
         icon: Icons.psychology_rounded,
         iconColor: KpbColors.blue,
         onTap: () => Get.to(() => const OrientationScreen()),
@@ -944,7 +953,8 @@ class _AiAdvisorBanner extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: KpbColors.blue.withValues(alpha: 0.2),
                         borderRadius: KpbRadius.xsBr,
@@ -1130,8 +1140,8 @@ class _InstitutionCard extends StatelessWidget {
               children: [
                 Text(flag, style: const TextStyle(fontSize: 24)),
                 const Spacer(),
-                AdmissionMeter(score: score, size: 30, strokeWidth: 3,
-                    showLabel: false),
+                AdmissionMeter(
+                    score: score, size: 30, strokeWidth: 3, showLabel: false),
                 if (isPartner) ...[
                   const SizedBox(width: 6),
                   const Flexible(
@@ -1351,8 +1361,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: const BoxDecoration(
                 color: KpbColors.gold,
                 borderRadius: KpbRadius.mdBr,
@@ -1374,9 +1383,18 @@ class _UrgentDeadlineCard extends StatelessWidget {
 
   int _daysLeft(String label) {
     const months = {
-      'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
-      'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
-      'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12,
+      'janvier': 1,
+      'février': 2,
+      'mars': 3,
+      'avril': 4,
+      'mai': 5,
+      'juin': 6,
+      'juillet': 7,
+      'août': 8,
+      'septembre': 9,
+      'octobre': 10,
+      'novembre': 11,
+      'décembre': 12,
     };
     final parts = label.toLowerCase().split(' ');
     if (parts.length < 3) return -1;
@@ -1520,7 +1538,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: KpbColors.gold.withValues(alpha: 0.15),
                               borderRadius: KpbRadius.xsBr,
@@ -1570,7 +1589,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                   children: const ['canada', 'usa', 'uk', 'germany', 'morocco']
                       .map((id) => Container(
                             margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: KpbRadius.xsBr,
@@ -1713,7 +1733,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                           child: InkWell(
                             onTap: () {
                               Get.back();
-                              Get.to(() => CountryDetailScreen(countryId: country.id));
+                              Get.to(() =>
+                                  CountryDetailScreen(countryId: country.id));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(KpbSpacing.md),
@@ -1725,7 +1746,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.06),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.06),
                                       shape: BoxShape.circle,
                                     ),
                                     alignment: Alignment.center,
@@ -1738,10 +1760,12 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                   // Text contents
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               controller.resolve(country.name),
@@ -1753,10 +1777,13 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             ),
                                             // Difficulty Badge
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 6, vertical: 2),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withValues(alpha: 0.05),
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.05),
                                                 borderRadius: KpbRadius.xsBr,
                                               ),
                                               child: Text(
@@ -1764,7 +1791,8 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                                 style: const TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.w600,
-                                                  color: KpbColors.textDarkSecondary,
+                                                  color: KpbColors
+                                                      .textDarkSecondary,
                                                 ),
                                               ),
                                             ),
@@ -1794,11 +1822,13 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,
-                                                color: Colors.white.withValues(alpha: 0.6),
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             Text(
-                                              controller.resolve(country.tuitionRange),
+                                              controller.resolve(
+                                                  country.tuitionRange),
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,

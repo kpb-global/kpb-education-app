@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class YoutubeVideo {
   const YoutubeVideo({
     required this.videoId,

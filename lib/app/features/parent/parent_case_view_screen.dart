@@ -151,7 +151,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         const SizedBox(height: KpbSpacing.lg),
         if (timeline.isNotEmpty) ...[
           const Padding(
-            padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
+            padding:
+                EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
             child: Text('Historique', style: KpbTextStyles.label),
           ),
           ...timeline.take(6).map(_timelineTile),
@@ -159,7 +160,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         ],
         if (messages.isNotEmpty) ...[
           Padding(
-            padding: EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
+            padding:
+                EdgeInsets.only(left: KpbSpacing.xs, bottom: KpbSpacing.sm),
             child: Text('latest_messages'.tr, style: KpbTextStyles.label),
           ),
           ...messages.reversed.take(5).toList().reversed.map(_messageTile),
@@ -276,8 +278,7 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
               ),
             ],
             const SizedBox(height: 6),
-            Text('parent_cost_note'.tr,
-                style: KpbTextStyles.caption),
+            Text('parent_cost_note'.tr, style: KpbTextStyles.caption),
           ],
         ),
       ),
@@ -298,8 +299,8 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
     if (countryId.isEmpty) return null;
     final country = Get.find<AppController>().countryByIdOrNull(countryId);
     if (country == null) return null;
-    final suffix =
-        TuitionUtils.fcfaSuffixFromTuition(country.tuitionRange.resolve(locale));
+    final suffix = TuitionUtils.fcfaSuffixFromTuition(
+        country.tuitionRange.resolve(locale));
     return suffix.isEmpty ? null : suffix;
   }
 

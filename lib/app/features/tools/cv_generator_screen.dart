@@ -42,15 +42,17 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
     final level = p?.currentLevel ?? '';
     final fieldId = p?.fieldIds.isNotEmpty == true ? p!.fieldIds.first : '';
     final field = _ctrl.fields
-        .where((f) => f.id == fieldId)
-        .map((f) => _ctrl.resolve(f.name))
-        .firstOrNull ?? '';
+            .where((f) => f.id == fieldId)
+            .map((f) => _ctrl.resolve(f.name))
+            .firstOrNull ??
+        '';
     final targetId =
         p?.targetCountryIds.isNotEmpty == true ? p!.targetCountryIds.first : '';
     final country = _ctrl.countries
-        .where((c) => c.id == targetId)
-        .map((c) => _ctrl.resolve(c.name))
-        .firstOrNull ?? '';
+            .where((c) => c.id == targetId)
+            .map((c) => _ctrl.resolve(c.name))
+            .firstOrNull ??
+        '';
 
     _nameCtrl = TextEditingController(text: p?.fullName ?? '');
     _emailCtrl = TextEditingController(text: p?.email ?? '');
@@ -67,9 +69,16 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
   @override
   void dispose() {
     for (final c in [
-      _nameCtrl, _emailCtrl, _phoneCtrl, _levelCtrl,
-      _fieldCtrl, _countryCtrl, _skillsCtrl, _languagesCtrl,
-      _experienceCtrl, _objectiveCtrl,
+      _nameCtrl,
+      _emailCtrl,
+      _phoneCtrl,
+      _levelCtrl,
+      _fieldCtrl,
+      _countryCtrl,
+      _skillsCtrl,
+      _languagesCtrl,
+      _experienceCtrl,
+      _objectiveCtrl,
     ]) {
       c.dispose();
     }
@@ -229,8 +238,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                                     horizontal: 8, vertical: 3),
                                 decoration: pw.BoxDecoration(
                                   color: PdfColors.white,
-                                  borderRadius:
-                                      pw.BorderRadius.circular(10),
+                                  borderRadius: pw.BorderRadius.circular(10),
                                 ),
                                 child: pw.Text(
                                   s,
@@ -330,14 +338,12 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                       ...experiences.map((exp) => pw.Padding(
                             padding: const pw.EdgeInsets.only(bottom: 6),
                             child: pw.Row(
-                              crossAxisAlignment:
-                                  pw.CrossAxisAlignment.start,
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
                                 pw.Container(
                                   width: 6,
                                   height: 6,
-                                  margin:
-                                      const pw.EdgeInsets.only(top: 3),
+                                  margin: const pw.EdgeInsets.only(top: 3),
                                   decoration: pw.BoxDecoration(
                                     color: _kpbBlue,
                                     shape: pw.BoxShape.circle,
@@ -361,9 +367,8 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
                     // Objective
                     if (_objectiveCtrl.text.isNotEmpty) ...[
-                      _mainSection(en
-                          ? 'CAREER OBJECTIVE'
-                          : 'OBJECTIF PROFESSIONNEL'),
+                      _mainSection(
+                          en ? 'CAREER OBJECTIVE' : 'OBJECTIF PROFESSIONNEL'),
                       pw.Text(
                         _objectiveCtrl.text,
                         style: const pw.TextStyle(
@@ -528,7 +533,8 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
               decoration: BoxDecoration(
                 color: context.kpb.cardBg,
                 borderRadius: KpbRadius.lgBr,
-                border: Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: KpbColors.blue.withValues(alpha: 0.3)),
               ),
               child: Text(
                 _useEnglish

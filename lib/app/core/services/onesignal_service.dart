@@ -105,8 +105,7 @@ class OneSignalService {
     // Normalize the external payload and fall back to the home shell when it
     // resolves to nothing (e.g. an unknown or MVP-locked route) so a tap never
     // dies silently. `/scholarships` resolves to a graceful "coming soon".
-    final route =
-        raw is String ? AppRoutes.normalizeExternalRoute(raw) : null;
+    final route = raw is String ? AppRoutes.normalizeExternalRoute(raw) : null;
     try {
       if (route == null) {
         Get.offAllNamed(AppRoutes.home);

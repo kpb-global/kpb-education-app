@@ -71,8 +71,7 @@ class _HomeImpactProofState extends State<HomeImpactProof> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('impact_proof_title'.tr,
-                        style: KpbTextStyles.titleMd),
+                    Text('impact_proof_title'.tr, style: KpbTextStyles.titleMd),
                     const SizedBox(height: 2),
                     Text(
                       'impact_proof_line'.trParams({

@@ -108,7 +108,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
             foregroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
-              background: _CountryHero(country: country, controller: _controller),
+              background:
+                  _CountryHero(country: country, controller: _controller),
               collapseMode: CollapseMode.parallax,
             ),
             actions: [
@@ -261,7 +262,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                                       size: 18, color: KpbColors.success),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(bullet, style: KpbTextStyles.bodySm),
+                                    child: Text(bullet,
+                                        style: KpbTextStyles.bodySm),
                                   ),
                                 ],
                               ),
@@ -533,7 +535,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _BottomCta(country: country, controller: _controller),
+      bottomNavigationBar:
+          _BottomCta(country: country, controller: _controller),
     );
   }
 }

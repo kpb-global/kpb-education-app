@@ -878,12 +878,12 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                         _TypingDot(delay: Duration.zero),
                                         const SizedBox(width: 4),
                                         _TypingDot(
-                                            delay:
-                                                const Duration(milliseconds: 200)),
+                                            delay: const Duration(
+                                                milliseconds: 200)),
                                         const SizedBox(width: 4),
                                         _TypingDot(
-                                            delay:
-                                                const Duration(milliseconds: 400)),
+                                            delay: const Duration(
+                                                milliseconds: 400)),
                                       ],
                                     ),
                                   ),

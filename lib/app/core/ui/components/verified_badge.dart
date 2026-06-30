@@ -38,8 +38,7 @@ class VerifiedBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final d = lastVerifiedAt;
-    final bool stale =
-        d != null && DateTime.now().difference(d) > staleAfter;
+    final bool stale = d != null && DateTime.now().difference(d) > staleAfter;
     final bool fresh = d != null && !stale;
 
     final Color color = fresh ? KpbColors.success : KpbColors.warning;

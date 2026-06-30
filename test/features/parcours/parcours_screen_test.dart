@@ -19,7 +19,8 @@ void main() {
       resetGetxSingleton();
     });
 
-    testWidgets('shows an empty state when there are no videos', (tester) async {
+    testWidgets('shows an empty state when there are no videos',
+        (tester) async {
       await pumpTestApp(
         tester,
         child: const ParcoursScreen(),

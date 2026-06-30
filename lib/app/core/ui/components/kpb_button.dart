@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // KpbButton — Jobs Edition
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,8 +37,11 @@ class KpbButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveLabel = label ?? text ?? '';
     final effectiveOnTap = onTap ?? onPressed;
-    final effectiveBg = backgroundColor ?? bgColor ?? (secondary ? context.kpb.surfaceBg : KpbColors.blue);
-    final effectiveFg = textColor ?? (secondary ? KpbColors.blue : Colors.white);
+    final effectiveBg = backgroundColor ??
+        bgColor ??
+        (secondary ? context.kpb.surfaceBg : KpbColors.blue);
+    final effectiveFg =
+        textColor ?? (secondary ? KpbColors.blue : Colors.white);
 
     Widget content = Row(
       mainAxisSize: MainAxisSize.min,

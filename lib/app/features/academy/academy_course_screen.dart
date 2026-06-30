@@ -31,39 +31,48 @@ class AcademyCourseScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      KpbBadge(label: 'COURS EXPERT', color: isDark ? KpbColors.blueMid : KpbColors.blue),
+                      KpbBadge(
+                          label: 'COURS EXPERT',
+                          color: isDark ? KpbColors.blueMid : KpbColors.blue),
                       const SizedBox(width: 8),
                       Text(
                         '${course.lessonCount} sessions',
-                        style: KpbTextStyles.label.copyWith(color: context.kpb.textSecondary),
+                        style: KpbTextStyles.label
+                            .copyWith(color: context.kpb.textSecondary),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
                     controller.resolve(course.title),
-                    style: KpbTextStyles.displaySm.copyWith(color: context.kpb.textPrimary),
+                    style: KpbTextStyles.displaySm
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     controller.resolve(course.description),
-                    style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
+                    style: KpbTextStyles.body
+                        .copyWith(color: context.kpb.textSecondary),
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Benefit Section
                   _buildBenefitCard(context, isDark),
-                  
+
                   const SizedBox(height: 32),
                   Text(
                     'Programme de la formation',
-                    style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
+                    style: KpbTextStyles.titleLg
+                        .copyWith(color: context.kpb.textPrimary),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Lessons Preview
-                  ...lessons.map((l) => _LessonPreviewTile(lesson: l, index: lessons.indexOf(l) + 1, isDark: isDark)),
-                  
+                  ...lessons.map((l) => _LessonPreviewTile(
+                      lesson: l,
+                      index: lessons.indexOf(l) + 1,
+                      isDark: isDark)),
+
                   const SizedBox(height: 140), // Padding for bottom bar
                 ],
               ),
@@ -75,7 +84,8 @@ class AcademyCourseScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, AcademyCourseModel course, bool isDark) {
+  Widget _buildAppBar(
+      BuildContext context, AcademyCourseModel course, bool isDark) {
     return SliverAppBar(
       expandedHeight: 260,
       pinned: true,
@@ -85,7 +95,8 @@ class AcademyCourseScreen extends StatelessWidget {
         child: CircleAvatar(
           backgroundColor: Colors.black.withValues(alpha: 0.4),
           child: IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+            icon:
+                const Icon(Icons.close_rounded, color: Colors.white, size: 20),
             onPressed: () => Get.back(),
           ),
         ),
@@ -120,9 +131,11 @@ class AcademyCourseScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
+                  border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.5), width: 2),
                 ),
-                child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                child: const Icon(Icons.play_arrow_rounded,
+                    color: Colors.white, size: 40),
               ),
             )
           ],
@@ -142,28 +155,41 @@ class AcademyCourseScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _BenefitRow(icon: Icons.video_library_rounded, text: 'Vidéos pas-à-pas en HD', isDark: isDark),
+          _BenefitRow(
+              icon: Icons.video_library_rounded,
+              text: 'Vidéos pas-à-pas en HD',
+              isDark: isDark),
           const SizedBox(height: 16),
-          _BenefitRow(icon: Icons.description_rounded, text: 'Modèles de lettres de motivation', isDark: isDark),
+          _BenefitRow(
+              icon: Icons.description_rounded,
+              text: 'Modèles de lettres de motivation',
+              isDark: isDark),
           const SizedBox(height: 16),
-          _BenefitRow(icon: Icons.verified_user_rounded, text: 'Astuces de conseillers senior KPB', isDark: isDark),
+          _BenefitRow(
+              icon: Icons.verified_user_rounded,
+              text: 'Astuces de conseillers senior KPB',
+              isDark: isDark),
         ],
       ),
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, AppController controller, bool isPurchased, bool isDark) {
+  Widget _buildBottomBar(BuildContext context, AppController controller,
+      bool isPurchased, bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 16, KpbSpacing.pagePad, 32),
+      padding: const EdgeInsets.fromLTRB(
+          KpbSpacing.pagePad, 16, KpbSpacing.pagePad, 32),
       decoration: BoxDecoration(
         color: context.kpb.surfaceBg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
         boxShadow: KpbShadow.float,
       ),
       child: isPurchased
           ? KpbButton(
               text: 'Continuer la formation',
-              onPressed: () => Get.to(() => AcademyPlayerScreen(course: course)),
+              onPressed: () =>
+                  Get.to(() => AcademyPlayerScreen(course: course)),
               bgColor: KpbColors.success,
               icon: Icons.play_circle_fill_rounded,
             )
@@ -175,7 +201,8 @@ class AcademyCourseScreen extends StatelessWidget {
                   children: [
                     Text(
                       'remaining_to_pay'.tr,
-                      style: KpbTextStyles.label.copyWith(color: context.kpb.textSecondary),
+                      style: KpbTextStyles.label
+                          .copyWith(color: context.kpb.textSecondary),
                     ),
                     Text(
                       '${course.priceXOF} FCFA',
@@ -191,7 +218,8 @@ class AcademyCourseScreen extends StatelessWidget {
                 Expanded(
                   child: KpbButton(
                     text: 'Acheter le pack',
-                    onPressed: () => _handlePurchase(context, controller, isDark),
+                    onPressed: () =>
+                        _handlePurchase(context, controller, isDark),
                     bgColor: KpbColors.blue,
                   ),
                 ),
@@ -200,66 +228,74 @@ class AcademyCourseScreen extends StatelessWidget {
     );
   }
 
-  void _handlePurchase(BuildContext context, AppController controller, bool isDark) {
-     showModalBottomSheet(
-       context: context,
-       backgroundColor: context.kpb.pageBg,
-       isScrollControlled: true,
-       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-       builder: (context) => Padding(
-         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-         child: Container(
-           padding: const EdgeInsets.all(KpbSpacing.xl),
-           child: Column(
-             mainAxisSize: MainAxisSize.min,
-             children: [
-               Container(
-                 padding: const EdgeInsets.all(16),
-                 decoration: BoxDecoration(
-                   color: (KpbColors.blue).withValues(alpha: 0.1),
-                   shape: BoxShape.circle,
-                 ),
-                 child: Icon(Icons.shopping_bag_outlined, color: KpbColors.blue, size: 48),
-               ),
-               SizedBox(height: 24),
-               Text(
-                 'Finaliser l\'achat',
-                 style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
-               ),
-               SizedBox(height: 12),
-               Text(
-                 'academy_unlock_msg'.trParams({'title': controller.resolve(course.title)}),
-                 textAlign: TextAlign.center,
-                 style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
-               ),
-               const SizedBox(height: 32),
-               KpbButton(
-                 text: 'Confirmer et payer',
-                 onPressed: () {
-                   controller.purchaseCourse(course.id);
-                   Get.back();
-                   Get.snackbar(
-                      'Félicitations !',
-                      'Formation débloquée avec succès. Vous pouvez maintenant suivre les cours.',
-                      backgroundColor: KpbColors.success,
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.TOP,
-                   );
-                 },
-                 bgColor: KpbColors.success,
-                 icon: Icons.check_circle_outline_rounded,
-               ),
-               const SizedBox(height: 16),
-             ],
-           ),
-         ),
-       ),
-     );
+  void _handlePurchase(
+      BuildContext context, AppController controller, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.kpb.pageBg,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.all(KpbSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: (KpbColors.blue).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.shopping_bag_outlined,
+                    color: KpbColors.blue, size: 48),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Finaliser l\'achat',
+                style: KpbTextStyles.headline
+                    .copyWith(color: context.kpb.textPrimary),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'academy_unlock_msg'
+                    .trParams({'title': controller.resolve(course.title)}),
+                textAlign: TextAlign.center,
+                style: KpbTextStyles.body
+                    .copyWith(color: context.kpb.textSecondary),
+              ),
+              const SizedBox(height: 32),
+              KpbButton(
+                text: 'Confirmer et payer',
+                onPressed: () {
+                  controller.purchaseCourse(course.id);
+                  Get.back();
+                  Get.snackbar(
+                    'Félicitations !',
+                    'Formation débloquée avec succès. Vous pouvez maintenant suivre les cours.',
+                    backgroundColor: KpbColors.success,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP,
+                  );
+                },
+                bgColor: KpbColors.success,
+                icon: Icons.check_circle_outline_rounded,
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class _BenefitRow extends StatelessWidget {
-  const _BenefitRow({required this.icon, required this.text, required this.isDark});
+  const _BenefitRow(
+      {required this.icon, required this.text, required this.isDark});
   final IconData icon;
   final String text;
   final bool isDark;
@@ -278,7 +314,9 @@ class _BenefitRow extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Text(text, style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary)),
+          child: Text(text,
+              style: KpbTextStyles.titleMd
+                  .copyWith(color: context.kpb.textPrimary)),
         ),
       ],
     );
@@ -286,7 +324,8 @@ class _BenefitRow extends StatelessWidget {
 }
 
 class _LessonPreviewTile extends StatelessWidget {
-  const _LessonPreviewTile({required this.lesson, required this.index, required this.isDark});
+  const _LessonPreviewTile(
+      {required this.lesson, required this.index, required this.isDark});
   final AcademyLessonModel lesson;
   final int index;
   final bool isDark;
@@ -325,10 +364,12 @@ class _LessonPreviewTile extends StatelessWidget {
           Expanded(
             child: Text(
               controller.resolve(lesson.title),
-              style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
+              style: KpbTextStyles.titleMd
+                  .copyWith(color: context.kpb.textPrimary),
             ),
           ),
-          Icon(Icons.lock_outline_rounded, color: context.kpb.textMuted, size: 20),
+          Icon(Icons.lock_outline_rounded,
+              color: context.kpb.textMuted, size: 20),
         ],
       ),
     );

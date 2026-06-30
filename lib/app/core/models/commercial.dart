@@ -1,6 +1,5 @@
 part of 'app_models.dart';
 
-
 class CommercialLead {
   const CommercialLead({
     required this.id,
@@ -46,6 +45,7 @@ class CommercialLead {
     );
   }
 }
+
 class CommercialStats {
   const CommercialStats({
     required this.totalLeads,

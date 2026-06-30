@@ -24,7 +24,9 @@ void main() {
       expect(quota.allowed, isFalse);
     });
 
-    test('gracefully defaults when keys are absent (legacy / unexpected payload)', () {
+    test(
+        'gracefully defaults when keys are absent (legacy / unexpected payload)',
+        () {
       final quota = CoachQuota.fromJson({});
       expect(quota.remaining, 0);
       expect(quota.limit, 5);

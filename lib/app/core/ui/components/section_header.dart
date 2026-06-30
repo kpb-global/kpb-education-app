@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Section Header ────────────────────────────────────────────────────────────
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -27,9 +26,9 @@ class SectionHeader extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              title, 
-              style: textColor != null 
-                  ? KpbTextStyles.title.copyWith(color: textColor) 
+              title,
+              style: textColor != null
+                  ? KpbTextStyles.title.copyWith(color: textColor)
                   : KpbTextStyles.title,
             ),
           ),
@@ -41,7 +40,9 @@ class SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: textColor == Colors.white ? KpbColors.blue : KpbColors.blue,
+                  color: textColor == Colors.white
+                      ? KpbColors.blue
+                      : KpbColors.blue,
                 ),
               ),
             ),

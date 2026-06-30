@@ -1,7 +1,7 @@
 part of 'app_models.dart';
 
-
 enum EligibilityVerdict { eligible, eligibleWithConditions, notEligible }
+
 EligibilityVerdict eligibilityVerdictFromKey(String key) {
   switch (key) {
     case 'eligible':
@@ -25,6 +25,7 @@ String eligibilityVerdictToKey(EligibilityVerdict verdict) {
       return 'eligible_with_conditions';
   }
 }
+
 class QuizOptionModel {
   const QuizOptionModel({
     required this.value,
@@ -47,6 +48,7 @@ class QuizOptionModel {
     );
   }
 }
+
 class QuizQuestionModel {
   const QuizQuestionModel({
     required this.id,
@@ -75,6 +77,7 @@ class QuizQuestionModel {
     );
   }
 }
+
 class QuizVerdictModel {
   const QuizVerdictModel({
     required this.titleFr,
@@ -98,7 +101,9 @@ class QuizVerdictModel {
       localeCode.startsWith('en') && titleEn.isNotEmpty ? titleEn : titleFr;
 
   String messageFor(String localeCode) =>
-      localeCode.startsWith('en') && messageEn.isNotEmpty ? messageEn : messageFr;
+      localeCode.startsWith('en') && messageEn.isNotEmpty
+          ? messageEn
+          : messageFr;
 
   String ctaFor(String localeCode) =>
       localeCode.startsWith('en') && ctaEn.isNotEmpty ? ctaEn : ctaFr;
@@ -117,6 +122,7 @@ class QuizVerdictModel {
     );
   }
 }
+
 class CountryEligibilityQuizModel {
   const CountryEligibilityQuizModel({
     required this.questions,
@@ -143,6 +149,7 @@ class CountryEligibilityQuizModel {
     );
   }
 }
+
 class CountryQuizResultModel {
   const CountryQuizResultModel({
     required this.verdict,

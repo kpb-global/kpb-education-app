@@ -166,7 +166,8 @@ class _EligibilitySimulatorScreenState
               items: onboardingBacSeries
                   .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                   .toList(),
-              onChanged: (v) => setState(() => _input = _input.copyWith(bacSeries: v)),
+              onChanged: (v) =>
+                  setState(() => _input = _input.copyWith(bacSeries: v)),
             ),
           ],
           const SizedBox(height: KpbSpacing.md),
@@ -184,13 +185,15 @@ class _EligibilitySimulatorScreenState
           _LangSelector(
             label: 'Niveau de français',
             value: _input.frenchLevel,
-            onChanged: (v) => setState(() => _input = _input.copyWith(frenchLevel: v)),
+            onChanged: (v) =>
+                setState(() => _input = _input.copyWith(frenchLevel: v)),
           ),
           const SizedBox(height: KpbSpacing.md),
           _LangSelector(
             label: 'Niveau d\'anglais',
             value: _input.englishLevel,
-            onChanged: (v) => setState(() => _input = _input.copyWith(englishLevel: v)),
+            onChanged: (v) =>
+                setState(() => _input = _input.copyWith(englishLevel: v)),
           ),
         ],
       ),
@@ -274,9 +277,8 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final green = results
-        .where((r) => r.verdict == EligibilityVerdict.eligible)
-        .length;
+    final green =
+        results.where((r) => r.verdict == EligibilityVerdict.eligible).length;
     final amber = results
         .where((r) => r.verdict == EligibilityVerdict.eligibleWithConditions)
         .length;
@@ -326,8 +328,7 @@ class _SummaryChip extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text('$count',
-              style: KpbTextStyles.titleLg.copyWith(color: color)),
+          Text('$count', style: KpbTextStyles.titleLg.copyWith(color: color)),
           Text(label,
               style: KpbTextStyles.caption.copyWith(color: color),
               textAlign: TextAlign.center),

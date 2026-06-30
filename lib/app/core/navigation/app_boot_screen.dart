@@ -24,9 +24,8 @@ class AppBootScreen extends StatelessWidget {
           return const IntroSlideshowScreen();
         }
 
-        final authService = Get.isRegistered<AuthService>()
-            ? Get.find<AuthService>()
-            : null;
+        final authService =
+            Get.isRegistered<AuthService>() ? Get.find<AuthService>() : null;
         final isAuthenticated = authService?.isLoggedIn ?? false;
 
         if (!isAuthenticated) {

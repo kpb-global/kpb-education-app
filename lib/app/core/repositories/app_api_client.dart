@@ -119,8 +119,7 @@ class AppApiClient {
   /// The caller's no-cash reward balance + recent ledger (KPB-77). Returns
   /// `{balance, history}`.
   Future<Map<String, dynamic>> getMyReferralCredits() async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/referrals/credits');
+    final response = await _dio.get<Map<String, dynamic>>('/referrals/credits');
     return response.data ?? <String, dynamic>{};
   }
 
@@ -302,9 +301,10 @@ class AppApiClient {
   }
 
   Future<List<dynamic>> listCatalog(String resource) async {
-    final queryParameters = (resource == 'programs' || resource == 'institutions')
-        ? <String, dynamic>{'limit': 1000}
-        : null;
+    final queryParameters =
+        (resource == 'programs' || resource == 'institutions')
+            ? <String, dynamic>{'limit': 1000}
+            : null;
     final response = await _dio.get<Map<String, dynamic>>(
       '/catalog/$resource',
       queryParameters: queryParameters,
@@ -694,7 +694,8 @@ class AppApiClient {
 
   // ── Phase 3 — Partners (credibility layer) ────────────────────────────────
 
-  Future<List<dynamic>> listPartners({String? category, String? country}) async {
+  Future<List<dynamic>> listPartners(
+      {String? category, String? country}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/partners',
       queryParameters: {

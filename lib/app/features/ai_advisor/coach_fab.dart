@@ -36,7 +36,8 @@ class CoachFab extends StatelessWidget {
   /// Gate the coach behind explicit, separately-stored AI-processing consent
   /// (KPB-66). The first time, ask; once granted we persist the timestamp so we
   /// never re-prompt. Declining keeps the rest of the app usable.
-  Future<void> _openCoach(BuildContext context, AppController controller) async {
+  Future<void> _openCoach(
+      BuildContext context, AppController controller) async {
     final profile = controller.profile;
     if (profile != null && !profile.hasAiConsent) {
       final granted = await _askAiConsent(context);

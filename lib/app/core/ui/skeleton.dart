@@ -175,7 +175,8 @@ class ExploreScreenSkeleton extends StatelessWidget {
         mainAxisSpacing: 12,
       ),
       itemCount: 6,
-      itemBuilder: (_, __) => const _SkeletonPulse(height: 160, borderRadius: 12),
+      itemBuilder: (_, __) =>
+          const _SkeletonPulse(height: 160, borderRadius: 12),
     );
   }
 }

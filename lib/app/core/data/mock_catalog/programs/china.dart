@@ -24,8 +24,8 @@ const kProgramsChina = <ProgramModel>[
     tuition: LocalizedText(
         fr: 'CNY 26 000–45 000/an (ou bourse CSC)',
         en: 'CNY 26,000–45,000/yr (or CSC scholarship)'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [
       LocalizedText(
           fr: 'Baccalauréat scientifique solide (maths, physique).',
@@ -46,8 +46,8 @@ const kProgramsChina = <ProgramModel>[
     tuition: LocalizedText(
         fr: 'CNY 30 000–45 000/an (ou bourse CSC)',
         en: 'CNY 30,000–45,000/yr (or CSC scholarship)'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── Fudan University (Shanghai) ─────────────────────────────────────────
@@ -61,10 +61,10 @@ const kProgramsChina = <ProgramModel>[
         en: 'Bachelor of Medicine (MBBS, English-taught)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Bachelor'),
     duration: LocalizedText(fr: '5–6 ans', en: '5–6 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 24 000–38 000/an', en: 'CNY 24,000–38,000/yr'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.0+)', en: 'English (IELTS 6.0+)'),
+    tuition:
+        LocalizedText(fr: 'CNY 24 000–38 000/an', en: 'CNY 24,000–38,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0+)', en: 'English (IELTS 6.0+)'),
     requirements: [_contactKpb],
   ),
   // ── Beijing Normal University ───────────────────────────────────────────
@@ -100,8 +100,8 @@ const kProgramsChina = <ProgramModel>[
     tuition: LocalizedText(
         fr: 'CNY 18 000–24 000/an (souvent bourse CSC)',
         en: 'CNY 18,000–24,000/yr (often CSC scholarship)'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   ProgramModel(
@@ -133,8 +133,8 @@ const kProgramsChina = <ProgramModel>[
         en: 'Master in Computer Science & AI'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 20 000–30 000/an', en: 'CNY 20,000–30,000/yr'),
+    tuition:
+        LocalizedText(fr: 'CNY 20 000–30 000/an', en: 'CNY 20,000–30,000/yr'),
     language: LocalizedText(
         fr: 'Anglais (IELTS 6.0–6.5)', en: 'English (IELTS 6.0–6.5)'),
     requirements: [_contactKpb],
@@ -150,10 +150,10 @@ const kProgramsChina = <ProgramModel>[
         en: 'Master in Engineering & Applied Sciences'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2–3 ans', en: '2–3 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 26 000–40 000/an', en: 'CNY 26,000–40,000/yr'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
+    tuition:
+        LocalizedText(fr: 'CNY 26 000–40 000/an', en: 'CNY 26,000–40,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.5)', en: 'English (IELTS 6.5)'),
     requirements: [_contactKpb],
   ),
   // ── Jiangsu University — MBBS (médecine en anglais) ─────────────────────
@@ -167,10 +167,10 @@ const kProgramsChina = <ProgramModel>[
         en: 'MBBS — Medicine (English-taught)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Bachelor'),
     duration: LocalizedText(fr: '5–6 ans', en: '5–6 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 18 000–28 000/an', en: 'CNY 18,000–28,000/yr'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    tuition:
+        LocalizedText(fr: 'CNY 18 000–28 000/an', en: 'CNY 18,000–28,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   // ── Wuhan University ────────────────────────────────────────────────────
@@ -184,8 +184,8 @@ const kProgramsChina = <ProgramModel>[
         en: 'Master in International Finance & Economics'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 20 000–35 000/an', en: 'CNY 20,000–35,000/yr'),
+    tuition:
+        LocalizedText(fr: 'CNY 20 000–35 000/an', en: 'CNY 20,000–35,000/yr'),
     language: LocalizedText(
         fr: 'Anglais (IELTS 6.0–6.5)', en: 'English (IELTS 6.0–6.5)'),
     requirements: [_contactKpb],
@@ -201,10 +201,10 @@ const kProgramsChina = <ProgramModel>[
         en: 'Bachelor in Civil & Hydraulic Engineering'),
     level: LocalizedText(fr: 'Bac+4', en: 'Bachelor'),
     duration: LocalizedText(fr: '4 ans', en: '4 years'),
-    tuition: LocalizedText(
-        fr: 'CNY 18 000–26 000/an', en: 'CNY 18,000–26,000/yr'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    tuition:
+        LocalizedText(fr: 'CNY 18 000–26 000/an', en: 'CNY 18,000–26,000/yr'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   // ── Accessible / scholarship-friendly universities ──────────────────────
@@ -239,8 +239,8 @@ const kProgramsChina = <ProgramModel>[
     tuition: LocalizedText(
         fr: 'CNY 15 000–25 000/an (bourse/réduction possible)',
         en: 'CNY 15,000–25,000/yr (scholarship/reduction possible)'),
-    language: LocalizedText(
-        fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
+    language:
+        LocalizedText(fr: 'Anglais (IELTS 6.0)', en: 'English (IELTS 6.0)'),
     requirements: [_contactKpb],
   ),
   ProgramModel(

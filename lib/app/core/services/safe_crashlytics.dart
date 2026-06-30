@@ -48,7 +48,9 @@ Future<void> _safeRecordErrorAsync(
     }
     await c.setCustomKey(
       CrashlyticsObsKey.reportKind,
-      fatal ? CrashlyticsReportKind.explicitFatal : CrashlyticsReportKind.nonFatalHandled,
+      fatal
+          ? CrashlyticsReportKind.explicitFatal
+          : CrashlyticsReportKind.nonFatalHandled,
     );
     await c.recordError(
       error,

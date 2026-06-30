@@ -93,17 +93,20 @@ const orientationQuestionsM4Extension = <OrientationQuestion>[
     options: [
       OrientationOption(
         id: 'budget_low',
-        label: LocalizedText(fr: 'Moins de 5 000 €/an', en: 'Under €5,000/year'),
+        label:
+            LocalizedText(fr: 'Moins de 5 000 €/an', en: 'Under €5,000/year'),
         weights: {'d09': 2, 'd08': 2, 'd12': 2},
       ),
       OrientationOption(
         id: 'budget_mid',
-        label: LocalizedText(fr: '5 000 – 12 000 €/an', en: '€5,000–12,000/year'),
+        label:
+            LocalizedText(fr: '5 000 – 12 000 €/an', en: '€5,000–12,000/year'),
         weights: {'d02': 2, 'd06': 2, 'd03': 1},
       ),
       OrientationOption(
         id: 'budget_high',
-        label: LocalizedText(fr: 'Plus de 12 000 €/an', en: 'Over €12,000/year'),
+        label:
+            LocalizedText(fr: 'Plus de 12 000 €/an', en: 'Over €12,000/year'),
         weights: {'d01': 2, 'd04': 2, 'd07': 2},
       ),
     ],
@@ -117,17 +120,21 @@ const orientationQuestionsM4Extension = <OrientationQuestion>[
     options: [
       OrientationOption(
         id: 'mobility_yes',
-        label: LocalizedText(fr: 'Oui, c’est mon objectif', en: 'Yes, that’s my goal'),
+        label: LocalizedText(
+            fr: 'Oui, c’est mon objectif', en: 'Yes, that’s my goal'),
         weights: {'d07': 2, 'd12': 2, 'd02': 1},
       ),
       OrientationOption(
         id: 'mobility_maybe',
-        label: LocalizedText(fr: 'Peut-être, selon les bourses', en: 'Maybe, depending on scholarships'),
+        label: LocalizedText(
+            fr: 'Peut-être, selon les bourses',
+            en: 'Maybe, depending on scholarships'),
         weights: {'d02': 1, 'd09': 1},
       ),
       OrientationOption(
         id: 'mobility_no',
-        label: LocalizedText(fr: 'Plutôt rester proche', en: 'Prefer to stay close'),
+        label: LocalizedText(
+            fr: 'Plutôt rester proche', en: 'Prefer to stay close'),
         weights: {'d09': 2, 'd10': 1},
       ),
     ],

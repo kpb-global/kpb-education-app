@@ -36,7 +36,8 @@ void main() {
     });
 
     test('a zero budget does not count as completed', () {
-      expect(_full(monthlyBudgetEur: 0).completionScore, closeTo(12 / 13, 0.0001));
+      expect(
+          _full(monthlyBudgetEur: 0).completionScore, closeTo(12 / 13, 0.0001));
     });
   });
 }

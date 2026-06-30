@@ -15,8 +15,8 @@ void main() {
     testWidgets('renders nothing when there are no published reviews',
         (tester) async {
       final api = MockApiClient();
-      when(api.getPublishedReviews)
-          .thenAnswer((_) async => <String, dynamic>{'reviews': [], 'count': 0});
+      when(api.getPublishedReviews).thenAnswer(
+          (_) async => <String, dynamic>{'reviews': [], 'count': 0});
 
       await pumpTestApp(
         tester,

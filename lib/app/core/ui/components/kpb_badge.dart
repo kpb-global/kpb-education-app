@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_tokens.dart';
 
-
 // ── Status / Category Badge ───────────────────────────────────────────────────
 class KpbBadge extends StatelessWidget {
   const KpbBadge({

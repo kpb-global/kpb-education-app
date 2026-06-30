@@ -42,6 +42,7 @@ class AppSnapshot {
   final bool hasSeenIntro;
   final bool isGuestMode;
   final bool isAppLockEnabled;
+
   /// Data-saver: skip non-essential network image loads on low-bandwidth links.
   final bool dataSaverEnabled;
   final ThemeMode themeMode;
@@ -62,6 +63,7 @@ class AppSnapshot {
   final List<ProgramModel> programs;
   final List<ScholarshipModel> scholarships;
   final List<String> purchasedCourseIds;
+
   /// No-cash referral reward balance (KPB-77) — last value synced from backend.
   final int reviewCredits;
   final Map<String, List<String>> completedRoadmapSteps;

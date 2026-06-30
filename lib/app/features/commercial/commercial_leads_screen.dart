@@ -76,9 +76,7 @@ class _CommercialLeadsScreenState extends State<CommercialLeadsScreen> {
       case 'today':
         final start = DateTime.now();
         final midnight = DateTime(start.year, start.month, start.day);
-        return leads
-            .where((l) => !l.createdAt.isBefore(midnight))
-            .toList();
+        return leads.where((l) => !l.createdAt.isBefore(midnight)).toList();
       case 'qualified':
         return leads.where((l) => l.leadTag == 'qualified').toList();
       default:
@@ -97,7 +95,8 @@ class _CommercialLeadsScreenState extends State<CommercialLeadsScreen> {
             title: Text('nav_commercial_leads'.tr),
             actions: [
               IconButton(
-                onPressed: controller.isLoadingCommercialLeads ? null : _refresh,
+                onPressed:
+                    controller.isLoadingCommercialLeads ? null : _refresh,
                 icon: const Icon(Icons.refresh_rounded),
                 tooltip: 'Actualiser',
               ),
@@ -264,7 +263,8 @@ class _LeadCard extends StatelessWidget {
                       children: [
                         Text(lead.studentName, style: KpbTextStyles.titleMd),
                         if (lead.studentLevel != null)
-                          Text(lead.studentLevel!, style: KpbTextStyles.caption),
+                          Text(lead.studentLevel!,
+                              style: KpbTextStyles.caption),
                       ],
                     ),
                   ),
@@ -282,7 +282,8 @@ class _LeadCard extends StatelessWidget {
                 children: [
                   Text(
                     lead.referenceCode,
-                    style: TextStyle(fontSize: 11, color: context.kpb.textMuted),
+                    style:
+                        TextStyle(fontSize: 11, color: context.kpb.textMuted),
                   ),
                   const Spacer(),
                   Icon(Icons.access_time_rounded,
@@ -290,7 +291,8 @@ class _LeadCard extends StatelessWidget {
                   const SizedBox(width: 3),
                   Text(
                     anciennete,
-                    style: TextStyle(fontSize: 11, color: context.kpb.textMuted),
+                    style:
+                        TextStyle(fontSize: 11, color: context.kpb.textMuted),
                   ),
                 ],
               ),
@@ -384,9 +386,8 @@ class _LeadTagSheet extends StatelessWidget {
                   color: isActive ? color : null,
                 ),
               ),
-              trailing: isActive
-                  ? Icon(Icons.check_rounded, color: color)
-                  : null,
+              trailing:
+                  isActive ? Icon(Icons.check_rounded, color: color) : null,
               onTap: () => Navigator.of(context).pop(entry.key),
             );
           }),

@@ -66,35 +66,40 @@ class OrientationEngine {
         return right.value.compareTo(left.value);
       });
 
-    final topFive = recommendations.take(5).map((entry) {
-      final field = fields.firstWhereOrNull((item) => item.id == entry.key);
-      if (field == null) return null;
+    final topFive = recommendations
+        .take(5)
+        .map((entry) {
+          final field = fields.firstWhereOrNull((item) => item.id == entry.key);
+          if (field == null) return null;
 
-      final countries = <String>{
-        ...field.relatedCountryIds,
-        ...profile.targetCountryIds,
-      }.toList();
-      final scholarshipIds = <String>{
-        ...field.relatedScholarshipIds,
-        ...scholarships
-            .where((scholarship) => scholarship.relatedFieldIds.contains(field.id))
-            .map((scholarship) => scholarship.id),
-      }.toList();
+          final countries = <String>{
+            ...field.relatedCountryIds,
+            ...profile.targetCountryIds,
+          }.toList();
+          final scholarshipIds = <String>{
+            ...field.relatedScholarshipIds,
+            ...scholarships
+                .where((scholarship) =>
+                    scholarship.relatedFieldIds.contains(field.id))
+                .map((scholarship) => scholarship.id),
+          }.toList();
 
-      final iaResilience = _fieldIaResilience[field.id] ?? 'medium';
+          final iaResilience = _fieldIaResilience[field.id] ?? 'medium';
 
-      return OrientationRecommendation(
-        fieldId: field.id,
-        score: max(entry.value * 10, 55),
-        explanation: _buildExplanation(profile.preferredLanguage, field),
-        relatedCountryIds: countries,
-        relatedScholarshipIds: scholarshipIds,
-        jobs: profile.preferredLanguage.startsWith('en')
-            ? field.careers.map((c) => c.en).take(3).toList()
-            : field.careers.map((c) => c.fr).take(3).toList(),
-        iaResilience: iaResilience,
-      );
-    }).whereType<OrientationRecommendation>().toList();
+          return OrientationRecommendation(
+            fieldId: field.id,
+            score: max(entry.value * 10, 55),
+            explanation: _buildExplanation(profile.preferredLanguage, field),
+            relatedCountryIds: countries,
+            relatedScholarshipIds: scholarshipIds,
+            jobs: profile.preferredLanguage.startsWith('en')
+                ? field.careers.map((c) => c.en).take(3).toList()
+                : field.careers.map((c) => c.fr).take(3).toList(),
+            iaResilience: iaResilience,
+          );
+        })
+        .whereType<OrientationRecommendation>()
+        .toList();
 
     return OrientationSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -114,10 +119,8 @@ class OrientationEngine {
     final careerEn = leadingCareer?.en ?? 'this sector';
 
     return LocalizedText(
-      fr:
-          '${field.name.fr} ressort fortement car vos réponses montrent un intérêt pour ${skillFr.toLowerCase()} et un potentiel vers des parcours comme ${careerFr.toLowerCase()}. KPB peut maintenant vous guider vers les pays, les programmes et les bourses les plus adaptés.',
-      en:
-          '${field.name.en} stands out strongly because your answers show interest in ${skillEn.toLowerCase()} and real potential for careers such as ${careerEn.toLowerCase()}. KPB can now guide you toward the most relevant countries, programs, and scholarships.',
+      fr: '${field.name.fr} ressort fortement car vos réponses montrent un intérêt pour ${skillFr.toLowerCase()} et un potentiel vers des parcours comme ${careerFr.toLowerCase()}. KPB peut maintenant vous guider vers les pays, les programmes et les bourses les plus adaptés.',
+      en: '${field.name.en} stands out strongly because your answers show interest in ${skillEn.toLowerCase()} and real potential for careers such as ${careerEn.toLowerCase()}. KPB can now guide you toward the most relevant countries, programs, and scholarships.',
     );
   }
 }

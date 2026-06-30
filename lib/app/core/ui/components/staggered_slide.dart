@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Staggered Slide Animation
 // Correctly delays each item by index * delayMs before animating in.
