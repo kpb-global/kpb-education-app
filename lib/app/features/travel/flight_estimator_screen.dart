@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/ui/kpb_components.dart';
+import '../../core/controllers/app_controller.dart';
 
 class Airport {
   const Airport(this.code, this.city, this.country);
@@ -40,6 +41,7 @@ class FlightEstimatorScreen extends StatefulWidget {
 }
 
 class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
+  final AppController ctrl = Get.find<AppController>();
   Airport? _origin;
   Airport? _destination;
   DateTime _departureDate = DateTime.now().add(const Duration(days: 30));
@@ -117,7 +119,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                 ),
               ),
               Text(
-                isOrigin ? 'Sélectionner le départ' : 'Sélectionner l\'arrivée',
+                isOrigin
+                    ? 'flight_picker_select_origin'.tr
+                    : 'flight_picker_select_destination'.tr,
                 style: KpbTextStyles.titleLg
                     .copyWith(color: context.kpb.textPrimary),
               ),
@@ -186,8 +190,8 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       Get.snackbar(
-        'Erreur',
-        'Impossible d\'ouvrir le comparateur de vols.',
+        'error'.tr,
+        'flight_launch_failed'.tr,
         backgroundColor: KpbColors.error,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -202,7 +206,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Simulateur de Vols'),
+        title: Text('flight_estimator_appbar_title'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
@@ -259,7 +263,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                             color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat('dd MMMM yyyy', 'fr_FR')
+                          DateFormat('dd MMMM yyyy', ctrl.localeCode)
                               .format(_departureDate),
                           style: const TextStyle(
                               color: Colors.white,
@@ -286,8 +290,8 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               child: Column(
                 children: [
                   _buildSelectorField(
-                      'Départ',
-                      _origin?.city ?? 'Choisir',
+                      'flight_field_departure'.tr,
+                      _origin?.city ?? 'flight_field_choose'.tr,
                       Icons.flight_takeoff_rounded,
                       () => _showAirportPicker(true),
                       isDark),
@@ -296,8 +300,8 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                     child: Divider(),
                   ),
                   _buildSelectorField(
-                      'Arrivée',
-                      _destination?.city ?? 'Choisir',
+                      'flight_field_arrival'.tr,
+                      _destination?.city ?? 'flight_field_choose'.tr,
                       Icons.flight_land_rounded,
                       () => _showAirportPicker(false),
                       isDark),
@@ -306,8 +310,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                     child: Divider(),
                   ),
                   _buildSelectorField(
-                      'Date',
-                      DateFormat('dd MMM yyyy', 'fr_FR').format(_departureDate),
+                      'flight_field_date'.tr,
+                      DateFormat('dd MMM yyyy', ctrl.localeCode)
+                          .format(_departureDate),
                       Icons.event_rounded,
                       () => _selectDate(context),
                       isDark),
@@ -319,7 +324,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
 
             // ── Magic Button ────────────────────────────────────────────────
             KpbButton(
-              text: 'Voir les vols sur Kayak',
+              text: 'flight_view_on_kayak'.tr,
               onPressed: _launchKayak,
               icon: Icons.search_rounded,
               bgColor: KpbColors.sky,
@@ -352,7 +357,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          a?.city ?? 'Sélectionner',
+          a?.city ?? 'flight_hero_select'.tr,
           style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 14,

@@ -182,14 +182,18 @@ class _LetterCardState extends State<_LetterCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.template.titleFr,
+                        _ctrl.localeCode == 'en'
+                            ? widget.template.titleEn
+                            : widget.template.titleFr,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: context.kpb.textPrimary,
                         ),
                       ),
                       Text(
-                        widget.template.titleEn,
+                        _ctrl.localeCode == 'en'
+                            ? widget.template.titleFr
+                            : widget.template.titleEn,
                         style: TextStyle(
                           fontSize: 12,
                           color: context.kpb.textMuted,

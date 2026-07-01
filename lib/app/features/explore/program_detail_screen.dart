@@ -166,7 +166,9 @@ class ProgramDetailScreen extends StatelessWidget {
                           ),
                         ],
                         if (country != null &&
-                            country.nextIntakeLabel.fr.isNotEmpty) ...[
+                            controller
+                                .resolve(country.nextIntakeLabel)
+                                .isNotEmpty) ...[
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.calendar_month_outlined,
@@ -208,7 +210,9 @@ class ProgramDetailScreen extends StatelessWidget {
                         ),
                         if (institution != null &&
                             program.campusOfferings.isEmpty &&
-                            institution.tuitionLabel.fr.isNotEmpty) ...[
+                            controller
+                                .resolve(institution.tuitionLabel)
+                                .isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
                             institution.tuitionLabel.resolve(
@@ -474,7 +478,8 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final whatsAppPrefill = kpbWhatsAppPrefill(
-      custom: country?.whatsAppPrefill.fr.isNotEmpty == true
+      custom: country != null &&
+              controller.resolve(country!.whatsAppPrefill).isNotEmpty
           ? controller.resolve(country!.whatsAppPrefill)
           : null,
       program: controller.resolve(program.name),

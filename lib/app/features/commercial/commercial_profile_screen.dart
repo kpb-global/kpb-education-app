@@ -235,9 +235,15 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
 /// Friendly first-response time: "—" / "45 min" / "3 h" / "2 j".
 String _formatResponseTime(int? minutes) {
   if (minutes == null) return '—';
-  if (minutes < 60) return '$minutes min';
-  if (minutes < 60 * 24) return '${(minutes / 60).round()} h';
-  return '${(minutes / (60 * 24)).round()} j';
+  if (minutes < 60) {
+    return 'commercial_response_time_minutes'.trParams({'count': '$minutes'});
+  }
+  if (minutes < 60 * 24) {
+    return 'commercial_response_time_hours'
+        .trParams({'count': '${(minutes / 60).round()}'});
+  }
+  return 'commercial_response_time_days'
+      .trParams({'count': '${(minutes / (60 * 24)).round()}'});
 }
 
 class _StatCard extends StatelessWidget {

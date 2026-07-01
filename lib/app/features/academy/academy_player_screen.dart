@@ -81,7 +81,7 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
         ),
         body: Center(
           child: Text(
-            'Aucune session disponible',
+            'academy_player_no_session'.tr,
             style: KpbTextStyles.body.copyWith(color: context.kpb.textPrimary),
           ),
         ),
@@ -140,7 +140,10 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Session ${_currentIndex + 1} sur ${_lessons.length}',
+                      'academy_player_session_progress'.trParams({
+                        'current': '${_currentIndex + 1}',
+                        'total': '${_lessons.length}',
+                      }),
                       style: KpbTextStyles.bodySm
                           .copyWith(color: context.kpb.textSecondary),
                     ),

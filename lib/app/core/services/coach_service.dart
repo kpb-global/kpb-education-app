@@ -135,10 +135,10 @@ class CoachService {
 
   Future<List<String>> fetchSuggestions(String userId) async {
     if (!AppConfig.enableRemoteSync) {
-      return const [
-        'Quelles écoles pour un budget de 10 000€ ?',
-        'Top écoles de commerce en France',
-        'Formations Tech (EPITA, Epitech...)',
+      return [
+        'coach_suggestion_budget_schools'.tr,
+        'coach_suggestion_top_business_schools'.tr,
+        'coach_suggestion_tech_programs'.tr,
       ];
     }
     final items = await _apiClient.getCoachSuggestions(userId);

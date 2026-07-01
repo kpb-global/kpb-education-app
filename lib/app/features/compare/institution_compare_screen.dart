@@ -189,7 +189,8 @@ class InstitutionCompareScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: KpbButton(
-                    text: 'Dossier ${controller.resolve(inst2.name)}',
+                    text: 'compare_open_case_for'
+                        .trParams({'name': controller.resolve(inst2.name)}),
                     onPressed: () => showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,

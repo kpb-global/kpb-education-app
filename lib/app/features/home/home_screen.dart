@@ -1303,8 +1303,10 @@ class _UrgentDeadlineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final deadline = scholarship.deadlineLabel.fr;
-    final daysLeft = _daysLeft(deadline);
+    final deadline = controller.resolve(scholarship.deadlineLabel);
+    // Deadline countdown is parsed from the canonical French label
+    // (the month map below is French-only), independent of display locale.
+    final daysLeft = _daysLeft(scholarship.deadlineLabel.fr);
 
     return KpbPressable(
       onTap: () => Get.toNamed(AppRoutes.scholarships),

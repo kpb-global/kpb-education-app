@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/repositories/app_api_client.dart';
 import 'package:karatou/app/core/ui/kpb_components.dart';
 import 'package:karatou/app/features/salon/salon_screen.dart';
+
+import '../widget_test_helpers.dart';
 
 class _MockApi extends Mock implements AppApiClient {}
 
@@ -13,7 +17,15 @@ void main() {
 
   setUp(() {
     mock = _MockApi();
+    // Salon event cards resolve the active locale via AppController; register a
+    // minimal one (defaults to locale 'fr') so the widget can build in tests.
+    Get.put<AppController>(
+      AppController(repository: FakeRepository()),
+      permanent: true,
+    );
   });
+
+  tearDown(Get.reset);
 
   testWidgets('shows KpbErrorState when listSalonEvents throws',
       (tester) async {

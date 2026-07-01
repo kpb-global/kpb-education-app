@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/components/anti_fraud_notice.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
@@ -55,7 +56,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger la liste. Vérifie ta connexion.';
+        _error = 'service_packages_load_error'.tr;
         _loading = false;
       });
     }
@@ -91,7 +92,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Services KPB')),
+      appBar: AppBar(title: Text('service_packages_title'.tr)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: _buildBody(),
@@ -115,11 +116,11 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
     }
     if (_packages.isEmpty) {
       return ListView(
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Text(
-              'Aucun service disponible pour le moment.',
+              'service_packages_empty'.tr,
               textAlign: TextAlign.center,
             ),
           ),
@@ -151,12 +152,24 @@ class _PackageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = (pkg['nameFr'] as String?) ?? '';
-    final summary = (pkg['summaryFr'] as String?) ?? '';
+    final ctrl = Get.find<AppController>();
+    final en = ctrl.localeCode.startsWith('en');
+    final name = ((en ? pkg['nameEn'] : pkg['nameFr']) as String?) ??
+        (pkg['nameFr'] as String?) ??
+        '';
+    final summary = ((en ? pkg['summaryEn'] : pkg['summaryFr']) as String?) ??
+        (pkg['summaryFr'] as String?) ??
+        '';
     final price = (pkg['priceXOF'] as num?)?.toInt() ?? 0;
-    final turnaround = (pkg['turnaroundFr'] as String?) ?? '';
-    final deliverables =
-        (pkg['deliverablesFr'] as List<dynamic>? ?? const []).cast<String>();
+    final turnaround =
+        ((en ? pkg['turnaroundEn'] : pkg['turnaroundFr']) as String?) ??
+            (pkg['turnaroundFr'] as String?) ??
+            '';
+    final deliverables = ((en ? pkg['deliverablesEn'] : pkg['deliverablesFr'])
+                as List<dynamic>? ??
+            pkg['deliverablesFr'] as List<dynamic>? ??
+            const [])
+        .cast<String>();
     final category = (pkg['category'] as String?) ?? '';
 
     return Card(
@@ -211,7 +224,7 @@ class _PackageCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 icon: const Icon(Icons.chat_rounded),
-                label: const Text('Contacter un conseiller'),
+                label: Text('contact_advisor'.tr),
                 onPressed: () => onContact(pkg),
               ),
             ),
@@ -224,15 +237,15 @@ class _PackageCard extends StatelessWidget {
   static String _categoryLabel(String raw) {
     switch (raw) {
       case 'dossier_pret':
-        return 'Dossier prêt';
+        return 'service_packages_category_dossier_pret'.tr;
       case 'scholarship_kit':
-        return 'Kit bourse';
+        return 'service_packages_category_scholarship_kit'.tr;
       case 'visa_kit':
-        return 'Kit visa';
+        return 'service_packages_category_visa_kit'.tr;
       case 'consultation':
-        return 'Consultation';
+        return 'case_type_filter_consultation'.tr;
       default:
-        return 'Service';
+        return 'service_packages_category_default'.tr;
     }
   }
 

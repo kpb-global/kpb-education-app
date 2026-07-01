@@ -339,8 +339,9 @@ class _FilterHeader extends StatelessWidget {
             ),
             _ChipRow(
               label: 'm6_filter_level'.tr,
-              options:
-                  programLevelFilters.map((e) => (e.key, e.labelFr)).toList(),
+              options: programLevelFilters
+                  .map((e) => (e.key, 'm6_level_${e.key}'.tr))
+                  .toList(),
               selectedKey: filters.levelKey,
               onSelected: (key) => onFiltersChanged(
                 filters.copyWith(
@@ -370,7 +371,7 @@ class _FilterHeader extends StatelessWidget {
             _ChipRow(
               label: 'm6_filter_language'.tr,
               options: programLanguageFilters
-                  .map((e) => (e.key, e.labelFr))
+                  .map((e) => (e.key, 'm6_language_${e.key}'.tr))
                   .toList(),
               selectedKey: filters.languageKey,
               onSelected: (key) => onFiltersChanged(
@@ -422,7 +423,7 @@ class _CountryFilter extends StatelessWidget {
           (country) => DropdownMenuItem<String?>(
             value: country.id,
             child: Text(
-              '${countryFlag(country.id, fallbackEmoji: country.flagEmoji)} ${country.name.fr}',
+              '${countryFlag(country.id, fallbackEmoji: country.flagEmoji)} ${Get.find<AppController>().resolve(country.name)}',
             ),
           ),
         ),

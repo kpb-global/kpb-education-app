@@ -264,7 +264,7 @@ class _CaseCard extends StatelessWidget {
                     unread == 1
                         ? 'cases_new_message_badge'.tr
                         : 'cases_new_messages_badge'
-                            .trParams({'count': '\$unread'}),
+                            .trParams({'count': '$unread'}),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,

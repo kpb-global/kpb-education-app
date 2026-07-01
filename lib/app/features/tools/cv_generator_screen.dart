@@ -385,7 +385,9 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                     pw.Align(
                       alignment: pw.Alignment.centerRight,
                       child: pw.Text(
-                        'Generated with KPB Education',
+                        en
+                            ? 'Generated with KPB Education'
+                            : 'Genere avec KPB Education',
                         style: const pw.TextStyle(
                           fontSize: 7,
                           color: _mutedText,

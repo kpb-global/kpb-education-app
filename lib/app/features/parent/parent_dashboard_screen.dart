@@ -67,7 +67,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger. Vérifie ta connexion.';
+        _error = 'parent_load_error'.tr;
         _loading = false;
       });
     }
@@ -80,7 +80,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       if (!mounted || code.isEmpty) return;
       _showInviteSheet(code);
     } catch (_) {
-      _toast('Impossible de créer l\'invitation.');
+      _toast('parent_invite_create_error'.tr);
     }
   }
 
@@ -103,7 +103,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Code d\'invitation', style: KpbTextStyles.title),
+            Text('parent_invite_code_title'.tr, style: KpbTextStyles.title),
             SizedBox(height: KpbSpacing.sm),
             Text(
               'parent_invite_share_hint'.tr,
@@ -138,10 +138,10 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.copy),
-                    label: const Text('Copier'),
+                    label: Text('copy'.tr),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: code));
-                      _toast('Code copié.');
+                      _toast('parent_code_copied'.tr);
                     },
                   ),
                 ),
@@ -149,14 +149,15 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.chat),
-                    label: const Text('WhatsApp'),
+                    label: Text('whatsapp'.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF25D366),
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () {
                       final text = Uri.encodeComponent(
-                        'Rejoins-moi sur KPB Education avec ce code: $code',
+                        'parent_invite_whatsapp_message'
+                            .trParams({'code': code}),
                       );
                       launchUrl(
                         Uri.parse('https://wa.me/?text=$text'),
@@ -176,16 +177,16 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   Future<void> _acceptInvite() async {
     final code = _codeController.text.trim().toUpperCase();
     if (code.length != 8) {
-      _toast('Le code fait 8 caractères.');
+      _toast('parent_code_length_error'.tr);
       return;
     }
     try {
       await _api.acceptParentInvite(code);
       _codeController.clear();
-      _toast('Liaison activée.');
+      _toast('parent_link_activated'.tr);
       await _refresh();
     } catch (_) {
-      _toast('Code invalide ou expiré.');
+      _toast('auth_magic_verify_error'.tr);
     }
   }
 
@@ -203,7 +204,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     return Scaffold(
       backgroundColor: KpbColors.bgPage,
       appBar: AppBar(
-        title: Text(isParent ? 'Espace parent' : 'Mode parent'),
+        title: Text(isParent
+            ? 'profile_quick_parent_space'.tr
+            : 'profile_quick_parent_mode'.tr),
         backgroundColor: Colors.white,
         foregroundColor: KpbColors.textPrimary,
         elevation: 0,
@@ -246,7 +249,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Invite ton enfant', style: KpbTextStyles.title),
+          Text('parent_invite_child_title'.tr, style: KpbTextStyles.title),
           SizedBox(height: KpbSpacing.sm),
           Text(
             'parent_create_code_hint'.tr,
@@ -275,7 +278,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Lier un compte parent',
+            'parent_link_account_title'.tr,
             style: KpbTextStyles.title,
           ),
           SizedBox(height: KpbSpacing.sm),
@@ -302,7 +305,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           const SizedBox(height: KpbSpacing.sm),
           FilledButton(
             onPressed: _acceptInvite,
-            child: const Text('Valider le code'),
+            child: Text('referral_redeem_cta'.tr),
           ),
         ],
       ),
@@ -367,9 +370,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
 
   Widget _casesSection() {
     if (_cases.isEmpty) {
-      return const _EmptyHint(
+      return _EmptyHint(
         icon: Icons.folder_open_outlined,
-        message: 'Ton enfant n\'a pas encore partagé de dossier.',
+        message: 'parent_no_shared_cases'.tr,
       );
     }
     return Column(
@@ -404,7 +407,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (item['title'] as String?) ?? 'Dossier',
+                    (item['title'] as String?) ?? 'deadlines_kind_case'.tr,
                     style: KpbTextStyles.titleMd,
                   ),
                   const SizedBox(height: KpbSpacing.xs),

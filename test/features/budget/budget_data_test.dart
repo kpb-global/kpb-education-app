@@ -24,8 +24,9 @@ void main() {
     test('category order is canonical across all profiles', () {
       final reference =
           mockBudgetProfiles.first.categories.map((c) => c.name).toList();
-      expect(reference.first, equals('Loyer'));
-      expect(reference.last, equals('Loisirs & divers'));
+      // Category names are now i18n keys (.tr); in tests .tr returns the key.
+      expect(reference.first, equals('budget_category_rent'));
+      expect(reference.last, equals('budget_category_leisure'));
       for (final p in mockBudgetProfiles) {
         expect(
           p.categories.map((c) => c.name).toList(),

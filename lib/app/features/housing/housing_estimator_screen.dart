@@ -51,8 +51,9 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
 
     if (_selectedCity!.country != 'France') {
       Get.snackbar(
-        'Bientôt disponible',
-        'La recherche de logement automatisée pour le ${_selectedCity!.country} arrive très bientôt. Nos conseillers peuvent vous aider dans vos dossiers.',
+        'coming_soon_title'.tr,
+        'housing_auto_search_soon'
+            .trParams({'country': _selectedCity!.country}),
         backgroundColor: KpbColors.warning,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -68,8 +69,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       Get.snackbar(
-        'Erreur',
-        'Impossible d\'ouvrir Studapart.',
+        'error'.tr,
+        'housing_studapart_open_error'.tr,
         backgroundColor: KpbColors.error,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -101,7 +102,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Trouvez votre cocon',
+                    'housing_find_your_nest'.tr,
                     style: KpbTextStyles.headline
                         .copyWith(color: context.kpb.textPrimary),
                   ),
@@ -278,13 +279,13 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Partenariat Studapart',
+                                'housing_studapart_partnership_title'.tr,
                                 style: KpbTextStyles.titleMd
                                     .copyWith(color: context.kpb.textPrimary),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Louez votre logement en France facilement avec ou sans garant local.',
+                                'housing_studapart_partnership_desc'.tr,
                                 style: KpbTextStyles.caption
                                     .copyWith(color: context.kpb.textMuted),
                               ),

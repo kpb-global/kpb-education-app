@@ -5,16 +5,27 @@
 // Each profile carries the same nine spending categories, in the same order,
 // so the UI can map a category index to a fixed icon/colour palette.
 
+import 'package:get/get.dart';
+
 class BudgetCategory {
   const BudgetCategory({
-    required this.name,
+    required this.nameKey,
     required this.typical,
-    this.note,
+    this.noteKey,
   });
 
-  final String name;
+  /// Translation key for the category name; resolved via [name].
+  final String nameKey;
   final double typical;
-  final String? note;
+
+  /// Translation key for the optional note; resolved via [note].
+  final String? noteKey;
+
+  /// Localized category name for display.
+  String get name => nameKey.tr;
+
+  /// Localized note for display, or null when absent.
+  String? get note => noteKey?.tr;
 }
 
 class LivingBudgetProfile {
@@ -41,7 +52,7 @@ class LivingBudgetProfile {
 }
 
 // ── Nine MVP destination profiles · nine categories each ─────────────────────
-const List<LivingBudgetProfile> mockBudgetProfiles = [
+final List<LivingBudgetProfile> mockBudgetProfiles = [
   LivingBudgetProfile(
     country: 'France',
     currency: 'EUR',
@@ -49,17 +60,17 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMax: 1000,
     categories: [
       BudgetCategory(
-          name: 'Loyer',
+          nameKey: 'budget_category_rent',
           typical: 400,
-          note: 'Hors capitale, coloc ou studio modeste'),
-      BudgetCategory(name: 'Charges & énergie', typical: 60),
-      BudgetCategory(name: 'Alimentation', typical: 230),
-      BudgetCategory(name: 'Transport', typical: 40),
-      BudgetCategory(name: 'Santé & assurance', typical: 35),
-      BudgetCategory(name: 'Forfait & Internet', typical: 30),
-      BudgetCategory(name: 'Fournitures & livres', typical: 30),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 40),
-      BudgetCategory(name: 'Loisirs & divers', typical: 90),
+          noteKey: 'budget_note_fr_rent'),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 60),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 230),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 35),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 30),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 30),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 90),
     ],
   ),
   LivingBudgetProfile(
@@ -68,15 +79,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 1200,
     monthlyMax: 1500,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 700),
-      BudgetCategory(name: 'Charges & énergie', typical: 80),
-      BudgetCategory(name: 'Alimentation', typical: 300),
-      BudgetCategory(name: 'Transport', typical: 100),
-      BudgetCategory(name: 'Santé & assurance', typical: 60),
-      BudgetCategory(name: 'Forfait & Internet', typical: 70),
-      BudgetCategory(name: 'Fournitures & livres', typical: 40),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 50),
-      BudgetCategory(name: 'Loisirs & divers', typical: 90),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 700),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 80),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 300),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 100),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 60),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 70),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 50),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 90),
     ],
   ),
   LivingBudgetProfile(
@@ -85,15 +96,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 1500,
     monthlyMax: 2000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 900),
-      BudgetCategory(name: 'Charges & énergie', typical: 120),
-      BudgetCategory(name: 'Alimentation', typical: 400),
-      BudgetCategory(name: 'Transport', typical: 90),
-      BudgetCategory(name: 'Santé & assurance', typical: 150),
-      BudgetCategory(name: 'Forfait & Internet', typical: 70),
-      BudgetCategory(name: 'Fournitures & livres', typical: 60),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 70),
-      BudgetCategory(name: 'Loisirs & divers', typical: 130),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 900),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 120),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 400),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 90),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 150),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 70),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 60),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 70),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 130),
     ],
   ),
   LivingBudgetProfile(
@@ -102,15 +113,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 4000,
     monthlyMax: 7000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 2500),
-      BudgetCategory(name: 'Charges & énergie', typical: 350),
-      BudgetCategory(name: 'Alimentation', typical: 1200),
-      BudgetCategory(name: 'Transport', typical: 400),
-      BudgetCategory(name: 'Santé & assurance', typical: 250),
-      BudgetCategory(name: 'Forfait & Internet', typical: 200),
-      BudgetCategory(name: 'Fournitures & livres', typical: 250),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 300),
-      BudgetCategory(name: 'Loisirs & divers', typical: 500),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 2500),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 350),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 1200),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 400),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 250),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 200),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 250),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 300),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 500),
     ],
   ),
   LivingBudgetProfile(
@@ -119,15 +130,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 12000,
     monthlyMax: 18000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 6000),
-      BudgetCategory(name: 'Charges & énergie', typical: 900),
-      BudgetCategory(name: 'Alimentation', typical: 4000),
-      BudgetCategory(name: 'Transport', typical: 600),
-      BudgetCategory(name: 'Santé & assurance', typical: 1000),
-      BudgetCategory(name: 'Forfait & Internet', typical: 700),
-      BudgetCategory(name: 'Fournitures & livres', typical: 600),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 800),
-      BudgetCategory(name: 'Loisirs & divers', typical: 1800),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 6000),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 900),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 4000),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 600),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 1000),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 700),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 600),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 800),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 1800),
     ],
   ),
   LivingBudgetProfile(
@@ -136,18 +147,18 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 1000,
     monthlyMax: 1300,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 550),
-      BudgetCategory(name: 'Charges & énergie', typical: 90),
-      BudgetCategory(name: 'Alimentation', typical: 180),
-      BudgetCategory(name: 'Transport', typical: 60),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 550),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 90),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 180),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 60),
       BudgetCategory(
-          name: 'Santé & assurance',
+          nameKey: 'budget_category_health',
           typical: 65,
-          note: 'IHS surcharge lissé sur l\'année'),
-      BudgetCategory(name: 'Forfait & Internet', typical: 35),
-      BudgetCategory(name: 'Fournitures & livres', typical: 40),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 50),
-      BudgetCategory(name: 'Loisirs & divers', typical: 110),
+          noteKey: 'budget_note_uk_health'),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 35),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 50),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 110),
     ],
   ),
   LivingBudgetProfile(
@@ -156,18 +167,18 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 1000,
     monthlyMax: 1200,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 450),
-      BudgetCategory(name: 'Charges & énergie', typical: 90),
-      BudgetCategory(name: 'Alimentation', typical: 200),
-      BudgetCategory(name: 'Transport', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 450),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 90),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 200),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 40),
       BudgetCategory(
-          name: 'Santé & assurance',
+          nameKey: 'budget_category_health',
           typical: 120,
-          note: 'Assurance santé étudiante obligatoire'),
-      BudgetCategory(name: 'Forfait & Internet', typical: 35),
-      BudgetCategory(name: 'Fournitures & livres', typical: 40),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 50),
-      BudgetCategory(name: 'Loisirs & divers', typical: 110),
+          noteKey: 'budget_note_de_health'),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 35),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 50),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 110),
     ],
   ),
   LivingBudgetProfile(
@@ -176,15 +187,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 800,
     monthlyMax: 1000,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 400),
-      BudgetCategory(name: 'Charges & énergie', typical: 70),
-      BudgetCategory(name: 'Alimentation', typical: 250),
-      BudgetCategory(name: 'Transport', typical: 40),
-      BudgetCategory(name: 'Santé & assurance', typical: 40),
-      BudgetCategory(name: 'Forfait & Internet', typical: 30),
-      BudgetCategory(name: 'Fournitures & livres', typical: 30),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 40),
-      BudgetCategory(name: 'Loisirs & divers', typical: 100),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 400),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 70),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 250),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 30),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 30),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 40),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 100),
     ],
   ),
   LivingBudgetProfile(
@@ -193,15 +204,15 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMin: 4500,
     monthlyMax: 6500,
     categories: [
-      BudgetCategory(name: 'Loyer', typical: 3500),
-      BudgetCategory(name: 'Charges & énergie', typical: 300),
-      BudgetCategory(name: 'Alimentation', typical: 600),
-      BudgetCategory(name: 'Transport', typical: 300),
-      BudgetCategory(name: 'Santé & assurance', typical: 350),
-      BudgetCategory(name: 'Forfait & Internet', typical: 250),
-      BudgetCategory(name: 'Fournitures & livres', typical: 200),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 250),
-      BudgetCategory(name: 'Loisirs & divers', typical: 400),
+      BudgetCategory(nameKey: 'budget_category_rent', typical: 3500),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 300),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 600),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 300),
+      BudgetCategory(nameKey: 'budget_category_health', typical: 350),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 250),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 200),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 250),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 400),
     ],
   ),
   LivingBudgetProfile(
@@ -211,20 +222,20 @@ const List<LivingBudgetProfile> mockBudgetProfiles = [
     monthlyMax: 4000,
     categories: [
       BudgetCategory(
-          name: 'Loyer',
+          nameKey: 'budget_category_rent',
           typical: 1200,
-          note: 'Résidence universitaire ou coloc hors centre-ville'),
-      BudgetCategory(name: 'Charges & énergie', typical: 150),
-      BudgetCategory(name: 'Alimentation', typical: 800),
-      BudgetCategory(name: 'Transport', typical: 150),
+          noteKey: 'budget_note_cn_rent'),
+      BudgetCategory(nameKey: 'budget_category_utilities', typical: 150),
+      BudgetCategory(nameKey: 'budget_category_food', typical: 800),
+      BudgetCategory(nameKey: 'budget_category_transport', typical: 150),
       BudgetCategory(
-          name: 'Santé & assurance',
+          nameKey: 'budget_category_health',
           typical: 50,
-          note: 'Assurance étudiante obligatoire ~600-800 CNY/an'),
-      BudgetCategory(name: 'Forfait & Internet', typical: 100),
-      BudgetCategory(name: 'Fournitures & livres', typical: 100),
-      BudgetCategory(name: 'Vêtements & hygiène', typical: 150),
-      BudgetCategory(name: 'Loisirs & divers', typical: 300),
+          noteKey: 'budget_note_cn_health'),
+      BudgetCategory(nameKey: 'budget_category_phone_internet', typical: 100),
+      BudgetCategory(nameKey: 'budget_category_supplies', typical: 100),
+      BudgetCategory(nameKey: 'budget_category_clothing_hygiene', typical: 150),
+      BudgetCategory(nameKey: 'budget_category_leisure', typical: 300),
     ],
   ),
 ];

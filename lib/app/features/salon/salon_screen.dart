@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
 
@@ -143,11 +144,18 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = (event['nameFr'] as String?) ?? '';
+    final ctrl = Get.find<AppController>();
+    final isEn = ctrl.localeCode == 'en';
+    final name = ((isEn ? event['nameEn'] : event['nameFr']) as String?) ??
+        (event['nameFr'] as String?) ??
+        '';
     final year = event['year']?.toString() ?? '';
     final start = event['startAt'] as String?;
     final end = event['endAt'] as String?;
-    final desc = (event['descriptionFr'] as String?) ?? '';
+    final desc =
+        ((isEn ? event['descriptionEn'] : event['descriptionFr']) as String?) ??
+            (event['descriptionFr'] as String?) ??
+            '';
     final status = (event['status'] as String?) ?? '';
 
     return Card(
@@ -305,7 +313,13 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final name = (_event['nameFr'] as String?) ?? 'salon_fallback_title'.tr;
+    final ctrl = Get.find<AppController>();
+    final localizedName = (ctrl.localeCode == 'en'
+        ? _event['nameEn']
+        : _event['nameFr']) as String?;
+    final name = localizedName ??
+        (_event['nameFr'] as String?) ??
+        'salon_fallback_title'.tr;
     return Scaffold(
       appBar: AppBar(title: Text(name)),
       body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
@@ -390,9 +404,17 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = (session['titleFr'] as String?) ?? '';
+    final ctrl = Get.find<AppController>();
+    final isEn = ctrl.localeCode == 'en';
+    final title =
+        ((isEn ? session['titleEn'] : session['titleFr']) as String?) ??
+            (session['titleFr'] as String?) ??
+            '';
     final host = (session['hostName'] as String?) ?? '';
-    final desc = (session['descriptionFr'] as String?) ?? '';
+    final desc = ((isEn ? session['descriptionEn'] : session['descriptionFr'])
+            as String?) ??
+        (session['descriptionFr'] as String?) ??
+        '';
     final startIso = session['startAt'] as String?;
     final duration = session['durationMinutes'] as int? ?? 45;
     final status = (session['status'] as String?) ?? 'scheduled';

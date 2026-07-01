@@ -76,7 +76,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
 
     if (_selectedProfile == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Simulateur de Budget')),
+        appBar: AppBar(title: Text('budget_calculator_title'.tr)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -88,7 +88,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Simulateur de Budget'),
+        title: Text('budget_calculator_title'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: CustomScrollView(
@@ -178,10 +178,12 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 padding: const EdgeInsets.all(4),
                 child: Row(
                   children: [
-                    _buildLifestyleButton('Économe', Lifestyle.econome, isDark),
-                    _buildLifestyleButton(
-                        'Standard', Lifestyle.standard, isDark),
-                    _buildLifestyleButton('Confort', Lifestyle.confort, isDark),
+                    _buildLifestyleButton('budget_lifestyle_econome'.tr,
+                        Lifestyle.econome, isDark),
+                    _buildLifestyleButton('budget_lifestyle_standard'.tr,
+                        Lifestyle.standard, isDark),
+                    _buildLifestyleButton('budget_lifestyle_confort'.tr,
+                        Lifestyle.confort, isDark),
                   ],
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Picks a document (photo or PDF) for case upload and returns a locally-
@@ -46,11 +47,15 @@ class DocumentUploadService {
   static const int _maxFileSizeBytes = 10 * 1024 * 1024;
 
   static String formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes o';
-    if (bytes < 1024 * 1024) {
-      return '${(bytes / 1024).toStringAsFixed(0)} Ko';
+    if (bytes < 1024) {
+      return 'file_size_bytes'.trParams({'size': '$bytes'});
     }
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} Mo';
+    if (bytes < 1024 * 1024) {
+      return 'file_size_kb'
+          .trParams({'size': (bytes / 1024).toStringAsFixed(0)});
+    }
+    return 'file_size_mb'
+        .trParams({'size': (bytes / (1024 * 1024)).toStringAsFixed(1)});
   }
 
   static Future<String?> fileSizeLabel(String path) async {
