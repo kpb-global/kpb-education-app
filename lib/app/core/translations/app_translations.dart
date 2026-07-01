@@ -95,6 +95,7 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'À confirmer',
           'to_confirm_semantics': 'Information à confirmer, non vérifiée',
           'offline_mode': 'Mode hors-ligne',
+          'parent_case_view_title': 'Dossier (lecture)',
           // --- KPB-89 wave2 ---
           'api_client_session_expired_title': 'Session Expirée',
           'api_client_session_expired_message':
@@ -1670,6 +1671,7 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'To confirm',
           'to_confirm_semantics': 'Information to confirm, not verified',
           'offline_mode': 'Offline mode',
+          'parent_case_view_title': 'Case (read-only)',
           // --- KPB-89 wave2 ---
           'api_client_session_expired_title': 'Session Expired',
           'api_client_session_expired_message':
