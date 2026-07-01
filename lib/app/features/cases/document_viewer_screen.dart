@@ -29,12 +29,14 @@ class DocumentViewerScreen extends StatelessWidget {
         elevation: 1,
         shadowColor: Colors.black12,
         leading: IconButton(
+          tooltip: 'a11y_close'.tr,
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Get.back(),
         ),
         actions: [
           if (url != null)
             IconButton(
+              tooltip: 'a11y_download'.tr,
               icon: const Icon(Icons.download_rounded),
               onPressed: () {
                 // Future enhancement: Download and save the PDF locally.

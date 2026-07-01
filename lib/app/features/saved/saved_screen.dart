@@ -517,17 +517,21 @@ class _SavedTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onRemove,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: KpbColors.error.withValues(alpha: 0.08),
-                  borderRadius: KpbRadius.smBr,
+            Semantics(
+              button: true,
+              label: 'a11y_remove'.tr,
+              child: GestureDetector(
+                onTap: onRemove,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: KpbColors.error.withValues(alpha: 0.08),
+                    borderRadius: KpbRadius.smBr,
+                  ),
+                  child: const Icon(Icons.bookmark_remove_rounded,
+                      color: KpbColors.error, size: 14),
                 ),
-                child: const Icon(Icons.bookmark_remove_rounded,
-                    color: KpbColors.error, size: 14),
               ),
             ),
           ],

@@ -95,6 +95,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
         backgroundColor: context.kpb.cardBg,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'a11y_back'.tr,
           icon: Icon(Icons.arrow_back_rounded, color: context.kpb.textPrimary),
           onPressed: () => Get.back(),
         ),

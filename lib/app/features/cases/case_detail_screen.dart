@@ -160,6 +160,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   children: List.generate(
                     5,
                     (i) => IconButton(
+                      tooltip: 'a11y_rate'.tr,
                       icon: Icon(
                         i < rating
                             ? Icons.star_rounded
@@ -231,6 +232,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
             appBar: AppBar(
               title: Text('case_not_found_title'.tr),
               leading: IconButton(
+                tooltip: 'a11y_back'.tr,
                 icon: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => Get.back(),
               ),
@@ -531,6 +533,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                   _AdvisorAction(
                                     icon: Icons.chat_rounded,
                                     color: KpbColors.success,
+                                    semanticLabel: 'a11y_whatsapp_advisor'.tr,
                                     onTap: () => _openWhatsapp(
                                       phone: c.advisorWhatsapp,
                                       advisorName: c.assignedAdvisorName,
@@ -550,6 +553,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                   _AdvisorAction(
                                     icon: Icons.call_rounded,
                                     color: KpbColors.blue,
+                                    semanticLabel: 'a11y_call_advisor'.tr,
                                     onTap: () => _callPhone(c.advisorPhone!),
                                   ),
                                 ],
@@ -934,22 +938,26 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  final text = _messageController.text.trim();
-                                  if (text.isEmpty) return;
-                                  _ctrl.addCaseMessage(c.id, text);
-                                  _messageController.clear();
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: const BoxDecoration(
-                                    color: KpbColors.blue,
-                                    shape: BoxShape.circle,
+                              Semantics(
+                                button: true,
+                                label: 'a11y_send_message'.tr,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final text = _messageController.text.trim();
+                                    if (text.isEmpty) return;
+                                    _ctrl.addCaseMessage(c.id, text);
+                                    _messageController.clear();
+                                  },
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: KpbColors.blue,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.send_rounded,
+                                        color: Colors.white, size: 18),
                                   ),
-                                  child: const Icon(Icons.send_rounded,
-                                      color: Colors.white, size: 18),
                                 ),
                               ),
                             ],
@@ -1196,25 +1204,31 @@ class _AdvisorAction extends StatelessWidget {
   const _AdvisorAction({
     required this.icon,
     required this.color,
+    required this.semanticLabel,
     this.onTap,
   });
   final IconData icon;
   final Color color;
+  final String semanticLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: KpbRadius.mdBr,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: KpbRadius.mdBr,
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: KpbRadius.mdBr,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: KpbRadius.mdBr,
+          ),
+          child: Icon(icon, color: color, size: 18),
         ),
-        child: Icon(icon, color: color, size: 18),
       ),
     );
   }

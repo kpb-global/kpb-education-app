@@ -48,6 +48,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     isDark ? context.kpb.cardBg : widget.accentColor,
                 foregroundColor: Colors.white,
                 leading: IconButton(
+                  tooltip: 'a11y_back'.tr,
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),

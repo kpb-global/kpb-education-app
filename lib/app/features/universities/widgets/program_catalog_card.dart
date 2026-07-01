@@ -103,6 +103,7 @@ class ProgramCatalogCard extends StatelessWidget {
             ),
           ),
           IconButton(
+            tooltip: 'a11y_save'.tr,
             icon: Icon(
               saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
               color: saved ? KpbColors.gold : context.kpb.textMuted,

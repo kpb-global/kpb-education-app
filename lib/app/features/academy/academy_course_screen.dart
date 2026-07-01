@@ -98,6 +98,7 @@ class AcademyCourseScreen extends StatelessWidget {
         child: CircleAvatar(
           backgroundColor: Colors.black.withValues(alpha: 0.4),
           child: IconButton(
+            tooltip: 'a11y_close'.tr,
             icon:
                 const Icon(Icons.close_rounded, color: Colors.white, size: 20),
             onPressed: () => Get.back(),

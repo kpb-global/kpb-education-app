@@ -114,6 +114,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
             ),
             actions: [
               IconButton(
+                tooltip: 'a11y_save'.tr,
                 icon: Icon(
                   _controller.isSaved(SavedItemType.country, country.id)
                       ? Icons.bookmark_rounded

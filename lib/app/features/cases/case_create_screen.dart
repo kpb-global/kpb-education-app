@@ -51,6 +51,7 @@ class CaseCreateScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('create_case'.tr),
         leading: IconButton(
+          tooltip: 'a11y_close'.tr,
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Get.back<void>(),
         ),
@@ -87,6 +88,7 @@ class _GuestCaseGate extends StatelessWidget {
       appBar: AppBar(
         title: Text('create_case'.tr),
         leading: IconButton(
+          tooltip: 'a11y_close'.tr,
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Get.back<void>(),
         ),
