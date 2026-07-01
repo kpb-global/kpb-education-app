@@ -735,11 +735,11 @@ class _MessageStepState extends State<_MessageStep> {
   String _contactLabel(ContactMethod method) {
     switch (method) {
       case ContactMethod.inApp:
-        return 'In-app';
+        return 'case_contact_inapp'.tr;
       case ContactMethod.whatsapp:
-        return 'WhatsApp';
+        return 'whatsapp'.tr;
       case ContactMethod.phone:
-        return 'Phone call';
+        return 'case_contact_phone'.tr;
     }
   }
 }
@@ -831,9 +831,9 @@ class _ConfirmStep extends StatelessWidget {
   String _contactLabel(ContactMethod method) {
     switch (method) {
       case ContactMethod.inApp:
-        return 'In-app';
+        return 'case_contact_inapp'.tr;
       case ContactMethod.whatsapp:
-        return 'WhatsApp';
+        return 'whatsapp'.tr;
       case ContactMethod.phone:
         return 'case_contact_phone'.tr;
     }

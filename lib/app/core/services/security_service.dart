@@ -66,8 +66,7 @@ class SecurityService extends GetxService with WidgetsBindingObserver {
       }
 
       return await _auth.authenticate(
-        localizedReason:
-            'Déverrouillez pour accéder à vos documents sécurisés KPB',
+        localizedReason: 'security_biometric_reason'.tr,
         persistAcrossBackgrounding: true,
       );
     } on PlatformException catch (_) {

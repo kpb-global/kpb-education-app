@@ -238,7 +238,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (country.marketingDescription.fr.isNotEmpty)
+                        if (_controller
+                            .resolve(country.marketingDescription)
+                            .isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: Text(
@@ -293,12 +295,16 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     title: 'country_costs'.tr,
                     child: Column(
                       children: [
-                        if (country.costsOverview.fr.isNotEmpty)
+                        if (_controller
+                            .resolve(country.costsOverview)
+                            .isNotEmpty)
                           Text(
                             _controller.resolve(country.costsOverview),
                             style: KpbTextStyles.body,
                           ),
-                        if (country.costsOverview.fr.isNotEmpty)
+                        if (_controller
+                            .resolve(country.costsOverview)
+                            .isNotEmpty)
                           const SizedBox(height: 10),
                         KpbInfoRow(
                           icon: Icons.school_outlined,
@@ -328,7 +334,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     iconColor: KpbColors.success,
                     title: 'country_required_language'.tr,
                     child: Text(
-                      country.languageSection.fr.isNotEmpty
+                      _controller.resolve(country.languageSection).isNotEmpty
                           ? _controller.resolve(country.languageSection)
                           : _controller.resolve(country.mainLanguage),
                       style: KpbTextStyles.body,
@@ -341,7 +347,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (country.partnerSchools.fr.isNotEmpty)
+                        if (_controller
+                            .resolve(country.partnerSchools)
+                            .isNotEmpty)
                           Text(
                             _controller.resolve(country.partnerSchools),
                             style: KpbTextStyles.bodySm,
@@ -394,7 +402,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                       ],
                     ),
                   ),
-                  if (country.scholarshipsSection.fr.isNotEmpty ||
+                  if (_controller
+                          .resolve(country.scholarshipsSection)
+                          .isNotEmpty ||
                       scholarships.isNotEmpty)
                     _SectionCard(
                       icon: Icons.emoji_events_outlined,
@@ -403,7 +413,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (country.scholarshipsSection.fr.isNotEmpty)
+                          if (_controller
+                              .resolve(country.scholarshipsSection)
+                              .isNotEmpty)
                             Text(
                               _controller.resolve(country.scholarshipsSection),
                               style: KpbTextStyles.body,

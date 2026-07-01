@@ -224,7 +224,7 @@ class _SearchScreenState extends State<SearchScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              'Informatique',
+              'catalog_filter_cs'.tr,
               'search_suggestion_france'.tr,
               'search_suggestion_school'.tr,
               'Business',

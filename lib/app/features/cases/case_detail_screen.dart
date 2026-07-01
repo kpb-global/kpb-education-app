@@ -303,9 +303,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                             ),
                             if (c.isReferenceProvisional) ...[
                               const SizedBox(width: 6),
-                              const Text(
-                                '⏳ provisoire',
-                                style: TextStyle(
+                              Text(
+                                'case_reference_provisional'.tr,
+                                style: const TextStyle(
                                     color: Colors.white60, fontSize: 11),
                               ),
                             ],
@@ -460,8 +460,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                         color: context.kpb.textPrimary,
                                       ),
                                     ),
-                                    if (c
-                                        .nextStepDescription.fr.isNotEmpty) ...[
+                                    if (_ctrl
+                                        .resolve(c.nextStepDescription)
+                                        .isNotEmpty) ...[
                                       const SizedBox(height: 4),
                                       Text(
                                         _ctrl.resolve(c.nextStepDescription),
@@ -768,11 +769,11 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         ),
                         const SizedBox(height: KpbSpacing.sm),
                         if (c.messages.isEmpty)
-                          const KpbCard(
+                          KpbCard(
                             child: KpbEmptyState(
                               icon: Icons.chat_bubble_outline_rounded,
-                              title: 'no_messages',
-                              subtitle: 'send_message_hint',
+                              title: 'no_messages'.tr,
+                              subtitle: 'send_message_hint'.tr,
                             ),
                           )
                         else
@@ -1123,16 +1124,10 @@ class _WhatsappContinueButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = Get.locale?.languageCode ?? 'fr';
-    final label =
-        locale == 'en' ? 'Continue on WhatsApp' : 'case_continue_whatsapp'.tr;
+    final label = 'case_continue_whatsapp'.tr;
     final subtitle = hasAdvisor
-        ? (locale == 'en'
-            ? 'Chat directly with your KPB advisor.'
-            : 'case_whatsapp_has_advisor_subtitle'.tr)
-        : (locale == 'en'
-            ? 'Join the KPB group while we assign your advisor.'
-            : 'case_whatsapp_no_advisor_subtitle'.tr);
+        ? 'case_whatsapp_has_advisor_subtitle'.tr
+        : 'case_whatsapp_no_advisor_subtitle'.tr;
 
     return Material(
       color: KpbColors.success.withValues(alpha: 0.08),

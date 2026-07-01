@@ -414,7 +414,7 @@ class _ResultView extends StatelessWidget {
                     style: const TextStyle(fontSize: 28),
                   ),
                   title: Text(controller.resolve(alt.name)),
-                  subtitle: alt.nextIntakeLabel.fr.isNotEmpty
+                  subtitle: controller.resolve(alt.nextIntakeLabel).isNotEmpty
                       ? Text(controller.resolve(alt.nextIntakeLabel))
                       : null,
                   trailing: const Icon(Icons.chevron_right_rounded),

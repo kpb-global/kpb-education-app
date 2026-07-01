@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/ui/components/kpb_network_image.dart';
 
 import '../../core/repositories/app_api_client.dart';
@@ -74,7 +76,7 @@ class _PartnersStripState extends State<PartnersStrip> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'Ils nous font confiance',
+              'partners_strip_trust_title'.tr,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -111,7 +113,11 @@ class _PartnerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = (p['nameFr'] as String?) ?? '';
+    final ctrl = Get.find<AppController>();
+    final name = (ctrl.localeCode == 'en'
+            ? (p['nameEn'] as String?) ?? (p['nameFr'] as String?)
+            : (p['nameFr'] as String?)) ??
+        '';
     final logo = (p['logoUrl'] as String?) ?? '';
     return InkWell(
       onTap: _open,

@@ -12,13 +12,13 @@ import '../kpb_theme_ext.dart';
 class KpbErrorState extends StatelessWidget {
   const KpbErrorState({
     super.key,
-    this.title = 'Connexion impossible',
-    this.subtitle = 'Vérifiez votre connexion internet et réessayez.',
+    this.title,
+    this.subtitle,
     this.onRetry,
   });
 
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
   final VoidCallback? onRetry;
 
   @override
@@ -44,14 +44,14 @@ class KpbErrorState extends StatelessWidget {
             ),
             const SizedBox(height: KpbSpacing.lg),
             Text(
-              title,
+              title ?? 'error_state_default_title'.tr,
               style:
                   KpbTextStyles.title.copyWith(color: context.kpb.textPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: KpbSpacing.sm),
             Text(
-              subtitle,
+              subtitle ?? 'error_state_default_subtitle'.tr,
               style: KpbTextStyles.bodySm.copyWith(
                 color: context.kpb.textMuted,
               ),

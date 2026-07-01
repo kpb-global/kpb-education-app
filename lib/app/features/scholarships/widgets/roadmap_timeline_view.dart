@@ -63,7 +63,8 @@ class RoadmapTimelineView extends StatelessWidget {
           backgroundColor: KpbColors.blue, colorText: Colors.white);
     } else if (route == '/consultation') {
       // Handle deep link to consultation
-      Get.snackbar('Consultation', 'roadmap_redirect_kpb_expert'.tr,
+      Get.snackbar(
+          'home_hero_cta_consultation'.tr, 'roadmap_redirect_kpb_expert'.tr,
           backgroundColor: KpbColors.blue, colorText: Colors.white);
     }
   }

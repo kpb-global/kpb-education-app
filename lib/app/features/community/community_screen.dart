@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/kpb_components.dart';
@@ -733,22 +734,8 @@ void _openArticleSheet(
 }
 
 String _formatDate(DateTime dt) {
-  const months = [
-    '',
-    'janv.',
-    'févr.',
-    'mars',
-    'avr.',
-    'mai',
-    'juin',
-    'juil.',
-    'août',
-    'sept.',
-    'oct.',
-    'nov.',
-    'déc.'
-  ];
-  return '${dt.day} ${months[dt.month]} ${dt.year}';
+  final ctrl = Get.find<AppController>();
+  return DateFormat('d MMM yyyy', ctrl.localeCode).format(dt);
 }
 
 /// Community hub entry (KPB-70): a compact tappable tile leading to a community

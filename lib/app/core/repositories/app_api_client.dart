@@ -877,8 +877,8 @@ class _AuthInterceptor extends Interceptor {
           // lands on the login/onboarding screen rather than AppShell.
           Get.offAll(() => const AppBootScreen());
           Get.snackbar(
-            'Session Expirée',
-            'Votre session a expiré. Veuillez vous reconnecter.',
+            'api_client_session_expired_title'.tr,
+            'api_client_session_expired_message'.tr,
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
             backgroundColor: const Color(0xFFFEE2E2), // soft red

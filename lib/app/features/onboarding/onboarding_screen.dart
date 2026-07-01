@@ -110,6 +110,26 @@ const _countries = [
   'Autre',
 ];
 
+// Localizes a dropdown/chip option by its stable value token (e.$1) so the
+// visible label follows the active locale instead of always showing French.
+String _optionLabel(String token) {
+  const keys = {
+    'High school': 'level_high_school',
+    'Bachelor': 'level_bachelor',
+    'Master': 'level_master',
+    'PhD': 'level_phd',
+    'Beginner': 'lang_beginner',
+    'Intermediate': 'lang_intermediate',
+    'Advanced': 'lang_advanced',
+    'Passport': 'doc_passport',
+    'CV': 'doc_cv',
+    'Transcripts': 'doc_transcripts',
+    'Test score': 'doc_test_score',
+  };
+  final key = keys[token];
+  return key != null ? key.tr : token;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Onboarding Screen — Stepper paginé (light-premium)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1331,7 +1351,7 @@ class _PageInterests extends StatelessWidget {
           children: _documentKeys.map((e) {
             final sel = docs.contains(e.$1);
             return FilterChip(
-              label: Text(e.$2),
+              label: Text(_optionLabel(e.$1)),
               selected: sel,
               onSelected: (_) => onToggleDoc(e.$1),
             );
@@ -1402,7 +1422,8 @@ class _DD extends StatelessWidget {
       initialValue: value,
       decoration: InputDecoration(labelText: label),
       items: items
-          .map((e) => DropdownMenuItem(value: e.$1, child: Text(e.$2)))
+          .map((e) =>
+              DropdownMenuItem(value: e.$1, child: Text(_optionLabel(e.$1))))
           .toList(),
       onChanged: onChanged,
     );

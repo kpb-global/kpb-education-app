@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../models/app_models.dart';
 import '../app_tokens.dart';
@@ -20,17 +21,17 @@ class ScholarshipStatusBadge extends StatelessWidget {
     final (String label, Color color, IconData icon) =
         switch (scholarship.windowStatus()) {
       ScholarshipWindowStatus.open => (
-          'Ouvert',
+          'scholarship_status_badge_open'.tr,
           KpbColors.success,
           Icons.lock_open_rounded,
         ),
       ScholarshipWindowStatus.closingSoon => (
-          'Bientôt clôturé',
+          'scholarship_status_badge_closing_soon'.tr,
           KpbColors.warning,
           Icons.hourglass_bottom_rounded,
         ),
       ScholarshipWindowStatus.closed => (
-          'Clôturé',
+          'scholarship_status_badge_closed'.tr,
           KpbColors.error,
           Icons.lock_rounded,
         ),

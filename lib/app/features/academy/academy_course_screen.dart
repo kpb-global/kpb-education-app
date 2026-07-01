@@ -32,11 +32,14 @@ class AcademyCourseScreen extends StatelessWidget {
                   Row(
                     children: [
                       KpbBadge(
-                          label: 'COURS EXPERT',
+                          label: 'academy_course_expert_badge'.tr,
                           color: isDark ? KpbColors.blueMid : KpbColors.blue),
                       const SizedBox(width: 8),
                       Text(
-                        '${course.lessonCount} sessions',
+                        (course.lessonCount > 1
+                                ? 'academy_sessions_count_plural'
+                                : 'academy_sessions_count_single')
+                            .trParams({'count': '${course.lessonCount}'}),
                         style: KpbTextStyles.label
                             .copyWith(color: context.kpb.textSecondary),
                       ),
@@ -61,7 +64,7 @@ class AcademyCourseScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
                   Text(
-                    'Programme de la formation',
+                    'academy_course_program_title'.tr,
                     style: KpbTextStyles.titleLg
                         .copyWith(color: context.kpb.textPrimary),
                   ),
@@ -167,7 +170,7 @@ class AcademyCourseScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _BenefitRow(
               icon: Icons.verified_user_rounded,
-              text: 'Astuces de conseillers senior KPB',
+              text: 'academy_benefit_senior_advisor_tips'.tr,
               isDark: isDark),
         ],
       ),
@@ -187,7 +190,7 @@ class AcademyCourseScreen extends StatelessWidget {
       ),
       child: isPurchased
           ? KpbButton(
-              text: 'Continuer la formation',
+              text: 'academy_continue_course_cta'.tr,
               onPressed: () =>
                   Get.to(() => AcademyPlayerScreen(course: course)),
               bgColor: KpbColors.success,
@@ -217,7 +220,7 @@ class AcademyCourseScreen extends StatelessWidget {
                 const SizedBox(width: 24),
                 Expanded(
                   child: KpbButton(
-                    text: 'Acheter le pack',
+                    text: 'academy_buy_pack_cta'.tr,
                     onPressed: () =>
                         _handlePurchase(context, controller, isDark),
                     bgColor: KpbColors.blue,
@@ -255,7 +258,7 @@ class AcademyCourseScreen extends StatelessWidget {
               ),
               SizedBox(height: 24),
               Text(
-                'Finaliser l\'achat',
+                'academy_finalize_purchase_title'.tr,
                 style: KpbTextStyles.headline
                     .copyWith(color: context.kpb.textPrimary),
               ),
@@ -269,13 +272,13 @@ class AcademyCourseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               KpbButton(
-                text: 'Confirmer et payer',
+                text: 'academy_confirm_pay_cta'.tr,
                 onPressed: () {
                   controller.purchaseCourse(course.id);
                   Get.back();
                   Get.snackbar(
-                    'Félicitations !',
-                    'Formation débloquée avec succès. Vous pouvez maintenant suivre les cours.',
+                    'academy_purchase_success_title'.tr,
+                    'academy_purchase_success_body'.tr,
                     backgroundColor: KpbColors.success,
                     colorText: Colors.white,
                     snackPosition: SnackPosition.TOP,
