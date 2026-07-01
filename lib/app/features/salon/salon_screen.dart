@@ -51,7 +51,7 @@ class _SalonScreenState extends State<SalonScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger le Salon. Vérifie ta connexion.';
+        _error = 'salon_load_error'.tr;
         _loading = false;
       });
     }
@@ -70,7 +70,7 @@ class _SalonScreenState extends State<SalonScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Salon KPB Virtuel')),
+      appBar: AppBar(title: Text('salon_title'.tr)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: _buildBody(),
@@ -99,7 +99,7 @@ class _SalonScreenState extends State<SalonScreen> {
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.65,
             child: KpbErrorState(
-              title: 'Salon indisponible',
+              title: 'salon_unavailable_title'.tr,
               subtitle: _error!,
               onRetry: _load,
             ),
@@ -113,11 +113,10 @@ class _SalonScreenState extends State<SalonScreen> {
         children: [
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.65,
-            child: const KpbEmptyState(
+            child: KpbEmptyState(
               icon: Icons.event_available_outlined,
-              title: 'Pas d\'édition programmée',
-              subtitle:
-                  'Reviens bientôt — la prochaine édition sera annoncée dans les notifications.',
+              title: 'salon_no_edition_title'.tr,
+              subtitle: 'salon_no_edition_subtitle'.tr,
             ),
           ),
         ],
@@ -168,8 +167,8 @@ class _EventCard extends StatelessWidget {
                     ),
                   ),
                   if (status == 'live')
-                    const Chip(
-                      label: Text('En direct'),
+                    Chip(
+                      label: Text('salon_live_now'.tr),
                       backgroundColor: Color(0xFFE53935),
                       labelStyle: TextStyle(color: Colors.white),
                     ),
@@ -190,7 +189,7 @@ class _EventCard extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: onTap,
                   icon: const Icon(Icons.chevron_right),
-                  label: const Text('Voir les sessions'),
+                  label: Text('salon_view_sessions'.tr),
                 ),
               ),
             ],
@@ -273,7 +272,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger le programme.';
+        _error = 'salon_program_load_error'.tr;
         _loading = false;
       });
     }
@@ -306,7 +305,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final name = (_event['nameFr'] as String?) ?? 'Salon KPB';
+    final name = (_event['nameFr'] as String?) ?? 'salon_fallback_title'.tr;
     return Scaffold(
       appBar: AppBar(title: Text(name)),
       body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
@@ -331,7 +330,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.65,
             child: KpbErrorState(
-              title: 'Programme indisponible',
+              title: 'salon_program_unavailable_title'.tr,
               subtitle: _error!,
               onRetry: _load,
             ),
@@ -347,11 +346,10 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
         children: [
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.65,
-            child: const KpbEmptyState(
+            child: KpbEmptyState(
               icon: Icons.schedule_outlined,
-              title: 'Programme à venir',
-              subtitle:
-                  "Le programme n'est pas encore publié. Reviens bientôt.",
+              title: 'salon_program_upcoming_title'.tr,
+              subtitle: 'salon_program_upcoming_subtitle'.tr,
             ),
           ),
         ],
@@ -417,8 +415,8 @@ class _SessionCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium),
                 ),
                 if (isLive)
-                  const Chip(
-                    label: Text('Live'),
+                  Chip(
+                    label: Text('salon_session_live'.tr),
                     backgroundColor: Color(0xFFE53935),
                     labelStyle: TextStyle(color: Colors.white),
                   ),
@@ -426,7 +424,8 @@ class _SessionCard extends StatelessWidget {
             ),
             if (host.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Avec $host', style: Theme.of(context).textTheme.bodySmall),
+              Text('salon_session_host'.trParams({'host': host}),
+                  style: Theme.of(context).textTheme.bodySmall),
             ],
             if (start != null) ...[
               const SizedBox(height: 4),
@@ -447,7 +446,7 @@ class _SessionCard extends StatelessWidget {
                   Expanded(
                     child: FilledButton.icon(
                       icon: const Icon(Icons.video_call),
-                      label: const Text('Rejoindre'),
+                      label: Text('salon_join'.tr),
                       onPressed: onJoin,
                     ),
                   )
@@ -458,8 +457,8 @@ class _SessionCard extends StatelessWidget {
                           ? Icons.check_circle
                           : Icons.event_available),
                       label: Text(isRegistered
-                          ? 'Inscription confirmée'
-                          : "M'inscrire"),
+                          ? 'salon_registration_confirmed'.tr
+                          : 'salon_register'.tr),
                       onPressed: onToggleRegister,
                     ),
                   ),

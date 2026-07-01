@@ -50,8 +50,11 @@ class SavedScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         items.isEmpty
-                            ? 'Aucun élément sauvegardé'
-                            : '${items.length} élément${items.length > 1 ? 's' : ''} sauvegardé${items.length > 1 ? 's' : ''}',
+                            ? 'saved_none_yet'.tr
+                            : (items.length > 1
+                                    ? 'saved_count_other'
+                                    : 'saved_count_one')
+                                .trParams({'count': '${items.length}'}),
                         style: KpbTextStyles.bodySm,
                       ),
                     ],
@@ -128,12 +131,11 @@ class SavedScreen extends StatelessWidget {
 
               // ── Empty state ─────────────────────────────────────────────
               if (items.isEmpty)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   child: KpbEmptyState(
                     icon: Icons.bookmark_border_rounded,
-                    title: 'Rien de sauvegardé',
-                    subtitle:
-                        'Explorez des filières, pays, universités et programmes, puis sauvegardez-les pour les retrouver ici.',
+                    title: 'saved_empty_title'.tr,
+                    subtitle: 'saved_empty_subtitle'.tr,
                   ),
                 )
               else ...[
@@ -142,7 +144,7 @@ class SavedScreen extends StatelessWidget {
                   _SavedGroup(
                     icon: Icons.school_outlined,
                     iconColor: KpbColors.blue,
-                    label: 'Filières',
+                    label: 'saved_group_fields'.tr,
                     items: fields,
                     controller: controller,
                     buildItem: (item) {
@@ -178,7 +180,7 @@ class SavedScreen extends StatelessWidget {
                   _SavedGroup(
                     icon: Icons.public_rounded,
                     iconColor: KpbColors.sky,
-                    label: 'Pays',
+                    label: 'saved_group_countries'.tr,
                     items: countries,
                     controller: controller,
                     buildItem: (item) {
@@ -214,7 +216,7 @@ class SavedScreen extends StatelessWidget {
                   _SavedGroup(
                     icon: Icons.account_balance_outlined,
                     iconColor: KpbColors.navy,
-                    label: 'Universités',
+                    label: 'saved_group_institutions'.tr,
                     items: institutions,
                     controller: controller,
                     buildItem: (item) {
@@ -234,7 +236,9 @@ class SavedScreen extends StatelessWidget {
                         ),
                         title: controller.resolve(institution.name),
                         subtitle: controller.resolve(institution.location),
-                        badge: institution.isPartner ? 'Partenaire' : null,
+                        badge: institution.isPartner
+                            ? 'saved_partner_badge'.tr
+                            : null,
                         onRemove: () =>
                             controller.toggleSaved(item.type, item.itemId),
                       );
@@ -246,7 +250,7 @@ class SavedScreen extends StatelessWidget {
                   _SavedGroup(
                     icon: Icons.menu_book_outlined,
                     iconColor: KpbColors.gold,
-                    label: 'Programmes',
+                    label: 'saved_group_programs'.tr,
                     items: programs,
                     controller: controller,
                     buildItem: (item) {
@@ -420,8 +424,8 @@ class _SavedGroupState extends State<_SavedGroup> {
                                       .toggleSaved(item.type, item.itemId);
                                   Get.closeCurrentSnackbar();
                                 },
-                                child: const Text(
-                                  'Annuler',
+                                child: Text(
+                                  'cancel'.tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,

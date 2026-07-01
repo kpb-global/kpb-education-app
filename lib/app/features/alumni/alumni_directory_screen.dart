@@ -62,7 +62,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger les mentors. Vérifie ta connexion.';
+        _error = 'alumni_load_error'.tr;
         _loading = false;
       });
     }
@@ -71,7 +71,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mentors KPB — Alumni')),
+      appBar: AppBar(title: Text('alumni_directory_title'.tr)),
       body: Column(
         children: [
           Padding(
@@ -81,7 +81,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
               textInputAction: TextInputAction.search,
               onSubmitted: (_) => _load(),
               decoration: InputDecoration(
-                hintText: 'Rechercher par université…',
+                hintText: 'alumni_search_hint'.tr,
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
@@ -206,12 +206,12 @@ class _AlumnusCard extends StatelessWidget {
             ),
             if (programme.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text('Programme : $programme',
+              Text('alumni_programme_label'.trParams({'programme': programme}),
                   style: Theme.of(context).textTheme.bodySmall),
             ],
             if (country.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Pays : $country',
+              Text('alumni_country_label'.trParams({'country': country}),
                   style: Theme.of(context).textTheme.bodySmall),
             ],
             if (bio.isNotEmpty) ...[

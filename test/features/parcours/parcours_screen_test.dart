@@ -37,7 +37,7 @@ void main() {
       // once the backend explicitly reports configured=true but no videos.
       expect(find.byType(ParcoursScreen), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text('Bientôt disponible'), findsOneWidget);
+      expect(find.text('parcours_empty_soon_title'), findsOneWidget);
     });
 
     testWidgets('renders video cards when the playlist returns items',

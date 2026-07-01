@@ -6,14 +6,14 @@ import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_detail_screen.dart';
 
-const _leadTagLabels = <String, String>{
-  'qualified': 'Qualifié',
-  'not_qualified': 'Non qualifié',
-  'awaiting_payment': 'En attente paiement',
-  'converted': 'Converti',
-  'lost': 'Perdu',
-  'to_follow_up': 'À relancer',
-};
+Map<String, String> get _leadTagLabels => <String, String>{
+      'qualified': 'lead_tag_qualified'.tr,
+      'not_qualified': 'lead_tag_not_qualified'.tr,
+      'awaiting_payment': 'lead_tag_awaiting_payment'.tr,
+      'converted': 'lead_tag_converted'.tr,
+      'lost': 'lead_tag_lost'.tr,
+      'to_follow_up': 'lead_tag_to_follow_up'.tr,
+    };
 
 Color _tagColor(String? tag) {
   switch (tag) {
@@ -33,11 +33,19 @@ Color _tagColor(String? tag) {
 
 String _relativeTime(DateTime dt) {
   final diff = DateTime.now().difference(dt);
-  if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
-  if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
-  if (diff.inDays < 7) return 'il y a ${diff.inDays} j';
-  if (diff.inDays < 30) return 'il y a ${(diff.inDays / 7).floor()} sem.';
-  return 'il y a ${(diff.inDays / 30).floor()} mois';
+  if (diff.inMinutes < 60) {
+    return 'time_ago_minutes'.trParams({'n': '${diff.inMinutes}'});
+  }
+  if (diff.inHours < 24) {
+    return 'time_ago_hours'.trParams({'n': '${diff.inHours}'});
+  }
+  if (diff.inDays < 7) {
+    return 'time_ago_days'.trParams({'n': '${diff.inDays}'});
+  }
+  if (diff.inDays < 30) {
+    return 'time_ago_weeks'.trParams({'n': '${(diff.inDays / 7).floor()}'});
+  }
+  return 'time_ago_months'.trParams({'n': '${(diff.inDays / 30).floor()}'});
 }
 
 /// Vue commerciale — inbox leads (M9).
@@ -98,7 +106,7 @@ class _CommercialLeadsScreenState extends State<CommercialLeadsScreen> {
                 onPressed:
                     controller.isLoadingCommercialLeads ? null : _refresh,
                 icon: const Icon(Icons.refresh_rounded),
-                tooltip: 'Actualiser',
+                tooltip: 'refresh'.tr,
               ),
             ],
           ),
@@ -115,22 +123,22 @@ class _CommercialLeadsScreenState extends State<CommercialLeadsScreen> {
                 child: Row(
                   children: [
                     _FilterChip(
-                      label: 'Tous',
+                      label: 'leads_filter_all'.tr,
                       selected: _filter == 'all',
                       onTap: () => _setFilter('all'),
                     ),
                     _FilterChip(
-                      label: 'Nouveaux',
+                      label: 'leads_filter_new'.tr,
                       selected: _filter == 'new',
                       onTap: () => _setFilter('new'),
                     ),
                     _FilterChip(
-                      label: "Aujourd'hui",
+                      label: 'leads_filter_today'.tr,
                       selected: _filter == 'today',
                       onTap: () => _setFilter('today'),
                     ),
                     _FilterChip(
-                      label: 'Qualifiés',
+                      label: 'leads_filter_qualified'.tr,
                       selected: _filter == 'qualified',
                       onTap: () => _setFilter('qualified'),
                     ),
@@ -143,9 +151,9 @@ class _CommercialLeadsScreenState extends State<CommercialLeadsScreen> {
                     : controller.commercialLeadsError != null && leads.isEmpty
                         ? KpbEmptyState(
                             icon: Icons.cloud_off_outlined,
-                            title: 'Erreur de chargement',
+                            title: 'loading_error_title'.tr,
                             subtitle: controller.commercialLeadsError!,
-                            actionLabel: 'Réessayer',
+                            actionLabel: 'retry'.tr,
                             onAction: _refresh,
                           )
                         : leads.isEmpty
@@ -224,7 +232,7 @@ class _LeadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tagLabel = _leadTagLabels[lead.leadTag] ?? 'Sans tag';
+    final tagLabel = _leadTagLabels[lead.leadTag] ?? 'lead_tag_none'.tr;
     final tagColor = _tagColor(lead.leadTag);
     final anciennete = _relativeTime(lead.createdAt);
 
@@ -302,7 +310,8 @@ class _LeadCard extends StatelessWidget {
                   lead.discussionMotive!.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Text(
-                  'Motif : ${lead.discussionMotive}',
+                  'lead_motive_prefix'
+                      .trParams({'motive': '${lead.discussionMotive}'}),
                   style: KpbTextStyles.caption,
                 ),
               ],
@@ -314,7 +323,7 @@ class _LeadCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => _showTagSheet(context),
                   icon: const Icon(Icons.label_outline_rounded, size: 16),
-                  label: const Text('Changer le statut'),
+                  label: Text('lead_change_status'.tr),
                   style: OutlinedButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                     foregroundColor: tagColor,
@@ -340,8 +349,8 @@ class _LeadCard extends StatelessWidget {
       await controller.updateCommercialLeadTag(lead.id, leadTag: selected);
     } catch (_) {
       Get.snackbar(
-        'Erreur',
-        'Impossible de mettre à jour le statut.',
+        'error'.tr,
+        'lead_status_update_failed'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     }
@@ -368,7 +377,8 @@ class _LeadTagSheet extends StatelessWidget {
               KpbSpacing.lg,
               KpbSpacing.sm,
             ),
-            child: Text('Statut du lead', style: KpbTextStyles.titleLg),
+            child: Text('lead_status_sheet_title'.tr,
+                style: KpbTextStyles.titleLg),
           ),
           ..._leadTagLabels.entries.map((entry) {
             final color = _tagColor(entry.key);

@@ -84,7 +84,7 @@ void main() {
       // The redesigned cinematic reveal replaced the "Vos résultats" heading
       // with a celebratory hero ("Bravo ! 🎉" + intro line).
       expect(find.byType(OrientationScreen), findsOneWidget);
-      expect(find.text('Bravo ! 🎉'), findsOneWidget);
+      expect(find.text('orientation_results_congrats'), findsOneWidget);
       expect(
         find.text('orientation_results_intro'),
         findsOneWidget,
@@ -111,9 +111,11 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Verify that ConsultativeView is rendered and wrapped in Scaffold
+      // Verify that ConsultativeView is rendered and wrapped in Scaffold.
+      // 'nav_orientation' now renders twice (app-bar title + hero header) since
+      // the hero heading was migrated to reuse the same key.
       expect(find.byType(OrientationScreen), findsOneWidget);
-      expect(find.text('nav_orientation'), findsOneWidget);
+      expect(find.text('nav_orientation'), findsWidgets);
 
       // Verify back button is visible
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);

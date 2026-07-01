@@ -33,14 +33,14 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Mon profil'),
+            title: Text('commercial_my_profile'.tr),
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh_rounded),
                 onPressed: controller.isLoadingCommercialStats
                     ? null
                     : controller.fetchCommercialStats,
-                tooltip: 'Actualiser les stats',
+                tooltip: 'commercial_refresh_stats'.tr,
               ),
             ],
           ),
@@ -73,7 +73,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        profile?.fullName ?? 'Commercial',
+                        profile?.fullName ?? 'commercial_default_name'.tr,
                         style: KpbTextStyles.headline,
                       ),
                       const SizedBox(height: 4),
@@ -85,7 +85,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                       ),
                       const SizedBox(height: 4),
                       KpbBadge(
-                        label: 'Commercial KPB',
+                        label: 'account_type_commercial'.tr,
                         color: KpbColors.blue,
                       ),
                     ],
@@ -96,7 +96,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
 
                 // ── Stats 30 jours ───────────────────────────────────────
                 Text(
-                  'Mes performances — 30 derniers jours',
+                  'commercial_performance_30_days'.tr,
                   style: KpbTextStyles.titleMd.copyWith(
                     color: context.kpb.textSecondary,
                   ),
@@ -116,7 +116,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                             child: _StatCard(
                               icon: Icons.inbox_rounded,
                               value: '${stats.totalLeads}',
-                              label: 'Total leads',
+                              label: 'commercial_total_leads'.tr,
                               color: KpbColors.blue,
                             ),
                           ),
@@ -125,7 +125,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                             child: _StatCard(
                               icon: Icons.check_circle_rounded,
                               value: '${stats.convertedLast30Days}',
-                              label: 'Convertis',
+                              label: 'commercial_converted'.tr,
                               color: KpbColors.success,
                             ),
                           ),
@@ -136,7 +136,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                               value: _formatResponseTime(
                                 stats.avgFirstResponseMinutes,
                               ),
-                              label: '1ère réponse',
+                              label: 'commercial_first_response'.tr,
                               color: KpbColors.warning,
                             ),
                           ),
@@ -158,7 +158,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Taux de conversion',
+                                'commercial_conversion_rate'.tr,
                                 style: KpbTextStyles.titleMd,
                               ),
                               Text(
@@ -206,7 +206,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                         actions: [
                           TextButton(
                             onPressed: Get.back,
-                            child: Text('Annuler'),
+                            child: Text('cancel'.tr),
                           ),
                           TextButton(
                             onPressed: () {
