@@ -57,7 +57,7 @@ class OrientationRoadmapScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Mon parcours'),
+        title: Text('orientation_roadmap_appbar_title'.tr),
         backgroundColor: context.kpb.pageBg,
         foregroundColor: context.kpb.textPrimary,
         elevation: 0,
@@ -65,7 +65,7 @@ class OrientationRoadmapScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
-          Text('Ton parcours de candidature', style: KpbTextStyles.titleLg),
+          Text('orientation_roadmap_heading'.tr, style: KpbTextStyles.titleLg),
           SizedBox(height: KpbSpacing.xs),
           Text(
             'roadmap_objective'
@@ -76,7 +76,7 @@ class OrientationRoadmapScreen extends StatelessWidget {
           RoadmapTimelineView(completionKey: 'orientation', deadline: intake),
           const SizedBox(height: KpbSpacing.md),
           KpbButton(
-            text: 'Créer mon dossier',
+            text: 'orientation_roadmap_create_case_button'.tr,
             icon: Icons.folder_open_rounded,
             bgColor: KpbColors.blue,
             onPressed: () => showModalBottomSheet<void>(
@@ -84,7 +84,7 @@ class OrientationRoadmapScreen extends StatelessWidget {
               isScrollControlled: true,
               builder: (_) => CaseComposerSheet(
                 caseType: CaseType.applicationSupport,
-                title: 'Dossier de candidature',
+                title: 'case_application_title'.tr,
                 contextLabel: fieldLabel,
                 programId: programId,
                 countryId: countryId,

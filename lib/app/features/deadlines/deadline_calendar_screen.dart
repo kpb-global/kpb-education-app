@@ -119,7 +119,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
           for (final entry in filtered) {
             final key = entry.deadline != null
                 ? '${_monthNames[entry.deadline!.month]} ${entry.deadline!.year}'
-                : 'Date à confirmer';
+                : 'deadlines_date_to_confirm'.tr;
             grouped.putIfAbsent(key, () => []).add(entry);
           }
 
@@ -149,28 +149,28 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                     runSpacing: 8,
                     children: [
                       _FilterChip(
-                        label: 'Toutes',
+                        label: 'deadlines_filter_all'.tr,
                         active: _filter == _MilestoneFilter.all,
                         isDark: isDark,
                         onTap: () =>
                             setState(() => _filter = _MilestoneFilter.all),
                       ),
                       _FilterChip(
-                        label: 'Sauvegardées',
+                        label: 'deadlines_filter_saved'.tr,
                         active: _filter == _MilestoneFilter.saved,
                         isDark: isDark,
                         onTap: () =>
                             setState(() => _filter = _MilestoneFilter.saved),
                       ),
                       _FilterChip(
-                        label: 'Dossiers',
+                        label: 'deadlines_filter_cases'.tr,
                         active: _filter == _MilestoneFilter.cases,
                         isDark: isDark,
                         onTap: () =>
                             setState(() => _filter = _MilestoneFilter.cases),
                       ),
                       _FilterChip(
-                        label: 'À venir',
+                        label: 'deadlines_filter_upcoming'.tr,
                         active: _filter == _MilestoneFilter.upcoming,
                         isDark: isDark,
                         onTap: () =>
@@ -181,14 +181,13 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
                 ),
               ),
               if (filtered.isEmpty)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
                     child: KpbEmptyState(
                       icon: Icons.event_busy_outlined,
-                      title: 'Aucune échéance',
-                      subtitle:
-                          'Sauvegarde une bourse ou ouvre un dossier pour construire ton tracker.',
+                      title: 'deadlines_empty_title'.tr,
+                      subtitle: 'deadlines_empty_subtitle'.tr,
                     ),
                   ),
                 )
@@ -334,7 +333,8 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
           _MilestoneEntry(
             id: 'case-doc-${item.id}-${document.id}',
             title: controller.resolve(document.title),
-            subtitle: 'Document manquant · ${item.referenceCode}',
+            subtitle: 'deadlines_missing_document'
+                .trParams({'code': item.referenceCode}),
             kind: _MilestoneKind.document,
             deadline: fallbackDue,
             isSaved: false,
@@ -374,21 +374,21 @@ class _StatsBanner extends StatelessWidget {
         children: [
           _StatItem(
             count: stats['upcoming']!,
-            label: 'À venir',
+            label: 'deadlines_filter_upcoming'.tr,
             color: isDark ? KpbColors.sky : KpbColors.blue,
             icon: Icons.upcoming_outlined,
           ),
           _StatDivider(),
           _StatItem(
             count: stats['urgent']!,
-            label: '≤ 30 jours',
+            label: 'deadlines_stat_within_30_days'.tr,
             color: KpbColors.warning,
             icon: Icons.timer_outlined,
           ),
           _StatDivider(),
           _StatItem(
             count: stats['cases']!,
-            label: 'Dossiers',
+            label: 'deadlines_filter_cases'.tr,
             color: KpbColors.success,
             icon: Icons.folder_open_outlined,
           ),
@@ -626,7 +626,9 @@ class _MilestoneTile extends StatelessWidget {
                         ),
                       ),
                       if (entry.isSaved)
-                        const KpbBadge(label: 'Suivi', color: KpbColors.blue),
+                        KpbBadge(
+                            label: 'deadlines_badge_tracked'.tr,
+                            color: KpbColors.blue),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -672,30 +674,39 @@ class _MilestoneTile extends StatelessWidget {
   String get _kindLabel {
     switch (entry.kind) {
       case _MilestoneKind.scholarship:
-        return 'Bourse';
+        return 'deadlines_kind_scholarship'.tr;
       case _MilestoneKind.roadmap:
-        return 'Roadmap';
+        return 'deadlines_kind_roadmap'.tr;
       case _MilestoneKind.caseStep:
-        return 'Dossier';
+        return 'deadlines_kind_case'.tr;
       case _MilestoneKind.document:
-        return 'Document';
+        return 'deadlines_kind_document'.tr;
     }
   }
 
   ({String label, Color color}) _status(BuildContext context) {
     final deadline = entry.deadline;
     if (deadline == null) {
-      return (label: 'Date à confirmer', color: context.kpb.textMuted);
+      return (
+        label: 'deadlines_date_to_confirm'.tr,
+        color: context.kpb.textMuted
+      );
     }
     if (deadline.isBefore(now)) {
-      return (label: 'Passée', color: context.kpb.textMuted);
+      return (label: 'deadlines_status_past'.tr, color: context.kpb.textMuted);
     }
     final days = deadline.difference(now).inDays;
     if (days <= 1) {
-      return (label: 'Aujourd’hui / demain', color: KpbColors.error);
+      return (
+        label: 'deadlines_status_today_tomorrow'.tr,
+        color: KpbColors.error
+      );
     }
     if (days <= 30) {
-      return (label: '$days jours', color: KpbColors.warning);
+      return (
+        label: 'deadlines_status_days'.trParams({'n': '$days'}),
+        color: KpbColors.warning
+      );
     }
     return (label: '$days jours', color: KpbColors.success);
   }

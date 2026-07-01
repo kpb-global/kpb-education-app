@@ -38,7 +38,7 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
       appBar: AppBar(
         // Renamed: the screen only shows YouTube videos (no separate
         // témoignages section yet). Aligning title with content.
-        title: const Text('Parcours KPB'),
+        title: Text('parcours_appbar_title'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: GetBuilder<AppController>(
@@ -52,18 +52,17 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
           if (videos.isEmpty) {
             // Distinguish "not configured" from a transient error.
             if (!controller.parcoursConfigured) {
-              return const _ParcoursEmptyState(
+              return _ParcoursEmptyState(
                 icon: Icons.video_library_outlined,
-                title: 'Bientôt disponible',
-                subtitle:
-                    'Les vidéos de parcours et témoignages arrivent très vite. Reviens bientôt !',
+                title: 'parcours_empty_soon_title'.tr,
+                subtitle: 'parcours_empty_soon_subtitle'.tr,
               );
             }
             return _ParcoursEmptyState(
               icon: Icons.wifi_off_rounded,
-              title: 'Contenu indisponible',
+              title: 'parcours_empty_error_title'.tr,
               subtitle: controller.parcoursError ??
-                  'Impossible de charger les vidéos pour le moment.',
+                  'parcours_empty_error_subtitle'.tr,
               onRetry: _refresh,
             );
           }
@@ -125,7 +124,7 @@ class _ParcoursIntro extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ils l\'ont fait avant toi',
+            'parcours_intro_title'.tr,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -319,8 +318,8 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
             backgroundColor: Colors.black,
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.white),
-            title: const Text(
-              'Parcours KPB',
+            title: Text(
+              'parcours_appbar_title'.tr,
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

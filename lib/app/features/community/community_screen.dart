@@ -77,7 +77,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     icon: Icon(Icons.search_rounded,
                         color: context.kpb.textPrimary),
                     onPressed: () => Get.to(() => const SearchScreen()),
-                    tooltip: 'Rechercher',
+                    tooltip: 'community_search_tooltip'.tr,
                   ),
                 ],
               ),
@@ -96,7 +96,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Apprendre ensemble 🌍',
+                        'community_hero_title'.tr,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -171,7 +171,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         children: [
                           // "Tous" chip
                           _TagChip(
-                            label: 'Tous',
+                            label: 'leads_filter_all'.tr,
                             selected: _selectedTag == null,
                             isDark: isDark,
                             onTap: () => setState(() => _selectedTag = null),
@@ -203,7 +203,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
                   child: Row(
                     children: [
-                      Text('Articles',
+                      Text('community_articles_section'.tr,
                           style: KpbTextStyles.titleLg
                               .copyWith(color: context.kpb.textPrimary)),
                       const SizedBox(width: 8),
@@ -236,12 +236,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         vertical: KpbSpacing.xl),
                     child: KpbEmptyState(
                       icon: Icons.article_outlined,
-                      title: 'Aucun article',
+                      title: 'community_empty_articles_title'.tr,
                       subtitle: _selectedTag != null
-                          ? 'Aucun article pour #$_selectedTag'
-                          : 'Les articles arrivent bientôt.',
+                          ? 'community_empty_articles_for_tag'
+                              .trParams({'tag': '$_selectedTag'})
+                          : 'community_articles_coming_soon'.tr,
                       actionLabel: _selectedTag != null
-                          ? 'Voir tous les articles'
+                          ? 'community_see_all_articles'.tr
                           : null,
                       onAction: _selectedTag != null
                           ? () => setState(() => _selectedTag = null)
@@ -291,7 +292,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad,
                         KpbSpacing.xl, KpbSpacing.pagePad, KpbSpacing.sm),
-                    child: Text('Forum',
+                    child: Text('community_forum_section'.tr,
                         style: KpbTextStyles.titleLg
                             .copyWith(color: context.kpb.textPrimary)),
                   ),
@@ -374,7 +375,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Rejoindre le groupe WhatsApp',
+                                  'community_join_whatsapp_group'.tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -400,8 +401,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               color: Colors.white,
                               borderRadius: KpbRadius.pillBr,
                             ),
-                            child: const Text(
-                              'Rejoindre',
+                            child: Text(
+                              'salon_join'.tr,
                               style: TextStyle(
                                 color: KpbColors.success,
                                 fontSize: 13,
@@ -446,8 +447,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
     group: true,
-    message:
-        'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+    message: 'whatsapp_open_failed'.tr,
   );
 }
 
@@ -537,7 +537,7 @@ class _FeaturedArticle extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 KpbBadge(
-                  label: '📌 À la une',
+                  label: 'community_featured_badge'.tr,
                   color: KpbColors.blue,
                 ),
                 const SizedBox(height: 12),

@@ -23,7 +23,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(KpbErrorState), findsOneWidget);
-    expect(find.text('Salon indisponible'), findsOneWidget);
+    expect(find.text('salon_unavailable_title'), findsOneWidget);
     expect(find.textContaining('Réessayer'), findsOneWidget);
   });
 
@@ -34,7 +34,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(KpbEmptyState), findsOneWidget);
-    expect(find.text('Pas d\'édition programmée'), findsOneWidget);
+    expect(find.text('salon_no_edition_title'), findsOneWidget);
   });
 
   testWidgets('shows event row when list returns data', (tester) async {
@@ -54,7 +54,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Salon Printemps'), findsWidgets);
-    expect(find.text('Voir les sessions'), findsOneWidget);
+    expect(find.text('salon_view_sessions'), findsOneWidget);
   });
 
   testWidgets('retry calls listSalonEvents again after failure',

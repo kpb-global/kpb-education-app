@@ -63,9 +63,9 @@ class _CommercialConversationsScreenState
       if (controller.commercialLeadsError != null) {
         return KpbEmptyState(
           icon: Icons.cloud_off_outlined,
-          title: 'Erreur de chargement',
+          title: 'loading_error_title'.tr,
           subtitle: controller.commercialLeadsError!,
-          actionLabel: 'Réessayer',
+          actionLabel: 'retry'.tr,
           onAction: _refresh,
         );
       }

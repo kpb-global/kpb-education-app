@@ -12,14 +12,14 @@ import '../explore/program_detail_screen.dart';
 class FrancePrivateAdmissionScreen extends StatelessWidget {
   const FrancePrivateAdmissionScreen({super.key});
 
-  static const _processSteps = [
-    'Choix de l\'école privée partenaire (OMNES, ICN, Schiller, IGENSIA…)',
-    'Constitution du dossier d\'admission avec KPB',
-    'Entretien / validation admission école',
-    'Visa long séjour étudiant',
-    'Logement & préparation du départ',
-    'Arrivée en France avec suivi KPB',
-  ];
+  static List<String> get _processSteps => [
+        'france_step_choose_school'.tr,
+        'france_step_build_dossier'.tr,
+        'france_step_interview_validation'.tr,
+        'france_step_student_visa'.tr,
+        'france_step_housing_departure'.tr,
+        'france_step_arrival'.tr,
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -232,8 +232,8 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const KpbBadge(
-                                label: 'Partenaire',
+                              KpbBadge(
+                                label: 'saved_partner_badge'.tr,
                                 color: KpbColors.success,
                                 small: true,
                               ),
@@ -266,8 +266,8 @@ class FrancePrivateAdmissionScreen extends StatelessWidget {
             isScrollControlled: true,
             builder: (_) => CaseComposerSheet(
               caseType: CaseType.applicationSupport,
-              title: 'Procédure France — écoles privées',
-              contextLabel: 'France · Septembre 2026',
+              title: 'france_case_title'.tr,
+              contextLabel: 'france_case_context_label'.tr,
               countryId: 'fra',
             ),
           ),

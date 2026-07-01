@@ -70,8 +70,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
         ));
       } else {
         _messages.add(AiMessage(
-          text:
-              "Bonjour ${profile.fullName.split(' ').first} ! Je suis ton Coach KPB. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.",
+          text: 'coach_welcome_message'
+              .trParams({'name': profile.fullName.split(' ').first}),
           isUser: false,
           timestamp: DateTime.now(),
         ));
@@ -103,8 +103,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (text.trim().isEmpty) return;
     if (_remainingMessages <= 0) {
       Get.snackbar(
-        'Quota Coach IA atteint',
-        'Tu as atteint la limite de $_weeklyQuota messages cette semaine. Reviens la semaine prochaine ou contacte un conseiller humain.',
+        'coach_quota_reached_title'.tr,
+        'coach_quota_reached_body'.trParams({'quota': '$_weeklyQuota'}),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 4),
       );
@@ -141,7 +141,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           setState(() {
             _isTyping = false;
             _messages.add(AiMessage(
-              text: event.message ?? 'Coach indisponible.',
+              text: event.message ?? 'coach_unavailable'.tr,
               isUser: false,
               timestamp: DateTime.now(),
             ));
@@ -186,7 +186,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
       setState(() {
         _isTyping = false;
         _messages.add(AiMessage(
-          text: 'Impossible de joindre le coach IA pour le moment.',
+          text: 'coach_unreachable'.tr,
           isUser: false,
           timestamp: DateTime.now(),
         ));
@@ -288,8 +288,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Coach IA',
+                Text(
+                  'coach_ai_title'.tr,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -301,7 +301,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     Icon(Icons.circle, size: 8, color: KpbColors.blue),
                     const SizedBox(width: 4),
                     Text(
-                      'En ligne • $_remainingMessages/$_weeklyQuota restants cette semaine',
+                      'coach_online_status'.trParams({
+                        'rem': '$_remainingMessages',
+                        'total': '$_weeklyQuota'
+                      }),
                       style: TextStyle(
                         fontSize: 11,
                         color: KpbColors.textDarkSecondary,
@@ -502,8 +505,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               child: TextField(
                 controller: _textController,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
-                decoration: const InputDecoration(
-                  hintText: 'Posez votre question sur les écoles, budgets...',
+                decoration: InputDecoration(
+                  hintText: 'coach_input_hint'.tr,
                   hintStyle: TextStyle(
                       color: KpbColors.textDarkSecondary, fontSize: 13),
                   border: InputBorder.none,

@@ -184,7 +184,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                           Text(
                             Get.locale?.languageCode == 'en'
                                 ? 'No articles tagged yet. Join the WhatsApp group to ask questions.'
-                                : 'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
+                                : 'forum_no_articles_tagged'.tr,
                             style: KpbTextStyles.caption
                                 .copyWith(color: context.kpb.textSecondary),
                             textAlign: TextAlign.center,
@@ -235,8 +235,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
     group: true,
-    message:
-        'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+    message: 'whatsapp_open_failed'.tr,
   );
 }
 

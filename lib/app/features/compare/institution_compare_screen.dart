@@ -39,7 +39,7 @@ class InstitutionCompareScreen extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: Text(
-          'Comparaison',
+          'compare_title'.tr,
           style: KpbTextStyles.titleLg.copyWith(color: context.kpb.textPrimary),
         ),
         centerTitle: true,
@@ -81,7 +81,7 @@ class InstitutionCompareScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _CompareRow(
-                    label: 'Compatibilité',
+                    label: 'compare_row_match'.tr,
                     icon: Icons.auto_awesome_rounded,
                     iconColor: KpbColors.gold,
                     value1: _ScoreWidget(score: score1, isDark: isDark),
@@ -89,7 +89,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Pays',
+                    label: 'saved_group_countries'.tr,
                     icon: Icons.public_rounded,
                     iconColor: KpbColors.sky,
                     value1: _TextCell(
@@ -101,7 +101,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Localisation',
+                    label: 'compare_row_location'.tr,
                     icon: Icons.location_on_outlined,
                     iconColor: KpbColors.error,
                     value1: _TextCell(controller.resolve(inst1.location)),
@@ -109,7 +109,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Frais',
+                    label: 'compare_row_tuition'.tr,
                     icon: Icons.euro_rounded,
                     iconColor: KpbColors.financeGreen,
                     value1: _TextCell(controller.resolve(inst1.tuitionLabel)),
@@ -117,7 +117,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Langue',
+                    label: 'compare_row_language'.tr,
                     icon: Icons.translate_rounded,
                     iconColor: KpbColors.lawPurple,
                     value1: _TextCell(
@@ -127,7 +127,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Niveaux',
+                    label: 'compare_row_levels'.tr,
                     icon: Icons.school_outlined,
                     iconColor: KpbColors.blue,
                     value1: _TagsCell(inst1.studyLevels),
@@ -135,7 +135,7 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Inscriptions',
+                    label: 'compare_row_intakes'.tr,
                     icon: Icons.calendar_month_outlined,
                     iconColor: KpbColors.businessSky,
                     value1: _TagsCell(inst1.intakePeriods),
@@ -143,15 +143,17 @@ class InstitutionCompareScreen extends StatelessWidget {
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Programmes',
+                    label: 'saved_group_programs'.tr,
                     icon: Icons.menu_book_outlined,
                     iconColor: KpbColors.designOrange,
-                    value1: _TextCell('${inst1.programIds.length} programmes'),
-                    value2: _TextCell('${inst2.programIds.length} programmes'),
+                    value1: _TextCell('compare_program_count'
+                        .trParams({'n': '${inst1.programIds.length}'})),
+                    value2: _TextCell('compare_program_count'
+                        .trParams({'n': '${inst2.programIds.length}'})),
                   ),
                   const _RowDivider(),
                   _CompareRow(
-                    label: 'Partenaire KPB',
+                    label: 'compare_row_kpb_partner'.tr,
                     icon: Icons.verified_outlined,
                     iconColor: KpbColors.gold,
                     value1: _BoolCell(value: inst1.isPartner),
@@ -167,7 +169,8 @@ class InstitutionCompareScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: KpbButton(
-                    text: 'Dossier ${controller.resolve(inst1.name)}',
+                    text: 'compare_open_case_for'
+                        .trParams({'name': controller.resolve(inst1.name)}),
                     onPressed: () => showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
@@ -206,14 +209,14 @@ class InstitutionCompareScreen extends StatelessWidget {
             ),
             const SizedBox(height: KpbSpacing.md),
             KpbButton(
-              text: 'Besoin d\'aide au choix ?',
+              text: 'compare_need_help_choosing'.tr,
               onPressed: () => showModalBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (_) => CaseComposerSheet(
                   caseType: CaseType.consultation,
-                  title: 'Aide au choix d\'université',
+                  title: 'compare_help_choosing_university'.tr,
                   contextLabel:
                       '${controller.resolve(inst1.name)} vs ${controller.resolve(inst2.name)}',
                 ),
@@ -246,14 +249,18 @@ class InstitutionCompareScreen extends StatelessWidget {
     final score1 = ctrl.institutionMatch(inst1);
     final score2 = ctrl.institutionMatch(inst2);
     SharePlus.instance.share(ShareParams(
-      text: 'Comparaison d\'universités avec KPB Education :\n\n'
-          '🏛 $name1 — compatibilité $score1%\n'
-          '   Frais : ${ctrl.resolve(inst1.tuitionLabel)}\n'
-          '   Langue : ${ctrl.resolve(inst1.languageRequirements)}\n\n'
-          '🏛 $name2 — compatibilité $score2%\n'
-          '   Frais : ${ctrl.resolve(inst2.tuitionLabel)}\n'
-          '   Langue : ${ctrl.resolve(inst2.languageRequirements)}\n\n'
-          'Découvrez KPB Education pour votre orientation universitaire.',
+      text: 'compare_share_header'.tr +
+          'compare_share_line'.trParams({'name': name1, 'score': '$score1'}) +
+          'compare_share_tuition'
+              .trParams({'tuition': ctrl.resolve(inst1.tuitionLabel)}) +
+          'compare_share_language'
+              .trParams({'lang': ctrl.resolve(inst1.languageRequirements)}) +
+          'compare_share_line'.trParams({'name': name2, 'score': '$score2'}) +
+          'compare_share_tuition'
+              .trParams({'tuition': ctrl.resolve(inst2.tuitionLabel)}) +
+          'compare_share_language'
+              .trParams({'lang': ctrl.resolve(inst2.languageRequirements)}) +
+          'compare_share_footer'.tr,
     ));
   }
 }
@@ -335,13 +342,13 @@ class _InstitutionHeader extends StatelessWidget {
                   border:
                       Border.all(color: KpbColors.gold.withValues(alpha: 0.5)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.star_rounded, color: KpbColors.gold, size: 12),
                     SizedBox(width: 4),
                     Text(
-                      'Partenaire',
+                      'saved_partner_badge'.tr,
                       style: TextStyle(
                         color: KpbColors.gold,
                         fontSize: 10,
@@ -496,7 +503,7 @@ class _BoolCell extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          value ? 'Oui' : 'Non',
+          value ? 'compare_yes'.tr : 'compare_no'.tr,
           style: KpbTextStyles.titleMd.copyWith(
             color: value ? KpbColors.success : context.kpb.textMuted,
           ),

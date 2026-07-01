@@ -202,7 +202,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         const SizedBox(height: KpbSpacing.md),
                         // Question number badge
                         KpbBadge(
-                          label: 'Question ${_questionIndex + 1}',
+                          label: 'orientation_question_number_badge'
+                              .trParams({'n': '${_questionIndex + 1}'}),
                           color: KpbColors.blue,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
@@ -297,8 +298,8 @@ class _OrientationScreenState extends State<OrientationScreen> {
                           },
                     child: Text(
                       _questionIndex < questions.length - 1
-                          ? 'Continuer →'
-                          : 'Voir mes résultats',
+                          ? 'orientation_next_button'.tr
+                          : 'orientation_see_results_button'.tr,
                     ),
                   ),
                 ),
@@ -533,15 +534,19 @@ class _ResultsViewState extends State<_ResultsView>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Formations qui te correspondent',
+                          'orientation_matched_programs_title'.tr,
                           style: KpbTextStyles.titleLg
                               .copyWith(color: context.kpb.textPrimary),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           topField != null
-                              ? 'Des programmes liés à ${controller.resolve(topField.name)}.'
-                              : 'Des programmes liés à tes résultats.',
+                              ? 'orientation_matched_programs_subtitle_field'
+                                  .trParams({
+                                  'field': controller.resolve(topField.name)
+                                })
+                              : 'orientation_matched_programs_subtitle_generic'
+                                  .tr,
                           style: KpbTextStyles.bodySm
                               .copyWith(color: context.kpb.textSecondary),
                         ),
@@ -610,7 +615,7 @@ class _ResultsViewState extends State<_ResultsView>
                           Get.to(() => OrientationRoadmapScreen(
                                 fieldLabel: topField != null
                                     ? controller.resolve(topField.name)
-                                    : 'tes résultats',
+                                    : 'orientation_your_results_fallback'.tr,
                                 programId: topProgram?.id,
                                 countryId: topProgram?.countryId,
                               ));
@@ -633,10 +638,10 @@ class _ResultsViewState extends State<_ResultsView>
                         onPressed: () => showModalBottomSheet<void>(
                           context: Get.context!,
                           isScrollControlled: true,
-                          builder: (_) => const CaseComposerSheet(
+                          builder: (_) => CaseComposerSheet(
                             caseType: CaseType.applicationSupport,
-                            title: 'Dossier de candidature',
-                            contextLabel: 'Suite orientation',
+                            title: 'case_application_title'.tr,
+                            contextLabel: 'orientation_case_context_label'.tr,
                           ),
                         ),
                       ),
@@ -737,8 +742,8 @@ class _ResultsHero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Bravo ! 🎉',
+          Text(
+            'orientation_results_congrats'.tr,
             style: TextStyle(
               color: Colors.white,
               fontSize: 26,
@@ -794,7 +799,7 @@ class _ResultsHero extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'MEILLEURE CORRESPONDANCE',
+                        'orientation_best_match_label'.tr,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 9,
@@ -935,14 +940,15 @@ class _RecommendationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (isBest)
-                      const KpbBadge(
-                          label: '⭐ Meilleur match', color: KpbColors.blue),
+                      KpbBadge(
+                          label: 'orientation_best_match_badge'.tr,
+                          color: KpbColors.blue),
                     if (isBest) const SizedBox(height: 4),
                     if (rec.iaResilience == 'high')
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(bottom: 4),
                         child: KpbBadge(
-                          label: '🛡 Résilient à l\'IA',
+                          label: 'orientation_ai_resilient_badge'.tr,
                           color: KpbColors.success,
                         ),
                       ),
@@ -980,7 +986,7 @@ class _RecommendationCard extends StatelessWidget {
 
           // ── Why it fits ──────────────────────────────────────────────
           Text(
-            'Pourquoi c\'est fait pour vous',
+            'orientation_why_it_fits_label'.tr,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -1061,7 +1067,7 @@ class _RecommendationCard extends StatelessWidget {
           // ── Scholarships ─────────────────────────────────────────────
           if (scholarships.isNotEmpty) ...[
             Text(
-              'Bourses disponibles',
+              'orientation_available_scholarships_label'.tr,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -1168,8 +1174,8 @@ class _ConsultativeView extends StatelessWidget {
               gradient: KpbColors.heroGradient,
             ),
           ),
-          title: const Text(
-            'Orientation',
+          title: Text(
+            'nav_orientation'.tr,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -1266,17 +1272,17 @@ class _IaResilienceChip extends StatelessWidget {
       'high' => (
           KpbColors.success,
           Icons.eco_rounded,
-          'Métier d\'avenir · résistant à l\'IA',
+          'orientation_ia_resilience_high'.tr,
         ),
       'medium' => (
           KpbColors.warning,
           Icons.trending_up_rounded,
-          'Bonne résilience face à l\'IA',
+          'orientation_ia_resilience_medium'.tr,
         ),
       _ => (
           context.kpb.textSecondary,
           Icons.info_outline_rounded,
-          'À faire évoluer face à l\'IA',
+          'orientation_ia_resilience_low'.tr,
         ),
     };
 

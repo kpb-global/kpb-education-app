@@ -95,8 +95,8 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Impossible d'envoyer la candidature pour l'instant."),
+        SnackBar(
+          content: Text('alumni_apply_submit_failed'.tr),
         ),
       );
     }
@@ -105,7 +105,7 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Devenir mentor alumni')),
+      appBar: AppBar(title: Text('alumni_apply_title'.tr)),
       body: _loadingStatus
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -120,36 +120,38 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _universityCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Université / école',
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_university'.tr,
                         border: OutlineInputBorder(),
                       ),
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'form_required'.tr
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _programmeCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Programme / filière',
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_programme'.tr,
                         border: OutlineInputBorder(),
                       ),
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'form_required'.tr
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _yearCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Année d'admission / diplôme",
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_year'.tr,
                         border: OutlineInputBorder(),
                       ),
                       validator: (v) {
                         final y = int.tryParse((v ?? '').trim());
-                        if (y == null) return 'Année invalide';
+                        if (y == null) return 'alumni_apply_year_invalid'.tr;
                         if (y < 1980 || y > DateTime.now().year + 10) {
-                          return 'Année hors plage';
+                          return 'alumni_apply_year_out_of_range'.tr;
                         }
                         return null;
                       },
@@ -157,23 +159,21 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _countryCtrl,
-                      decoration: const InputDecoration(
-                        labelText:
-                            "Pays de l'université (code ISO, ex. FR, CA)",
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_country'.tr,
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _proofUrlCtrl,
-                      decoration: const InputDecoration(
-                        labelText: "Lien vers l'admission / le diplôme",
-                        helperText:
-                            "Google Drive, Dropbox, ou autre lien public",
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_proof_url'.tr,
+                        helperText: 'alumni_apply_proof_helper'.tr,
                         border: OutlineInputBorder(),
                       ),
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Requis pour la vérification'
+                          ? 'alumni_apply_proof_required'.tr
                           : null,
                     ),
                     const SizedBox(height: 12),
@@ -181,8 +181,8 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                       controller: _bioCtrl,
                       minLines: 3,
                       maxLines: 6,
-                      decoration: const InputDecoration(
-                        labelText: 'Bio courte (facultatif)',
+                      decoration: InputDecoration(
+                        labelText: 'alumni_apply_bio'.tr,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -195,7 +195,7 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
                               width: 16,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Envoyer ma candidature'),
+                          : Text('alumni_apply_submit'.tr),
                     ),
                   ],
                 ),
@@ -216,15 +216,15 @@ class _StatusBanner extends StatelessWidget {
     late final Color color;
     switch (status) {
       case 'pending':
-        msg = 'Ta candidature est en attente de vérification.';
+        msg = 'alumni_status_pending'.tr;
         color = Colors.orange.shade100;
         break;
       case 'approved':
-        msg = 'Tu es vérifié comme alumni. Ton badge est visible.';
+        msg = 'alumni_status_approved'.tr;
         color = Colors.green.shade100;
         break;
       case 'rejected':
-        msg = 'Ta dernière candidature a été refusée. Tu peux la renvoyer.';
+        msg = 'alumni_status_rejected'.tr;
         color = Colors.red.shade100;
         break;
       default:
