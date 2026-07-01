@@ -1,3 +1,5 @@
+import { createHash } from 'crypto';
+
 import {
   Injectable,
   UnauthorizedException,
@@ -8,6 +10,18 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { AdminUsersService } from '../admin-users/admin-users.service';
+
+/**
+ * Opaque, stable fingerprint of the current password hash. It changes whenever
+ * the password is (re)set, so binding an access token to it lets a password
+ * reset invalidate any already-issued token on its next request.
+ */
+function passwordFingerprint(passwordHash: string | null): string | null {
+  if (!passwordHash) {
+    return null;
+  }
+  return createHash('sha256').update(passwordHash).digest('hex').slice(0, 16);
+}
 
 export interface AdminSessionUser {
   id: string;
@@ -130,6 +144,20 @@ export class AuthService {
         throw new UnauthorizedException('Admin account is no longer active.');
       }
 
+      // For DB-backed accounts, reject a token whose password fingerprint no
+      // longer matches (e.g. after a reset), so a reset revokes any live
+      // session immediately rather than only blocking future refreshes.
+      const credentials =
+        await this.adminUsersService.findActiveUserByEmailWithCredentials(
+          payload.email,
+        );
+      if (
+        credentials &&
+        payload.pwd !== passwordFingerprint(credentials.passwordHash)
+      ) {
+        throw new UnauthorizedException('Admin session has been revoked.');
+      }
+
       return this.toSessionUser(user);
     } catch {
       throw new UnauthorizedException('Invalid or expired admin token.');
@@ -155,8 +183,19 @@ export class AuthService {
   }
 
   private async issueTokens(user: AdminSessionUser) {
+    // Load credentials first so the access token can carry the current password
+    // fingerprint (used by verifyToken to revoke tokens after a password reset).
+    const dbUser = await this.adminUsersService.findActiveUserByEmailWithCredentials(user.email);
+
     const token = this.jwtService.sign(
-      { sub: user.id, email: user.email, role: user.role, languageScope: user.languageScope, fullName: user.fullName },
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        languageScope: user.languageScope,
+        fullName: user.fullName,
+        pwd: passwordFingerprint(dbUser?.passwordHash ?? null),
+      },
       { expiresIn: '1h' },
     );
 
@@ -166,9 +205,8 @@ export class AuthService {
     );
 
     const refreshHash = await bcrypt.hash(refreshToken, 10);
-    
+
     // Only save refresh token if it's a DB user
-    const dbUser = await this.adminUsersService.findActiveUserByEmailWithCredentials(user.email);
     if (dbUser) {
       await this.adminUsersService.updateRefreshToken(user.id, refreshHash);
     }

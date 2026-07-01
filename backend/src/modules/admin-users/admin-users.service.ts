@@ -173,8 +173,10 @@ export class AdminUsersService {
   }
 
   /**
-   * Re-issue a temporary password for an operator and revoke their refresh
-   * token so any active session is invalidated. Returns the plaintext once.
+   * Re-issue a temporary password for an operator. Rotating the password hash
+   * invalidates any live access token (AuthService binds each token to the
+   * password fingerprint) and clearing the refresh token stops future
+   * refreshes — so this fully signs the operator out. Returns the plaintext once.
    */
   async resetPassword(id: string) {
     const tempPassword = generateTempPassword();

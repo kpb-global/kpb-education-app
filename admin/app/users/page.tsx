@@ -142,6 +142,9 @@ export default function UsersPage() {
 
     setStatusMessage(null);
     setErrorMessage(null);
+    // Don't leave a previously-issued temp password on screen during an
+    // unrelated role/activation change.
+    setCredential(null);
 
     try {
       await apiFetch(`/admin/users/${selectedUser.id}`, {
