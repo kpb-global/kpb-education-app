@@ -35,12 +35,12 @@ class ProgramDetailScreen extends StatelessWidget {
     } catch (_) {}
 
     final isPartner = institution?.isPartner ?? false;
-    const applicationSteps = [
-      'Quiz d\'éligibilité & choix du programme',
-      'Constitution du dossier avec KPB',
-      'Soumission à l\'école partenaire',
-      'Obtention de la lettre d\'admission',
-      'Visa & préparation du départ',
+    final applicationSteps = [
+      'program_step_eligibility_choice'.tr,
+      'program_step_build_file'.tr,
+      'program_step_submission'.tr,
+      'program_step_admission_letter'.tr,
+      'program_step_visa_departure'.tr,
     ];
 
     return Scaffold(
@@ -63,10 +63,10 @@ class ProgramDetailScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (isPartner)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(bottom: 8),
                         child: KpbBadge(
-                          label: 'Partenaire KPB',
+                          label: 'badge_kpb_partner'.tr,
                           color: KpbColors.gold,
                           small: true,
                         ),
@@ -113,7 +113,7 @@ class ProgramDetailScreen extends StatelessWidget {
                 children: [
                   _Section(
                     icon: Icons.info_outline_rounded,
-                    title: 'Le programme en bref',
+                    title: 'program_at_a_glance'.tr,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -126,7 +126,7 @@ class ProgramDetailScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         KpbInfoRow(
                           icon: Icons.school_outlined,
-                          label: 'Niveau',
+                          label: 'program_level'.tr,
                           value: programLevelLabel(
                               controller.resolve(program.level)),
                           iconColor: KpbColors.blue,
@@ -134,14 +134,14 @@ class ProgramDetailScreen extends StatelessWidget {
                         const KpbDivider(indent: 48),
                         KpbInfoRow(
                           icon: Icons.schedule_outlined,
-                          label: 'Durée',
+                          label: 'program_duration'.tr,
                           value: controller.resolve(program.duration),
                           iconColor: KpbColors.success,
                         ),
                         const KpbDivider(indent: 48),
                         KpbInfoRow(
                           icon: Icons.language_outlined,
-                          label: 'Langue',
+                          label: 'program_language'.tr,
                           value: controller.resolve(program.language),
                           iconColor: KpbColors.warning,
                         ),
@@ -149,7 +149,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.public_outlined,
-                            label: 'Pays',
+                            label: 'program_country'.tr,
                             value:
                                 '${displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji)} ${controller.resolve(country.name)}',
                             iconColor: KpbColors.blue,
@@ -160,7 +160,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.location_on_outlined,
-                            label: 'Campus',
+                            label: 'program_campus'.tr,
                             value: controller.resolve(institution.location),
                             iconColor: KpbColors.blue,
                           ),
@@ -170,7 +170,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.calendar_month_outlined,
-                            label: 'Rentrée',
+                            label: 'program_intake'.tr,
                             value: controller.resolve(country.nextIntakeLabel),
                             iconColor: KpbColors.gold,
                           ),
@@ -179,7 +179,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           const KpbDivider(indent: 48),
                           KpbInfoRow(
                             icon: Icons.category_outlined,
-                            label: 'Domaine',
+                            label: 'program_field'.tr,
                             value: controller.resolve(field.name),
                             iconColor: field.accentColor,
                           ),
@@ -189,7 +189,7 @@ class ProgramDetailScreen extends StatelessWidget {
                   ),
                   _Section(
                     icon: Icons.payments_outlined,
-                    title: 'Frais de scolarité',
+                    title: 'country_tuition_fees'.tr,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -225,8 +225,8 @@ class ProgramDetailScreen extends StatelessWidget {
                   if (program.campusOfferings.isNotEmpty)
                     _Section(
                       icon: Icons.location_city_outlined,
-                      title:
-                          'Disponible sur ${program.campusOfferings.length} campus',
+                      title: 'program_available_on_campuses'.trParams(
+                          {'count': '${program.campusOfferings.length}'}),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -245,7 +245,7 @@ class ProgramDetailScreen extends StatelessWidget {
                   if (program.requirements.isNotEmpty)
                     _Section(
                       icon: Icons.fact_check_outlined,
-                      title: 'Conditions d\'admission',
+                      title: 'program_admission_requirements'.tr,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: program.requirements
@@ -273,7 +273,7 @@ class ProgramDetailScreen extends StatelessWidget {
                     ),
                   _Section(
                     icon: Icons.route_outlined,
-                    title: 'Processus de candidature',
+                    title: 'program_application_process'.tr,
                     child: Column(
                       children: [
                         for (var i = 0; i < applicationSteps.length; i++) ...[

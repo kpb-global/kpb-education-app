@@ -343,8 +343,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           if (!formValid) return false;
           if (!_hasConsented) {
             Get.snackbar(
-              'Consentement requis',
-              'Veuillez accepter la politique de confidentialité et les conditions d\'utilisation.',
+              'onboarding_consent_required_title'.tr,
+              'onboarding_consent_required_body'.tr,
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
@@ -389,8 +389,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       2 => () {
           if (_fieldIds.isEmpty) {
             Get.snackbar(
-              'Sélection requise',
-              'Choisissez au moins une filière d\'intérêt.',
+              'onboarding_selection_required_title'.tr,
+              'onboarding_select_field_body'.tr,
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
@@ -401,8 +401,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           }
           if (_countryIds.isEmpty) {
             Get.snackbar(
-              'Sélection requise',
-              'Choisissez au moins un pays de destination.',
+              'onboarding_selection_required_title'.tr,
+              'onboarding_select_country_body'.tr,
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
@@ -469,8 +469,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Page 0 — Identité & compte
                 _Page(
                   formKey: _key0,
-                  title: 'Bienvenue 👋',
-                  subtitle: 'Créons votre profil KPB Education.',
+                  title: 'onboarding_welcome_title'.tr,
+                  subtitle: 'onboarding_welcome_subtitle'.tr,
                   child: _PageIdentity(
                     accountType: _accountType,
                     language: _language,
@@ -506,8 +506,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 if (_accountType != AccountType.partner)
                   _Page(
                     formKey: _key1,
-                    title: 'Votre parcours 🎓',
-                    subtitle: 'Dites-nous où vous en êtes.',
+                    title: 'onboarding_academic_title'.tr,
+                    subtitle: 'onboarding_academic_subtitle'.tr,
                     child: _PageAcademic(
                       currentLevel: _currentLevel,
                       targetLevel: _targetLevel,
@@ -532,8 +532,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 else
                   _Page(
                     formKey: _key1,
-                    title: 'Votre structure 🤝',
-                    subtitle: 'Parlez-nous de votre organisation.',
+                    title: 'onboarding_partner_title'.tr,
+                    subtitle: 'onboarding_partner_subtitle'.tr,
                     child: _PagePartner(),
                   ),
 
@@ -541,8 +541,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 if (_accountType != AccountType.partner)
                   _Page(
                     formKey: GlobalKey(),
-                    title: 'Vos intérêts 🌍',
-                    subtitle: 'Personnalisez vos recommandations.',
+                    title: 'onboarding_interests_title'.tr,
+                    subtitle: 'onboarding_interests_subtitle'.tr,
                     child: _PageInterests(
                       controller: _ctrl,
                       fieldIds: _fieldIds,
@@ -647,7 +647,7 @@ class _ProgressHeader extends StatelessWidget {
                       minimumSize: const Size(36, 36),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text('Passer'),
+                    child: Text('skip'.tr),
                   )
                 else
                   const SizedBox(width: 36),
@@ -805,7 +805,7 @@ class _PageIdentity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Type de compte
-        const Text('Je suis', style: KpbTextStyles.titleMd),
+        Text('onboarding_i_am'.tr, style: KpbTextStyles.titleMd),
         const SizedBox(height: 10),
         Row(
           children: onboardingAccountTypes.map((t) {
@@ -838,10 +838,10 @@ class _PageIdentity extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         t == AccountType.student
-                            ? 'Étudiant'
+                            ? 'account_type_student'.tr
                             : t == AccountType.parent
-                                ? 'Parent'
-                                : 'Partenaire',
+                                ? 'account_type_parent_short'.tr
+                                : 'badge_partner'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -1071,7 +1071,7 @@ class _PageIdentity extends StatelessWidget {
                       height: 1.4,
                     ),
                     children: [
-                      TextSpan(text: 'J\'accepte la '),
+                      TextSpan(text: 'onboarding_consent_accept_prefix'.tr),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
@@ -1089,15 +1089,15 @@ class _PageIdentity extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const TextSpan(text: ' et les '),
+                      TextSpan(text: 'onboarding_consent_and'.tr),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                         child: GestureDetector(
                           onTap: () =>
                               Get.to(() => const TermsOfServiceScreen()),
-                          child: const Text(
-                            'conditions d\'utilisation',
+                          child: Text(
+                            'onboarding_terms_of_use_inline'.tr,
                             style: TextStyle(
                               fontSize: 13,
                               color: KpbColors.blue,
@@ -1257,7 +1257,7 @@ class _PagePartner extends StatelessWidget {
         children: [
           const Icon(Icons.handshake_outlined, size: 48, color: KpbColors.blue),
           const SizedBox(height: KpbSpacing.md),
-          const Text('Espace partenariat', style: KpbTextStyles.title),
+          Text('onboarding_partnership_space'.tr, style: KpbTextStyles.title),
           const SizedBox(height: 8),
           Text(
             'partner_redirect'.tr,

@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/study_level.dart';
 
@@ -60,13 +61,13 @@ const onboardingAccountTypes = <AccountType>[
 String onboardingAccountLabel(AccountType type) {
   switch (type) {
     case AccountType.student:
-      return 'Étudiant';
+      return 'account_type_student'.tr;
     case AccountType.parent:
-      return 'Parent d\'élève';
+      return 'account_type_parent'.tr;
     case AccountType.partner:
-      return 'Partenaire (école / agence)';
+      return 'account_type_partner'.tr;
     case AccountType.commercial:
-      return 'Commercial KPB';
+      return 'account_type_commercial'.tr;
   }
 }
 

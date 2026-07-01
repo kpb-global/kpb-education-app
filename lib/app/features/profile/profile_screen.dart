@@ -206,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600)),
                                           Text(
-                                            'Economise la data (masque les images lourdes)',
+                                            'profile_data_saver_desc'.tr,
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: context.kpb.textMuted),
@@ -394,7 +394,7 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.psychology_outlined,
-                              label: 'Test d\'orientation',
+                              label: 'profile_quick_orientation_test'.tr,
                               color: KpbColors.blue,
                               onTap: () =>
                                   Get.to(() => const OrientationScreen()),
@@ -402,7 +402,7 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.fact_check_outlined,
-                              label: 'Simulateur d\'éligibilité',
+                              label: 'profile_quick_eligibility_simulator'.tr,
                               color: KpbColors.warning,
                               onTap: () => Get.to(
                                   () => const EligibilitySimulatorScreen()),
@@ -410,21 +410,21 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.play_circle_outline_rounded,
-                              label: 'Parcours & témoignages',
+                              label: 'profile_quick_journeys_testimonials'.tr,
                               color: KpbColors.error,
                               onTap: () => Get.to(() => const ParcoursScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.bookmark_outlined,
-                              label: 'Éléments sauvegardés',
+                              label: 'profile_quick_saved_items'.tr,
                               color: KpbColors.sky,
                               onTap: () => Get.to(() => const SavedScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.account_balance_wallet_outlined,
-                              label: 'Calculateur de Budget',
+                              label: 'profile_quick_budget_calculator'.tr,
                               color: KpbColors.success,
                               onTap: () =>
                                   Get.to(() => const BudgetCalculatorScreen()),
@@ -434,7 +434,7 @@ class ProfileScreen extends StatelessWidget {
                               const KpbDivider(indent: 52),
                               _QuickAccessTile(
                                 icon: Icons.flight_takeoff_rounded,
-                                label: 'Simulateur de Vols (Kayak)',
+                                label: 'profile_quick_flight_simulator'.tr,
                                 color: KpbColors.sky,
                                 onTap: () =>
                                     Get.to(() => const FlightEstimatorScreen()),
@@ -442,7 +442,7 @@ class ProfileScreen extends StatelessWidget {
                               const KpbDivider(indent: 52),
                               _QuickAccessTile(
                                 icon: Icons.holiday_village_rounded,
-                                label: 'Logement Étudiant (France)',
+                                label: 'profile_quick_student_housing'.tr,
                                 color: KpbColors.blueMid,
                                 onTap: () => Get.to(
                                     () => const HousingEstimatorScreen()),
@@ -454,7 +454,7 @@ class ProfileScreen extends StatelessWidget {
                           if (!AppConfig.mvpOnly) ...[
                             _QuickAccessTile(
                               icon: Icons.forum_outlined,
-                              label: 'Communauté & Articles',
+                              label: 'profile_quick_community_articles'.tr,
                               color: KpbColors.sky,
                               onTap: () =>
                                   Get.to(() => const CommunityScreen()),
@@ -467,8 +467,8 @@ class ProfileScreen extends StatelessWidget {
                           _QuickAccessTile(
                             icon: Icons.family_restroom,
                             label: controller.isParent
-                                ? 'Espace parent'
-                                : 'Mode parent',
+                                ? 'profile_quick_parent_space'.tr
+                                : 'profile_quick_parent_mode'.tr,
                             color: KpbColors.gold,
                             onTap: () =>
                                 Get.to(() => const ParentDashboardScreen()),
@@ -478,7 +478,7 @@ class ProfileScreen extends StatelessWidget {
                           // scholarship & visa kits, consultations.
                           _QuickAccessTile(
                             icon: Icons.workspace_premium_outlined,
-                            label: 'Services KPB (Dossier prêt)',
+                            label: 'profile_quick_kpb_services'.tr,
                             color: KpbColors.navy,
                             onTap: () =>
                                 Get.to(() => const ServicePackagesScreen()),
@@ -488,7 +488,7 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.school_outlined,
-                              label: 'Mentors alumni vérifiés',
+                              label: 'profile_quick_verified_alumni_mentors'.tr,
                               color: KpbColors.primary,
                               onTap: () =>
                                   Get.to(() => const AlumniDirectoryScreen()),
@@ -496,7 +496,7 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.verified_outlined,
-                              label: 'Devenir mentor alumni',
+                              label: 'profile_quick_become_alumni_mentor'.tr,
                               color: KpbColors.primary,
                               onTap: () =>
                                   Get.to(() => const AlumniApplyScreen()),
@@ -504,7 +504,7 @@ class ProfileScreen extends StatelessWidget {
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
                               icon: Icons.event,
-                              label: 'Salon KPB Virtuel',
+                              label: 'profile_quick_virtual_salon'.tr,
                               color: KpbColors.blue,
                               onTap: () => Get.to(() => const SalonScreen()),
                             ),
@@ -522,7 +522,7 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           _QuickAccessTile(
                             icon: Icons.privacy_tip_outlined,
-                            label: 'Politique de confidentialité',
+                            label: 'profile_privacy_policy'.tr,
                             color: context.kpb.textSecondary,
                             onTap: () =>
                                 Get.to(() => const PrivacyPolicyScreen()),
@@ -530,7 +530,7 @@ class ProfileScreen extends StatelessWidget {
                           const KpbDivider(indent: 52),
                           _QuickAccessTile(
                             icon: Icons.description_outlined,
-                            label: 'Conditions d\'utilisation',
+                            label: 'profile_terms_of_service'.tr,
                             color: context.kpb.textSecondary,
                             onTap: () =>
                                 Get.to(() => const TermsOfServiceScreen()),
@@ -696,24 +696,24 @@ class ProfileScreen extends StatelessWidget {
   String _accountTypeLabel(dynamic type) {
     switch (type.toString()) {
       case 'AccountType.student':
-        return 'Étudiant';
+        return 'account_type_student'.tr;
       case 'AccountType.parent':
-        return 'Parent';
+        return 'account_type_parent_short'.tr;
       case 'AccountType.partner':
-        return 'Partenaire';
+        return 'badge_partner'.tr;
       case 'AccountType.commercial':
-        return 'Commercial';
+        return 'account_type_commercial_2'.tr;
       default:
         return type.toString();
     }
   }
 
   String _docLabel(String doc) {
-    const map = {
-      'Passport': 'Passeport',
+    final map = {
+      'Passport': 'doc_passport'.tr,
       'CV': 'CV',
-      'Transcripts': 'Relevés de notes',
-      'Test score': 'Score de test',
+      'Transcripts': 'doc_transcripts'.tr,
+      'Test score': 'doc_test_score'.tr,
     };
     return map[doc] ?? doc;
   }
@@ -811,15 +811,15 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               const SizedBox(height: KpbSpacing.lg),
 
               _EditField(
-                label: 'Nom complet',
+                label: 'profile_field_full_name'.tr,
                 controller: _nameCtrl,
                 icon: Icons.person_outline_rounded,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                    (v == null || v.trim().isEmpty) ? 'required'.tr : null,
               ),
               const SizedBox(height: KpbSpacing.md),
               _EditField(
-                label: 'Téléphone',
+                label: 'profile_field_phone'.tr,
                 controller: _phoneCtrl,
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
@@ -833,7 +833,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               ),
               const SizedBox(height: KpbSpacing.md),
               _EditField(
-                label: 'Pays de résidence',
+                label: 'profile_field_country_of_residence'.tr,
                 controller: _countryCtrl,
                 icon: Icons.public_outlined,
               ),
@@ -847,7 +847,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 isExpanded: true,
                 decoration: _dropdownDecoration(
                   context,
-                  'Niveau d\'études actuel',
+                  'profile_field_current_study_level'.tr,
                   Icons.school_outlined,
                 ),
                 items: onboardingStudyLevels
@@ -868,7 +868,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   isExpanded: true,
                   decoration: _dropdownDecoration(
                     context,
-                    'Série du bac',
+                    'profile_field_bac_series'.tr,
                     Icons.workspace_premium_outlined,
                   ),
                   items: onboardingBacSeries
@@ -964,8 +964,8 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     widget.controller.updateProfile(updated);
     Navigator.pop(context);
     Get.snackbar(
-      'Profil mis à jour',
-      'Vos informations ont été sauvegardées.',
+      'profile_updated_title'.tr,
+      'profile_updated_body'.tr,
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(KpbSpacing.md),
       backgroundColor: KpbColors.successLight,
@@ -1000,11 +1000,11 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   }
 
   String _editDocLabel(String doc) {
-    const map = {
-      'Passport': 'Passeport',
+    final map = {
+      'Passport': 'doc_passport'.tr,
       'CV': 'CV',
-      'Transcripts': 'Relevés de notes',
-      'Test score': 'Score de test',
+      'Transcripts': 'doc_transcripts'.tr,
+      'Test score': 'doc_test_score'.tr,
     };
     return map[doc] ?? doc;
   }
@@ -1177,32 +1177,32 @@ class _ProfileCompletionGuide extends StatelessWidget {
     final result = <({String field, String impact})>[];
     if ((p.gradeRange ?? '').isEmpty) {
       result.add((
-        field: 'Moyenne académique',
-        impact: 'Améliore la précision de tes recommandations d\'écoles',
+        field: 'profile_missing_grade_field'.tr,
+        impact: 'profile_missing_grade_impact'.tr,
       ));
     }
     if (p.currentLevel == null) {
       result.add((
-        field: 'Niveau d\'études actuel',
-        impact: 'Indispensable pour matcher les programmes disponibles',
+        field: 'profile_field_current_study_level'.tr,
+        impact: 'profile_missing_current_level_impact'.tr,
       ));
     }
     if (p.targetLevel == null) {
       result.add((
-        field: 'Niveau cible',
-        impact: 'Aide les conseillers à orienter ton dossier',
+        field: 'profile_missing_target_level_field'.tr,
+        impact: 'profile_missing_target_level_impact'.tr,
       ));
     }
     if (p.availableDocuments.isEmpty) {
       result.add((
-        field: 'Documents disponibles',
-        impact: 'Nos conseillers en ont besoin pour évaluer ton dossier',
+        field: 'profile_missing_documents_field'.tr,
+        impact: 'profile_missing_documents_impact'.tr,
       ));
     }
     if (p.languageLevel == null) {
       result.add((
-        field: 'Niveau de langue',
-        impact: 'Certaines universités ont des seuils minimum',
+        field: 'profile_missing_language_level_field'.tr,
+        impact: 'profile_missing_language_level_impact'.tr,
       ));
     }
     return result.take(3).toList(); // Show max 3 at a time
