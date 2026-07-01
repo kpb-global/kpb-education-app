@@ -270,7 +270,7 @@ export const mockAdminData = {
     {
       id: 'admin-aminou',
       fullName: 'Aminou Laouali',
-      email: 'alaoualiabou@karatoupostbac.com',
+      email: 'alaoualiabdou@karatoupostbac.com',
       role: InternalRole.Admin,
       isActive: true,
       languageScope: ['fr', 'en'],
