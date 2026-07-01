@@ -311,9 +311,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
 
   Widget _childrenSection() {
     if (_children.isEmpty) {
-      return const _EmptyHint(
+      return _EmptyHint(
         icon: Icons.family_restroom,
-        message: 'Aucun enfant lié pour le moment.',
+        message: 'parent_no_children_linked'.tr,
       );
     }
     return Column(

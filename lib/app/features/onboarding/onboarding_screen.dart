@@ -863,13 +863,13 @@ class _PageIdentity extends StatelessWidget {
         Row(
           children: [
             _LangBtn(
-              label: '🇫🇷 Français',
+              label: 'lang_name_french'.tr,
               selected: language == 'fr',
               onTap: () => onLanguage('fr'),
             ),
             const SizedBox(width: 10),
             _LangBtn(
-              label: '🇬🇧 English',
+              label: 'lang_name_english'.tr,
               selected: language == 'en',
               onTap: () => onLanguage('en'),
             ),

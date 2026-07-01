@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../config/app_config.dart';
@@ -155,9 +156,9 @@ class CoachService {
     );
 
     if (!AppConfig.enableRemoteSync) {
-      yield const CoachStreamEvent(
+      yield CoachStreamEvent(
         type: 'token',
-        text: 'Le coach IA nécessite une connexion au serveur KPB. ',
+        text: 'coach_requires_connection'.tr,
       );
       yield const CoachStreamEvent(type: 'done', quotaRemaining: 4);
       return;

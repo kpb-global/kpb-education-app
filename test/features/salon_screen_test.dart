@@ -24,7 +24,7 @@ void main() {
 
     expect(find.byType(KpbErrorState), findsOneWidget);
     expect(find.text('salon_unavailable_title'), findsOneWidget);
-    expect(find.textContaining('Réessayer'), findsOneWidget);
+    expect(find.text('retry'), findsOneWidget);
   });
 
   testWidgets('shows KpbEmptyState when list returns empty', (tester) async {
@@ -71,7 +71,7 @@ void main() {
 
     expect(find.byType(KpbErrorState), findsOneWidget);
 
-    await tester.tap(find.textContaining('Réessayer'));
+    await tester.tap(find.text('retry'));
     await tester.pumpAndSettle();
 
     expect(find.byType(KpbEmptyState), findsOneWidget);
