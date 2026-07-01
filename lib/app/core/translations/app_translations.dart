@@ -95,6 +95,8 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'À confirmer',
           'to_confirm_semantics': 'Information à confirmer, non vérifiée',
           'offline_mode': 'Mode hors-ligne',
+          'sample_data_notice':
+              'Données d’exemple — connexion au serveur impossible. Le catalogue affiché n’est pas encore à jour.',
           'freshness_saved': 'données enregistrées',
           'freshness_today': 'données enregistrées aujourd\'hui',
           'freshness_yesterday': 'données enregistrées hier',
@@ -720,6 +722,8 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'To confirm',
           'to_confirm_semantics': 'Information to confirm, not verified',
           'offline_mode': 'Offline mode',
+          'sample_data_notice':
+              'Sample data — couldn’t reach the server. The catalog shown isn’t live yet.',
           'freshness_saved': 'saved data',
           'freshness_today': 'data saved today',
           'freshness_yesterday': 'data saved yesterday',

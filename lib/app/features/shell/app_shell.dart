@@ -7,6 +7,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/components/kpb_offline_banner.dart';
+import '../../core/ui/components/kpb_sample_data_banner.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../cases/cases_screen.dart';
 import '../destinations/destinations_screen.dart';
@@ -57,6 +58,10 @@ class AppShell extends StatelessWidget {
               Column(
                 children: [
                   const KpbOfflineBanner(),
+                  // Honest signal when we're still on the bundled sample catalog
+                  // (backend unreachable/empty, no cache) rather than real data.
+                  if (controller.catalogIsSampleData)
+                    const KpbSampleDataBanner(),
                   Expanded(
                     child: IndexedStack(index: index, children: pages),
                   ),
