@@ -79,8 +79,8 @@ class _EligibilitySimulatorScreenState
       );
     } catch (_) {
       Get.snackbar(
-        'Export impossible',
-        'Le PDF n\'a pas pu être généré. Réessaie.',
+        'eligibility_export_failed_title'.tr,
+        'eligibility_export_failed_body'.tr,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(KpbSpacing.md),
       );
@@ -120,7 +120,7 @@ class _EligibilitySimulatorScreenState
             OutlinedButton.icon(
               onPressed: _exportPdf,
               icon: const Icon(Icons.picture_as_pdf_outlined),
-              label: const Text('Exporter / partager en PDF'),
+              label: Text('eligibility_export_pdf'.tr),
             ),
             const SizedBox(height: KpbSpacing.lg),
           ],
@@ -134,13 +134,13 @@ class _EligibilitySimulatorScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Tes informations', style: KpbTextStyles.titleMd),
+          Text('eligibility_your_info'.tr, style: KpbTextStyles.titleMd),
           const SizedBox(height: KpbSpacing.md),
           DropdownButtonFormField<String>(
             initialValue: _input.studyLevel,
             isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'Niveau d\'études actuel',
+            decoration: InputDecoration(
+              labelText: 'eligibility_current_study_level'.tr,
               prefixIcon: Icon(Icons.school_outlined, size: 20),
             ),
             items: onboardingStudyLevels
@@ -159,8 +159,8 @@ class _EligibilitySimulatorScreenState
             DropdownButtonFormField<String>(
               initialValue: _input.bacSeries,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Série du bac',
+              decoration: InputDecoration(
+                labelText: 'eligibility_bac_series'.tr,
                 prefixIcon: Icon(Icons.workspace_premium_outlined, size: 20),
               ),
               items: onboardingBacSeries
@@ -175,22 +175,22 @@ class _EligibilitySimulatorScreenState
             controller: _budgetCtrl,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(
-              labelText: 'Budget mensuel (EUR)',
-              hintText: 'ex. 900',
+            decoration: InputDecoration(
+              labelText: 'eligibility_monthly_budget_eur'.tr,
+              hintText: 'eligibility_budget_hint'.tr,
               prefixIcon: Icon(Icons.euro_rounded, size: 20),
             ),
           ),
           const SizedBox(height: KpbSpacing.lg),
           _LangSelector(
-            label: 'Niveau de français',
+            label: 'eligibility_french_level'.tr,
             value: _input.frenchLevel,
             onChanged: (v) =>
                 setState(() => _input = _input.copyWith(frenchLevel: v)),
           ),
           const SizedBox(height: KpbSpacing.md),
           _LangSelector(
-            label: 'Niveau d\'anglais',
+            label: 'eligibility_english_level'.tr,
             value: _input.englishLevel,
             onChanged: (v) =>
                 setState(() => _input = _input.copyWith(englishLevel: v)),
@@ -289,17 +289,23 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Expanded(
           child: _SummaryChip(
-              count: green, label: 'Éligible', color: KpbColors.success),
+              count: green,
+              label: 'eligibility_summary_eligible'.tr,
+              color: KpbColors.success),
         ),
         const SizedBox(width: KpbSpacing.sm),
         Expanded(
           child: _SummaryChip(
-              count: amber, label: 'Sous conditions', color: KpbColors.warning),
+              count: amber,
+              label: 'eligibility_summary_conditions'.tr,
+              color: KpbColors.warning),
         ),
         const SizedBox(width: KpbSpacing.sm),
         Expanded(
           child: _SummaryChip(
-              count: red, label: 'À préparer', color: KpbColors.error),
+              count: red,
+              label: 'eligibility_summary_to_prepare'.tr,
+              color: KpbColors.error),
         ),
       ],
     );

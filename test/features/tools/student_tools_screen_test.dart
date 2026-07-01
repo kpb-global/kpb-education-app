@@ -27,11 +27,11 @@ void main() {
         ),
       );
 
-      expect(find.text('Generateur de CV'), findsOneWidget);
-      expect(find.text('Lettres de motivation'), findsOneWidget);
-      expect(find.text('Simulateur d\'entretien'), findsOneWidget);
-      expect(find.text('Scanner mes documents'), findsOneWidget);
-      expect(find.text('Notre impact'), findsOneWidget);
+      expect(find.text('cv_generator_title'), findsOneWidget);
+      expect(find.text('letters_title'), findsOneWidget);
+      expect(find.text('interview_title'), findsOneWidget);
+      expect(find.text('scanner_title'), findsOneWidget);
+      expect(find.text('impact_title'), findsOneWidget);
     });
 
     testWidgets('interview simulator shows the three interview types',
@@ -46,9 +46,9 @@ void main() {
         ),
       );
 
-      expect(find.text('Entretien de visa étudiant'), findsOneWidget);
-      expect(find.text('Entretien d\'admission'), findsOneWidget);
-      expect(find.text('Entretien de bourse'), findsOneWidget);
+      expect(find.text('interview_type_visa_title'), findsOneWidget);
+      expect(find.text('interview_type_admission_title'), findsOneWidget);
+      expect(find.text('interview_type_scholarship_title'), findsOneWidget);
     });
 
     testWidgets('document scanner renders the checklist with progress',
@@ -63,8 +63,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Passeport'), findsOneWidget);
-      expect(find.text('Diplôme / Attestation'), findsOneWidget);
+      expect(find.text('scanner_doc_passport'), findsOneWidget);
+      expect(find.text('scanner_doc_diploma'), findsOneWidget);
       expect(find.textContaining('0 / 6 documents'), findsOneWidget);
     });
   });

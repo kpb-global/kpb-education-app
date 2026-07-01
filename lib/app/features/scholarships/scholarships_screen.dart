@@ -70,14 +70,13 @@ class ScholarshipsScreen extends StatelessWidget {
                   ),
                 ),
                 if (items.isEmpty && !controller.isSyncing)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
                       child: KpbEmptyState(
                         icon: Icons.search_off_rounded,
-                        title: 'Pas de bourses correspondantes',
-                        subtitle:
-                            'Essaie de modifier tes critères ou ton orientation.',
+                        title: 'scholarships_empty_title'.tr,
+                        subtitle: 'scholarships_empty_subtitle'.tr,
                       ),
                     ),
                   )
@@ -363,8 +362,8 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
             ),
             child: Row(
               children: [
-                _buildTab(0, 'Info \u0026 Critères', isDark),
-                _buildTab(1, 'Mon Parcours Succès', isDark),
+                _buildTab(0, 'scholarship_tab_info_criteria'.tr, isDark),
+                _buildTab(1, 'scholarship_tab_success_path'.tr, isDark),
               ],
             ),
           ),
@@ -464,11 +463,17 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
           _AcademyCtaCard(courseId: s.academyCourseId!, isDark: isDark),
           const SizedBox(height: KpbSpacing.md),
         ],
-        _buildDetailRow(Icons.school_outlined, 'Niveau : ',
+        _buildDetailRow(
+            Icons.school_outlined,
+            'scholarship_detail_level_label'.tr,
             controller.resolve(s.levelEligible)),
-        _buildDetailRow(Icons.payments_outlined, 'Financement : ',
+        _buildDetailRow(
+            Icons.payments_outlined,
+            'scholarship_detail_funding_label'.tr,
             controller.resolve(s.typeOfFunding)),
-        _buildDetailRow(Icons.event_outlined, 'Date limite : ',
+        _buildDetailRow(
+            Icons.event_outlined,
+            'scholarship_detail_deadline_label'.tr,
             controller.resolve(s.deadlineLabel)),
         const SizedBox(height: KpbSpacing.xl),
         Text('key_criteria'.tr,
@@ -511,7 +516,7 @@ class _DetailSheetContentState extends State<_DetailSheetContent> {
         ),
         const SizedBox(height: KpbSpacing.sm),
         KpbButton(
-          text: 'Candidater avec KPB',
+          text: 'scholarship_apply_with_kpb'.tr,
           onPressed: () {
             Navigator.pop(context);
             _showApplicationOptions(context, s, country, controller);
@@ -604,7 +609,7 @@ class _AdmissionHook extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Chances d\'admission : Faibles',
+                'scholarship_admission_chances_low'.tr,
                 style: TextStyle(
                   color: KpbColors.warning,
                   fontWeight: FontWeight.w800,
@@ -624,12 +629,13 @@ class _AdmissionHook extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           KpbButton(
-            text: 'Booster mon dossier à 85%',
+            text: 'scholarship_boost_to_85'.tr,
             onPressed: () {
               Navigator.pop(context); // Close detail
               Get.toNamed(AppRoutes.caseCreate, arguments: {
                 'type': CaseType.scholarshipSupport,
-                'title': 'Analyse Boost : $scholarshipName',
+                'title': 'scholarship_boost_analysis_title'
+                    .trParams({'name': scholarshipName}),
               });
             },
             bgColor: KpbColors.warning,
@@ -691,8 +697,8 @@ class _AcademyCtaCard extends StatelessWidget {
           SizedBox(height: 12),
           Text(
             isPurchased
-                ? 'Continue ta formation'
-                : 'Prépare ta candidature avec des experts',
+                ? 'scholarship_academy_continue'.tr
+                : 'scholarship_academy_prepare'.tr,
             style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
@@ -706,7 +712,9 @@ class _AcademyCtaCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           KpbButton(
-            text: isPurchased ? 'Ouvrir mon pack' : 'Voir le Pack Réussite',
+            text: isPurchased
+                ? 'scholarship_academy_open_pack'.tr
+                : 'scholarship_academy_view_pack'.tr,
             onPressed: () => Get.to(() => AcademyCourseScreen(course: course)),
             bgColor: isPurchased ? KpbColors.success : themeColor,
             icon: isPurchased

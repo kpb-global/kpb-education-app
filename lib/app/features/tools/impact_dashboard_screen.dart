@@ -46,7 +46,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notre impact')),
+      appBar: AppBar(title: Text('impact_title'.tr)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -65,8 +65,8 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'L\'éducation sans frontières',
+                        Text(
+                          'impact_hero_title'.tr,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -75,7 +75,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'KPB Education accompagne les talents africains vers les meilleures destinations d\'études.',
+                          'impact_hero_subtitle'.tr,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.85),
                             fontSize: 13,
@@ -99,37 +99,37 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                         icon: Icons.groups_rounded,
                         color: KpbColors.blue,
                         value: '${_int('studentsGuided')}',
-                        label: 'Étudiants accompagnés',
+                        label: 'impact_stat_students_guided'.tr,
                       ),
                       _StatCard(
                         icon: Icons.school_rounded,
                         color: KpbColors.success,
                         value: '${_int('admissionsSecured')}',
-                        label: 'Admissions obtenues',
+                        label: 'impact_stat_admissions'.tr,
                       ),
                       _StatCard(
                         icon: Icons.savings_rounded,
                         color: KpbColors.gold,
                         value: '${_int('scholarshipsTracked')}',
-                        label: 'Bourses référencées',
+                        label: 'impact_stat_scholarships'.tr,
                       ),
                       _StatCard(
                         icon: Icons.public_rounded,
                         color: KpbColors.sky,
                         value: '${_int('countriesCovered')}',
-                        label: 'Pays de destination',
+                        label: 'impact_stat_countries'.tr,
                       ),
                       _StatCard(
                         icon: Icons.handshake_rounded,
                         color: KpbColors.navy,
                         value: '${_int('partnerInstitutions')}',
-                        label: 'Établissements partenaires',
+                        label: 'impact_stat_partner_institutions'.tr,
                       ),
                       _StatCard(
                         icon: Icons.psychology_rounded,
                         color: KpbColors.blueMid,
                         value: '${_int('orientationSessions')}',
-                        label: 'Sessions d\'orientation IA',
+                        label: 'impact_stat_orientation_sessions'.tr,
                       ),
                     ],
                   ),
@@ -149,7 +149,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                                   color: KpbColors.error, size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                'Taux de satisfaction',
+                                'impact_satisfaction_rate'.tr,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: context.kpb.textPrimary,

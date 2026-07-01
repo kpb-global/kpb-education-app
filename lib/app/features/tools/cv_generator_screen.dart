@@ -61,7 +61,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
     _fieldCtrl = TextEditingController(text: field);
     _countryCtrl = TextEditingController(text: country);
     _skillsCtrl = TextEditingController();
-    _languagesCtrl = TextEditingController(text: 'Francais, Anglais');
+    _languagesCtrl = TextEditingController(text: 'cv_default_languages'.tr);
     _experienceCtrl = TextEditingController();
     _objectiveCtrl = TextEditingController();
   }
@@ -114,7 +114,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur IA — verifiez votre connexion')),
+          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
         );
       }
     } finally {
@@ -463,13 +463,13 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Generateur de CV')),
+      appBar: AppBar(title: Text('cv_generator_title'.tr)),
       body: ListView(
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
           // ── Intro ──────────────────────────────────────────────────────────
           Text(
-            'Remplissez les champs et laissez l\'IA rediger votre profil professionnel.',
+            'cv_generator_intro'.tr,
             style: TextStyle(
               fontSize: 14,
               color: context.kpb.textMuted,
@@ -478,24 +478,22 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Form fields ────────────────────────────────────────────────────
-          _field('Nom complet', _nameCtrl),
+          _field('cv_field_full_name'.tr, _nameCtrl),
           _field('Email', _emailCtrl),
-          _field('Telephone', _phoneCtrl),
-          _field('Niveau d\'etudes', _levelCtrl),
-          _field('Domaine d\'etudes', _fieldCtrl),
-          _field('Pays cible', _countryCtrl),
-          _field('Competences (separees par des virgules)', _skillsCtrl),
-          _field('Langues', _languagesCtrl),
-          _field('Experience / Stages', _experienceCtrl, maxLines: 3),
-          _field('Objectif professionnel', _objectiveCtrl, maxLines: 2),
+          _field('cv_field_phone'.tr, _phoneCtrl),
+          _field('cv_field_study_level'.tr, _levelCtrl),
+          _field('cv_field_field_of_study'.tr, _fieldCtrl),
+          _field('cv_field_target_country'.tr, _countryCtrl),
+          _field('cv_field_skills'.tr, _skillsCtrl),
+          _field('cv_field_languages'.tr, _languagesCtrl),
+          _field('cv_field_experience'.tr, _experienceCtrl, maxLines: 3),
+          _field('cv_field_objective'.tr, _objectiveCtrl, maxLines: 2),
 
           const SizedBox(height: KpbSpacing.lg),
 
           // ── AI summary button ──────────────────────────────────────────────
           KpbButton(
-            label: _isGenerating
-                ? 'Generation en cours...'
-                : 'Ameliorer avec l\'IA',
+            label: _isGenerating ? 'cv_generating'.tr : 'cv_enhance_with_ai'.tr,
             icon: Icons.auto_awesome_rounded,
             onTap: _isGenerating ? null : _generateSummary,
           ),
@@ -506,7 +504,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
             Row(
               children: [
                 Text(
-                  'Resume genere par l\'IA',
+                  'cv_ai_summary_heading'.tr,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: context.kpb.textPrimary,
@@ -553,7 +551,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
           // ── Export PDF button ───────────────────────────────────────────────
           KpbButton(
-            label: 'Exporter en PDF',
+            label: 'cv_export_pdf'.tr,
             icon: Icons.picture_as_pdf_rounded,
             secondary: true,
             onTap: _exportPdf,

@@ -5,6 +5,7 @@
 // human-readable reasons. No backend round-trip — works offline and is cheap
 // to unit-test.
 
+import 'package:get/get.dart';
 import '../../core/models/app_models.dart';
 
 /// Self-rated proficiency for a given language.
@@ -14,11 +15,11 @@ extension LangLevelLabel on LangLevel {
   String get labelFr {
     switch (this) {
       case LangLevel.faible:
-        return 'Débutant';
+        return 'lang_level_beginner'.tr;
       case LangLevel.moyen:
-        return 'Intermédiaire';
+        return 'lang_level_intermediate'.tr;
       case LangLevel.bon:
-        return 'Courant';
+        return 'lang_level_fluent'.tr;
     }
   }
 
@@ -242,11 +243,11 @@ class EligibilityResult {
   String get verdictLabel {
     switch (verdict) {
       case EligibilityVerdict.eligible:
-        return 'Éligible';
+        return 'eligibility_summary_eligible'.tr;
       case EligibilityVerdict.eligibleWithConditions:
-        return 'Éligible sous conditions';
+        return 'eligibility_verdict_conditions'.tr;
       case EligibilityVerdict.notEligible:
-        return 'Non éligible pour l\'instant';
+        return 'eligibility_verdict_not_eligible'.tr;
     }
   }
 

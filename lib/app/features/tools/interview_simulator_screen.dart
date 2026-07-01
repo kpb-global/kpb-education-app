@@ -73,7 +73,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       if (mounted) {
         setState(() => _stage = _Stage.pickType);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur IA — verifiez votre connexion')),
+          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
         );
       }
     }
@@ -98,7 +98,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur IA — verifiez votre connexion')),
+          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
         );
       }
     } finally {
@@ -122,7 +122,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Simulateur d\'entretien')),
+      appBar: AppBar(title: Text('interview_title'.tr)),
       body: switch (_stage) {
         _Stage.pickType => _buildPicker(context),
         _Stage.loading => const Center(child: CircularProgressIndicator()),
@@ -138,7 +138,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       children: [
         Text(
-          'Entraine-toi avec un examinateur IA. Choisis un type d\'entretien :',
+          'interview_picker_intro'.tr,
           style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
         ),
         const SizedBox(height: KpbSpacing.lg),
@@ -146,24 +146,24 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           'visa',
           Icons.flight_takeoff_rounded,
           KpbColors.blue,
-          'Entretien de visa étudiant',
-          'Questions consulaires : financement, retour, projet d\'études.',
+          'interview_type_visa_title'.tr,
+          'interview_type_visa_subtitle'.tr,
         ),
         const SizedBox(height: KpbSpacing.md),
         _typeCard(
           'admission',
           Icons.school_rounded,
           KpbColors.success,
-          'Entretien d\'admission',
-          'Motivation, parcours, adéquation avec le programme.',
+          'interview_type_admission_title'.tr,
+          'interview_type_admission_subtitle'.tr,
         ),
         const SizedBox(height: KpbSpacing.md),
         _typeCard(
           'scholarship',
           Icons.emoji_events_rounded,
           KpbColors.gold,
-          'Entretien de bourse',
-          'Impact, leadership, projet de retour et engagement.',
+          'interview_type_scholarship_title'.tr,
+          'interview_type_scholarship_subtitle'.tr,
         ),
       ],
     );
@@ -217,7 +217,10 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           Row(
             children: [
               Text(
-                'Question ${_currentIndex + 1} / ${_questions.length}',
+                'interview_question_progress'.trParams({
+                  'current': '${_currentIndex + 1}',
+                  'total': '${_questions.length}'
+                }),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -277,8 +280,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               maxLines: null,
               expands: true,
               textAlignVertical: TextAlignVertical.top,
-              decoration: const InputDecoration(
-                hintText: 'Tape ta réponse ici...',
+              decoration: InputDecoration(
+                hintText: 'interview_answer_hint'.tr,
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
@@ -287,7 +290,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           const SizedBox(height: KpbSpacing.md),
 
           KpbButton(
-            label: _evaluating ? 'Évaluation...' : 'Soumettre ma réponse',
+            label: _evaluating
+                ? 'interview_evaluating'.tr
+                : 'interview_submit_answer'.tr,
             icon: Icons.send_rounded,
             fullWidth: true,
             onTap: _evaluating ? null : _submitAnswer,
@@ -360,7 +365,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         if (strengths.isNotEmpty)
           _feedbackBlock(
             context,
-            'Points forts',
+            'interview_feedback_strengths'.tr,
             Icons.check_circle_rounded,
             KpbColors.success,
             strengths,
@@ -368,7 +373,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         if (improvements.isNotEmpty)
           _feedbackBlock(
             context,
-            'À améliorer',
+            'interview_feedback_improvements'.tr,
             Icons.lightbulb_rounded,
             KpbColors.gold,
             improvements,
@@ -405,8 +410,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         const SizedBox(height: KpbSpacing.lg),
         KpbButton(
           label: _currentIndex < _questions.length - 1
-              ? 'Question suivante'
-              : 'Terminer',
+              ? 'interview_next_question'.tr
+              : 'interview_finish'.tr,
           icon: Icons.arrow_forward_rounded,
           fullWidth: true,
           onTap: _next,

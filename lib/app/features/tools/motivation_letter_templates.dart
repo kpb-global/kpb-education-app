@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 // Motivation letter templates — 6 models in FR, each with a category tag.
 // The backend personalises them via Groq and returns FR + EN versions.
 
@@ -17,14 +18,14 @@ class LetterTemplate {
   });
 }
 
-const kLetterTemplates = <LetterTemplate>[
-  // ── Admissions ─────────────────────────────────────────────────────────────
-  LetterTemplate(
-    key: 'admission_general',
-    titleFr: 'Admission universitaire (general)',
-    titleEn: 'University Admission (general)',
-    category: 'admission',
-    bodyFr: '''Madame, Monsieur,
+List<LetterTemplate> get kLetterTemplates => <LetterTemplate>[
+      // ── Admissions ─────────────────────────────────────────────────────────────
+      LetterTemplate(
+        key: 'admission_general',
+        titleFr: 'letter_tpl_admission_general_title'.tr,
+        titleEn: 'University Admission (general)',
+        category: 'admission',
+        bodyFr: '''Madame, Monsieur,
 
 Actuellement etudiant(e) en [NIVEAU] dans le domaine de [DOMAINE], je souhaite integrer votre etablissement pour poursuivre mes etudes au sein de votre programme de [PROGRAMME].
 
@@ -35,14 +36,14 @@ Mon objectif est de [OBJECTIF PROFESSIONNEL]. Je suis convaincu(e) que votre for
 Je reste a votre disposition pour tout entretien complementaire et vous prie d'agreer, Madame, Monsieur, l'expression de mes salutations distinguees.
 
 [NOM]''',
-  ),
+      ),
 
-  LetterTemplate(
-    key: 'admission_master',
-    titleFr: 'Admission en Master / Programme specialise',
-    titleEn: 'Master / Specialised Programme Admission',
-    category: 'admission',
-    bodyFr: '''Madame, Monsieur le Directeur du programme,
+      LetterTemplate(
+        key: 'admission_master',
+        titleFr: 'letter_tpl_admission_master_title'.tr,
+        titleEn: 'Master / Specialised Programme Admission',
+        category: 'admission',
+        bodyFr: '''Madame, Monsieur le Directeur du programme,
 
 Titulaire d'un [DIPLOME] en [DOMAINE] obtenu a [UNIVERSITE], je me permets de vous adresser ma candidature pour integrer votre programme de Master en [SPECIALITE].
 
@@ -55,15 +56,15 @@ Je serais honore(e) de pouvoir contribuer a la richesse de votre promotion par m
 Dans l'attente de votre reponse, veuillez agreer mes salutations respectueuses.
 
 [NOM]''',
-  ),
+      ),
 
-  // ── Bourses ────────────────────────────────────────────────────────────────
-  LetterTemplate(
-    key: 'scholarship_kpb',
-    titleFr: 'Bourse d\'etudes KPB Education',
-    titleEn: 'KPB Education Scholarship',
-    category: 'scholarship',
-    bodyFr: '''A l'attention du Comite de selection KPB Education,
+      // ── Bourses ────────────────────────────────────────────────────────────────
+      LetterTemplate(
+        key: 'scholarship_kpb',
+        titleFr: 'letter_tpl_scholarship_kpb_title'.tr,
+        titleEn: 'KPB Education Scholarship',
+        category: 'scholarship',
+        bodyFr: '''A l'attention du Comite de selection KPB Education,
 
 Je me permets de soumettre ma candidature pour la bourse d'etudes KPB Education en vue de poursuivre mes etudes en [DOMAINE] au [PAYS].
 
@@ -79,14 +80,14 @@ Mon projet professionnel consiste a [OBJECTIF]. Je m'engage a mettre les connais
 Je vous remercie de l'attention portee a ma candidature.
 
 [NOM]''',
-  ),
+      ),
 
-  LetterTemplate(
-    key: 'scholarship_international',
-    titleFr: 'Bourse d\'excellence internationale',
-    titleEn: 'International Excellence Scholarship',
-    category: 'scholarship',
-    bodyFr: '''Dear Selection Committee / Madame, Monsieur,
+      LetterTemplate(
+        key: 'scholarship_international',
+        titleFr: 'letter_tpl_scholarship_international_title'.tr,
+        titleEn: 'International Excellence Scholarship',
+        category: 'scholarship',
+        bodyFr: '''Dear Selection Committee / Madame, Monsieur,
 
 Je soumets respectueusement ma candidature pour la bourse [NOM DE LA BOURSE] afin de poursuivre mes etudes de [NIVEAU] en [DOMAINE] au [PAYS].
 
@@ -103,15 +104,15 @@ Je me tiens a votre entiere disposition pour tout complement d'information.
 
 Respectueusement,
 [NOM]''',
-  ),
+      ),
 
-  // ── Visa ───────────────────────────────────────────────────────────────────
-  LetterTemplate(
-    key: 'visa_student',
-    titleFr: 'Lettre de motivation visa etudiant',
-    titleEn: 'Student Visa Motivation Letter',
-    category: 'visa',
-    bodyFr: '''Madame, Monsieur le Consul,
+      // ── Visa ───────────────────────────────────────────────────────────────────
+      LetterTemplate(
+        key: 'visa_student',
+        titleFr: 'letter_tpl_visa_student_title'.tr,
+        titleEn: 'Student Visa Motivation Letter',
+        category: 'visa',
+        bodyFr: '''Madame, Monsieur le Consul,
 
 Je soussigne(e) [NOM], de nationalite [NATIONALITE], sollicite par la presente un visa etudiant pour le [PAYS] afin de poursuivre mes etudes de [NIVEAU] en [DOMAINE] a [UNIVERSITE].
 
@@ -127,15 +128,15 @@ Vous trouverez ci-joint l'ensemble des documents justificatifs requis.
 Je vous prie d'agreer, Madame, Monsieur le Consul, l'expression de ma haute consideration.
 
 [NOM]''',
-  ),
+      ),
 
-  // ── Alternance / Stage ─────────────────────────────────────────────────────
-  LetterTemplate(
-    key: 'internship_alternance',
-    titleFr: 'Stage ou alternance a l\'international',
-    titleEn: 'International Internship / Work-Study',
-    category: 'internship',
-    bodyFr: '''Madame, Monsieur,
+      // ── Alternance / Stage ─────────────────────────────────────────────────────
+      LetterTemplate(
+        key: 'internship_alternance',
+        titleFr: 'letter_tpl_internship_title'.tr,
+        titleEn: 'International Internship / Work-Study',
+        category: 'internship',
+        bodyFr: '''Madame, Monsieur,
 
 Etudiant(e) en [NIVEAU] en [DOMAINE] a [UNIVERSITE], je recherche activement un stage / une alternance de [DUREE] dans le secteur de [SECTEUR] a compter de [DATE].
 
@@ -147,21 +148,21 @@ Disponible et motive(e), je serais ravi(e) de vous presenter mon parcours lors d
 
 Cordialement,
 [NOM]''',
-  ),
-];
+      ),
+    ];
 
 const kLetterCategories = ['admission', 'scholarship', 'visa', 'internship'];
 
 String categoryLabelFr(String cat) {
   switch (cat) {
     case 'admission':
-      return 'Admissions';
+      return 'letter_category_admission'.tr;
     case 'scholarship':
-      return 'Bourses';
+      return 'letter_category_scholarship'.tr;
     case 'visa':
       return 'Visa';
     case 'internship':
-      return 'Stage / Alternance';
+      return 'letter_category_internship'.tr;
     default:
       return cat;
   }
@@ -170,7 +171,7 @@ String categoryLabelFr(String cat) {
 String categoryLabelEn(String cat) {
   switch (cat) {
     case 'admission':
-      return 'Admissions';
+      return 'letter_category_admission'.tr;
     case 'scholarship':
       return 'Scholarships';
     case 'visa':

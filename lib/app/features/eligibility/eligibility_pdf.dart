@@ -5,6 +5,7 @@
 // the document because the standard PDF fonts don't render them; uses coloured
 // text labels instead.
 
+import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -65,32 +66,36 @@ Future<void> shareEligibilityPdf({
                       fontSize: 18,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColor.fromInt(0xFF004AAD))),
-              pw.Text('Simulateur d\'éligibilité',
+              pw.Text('eligibility_pdf_title'.tr,
                   style: const pw.TextStyle(fontSize: 13)),
               pw.SizedBox(height: 2),
-              pw.Text('Généré le $dateStr', // date
+              pw.Text(
+                  'eligibility_pdf_generated_on'
+                      .trParams({'date': dateStr}), // date
                   style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
             ],
           ),
         ),
         pw.SizedBox(height: 8),
-        pw.Text('Ton profil',
+        pw.Text('eligibility_pdf_your_profile'.tr,
             style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 4),
         if (studentName != null && studentName.trim().isNotEmpty)
-          inputLine('Nom', studentName),
-        inputLine('Niveau d\'études', input.studyLevel ?? 'Non renseigné'),
+          inputLine('eligibility_pdf_name'.tr, studentName),
+        inputLine('eligibility_pdf_study_level'.tr,
+            input.studyLevel ?? 'eligibility_pdf_not_provided'.tr),
         if ((input.bacSeries ?? '').isNotEmpty)
-          inputLine('Série du bac', input.bacSeries!),
+          inputLine('eligibility_bac_series'.tr, input.bacSeries!),
         inputLine(
-            'Budget mensuel',
+            'eligibility_pdf_monthly_budget'.tr,
             input.monthlyBudgetEur != null
-                ? '${input.monthlyBudgetEur} € / mois'
-                : 'À confirmer'),
-        inputLine('Niveau de français', input.frenchLevel.labelFr),
-        inputLine('Niveau d\'anglais', input.englishLevel.labelFr),
+                ? 'eligibility_pdf_budget_per_month'
+                    .trParams({'budget': '${input.monthlyBudgetEur}'})
+                : 'eligibility_pdf_to_confirm'.tr),
+        inputLine('eligibility_french_level'.tr, input.frenchLevel.labelFr),
+        inputLine('eligibility_english_level'.tr, input.englishLevel.labelFr),
         pw.SizedBox(height: 14),
-        pw.Text('Verdicts par destination',
+        pw.Text('eligibility_pdf_verdicts_by_destination'.tr,
             style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 6),
         ...results.map(
@@ -139,7 +144,7 @@ Future<void> shareEligibilityPdf({
         ),
         pw.SizedBox(height: 8),
         pw.Text(
-          'Estimation indicative générée par KPB Education. Les conditions définitives dépendent de chaque école et du consulat. Contacte ton conseiller KPB pour valider ton dossier.',
+          'eligibility_pdf_disclaimer'.tr,
           style: pw.TextStyle(
               fontSize: 7,
               color: PdfColors.grey600,
