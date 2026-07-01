@@ -95,6 +95,7 @@ class ProgramDetailScreen extends StatelessWidget {
             ),
             actions: [
               IconButton(
+                tooltip: 'a11y_save'.tr,
                 icon: Icon(
                   controller.isSaved(SavedItemType.program, program.id)
                       ? Icons.bookmark_rounded

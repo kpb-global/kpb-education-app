@@ -637,18 +637,22 @@ class _ProgressHeader extends StatelessWidget {
             Row(
               children: [
                 if (onBack != null)
-                  GestureDetector(
-                    onTap: onBack,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: context.kpb.cardBg,
-                        borderRadius: KpbRadius.smBr,
-                        boxShadow: KpbShadow.soft,
+                  Semantics(
+                    button: true,
+                    label: 'a11y_back'.tr,
+                    child: GestureDetector(
+                      onTap: onBack,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: context.kpb.cardBg,
+                          borderRadius: KpbRadius.smBr,
+                          boxShadow: KpbShadow.soft,
+                        ),
+                        child: Icon(Icons.arrow_back_rounded,
+                            size: 18, color: context.kpb.textPrimary),
                       ),
-                      child: Icon(Icons.arrow_back_rounded,
-                          size: 18, color: context.kpb.textPrimary),
                     ),
                   )
                 else

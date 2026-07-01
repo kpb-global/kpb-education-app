@@ -64,6 +64,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 snap: true,
                 backgroundColor: context.kpb.pageBg,
                 leading: IconButton(
+                  tooltip: 'a11y_back'.tr,
                   icon: Icon(Icons.arrow_back_ios_new_rounded,
                       size: 20, color: context.kpb.textPrimary),
                   onPressed: () =>

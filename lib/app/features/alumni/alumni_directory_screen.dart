@@ -85,6 +85,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
+                  tooltip: 'a11y_refresh'.tr,
                   icon: const Icon(Icons.refresh),
                   onPressed: _load,
                 ),

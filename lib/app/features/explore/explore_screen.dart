@@ -158,14 +158,18 @@ class _FieldGridCard extends StatelessWidget {
                       maxLines: 2,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: onSave,
-                    child: Icon(
-                      saved
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_border_rounded,
-                      color: Colors.white,
-                      size: 20,
+                  Semantics(
+                    button: true,
+                    label: 'a11y_save'.tr,
+                    child: GestureDetector(
+                      onTap: onSave,
+                      child: Icon(
+                        saved
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ],
@@ -330,20 +334,24 @@ class _CountryGridCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: GestureDetector(
-                      onTap: onSave,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          borderRadius: KpbRadius.smBr,
-                        ),
-                        child: Icon(
-                          saved
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_border_rounded,
-                          size: 16,
-                          color: saved ? KpbColors.blue : context.kpb.gray400,
+                    child: Semantics(
+                      button: true,
+                      label: 'a11y_save'.tr,
+                      child: GestureDetector(
+                        onTap: onSave,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            borderRadius: KpbRadius.smBr,
+                          ),
+                          child: Icon(
+                            saved
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
+                            size: 16,
+                            color: saved ? KpbColors.blue : context.kpb.gray400,
+                          ),
                         ),
                       ),
                     ),
@@ -684,12 +692,16 @@ class _ProgramCard extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: onSave,
-            child: Icon(
-              saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-              color: saved ? KpbColors.blue : context.kpb.gray300,
-              size: 22,
+          Semantics(
+            button: true,
+            label: 'a11y_save'.tr,
+            child: GestureDetector(
+              onTap: onSave,
+              child: Icon(
+                saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                color: saved ? KpbColors.blue : context.kpb.gray300,
+                size: 22,
+              ),
             ),
           ),
         ],
@@ -998,6 +1010,7 @@ class _InstitutionCard extends StatelessWidget {
                   icon: Icons.share_outlined,
                   color: context.kpb.gray400,
                   onTap: onShare,
+                  semanticLabel: 'a11y_share'.tr,
                 ),
                 const SizedBox(width: 6),
                 // Compare toggle
@@ -1054,6 +1067,7 @@ class _InstitutionCard extends StatelessWidget {
                       : Icons.bookmark_border_rounded,
                   color: saved ? KpbColors.blue : context.kpb.gray400,
                   onTap: onSave,
+                  semanticLabel: 'a11y_save'.tr,
                 ),
               ],
             ),
@@ -1088,23 +1102,29 @@ class _ActionIcon extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    required this.semanticLabel,
   });
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          color: context.kpb.surfaceBg,
-          borderRadius: KpbRadius.smBr,
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: context.kpb.surfaceBg,
+            borderRadius: KpbRadius.smBr,
+          ),
+          child: Icon(icon, size: 15, color: color),
         ),
-        child: Icon(icon, size: 15, color: color),
       ),
     );
   }
@@ -1179,16 +1199,20 @@ class _SupportList extends StatelessWidget {
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => controller.toggleSaved(
-                          SavedItemType.country, dest.countryId),
-                      child: Icon(
-                        controller.isSaved(
-                                SavedItemType.country, dest.countryId)
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_border_rounded,
-                        color: context.kpb.gray300,
-                        size: 22,
+                    Semantics(
+                      button: true,
+                      label: 'a11y_save'.tr,
+                      child: GestureDetector(
+                        onTap: () => controller.toggleSaved(
+                            SavedItemType.country, dest.countryId),
+                        child: Icon(
+                          controller.isSaved(
+                                  SavedItemType.country, dest.countryId)
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          color: context.kpb.gray300,
+                          size: 22,
+                        ),
                       ),
                     ),
                   ],

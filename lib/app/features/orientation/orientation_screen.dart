@@ -957,15 +957,19 @@ class _RecommendationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () =>
-                    controller.toggleSaved(SavedItemType.field, field.id),
-                child: Icon(
-                  saved
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_border_rounded,
-                  color: saved ? KpbColors.blue : context.kpb.gray300,
-                  size: 22,
+              Semantics(
+                button: true,
+                label: 'a11y_save'.tr,
+                child: GestureDetector(
+                  onTap: () =>
+                      controller.toggleSaved(SavedItemType.field, field.id),
+                  child: Icon(
+                    saved
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                    color: saved ? KpbColors.blue : context.kpb.gray300,
+                    size: 22,
+                  ),
                 ),
               ),
             ],
@@ -1166,6 +1170,7 @@ class _ConsultativeView extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
+            tooltip: 'a11y_back'.tr,
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             onPressed: () => Get.back(),
           ),

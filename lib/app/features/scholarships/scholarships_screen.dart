@@ -35,6 +35,7 @@ class ScholarshipsScreen extends StatelessWidget {
                   snap: true,
                   backgroundColor: context.kpb.pageBg,
                   leading: IconButton(
+                    tooltip: 'a11y_back'.tr,
                     icon: Icon(Icons.arrow_back_ios_new_rounded,
                         size: 20, color: context.kpb.textPrimary),
                     onPressed: () => Navigator.canPop(context)
@@ -194,29 +195,33 @@ class _ScholarshipCard extends StatelessWidget {
                 children: [
                   AdmissionMeter(score: match, size: 34, strokeWidth: 3.5),
                   const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () => controller.toggleSaved(
-                      SavedItemType.scholarship,
-                      s.id,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color:
-                            controller.isSaved(SavedItemType.scholarship, s.id)
-                                ? KpbColors.blue.withValues(alpha: 0.1)
-                                : Colors.transparent,
-                        shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: 'a11y_save'.tr,
+                    child: GestureDetector(
+                      onTap: () => controller.toggleSaved(
+                        SavedItemType.scholarship,
+                        s.id,
                       ),
-                      child: Icon(
-                        controller.isSaved(SavedItemType.scholarship, s.id)
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_outline_rounded,
-                        color:
-                            controller.isSaved(SavedItemType.scholarship, s.id)
-                                ? KpbColors.blue
-                                : context.kpb.gray400,
-                        size: 20,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: controller.isSaved(
+                                  SavedItemType.scholarship, s.id)
+                              ? KpbColors.blue.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          controller.isSaved(SavedItemType.scholarship, s.id)
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_outline_rounded,
+                          color: controller.isSaved(
+                                  SavedItemType.scholarship, s.id)
+                              ? KpbColors.blue
+                              : context.kpb.gray400,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),

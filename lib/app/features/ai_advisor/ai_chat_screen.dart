@@ -270,6 +270,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'a11y_back'.tr,
             onPressed: () => Get.back(),
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           ),
@@ -516,18 +517,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () => _sendMessage(_textController.text),
-            child: Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                gradient: KpbColors.heroGradient,
-                borderRadius: KpbRadius.mdBr,
-                boxShadow: KpbShadow.blue,
+          Semantics(
+            button: true,
+            label: 'a11y_send_message'.tr,
+            child: GestureDetector(
+              onTap: () => _sendMessage(_textController.text),
+              child: Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  gradient: KpbColors.heroGradient,
+                  borderRadius: KpbRadius.mdBr,
+                  boxShadow: KpbShadow.blue,
+                ),
+                child: const Icon(Icons.send_rounded,
+                    color: Colors.white, size: 20),
               ),
-              child:
-                  const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             ),
           ),
         ],

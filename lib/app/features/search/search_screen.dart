@@ -93,6 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: 'a11y_back'.tr,
                     onPressed: () => Get.back(),
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
@@ -120,6 +121,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               size: 20, color: context.kpb.gray400),
                           suffixIcon: _query.isNotEmpty
                               ? IconButton(
+                                  tooltip: 'a11y_clear_search'.tr,
                                   onPressed: () {
                                     _textController.clear();
                                     setState(() {

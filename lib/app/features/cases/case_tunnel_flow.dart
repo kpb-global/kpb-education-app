@@ -577,6 +577,7 @@ class _DocumentsStep extends StatelessWidget {
                   ),
                   if (path != null)
                     IconButton(
+                      tooltip: 'a11y_remove'.tr,
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () => onRemove(label),
                     ),

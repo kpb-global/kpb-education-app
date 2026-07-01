@@ -35,6 +35,7 @@ class InstitutionCompareScreen extends StatelessWidget {
         backgroundColor: context.kpb.cardBg,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'a11y_back'.tr,
           icon: Icon(Icons.arrow_back_rounded, color: context.kpb.textPrimary),
           onPressed: () => Get.back(),
         ),
@@ -45,6 +46,7 @@ class InstitutionCompareScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'a11y_share'.tr,
             icon: Icon(Icons.ios_share_rounded,
                 color: isDark ? KpbColors.sky : KpbColors.blue),
             onPressed: () => _shareComparison(controller, inst1, inst2),

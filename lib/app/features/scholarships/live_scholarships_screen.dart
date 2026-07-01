@@ -128,6 +128,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                 automaticallyImplyLeading: false,
                 leading: Navigator.canPop(context)
                     ? IconButton(
+                        tooltip: 'a11y_back'.tr,
                         icon: Icon(Icons.arrow_back_ios_new_rounded,
                             size: 20, color: context.kpb.textPrimary),
                         onPressed: () => Navigator.pop(context),
@@ -140,6 +141,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                 ),
                 actions: [
                   IconButton(
+                    tooltip: 'a11y_refresh'.tr,
                     icon: Icon(Icons.refresh_rounded,
                         color: context.kpb.textSecondary),
                     onPressed: _load,
