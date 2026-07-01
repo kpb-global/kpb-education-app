@@ -97,8 +97,9 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           firstName.isNotEmpty
-                              ? 'Bonjour, $firstName 👋'
-                              : 'Bonjour 👋',
+                              ? 'home_greeting_named'
+                                  .trParams({'name': firstName})
+                              : 'home_greeting'.tr,
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
@@ -108,10 +109,10 @@ class HomeScreen extends StatelessWidget {
                         ),
                         Text(
                           controller.isStudent
-                              ? 'Votre tableau de bord'
+                              ? 'home_subtitle_student'.tr
                               : controller.isParent
-                                  ? 'Espace parent'
-                                  : 'Espace partenaire',
+                                  ? 'home_subtitle_parent'.tr
+                                  : 'home_subtitle_partner'.tr,
                           style: KpbTextStyles.caption
                               .copyWith(color: c.textSecondary),
                         ),
@@ -212,8 +213,8 @@ class HomeScreen extends StatelessWidget {
                 if (activeCases.isNotEmpty && controller.isStudent) ...[
                   SliverToBoxAdapter(
                     child: SectionHeader(
-                      title: 'Dossiers actifs',
-                      actionLabel: 'Voir tout',
+                      title: 'home_active_cases_title'.tr,
+                      actionLabel: 'see_all'.tr,
                       onAction: () => controller.goToTab(StudentShellTab.cases),
                     ),
                   ),
@@ -254,8 +255,8 @@ class HomeScreen extends StatelessWidget {
                     (controller.isStudent || controller.isParent)) ...[
                   SliverToBoxAdapter(
                     child: HScrollSection(
-                      title: 'Universités recommandées',
-                      actionLabel: 'Voir tout',
+                      title: 'home_recommended_universities_title'.tr,
+                      actionLabel: 'see_all'.tr,
                       onAction: () =>
                           controller.goToTab(StudentShellTab.universities),
                       itemCount: institutions.length,
@@ -286,7 +287,7 @@ class HomeScreen extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: HScrollSection(
                       title: 'scholarships_for_you'.tr,
-                      actionLabel: 'Voir tout',
+                      actionLabel: 'see_all'.tr,
                       onAction: () => Get.toNamed(AppRoutes.scholarships),
                       itemCount: scholarships.length,
                       height: 168,
@@ -313,7 +314,7 @@ class HomeScreen extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'latest_articles'.tr,
-                      actionLabel: 'Voir tout',
+                      actionLabel: 'see_all'.tr,
                       onAction: () => Get.to(() => const CommunityScreen()),
                     ),
                   ),
@@ -448,10 +449,10 @@ class _HeroCard extends StatelessWidget {
               children: [
                 Text(
                   controller.isPartner
-                      ? 'Développons\nvotre réseau'
+                      ? 'home_hero_title_partner'.tr
                       : controller.isParent
-                          ? 'Accompagnez\nvotre enfant'
-                          : 'Votre parcours\nvers l\'étranger',
+                          ? 'home_hero_title_parent'.tr
+                          : 'home_hero_title_student'.tr,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 23,
@@ -463,8 +464,8 @@ class _HeroCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   controller.isStudent
-                      ? 'Une étape à la fois — on avance ensemble.'
-                      : 'Démarrez dès aujourd\'hui.',
+                      ? 'home_hero_subtitle_student'.tr
+                      : 'home_hero_subtitle_other'.tr,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 13,
@@ -474,10 +475,10 @@ class _HeroCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 _HeroCta(
                   label: controller.isStudent
-                      ? 'Orientation'
+                      ? 'nav_orientation'.tr
                       : controller.isParent
-                          ? 'Consultation'
-                          : 'Devenir partenaire',
+                          ? 'home_hero_cta_consultation'.tr
+                          : 'home_hero_cta_become_partner'.tr,
                   onTap: () {
                     if (controller.isStudent) {
                       Get.to(() => const OrientationScreen());
@@ -485,9 +486,9 @@ class _HeroCard extends StatelessWidget {
                       showModalBottomSheet<void>(
                         context: context,
                         isScrollControlled: true,
-                        builder: (_) => const CaseComposerSheet(
+                        builder: (_) => CaseComposerSheet(
                           caseType: CaseType.consultation,
-                          title: 'Prendre rendez-vous',
+                          title: 'home_case_title_book_appointment'.tr,
                           contextLabel: 'KPB Education',
                         ),
                       );
@@ -506,7 +507,7 @@ class _HeroCard extends StatelessWidget {
                   _AnimatedRing(value: progress),
                   const SizedBox(height: 8),
                   Text(
-                    'Profil',
+                    'home_hero_profile_ring_label'.tr,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 11,
@@ -713,12 +714,12 @@ class _NextStepCard extends StatelessWidget {
       final isPayment = urgentCase.status == CaseStatus.awaitingPayment;
       final isDocs = urgentCase.status == CaseStatus.documentsNeeded;
       return _StepData(
-        label: 'Action requise',
+        label: 'home_next_step_label_action_required'.tr,
         title: isPayment
-            ? 'Échange avec ton conseiller'
+            ? 'home_next_step_title_talk_advisor'.tr
             : isDocs
-                ? 'Documents à envoyer'
-                : 'Réponse attendue de toi',
+                ? 'home_next_step_title_documents_to_send'.tr
+                : 'home_next_step_title_response_expected'.tr,
         subtitle: controller.resolve(urgentCase.nextStepTitle),
         icon: isPayment
             ? Icons.chat_rounded
@@ -734,11 +735,11 @@ class _NextStepCard extends StatelessWidget {
     if (controller.needsProfileCompletionBanner) {
       final pct = ((profile?.completionScore ?? 0) * 100).round();
       return _StepData(
-        label: 'Ton profil',
-        title: 'Complète ton profil',
+        label: 'home_next_step_label_your_profile'.tr,
+        title: 'home_next_step_title_complete_profile'.tr,
         subtitle: controller.onboardingSkipped
-            ? 'Quelques infos manquent pour personnaliser tes recommandations'
-            : 'À $pct% — des champs manquants limitent tes recommandations',
+            ? 'home_next_step_subtitle_missing_info'.tr
+            : 'home_profile_pct_notice'.trParams({'pct': '$pct'}),
         icon: Icons.tune_rounded,
         iconColor: KpbColors.blue,
         onTap: () => Get.to(() => const OnboardingScreen()),
@@ -748,9 +749,9 @@ class _NextStepCard extends StatelessWidget {
     // Priority 3 — No orientation done
     if (!hasOrientation) {
       return _StepData(
-        label: 'Découverte',
-        title: 'Fais ton test d\'orientation',
-        subtitle: '5 questions pour trouver les filières qui te correspondent',
+        label: 'home_next_step_label_discovery'.tr,
+        title: 'home_next_step_title_take_orientation'.tr,
+        subtitle: 'home_next_step_subtitle_orientation'.tr,
         icon: Icons.psychology_rounded,
         iconColor: KpbColors.blue,
         onTap: () => Get.to(() => const OrientationScreen()),
@@ -760,18 +761,17 @@ class _NextStepCard extends StatelessWidget {
     // Priority 4 — Orientation done, no active cases
     if (activeCases.isEmpty) {
       return _StepData(
-        label: 'Prochaine étape',
-        title: 'Démarre ton dossier',
-        subtitle:
-            'Profil et orientation prêts — c\'est le bon moment pour te lancer',
+        label: 'home_next_step_label_next_step'.tr,
+        title: 'home_next_step_title_start_case'.tr,
+        subtitle: 'home_next_step_subtitle_start_case'.tr,
         icon: Icons.rocket_launch_rounded,
         iconColor: KpbColors.success,
         onTap: () => showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
-          builder: (_) => const CaseComposerSheet(
+          builder: (_) => CaseComposerSheet(
             caseType: CaseType.applicationSupport,
-            title: 'Nouveau dossier',
+            title: 'home_case_title_new_case'.tr,
             contextLabel: 'KPB Education',
           ),
         ),
@@ -780,10 +780,9 @@ class _NextStepCard extends StatelessWidget {
 
     // Default — everything in progress
     return _StepData(
-      label: 'Explorer',
-      title: 'Découvre de nouvelles opportunités',
-      subtitle:
-          'Parcours les filières, pays et bourses qui matchent ton profil',
+      label: 'home_next_step_label_explore'.tr,
+      title: 'home_next_step_title_discover_opportunities'.tr,
+      subtitle: 'home_next_step_subtitle_explore'.tr,
       icon: Icons.explore_rounded,
       iconColor: KpbColors.sky,
       onTap: () => controller.goToTab(StudentShellTab.destinations),
@@ -841,25 +840,25 @@ class _QuickActions extends StatelessWidget {
     final actions = <(IconData, String, Color, VoidCallback)>[
       (
         Icons.psychology_rounded,
-        'Orientation',
+        'nav_orientation'.tr,
         KpbColors.blue,
         () => Get.to(() => const OrientationScreen()),
       ),
       (
         Icons.explore_rounded,
-        'Explorer',
+        'home_next_step_label_explore'.tr,
         KpbColors.sky,
         () => controller.goToTab(StudentShellTab.destinations),
       ),
       (
         Icons.workspace_premium_rounded,
-        'Bourses',
+        'home_quick_action_scholarships'.tr,
         KpbColors.gold,
         () => Get.toNamed(AppRoutes.scholarships),
       ),
       (
         Icons.folder_copy_rounded,
-        'Dossiers',
+        'home_quick_action_cases'.tr,
         KpbColors.success,
         () => controller.goToTab(StudentShellTab.cases),
       ),
@@ -939,9 +938,9 @@ class _AiAdvisorBanner extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Flexible(
+                    Flexible(
                       child: Text(
-                        "Conseiller d'Orientation IA",
+                        'home_ai_advisor_title'.tr,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -963,8 +962,8 @@ class _AiAdvisorBanner extends StatelessWidget {
                           width: 0.5,
                         ),
                       ),
-                      child: const Text(
-                        "Nouveau",
+                      child: Text(
+                        'home_badge_new'.tr,
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -986,11 +985,11 @@ class _AiAdvisorBanner extends StatelessWidget {
                 const SizedBox(height: 10),
                 GestureDetector(
                   onTap: () => Get.to(() => const AiChatScreen()),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Discuter avec l'IA",
+                        'home_ai_advisor_cta'.tr,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -1073,27 +1072,45 @@ class _ActiveCaseCard extends StatelessWidget {
   ({Color color, String label}) _statusInfo(CaseStatus s) {
     switch (s) {
       case CaseStatus.documentsNeeded:
-        return (color: KpbColors.warning, label: 'Docs requis');
+        return (
+          color: KpbColors.warning,
+          label: 'case_status_documents_needed'.tr
+        );
       case CaseStatus.awaitingPayment:
-        return (color: KpbColors.error, label: 'Paiement');
+        return (
+          color: KpbColors.error,
+          label: 'case_status_awaiting_payment'.tr
+        );
       case CaseStatus.awaitingStudent:
-        return (color: KpbColors.error, label: 'Ta réponse');
+        return (
+          color: KpbColors.error,
+          label: 'case_status_awaiting_student'.tr
+        );
       case CaseStatus.scheduled:
-        return (color: KpbColors.success, label: 'RDV planifié');
+        return (color: KpbColors.success, label: 'case_status_scheduled'.tr);
       case CaseStatus.inProgress:
-        return (color: KpbColors.blue, label: 'En cours');
+        return (color: KpbColors.blue, label: 'case_status_in_progress'.tr);
       case CaseStatus.underReview:
-        return (color: KpbColors.gold, label: 'En révision');
+        return (color: KpbColors.gold, label: 'case_status_under_review'.tr);
       case CaseStatus.counselorAssigned:
-        return (color: KpbColors.sky, label: 'Conseiller assigné');
+        return (
+          color: KpbColors.sky,
+          label: 'case_status_counselor_assigned'.tr
+        );
       case CaseStatus.submitted:
-        return (color: KpbColors.sky, label: 'Soumis');
+        return (color: KpbColors.sky, label: 'case_status_submitted'.tr);
       case CaseStatus.applicationSubmitted:
-        return (color: KpbColors.blueMid, label: 'Candidature envoyée');
+        return (
+          color: KpbColors.blueMid,
+          label: 'case_status_application_submitted'.tr
+        );
       case CaseStatus.waitingDecision:
-        return (color: KpbColors.gold, label: 'En attente');
+        return (
+          color: KpbColors.gold,
+          label: 'case_status_waiting_decision'.tr
+        );
       default:
-        return (color: KpbColors.gray400, label: 'En cours');
+        return (color: KpbColors.gray400, label: 'case_status_in_progress'.tr);
     }
   }
 }
@@ -1144,12 +1161,12 @@ class _InstitutionCard extends StatelessWidget {
                     score: score, size: 30, strokeWidth: 3, showLabel: false),
                 if (isPartner) ...[
                   const SizedBox(width: 6),
-                  const Flexible(
+                  Flexible(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerRight,
                       child: KpbBadge(
-                        label: 'Partenaire',
+                        label: 'badge_partner'.tr,
                         color: KpbColors.gold,
                         small: true,
                       ),
@@ -1316,8 +1333,8 @@ class _UrgentDeadlineCard extends StatelessWidget {
                     height: 1,
                   ),
                 ),
-                const Text(
-                  'jours',
+                Text(
+                  'home_days_left_label'.tr,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -1334,8 +1351,8 @@ class _UrgentDeadlineCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '⏰ DEADLINE PROCHE',
+                  Text(
+                    'home_deadline_near_label'.tr,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
@@ -1366,8 +1383,8 @@ class _UrgentDeadlineCard extends StatelessWidget {
                 color: KpbColors.gold,
                 borderRadius: KpbRadius.mdBr,
               ),
-              child: const Text(
-                'Voir →',
+              child: Text(
+                'home_deadline_see_button'.tr,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -1548,8 +1565,8 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                                 width: 0.5,
                               ),
                             ),
-                            child: const Text(
-                              "Accompagnement",
+                            child: Text(
+                              'home_badge_guidance'.tr,
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
@@ -1787,7 +1804,12 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                                 borderRadius: KpbRadius.xsBr,
                                               ),
                                               child: Text(
-                                                "Admission : ${controller.resolve(country.admissionDifficulty)}",
+                                                'home_admission_prefix'
+                                                    .trParams({
+                                                  'value': controller.resolve(
+                                                      country
+                                                          .admissionDifficulty)
+                                                }),
                                                 style: const TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.w600,
@@ -1914,7 +1936,7 @@ class _StudentToolsBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Outils etudiants',
+                    'home_student_tools_title'.tr,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -1923,7 +1945,7 @@ class _StudentToolsBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'CV, lettres de motivation, et plus',
+                    'home_student_tools_subtitle'.tr,
                     style: TextStyle(
                       fontSize: 12,
                       color: context.kpb.textMuted,
