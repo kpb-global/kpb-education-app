@@ -429,16 +429,17 @@ class ProfileScreen extends StatelessWidget {
                               onTap: () =>
                                   Get.to(() => const BudgetCalculatorScreen()),
                             ),
-                            // Travel & housing estimators are V1.1+ modules.
+                            // Flight search (Kayak-backed) ships in the MVP.
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.flight_takeoff_rounded,
+                              label: 'profile_quick_flight_simulator'.tr,
+                              color: KpbColors.sky,
+                              onTap: () =>
+                                  Get.to(() => const FlightEstimatorScreen()),
+                            ),
+                            // Housing estimator is a V1.1+ module.
                             if (!AppConfig.mvpOnly) ...[
-                              const KpbDivider(indent: 52),
-                              _QuickAccessTile(
-                                icon: Icons.flight_takeoff_rounded,
-                                label: 'profile_quick_flight_simulator'.tr,
-                                color: KpbColors.sky,
-                                onTap: () =>
-                                    Get.to(() => const FlightEstimatorScreen()),
-                              ),
                               const KpbDivider(indent: 52),
                               _QuickAccessTile(
                                 icon: Icons.holiday_village_rounded,

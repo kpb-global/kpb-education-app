@@ -95,6 +95,24 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'À confirmer',
           'to_confirm_semantics': 'Information à confirmer, non vérifiée',
           'offline_mode': 'Mode hors-ligne',
+          // --- flight search (Kayak) ---
+          'flight_search_prices': 'Trouver les meilleurs prix',
+          'flight_same_airports':
+              'Le départ et l\'arrivée doivent être différents.',
+          'flight_searching': 'Recherche des meilleurs prix…',
+          'flight_results_title': 'Meilleurs prix trouvés',
+          'flight_cached_note': 'Prix vus récemment',
+          'flight_cheapest_badge': 'Le moins cher',
+          'flight_direct': 'Direct',
+          'flight_stops_one': '1 escale',
+          'flight_stops_many': '@count escales',
+          'flight_book_on_kayak': 'Réserver sur Kayak',
+          'flight_calendar_title': 'Prix par jour ce mois-ci',
+          'flight_calendar_predicted': 'estimé',
+          'flight_no_results':
+              'Aucun prix trouvé pour cette recherche. Essayez d\'autres dates.',
+          'flight_prices_unavailable':
+              'La recherche en direct est momentanément indisponible. Ouvrez Kayak pour comparer.',
           'a11y_back': 'Retour',
           'a11y_close': 'Fermer',
           'a11y_save': 'Enregistrer',
@@ -1683,6 +1701,23 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'To confirm',
           'to_confirm_semantics': 'Information to confirm, not verified',
           'offline_mode': 'Offline mode',
+          // --- flight search (Kayak) ---
+          'flight_search_prices': 'Find the best prices',
+          'flight_same_airports': 'Departure and arrival must be different.',
+          'flight_searching': 'Finding the best prices…',
+          'flight_results_title': 'Best prices found',
+          'flight_cached_note': 'Recently seen prices',
+          'flight_cheapest_badge': 'Cheapest',
+          'flight_direct': 'Direct',
+          'flight_stops_one': '1 stop',
+          'flight_stops_many': '@count stops',
+          'flight_book_on_kayak': 'Book on Kayak',
+          'flight_calendar_title': 'Prices by day this month',
+          'flight_calendar_predicted': 'estimated',
+          'flight_no_results':
+              'No prices found for this search. Try other dates.',
+          'flight_prices_unavailable':
+              'Live search is temporarily unavailable. Open Kayak to compare.',
           'a11y_back': 'Back',
           'a11y_close': 'Close',
           'a11y_save': 'Save',

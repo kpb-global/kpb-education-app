@@ -350,6 +350,56 @@ class AppApiClient {
     return (data['items'] as List<dynamic>? ?? <dynamic>[]);
   }
 
+  /// Cheapest flight price for a route/date, proxied from Kayak Price-Insights.
+  /// Returns the flat contract map `{configured, cached, currency, results:[]}`.
+  Future<Map<String, dynamic>> flightRoutes({
+    required String origin,
+    required String destination,
+    required String departDate,
+    String? returnDate,
+    String currency = 'EUR',
+    String? userTrackId,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/flights/routes',
+      queryParameters: <String, dynamic>{
+        'origin': origin,
+        'destination': destination,
+        'departDate': departDate,
+        'currency': currency,
+        if (returnDate != null) 'returnDate': returnDate,
+        if (userTrackId != null) 'userTrackId': userTrackId,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Cheapest price per day (or month) across a date range, from Kayak
+  /// Price-Insights. Returns `{configured, cached, currency, aggregation, days:[]}`.
+  Future<Map<String, dynamic>> flightCalendar({
+    required String origin,
+    required String destination,
+    required String dateFrom,
+    required String dateTo,
+    String aggregation = 'day',
+    String currency = 'EUR',
+    String? userTrackId,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/flights/calendar',
+      queryParameters: <String, dynamic>{
+        'origin': origin,
+        'destination': destination,
+        'dateFrom': dateFrom,
+        'dateTo': dateTo,
+        'aggregation': aggregation,
+        'currency': currency,
+        if (userTrackId != null) 'userTrackId': userTrackId,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<List<dynamic>> listContent(String resource) async {
     final response = await _dio.get<Map<String, dynamic>>('/content/$resource');
     final data = response.data ?? <String, dynamic>{};
