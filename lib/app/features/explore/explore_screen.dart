@@ -29,14 +29,14 @@ class ExploreScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('explore_title'.tr),
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
             tabs: [
-              Tab(text: 'Filières'),
-              Tab(text: 'Pays'),
-              Tab(text: 'Programmes'),
-              Tab(text: 'Universités'),
-              Tab(text: 'Support'),
+              Tab(text: 'explore_tab_fields'.tr),
+              Tab(text: 'program_country'.tr),
+              Tab(text: 'explore_tab_programs'.tr),
+              Tab(text: 'explore_tab_universities'.tr),
+              Tab(text: 'explore_tab_support'.tr),
             ],
           ),
         ),
@@ -65,10 +65,10 @@ class _FieldsGrid extends StatelessWidget {
     final fields = controller.fields;
 
     if (fields.isEmpty) {
-      return const KpbEmptyState(
+      return KpbEmptyState(
         icon: Icons.school_outlined,
-        title: 'Aucune filière disponible',
-        subtitle: 'Revenez plus tard pour découvrir nos nouveaux programmes.',
+        title: 'explore_no_fields_title'.tr,
+        subtitle: 'explore_no_fields_body'.tr,
       );
     }
 
@@ -234,11 +234,10 @@ class CountriesCatalogGrid extends StatelessWidget {
     final countries = controller.countries;
 
     if (countries.isEmpty) {
-      return const KpbEmptyState(
+      return KpbEmptyState(
         icon: Icons.public_outlined,
-        title: 'Aucun pays disponible',
-        subtitle:
-            'Nous élargissons actuellement notre catalogue de destinations.',
+        title: 'explore_no_countries_title'.tr,
+        subtitle: 'explore_no_countries_body'.tr,
       );
     }
 
@@ -462,11 +461,10 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
       });
 
     if (controller.programs.isEmpty) {
-      return const KpbEmptyState(
+      return KpbEmptyState(
         icon: Icons.menu_book_outlined,
-        title: 'Aucune formation disponible',
-        subtitle:
-            'Synchronisez l’app avec le serveur pour charger le catalogue.',
+        title: 'explore_no_programs_title'.tr,
+        subtitle: 'explore_no_programs_body'.tr,
       );
     }
 
@@ -486,7 +484,7 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
               TextField(
                 decoration: KpbInputDecoration.build(
                   context,
-                  label: 'Rechercher un programme',
+                  label: 'explore_search_program'.tr,
                   prefixIcon: Icons.search_rounded,
                 ),
                 onChanged: (value) => setState(() => _query = value),
@@ -668,7 +666,8 @@ class _ProgramCard extends StatelessWidget {
                       ),
                     if (campusCount > 1)
                       KpbBadgeLight(
-                        label: '📍 $campusCount campus',
+                        label: 'explore_campus_count'
+                            .trParams({'count': '$campusCount'}),
                         bgColor: KpbColors.skyLight,
                         textColor: KpbColors.blue,
                       ),
@@ -832,7 +831,8 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
     final tuition = ctrl.resolve(inst.tuitionLabel);
     SharePlus.instance.share(ShareParams(
       text: '🏛 $name\n📍 $location\n💰 $tuition\n\n'
-          'Découvrez cette université sur KPB Education.',
+              'explore_share_university'
+          .tr,
     ));
   }
 }
@@ -933,8 +933,8 @@ class _InstitutionCard extends StatelessWidget {
                             ),
                           ),
                           if (institution.isPartner)
-                            const KpbBadge(
-                              label: 'Partenaire',
+                            KpbBadge(
+                              label: 'badge_partner'.tr,
                               color: KpbColors.gold,
                             ),
                         ],
@@ -964,7 +964,8 @@ class _InstitutionCard extends StatelessWidget {
                       (l) => KpbBadgeLight(label: l),
                     ),
                 KpbBadgeLight(
-                  label: '${institution.programIds.length} programmes',
+                  label: 'explore_programs_count'
+                      .trParams({'count': '${institution.programIds.length}'}),
                   bgColor: KpbColors.skyLight,
                   textColor: KpbColors.blue,
                 ),
@@ -1028,7 +1029,9 @@ class _InstitutionCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          inCompare ? 'Sélectionné' : 'Comparer',
+                          inCompare
+                              ? 'compare_selected_label'.tr
+                              : 'compare'.tr,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1317,17 +1320,17 @@ void _openFieldDetail(
             ),
             const SizedBox(height: KpbSpacing.md),
             _DetailSection(
-              title: 'Débouchés',
+              title: 'field_careers'.tr,
               icon: Icons.work_outline_rounded,
               items: field.careers.map(controller.resolve).toList(),
             ),
             _DetailSection(
-              title: 'Matières clés',
+              title: 'field_key_subjects'.tr,
               icon: Icons.menu_book_outlined,
               items: field.subjects.map(controller.resolve).toList(),
             ),
             _DetailSection(
-              title: 'Compétences développées',
+              title: 'field_skills_developed'.tr,
               icon: Icons.bolt_outlined,
               items: field.skills.map(controller.resolve).toList(),
             ),
@@ -1478,7 +1481,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                             const Spacer(),
                             if (institution.isPartner)
                               KpbBadge(
-                                label: 'Partenaire Officiel',
+                                label: 'badge_official_partner'.tr,
                                 color: Colors.white.withValues(alpha: 0.2),
                                 icon: Icons.verified_rounded,
                                 small: true,
@@ -1515,8 +1518,8 @@ class _InstitutionDetailSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _SectionTitle(
-                            title: 'Présentation',
+                        _SectionTitle(
+                            title: 'institution_overview'.tr,
                             icon: Icons.info_outline_rounded),
                         const SizedBox(height: 8),
                         Text(
@@ -1564,8 +1567,8 @@ class _InstitutionDetailSheet extends StatelessWidget {
                   const SizedBox(height: KpbSpacing.md),
 
                   // Programs
-                  const _SectionTitle(
-                      title: 'Programmes populaires',
+                  _SectionTitle(
+                      title: 'institution_popular_programs'.tr,
                       icon: Icons.list_alt_rounded),
                   const SizedBox(height: 12),
                   ...institution.programIds.take(3).map((id) {
@@ -1637,7 +1640,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                         isScrollControlled: true,
                         builder: (_) => CaseComposerSheet(
                           caseType: CaseType.consultation,
-                          title: 'Expert KPB',
+                          title: 'institution_kpb_expert'.tr,
                           contextLabel: controller.resolve(institution.name),
                         ),
                       ),
@@ -1649,8 +1652,8 @@ class _InstitutionDetailSheet extends StatelessWidget {
                     flex: 2,
                     child: KpbButton(
                       label: institution.isPartner
-                          ? 'S\'inscrire via KPB'
-                          : 'En savoir plus',
+                          ? 'institution_enroll_via_kpb'.tr
+                          : 'learn_more'.tr,
                       onTap: () => showModalBottomSheet<void>(
                         context: context,
                         isScrollControlled: true,
@@ -1658,8 +1661,8 @@ class _InstitutionDetailSheet extends StatelessWidget {
                           caseType: CaseType.applicationSupport,
                           title: controller.resolve(institution.name),
                           contextLabel: institution.isPartner
-                              ? 'Accompagnement Premium Garanti'
-                              : 'Accompagnement Premium',
+                              ? 'institution_premium_support_guaranteed'.tr
+                              : 'institution_premium_support'.tr,
                         ),
                       ),
                     ),
@@ -1698,7 +1701,7 @@ class _IncentiveSection extends StatelessWidget {
                       color: KpbColors.blue, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Avantages KPB Education',
+                    'institution_kpb_benefits'.tr,
                     style:
                         KpbTextStyles.titleMd.copyWith(color: KpbColors.blue),
                   ),
@@ -1707,21 +1710,20 @@ class _IncentiveSection extends StatelessWidget {
               const SizedBox(height: 16),
               _buildIncentiveRow(
                 icon: Icons.verified_user_rounded,
-                title: 'Admission Prioritaire',
-                subtitle: 'Dossier traité en priorité par l\'université.',
+                title: 'institution_priority_admission'.tr,
+                subtitle: 'institution_priority_admission_desc'.tr,
               ),
               const SizedBox(height: 12),
               _buildIncentiveRow(
                 icon: Icons.support_agent_rounded,
-                title: 'Coach Dédié',
-                subtitle: 'Un expert vous suit de l\'inscription au visa.',
+                title: 'institution_dedicated_coach'.tr,
+                subtitle: 'institution_dedicated_coach_desc'.tr,
               ),
               const SizedBox(height: 12),
               _buildIncentiveRow(
                 icon: Icons.account_balance_rounded,
-                title: 'Bourses Exclusives',
-                subtitle:
-                    'Accès aux aides financières réservées aux partenaires.',
+                title: 'institution_exclusive_scholarships'.tr,
+                subtitle: 'institution_exclusive_scholarships_desc'.tr,
               ),
             ],
           ),

@@ -17,27 +17,24 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<_SlideData> _slides = const [
+  final List<_SlideData> _slides = [
     _SlideData(
       icon: Icons.explore_rounded,
       accent: KpbColors.blue,
-      title: 'Explorez vos destinations',
-      description:
-          "Découvrez des centaines de programmes au Canada, en France et partout dans le monde.",
+      title: 'intro_slide1_title'.tr,
+      description: 'intro_slide1_body'.tr,
     ),
     _SlideData(
       icon: Icons.workspace_premium_rounded,
       accent: KpbColors.gold,
-      title: 'Bourses & accompagnement',
-      description:
-          "Trouvez la bourse idéale et obtenez une feuille de route adaptée à votre profil.",
+      title: 'intro_slide2_title'.tr,
+      description: 'intro_slide2_body'.tr,
     ),
     _SlideData(
       icon: Icons.folder_copy_rounded,
       accent: KpbColors.sky,
-      title: 'Suivi en temps réel',
-      description:
-          "Suivez l'avancement de votre dossier et échangez avec nos conseillers, dans l'app.",
+      title: 'intro_slide3_title'.tr,
+      description: 'intro_slide3_body'.tr,
     ),
   ];
 
@@ -115,7 +112,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
             child: TextButton(
               onPressed: _finishIntro,
               child: Text(
-                'Passer',
+                'skip'.tr,
                 style: TextStyle(
                   color: c.textSecondary,
                   fontSize: 15,
@@ -170,7 +167,7 @@ class _IntroSlideshowScreenState extends State<IntroSlideshowScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isLast ? 'Commencer' : 'Continuer',
+                          isLast ? 'get_started'.tr : 'continue_action'.tr,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,

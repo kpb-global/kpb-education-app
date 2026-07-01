@@ -234,7 +234,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                   _SectionCard(
                     icon: Icons.lightbulb_outline_rounded,
                     iconColor: KpbColors.gold,
-                    title: 'Pourquoi ce pays ?',
+                    title: 'country_why_this_country'.tr,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -277,7 +277,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     _SectionCard(
                       icon: Icons.route_outlined,
                       iconColor: KpbColors.blue,
-                      title: 'Comment ça se passe',
+                      title: 'country_how_it_works'.tr,
                       child: Column(
                         children: [
                           for (var i = 0; i < steps.length; i++) ...[
@@ -290,7 +290,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                   _SectionCard(
                     icon: Icons.payments_outlined,
                     iconColor: KpbColors.blue,
-                    title: 'Coûts',
+                    title: 'country_costs'.tr,
                     child: Column(
                       children: [
                         if (country.costsOverview.fr.isNotEmpty)
@@ -302,21 +302,21 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                           const SizedBox(height: 10),
                         KpbInfoRow(
                           icon: Icons.school_outlined,
-                          label: 'Frais de scolarité',
+                          label: 'country_tuition_fees'.tr,
                           value: _controller.resolve(country.tuitionRange),
                           iconColor: KpbColors.blue,
                         ),
                         const KpbDivider(indent: 48),
                         KpbInfoRow(
                           icon: Icons.home_outlined,
-                          label: 'Coût de la vie / mois',
+                          label: 'country_living_cost_per_month'.tr,
                           value: _controller.resolve(country.livingCostRange),
                           iconColor: KpbColors.success,
                         ),
                         const KpbDivider(indent: 48),
                         KpbInfoRow(
                           icon: Icons.article_outlined,
-                          label: 'Visa & assurance',
+                          label: 'country_visa_and_insurance'.tr,
                           value: _controller.resolve(country.visaOverview),
                           iconColor: KpbColors.warning,
                         ),
@@ -326,7 +326,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                   _SectionCard(
                     icon: Icons.translate_rounded,
                     iconColor: KpbColors.success,
-                    title: 'Langue requise',
+                    title: 'country_required_language'.tr,
                     child: Text(
                       country.languageSection.fr.isNotEmpty
                           ? _controller.resolve(country.languageSection)
@@ -337,7 +337,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                   _SectionCard(
                     icon: Icons.account_balance_outlined,
                     iconColor: KpbColors.blue,
-                    title: 'Écoles partenaires dans ce pays',
+                    title: 'country_partner_schools'.tr,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -378,8 +378,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const Spacer(),
-                                        const KpbBadge(
-                                          label: 'Partenaire',
+                                        KpbBadge(
+                                          label: 'badge_partner'.tr,
                                           color: KpbColors.success,
                                           small: true,
                                         ),
@@ -399,7 +399,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                     _SectionCard(
                       icon: Icons.emoji_events_outlined,
                       iconColor: KpbColors.gold,
-                      title: 'Bourses disponibles',
+                      title: 'country_available_scholarships'.tr,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -505,8 +505,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                             isScrollControlled: true,
                             builder: (_) => CaseComposerSheet(
                               caseType: CaseType.applicationSupport,
-                              title:
-                                  'Étudier en ${_controller.resolve(country.name)}',
+                              title: 'country_study_in'.trParams({
+                                'country': _controller.resolve(country.name)
+                              }),
                               contextLabel: _controller.resolve(country.name),
                               countryId: country.id,
                             ),

@@ -123,11 +123,10 @@ class _UniversitiesScreenState extends State<UniversitiesScreen>
                 child: controller.programs.isEmpty && controller.isSyncing
                     ? _ProgramSkeletonList()
                     : controller.programs.isEmpty
-                        ? const KpbEmptyState(
+                        ? KpbEmptyState(
                             icon: Icons.menu_book_outlined,
-                            title: 'Aucune formation disponible',
-                            subtitle:
-                                'Synchronisez l\'app avec le serveur pour charger le catalogue.',
+                            title: 'explore_no_programs_title'.tr,
+                            subtitle: 'universities_empty_sync_subtitle'.tr,
                           )
                         : programs.isEmpty
                             ? KpbEmptyState(

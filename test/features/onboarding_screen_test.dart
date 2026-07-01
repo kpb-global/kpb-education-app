@@ -33,7 +33,10 @@ void main() {
 
       expect(
         find.byWidgetPredicate(
-          (w) => w is Text && (w.data?.contains('Bienvenue') ?? false),
+          // .tr resolves to the key in tests (no translations loaded in the harness).
+          (w) =>
+              w is Text &&
+              (w.data?.contains('onboarding_welcome_title') ?? false),
         ),
         findsOneWidget,
       );
@@ -89,9 +92,10 @@ void main() {
         child: const OnboardingScreen(),
       );
 
-      expect(find.text('Étudiant'), findsOneWidget);
-      expect(find.text('Parent'), findsOneWidget);
-      expect(find.text('Partenaire'), findsOneWidget);
+      // .tr resolves to the key in tests (no translations loaded in the harness).
+      expect(find.text('account_type_student'), findsOneWidget);
+      expect(find.text('account_type_parent_short'), findsOneWidget);
+      expect(find.text('badge_partner'), findsOneWidget);
     });
 
     testWidgets('has identity text fields on page 0', (tester) async {

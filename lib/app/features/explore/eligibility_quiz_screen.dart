@@ -45,7 +45,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
       if (country.eligibilityQuiz == null ||
           country.eligibilityQuiz!.questions.isEmpty) {
         setState(() {
-          _error = 'Quiz indisponible pour ce pays.';
+          _error = 'quiz_unavailable_for_country'.tr;
           _loading = false;
         });
         return;
@@ -57,7 +57,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger le quiz.';
+        _error = 'quiz_load_failed'.tr;
         _loading = false;
       });
     }
@@ -118,8 +118,9 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
         title: Text(country != null
-            ? 'Quiz · ${_controller.resolve(country.name)}'
-            : 'Quiz d\'éligibilité'),
+            ? 'quiz_title_with_country'
+                .trParams({'country': _controller.resolve(country.name)})
+            : 'eligibility_quiz_title'.tr),
         backgroundColor: context.kpb.cardBg,
         foregroundColor: context.kpb.textPrimary,
         surfaceTintColor: Colors.transparent,
@@ -135,7 +136,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
     if (_error != null) {
       return KpbEmptyState(
         icon: Icons.quiz_outlined,
-        title: 'Quiz indisponible',
+        title: 'quiz_unavailable_title'.tr,
         subtitle: _error!,
         action: FilledButton(
           onPressed: _load,
@@ -170,7 +171,10 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
             padding: const EdgeInsets.all(KpbSpacing.pagePad),
             children: [
               Text(
-                'Question ${_questionIndex + 1}/${quiz.questions.length}',
+                'quiz_question_progress'.trParams({
+                  'current': '${_questionIndex + 1}',
+                  'total': '${quiz.questions.length}'
+                }),
                 style: KpbTextStyles.caption,
               ),
               const SizedBox(height: 8),
@@ -206,7 +210,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _back,
-                    child: Text(_questionIndex == 0 ? 'Annuler' : 'Retour'),
+                    child: Text(_questionIndex == 0 ? 'cancel'.tr : 'back'.tr),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -216,8 +220,8 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
                     onPressed: selected == null ? null : _next,
                     child: Text(
                       _questionIndex == quiz.questions.length - 1
-                          ? 'Voir mon verdict'
-                          : 'Suivant',
+                          ? 'quiz_see_verdict'.tr
+                          : 'next'.tr,
                     ),
                   ),
                 ),
@@ -344,8 +348,10 @@ class _ResultView extends StatelessWidget {
             ? CaseType.applicationSupport
             : CaseType.consultation,
         title: recommended != null
-            ? 'Inscription — ${controller.resolve(recommended.name)}'
-            : 'Étudier en ${controller.resolve(country.name)}',
+            ? 'quiz_enrollment_with_program'
+                .trParams({'program': controller.resolve(recommended.name)})
+            : 'country_study_in'
+                .trParams({'country': controller.resolve(country.name)}),
         contextLabel: result.verdictTitle,
         countryId: normalizedCountryId,
         institutionId: recommended?.institutionId ?? institution?.id,
