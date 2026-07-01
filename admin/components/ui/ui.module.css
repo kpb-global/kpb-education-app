@@ -1,0 +1,284 @@
+/* Primitive styles — all values read design tokens from app/globals.css (:root).
+   These classes carry the :hover / :focus / :disabled states that inline-style
+   objects structurally cannot. */
+
+/* ── Button ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, filter 0.15s ease, opacity 0.15s ease,
+    transform 0.04s ease;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.primary {
+  background: var(--brand);
+  color: var(--brand-fg);
+}
+.primary:hover:not(:disabled) {
+  background: var(--brand-strong);
+}
+.secondary {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.secondary:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+.ghost {
+  background: transparent;
+  color: var(--text);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.danger {
+  background: var(--danger-fg);
+  color: #fff;
+}
+.danger:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+.sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+.block {
+  width: 100%;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: kpb-spin 0.6s linear infinite;
+}
+@keyframes kpb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.cardInteractive {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.05s ease;
+}
+.cardInteractive:hover {
+  box-shadow: 0 16px 40px rgba(18, 32, 51, 0.1);
+}
+
+/* ── Field / Input ──────────────────────────────────────────────────────── */
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+.fieldLabel {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.fieldError {
+  color: var(--danger-fg);
+  font-size: var(--text-sm);
+}
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  background: var(--surface);
+  color: var(--text);
+}
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.invalid {
+  border-color: var(--danger-fg);
+}
+
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+.badgeNeutral {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.badgeBrand {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.badgeSuccess {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badgeWarning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.badgeDanger {
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+.badgeInfo {
+  background: var(--info-bg);
+  color: var(--info-fg);
+}
+
+/* ── Alert ──────────────────────────────────────────────────────────────── */
+.alert {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  line-height: 1.5;
+}
+.alertInfo {
+  background: var(--info-bg);
+  color: var(--info-fg);
+}
+.alertSuccess {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.alertWarning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.alertDanger {
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+/* ── StatCard ───────────────────────────────────────────────────────────── */
+.statCard {
+  display: grid;
+  gap: var(--space-2);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.statLabel {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.statValue {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.statHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+/* ── EmptyState ─────────────────────────────────────────────────────────── */
+.empty {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--text-muted);
+}
+.emptyTitle {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+  font-size: var(--text-lg);
+}
+
+/* ── Skeleton ───────────────────────────────────────────────────────────── */
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    #eef2f8 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 400% 100%;
+  animation: kpb-shimmer 1.4s ease infinite;
+}
+@keyframes kpb-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* ── ConfirmDialog (modal) ──────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(15, 23, 42, 0.45);
+}
+.dialog {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-5);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+.dialogTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.dialogDesc {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.dialogActions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
