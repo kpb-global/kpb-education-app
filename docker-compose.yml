@@ -33,6 +33,11 @@ services:
       - KPB_MAGIC_LINK_WEB_BASE=${KPB_MAGIC_LINK_WEB_BASE:-}
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
       - YOUTUBE_PLAYLIST_ID=${YOUTUBE_PLAYLIST_ID:-}
+      # Flight price search (Kayak Price-Insights affiliate API; leave blank
+      # to fall back to a browser deeplink).
+      - KPB_KAYAK_API_KEY=${KPB_KAYAK_API_KEY:-}
+      - KPB_KAYAK_BASE_URL=${KPB_KAYAK_BASE_URL:-}
+      - KPB_KAYAK_USER_AGENT=${KPB_KAYAK_USER_AGENT:-}
       # Uploads: set the S3 vars for object storage, or KPB_UPLOADS_DIR for local disk.
       - KPB_S3_ENDPOINT=${KPB_S3_ENDPOINT:-}
       - KPB_S3_REGION=${KPB_S3_REGION:-}
