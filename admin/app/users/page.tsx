@@ -49,6 +49,10 @@ export default function UsersPage() {
     isActive: true,
     workload: '0',
   });
+  const [credential, setCredential] = useState<{
+    email: string;
+    tempPassword: string;
+  } | null>(null);
 
   async function loadUsers() {
     setErrorMessage(null);
@@ -95,16 +99,19 @@ export default function UsersPage() {
     setErrorMessage(null);
 
     try {
-      await apiFetch('/admin/users', {
-        method: 'POST',
-        body: {
-          fullName: createForm.fullName,
-          email: createForm.email,
-          role: createForm.role,
-          languageScope: splitList(createForm.languageScope),
-          isActive: createForm.isActive,
+      const created = await apiFetch<{ email: string; tempPassword?: string }>(
+        '/admin/users',
+        {
+          method: 'POST',
+          body: {
+            fullName: createForm.fullName,
+            email: createForm.email,
+            role: createForm.role,
+            languageScope: splitList(createForm.languageScope),
+            isActive: createForm.isActive,
+          },
         },
-      });
+      );
       setCreateForm({
         fullName: '',
         email: '',
@@ -112,6 +119,12 @@ export default function UsersPage() {
         languageScope: 'fr,en',
         isActive: true,
       });
+      if (created?.tempPassword) {
+        setCredential({
+          email: created.email,
+          tempPassword: created.tempPassword,
+        });
+      }
       setStatusMessage('Internal operator created.');
       await loadUsers();
     } catch (error) {
@@ -129,6 +142,9 @@ export default function UsersPage() {
 
     setStatusMessage(null);
     setErrorMessage(null);
+    // Don't leave a previously-issued temp password on screen during an
+    // unrelated role/activation change.
+    setCredential(null);
 
     try {
       await apiFetch(`/admin/users/${selectedUser.id}`, {
@@ -148,6 +164,41 @@ export default function UsersPage() {
     }
   }
 
+  async function resetPassword() {
+    if (!selectedUser) {
+      return;
+    }
+    setStatusMessage(null);
+    setErrorMessage(null);
+    try {
+      const result = await apiFetch<{ email: string; tempPassword: string }>(
+        `/admin/users/${selectedUser.id}/reset-password`,
+        { method: 'POST' },
+      );
+      setCredential({
+        email: result.email,
+        tempPassword: result.tempPassword,
+      });
+      setStatusMessage('Temporary password re-issued.');
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to reset password.',
+      );
+    }
+  }
+
+  async function copyCredential() {
+    if (!credential) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(credential.tempPassword);
+      setStatusMessage('Temporary password copied to clipboard.');
+    } catch {
+      // Clipboard may be unavailable (insecure context); value stays on screen.
+    }
+  }
+
   return (
     <DashboardShell title="Users and roles">
       <div style={{ display: 'grid', gap: 18 }}>
@@ -159,6 +210,49 @@ export default function UsersPage() {
         {errorMessage ? (
           <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
             {errorMessage}
+          </div>
+        ) : null}
+        {credential ? (
+          <div
+            style={{
+              ...panelStyle,
+              background: '#FFFBEB',
+              border: '1px solid #FCD34D',
+              display: 'grid',
+              gap: 8,
+            }}
+          >
+            <strong>Temporary password for {credential.email}</strong>
+            <code
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                letterSpacing: 1,
+                background: '#fff',
+                border: '1px solid #E2E8F0',
+                borderRadius: 10,
+                padding: '8px 12px',
+                wordBreak: 'break-all',
+              }}
+            >
+              {credential.tempPassword}
+            </code>
+            <p style={{ ...mutedTextStyle, margin: 0 }}>
+              Shown once — copy it and share it privately. Re-issue a new one
+              anytime from the operator&apos;s panel.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" style={buttonStyle} onClick={copyCredential}>
+                Copy password
+              </button>
+              <button
+                type="button"
+                style={{ ...buttonStyle, background: '#E2E8F0', color: '#0F172A' }}
+                onClick={() => setCredential(null)}
+              >
+                Dismiss
+              </button>
+            </div>
           </div>
         ) : null}
 
@@ -241,7 +335,7 @@ export default function UsersPage() {
                     style={inputStyle}
                   >
                     <option value="counselor">Counselor</option>
-                    <option value="commercial">Commercial</option>
+                    <option value="commercial">Agent (Commercial)</option>
                     <option value="content_manager">Content manager</option>
                     <option value="moderator">Moderator</option>
                     <option value="admin">Admin</option>
@@ -300,7 +394,7 @@ export default function UsersPage() {
                       style={inputStyle}
                     >
                       <option value="counselor">Counselor</option>
-                      <option value="commercial">Commercial</option>
+                      <option value="commercial">Agent (Commercial)</option>
                       <option value="content_manager">Content manager</option>
                       <option value="moderator">Moderator</option>
                       <option value="admin">Admin</option>
@@ -337,6 +431,17 @@ export default function UsersPage() {
                     Save role changes
                   </button>
                 </form>
+                <button
+                  type="button"
+                  onClick={resetPassword}
+                  style={{ ...buttonStyle, background: '#B45309' }}
+                >
+                  Reset temporary password
+                </button>
+                <p style={{ ...mutedTextStyle, margin: 0 }}>
+                  Issues a fresh temp password and signs the operator out of any
+                  active session.
+                </p>
               </section>
             ) : null}
           </div>
