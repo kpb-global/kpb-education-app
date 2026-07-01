@@ -102,7 +102,7 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
     return Scaffold(
       backgroundColor: KpbColors.bgPage,
       appBar: AppBar(
-        title: const Text('Dossier (lecture)'),
+        title: Text('parent_case_view_title'.tr),
         backgroundColor: Colors.white,
         foregroundColor: KpbColors.textPrimary,
         elevation: 0,
