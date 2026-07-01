@@ -173,7 +173,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                         child: Row(
                           children: [
                             _FilterChip(
-                              label: 'Toutes',
+                              label: 'live_scholarships_filter_all'.tr,
                               active: _fundingFilter == 'all',
                               accent: accent,
                               onTap: () => setState(() {
@@ -183,7 +183,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                             ),
                             const SizedBox(width: 8),
                             _FilterChip(
-                              label: 'Entièrement financées',
+                              label: 'live_scholarships_filter_fully_funded'.tr,
                               active: _fundingFilter == 'fully_funded',
                               accent: accent,
                               onTap: () => setState(() {
@@ -193,7 +193,8 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                             ),
                             const SizedBox(width: 8),
                             _FilterChip(
-                              label: 'Partiellement financées',
+                              label: 'live_scholarships_filter_partially_funded'
+                                  .tr,
                               active: _fundingFilter == 'partially_funded',
                               accent: accent,
                               onTap: () => setState(() {
@@ -226,10 +227,11 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   child: Center(
                     child: KpbEmptyState(
                       icon: Icons.wifi_off_rounded,
-                      title: 'Erreur de connexion',
-                      subtitle: 'Vérifie ta connexion et réessaie.',
+                      title: 'live_scholarships_connection_error_title'.tr,
+                      subtitle:
+                          'live_scholarships_connection_error_subtitle'.tr,
                       action: KpbButton(
-                        text: 'Réessayer',
+                        text: 'retry'.tr,
                         onPressed: _load,
                         bgColor: accent,
                       ),
@@ -237,14 +239,13 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   ),
                 )
               else if (_items.isEmpty)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
                     child: KpbEmptyState(
                       icon: Icons.search_off_rounded,
-                      title: 'Aucune bourse trouvée',
-                      subtitle:
-                          'Modifie tes critères ou vérifie ton profil académique.',
+                      title: 'live_scholarships_empty_title'.tr,
+                      subtitle: 'live_scholarships_empty_subtitle'.tr,
                     ),
                   ),
                 )
@@ -255,7 +256,8 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                     padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 0,
                         KpbSpacing.pagePad, KpbSpacing.md),
                     child: Text(
-                      '${_items.length} bourse${_items.length > 1 ? 's' : ''} trouvée${_items.length > 1 ? 's' : ''}',
+                      'live_scholarships_result_count'
+                          .trParams({'count': '${_items.length}'}),
                       style: KpbTextStyles.caption
                           .copyWith(color: context.kpb.textMuted),
                     ),
@@ -345,10 +347,10 @@ class _LiveScholarshipCard extends StatelessWidget {
             ? KpbColors.warning
             : context.kpb.gray400;
     final fundingLabel = s.isFullyFunded
-        ? 'Entièrement financée'
+        ? 'live_scholarships_fully_funded'.tr
         : s.isPartiallyFunded
-            ? 'Partiellement financée'
-            : 'Financement inconnu';
+            ? 'live_scholarships_partially_funded'.tr
+            : 'live_scholarships_funding_unknown'.tr;
 
     return KpbCard(
       margin: EdgeInsets.zero,
@@ -494,10 +496,10 @@ class _LiveScholarshipDetail extends StatelessWidget {
             ? KpbColors.warning
             : context.kpb.gray400;
     final fundingLabel = s.isFullyFunded
-        ? 'Entièrement financée'
+        ? 'live_scholarships_fully_funded'.tr
         : s.isPartiallyFunded
-            ? 'Partiellement financée'
-            : 'Financement non spécifié';
+            ? 'live_scholarships_partially_funded'.tr
+            : 'live_scholarships_funding_unspecified'.tr;
 
     return Container(
       decoration: BoxDecoration(
@@ -598,15 +600,16 @@ class _LiveScholarshipDetail extends StatelessWidget {
           // ── Key info rows ─────────────────────────────────────────────────
           _InfoRow(
             icon: Icons.school_outlined,
-            label: 'Niveau',
-            value: s.level.isEmpty ? 'Tous niveaux' : s.level,
+            label: 'live_scholarships_level_label'.tr,
+            value:
+                s.level.isEmpty ? 'live_scholarships_all_levels'.tr : s.level,
             accent: accent,
           ),
           _InfoRow(
             icon: Icons.event_outlined,
-            label: 'Date limite',
+            label: 'live_scholarships_deadline_label'.tr,
             value: s.deadlineLabel.isEmpty
-                ? 'Voir site officiel'
+                ? 'live_scholarships_see_official_site'.tr
                 : s.deadlineLabel,
             accent: accent,
           ),
@@ -639,10 +642,10 @@ class _LiveScholarshipDetail extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         s.matchScore >= 70
-                            ? 'Excellent profil pour cette bourse !'
+                            ? 'live_scholarships_match_excellent'.tr
                             : s.matchScore >= 40
-                                ? 'Profil compatible — renforce ton dossier.'
-                                : 'Profil partiel — les critères sont exigeants.',
+                                ? 'live_scholarships_match_compatible'.tr
+                                : 'live_scholarships_match_partial'.tr,
                         style: TextStyle(
                           color: context.kpb.textSecondary,
                           fontSize: 13,
@@ -660,7 +663,8 @@ class _LiveScholarshipDetail extends StatelessWidget {
           // ── Description ───────────────────────────────────────────────────
           if (s.description.isNotEmpty) ...[
             _SectionHeader(
-                label: 'Description', icon: Icons.info_outline_rounded),
+                label: 'live_scholarships_section_description'.tr,
+                icon: Icons.info_outline_rounded),
             const SizedBox(height: 10),
             Text(
               s.description,
@@ -673,7 +677,8 @@ class _LiveScholarshipDetail extends StatelessWidget {
           // ── Advantages ────────────────────────────────────────────────────
           if (s.advantages.isNotEmpty) ...[
             _SectionHeader(
-                label: 'Avantages', icon: Icons.star_outline_rounded),
+                label: 'live_scholarships_section_advantages'.tr,
+                icon: Icons.star_outline_rounded),
             const SizedBox(height: 10),
             ...s.advantages
                 .map((a) => _BulletItem(text: a, color: KpbColors.success)),
@@ -683,7 +688,7 @@ class _LiveScholarshipDetail extends StatelessWidget {
           // ── Eligibility ───────────────────────────────────────────────────
           if (s.eligibility.isNotEmpty) ...[
             _SectionHeader(
-                label: 'Critères d\'éligibilité',
+                label: 'live_scholarships_section_eligibility'.tr,
                 icon: Icons.checklist_rounded),
             const SizedBox(height: 10),
             ...s.eligibility.map((e) => _BulletItem(text: e, color: accent)),
@@ -693,7 +698,7 @@ class _LiveScholarshipDetail extends StatelessWidget {
           // ── CTAs ──────────────────────────────────────────────────────────
           // Primary: Apply with KPB
           KpbButton(
-            text: '🎯  Candidater avec KPB',
+            text: 'live_scholarships_apply_with_kpb'.tr,
             onPressed: () {
               Navigator.pop(context);
               showModalBottomSheet<void>(
@@ -734,7 +739,7 @@ class _LiveScholarshipDetail extends StatelessWidget {
                         size: 18, color: context.kpb.textSecondary),
                     const SizedBox(width: 8),
                     Text(
-                      'Voir le site officiel de candidature',
+                      'live_scholarships_view_official_application'.tr,
                       style: KpbTextStyles.body.copyWith(
                         color: context.kpb.textSecondary,
                         fontWeight: FontWeight.w600,

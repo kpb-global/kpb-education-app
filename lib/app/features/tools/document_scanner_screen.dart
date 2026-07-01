@@ -30,17 +30,17 @@ class DocumentScannerScreen extends StatefulWidget {
 
 class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
   final List<_DocItem> _docs = [
-    _DocItem('Passeport', 'Page d\'identité, valide 6 mois min.',
+    _DocItem('scanner_doc_passport'.tr, 'scanner_doc_passport_hint'.tr,
         Icons.badge_rounded),
-    _DocItem('Diplôme / Attestation', 'Dernier diplôme obtenu',
+    _DocItem('scanner_doc_diploma'.tr, 'scanner_doc_diploma_hint'.tr,
         Icons.school_rounded),
-    _DocItem('Relevés de notes', 'Bulletins des 2 dernières années',
+    _DocItem('scanner_doc_transcripts'.tr, 'scanner_doc_transcripts_hint'.tr,
         Icons.assignment_rounded),
-    _DocItem('Test de langue', 'TOEFL / IELTS / TCF si disponible',
-        Icons.translate_rounded),
-    _DocItem('Justificatif financier', 'Relevé bancaire ou attestation',
+    _DocItem('scanner_doc_language_test'.tr,
+        'scanner_doc_language_test_hint'.tr, Icons.translate_rounded),
+    _DocItem('scanner_doc_financial'.tr, 'scanner_doc_financial_hint'.tr,
         Icons.account_balance_rounded),
-    _DocItem('Photo d\'identité', 'Fond clair, format officiel',
+    _DocItem('scanner_doc_id_photo'.tr, 'scanner_doc_id_photo_hint'.tr,
         Icons.photo_camera_front_rounded),
   ];
 
@@ -75,7 +75,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scanner mes documents')),
+      appBar: AppBar(title: Text('scanner_title'.tr)),
       body: Column(
         children: [
           // Progress header
@@ -93,7 +93,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dossier de candidature',
+                        'scanner_application_folder'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: context.kpb.textPrimary,
@@ -186,7 +186,8 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                                 ),
                                 Text(
                                   doc.isDone
-                                      ? '${doc.pages.length} page(s) scannée(s)'
+                                      ? 'scanner_pages_scanned'.trParams(
+                                          {'count': '${doc.pages.length}'})
                                       : doc.hint,
                                   style: TextStyle(
                                     fontSize: 12,
@@ -205,8 +206,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                         children: [
                           Expanded(
                             child: KpbButton(
-                              label:
-                                  doc.isDone ? 'Ajouter une page' : 'Scanner',
+                              label: doc.isDone
+                                  ? 'scanner_add_page'.tr
+                                  : 'scanner_scan'.tr,
                               icon: Icons.camera_alt_rounded,
                               secondary: doc.isDone,
                               onTap: () => _scan(doc),
@@ -215,13 +217,13 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                           if (doc.isDone) ...[
                             const SizedBox(width: 8),
                             IconButton(
-                              tooltip: 'Exporter en PDF',
+                              tooltip: 'cv_export_pdf'.tr,
                               icon: const Icon(Icons.picture_as_pdf_rounded),
                               color: KpbColors.blue,
                               onPressed: () => _exportPdf(doc),
                             ),
                             IconButton(
-                              tooltip: 'Réinitialiser',
+                              tooltip: 'scanner_reset_tooltip'.tr,
                               icon: const Icon(Icons.delete_outline_rounded),
                               color: context.kpb.textMuted,
                               onPressed: () =>

@@ -36,7 +36,7 @@ void main() {
         (tester) async {
       await pump(tester);
 
-      expect(find.text('Tes informations'), findsOneWidget);
+      expect(find.text('eligibility_your_info'), findsOneWidget);
       // createTestProfile uses currentLevel "Licence" → normalised to "Bachelor 1".
       expect(find.text('Bachelor 1'), findsWidgets);
       // The CTA label is localized (.tr); the test harness doesn't load
@@ -52,13 +52,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verdict labels appear in the summary row and on result cards.
-      expect(find.text('Éligible'), findsWidgets);
-      expect(find.text('À préparer'), findsWidgets);
+      expect(find.text('eligibility_summary_eligible'), findsWidgets);
+      expect(find.text('eligibility_summary_to_prepare'), findsWidgets);
 
       // A known destination card + the (unique) PDF export CTA prove the
       // results section rendered.
       expect(find.textContaining('France'), findsWidgets);
-      expect(find.text('Exporter / partager en PDF'), findsOneWidget);
+      expect(find.text('eligibility_export_pdf'), findsOneWidget);
     });
   });
 }

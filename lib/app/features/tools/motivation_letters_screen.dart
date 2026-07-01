@@ -26,7 +26,7 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lettres de motivation')),
+      appBar: AppBar(title: Text('letters_title'.tr)),
       body: Column(
         children: [
           // ── Category chips ─────────────────────────────────────────────────
@@ -36,7 +36,7 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
                 horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.sm),
             child: Row(
               children: [
-                _chip('all', 'Tous'),
+                _chip('all', 'letters_filter_all'.tr),
                 ...kLetterCategories.map(
                   (c) => _chip(c, categoryLabelFr(c)),
                 ),
@@ -146,7 +146,7 @@ class _LetterCardState extends State<_LetterCard> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur IA — verifiez votre connexion')),
+          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
         );
       }
     } finally {
@@ -236,8 +236,8 @@ class _LetterCardState extends State<_LetterCard> {
                         color: KpbColors.blue.withValues(alpha: 0.1),
                         borderRadius: KpbRadius.smBr,
                       ),
-                      child: const Text(
-                        'Personnalisee',
+                      child: Text(
+                        'letters_personalized_badge'.tr,
                         style: TextStyle(fontSize: 11, color: KpbColors.blue),
                       ),
                     ),
@@ -273,26 +273,25 @@ class _LetterCardState extends State<_LetterCard> {
                 Expanded(
                   child: KpbButton(
                     label: _isPersonalizing
-                        ? 'Personnalisation...'
-                        : 'Adapter a mon profil',
+                        ? 'letters_personalizing'.tr
+                        : 'letters_adapt_to_profile'.tr,
                     icon: Icons.auto_awesome_rounded,
                     onTap: _isPersonalizing ? null : _personalize,
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  tooltip: 'Copier',
+                  tooltip: 'letters_copy_tooltip'.tr,
                   icon: const Icon(Icons.copy_rounded, size: 20),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: _displayText));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Copie dans le presse-papier')),
+                      SnackBar(content: Text('letters_copied_snackbar'.tr)),
                     );
                   },
                 ),
                 IconButton(
-                  tooltip: 'Partager',
+                  tooltip: 'letters_share_tooltip'.tr,
                   icon: const Icon(Icons.share_rounded, size: 20),
                   onPressed: () => SharePlus.instance.share(
                     ShareParams(text: _displayText),

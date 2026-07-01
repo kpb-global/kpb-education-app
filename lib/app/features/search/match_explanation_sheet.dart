@@ -91,7 +91,7 @@ void showMatchExplanation(
           ),
           const SizedBox(height: 4),
           Text(
-            'Pourquoi ce match ?',
+            'match_why_this_match'.tr,
             style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
           ),
           const SizedBox(height: KpbSpacing.lg),

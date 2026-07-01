@@ -20,52 +20,47 @@ class StudentToolsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
           Text(
-            'Des outils pratiques pour preparer ta candidature.',
+            'student_tools_intro'.tr,
             style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
           ),
           const SizedBox(height: KpbSpacing.lg),
           _ToolCard(
             icon: Icons.description_rounded,
             color: KpbColors.blue,
-            title: 'Generateur de CV',
-            subtitle:
-                'Cree un CV professionnel pre-rempli depuis ton profil, ameliore par l\'IA.',
+            title: 'cv_generator_title'.tr,
+            subtitle: 'student_tools_cv_subtitle'.tr,
             onTap: () => Get.to(() => const CvGeneratorScreen()),
           ),
           const SizedBox(height: KpbSpacing.md),
           _ToolCard(
             icon: Icons.mail_outline_rounded,
             color: KpbColors.success,
-            title: 'Lettres de motivation',
-            subtitle:
-                '6 modeles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
+            title: 'letters_title'.tr,
+            subtitle: 'student_tools_letters_subtitle'.tr,
             onTap: () => Get.to(() => const MotivationLettersScreen()),
           ),
           const SizedBox(height: KpbSpacing.md),
           _ToolCard(
             icon: Icons.record_voice_over_rounded,
             color: KpbColors.gold,
-            title: 'Simulateur d\'entretien',
-            subtitle:
-                'Entraine-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
+            title: 'interview_title'.tr,
+            subtitle: 'student_tools_interview_subtitle'.tr,
             onTap: () => Get.to(() => const InterviewSimulatorScreen()),
           ),
           const SizedBox(height: KpbSpacing.md),
           _ToolCard(
             icon: Icons.document_scanner_rounded,
             color: KpbColors.sky,
-            title: 'Scanner mes documents',
-            subtitle:
-                'Scanne et organise les pieces de ton dossier (passeport, diplomes...) en PDF.',
+            title: 'scanner_title'.tr,
+            subtitle: 'student_tools_scanner_subtitle'.tr,
             onTap: () => Get.to(() => const DocumentScannerScreen()),
           ),
           const SizedBox(height: KpbSpacing.md),
           _ToolCard(
             icon: Icons.insights_rounded,
             color: KpbColors.navy,
-            title: 'Notre impact',
-            subtitle:
-                'Decouvre l\'impact de KPB Education : etudiants accompagnes, admissions, bourses.',
+            title: 'impact_title'.tr,
+            subtitle: 'student_tools_impact_subtitle'.tr,
             onTap: () => Get.to(() => const ImpactDashboardScreen()),
           ),
         ],

@@ -59,8 +59,8 @@ class _SearchScreenState extends State<SearchScreen> {
           _openFieldDetail(context, field, _ctrl);
         } catch (_) {
           Get.snackbar(
-            'Filière introuvable',
-            'Cette filière n\'est plus disponible.',
+            'search_field_not_found_title'.tr,
+            'search_field_not_found_body'.tr,
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
             duration: const Duration(seconds: 2),
@@ -111,8 +111,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         onSubmitted: _onSubmitted,
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                          hintText:
-                              'Rechercher une filière, un pays, une école...',
+                          hintText: 'search_hint'.tr,
                           hintStyle: TextStyle(
                             fontSize: 14,
                             color: context.kpb.textMuted,
@@ -181,7 +180,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 const Spacer(),
                 GestureDetector(
                   onTap: _ctrl.clearSearchHistory,
-                  child: const Text('Effacer',
+                  child: Text('search_clear_history'.tr,
                       style: TextStyle(fontSize: 12, color: KpbColors.blue)),
                 ),
               ],
@@ -215,7 +214,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: KpbSpacing.xl),
           ],
-          Text('Suggestions',
+          Text('search_suggestions'.tr,
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -226,11 +225,11 @@ class _SearchScreenState extends State<SearchScreen> {
             runSpacing: 8,
             children: [
               'Informatique',
-              'France',
-              'École',
+              'search_suggestion_france'.tr,
+              'search_suggestion_school'.tr,
               'Business',
               'Canada',
-              'Ingénierie',
+              'search_suggestion_engineering'.tr,
             ].map((s) {
               return GestureDetector(
                 onTap: () {
@@ -265,8 +264,8 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildEmptyResults() {
     return KpbEmptyState(
       icon: Icons.search_off_rounded,
-      title: 'Aucun résultat pour "$_query"',
-      subtitle: 'Essayez avec d\'autres mots-clés',
+      title: 'search_no_results_title'.trParams({'query': _query}),
+      subtitle: 'search_no_results_subtitle'.tr,
     );
   }
 
@@ -321,13 +320,13 @@ class _ResultSection extends StatelessWidget {
   final ValueChanged<SearchResult> onTap;
   final AppController controller;
 
-  static const _labels = {
-    SearchResultType.field: 'Filières',
-    SearchResultType.country: 'Pays',
-    SearchResultType.institution: 'Universités',
-    SearchResultType.program: 'Formations',
-    SearchResultType.scholarship: 'Bourses',
-  };
+  static Map<SearchResultType, String> get _labels => {
+        SearchResultType.field: 'search_section_fields'.tr,
+        SearchResultType.country: 'search_section_countries'.tr,
+        SearchResultType.institution: 'search_section_institutions'.tr,
+        SearchResultType.program: 'search_section_programs'.tr,
+        SearchResultType.scholarship: 'letter_category_scholarship'.tr,
+      };
 
   static const _icons = {
     SearchResultType.field: Icons.school_rounded,

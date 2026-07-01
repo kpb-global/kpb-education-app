@@ -96,7 +96,7 @@ class _ScholarshipEligibilityScreenState
         for (var i = 0; i < _criteria.length; i++) _criterionTile(i),
         const SizedBox(height: KpbSpacing.md),
         KpbButton(
-          text: 'Voir mon résultat',
+          text: 'eligibility_see_my_result'.tr,
           icon: Icons.fact_check_rounded,
           bgColor: _allAnswered ? KpbColors.blue : context.kpb.gray300,
           onPressed:
@@ -137,12 +137,14 @@ class _ScholarshipEligibilityScreenState
           const SizedBox(height: KpbSpacing.sm),
           Row(
             children: [
-              _answerChip(i, CriterionAnswer.yes, 'Oui', KpbColors.success),
+              _answerChip(
+                  i, CriterionAnswer.yes, 'answer_yes'.tr, KpbColors.success),
+              const SizedBox(width: 8),
+              _answerChip(i, CriterionAnswer.maybe, 'answer_maybe'.tr,
+                  KpbColors.warning),
               const SizedBox(width: 8),
               _answerChip(
-                  i, CriterionAnswer.maybe, 'Peut-être', KpbColors.warning),
-              const SizedBox(width: 8),
-              _answerChip(i, CriterionAnswer.no, 'Non', KpbColors.error),
+                  i, CriterionAnswer.no, 'answer_no'.tr, KpbColors.error),
             ],
           ),
         ],
@@ -194,23 +196,20 @@ class _ScholarshipEligibilityScreenState
       ScholarshipEligibilityVerdict.eligible => (
           KpbColors.success,
           Icons.verified_rounded,
-          '🟢 Tu sembles éligible',
-          'Tu remplis les critères annoncés. Prépare ton dossier — un conseiller '
-              'KPB peut t’accompagner pour maximiser tes chances.',
+          'eligibility_verdict_eligible_title'.tr,
+          'eligibility_verdict_eligible_body'.tr,
         ),
       ScholarshipEligibilityVerdict.conditional => (
           KpbColors.warning,
           Icons.help_outline_rounded,
-          '🟡 Éligibilité à confirmer',
-          'Tu remplis une partie des critères mais certains restent à vérifier. '
-              'Un conseiller peut t’aider à confirmer ton éligibilité.',
+          'eligibility_verdict_conditional_title'.tr,
+          'eligibility_verdict_conditional_body'.tr,
         ),
       ScholarshipEligibilityVerdict.unlikely => (
           KpbColors.error,
           Icons.info_outline_rounded,
-          '🔴 Probablement non éligible',
-          'Au moins un critère clé ne semble pas rempli. Des exceptions existent '
-              'parfois — parles-en à un conseiller, ou explore d’autres bourses.',
+          'eligibility_verdict_unlikely_title'.tr,
+          'eligibility_verdict_unlikely_body'.tr,
         ),
     };
 
@@ -256,7 +255,7 @@ class _ScholarshipEligibilityScreenState
           ],
           const SizedBox(height: KpbSpacing.lg),
           KpbButton(
-            text: 'Discuter avec un conseiller',
+            text: 'talk_to_advisor'.tr,
             icon: Icons.chat_rounded,
             bgColor: KpbColors.success,
             onPressed: _contactAdvisor,
@@ -280,7 +279,7 @@ class _ScholarshipEligibilityScreenState
           ),
           const SizedBox(height: KpbSpacing.lg),
           KpbButton(
-            text: 'Discuter avec un conseiller',
+            text: 'talk_to_advisor'.tr,
             icon: Icons.chat_rounded,
             bgColor: KpbColors.success,
             onPressed: _contactAdvisor,
@@ -292,9 +291,7 @@ class _ScholarshipEligibilityScreenState
 
   void _contactAdvisor() {
     openWhatsAppOrToast(
-      prefill:
-          'Bonjour KPB Education, je m’intéresse à la bourse « $_name » et '
-          'j’aimerais vérifier mon éligibilité / être accompagné(e).',
+      prefill: 'eligibility_whatsapp_prefill'.trParams({'name': _name}),
     );
   }
 }

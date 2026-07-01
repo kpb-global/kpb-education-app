@@ -59,11 +59,11 @@ class RoadmapTimelineView extends StatelessWidget {
   void _handleAction(String route) {
     if (route == '/academy') {
       // Handle deep link to academy
-      Get.snackbar('Academy', 'Redirection vers les tutoriels de rédaction...',
+      Get.snackbar('Academy', 'roadmap_redirect_writing_tutorials'.tr,
           backgroundColor: KpbColors.blue, colorText: Colors.white);
     } else if (route == '/consultation') {
       // Handle deep link to consultation
-      Get.snackbar('Consultation', 'Redirection vers l\'expert KPB...',
+      Get.snackbar('Consultation', 'roadmap_redirect_kpb_expert'.tr,
           backgroundColor: KpbColors.blue, colorText: Colors.white);
     }
   }
@@ -182,8 +182,8 @@ class _RoadmapStepTile extends StatelessWidget {
                         ),
                         child: Text(
                           step.type == RoadmapStepType.writing
-                              ? 'Voir les tutos'
-                              : 'Réserver un expert',
+                              ? 'roadmap_view_tutorials'.tr
+                              : 'roadmap_book_expert'.tr,
                           style: const TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold),
                         ),
