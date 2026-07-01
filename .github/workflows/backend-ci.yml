@@ -5,10 +5,12 @@ on:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
 
 jobs:
   build-and-test:
@@ -16,29 +18,107 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+
+    # A throwaway Postgres so CI actually exercises the DB path: migrations
+    # apply on a fresh schema, the seed runs end-to-end, catalog country-refs
+    # stay intact, and the API boots and serves /api/health.
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: kpb
+          POSTGRES_PASSWORD: kpb
+          POSTGRES_DB: kpb_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U kpb -d kpb_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://kpb:kpb@localhost:5432/kpb_ci?schema=public
+      # Non-secret CI placeholders so the API can construct and boot in the
+      # smoke step. These are NOT real secrets and are safe to keep in the repo.
+      PORT: '4000'
+      KPB_JWT_SECRET: ci-only-not-a-real-secret
+      KPB_JWT_REFRESH_SECRET: ci-only-not-a-real-secret
+      KPB_ADMIN_REFRESH_SECRET: ci-only-not-a-real-secret
+      SUPABASE_URL: https://ci.example.supabase.co
+      CORS_ORIGINS: http://localhost:3000
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: './backend/package-lock.json'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Generate Prisma Client
         run: npx prisma generate
-        
+
       - name: Lint
         run: npm run lint
-        
-      - name: Build NestJS Sandbox
+
+      - name: Build NestJS
         run: npm run build
-        
+
       - name: Run Unit Tests
+        # Unit tests exercise the DB-less fallback paths, so run them without a
+        # DATABASE_URL (empty string → PrismaService.isEnabled is false).
+        env:
+          DATABASE_URL: ''
         run: npm run test
-        
+
+      - name: Prepare .env for DB-backed steps
+        # The seed scripts call process.loadEnvFile('.env'), which throws if the
+        # file is absent — so write one from the CI env values.
+        run: |
+          cat > .env <<EOF
+          DATABASE_URL=${DATABASE_URL}
+          PORT=${PORT}
+          KPB_JWT_SECRET=${KPB_JWT_SECRET}
+          KPB_JWT_REFRESH_SECRET=${KPB_JWT_REFRESH_SECRET}
+          KPB_ADMIN_REFRESH_SECRET=${KPB_ADMIN_REFRESH_SECRET}
+          SUPABASE_URL=${SUPABASE_URL}
+          CORS_ORIGINS=${CORS_ORIGINS}
+          EOF
+
+      - name: Apply migrations to a fresh database
+        run: npx prisma migrate deploy
+
+      - name: Seed active countries + base catalog
+        run: |
+          npm run seed:countries-m5
+          npm run prisma:seed
+
+      - name: Verify catalog country-ref integrity
+        run: npm run verify:catalog
+
+      - name: Boot smoke — API serves /api/health against the DB
+        run: |
+          node dist/main.js &
+          APP_PID=$!
+          healthy=0
+          for i in $(seq 1 30); do
+            if curl -fsS "http://localhost:${PORT}/api/health" | grep -q '"status":"ok"'; then
+              healthy=1
+              break
+            fi
+            sleep 2
+          done
+          kill "$APP_PID" 2>/dev/null || true
+          if [ "$healthy" != "1" ]; then
+            echo "::error::API did not become healthy on :${PORT}/api/health"
+            exit 1
+          fi
+          echo "API booted and served /api/health ✅"
+
   # Note: A deployment job can be added here once the VPS SSH Key is set as a Secret.
   # Example: Appleboy SSH Action to pull the latest image and restart docker-compose.
