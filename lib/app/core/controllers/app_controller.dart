@@ -88,6 +88,13 @@ abstract class _AppControllerBase extends GetxController {
   bool isSyncing = false;
   DateTime? lastSyncedAt;
   String? syncError;
+
+  /// True while the app is still showing the bundled MockCatalog seed because
+  /// no live or cached catalog has loaded yet (backend unreachable / empty on a
+  /// first run). Drives the "sample data" banner so users are never shown
+  /// plausible-but-fake data silently. Flips to false once a full catalog sync
+  /// completes (live or offline cache).
+  bool catalogIsSampleData = true;
   UserProfile? profile;
   OrientationSession? latestOrientationSession;
 
@@ -1253,6 +1260,11 @@ abstract class _AppControllerBase extends GetxController {
         onHiveFallback: onCatalogHiveFallback,
       );
       _applyMvpCountryLock();
+
+      // We only reach here if every catalog resource resolved from the API or
+      // the offline cache (a failed fetch with no cache throws out of this
+      // block). So we are no longer showing the bundled sample catalog.
+      catalogIsSampleData = false;
 
       lastSyncedAt = DateTime.now();
       if (!authSyncFailed) {
