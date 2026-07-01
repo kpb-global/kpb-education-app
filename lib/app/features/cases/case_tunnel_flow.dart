@@ -46,13 +46,13 @@ class CaseTunnelFlow extends StatefulWidget {
 }
 
 class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
-  static const _stepLabels = [
-    'Type',
-    'Contexte',
-    'Documents',
-    'Message',
-    'Confirmation',
-  ];
+  static List<String> get _stepLabels => [
+        'case_tunnel_step_type'.tr,
+        'case_tunnel_step_context'.tr,
+        'case_section_documents'.tr,
+        'case_tunnel_step_message'.tr,
+        'case_tunnel_step_confirmation'.tr,
+      ];
 
   var _step = 0;
   late CaseType _type;
@@ -121,7 +121,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       else
         'case_default_title'.trParams({'title': defaultTitle}),
       if (_attachedDocs.isNotEmpty)
-        'Documents joints:\n${_attachedDocs.entries.map((e) => '• ${e.key}: ${e.value.split('/').last}').join('\n')}',
+        '${'case_tunnel_attached_documents_prefix'.tr}\n${_attachedDocs.entries.map((e) => '• ${e.key}: ${e.value.split('/').last}').join('\n')}',
     ];
 
     try {
@@ -135,8 +135,8 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       widget.onSubmitted?.call();
     } catch (_) {
       Get.snackbar(
-        'Profil incomplet',
-        'Complète ton onboarding avant de créer une demande.',
+        'case_tunnel_incomplete_profile_title'.tr,
+        'case_tunnel_incomplete_profile_body'.tr,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(12),
       );
@@ -152,12 +152,12 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Photo'),
+              title: Text('case_tunnel_pick_photo'.tr),
               onTap: () => Navigator.pop(ctx, 'camera'),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded),
-              title: const Text('Galerie'),
+              title: Text('case_tunnel_pick_gallery'.tr),
               onTap: () => Navigator.pop(ctx, 'gallery'),
             ),
             ListTile(
@@ -184,7 +184,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
     } on FileTooLargeException catch (error) {
       if (mounted) {
         Get.snackbar(
-          'Fichier trop volumineux',
+          'case_tunnel_file_too_large_title'.tr,
           error.toString(),
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
@@ -194,8 +194,8 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
     } catch (_) {
       if (mounted) {
         Get.snackbar(
-          'Erreur',
-          'Impossible d\'ajouter ce fichier. Réessaie.',
+          'common_error'.tr,
+          'case_tunnel_add_file_failed'.tr,
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
         );
@@ -230,7 +230,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
             Expanded(
               child: OutlinedButton(
                 onPressed: _back,
-                child: Text(_step == 0 ? 'close'.tr : 'Retour'),
+                child: Text(_step == 0 ? 'close'.tr : 'common_back'.tr),
               ),
             ),
             const SizedBox(width: 12),
@@ -239,7 +239,9 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
               child: FilledButton(
                 onPressed: _canContinue ? _next : null,
                 child: Text(
-                  _step == _stepLabels.length - 1 ? 'submit'.tr : 'Suivant',
+                  _step == _stepLabels.length - 1
+                      ? 'submit'.tr
+                      : 'common_next'.tr,
                 ),
               ),
             ),
@@ -357,12 +359,24 @@ class _TypeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const options = [
-      (CaseType.applicationSupport, Icons.school_outlined, 'Inscription école'),
-      (CaseType.scholarshipSupport, Icons.emoji_events_outlined, 'Bourse'),
-      (CaseType.consultation, Icons.article_outlined, 'Visa / dossier'),
-      (CaseType.housingSupport, Icons.home_outlined, 'Logement'),
-      (CaseType.mentorship, Icons.support_agent_outlined, 'Autre'),
+    final options = [
+      (
+        CaseType.applicationSupport,
+        Icons.school_outlined,
+        'case_type_application_support'.tr
+      ),
+      (
+        CaseType.scholarshipSupport,
+        Icons.emoji_events_outlined,
+        'case_type_scholarship'.tr
+      ),
+      (
+        CaseType.consultation,
+        Icons.article_outlined,
+        'case_type_consultation'.tr
+      ),
+      (CaseType.housingSupport, Icons.home_outlined, 'case_type_housing'.tr),
+      (CaseType.mentorship, Icons.support_agent_outlined, 'case_type_other'.tr),
     ];
 
     return ListView(
@@ -449,7 +463,7 @@ class _ContextStep extends StatelessWidget {
                 const SizedBox(height: 12),
                 _ContextRow(
                   icon: Icons.public_outlined,
-                  label: 'Pays',
+                  label: 'case_context_country'.tr,
                   value: countryFlag != null
                       ? '$countryFlag $countryLabel'
                       : countryLabel!,
@@ -459,7 +473,7 @@ class _ContextStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 _ContextRow(
                   icon: Icons.account_balance_outlined,
-                  label: 'École',
+                  label: 'case_context_school'.tr,
                   value: institutionLabel!,
                 ),
               ],
@@ -467,7 +481,7 @@ class _ContextStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 _ContextRow(
                   icon: Icons.menu_book_outlined,
-                  label: 'Programme',
+                  label: 'case_context_program'.tr,
                   value: programLabel!,
                 ),
               ],
@@ -524,14 +538,15 @@ class _DocumentsStep extends StatelessWidget {
   final Future<void> Function(String label) onPick;
   final void Function(String label) onRemove;
 
-  static const _docTypes = ['CV', 'Relevés de notes', 'Passeport'];
+  static List<String> get _docTypes =>
+      ['CV', 'case_doc_transcripts'.tr, 'case_doc_passport'.tr];
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        const Text(
-          'Ajoute tes documents maintenant (optionnel). Tu pourras aussi les envoyer plus tard avec ton conseiller.',
+        Text(
+          'case_documents_step_hint'.tr,
           style: KpbTextStyles.bodySm,
         ),
         const SizedBox(height: 12),
@@ -567,7 +582,8 @@ class _DocumentsStep extends StatelessWidget {
                     ),
                   OutlinedButton(
                     onPressed: () => onPick(label),
-                    child: Text(path == null ? 'Ajouter' : 'Remplacer'),
+                    child: Text(
+                        path == null ? 'common_add'.tr : 'common_replace'.tr),
                   ),
                 ],
               ),
@@ -622,8 +638,8 @@ class _MessageStepState extends State<_MessageStep> {
       if (!status.isGranted) {
         if (mounted) {
           Get.snackbar(
-            'Micro requis',
-            'Autorise le micro pour dicter ton message.',
+            'case_message_mic_required_title'.tr,
+            'case_message_mic_required_body'.tr,
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
           );
@@ -650,8 +666,8 @@ class _MessageStepState extends State<_MessageStep> {
 
     if (!started && mounted) {
       Get.snackbar(
-        'Dictée indisponible',
-        'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+        'case_message_dictation_unavailable_title'.tr,
+        'case_message_dictation_unavailable_body'.tr,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(12),
       );
@@ -685,7 +701,9 @@ class _MessageStepState extends State<_MessageStep> {
               color: _listening ? KpbColors.error : KpbColors.blue,
             ),
             label: Text(
-              _listening ? 'Arrêter la dictée' : 'Dicter mon message',
+              _listening
+                  ? 'case_message_stop_dictation'.tr
+                  : 'case_message_dictate'.tr,
             ),
           ),
         ),
@@ -766,20 +784,27 @@ class _ConfirmStep extends StatelessWidget {
               const SizedBox(height: 4),
               Text(contextLabel, style: KpbTextStyles.caption),
               const KpbDivider(),
-              _RecapRow(label: 'Type', value: _typeLabel(type)),
+              _RecapRow(
+                  label: 'case_tunnel_step_type'.tr, value: _typeLabel(type)),
               if (countryLabel != null)
-                _RecapRow(label: 'Pays', value: countryLabel!),
+                _RecapRow(
+                    label: 'case_context_country'.tr, value: countryLabel!),
               if (institutionLabel != null)
-                _RecapRow(label: 'École', value: institutionLabel!),
+                _RecapRow(
+                    label: 'case_context_school'.tr, value: institutionLabel!),
               if (programLabel != null)
-                _RecapRow(label: 'Programme', value: programLabel!),
-              _RecapRow(label: 'Contact', value: _contactLabel(contactMethod)),
+                _RecapRow(
+                    label: 'case_context_program'.tr, value: programLabel!),
+              _RecapRow(
+                  label: 'case_recap_contact'.tr,
+                  value: _contactLabel(contactMethod)),
               if (message.isNotEmpty)
-                _RecapRow(label: 'Message', value: message),
+                _RecapRow(label: 'case_tunnel_step_message'.tr, value: message),
               if (attachedDocs.isNotEmpty)
                 _RecapRow(
-                  label: 'Documents',
-                  value: '${attachedDocs.length} fichier(s)',
+                  label: 'case_section_documents'.tr,
+                  value: 'case_recap_files_count'
+                      .trParams({'count': '${attachedDocs.length}'}),
                 ),
             ],
           ),
@@ -791,15 +816,15 @@ class _ConfirmStep extends StatelessWidget {
   String _typeLabel(CaseType type) {
     switch (type) {
       case CaseType.applicationSupport:
-        return 'Inscription école';
+        return 'case_type_application_support'.tr;
       case CaseType.scholarshipSupport:
-        return 'Bourse';
+        return 'case_type_scholarship'.tr;
       case CaseType.consultation:
-        return 'Visa / dossier';
+        return 'case_type_consultation'.tr;
       case CaseType.housingSupport:
-        return 'Logement';
+        return 'case_type_housing'.tr;
       case CaseType.mentorship:
-        return 'Autre';
+        return 'case_type_other'.tr;
     }
   }
 
@@ -810,7 +835,7 @@ class _ConfirmStep extends StatelessWidget {
       case ContactMethod.whatsapp:
         return 'WhatsApp';
       case ContactMethod.phone:
-        return 'Téléphone';
+        return 'case_contact_phone'.tr;
     }
   }
 }

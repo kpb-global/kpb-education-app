@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../core/models/app_models.dart';
 
 enum CaseTimelineStepState {
@@ -38,17 +40,19 @@ const kCaseTimelineOrder = <CaseStatus>[
   CaseStatus.completed,
 ];
 
-const _timelineTitlesFr = <CaseStatus, String>{
-  CaseStatus.submitted: 'Soumise',
-  CaseStatus.counselorAssigned: 'Attribuée à un conseiller',
-  CaseStatus.underReview: 'En revue',
-  CaseStatus.documentsNeeded: 'Documents requis',
-  CaseStatus.awaitingStudent: 'En attente de ta réponse',
-  CaseStatus.inProgress: 'En cours',
-  CaseStatus.applicationSubmitted: 'Soumise à l\'établissement',
-  CaseStatus.waitingDecision: 'Décision en attente',
-  CaseStatus.awaitingPayment: 'Paiement en attente',
-  CaseStatus.completed: 'Acceptée',
+// Stored as translation KEYS (const-safe); resolved with .tr at the call site
+// so the labels follow the active locale.
+const _timelineTitleKeys = <CaseStatus, String>{
+  CaseStatus.submitted: 'case_timeline_status_submitted',
+  CaseStatus.counselorAssigned: 'case_timeline_status_counselor_assigned',
+  CaseStatus.underReview: 'case_timeline_status_under_review',
+  CaseStatus.documentsNeeded: 'case_timeline_status_documents_needed',
+  CaseStatus.awaitingStudent: 'case_timeline_status_awaiting_student',
+  CaseStatus.inProgress: 'case_timeline_status_in_progress',
+  CaseStatus.applicationSubmitted: 'case_timeline_status_application_submitted',
+  CaseStatus.waitingDecision: 'case_timeline_status_waiting_decision',
+  CaseStatus.awaitingPayment: 'case_timeline_status_awaiting_payment',
+  CaseStatus.completed: 'case_timeline_status_completed',
 };
 
 int caseTimelineIndexForStatus(CaseStatus status) {
@@ -93,7 +97,7 @@ List<CaseTimelineStepViewModel> buildCaseTimelineSteps({
     return [
       CaseTimelineStepViewModel(
         status: CaseStatus.cancelled,
-        titleFr: 'Demande annulée',
+        titleFr: 'case_timeline_status_cancelled'.tr,
         state: CaseTimelineStepState.terminalError,
         date: _latestEventDate(events, CaseStatus.cancelled),
       ),
@@ -105,7 +109,7 @@ List<CaseTimelineStepViewModel> buildCaseTimelineSteps({
 
   return kCaseTimelineOrder.map((stepStatus) {
     final stepIndex = kCaseTimelineOrder.indexOf(stepStatus);
-    final title = _timelineTitlesFr[stepStatus] ?? stepStatus.name;
+    final title = _timelineTitleKeys[stepStatus]?.tr ?? stepStatus.name;
 
     CaseTimelineStepState state;
     if (isRejected && stepStatus == CaseStatus.completed) {
@@ -133,8 +137,9 @@ List<CaseTimelineStepViewModel> buildCaseTimelineSteps({
       status: isRejected && stepStatus == CaseStatus.completed
           ? CaseStatus.rejected
           : stepStatus,
-      titleFr:
-          isRejected && stepStatus == CaseStatus.completed ? 'Refusée' : title,
+      titleFr: isRejected && stepStatus == CaseStatus.completed
+          ? 'case_timeline_status_rejected'.tr
+          : title,
       state: state,
       date: _latestEventDate(events, stepStatus),
       subtitle: subtitle,
@@ -148,7 +153,7 @@ DateTime? _latestEventDate(List<CaseTimelineEvent> events, CaseStatus status) {
     final matchesStatus = event.status == status;
     final matchesTitle = event.title.fr
         .toLowerCase()
-        .contains(_timelineTitlesFr[status]?.toLowerCase() ?? '');
+        .contains(_timelineTitleKeys[status]?.tr.toLowerCase() ?? '');
     if (!matchesStatus && !matchesTitle) continue;
     if (latest == null || event.createdAt.isAfter(latest)) {
       latest = event.createdAt;

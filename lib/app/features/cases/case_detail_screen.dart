@@ -84,7 +84,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded),
-                title: const Text('Prendre une photo'),
+                title: Text('case_upload_take_photo'.tr),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final file = await DocumentUploadService.captureFromCamera();
@@ -95,7 +95,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded),
-                title: const Text('Choisir de la galerie'),
+                title: Text('case_upload_from_gallery'.tr),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final file = await DocumentUploadService.pickFromGallery();
@@ -106,7 +106,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf_rounded),
-                title: const Text('Choisir un fichier (PDF)'),
+                title: Text('case_upload_pick_pdf'.tr),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
@@ -116,7 +116,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     }
                   } catch (e) {
                     Get.snackbar(
-                      'Erreur',
+                      'common_error'.tr,
                       e.toString(),
                       snackPosition: SnackPosition.BOTTOM,
                     );
@@ -229,7 +229,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
           return Scaffold(
             backgroundColor: context.kpb.pageBg,
             appBar: AppBar(
-              title: const Text('Dossier introuvable'),
+              title: Text('case_not_found_title'.tr),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => Get.back(),
@@ -237,9 +237,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
             ),
             body: KpbEmptyState(
               icon: Icons.folder_off_outlined,
-              title: 'Ce dossier n\'est plus disponible',
-              subtitle: 'Retourne a la liste des dossiers pour continuer.',
-              actionLabel: 'Ouvrir mes dossiers',
+              title: 'case_not_found_body_title'.tr,
+              subtitle: 'case_not_found_subtitle'.tr,
+              actionLabel: 'case_not_found_action'.tr,
               onAction: () {
                 _ctrl.goToTab(StudentShellTab.cases);
                 if (Get.key.currentState?.canPop() ?? false) {
@@ -517,7 +517,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                         style: KpbTextStyles.titleMd,
                                       ),
                                       Text(
-                                        'Conseiller KPB Education',
+                                        'case_advisor_role'.tr,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: context.kpb.textMuted,
@@ -534,8 +534,14 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                       phone: c.advisorWhatsapp,
                                       advisorName: c.assignedAdvisorName,
                                       prefill: c.isReferenceProvisional
-                                          ? 'Bonjour, je reviens vers toi au sujet de ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
-                                          : 'Bonjour, je reviens vers toi au sujet du dossier ${c.referenceCode}.',
+                                          ? 'case_whatsapp_advisor_prefill_provisional'
+                                              .trParams({
+                                              'title': _ctrl.resolve(c.title)
+                                            })
+                                          : 'case_whatsapp_advisor_prefill'
+                                              .trParams({
+                                              'reference': c.referenceCode
+                                            }),
                                     ),
                                   ),
                                 if (c.advisorPhone != null) ...[
@@ -561,8 +567,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                             phone: c.advisorWhatsapp,
                             advisorName: c.assignedAdvisorName,
                             prefill: c.isReferenceProvisional
-                                ? 'Bonjour KPB, je souhaite continuer sur ma demande « ${_ctrl.resolve(c.title)} » (référence en cours d\'enregistrement).'
-                                : 'Bonjour KPB, je souhaite continuer sur le dossier ${c.referenceCode}.',
+                                ? 'case_whatsapp_continue_prefill_provisional'
+                                    .trParams({'title': _ctrl.resolve(c.title)})
+                                : 'case_whatsapp_continue_prefill'
+                                    .trParams({'reference': c.referenceCode}),
                           ),
                           hasAdvisor: c.advisorWhatsapp != null,
                         ),
@@ -626,8 +634,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
 
                         // ── Documents ────────────────────────────────────────────────
                         if (c.documentRequests.isNotEmpty) ...[
-                          const SectionHeader(
-                            title: 'Documents',
+                          SectionHeader(
+                            title: 'case_section_documents'.tr,
                             padding: EdgeInsets.zero,
                           ),
                           const SizedBox(height: KpbSpacing.sm),
@@ -692,8 +700,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                                   borderRadius:
                                                       KpbRadius.pillBr,
                                                 ),
-                                                child: const Text(
-                                                  'Envoyer',
+                                                child: Text(
+                                                  'case_document_send'.tr,
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
@@ -703,8 +711,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                               ),
                                             )
                                           else
-                                            const KpbBadge(
-                                                label: '✓ Reçu',
+                                            KpbBadge(
+                                                label:
+                                                    'case_document_received'.tr,
                                                 color: KpbColors.success),
                                         ],
                                       ),
@@ -719,7 +728,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
 
                         // ── AI document review (always available) ─────────────────────
                         KpbButton(
-                          text: '✨ Relecture IA de mon dossier',
+                          text: 'case_ai_review_cta'.tr,
                           icon: Icons.auto_awesome_rounded,
                           fullWidth: true,
                           secondary: true,
@@ -730,8 +739,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
 
                         // ── Timeline ────────────────────────────────────────────────
                         if (c.timeline.isNotEmpty) ...[
-                          const SectionHeader(
-                              title: 'Historique', padding: EdgeInsets.zero),
+                          SectionHeader(
+                              title: 'case_section_history'.tr,
+                              padding: EdgeInsets.zero),
                           const SizedBox(height: KpbSpacing.sm),
                           KpbCard(
                             child: Column(
@@ -753,7 +763,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         // ── Messages ─────────────────────────────────────────────────
                         SectionHeader(
                           title:
-                              'Messages${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} non lu(s)' : ''}',
+                              '${'case_section_messages'.tr}${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} ${'case_unread_suffix'.tr}' : ''}',
                           padding: EdgeInsets.zero,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
@@ -1115,14 +1125,14 @@ class _WhatsappContinueButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = Get.locale?.languageCode ?? 'fr';
     final label =
-        locale == 'en' ? 'Continue on WhatsApp' : 'Continuer sur WhatsApp';
+        locale == 'en' ? 'Continue on WhatsApp' : 'case_continue_whatsapp'.tr;
     final subtitle = hasAdvisor
         ? (locale == 'en'
             ? 'Chat directly with your KPB advisor.'
-            : 'Discute directement avec ton conseiller KPB.')
+            : 'case_whatsapp_has_advisor_subtitle'.tr)
         : (locale == 'en'
             ? 'Join the KPB group while we assign your advisor.'
-            : 'Rejoins le groupe KPB en attendant ton conseiller.');
+            : 'case_whatsapp_no_advisor_subtitle'.tr);
 
     return Material(
       color: KpbColors.success.withValues(alpha: 0.08),

@@ -30,8 +30,8 @@ class CaseStatusTimeline extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Suivi de ta demande',
+          Text(
+            'case_timeline_heading'.tr,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: KpbSpacing.md),
@@ -137,8 +137,10 @@ class _TimelineRow extends StatelessWidget {
                     SizedBox(height: 4),
                     Text(
                       step.state == CaseTimelineStepState.current
-                          ? 'Depuis le $dateLabel'
-                          : 'Le $dateLabel',
+                          ? 'case_timeline_since_date'
+                              .trParams({'date': dateLabel})
+                          : 'case_timeline_on_date'
+                              .trParams({'date': dateLabel}),
                       style: TextStyle(
                         fontSize: 12,
                         color: context.kpb.textMuted,
