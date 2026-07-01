@@ -39,8 +39,8 @@ class DocumentViewerScreen extends StatelessWidget {
               onPressed: () {
                 // Future enhancement: Download and save the PDF locally.
                 Get.snackbar(
-                  'Téléchargement',
-                  'Le téléchargement va bientôt commencer...',
+                  'doc_viewer_download_title'.tr,
+                  'doc_viewer_download_body'.tr,
                   snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: KpbColors.blue,
                   colorText: Colors.white,

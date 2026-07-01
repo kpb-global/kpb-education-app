@@ -63,7 +63,8 @@ class _CasesScreenState extends State<CasesScreen> {
                             Text('nav_cases'.tr, style: KpbTextStyles.headline),
                             const SizedBox(height: 3),
                             Text(
-                              '${items.length} dossier${items.length > 1 ? 's' : ''}',
+                              'cases_count'
+                                  .trParams({'count': '${items.length}'}),
                               style: KpbTextStyles.bodySm,
                             ),
                           ],
@@ -98,7 +99,7 @@ class _CasesScreenState extends State<CasesScreen> {
                     ),
                     children: [
                       _FilterChip(
-                        label: 'Tous',
+                        label: 'cases_filter_all'.tr,
                         selected: _selectedType == null,
                         onTap: () => setState(() => _selectedType = null),
                       ),
@@ -180,15 +181,15 @@ class _CasesScreenState extends State<CasesScreen> {
   String _typeLabel(CaseType type) {
     switch (type) {
       case CaseType.consultation:
-        return 'Consultation';
+        return 'case_type_filter_consultation'.tr;
       case CaseType.applicationSupport:
-        return 'Candidature';
+        return 'case_type_filter_application'.tr;
       case CaseType.scholarshipSupport:
-        return 'Bourse';
+        return 'case_type_scholarship'.tr;
       case CaseType.housingSupport:
-        return 'Logement';
+        return 'case_type_housing'.tr;
       case CaseType.mentorship:
-        return 'Mentorat';
+        return 'case_type_filter_mentorship'.tr;
     }
   }
 }
@@ -260,7 +261,10 @@ class _CaseCard extends StatelessWidget {
                     borderRadius: KpbRadius.pillBr,
                   ),
                   child: Text(
-                    unread == 1 ? 'Nouveau message' : '$unread nouveaux',
+                    unread == 1
+                        ? 'cases_new_message_badge'.tr
+                        : 'cases_new_messages_badge'
+                            .trParams({'count': '\$unread'}),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -308,7 +312,8 @@ class _CaseCard extends StatelessWidget {
                     size: 14, color: context.kpb.textMuted),
                 const SizedBox(width: 4),
                 Text(
-                  '${item.messages.length} message${item.messages.length > 1 ? 's' : ''}',
+                  'cases_messages_count'
+                      .trParams({'count': '${item.messages.length}'}),
                   style: KpbTextStyles.caption,
                 ),
               ],
@@ -343,13 +348,13 @@ class _CaseCard extends StatelessWidget {
   String? _contextualAction(CaseStatus status) {
     switch (status) {
       case CaseStatus.documentsNeeded:
-        return '📎 Envoyer mes documents';
+        return 'cases_action_send_documents'.tr;
       case CaseStatus.awaitingPayment:
-        return '💬 Échanger avec mon conseiller';
+        return 'cases_action_chat_advisor'.tr;
       case CaseStatus.awaitingStudent:
-        return '✉️ Répondre au conseiller';
+        return 'cases_action_reply_advisor'.tr;
       case CaseStatus.scheduled:
-        return '📅 Voir mon rendez-vous';
+        return 'cases_action_view_appointment'.tr;
       default:
         return null;
     }
@@ -389,33 +394,57 @@ class _CaseCard extends StatelessWidget {
       BuildContext context, CaseStatus status) {
     switch (status) {
       case CaseStatus.submitted:
-        return (label: 'Envoyé', color: KpbColors.sky);
+        return (label: 'case_status_short_submitted'.tr, color: KpbColors.sky);
       case CaseStatus.underReview:
-        return (label: 'En revue', color: KpbColors.gold);
+        return (
+          label: 'case_timeline_status_under_review'.tr,
+          color: KpbColors.gold
+        );
       case CaseStatus.documentsNeeded:
-        return (label: 'Documents', color: KpbColors.warning);
+        return (label: 'case_section_documents'.tr, color: KpbColors.warning);
       case CaseStatus.counselorAssigned:
-        return (label: 'Conseiller', color: KpbColors.blue);
+        return (label: 'case_status_short_counselor'.tr, color: KpbColors.blue);
       case CaseStatus.awaitingStudent:
-        return (label: 'Action requise', color: KpbColors.error);
+        return (
+          label: 'case_status_short_action_required'.tr,
+          color: KpbColors.error
+        );
       case CaseStatus.scheduled:
-        return (label: 'Planifié', color: KpbColors.blue);
+        return (label: 'case_status_short_scheduled'.tr, color: KpbColors.blue);
       case CaseStatus.inProgress:
-        return (label: 'En cours', color: KpbColors.blue);
+        return (
+          label: 'case_timeline_status_in_progress'.tr,
+          color: KpbColors.blue
+        );
       case CaseStatus.applicationSubmitted:
-        return (label: 'Soumis', color: KpbColors.blueMid);
+        return (
+          label: 'case_status_short_application_submitted'.tr,
+          color: KpbColors.blueMid
+        );
       case CaseStatus.waitingDecision:
-        return (label: 'Décision', color: KpbColors.gold);
+        return (label: 'case_stepper_decision_title'.tr, color: KpbColors.gold);
       case CaseStatus.awaitingPayment:
-        return (label: 'Paiement', color: KpbColors.warning);
+        return (
+          label: 'case_status_short_payment'.tr,
+          color: KpbColors.warning
+        );
       case CaseStatus.completed:
-        return (label: 'Terminé', color: KpbColors.success);
+        return (
+          label: 'case_status_short_completed'.tr,
+          color: KpbColors.success
+        );
       case CaseStatus.rejected:
-        return (label: 'Refusé', color: KpbColors.error);
+        return (label: 'case_status_short_rejected'.tr, color: KpbColors.error);
       case CaseStatus.cancelled:
-        return (label: 'Annulé', color: context.kpb.gray500);
+        return (
+          label: 'case_status_short_cancelled'.tr,
+          color: context.kpb.gray500
+        );
       default:
-        return (label: 'Brouillon', color: context.kpb.gray400);
+        return (
+          label: 'case_status_short_draft'.tr,
+          color: context.kpb.gray400
+        );
     }
   }
 }

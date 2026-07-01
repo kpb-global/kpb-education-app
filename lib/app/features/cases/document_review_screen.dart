@@ -15,14 +15,13 @@ extension on _DocumentKind {
       };
 
   String get label => switch (this) {
-        _DocumentKind.motivation => 'Lettre de motivation',
+        _DocumentKind.motivation => 'doc_review_kind_motivation'.tr,
         _DocumentKind.cv => 'CV',
       };
 
   String get hint => switch (this) {
-        _DocumentKind.motivation =>
-          'Colle ici le texte de ta lettre de motivation…',
-        _DocumentKind.cv => 'Colle ici le contenu de ton CV…',
+        _DocumentKind.motivation => 'doc_review_hint_motivation'.tr,
+        _DocumentKind.cv => 'doc_review_hint_cv'.tr,
       };
 }
 
@@ -127,12 +126,12 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
       );
       final review = result['review'] as Map<String, dynamic>?;
       if (review == null) {
-        setState(() => _error = 'Relecture impossible pour le moment.');
+        setState(() => _error = 'doc_review_unavailable'.tr);
         return;
       }
       setState(() => _review = _DocumentReview.fromApi(review));
     } catch (_) {
-      setState(() => _error = 'Relecture impossible pour le moment.');
+      setState(() => _error = 'doc_review_unavailable'.tr);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -143,7 +142,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        title: const Text('Relecture IA'),
+        title: Text('doc_review_title'.tr),
         backgroundColor: context.kpb.pageBg,
         foregroundColor: context.kpb.textPrimary,
         elevation: 0,
@@ -159,7 +158,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Kind selector ──────────────────────────────────────────────
-          Text('Type de document', style: KpbTextStyles.label),
+          Text('doc_review_kind_label'.tr, style: KpbTextStyles.label),
           const SizedBox(height: KpbSpacing.sm),
           Row(
             children: [
@@ -171,7 +170,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Draft input ────────────────────────────────────────────────
-          Text('Ton brouillon', style: KpbTextStyles.label),
+          Text('doc_review_draft_label'.tr, style: KpbTextStyles.label),
           const SizedBox(height: KpbSpacing.sm),
           Container(
             decoration: BoxDecoration(
@@ -199,7 +198,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           const SizedBox(height: KpbSpacing.md),
 
           KpbButton(
-            text: 'Analyser mon document',
+            text: 'doc_review_analyze_cta'.tr,
             icon: Icons.auto_awesome_rounded,
             fullWidth: true,
             loading: _loading,
@@ -297,7 +296,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
         if (review.strengths.isNotEmpty) ...[
           const SizedBox(height: KpbSpacing.lg),
           _bulletSection(
-            title: 'Points forts',
+            title: 'doc_review_strengths'.tr,
             icon: Icons.check_circle_rounded,
             color: KpbColors.success,
             bullets: review.strengths,
@@ -310,7 +309,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
         if (review.missing.isNotEmpty) ...[
           const SizedBox(height: KpbSpacing.lg),
           _bulletSection(
-            title: 'Éléments manquants',
+            title: 'doc_review_missing'.tr,
             icon: Icons.report_problem_rounded,
             color: KpbColors.warning,
             bullets: review.missing,
@@ -318,8 +317,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
         ],
         const SizedBox(height: KpbSpacing.lg),
         Text(
-          'Relecture indicative — pour une relecture approfondie, demande un '
-          'conseiller KPB.',
+          'doc_review_disclaimer'.tr,
           style: KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
         ),
       ],
@@ -365,7 +363,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Score global',
+                Text('doc_review_score_label'.tr,
                     style: KpbTextStyles.label.copyWith(color: color)),
                 const SizedBox(height: 4),
                 ClipRRect(
@@ -431,8 +429,8 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle(
-            'À améliorer', Icons.tips_and_updates_rounded, KpbColors.blue),
+        _sectionTitle('doc_review_improvements'.tr,
+            Icons.tips_and_updates_rounded, KpbColors.blue),
         const SizedBox(height: KpbSpacing.sm),
         KpbCard(
           child: Column(

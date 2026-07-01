@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
@@ -25,8 +26,8 @@ class CaseTimelineStepper extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Progression',
+          Text(
+            'case_stepper_heading'.tr,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -167,34 +168,34 @@ class CaseTimelineStepper extends StatelessWidget {
   List<_StepData> _buildSteps() {
     return [
       _StepData(
-        title: 'Création du dossier',
+        title: 'case_stepper_creation_title'.tr,
         description: currentStatus == CaseStatus.draft
-            ? 'Complétez votre profil pour soumettre la demande.'
-            : 'Dossier soumis avec succès.',
+            ? 'case_stepper_creation_desc_draft'.tr
+            : 'case_stepper_creation_desc_done'.tr,
       ),
       _StepData(
-        title: 'Analyse et Conseiller',
+        title: 'case_stepper_analysis_title'.tr,
         description: currentStatus == CaseStatus.documentsNeeded
-            ? 'Des documents supplémentaires sont requis.'
+            ? 'case_stepper_analysis_desc_docs'.tr
             : currentStatus == CaseStatus.awaitingStudent
-                ? 'Votre conseiller attend votre retour.'
-                : 'Examen de votre profil par nos experts.',
+                ? 'case_stepper_analysis_desc_awaiting'.tr
+                : 'case_stepper_analysis_desc_default'.tr,
       ),
       _StepData(
-        title: 'Traitement',
-        description: 'Préparation et soumission de vos candidatures.',
+        title: 'case_stepper_processing_title'.tr,
+        description: 'case_stepper_processing_desc'.tr,
       ),
       _StepData(
-        title: 'Décision',
-        description: 'En attente des retours des institutions.',
+        title: 'case_stepper_decision_title'.tr,
+        description: 'case_stepper_decision_desc'.tr,
       ),
       _StepData(
-        title: 'Finalisation',
+        title: 'case_stepper_finalization_title'.tr,
         description: currentStatus == CaseStatus.rejected
-            ? 'Dossier refusé.'
+            ? 'case_stepper_finalization_desc_rejected'.tr
             : currentStatus == CaseStatus.cancelled
-                ? 'Dossier annulé.'
-                : 'Procédure terminée avec succès !',
+                ? 'case_stepper_finalization_desc_cancelled'.tr
+                : 'case_stepper_finalization_desc_done'.tr,
       ),
     ];
   }
