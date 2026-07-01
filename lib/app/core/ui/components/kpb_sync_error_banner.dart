@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
@@ -26,9 +27,9 @@ class KpbSyncErrorBanner extends StatelessWidget {
           const Icon(Icons.cloud_off_rounded,
               size: 16, color: KpbColors.warning),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Données potentiellement obsolètes — hors ligne',
+              'sync_data_stale_offline'.tr,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -38,8 +39,8 @@ class KpbSyncErrorBanner extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onRetry,
-            child: const Text(
-              'Réessayer',
+            child: Text(
+              'retry'.tr,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,

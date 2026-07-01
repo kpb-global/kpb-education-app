@@ -95,6 +95,17 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'À confirmer',
           'to_confirm_semantics': 'Information à confirmer, non vérifiée',
           'offline_mode': 'Mode hors-ligne',
+          // --- KPB-89 lock-in ---
+          'sync_data_stale_offline':
+              'Données potentiellement obsolètes — hors ligne',
+          'coach_requires_connection':
+              'Le coach IA nécessite une connexion au serveur KPB. ',
+          'academy_hd_videos': 'Vidéos pas-à-pas en HD',
+          'academy_letter_templates': 'Modèles de lettres de motivation',
+          'housing_view_offers_in': 'Voir les offres à @city',
+          'parent_no_children_linked': 'Aucun enfant lié pour le moment.',
+          'lang_name_french': '🇫🇷 Français',
+          'lang_name_english': '🇬🇧 English',
           // --- KPB-89 batch4b interp ---
           'time_ago_minutes': 'il y a @n min',
           'time_ago_hours': 'il y a @n h',
@@ -1545,6 +1556,16 @@ class AppTranslations extends Translations {
           'to_confirm_label': 'To confirm',
           'to_confirm_semantics': 'Information to confirm, not verified',
           'offline_mode': 'Offline mode',
+          // --- KPB-89 lock-in ---
+          'sync_data_stale_offline': 'Data may be out of date — offline',
+          'coach_requires_connection':
+              'The AI coach needs a connection to the KPB server. ',
+          'academy_hd_videos': 'Step-by-step HD videos',
+          'academy_letter_templates': 'Motivation letter templates',
+          'housing_view_offers_in': 'View offers in @city',
+          'parent_no_children_linked': 'No children linked yet.',
+          'lang_name_french': '🇫🇷 Français',
+          'lang_name_english': '🇬🇧 English',
           // --- KPB-89 batch4b interp ---
           'time_ago_minutes': '@n min ago',
           'time_ago_hours': '@n h ago',

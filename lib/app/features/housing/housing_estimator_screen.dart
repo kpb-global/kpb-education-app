@@ -295,7 +295,8 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     ),
                     const SizedBox(height: 24),
                     KpbButton(
-                      text: 'Voir les offres à ${_selectedCity?.name}',
+                      text: 'housing_view_offers_in'
+                          .trParams({'city': _selectedCity?.name ?? ''}),
                       onPressed: _launchStudapart,
                       icon: Icons.open_in_new_rounded,
                       bgColor: KpbColors.blueMid,

@@ -157,12 +157,12 @@ class AcademyCourseScreen extends StatelessWidget {
         children: [
           _BenefitRow(
               icon: Icons.video_library_rounded,
-              text: 'Vidéos pas-à-pas en HD',
+              text: 'academy_hd_videos'.tr,
               isDark: isDark),
           const SizedBox(height: 16),
           _BenefitRow(
               icon: Icons.description_rounded,
-              text: 'Modèles de lettres de motivation',
+              text: 'academy_letter_templates'.tr,
               isDark: isDark),
           const SizedBox(height: 16),
           _BenefitRow(

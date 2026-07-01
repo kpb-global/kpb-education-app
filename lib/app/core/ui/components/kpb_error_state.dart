@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../app_tokens.dart';
 import '../kpb_theme_ext.dart';
 
@@ -61,7 +62,7 @@ class KpbErrorState extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Réessayer'),
+                label: Text('retry'.tr),
               ),
             ],
           ],
