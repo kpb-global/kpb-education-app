@@ -26,7 +26,9 @@ export class ProfilesService {
     targetLevel: 'Bachelor',
     languageLevel: 'Intermediate',
     fieldIds: ['computer_science', 'business'],
-    targetCountryIds: ['canada', 'france'],
+    // Active ISO country ids (see seed:countries-m5) — matches the catalog after
+    // the canada->can / france->fra remap so coach targeting + UI resolve them.
+    targetCountryIds: ['can', 'fra'],
     gradeRange: '12 - 14/20',
     wantsScholarshipSupport: true,
     availableDocuments: ['Passport', 'Transcripts'],
