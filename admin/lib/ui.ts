@@ -8,25 +8,27 @@ export function splitList(value: string): string[] {
     .filter(Boolean);
 }
 
+// All values read design tokens defined in app/globals.css (:root). Keep new
+// styling token-driven so brand/spacing/dark-mode stay single-sourced.
 export const panelStyle: CSSProperties = {
-  background: '#fff',
-  borderRadius: 20,
-  padding: 24,
-  boxShadow: '0 12px 32px rgba(18,32,51,0.06)',
+  background: 'var(--surface)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 'var(--space-5)',
+  boxShadow: 'var(--shadow-sm)',
 };
 
 export const softPanelStyle: CSSProperties = {
-  background: '#E9EEF6',
-  borderRadius: 20,
-  padding: 18,
+  background: 'var(--surface-2)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 'var(--space-4)',
 };
 
 export const inputStyle: CSSProperties = {
   width: '100%',
-  border: '1px solid #CBD5E1',
-  borderRadius: 14,
-  padding: '12px 14px',
-  fontSize: 14,
+  border: '1px solid var(--border)',
+  borderRadius: 'var(--radius-md)',
+  padding: 'var(--space-3) var(--space-4)',
+  fontSize: 'var(--text-base)',
   boxSizing: 'border-box',
 };
 
@@ -38,28 +40,28 @@ export const textareaStyle: CSSProperties = {
 
 export const buttonStyle: CSSProperties = {
   border: 'none',
-  borderRadius: 14,
-  padding: '12px 16px',
-  background: '#122033',
-  color: '#fff',
+  borderRadius: 'var(--radius-md)',
+  padding: 'var(--space-3) var(--space-4)',
+  background: 'var(--brand)',
+  color: 'var(--brand-fg)',
   fontWeight: 700,
   cursor: 'pointer',
 };
 
 export const secondaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  background: '#E2E8F0',
-  color: '#122033',
+  background: 'var(--surface-2)',
+  color: 'var(--text)',
 };
 
 export const labelStyle: CSSProperties = {
   display: 'grid',
-  gap: 8,
+  gap: 'var(--space-2)',
   fontWeight: 600,
 };
 
 export const mutedTextStyle: CSSProperties = {
-  color: '#64748B',
+  color: 'var(--text-muted)',
   lineHeight: 1.6,
 };
 
@@ -67,10 +69,10 @@ export const badgeStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 6,
-  borderRadius: 999,
+  borderRadius: 'var(--radius-pill)',
   padding: '6px 10px',
-  background: '#EEF2FF',
-  color: '#4338CA',
-  fontSize: 12,
+  background: 'var(--info-bg)',
+  color: 'var(--info-fg)',
+  fontSize: 'var(--text-xs)',
   fontWeight: 700,
 };

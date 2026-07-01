@@ -37,5 +37,13 @@
     "activeStudents": "Étudiants actifs",
     "recentCases": "Dossiers récents",
     "noRecent": "Aucun dossier récent."
+  },
+  "errors": {
+    "title": "Une erreur est survenue",
+    "body": "Une erreur inattendue s'est produite. Vous pouvez réessayer ou contacter l'équipe plateforme si le problème persiste.",
+    "retry": "Réessayer",
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour au tableau de bord"
   }
 }
