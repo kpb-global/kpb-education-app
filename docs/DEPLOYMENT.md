@@ -51,15 +51,11 @@ docker exec -it kpb_api npm run prisma:seed    # comptes admin (mots de passe te
 docker exec -it kpb_api npm run verify:catalog # confirme 0 référence pays orpheline
 ```
 
-> ⚠️ **À CHAQUE redéploiement** (`docker-compose up -d --build`), et pas seulement
-> au premier lancement, relancez les migrations si la release en contient une :
-> ```bash
-> docker exec -it kpb_api npx prisma migrate deploy
-> ```
-> Le conteneur démarre le nouveau code sans appliquer les migrations
-> automatiquement : l'oublier fait tourner du code contre un schéma périmé
-> (erreurs `column ... does not exist`). Les seeds ne sont à relancer que pour
-> rafraîchir le catalogue.
+> ℹ️ Depuis la correction KPB-95, le conteneur exécute `prisma migrate deploy`
+> **automatiquement au démarrage** (voir `backend/Dockerfile`). Un
+> `docker-compose up -d --build` applique donc les migrations en attente tout
+> seul ; la commande manuelle ci-dessus reste utile pour un premier provisioning
+> ou un débogage. Les seeds ne sont à relancer que pour rafraîchir le catalogue.
 
 ### Sauvegardes de la base de données
 

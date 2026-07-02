@@ -31,4 +31,7 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Apply pending migrations before starting so a redeploy never runs new code
+# against an old schema. `migrate deploy` is idempotent (no-op when up to date)
+# and exits non-zero on failure, which stops a broken container from serving.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
