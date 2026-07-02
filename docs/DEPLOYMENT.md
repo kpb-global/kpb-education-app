@@ -40,6 +40,26 @@ CORS_ORIGINS=https://admin.kpb-education.com
 3. Lancez : `docker-compose up -d --build`
 4. Configurez NGINX pour pointer le domaine de production `api.kpb-education.com` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
 
+> ⚠️ **Le chat temps réel (WebSocket) exige l'upgrade côté nginx** — sans les
+> en-têtes ci-dessous, la connexion socket.io échoue en production. Prévoir aussi
+> `client_max_body_size` ≥ 10 Mo pour les uploads de documents.
+>
+> ```nginx
+> server {
+>   server_name api.kpb-education.com;
+>   client_max_body_size 12m;                 # uploads (limite app = 10 Mo)
+>   location / {
+>     proxy_pass http://127.0.0.1:3000;
+>     proxy_http_version 1.1;                  # requis pour le WebSocket
+>     proxy_set_header Upgrade $http_upgrade;  # /socket.io upgrade
+>     proxy_set_header Connection "upgrade";
+>     proxy_set_header Host $host;
+>     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+>     proxy_set_header X-Forwarded-Proto $scheme;
+>   }
+> }
+> ```
+
 ### Database Migrations & seed :
 
 Lorsque l'API Container est lancé pour la première fois, la base de données est vide. Appliquez le schéma Prisma puis semez le catalogue :

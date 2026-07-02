@@ -15,6 +15,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000 # must match the published port above (app default is 4000)
+      # Timezone for scheduled reminders + date math (Node honors TZ via ICU).
+      # Defaults to the primary audience zone; override in .env if needed.
+      - TZ=${TZ:-Africa/Niamey}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-kpb}?schema=public
       # ── Required secrets — the app throws on boot if any is unset in production ──
       - KPB_JWT_SECRET=${KPB_JWT_SECRET}
