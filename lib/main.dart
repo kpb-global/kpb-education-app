@@ -81,7 +81,9 @@ Future<void> main() async {
     Get.put(SecurityService());
     // ── Push notifications (OneSignal) ─────────────────────────────────────────
     await OneSignalService.instance.initialize();
-    unawaited(OneSignalService.instance.requestPermission());
+    // NB: the OS permission prompt is requested contextually at the end of
+    // onboarding (onboarding_screen._submit), not at cold start — asking here
+    // would burn iOS's one-shot prompt for guests before any value is shown.
     // Link an already-signed-in user to OneSignal on cold start.
     if (controller.profile != null) {
       unawaited(controller.syncOneSignalIdentity());
