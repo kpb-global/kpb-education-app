@@ -4,6 +4,7 @@ import { extname, join, resolve } from 'path';
 import { randomUUID } from 'crypto';
 
 import {
+  DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
   S3ClientConfig,
@@ -170,5 +171,52 @@ export class StorageService {
       mimeType,
       sizeBytes: fileBuffer.byteLength,
     };
+  }
+
+  /**
+   * Recover the storage key from a stored file URL (inverse of save()'s
+   * `${base}/${key}`). Returns null when the URL can't be mapped to a key.
+   */
+  keyFromUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    for (const base of [this.publicBaseUrl, this.s3PublicBaseUrl]) {
+      if (base) {
+        const b = base.replace(/\/+$/, '');
+        if (url.startsWith(`${b}/`)) return url.slice(b.length + 1);
+      }
+    }
+    // Fallback: keys always have the shape `YYYY-MM-DD/<file>`, i.e. the last
+    // two path segments of the URL.
+    try {
+      const path = url.startsWith('http') ? new URL(url).pathname : url;
+      const parts = path.split('/').filter(Boolean);
+      if (parts.length >= 2) return parts.slice(-2).join('/');
+    } catch {
+      // ignore malformed URLs
+    }
+    return null;
+  }
+
+  /**
+   * Best-effort deletion of a stored object by its key. Never throws — used on
+   * the account-deletion path where a failed file delete must not abort the DB
+   * purge (the caller logs and moves on).
+   */
+  async delete(key: string | null | undefined): Promise<void> {
+    const safeKey = key?.replace(/^\/+/, '');
+    if (!safeKey) return;
+    try {
+      if (this.driver === 's3') {
+        if (!this.s3Client || !this.s3Bucket) return;
+        await this.s3Client.send(
+          new DeleteObjectCommand({ Bucket: this.s3Bucket, Key: safeKey }),
+        );
+      } else {
+        await fs.unlink(this.getLocalPath(safeKey)).catch(() => undefined);
+      }
+      this.logger.log(`Deleted (${this.driver}) ${safeKey}`);
+    } catch (err) {
+      this.logger.error(`Delete failed for ${safeKey}`, err as Error);
+    }
   }
 }

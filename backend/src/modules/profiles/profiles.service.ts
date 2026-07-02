@@ -2,13 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class ProfilesService {
   private readonly logger = new Logger(ProfilesService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
 
   // Returned ONLY when the database is not configured. Kept readonly and never
   // mutated — a previous mutable singleton leaked one user's profile fields
@@ -136,6 +140,16 @@ export class ProfilesService {
       });
       const caseIds = cases.map((c) => c.id);
 
+      // Collect uploaded document URLs before deleting the rows, so we can also
+      // remove the underlying files from object storage (GDPR right to erasure).
+      const documents = await prisma.caseDocument.findMany({
+        where: { caseId: { in: caseIds } },
+        select: { fileUrl: true },
+      });
+      const fileUrls = documents
+        .map((d: { fileUrl: string | null }) => d.fileUrl)
+        .filter((u: string | null): u is string => !!u);
+
       await prisma.$transaction([
         // Children of Case (no cascade defined).
         prisma.caseMessage.deleteMany({ where: { caseId: { in: caseIds } } }),
@@ -178,12 +192,20 @@ export class ProfilesService {
         prisma.userProfile.delete({ where: { id } }),
       ]);
 
-      return { supabaseUserId: profile.supabaseUserId };
+      return { supabaseUserId: profile.supabaseUserId, fileUrls };
     });
 
     if (!purged) {
       // No DB (demo mode) or no such profile — nothing to purge server-side.
       return { deleted: false, authIdentityRemoved: false };
+    }
+
+    // Best-effort deletion of the uploaded files (passports, transcripts) from
+    // object storage. Never abort the deletion outcome if a file delete fails —
+    // StorageService.delete already swallows and logs its own errors.
+    for (const url of purged.fileUrls) {
+      const key = this.storageService.keyFromUrl(url);
+      if (key) await this.storageService.delete(key);
     }
 
     const authIdentityRemoved = await this.deleteSupabaseAuthUser(

@@ -1,5 +1,13 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { ProfilesService } from './profiles.service';
+
+// No files in these fixtures (caseDocument.findMany → []), so the stub is never
+// actually exercised; it only satisfies the constructor signature.
+const fakeStorage = {
+  keyFromUrl: () => null,
+  delete: async () => undefined,
+} as unknown as StorageService;
 
 /**
  * Guards the GDPR / store-required account deletion (KPB-67): the purge must run
@@ -75,7 +83,7 @@ describe('ProfilesService — account deletion & export', () => {
     const prisma = {
       execute: async (fn: (c: unknown) => unknown) => fn(client),
     } as unknown as PrismaService;
-    const service = new ProfilesService(prisma);
+    const service = new ProfilesService(prisma, fakeStorage);
 
     const result = await service.deleteMe('user-1');
 
@@ -103,7 +111,7 @@ describe('ProfilesService — account deletion & export', () => {
     const prisma = {
       execute: async () => null,
     } as unknown as PrismaService;
-    const service = new ProfilesService(prisma);
+    const service = new ProfilesService(prisma, fakeStorage);
     expect(await service.deleteMe('user-1')).toEqual({
       deleted: false,
       authIdentityRemoved: false,
@@ -115,7 +123,7 @@ describe('ProfilesService — account deletion & export', () => {
     const prisma = {
       execute: async (fn: (c: unknown) => unknown) => fn(client),
     } as unknown as PrismaService;
-    const service = new ProfilesService(prisma);
+    const service = new ProfilesService(prisma, fakeStorage);
 
     const out = await service.exportMe('user-1');
     expect(out.exportedAt).toBeDefined();
