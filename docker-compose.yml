@@ -103,6 +103,21 @@ services:
       - ./backups:/backups
     entrypoint: ["sh", "/usr/local/bin/backup-loop.sh"]
 
+  # Admin console (Next.js standalone). Bound to localhost; put nginx in front
+  # for admin.kpb-education.com with HTTPS. The API base URL is inlined at BUILD
+  # time (NEXT_PUBLIC_*), so rebuild the image if it changes.
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_KPB_API_BASE_URL: ${KPB_ADMIN_API_BASE_URL:-https://api.kpb-education.com/api}
+    image: kpb-admin:latest
+    container_name: kpb_admin
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000" # Expose only to localhost, let Nginx proxy it
+
 volumes:
   kpb-db-data:
   kpb-uploads:

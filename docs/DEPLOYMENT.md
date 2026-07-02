@@ -38,7 +38,7 @@ CORS_ORIGINS=https://admin.kpb-education.com
 ```
 
 3. Lancez : `docker-compose up -d --build`
-4. Configurez NGINX pour pointer votre domaine (ex: `api.vps-planethoster.com`) vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`).
+4. Configurez NGINX pour pointer le domaine de production `api.kpb-education.com` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
 
 ### Database Migrations & seed :
 
@@ -107,10 +107,32 @@ Android **et** iOS avant la soumission aux stores.
 
 ### API Endpoint :
 
-Le backend de production est passé à l'App Flutter à la compilation via :
-`--dart-define=KPB_API_BASE_URL=https://api.vps-planethoster.com`
+L'hôte API de production canonique est **`https://api.kpb-education.com/api`**.
+La CI compile l'app avec `--dart-define=KPB_APP_ENV=prod`, qui résout cet hôte
+via `app_config.dart` (ne pas hardcoder `KPB_API_BASE_URL`). Assurez-vous que le
+certificat TLS nginx couvre bien `api.kpb-education.com`.
 
 **⚠️ Attention pour iOS :**
 Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Cependant, pour l'envoyer sur l'App Store Connect, il te faudra soit :
 A) Compiler manuellement avec `Xcode` sur ton Mac (Plus simple pour les V1).
 B) Configurer `Fastlane match` et injecter tes Certificats Apple dans les GitHub Secrets pour que le Runner puisse signer le `.ipa` (Nécessite le compte Apple Developer actif).
+
+---
+
+## 3. Panneau admin (Next.js)
+
+Le panneau admin est un service du `docker-compose.yml` (`admin`, image Next.js
+standalone), à placer derrière nginx sur `https://admin.kpb-education.com` — ce
+domaine doit figurer dans `CORS_ORIGINS` (déjà le cas dans l'exemple `.env`).
+
+- **Build/déploiement** : `docker-compose up -d --build admin`. L'URL de l'API
+  est **inlinée au build** via l'argument `NEXT_PUBLIC_KPB_API_BASE_URL`
+  (défaut `https://api.kpb-education.com/api`, surchargable par
+  `KPB_ADMIN_API_BASE_URL` dans le `.env`) — **rebuild** l'image si l'hôte API
+  change.
+- **nginx** : proxy `admin.kpb-education.com` → `http://127.0.0.1:3001`, HTTPS via
+  Certbot. Pour que le cookie de session admin (httpOnly, `Secure`) fonctionne,
+  l'admin et l'API doivent être servis en HTTPS sur le même domaine parent
+  (`*.kpb-education.com`).
+- Le conteneur tourne en utilisateur non-root et n'expose que le port 3000
+  interne (publié sur `127.0.0.1:3001`).
