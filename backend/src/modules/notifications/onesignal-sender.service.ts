@@ -49,6 +49,8 @@ export class OneSignalSenderService {
     }
     if (!userId) return false;
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
     try {
       const response = await fetch(ONESIGNAL_API_URL, {
         method: 'POST',
@@ -64,11 +66,12 @@ export class OneSignalSenderService {
           contents: { en: body, fr: body },
           data: data ?? {},
         }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
         const text = await response.text();
-        this.logger.warn(
+        this.logger.error(
           `OneSignal send failed (${response.status}) for ${userId}: ${text.slice(0, 200)}`,
         );
         return false;
@@ -80,15 +83,24 @@ export class OneSignalSenderService {
         errors?: unknown;
       };
       if (json.errors) {
-        this.logger.warn(
+        this.logger.error(
           `OneSignal send returned errors for ${userId}: ${JSON.stringify(json.errors).slice(0, 200)}`,
         );
         return false;
+      }
+      // Distinguish "nobody to notify" (user has no subscribed device — not a
+      // transient failure, so callers should NOT retry) from a real error.
+      if (json.recipients === 0) {
+        this.logger.debug(
+          `OneSignal: no subscribed recipients for ${userId} (push not delivered).`,
+        );
       }
       return true;
     } catch (error) {
       this.logger.error(`OneSignal push failed for user ${userId}:`, error);
       return false;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 }

@@ -11,7 +11,7 @@ import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Server, Socket } from 'socket.io';
 
-import { StudentAuthService } from '../auth/student-auth.service';
+import { SupabaseAuthService } from '../auth/supabase-auth.service';
 import { CasesService } from './cases.service';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 
@@ -34,7 +34,10 @@ export class CaseMessagingGateway
   server!: Server;
 
   constructor(
-    private readonly studentAuthService: StudentAuthService,
+    // Same verifier as StudentAuthGuard: the app connects the socket with its
+    // Supabase access token, so the handshake must be checked against Supabase
+    // (JWKS/HS256), not the legacy home-grown JWT.
+    private readonly supabaseAuthService: SupabaseAuthService,
     // Circular import with cases.service.ts (it resolves this gateway lazily via
     // ModuleRef). forwardRef defers the reference so it isn't undefined at the
     // time Nest reads this constructor's param metadata.
@@ -51,15 +54,16 @@ export class CaseMessagingGateway
     }
 
     try {
-      const user = await this.studentAuthService.verifyAccessToken(token);
+      const user = await this.supabaseAuthService.verifyAndResolve(token);
       client.data.userId = user.id;
       client.data.email = user.email;
-      client.data.role =
-        (client.handshake.query.role as string | undefined) ?? 'student';
+      // Role is resolved from the verified token, never from client-supplied
+      // query params (which a client could spoof).
+      client.data.role = user.role;
       // Store the display name so messages show a friendly sender name.
       client.data.fullName =
         (client.handshake.query.fullName as string | undefined) ?? user.email;
-      this.logger.log(`Client connected: ${user.email} (${client.data.role})`);
+      this.logger.log(`Client connected: ${user.id} (${client.data.role})`);
     } catch {
       client.disconnect();
     }

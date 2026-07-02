@@ -357,6 +357,7 @@ model Case {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([leadTag])
   @@index([type])
   @@index([counsellorId])
 }

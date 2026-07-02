@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 @Injectable()
 export class MagicLinkMailService {
@@ -53,6 +57,18 @@ export class MagicLinkMailService {
         throw new Error('Email delivery failed.');
       }
       return;
+    }
+
+    // No email provider configured. In production this must fail loudly rather
+    // than silently pretend the link was sent — and we must NEVER write the
+    // one-time code/token to the logs (they are login secrets).
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.error(
+        `Cannot send magic link to ${email}: RESEND_API_KEY is not configured.`,
+      );
+      throw new ServiceUnavailableException(
+        'Email delivery is not configured.',
+      );
     }
 
     this.logger.log(

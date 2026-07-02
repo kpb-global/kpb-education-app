@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import { ADMIN_ACCESS_COOKIE, readCookie } from '../../modules/auth/admin-cookies';
 import { AuthService } from '../../modules/auth/auth.service';
 
 @Injectable()
@@ -16,15 +17,21 @@ export class AdminAuthGuard implements CanActivate {
       headers: Record<string, string | undefined>;
       adminUser?: unknown;
     }>();
-    const authorization = request.headers.authorization;
 
-    if (!authorization?.startsWith('Bearer ')) {
+    // Prefer the httpOnly session cookie; fall back to a Bearer header for
+    // non-browser clients (scripts, tests).
+    const authorization = request.headers.authorization;
+    const token =
+      readCookie(request.headers.cookie, ADMIN_ACCESS_COOKIE) ??
+      (authorization?.startsWith('Bearer ')
+        ? authorization.slice('Bearer '.length)
+        : undefined);
+
+    if (!token) {
       throw new UnauthorizedException('Missing admin authorization token.');
     }
 
-    request.adminUser = await this.authService.verifyToken(
-      authorization.replace('Bearer ', ''),
-    );
+    request.adminUser = await this.authService.verifyToken(token);
 
     return true;
   }

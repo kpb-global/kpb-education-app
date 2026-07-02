@@ -10,18 +10,17 @@ import {
 
 import {
   AdminSession,
-  clearStoredSession,
+  clearLegacySession,
   fetchSession,
   loginAdmin,
-  readStoredSession,
-  storeSession,
+  logoutAdmin,
 } from '../lib/api-client';
 
 interface AdminAuthContextValue {
   isReady: boolean;
   session: AdminSession | null;
   login: (email: string, password?: string) => Promise<AdminSession>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
@@ -36,21 +35,15 @@ export function AdminAuthProvider({
     let cancelled = false;
 
     async function restoreSession() {
-      const storedSession = readStoredSession();
-      if (!storedSession) {
-        if (!cancelled) {
-          setIsReady(true);
-        }
-        return;
-      }
-
+      // Purge any token persisted by older (localStorage-based) builds.
+      clearLegacySession();
       try {
-        const user = await fetchSession(storedSession.token);
+        // Validate the httpOnly session cookie server-side.
+        const user = await fetchSession();
         if (!cancelled) {
-          setSession({ ...storedSession, user });
+          setSession({ user });
         }
       } catch {
-        clearStoredSession();
         if (!cancelled) {
           setSession(null);
         }
@@ -74,12 +67,11 @@ export function AdminAuthProvider({
       session,
       async login(email: string, password?: string) {
         const nextSession = await loginAdmin(email, password);
-        storeSession(nextSession);
         setSession(nextSession);
         return nextSession;
       },
-      logout() {
-        clearStoredSession();
+      async logout() {
+        await logoutAdmin();
         setSession(null);
       },
     }),

@@ -69,3 +69,7 @@ Thumbs.db
 
 # Generated backend script outputs
 backend/scripts/output/
+
+# Local database backups and uploaded files (produced on the VPS at runtime)
+/backups/
+/uploads/

@@ -50,8 +50,17 @@ async function bootstrap() {
     maxAge: 86400, // 24h preflight cache
   });
 
+  // Run onModuleDestroy hooks (Prisma $disconnect, cron teardown) on SIGTERM/SIGINT
+  // so redeploys drain in-flight work instead of being killed mid-request.
+  app.enableShutdownHooks();
+
   const port = Number(process.env.PORT ?? 4000);
   await app.listen(port);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  // A boot failure (port in use, misconfigured module) must exit non-zero with a
+  // clear log, not surface as an unhandled promise rejection.
+  console.error('Fatal: application failed to start', error);
+  process.exit(1);
+});

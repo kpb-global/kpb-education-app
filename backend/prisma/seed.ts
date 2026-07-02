@@ -19,25 +19,29 @@ loadEnvFile?.('.env');
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.userProfile.upsert({
-    where: { id: 'demo-user' },
-    update: {},
-    create: {
-      id: 'demo-user',
-      accountType: 'student',
-      preferredLanguage: 'fr',
-      fullName: 'Aissatou Ibrahim',
-      email: 'aissatou@example.com',
-      phone: '+22790000000',
-      whatsApp: '+22790000000',
-      countryOfResidence: 'Niger',
-      currentLevel: 'High school',
-      targetLevel: 'Bachelor',
-      languageLevel: 'Intermediate',
-      gradeRange: '12 - 14/20',
-      wantsScholarship: true,
-    },
-  });
+  // Demo student profile — only for dev/demo. Gate behind SEED_DEMO so a
+  // production `prisma:seed` (catalog/admin) doesn't create a fake user.
+  if (process.env.SEED_DEMO === '1') {
+    await prisma.userProfile.upsert({
+      where: { id: 'demo-user' },
+      update: {},
+      create: {
+        id: 'demo-user',
+        accountType: 'student',
+        preferredLanguage: 'fr',
+        fullName: 'Aissatou Ibrahim',
+        email: 'aissatou@example.com',
+        phone: '+22790000000',
+        whatsApp: '+22790000000',
+        countryOfResidence: 'Niger',
+        currentLevel: 'High school',
+        targetLevel: 'Bachelor',
+        languageLevel: 'Intermediate',
+        gradeRange: '12 - 14/20',
+        wantsScholarship: true,
+      },
+    });
+  }
 
   for (const field of mockCatalog.fields as any[]) {
     await prisma.field.upsert({

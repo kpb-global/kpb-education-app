@@ -10,6 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/core/config/app_config.dart';
+import 'app/core/config/kpb_supabase_local_storage.dart';
 import 'app/core/controllers/app_controller.dart';
 import 'app/core/config/app_routes.dart';
 import 'app/core/repositories/app_api_client.dart';
@@ -52,9 +53,14 @@ Future<void> main() async {
     }
 
     // ── Supabase Auth ────────────────────────────────────────────────────────
+    // Store the session (incl. refresh token) in the platform secure store
+    // rather than the default plain-text SharedPreferences/NSUserDefaults.
     await Supabase.initialize(
       url: AppConfig.supabaseUrl,
       anonKey: AppConfig.supabaseAnonKey,
+      authOptions: const FlutterAuthClientOptions(
+        localStorage: KpbSecureLocalStorage(),
+      ),
     );
 
     // ── Offline catalog cache (Hive) ─────────────────────────────────────────
@@ -81,7 +87,9 @@ Future<void> main() async {
     Get.put(SecurityService());
     // ── Push notifications (OneSignal) ─────────────────────────────────────────
     await OneSignalService.instance.initialize();
-    unawaited(OneSignalService.instance.requestPermission());
+    // NB: the OS permission prompt is requested contextually at the end of
+    // onboarding (onboarding_screen._submit), not at cold start — asking here
+    // would burn iOS's one-shot prompt for guests before any value is shown.
     // Link an already-signed-in user to OneSignal on cold start.
     if (controller.profile != null) {
       unawaited(controller.syncOneSignalIdentity());

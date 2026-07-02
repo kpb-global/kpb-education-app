@@ -15,6 +15,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000 # must match the published port above (app default is 4000)
+      # Timezone for scheduled reminders + date math (Node honors TZ via ICU).
+      # Defaults to the primary audience zone; override in .env if needed.
+      - TZ=${TZ:-Africa/Niamey}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-kpb}?schema=public
       # ── Required secrets — the app throws on boot if any is unset in production ──
       - KPB_JWT_SECRET=${KPB_JWT_SECRET}
@@ -23,6 +26,10 @@ services:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
       - CORS_ORIGINS=${CORS_ORIGINS}
+      # Needed so account deletion also removes the Supabase Auth identity
+      # (GDPR + Apple/Google account-deletion requirement). Without it, the
+      # Postgres data is purged but the login survives.
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
       # ── Feature integrations (optional; leave blank to disable the feature) ──
       - GROQ_API_KEY=${GROQ_API_KEY:-}
       - GROQ_MODEL=${GROQ_MODEL:-}
@@ -38,7 +45,9 @@ services:
       - KPB_KAYAK_API_KEY=${KPB_KAYAK_API_KEY:-}
       - KPB_KAYAK_BASE_URL=${KPB_KAYAK_BASE_URL:-}
       - KPB_KAYAK_USER_AGENT=${KPB_KAYAK_USER_AGENT:-}
-      # Uploads: set the S3 vars for object storage, or KPB_UPLOADS_DIR for local disk.
+      # Uploads: set the S3 vars for object storage (recommended in production),
+      # or rely on the local-disk fallback, which is persisted on the
+      # kpb-uploads volume below.
       - KPB_S3_ENDPOINT=${KPB_S3_ENDPOINT:-}
       - KPB_S3_REGION=${KPB_S3_REGION:-}
       - KPB_S3_BUCKET=${KPB_S3_BUCKET:-}
@@ -46,8 +55,13 @@ services:
       - KPB_S3_SECRET_ACCESS_KEY=${KPB_S3_SECRET_ACCESS_KEY:-}
       - KPB_S3_PUBLIC_BASE_URL=${KPB_S3_PUBLIC_BASE_URL:-}
       - KPB_S3_FORCE_PATH_STYLE=${KPB_S3_FORCE_PATH_STYLE:-}
-      - KPB_UPLOADS_DIR=${KPB_UPLOADS_DIR:-}
+      - KPB_UPLOADS_DIR=${KPB_UPLOADS_DIR:-/app/uploads}
       - KPB_UPLOADS_PUBLIC_URL=${KPB_UPLOADS_PUBLIC_URL:-}
+    volumes:
+      # Persist uploaded case documents across container recreation
+      # (`docker-compose up -d --build`). Without this, the local-disk fallback
+      # lives on the container's ephemeral layer and every redeploy wipes it.
+      - kpb-uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy # Wait for DB to be genuinely ready
@@ -71,5 +85,42 @@ services:
       timeout: 5s
       retries: 5
 
+  # Automated PostgreSQL backups: one gzipped pg_dump per day into ./backups
+  # (a host bind mount, so dumps survive `docker-compose down -v`), with
+  # retention. Copy ./backups off-site too — see docs/DEPLOYMENT.md.
+  db-backup:
+    image: postgres:15-alpine
+    container_name: kpb_db_backup
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      PGDATABASE: ${POSTGRES_DB:-kpb}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ./backend/scripts/backup-loop.sh:/usr/local/bin/backup-loop.sh:ro
+      - ./backups:/backups
+    entrypoint: ["sh", "/usr/local/bin/backup-loop.sh"]
+
+  # Admin console (Next.js standalone). Bound to localhost; put nginx in front
+  # for admin.kpb-education.com with HTTPS. The API base URL is inlined at BUILD
+  # time (NEXT_PUBLIC_*), so rebuild the image if it changes.
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_KPB_API_BASE_URL: ${KPB_ADMIN_API_BASE_URL:-https://api.kpb-education.com/api}
+    image: kpb-admin:latest
+    container_name: kpb_admin
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000" # Expose only to localhost, let Nginx proxy it
+
 volumes:
   kpb-db-data:
+  kpb-uploads:
