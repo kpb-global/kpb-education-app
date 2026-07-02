@@ -1,14 +1,31 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
-import { promises as fs } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import { extname, join, resolve } from 'path';
 import { randomUUID } from 'crypto';
+import type { Readable } from 'stream';
 
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
   S3ClientConfig,
 } from '@aws-sdk/client-s3';
+
+const EXT_TO_MIME: Record<string, string> = {
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.heic': 'image/heic',
+  '.webp': 'image/webp',
+};
+
+export interface StoredObject {
+  stream: Readable;
+  contentType: string;
+  contentLength?: number;
+}
 
 const DEFAULT_DIR = resolve(process.cwd(), 'uploads');
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -195,6 +212,48 @@ export class StorageService {
       // ignore malformed URLs
     }
     return null;
+  }
+
+  /**
+   * Fetch a stored object for authenticated streaming. Returns null when the
+   * object is missing. Used by the guarded document-download endpoint so files
+   * are never served from a public, unauthenticated path.
+   */
+  async getObject(key: string | null | undefined): Promise<StoredObject | null> {
+    const safeKey = key?.replace(/^\/+/, '');
+    if (!safeKey) return null;
+    if (this.driver === 's3') {
+      if (!this.s3Client || !this.s3Bucket) return null;
+      try {
+        const res = await this.s3Client.send(
+          new GetObjectCommand({ Bucket: this.s3Bucket, Key: safeKey }),
+        );
+        if (!res.Body) return null;
+        return {
+          stream: res.Body as Readable,
+          contentType: res.ContentType ?? this.mimeFromKey(safeKey),
+          contentLength: res.ContentLength,
+        };
+      } catch (err) {
+        this.logger.error(`S3 get failed for ${safeKey}`, err as Error);
+        return null;
+      }
+    }
+    try {
+      const path = this.getLocalPath(safeKey);
+      const stat = await fs.stat(path);
+      return {
+        stream: createReadStream(path),
+        contentType: this.mimeFromKey(safeKey),
+        contentLength: stat.size,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private mimeFromKey(key: string): string {
+    return EXT_TO_MIME[extname(key).toLowerCase()] ?? 'application/octet-stream';
   }
 
   /**

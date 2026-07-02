@@ -1,5 +1,4 @@
 import { loadEnvFile } from 'node:process';
-import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
@@ -16,18 +15,16 @@ async function bootstrap() {
     loadEnvFile('.env');
   }
   const app = await NestFactory.create(AppModule);
-  // Express 5 / path-to-regexp v8: wildcards must be named ('(.*)' is invalid).
-  app.setGlobalPrefix('api', { exclude: ['uploads/{*path}'] });
+  app.setGlobalPrefix('api');
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-  const uploadsDir = process.env.KPB_UPLOADS_DIR
-    ? resolve(process.env.KPB_UPLOADS_DIR)
-    : resolve(process.cwd(), 'uploads');
-  app.use('/uploads', express.static(uploadsDir, { maxAge: '1d' }));
+  // Uploaded documents are NOT served from a public static path anymore; they
+  // are streamed through the authenticated GET /cases/:id/documents/:docId/file
+  // endpoint (ownership-checked). See StorageService.getObject.
 
   // ── Validation ─────────────────────────────────────────────────────────────
   app.useGlobalPipes(

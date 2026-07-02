@@ -3,15 +3,18 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { StorageService } from '../storage/storage.service';
@@ -86,6 +89,35 @@ export class CasesController {
     @Req() req: any,
   ) {
     return this.casesService.uploadDocument(id, input, req.studentUser.id);
+  }
+
+  // Authenticated document download — replaces the old public /uploads static
+  // route. Ownership is verified (a doc on another user's case → 404), then the
+  // file is streamed from local disk or proxied from S3.
+  @Get(':id/documents/:docId/file')
+  async downloadDocument(
+    @Param('id') id: string,
+    @Param('docId') docId: string,
+    @Req() req: any,
+    @Res() res: Response,
+  ) {
+    const doc = await this.casesService.getOwnedDocument(
+      id,
+      docId,
+      req.studentUser.id,
+    );
+    const key = this.storageService.keyFromUrl(doc.fileUrl);
+    const object = key ? await this.storageService.getObject(key) : null;
+    if (!object) {
+      throw new NotFoundException('Document file not found.');
+    }
+    res.setHeader('Content-Type', object.contentType);
+    if (object.contentLength != null) {
+      res.setHeader('Content-Length', String(object.contentLength));
+    }
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Cache-Control', 'private, no-store');
+    object.stream.pipe(res);
   }
 
   @Post(':id/documents/upload')

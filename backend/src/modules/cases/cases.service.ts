@@ -78,6 +78,25 @@ export class CasesService {
     return dbCase;
   }
 
+  /**
+   * Resolve a case document the caller owns (IDOR-safe): a document on another
+   * user's case is reported as not found. Returns its title + fileUrl so the
+   * controller can stream it through the authenticated download endpoint.
+   */
+  async getOwnedDocument(caseId: string, docId: string, ownerUserId: string) {
+    this.assertDb();
+    const doc = await this.prismaService.execute((prisma) =>
+      prisma.caseDocument.findFirst({
+        where: { id: docId, caseId, case: { userId: ownerUserId } },
+        select: { id: true, title: true, fileUrl: true },
+      }),
+    );
+    if (!doc || !doc.fileUrl) {
+      throw new NotFoundException('Document not found.');
+    }
+    return doc as { id: string; title: string; fileUrl: string };
+  }
+
   async findAll(userId?: string) {
     this.assertDb();
     const items = await this.prismaService.execute((prisma) =>
