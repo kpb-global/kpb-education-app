@@ -106,6 +106,19 @@
 				<string>kpb</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>io.supabase.kpbeducation</string>
+			<!-- Supabase OAuth (Google) / magic-link redirect. Must match
+			     AppConfig.supabaseOAuthRedirect and the Supabase dashboard
+			     Redirect URLs allow-list. -->
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>io.supabase.kpbeducation</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

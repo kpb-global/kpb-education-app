@@ -36,6 +36,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="kpb" />
             </intent-filter>
+            <!-- Supabase OAuth (Google) / magic-link redirect. Must match
+                 AppConfig.supabaseOAuthRedirect (io.supabase.kpbeducation://login-callback/)
+                 and the Redirect URLs allow-list in the Supabase dashboard. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="io.supabase.kpbeducation" android:host="login-callback" />
+            </intent-filter>
         </activity>
         <!-- Sample AdMob app ID: ca-app-pub-9325209049757226~8601530852 -->
         <meta-data

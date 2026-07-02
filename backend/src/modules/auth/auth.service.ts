@@ -164,24 +164,6 @@ export class AuthService {
     }
   }
 
-  async setInitialPassword(email: string, newPassword: string) {
-    const normalizedEmail = email.trim().toLowerCase();
-    const dbUser = await this.adminUsersService.findActiveUserByEmailWithCredentials(normalizedEmail);
-    if (!dbUser) {
-      throw new UnauthorizedException('Unknown admin account.');
-    }
-    
-    // Allow setting only if it is not currently set
-    if (dbUser.passwordHash) {
-      throw new UnauthorizedException('Password is already set.');
-    }
-
-    const passwordHash = await bcrypt.hash(newPassword, 12);
-    await this.adminUsersService.updateUser(dbUser.id, { passwordHash });
-    
-    return { success: true };
-  }
-
   private async issueTokens(user: AdminSessionUser) {
     // Load credentials first so the access token can carry the current password
     // fingerprint (used by verifyToken to revoke tokens after a password reset).

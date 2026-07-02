@@ -20,12 +20,6 @@ export class AuthController {
     return this.authService.refresh(input.refreshToken);
   }
 
-  @Post('set-password')
-  @Throttle({ auth: { limit: 5, ttl: 60000 } })
-  setPassword(@Body() input: { email: string; password: string }) {
-    return this.authService.setInitialPassword(input.email, input.password);
-  }
-
   @Get('session')
   @UseGuards(AdminAuthGuard)
   session(@Req() request: { adminUser: unknown }) {

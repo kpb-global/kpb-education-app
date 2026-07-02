@@ -199,7 +199,7 @@ export class AdminUsersService {
   // `passwordHash`/`refreshToken` are not part of UpdateAdminUserDto, so they
   // can never be set through the PATCH endpoint (the global whitelist pipe
   // strips unknown fields). They are accepted here only for internal callers
-  // such as AuthService.setInitialPassword.
+  // such as AuthService.issueTokens (refresh token) and resetPassword.
   async updateUser(
     id: string,
     input: UpdateAdminUserDto & {
