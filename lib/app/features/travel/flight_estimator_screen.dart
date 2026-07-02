@@ -7,42 +7,17 @@ import '../../core/ui/kpb_components.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/utils/user_facing_sync_error.dart';
+import 'airports_data.dart';
 import 'flight_models.dart';
 
-class Airport {
-  const Airport(this.code, this.city, this.country);
-  final String code;
-  final String city;
-  final String country;
-
-  String get displayName => '$city ($code)';
-}
-
-const List<Airport> popularAirports = [
-  Airport('CDG', 'Paris', 'France'),
-  Airport('YUL', 'Montréal', 'Canada'),
-  Airport('YYZ', 'Toronto', 'Canada'),
-  Airport('JFK', 'New York', 'USA'),
-  Airport('BRU', 'Bruxelles', 'Belgique'),
-  Airport('CMN', 'Casablanca', 'Maroc'),
-  Airport('IST', 'Istanbul', 'Turquie'),
-  Airport('LHR', 'Londres', 'Royaume-Uni'),
-  Airport('FRA', 'Francfort', 'Allemagne'),
-  Airport('MAD', 'Madrid', 'Espagne'),
-  Airport('DXB', 'Dubaï', 'EAU'),
-  Airport('ABJ', 'Abidjan', 'Côte d\'Ivoire'),
-  Airport('DKR', 'Dakar', 'Sénégal'),
-  Airport('DLA', 'Douala', 'Cameroun'),
-  Airport('LBV', 'Libreville', 'Gabon'),
-];
-
 /// Best-effort mapping of a free-text country token (from the user's profile)
-/// to a default airport in [popularAirports]. Matches against IATA code, city
-/// and country name (case-insensitive substring), so it degrades gracefully.
+/// to a default airport. Matches against IATA code, city and country name
+/// (case-insensitive substring) across the full [kAirports] catalogue, so it
+/// degrades gracefully.
 Airport? _airportForToken(String? token) {
   if (token == null || token.trim().isEmpty) return null;
   final t = token.trim().toLowerCase();
-  for (final a in popularAirports) {
+  for (final a in kAirports) {
     if (t == a.code.toLowerCase() ||
         t.contains(a.country.toLowerCase()) ||
         a.country.toLowerCase().contains(t) ||
@@ -67,6 +42,8 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
   Airport? _origin;
   Airport? _destination;
   DateTime _departureDate = DateTime.now().add(const Duration(days: 30));
+  bool _roundTrip = false;
+  DateTime _returnDate = DateTime.now().add(const Duration(days: 44));
 
   bool _loading = false;
   String? _error;
@@ -93,6 +70,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
   }
 
   String get _dep => DateFormat('yyyy-MM-dd').format(_departureDate);
+  String get _ret => DateFormat('yyyy-MM-dd').format(_returnDate);
   String get _month => DateFormat('yyyy-MM').format(_departureDate);
 
   Future<void> _search() async {
@@ -121,6 +99,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
         origin: origin.code,
         destination: destination.code,
         departDate: _dep,
+        returnDate: _roundTrip ? _ret : null,
         userTrackId: trackId,
       );
       FlightCalendarResponse calendar = FlightCalendarResponse.empty;
@@ -199,12 +178,46 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _departureDate,
+  Future<void> _selectDepartureDate(BuildContext context) async {
+    final picked = await _pickDate(
+      context,
+      initial: _departureDate,
       firstDate: DateTime.now(),
+    );
+    if (picked != null && picked != _departureDate) {
+      setState(() {
+        _departureDate = picked;
+        // Keep the return date on/after departure.
+        if (_returnDate.isBefore(_departureDate)) {
+          _returnDate = _departureDate.add(const Duration(days: 14));
+        }
+      });
+    }
+  }
+
+  Future<void> _selectReturnDate(BuildContext context) async {
+    final picked = await _pickDate(
+      context,
+      initial:
+          _returnDate.isBefore(_departureDate) ? _departureDate : _returnDate,
+      // Return must be on/after departure.
+      firstDate: _departureDate,
+    );
+    if (picked != null && picked != _returnDate) {
+      setState(() => _returnDate = picked);
+    }
+  }
+
+  Future<DateTime?> _pickDate(
+    BuildContext context, {
+    required DateTime initial,
+    required DateTime firstDate,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) {
         return Theme(
@@ -229,95 +242,154 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
         );
       },
     );
-    if (picked != null && picked != _departureDate) {
-      setState(() => _departureDate = picked);
-    }
   }
 
   Future<void> _showAirportPicker(bool isOrigin) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final searchController = TextEditingController();
 
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: BoxDecoration(
-            color: context.kpb.pageBg,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(KpbRadius.xl)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 16),
-                width: 40,
-                height: 4,
+        var query = '';
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final filtered = query.trim().isEmpty
+                ? popularAirports
+                : kAirports.where((a) => a.matches(query)).toList();
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.85,
                 decoration: BoxDecoration(
-                  color: context.kpb.gray300,
-                  borderRadius: BorderRadius.circular(2),
+                  color: context.kpb.pageBg,
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(KpbRadius.xl)),
                 ),
-              ),
-              Text(
-                isOrigin
-                    ? 'flight_picker_select_origin'.tr
-                    : 'flight_picker_select_destination'.tr,
-                style: KpbTextStyles.titleLg
-                    .copyWith(color: context.kpb.textPrimary),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: KpbSpacing.lg, vertical: KpbSpacing.sm),
-                  itemCount: popularAirports.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: context.kpb.gray100, height: 1),
-                  itemBuilder: (context, index) {
-                    final airport = popularAirports[index];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: context.kpb.surfaceBg,
-                          borderRadius: KpbRadius.mdBr,
-                        ),
-                        child: Text(
-                          airport.code,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? KpbColors.sky : KpbColors.blue,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 16),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: context.kpb.gray300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Text(
+                      isOrigin
+                          ? 'flight_picker_select_origin'.tr
+                          : 'flight_picker_select_destination'.tr,
+                      style: KpbTextStyles.titleLg
+                          .copyWith(color: context.kpb.textPrimary),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(KpbSpacing.lg,
+                          KpbSpacing.md, KpbSpacing.lg, KpbSpacing.sm),
+                      child: TextField(
+                        controller: searchController,
+                        autofocus: false,
+                        textInputAction: TextInputAction.search,
+                        onChanged: (value) =>
+                            setSheetState(() => query = value),
+                        style: TextStyle(color: context.kpb.textPrimary),
+                        decoration: InputDecoration(
+                          hintText: 'flight_picker_search_hint'.tr,
+                          hintStyle: TextStyle(color: context.kpb.textMuted),
+                          prefixIcon: Icon(Icons.search_rounded,
+                              color: context.kpb.textSecondary),
+                          suffixIcon: query.isEmpty
+                              ? null
+                              : IconButton(
+                                  icon: Icon(Icons.close_rounded,
+                                      color: context.kpb.textSecondary),
+                                  onPressed: () {
+                                    searchController.clear();
+                                    setSheetState(() => query = '');
+                                  },
+                                ),
+                          filled: true,
+                          fillColor: context.kpb.surfaceBg,
+                          border: OutlineInputBorder(
+                            borderRadius: KpbRadius.mdBr,
+                            borderSide: BorderSide.none,
                           ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 12),
                         ),
                       ),
-                      title: Text(airport.city,
-                          style: TextStyle(
-                              color: context.kpb.textPrimary,
-                              fontWeight: FontWeight.w600)),
-                      subtitle: Text(airport.country,
-                          style: TextStyle(color: context.kpb.textSecondary)),
-                      onTap: () {
-                        setState(() {
-                          if (isOrigin) {
-                            _origin = airport;
-                          } else {
-                            _destination = airport;
-                          }
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
+                    ),
+                    Expanded(
+                      child: filtered.isEmpty
+                          ? Center(
+                              child: Text(
+                                'flight_picker_no_match'.tr,
+                                textAlign: TextAlign.center,
+                                style: KpbTextStyles.bodySm
+                                    .copyWith(color: context.kpb.textSecondary),
+                              ),
+                            )
+                          : ListView.separated(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: KpbSpacing.lg,
+                                  vertical: KpbSpacing.sm),
+                              itemCount: filtered.length,
+                              separatorBuilder: (_, __) => Divider(
+                                  color: context.kpb.gray100, height: 1),
+                              itemBuilder: (context, index) {
+                                final airport = filtered[index];
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: context.kpb.surfaceBg,
+                                      borderRadius: KpbRadius.mdBr,
+                                    ),
+                                    child: Text(
+                                      airport.code,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? KpbColors.sky
+                                            : KpbColors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Text(airport.city,
+                                      style: TextStyle(
+                                          color: context.kpb.textPrimary,
+                                          fontWeight: FontWeight.w600)),
+                                  subtitle: Text(airport.country,
+                                      style: TextStyle(
+                                          color: context.kpb.textSecondary)),
+                                  onTap: () {
+                                    setState(() {
+                                      if (isOrigin) {
+                                        _origin = airport;
+                                      } else {
+                                        _destination = airport;
+                                      }
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
+    searchController.dispose();
   }
 
   @override
@@ -431,6 +503,11 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
       padding: const EdgeInsets.all(KpbSpacing.lg),
       child: Column(
         children: [
+          _buildTripTypeToggle(isDark),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(),
+          ),
           _buildSelectorField(
               'flight_field_departure'.tr,
               _origin?.city ?? 'flight_field_choose'.tr,
@@ -455,10 +532,71 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               'flight_field_date'.tr,
               DateFormat('dd MMM yyyy', ctrl.localeCode).format(_departureDate),
               Icons.event_rounded,
-              () => _selectDate(context),
+              () => _selectDepartureDate(context),
               isDark),
+          if (_roundTrip) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Divider(),
+            ),
+            _buildSelectorField(
+                'flight_field_return_date'.tr,
+                DateFormat('dd MMM yyyy', ctrl.localeCode).format(_returnDate),
+                Icons.event_repeat_rounded,
+                () => _selectReturnDate(context),
+                isDark),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildTripTypeToggle(bool isDark) {
+    final activeColor = isDark ? KpbColors.sky : KpbColors.blue;
+    Widget option(String label, bool selected, VoidCallback onTap) {
+      return Expanded(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: KpbRadius.mdBr,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: selected
+                  ? activeColor.withValues(alpha: 0.12)
+                  : Colors.transparent,
+              borderRadius: KpbRadius.mdBr,
+              border: Border.all(
+                color: selected ? activeColor : context.kpb.gray100,
+                width: selected ? 1.5 : 1,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: KpbTextStyles.label.copyWith(
+                color: selected ? activeColor : context.kpb.textSecondary,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        option('flight_trip_one_way'.tr, !_roundTrip,
+            () => setState(() => _roundTrip = false)),
+        const SizedBox(width: 8),
+        option('flight_trip_round_trip'.tr, _roundTrip, () {
+          setState(() {
+            _roundTrip = true;
+            if (_returnDate.isBefore(_departureDate)) {
+              _returnDate = _departureDate.add(const Duration(days: 14));
+            }
+          });
+        }),
+      ],
     );
   }
 
@@ -572,21 +710,33 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                _formatPrice(r.price, currency),
-                style: KpbTextStyles.titleMd.copyWith(
-                    color: isDark ? KpbColors.sky : KpbColors.blue,
-                    fontWeight: FontWeight.w800),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    _formatPrice(r.price, currency),
+                    style: KpbTextStyles.titleMd.copyWith(
+                        color: isDark ? KpbColors.sky : KpbColors.blue,
+                        fontWeight: FontWeight.w800),
+                  ),
+                  if (r.roundTrip)
+                    Text('flight_round_trip_hint'.tr,
+                        style: KpbTextStyles.caption
+                            .copyWith(color: context.kpb.textMuted)),
+                ],
               ),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.schedule_rounded,
-                  size: 14, color: context.kpb.textSecondary),
+              Icon(
+                  r.roundTrip ? Icons.sync_alt_rounded : Icons.schedule_rounded,
+                  size: 14,
+                  color: context.kpb.textSecondary),
               const SizedBox(width: 4),
-              Text(_legTimeLabel(r),
+              Text(
+                  r.roundTrip ? 'flight_round_trip_label'.tr : _legTimeLabel(r),
                   style: KpbTextStyles.caption
                       .copyWith(color: context.kpb.textSecondary)),
               const SizedBox(width: 12),
