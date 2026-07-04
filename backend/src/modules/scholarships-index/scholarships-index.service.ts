@@ -206,6 +206,7 @@ export class ScholarshipsIndexService {
         where,
         orderBy: [{ deadlineAt: 'asc' }, { createdAt: 'desc' }],
         take: MAX_CANDIDATES,
+        include: { applicationSteps: { orderBy: { stepNumber: 'asc' } } },
       }),
     );
 
@@ -238,6 +239,7 @@ export class ScholarshipsIndexService {
         title: lang === 'fr' ? s.nameFr : s.nameEn,
         countryName: lang === 'fr' ? s.countryNameFr : s.countryNameEn,
         fundingType: s.fundingType,
+        applicationRequirement: s.applicationRequirement,
         description: lang === 'fr' ? s.descriptionFr : s.descriptionEn,
         advantages: lang === 'fr' ? s.advantagesFr : s.advantagesEn,
         eligibility: lang === 'fr' ? s.eligibilityFr : s.eligibilityEn,
@@ -248,6 +250,13 @@ export class ScholarshipsIndexService {
         sourceUrl: s.sourceUrl,
         tags: s.tags,
         matchScore,
+        applicationSteps: s.applicationSteps.map((step) => ({
+          id: step.id,
+          stepNumber: step.stepNumber,
+          title: lang === 'fr' ? step.titleFr : step.titleEn,
+          description: lang === 'fr' ? step.descriptionFr : step.descriptionEn,
+          estimatedDurationDays: step.estimatedDurationDays,
+        })),
       };
     });
 
@@ -350,6 +359,7 @@ export class ScholarshipsIndexService {
         where: { moderationStatus: status },
         orderBy: { lastVerifiedAt: 'desc' },
         take: 200,
+        include: { applicationSteps: { orderBy: { stepNumber: 'asc' } } },
       }),
     );
     return {
@@ -364,6 +374,18 @@ export class ScholarshipsIndexService {
         moderationStatus: r.moderationStatus,
         lastVerifiedAt: r.lastVerifiedAt,
         tags: r.tags,
+        // Admin-editable enrichment (KPB scholarships module) — bilingual, not
+        // localized here, so the moderation UI can edit both languages.
+        applicationRequirement: r.applicationRequirement,
+        applicationSteps: r.applicationSteps.map((step) => ({
+          id: step.id,
+          stepNumber: step.stepNumber,
+          titleFr: step.titleFr,
+          titleEn: step.titleEn,
+          descriptionFr: step.descriptionFr,
+          descriptionEn: step.descriptionEn,
+          estimatedDurationDays: step.estimatedDurationDays,
+        })),
       })),
     };
   }

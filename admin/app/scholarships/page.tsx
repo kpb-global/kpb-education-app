@@ -8,12 +8,25 @@ import { apiFetch } from '../../lib/api-client';
 import {
   badgeStyle,
   buttonStyle,
+  inputStyle,
+  labelStyle,
   mutedTextStyle,
   panelStyle,
   secondaryButtonStyle,
 } from '../../lib/ui';
 
 type ModerationStatus = 'pending' | 'approved' | 'rejected';
+type ApplicationRequirement = 'automatic' | 'separate_application';
+
+interface ScholarshipStepEntry {
+  id: string;
+  stepNumber: number;
+  titleFr: string;
+  titleEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  estimatedDurationDays: number | null;
+}
 
 interface ScholarshipEntry {
   id: string;
@@ -26,7 +39,22 @@ interface ScholarshipEntry {
   moderationStatus: ModerationStatus;
   lastVerifiedAt: string | null;
   tags: string[];
+  applicationRequirement: ApplicationRequirement;
+  applicationSteps: ScholarshipStepEntry[];
 }
+
+interface StepDraft {
+  stepNumber: string;
+  titleFr: string;
+  titleEn: string;
+}
+
+const EMPTY_STEP_DRAFT: StepDraft = { stepNumber: '', titleFr: '', titleEn: '' };
+
+const requirementLabels: Record<ApplicationRequirement, string> = {
+  automatic: 'Automatique (attribuée à l’admission)',
+  separate_application: 'Candidature séparée requise',
+};
 
 interface ModerationResponse {
   items: ScholarshipEntry[];
@@ -96,6 +124,9 @@ export default function ScholarshipsPage() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [expandedStepsId, setExpandedStepsId] = useState<string | null>(null);
+  const [stepDrafts, setStepDrafts] = useState<Record<string, StepDraft>>({});
+  const [stepPendingId, setStepPendingId] = useState<string | null>(null);
 
   async function loadScholarships(status: ModerationStatus) {
     setLoading(true);
@@ -188,6 +219,197 @@ export default function ScholarshipsPage() {
     }
   }
 
+  async function updateRequirement(entry: ScholarshipEntry, value: ApplicationRequirement) {
+    if (value === entry.applicationRequirement) {
+      return;
+    }
+    const previous = entry.applicationRequirement;
+    setItems((current) =>
+      current.map((item) =>
+        item.id === entry.id ? { ...item, applicationRequirement: value } : item,
+      ),
+    );
+    try {
+      await apiFetch(`/admin/catalog/scholarships/${entry.id}`, {
+        method: 'PATCH',
+        body: { applicationRequirement: value },
+      });
+    } catch (error) {
+      setItems((current) =>
+        current.map((item) =>
+          item.id === entry.id ? { ...item, applicationRequirement: previous } : item,
+        ),
+      );
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Impossible de mettre à jour le type de candidature.',
+      );
+    }
+  }
+
+  function toggleSteps(entryId: string) {
+    setExpandedStepsId((current) => (current === entryId ? null : entryId));
+  }
+
+  function updateDraft(entryId: string, patch: Partial<StepDraft>) {
+    setStepDrafts((current) => ({
+      ...current,
+      [entryId]: { ...EMPTY_STEP_DRAFT, ...current[entryId], ...patch },
+    }));
+  }
+
+  async function addStep(entry: ScholarshipEntry) {
+    const draft = stepDrafts[entry.id] ?? EMPTY_STEP_DRAFT;
+    const stepNumber = Number(draft.stepNumber);
+    if (!draft.titleFr.trim() || !Number.isFinite(stepNumber)) {
+      setErrorMessage('Numéro d’étape et titre (FR) requis.');
+      return;
+    }
+    setStepPendingId(entry.id);
+    setErrorMessage(null);
+    try {
+      const created = await apiFetch<ScholarshipStepEntry>(
+        `/admin/catalog/scholarships/${entry.id}/steps`,
+        {
+          method: 'POST',
+          body: {
+            stepNumber,
+            titleFr: draft.titleFr.trim(),
+            titleEn: draft.titleEn.trim() || undefined,
+          },
+        },
+      );
+      setItems((current) =>
+        current.map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                applicationSteps: [...item.applicationSteps, created].sort(
+                  (a, b) => a.stepNumber - b.stepNumber,
+                ),
+              }
+            : item,
+        ),
+      );
+      setStepDrafts((current) => ({ ...current, [entry.id]: EMPTY_STEP_DRAFT }));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Impossible d'ajouter l'étape.",
+      );
+    } finally {
+      setStepPendingId(null);
+    }
+  }
+
+  async function removeStep(entry: ScholarshipEntry, step: ScholarshipStepEntry) {
+    setStepPendingId(entry.id);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/catalog/scholarships/${entry.id}/steps/${step.id}`, {
+        method: 'DELETE',
+      });
+      setItems((current) =>
+        current.map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                applicationSteps: item.applicationSteps.filter((s) => s.id !== step.id),
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Impossible de supprimer l'étape.",
+      );
+    } finally {
+      setStepPendingId(null);
+    }
+  }
+
+  function renderApplicationSteps(entry: ScholarshipEntry) {
+    const expanded = expandedStepsId === entry.id;
+    const draft = stepDrafts[entry.id] ?? EMPTY_STEP_DRAFT;
+    const busy = stepPendingId === entry.id;
+
+    return (
+      <div style={{ display: 'grid', gap: 8 }}>
+        <button
+          type="button"
+          onClick={() => toggleSteps(entry.id)}
+          style={{ ...secondaryButtonStyle, justifySelf: 'start', padding: '6px 12px' }}
+        >
+          {expanded ? 'Masquer' : 'Étapes de candidature'} ({entry.applicationSteps.length})
+        </button>
+        {expanded ? (
+          <div style={{ display: 'grid', gap: 10, paddingLeft: 12 }}>
+            {entry.applicationSteps.map((step) => (
+              <div
+                key={step.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                }}
+              >
+                <span>
+                  <strong>{step.stepNumber}.</strong> {step.titleFr}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeStep(entry, step)}
+                  disabled={busy}
+                  style={{ ...rejectButtonStyle, opacity: busy ? 0.6 : 1, padding: '4px 10px' }}
+                >
+                  Retirer
+                </button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <label style={{ display: 'grid', gap: 4 }}>
+                <span style={labelStyle}>N°</span>
+                <input
+                  type="number"
+                  value={draft.stepNumber}
+                  onChange={(e) => updateDraft(entry.id, { stepNumber: e.target.value })}
+                  style={{ ...inputStyle, width: 64 }}
+                />
+              </label>
+              <label style={{ display: 'grid', gap: 4, flex: 1, minWidth: 160 }}>
+                <span style={labelStyle}>Titre (FR)</span>
+                <input
+                  type="text"
+                  value={draft.titleFr}
+                  onChange={(e) => updateDraft(entry.id, { titleFr: e.target.value })}
+                  style={inputStyle}
+                />
+              </label>
+              <label style={{ display: 'grid', gap: 4, flex: 1, minWidth: 160 }}>
+                <span style={labelStyle}>Titre (EN)</span>
+                <input
+                  type="text"
+                  value={draft.titleEn}
+                  onChange={(e) => updateDraft(entry.id, { titleEn: e.target.value })}
+                  style={inputStyle}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => addStep(entry)}
+                disabled={busy}
+                style={{ ...buttonStyle, opacity: busy ? 0.6 : 1 }}
+              >
+                Ajouter
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   function renderActions(entry: ScholarshipEntry) {
     const isPending = pendingId === entry.id;
     const buttons: React.ReactNode[] = [];
@@ -273,6 +495,23 @@ export default function ScholarshipsPage() {
             ))}
           </div>
         ) : null}
+        <label style={{ display: 'grid', gap: 4, maxWidth: 320 }}>
+          <span style={labelStyle}>Type de candidature</span>
+          <select
+            value={entry.applicationRequirement}
+            onChange={(e) =>
+              updateRequirement(entry, e.target.value as ApplicationRequirement)
+            }
+            style={inputStyle}
+          >
+            {(Object.keys(requirementLabels) as ApplicationRequirement[]).map((value) => (
+              <option key={value} value={value}>
+                {requirementLabels[value]}
+              </option>
+            ))}
+          </select>
+        </label>
+        {renderApplicationSteps(entry)}
         {renderActions(entry)}
       </div>
     );

@@ -714,6 +714,36 @@ class ScholarshipModel {
       };
 }
 
+/// Ordered, admin-authored "how to apply" step for a live scholarship (e.g.
+/// Chevening: online form then interview; MEXT: written exam). Distinct from
+/// the generic deadline countdown in [RoadmapEngine] — these are curated per
+/// scholarship, never scraped.
+class ScholarshipApplicationStepModel {
+  const ScholarshipApplicationStepModel({
+    required this.id,
+    required this.stepNumber,
+    required this.title,
+    required this.description,
+    this.estimatedDurationDays,
+  });
+
+  final String id;
+  final int stepNumber;
+  final String title;
+  final String description;
+  final int? estimatedDurationDays;
+
+  factory ScholarshipApplicationStepModel.fromJson(Map<String, dynamic> json) {
+    return ScholarshipApplicationStepModel(
+      id: json['id'] as String? ?? '',
+      stepNumber: json['stepNumber'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      estimatedDurationDays: json['estimatedDurationDays'] as int?,
+    );
+  }
+}
+
 /// Scraped scholarship from the live index (GreatYop + Mastere.tn).
 /// This is a separate model from [ScholarshipModel] which is the curated,
 /// seed-based catalog. Live scholarships come from the /scholarships endpoint.
@@ -723,6 +753,7 @@ class LiveScholarshipModel {
     required this.title,
     required this.countryName,
     required this.fundingType,
+    this.applicationRequirement = 'separate_application',
     required this.description,
     required this.advantages,
     required this.eligibility,
@@ -733,12 +764,14 @@ class LiveScholarshipModel {
     this.sourceUrl,
     required this.tags,
     required this.matchScore,
+    this.applicationSteps = const [],
   });
 
   final String id;
   final String title;
   final String countryName;
   final String fundingType; // 'fully_funded' | 'partially_funded' | 'unknown'
+  final String applicationRequirement; // 'automatic' | 'separate_application'
   final String description;
   final List<String> advantages;
   final List<String> eligibility;
@@ -749,9 +782,11 @@ class LiveScholarshipModel {
   final String? sourceUrl;
   final List<String> tags;
   final int matchScore;
+  final List<ScholarshipApplicationStepModel> applicationSteps;
 
   bool get isFullyFunded => fundingType == 'fully_funded';
   bool get isPartiallyFunded => fundingType == 'partially_funded';
+  bool get isAutomaticAdmission => applicationRequirement == 'automatic';
 
   factory LiveScholarshipModel.fromJson(Map<String, dynamic> json) {
     return LiveScholarshipModel(
@@ -759,6 +794,8 @@ class LiveScholarshipModel {
       title: json['title'] as String? ?? '',
       countryName: json['countryName'] as String? ?? '',
       fundingType: json['fundingType'] as String? ?? 'unknown',
+      applicationRequirement:
+          json['applicationRequirement'] as String? ?? 'separate_application',
       description: json['description'] as String? ?? '',
       advantages: (json['advantages'] as List<dynamic>?)?.cast<String>() ?? [],
       eligibility:
@@ -772,6 +809,11 @@ class LiveScholarshipModel {
       sourceUrl: json['sourceUrl'] as String?,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
       matchScore: json['matchScore'] as int? ?? 0,
+      applicationSteps: (json['applicationSteps'] as List<dynamic>?)
+              ?.map((e) => ScholarshipApplicationStepModel.fromJson(
+                  e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }

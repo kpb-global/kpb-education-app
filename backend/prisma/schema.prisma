@@ -80,6 +80,11 @@ enum FundingType {
   unknown
 }
 
+enum ApplicationRequirement {
+  automatic
+  separate_application
+}
+
 // Moderation gate for scraped scholarships. Curated/seeded rows default to
 // `approved` (visible); scraper inserts land as `pending` until an admin acts.
 enum ScholarshipModeration {
@@ -310,49 +315,49 @@ model DeviceToken {
 }
 
 model Case {
-  id                      String                 @id @default(cuid())
-  referenceCode           String                 @unique
+  id                          String                 @id @default(cuid())
+  referenceCode               String                 @unique
   // DB-assigned monotonic counter used to build a collision-free
   // referenceCode (replaces the racy count()+1 scheme).
-  seq                     Int                    @unique @default(autoincrement())
-  userId                  String
-  type                    CaseType
-  status                  CaseStatus
-  title                   String
-  description             String
-  contextLabel            String
-  nextStepTitle           String
-  nextStepDescription     String
-  assignedAdvisorName     String?
-  assignedAdvisorPhone    String?
-  assignedAdvisorWhatsapp String?
-  source                  String                 @default("mobile_app")
-  requestedCountryId      String?
-  preferredContactMethod  String                 @default("in_app")
-  scheduledAt             DateTime?
+  seq                         Int                    @unique @default(autoincrement())
+  userId                      String
+  type                        CaseType
+  status                      CaseStatus
+  title                       String
+  description                 String
+  contextLabel                String
+  nextStepTitle               String
+  nextStepDescription         String
+  assignedAdvisorName         String?
+  assignedAdvisorPhone        String?
+  assignedAdvisorWhatsapp     String?
+  source                      String                 @default("mobile_app")
+  requestedCountryId          String?
+  preferredContactMethod      String                 @default("in_app")
+  scheduledAt                 DateTime?
   // ── Marketplace (Track B) ───────────────────────────────────────────────
-  counsellorId            String?
+  counsellorId                String?
   // ── Parent mode (Track C1) ──────────────────────────────────────────────
-  parentCanView           Boolean                @default(false)
+  parentCanView               Boolean                @default(false)
   // ── Phase 3 — Zero-friction entry ───────────────────────────────────────
-  freeMessageConsumed     Boolean                @default(false)
+  freeMessageConsumed         Boolean                @default(false)
   // ── M9 Commercial ops ───────────────────────────────────────────────────
-  leadTag                 String?
-  discussionMotive        String?
+  leadTag                     String?
+  discussionMotive            String?
   lastCommercialInteractionAt DateTime?
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
-  user                    UserProfile            @relation(fields: [userId], references: [id])
-  counsellor              Counsellor?            @relation(fields: [counsellorId], references: [id])
-  messages                CaseMessage[]
-  timelineEvents          CaseTimelineEvent[]
-  tasks                   CaseTask[]
-  documents               CaseDocument[]
-  appointments            Appointment[]
-  internalNotes           CaseInternalNote[]
-  notificationDeliveries  NotificationDelivery[]
-  paymentIntents          PaymentIntent[]
-  servicePurchases        ServicePurchase[]
+  createdAt                   DateTime               @default(now())
+  updatedAt                   DateTime               @updatedAt
+  user                        UserProfile            @relation(fields: [userId], references: [id])
+  counsellor                  Counsellor?            @relation(fields: [counsellorId], references: [id])
+  messages                    CaseMessage[]
+  timelineEvents              CaseTimelineEvent[]
+  tasks                       CaseTask[]
+  documents                   CaseDocument[]
+  appointments                Appointment[]
+  internalNotes               CaseInternalNote[]
+  notificationDeliveries      NotificationDelivery[]
+  paymentIntents              PaymentIntent[]
+  servicePurchases            ServicePurchase[]
 
   @@index([userId])
   @@index([status])
@@ -645,56 +650,56 @@ model Field {
 }
 
 model Country {
-  id                    String   @id @default(cuid())
-  code                  String   @unique
-  flagEmoji             String   @default("🌍")
-  nameFr                String
-  nameEn                String
-  taglineFr             String   @default("")
-  taglineEn             String   @default("")
-  nextIntakeLabelFr     String   @default("")
-  nextIntakeLabelEn     String   @default("")
-  mainLanguageFr        String   @default("")
-  mainLanguageEn        String   @default("")
-  whyStudyFr            String
-  whyStudyEn            String
-  marketingDescriptionFr String  @default("")
-  marketingDescriptionEn String  @default("")
-  whyStudyBulletsFr     String[] @default([])
-  whyStudyBulletsEn     String[] @default([])
-  howItWorksFr          String   @default("")
-  howItWorksEn          String   @default("")
-  costsOverviewFr       String   @default("")
-  costsOverviewEn       String   @default("")
-  languageSectionFr     String   @default("")
-  languageSectionEn     String   @default("")
-  partnerSchoolsFr      String   @default("")
-  partnerSchoolsEn      String   @default("")
-  scholarshipsSectionFr String   @default("")
-  scholarshipsSectionEn String   @default("")
-  whatsAppPrefillFr     String   @default("")
-  whatsAppPrefillEn     String   @default("")
-  mvpNoteFr             String   @default("")
-  mvpNoteEn             String   @default("")
-  tuitionRangeFr        String
-  tuitionRangeEn        String
-  livingCostRangeFr     String
-  livingCostRangeEn     String
-  visaOverviewFr        String
-  visaOverviewEn        String
-  admissionDifficultyFr String
-  admissionDifficultyEn String
-  popularFieldIds       String[]
-  displayOrder          Int      @default(0)
-  isActive              Boolean  @default(true)
+  id                     String                  @id @default(cuid())
+  code                   String                  @unique
+  flagEmoji              String                  @default("🌍")
+  nameFr                 String
+  nameEn                 String
+  taglineFr              String                  @default("")
+  taglineEn              String                  @default("")
+  nextIntakeLabelFr      String                  @default("")
+  nextIntakeLabelEn      String                  @default("")
+  mainLanguageFr         String                  @default("")
+  mainLanguageEn         String                  @default("")
+  whyStudyFr             String
+  whyStudyEn             String
+  marketingDescriptionFr String                  @default("")
+  marketingDescriptionEn String                  @default("")
+  whyStudyBulletsFr      String[]                @default([])
+  whyStudyBulletsEn      String[]                @default([])
+  howItWorksFr           String                  @default("")
+  howItWorksEn           String                  @default("")
+  costsOverviewFr        String                  @default("")
+  costsOverviewEn        String                  @default("")
+  languageSectionFr      String                  @default("")
+  languageSectionEn      String                  @default("")
+  partnerSchoolsFr       String                  @default("")
+  partnerSchoolsEn       String                  @default("")
+  scholarshipsSectionFr  String                  @default("")
+  scholarshipsSectionEn  String                  @default("")
+  whatsAppPrefillFr      String                  @default("")
+  whatsAppPrefillEn      String                  @default("")
+  mvpNoteFr              String                  @default("")
+  mvpNoteEn              String                  @default("")
+  tuitionRangeFr         String
+  tuitionRangeEn         String
+  livingCostRangeFr      String
+  livingCostRangeEn      String
+  visaOverviewFr         String
+  visaOverviewEn         String
+  admissionDifficultyFr  String
+  admissionDifficultyEn  String
+  popularFieldIds        String[]
+  displayOrder           Int                     @default(0)
+  isActive               Boolean                 @default(true)
   // Data-trust signal: when the facts were last confirmed, and the source.
-  lastVerifiedAt        DateTime?
-  sourceUrl             String?
-  verifiedById          String?
-  verifiedByName        String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  eligibilityQuiz       CountryEligibilityQuiz?
+  lastVerifiedAt         DateTime?
+  sourceUrl              String?
+  verifiedById           String?
+  verifiedByName         String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  eligibilityQuiz        CountryEligibilityQuiz?
 
   @@index([isActive, displayOrder])
   @@index([lastVerifiedAt])
@@ -711,7 +716,7 @@ model CountryEligibilityQuiz {
 }
 
 model Institution {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
   nameFr                 String
   nameEn                 String
   countryId              String
@@ -726,35 +731,35 @@ model Institution {
   languageRequirementsEn String
   intakePeriods          String[]
   programIds             String[]
-  isPartner              Boolean  @default(false)
+  isPartner              Boolean   @default(false)
   lastVerifiedAt         DateTime?
   sourceUrl              String?
   verifiedById           String?
   verifiedByName         String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   @@index([countryId])
   @@index([lastVerifiedAt])
 }
 
 model Program {
-  id             String   @id @default(cuid())
-  institutionId  String
-  countryId      String
-  fieldId        String
-  nameFr         String
-  nameEn         String
-  levelFr        String
-  levelEn        String
-  durationFr     String
-  durationEn     String
-  tuitionFr      String
-  tuitionEn      String
-  languageFr     String
-  languageEn     String
-  requirementsFr String[]
-  requirementsEn String[]
+  id              String    @id @default(cuid())
+  institutionId   String
+  countryId       String
+  fieldId         String
+  nameFr          String
+  nameEn          String
+  levelFr         String
+  levelEn         String
+  durationFr      String
+  durationEn      String
+  tuitionFr       String
+  tuitionEn       String
+  languageFr      String
+  languageEn      String
+  requirementsFr  String[]
+  requirementsEn  String[]
   // Multi-campus formations (OMNES, and any future school whose programme is
   // delivered on several campuses). Same formation = one Program row; the
   // per-campus price/intake live here instead of duplicating the row.
@@ -762,12 +767,12 @@ model Program {
   // [{ campus: string, tuitionUpfront: number|null,
   //    tuitionInstallments: number|null, intake: string|null }]
   campusOfferings Json?
-  lastVerifiedAt DateTime?
-  sourceUrl      String?
-  verifiedById   String?
-  verifiedByName String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  lastVerifiedAt  DateTime?
+  sourceUrl       String?
+  verifiedById    String?
+  verifiedByName  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([institutionId])
   @@index([countryId])
@@ -776,46 +781,48 @@ model Program {
 }
 
 model Scholarship {
-  id                String         @id @default(cuid())
-  nameFr            String
-  nameEn            String
-  countryId         String
-  countryNameFr     String         @default("")
-  countryNameEn     String         @default("")
-  levelEligibleFr   String
-  levelEligibleEn   String
-  typeOfFundingFr   String
-  typeOfFundingEn   String
-  fundingType       FundingType    @default(unknown)
-  deadlineLabelFr   String
-  deadlineLabelEn   String
-  descriptionFr     String         @default("")
-  descriptionEn     String         @default("")
-  advantagesFr      String[]       @default([])
-  advantagesEn      String[]       @default([])
-  eligibilityFr     String[]       @default([])
-  eligibilityEn     String[]       @default([])
-  keyRequirementsFr String[]
-  keyRequirementsEn String[]
-  relatedFieldIds   String[]
-  baseMatch         Int            @default(30)
-  academyCourseId   String?
+  id                     String                       @id @default(cuid())
+  nameFr                 String
+  nameEn                 String
+  countryId              String
+  countryNameFr          String                       @default("")
+  countryNameEn          String                       @default("")
+  levelEligibleFr        String
+  levelEligibleEn        String
+  typeOfFundingFr        String
+  typeOfFundingEn        String
+  fundingType            FundingType                  @default(unknown)
+  applicationRequirement ApplicationRequirement       @default(separate_application)
+  deadlineLabelFr        String
+  deadlineLabelEn        String
+  descriptionFr          String                       @default("")
+  descriptionEn          String                       @default("")
+  advantagesFr           String[]                     @default([])
+  advantagesEn           String[]                     @default([])
+  eligibilityFr          String[]                     @default([])
+  eligibilityEn          String[]                     @default([])
+  keyRequirementsFr      String[]
+  keyRequirementsEn      String[]
+  relatedFieldIds        String[]
+  baseMatch              Int                          @default(30)
+  academyCourseId        String?
   // ── Live-index fields (Track A1) ────────────────────────────────────────
   // Populated by the 48h refresh job; null for legacy seed data.
-  sourceKey         String?        @unique // e.g. "greatyop-ajinomoto-2026"
-  sourceUrl         String?
-  applicationUrl    String?
-  deadlineAt        DateTime?
-  lastVerifiedAt    DateTime?
-  verifiedById      String?
-  verifiedByName    String?
-  isActive          Boolean        @default(true)
+  sourceKey              String?                      @unique // e.g. "greatyop-ajinomoto-2026"
+  sourceUrl              String?
+  applicationUrl         String?
+  deadlineAt             DateTime?
+  lastVerifiedAt         DateTime?
+  verifiedById           String?
+  verifiedByName         String?
+  isActive               Boolean                      @default(true)
   // Approved for curated/seeded rows; scraper inserts land as pending.
-  moderationStatus  ScholarshipModeration @default(approved)
-  tags              String[]       @default([])
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  academyCourse     AcademyCourse? @relation(fields: [academyCourseId], references: [id])
+  moderationStatus       ScholarshipModeration        @default(approved)
+  tags                   String[]                     @default([])
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+  academyCourse          AcademyCourse?               @relation(fields: [academyCourseId], references: [id])
+  applicationSteps       ScholarshipApplicationStep[]
 
   @@index([countryId])
   @@index([deadlineAt])
@@ -823,6 +830,27 @@ model Scholarship {
   @@index([isActive])
   @@index([fundingType])
   @@index([moderationStatus])
+}
+
+// Ordered, admin-authored "how to apply" steps for a specific scholarship
+// (e.g. Chevening: online form then interview; MEXT: written exam). Distinct
+// from the generic deadline countdown (RoadmapEngine) — these are curated
+// per scholarship, never scraped.
+model ScholarshipApplicationStep {
+  id                    String      @id @default(cuid())
+  scholarshipId         String
+  stepNumber            Int
+  titleFr               String
+  titleEn               String
+  descriptionFr         String      @default("")
+  descriptionEn         String      @default("")
+  estimatedDurationDays Int?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  scholarship           Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@unique([scholarshipId, stepNumber])
+  @@index([scholarshipId])
 }
 
 model AcademyCourse {
@@ -1220,18 +1248,18 @@ model SalonSession {
 }
 
 model SalonRegistration {
-  id         String       @id @default(cuid())
-  sessionId  String
-  userId     String
+  id           String       @id @default(cuid())
+  sessionId    String
+  userId       String
   // "registered" | "attended" | "cancelled" — kept as string to avoid a
   // dedicated enum for three values that rarely change.
-  status     String       @default("registered")
+  status       String       @default("registered")
   // KPB-78 reminder markers — set once each so the 24h/1h pushes never repeat.
-  remindedAt DateTime? // 24h-before reminder sent at
+  remindedAt   DateTime? // 24h-before reminder sent at
   reminded1hAt DateTime? // 1h-before reminder sent at
-  createdAt  DateTime     @default(now())
-  session    SalonSession @relation(fields: [sessionId], references: [id])
-  user       UserProfile  @relation(fields: [userId], references: [id])
+  createdAt    DateTime     @default(now())
+  session      SalonSession @relation(fields: [sessionId], references: [id])
+  user         UserProfile  @relation(fields: [userId], references: [id])
 
   @@unique([sessionId, userId])
   @@index([userId])

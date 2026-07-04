@@ -120,6 +120,12 @@ export class AdminCatalogService {
     return typeof v === 'number' && Number.isFinite(v) ? Math.trunc(v) : undefined;
   }
 
+  private enumVal<T extends string>(v: unknown, allowed: readonly T[]): T | undefined {
+    return typeof v === 'string' && (allowed as readonly string[]).includes(v)
+      ? (v as T)
+      : undefined;
+  }
+
   private requireStr(input: Record<string, unknown>, key: string): string {
     const v = this.str(input[key]);
     if (v == null || v.trim() === '') {
@@ -556,6 +562,11 @@ export class AdminCatalogService {
       levelEligibleEn: this.str(input.levelEligibleEn) ?? '',
       typeOfFundingFr: this.str(input.typeOfFundingFr) ?? '',
       typeOfFundingEn: this.str(input.typeOfFundingEn) ?? '',
+      applicationRequirement:
+        this.enumVal(input.applicationRequirement, [
+          'automatic',
+          'separate_application',
+        ] as const) ?? 'separate_application',
       deadlineLabelFr: this.str(input.deadlineLabelFr) ?? '',
       deadlineLabelEn: this.str(input.deadlineLabelEn) ?? '',
       descriptionFr: this.str(input.descriptionFr) ?? '',
@@ -589,6 +600,10 @@ export class AdminCatalogService {
       levelEligibleEn: this.str(input.levelEligibleEn),
       typeOfFundingFr: this.str(input.typeOfFundingFr),
       typeOfFundingEn: this.str(input.typeOfFundingEn),
+      applicationRequirement: this.enumVal(input.applicationRequirement, [
+        'automatic',
+        'separate_application',
+      ] as const),
       deadlineLabelFr: this.str(input.deadlineLabelFr),
       deadlineLabelEn: this.str(input.deadlineLabelEn),
       descriptionFr: this.str(input.descriptionFr),
@@ -625,6 +640,110 @@ export class AdminCatalogService {
       id,
     );
     return { id, deleted: true };
+  }
+
+  // ── Scholarship application steps ("comment postuler") ────────────────────
+  // Ordered, admin-authored steps distinct per scholarship — never scraped.
+  async listApplicationSteps(scholarshipId: string) {
+    this.assertDb();
+    return this.prisma.execute((db) =>
+      db.scholarshipApplicationStep.findMany({
+        where: { scholarshipId },
+        orderBy: { stepNumber: 'asc' },
+      }),
+    );
+  }
+
+  async createApplicationStep(
+    scholarshipId: string,
+    input: Record<string, unknown>,
+  ) {
+    this.assertDb();
+    const titleFr = this.requireStr(input, 'titleFr');
+    const stepNumber = this.int(input.stepNumber);
+    if (stepNumber == null) {
+      throw new BadRequestException('Field "stepNumber" is required.');
+    }
+    const data: Prisma.ScholarshipApplicationStepCreateInput = {
+      scholarship: { connect: { id: scholarshipId } },
+      stepNumber,
+      titleFr,
+      titleEn: this.str(input.titleEn) ?? titleFr,
+      descriptionFr: this.str(input.descriptionFr) ?? '',
+      descriptionEn: this.str(input.descriptionEn) ?? '',
+      estimatedDurationDays: this.int(input.estimatedDurationDays) ?? null,
+    };
+    try {
+      return await this.prisma.execute((db) =>
+        db.scholarshipApplicationStep.create({ data }),
+      );
+    } catch (error) {
+      throw this.mapStepUniqueError(error, scholarshipId, stepNumber);
+    }
+  }
+
+  async updateApplicationStep(
+    scholarshipId: string,
+    stepId: string,
+    input: Record<string, unknown>,
+  ) {
+    this.assertDb();
+    const data = this.clean<Prisma.ScholarshipApplicationStepUpdateInput>({
+      stepNumber: this.int(input.stepNumber),
+      titleFr: this.str(input.titleFr),
+      titleEn: this.str(input.titleEn),
+      descriptionFr: this.str(input.descriptionFr),
+      descriptionEn: this.str(input.descriptionEn),
+      estimatedDurationDays: this.int(input.estimatedDurationDays),
+    });
+    try {
+      return await this.runUpdate(
+        () =>
+          this.prisma.execute((db) =>
+            db.scholarshipApplicationStep.update({
+              where: { id: stepId },
+              data,
+            }),
+          ),
+        'ScholarshipApplicationStep',
+        stepId,
+      );
+    } catch (error) {
+      throw this.mapStepUniqueError(error, scholarshipId, data.stepNumber);
+    }
+  }
+
+  async deleteApplicationStep(scholarshipId: string, stepId: string) {
+    this.assertDb();
+    await this.runUpdate(
+      () =>
+        this.prisma.execute((db) =>
+          db.scholarshipApplicationStep.delete({ where: { id: stepId } }),
+        ),
+      'ScholarshipApplicationStep',
+      stepId,
+    );
+    return { id: stepId, deleted: true };
+  }
+
+  /// Turns a unique-constraint violation on [scholarshipId, stepNumber] into a
+  /// readable 400 instead of a raw Prisma P2002.
+  private mapStepUniqueError(
+    error: unknown,
+    scholarshipId: string,
+    stepNumber: unknown,
+  ) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
+      return new BadRequestException(
+        `A step numbered ${String(stepNumber)} already exists for scholarship ${scholarshipId}.`,
+      );
+    }
+    return error as Error;
   }
 
   // ════════════════════════════════════════════════════════════════════════

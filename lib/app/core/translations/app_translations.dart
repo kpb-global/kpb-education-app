@@ -661,6 +661,11 @@ class AppTranslations extends Translations {
           'live_scholarships_section_description': 'Description',
           'live_scholarships_section_advantages': 'Avantages',
           'live_scholarships_section_eligibility': 'Critères d\'éligibilité',
+          'live_scholarships_section_application_steps': 'Comment postuler',
+          'live_scholarships_requirement_automatic': 'Attribution automatique',
+          'live_scholarships_requirement_separate_application':
+              'Candidature séparée requise',
+          'live_scholarships_step_duration': 'Durée estimée : @days jour(s)',
           'live_scholarships_apply_with_kpb': '🎯  Candidater avec KPB',
           'live_scholarships_view_official_application':
               'Voir le site officiel de candidature',
@@ -2271,6 +2276,11 @@ class AppTranslations extends Translations {
           'live_scholarships_section_description': 'Description',
           'live_scholarships_section_advantages': 'Benefits',
           'live_scholarships_section_eligibility': 'Eligibility criteria',
+          'live_scholarships_section_application_steps': 'How to apply',
+          'live_scholarships_requirement_automatic': 'Automatically awarded',
+          'live_scholarships_requirement_separate_application':
+              'Separate application required',
+          'live_scholarships_step_duration': 'Estimated duration: @days day(s)',
           'live_scholarships_apply_with_kpb': '🎯  Apply with KPB',
           'live_scholarships_view_official_application':
               'View the official application site',
