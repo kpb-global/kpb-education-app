@@ -114,6 +114,37 @@ export class AdminCatalogController {
     return this.service.deleteScholarship(id);
   }
 
+  // ── Scholarship application steps ("comment postuler") ────────────────────
+  @Get('scholarships/:id/steps')
+  listApplicationSteps(@Param('id') id: string) {
+    return this.service.listApplicationSteps(id);
+  }
+
+  @Post('scholarships/:id/steps')
+  createApplicationStep(
+    @Param('id') id: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.createApplicationStep(id, input);
+  }
+
+  @Patch('scholarships/:id/steps/:stepId')
+  updateApplicationStep(
+    @Param('id') id: string,
+    @Param('stepId') stepId: string,
+    @Body() input: Record<string, unknown>,
+  ) {
+    return this.service.updateApplicationStep(id, stepId, input);
+  }
+
+  @Delete('scholarships/:id/steps/:stepId')
+  deleteApplicationStep(
+    @Param('id') id: string,
+    @Param('stepId') stepId: string,
+  ) {
+    return this.service.deleteApplicationStep(id, stepId);
+  }
+
   // ── Countries (pays) ──────────────────────────────────────────────────────
   @Post('countries')
   createCountry(@Body() input: Record<string, unknown>) {

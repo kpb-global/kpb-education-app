@@ -7,6 +7,8 @@ import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
+import 'widgets/application_requirement_badge.dart';
+import 'widgets/application_steps_timeline.dart';
 
 const _flagMap = <String, String>{
   'Japan': '🇯🇵',
@@ -405,12 +407,46 @@ class _LiveScholarshipCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Match score
+              // Match score + favorite
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   AdmissionMeter(
                       score: s.matchScore, size: 34, strokeWidth: 3.5),
+                  const SizedBox(height: 8),
+                  GetBuilder<AppController>(
+                    builder: (controller) {
+                      final saved =
+                          controller.isSaved(SavedItemType.scholarship, s.id);
+                      return Semantics(
+                        button: true,
+                        label: 'a11y_save'.tr,
+                        child: GestureDetector(
+                          onTap: () => controller.toggleSaved(
+                            SavedItemType.scholarship,
+                            s.id,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: saved
+                                  ? KpbColors.blue.withValues(alpha: 0.1)
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              saved
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_outline_rounded,
+                              color:
+                                  saved ? KpbColors.blue : context.kpb.gray400,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ],
@@ -446,6 +482,12 @@ class _LiveScholarshipCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(width: 8),
+              ApplicationRequirementBadge(
+                isAutomatic: s.isAutomaticAdmission,
+                accent: accent,
+                compact: true,
               ),
               const SizedBox(width: 10),
               if (s.deadlineLabel.isNotEmpty)
@@ -563,39 +605,83 @@ class _LiveScholarshipDetail extends StatelessWidget {
                   ],
                 ),
               ),
+              GetBuilder<AppController>(
+                builder: (controller) {
+                  final saved =
+                      controller.isSaved(SavedItemType.scholarship, s.id);
+                  return Semantics(
+                    button: true,
+                    label: 'a11y_save'.tr,
+                    child: GestureDetector(
+                      onTap: () => controller.toggleSaved(
+                        SavedItemType.scholarship,
+                        s.id,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: saved
+                              ? KpbColors.blue.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          saved
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_outline_rounded,
+                          color: saved ? KpbColors.blue : context.kpb.gray400,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
           const SizedBox(height: KpbSpacing.lg),
 
-          // ── Funding badge ─────────────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: fundingColor.withValues(alpha: 0.1),
-              borderRadius: KpbRadius.lgBr,
-              border: Border.all(color: fundingColor.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  s.isFullyFunded
-                      ? Icons.verified_rounded
-                      : Icons.payments_rounded,
-                  size: 18,
-                  color: fundingColor,
+          // ── Funding + application-requirement badges ─────────────────────
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: fundingColor.withValues(alpha: 0.1),
+                  borderRadius: KpbRadius.lgBr,
+                  border:
+                      Border.all(color: fundingColor.withValues(alpha: 0.3)),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  fundingLabel,
-                  style: TextStyle(
-                    color: fundingColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      s.isFullyFunded
+                          ? Icons.verified_rounded
+                          : Icons.payments_rounded,
+                      size: 18,
+                      color: fundingColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      fundingLabel,
+                      style: TextStyle(
+                        color: fundingColor,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              ApplicationRequirementBadge(
+                isAutomatic: s.isAutomaticAdmission,
+                accent: accent,
+              ),
+            ],
           ),
           const SizedBox(height: KpbSpacing.md),
 
@@ -695,6 +781,16 @@ class _LiveScholarshipDetail extends StatelessWidget {
             const SizedBox(height: 10),
             ...s.eligibility.map((e) => _BulletItem(text: e, color: accent)),
             const SizedBox(height: KpbSpacing.xl),
+          ],
+
+          // ── How to apply ──────────────────────────────────────────────────
+          if (s.applicationSteps.isNotEmpty) ...[
+            _SectionHeader(
+                label: 'live_scholarships_section_application_steps'.tr,
+                icon: Icons.route_outlined),
+            const SizedBox(height: 14),
+            ApplicationStepsTimeline(steps: s.applicationSteps, accent: accent),
+            const SizedBox(height: KpbSpacing.md),
           ],
 
           // ── CTAs ──────────────────────────────────────────────────────────
