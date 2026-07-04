@@ -447,6 +447,18 @@ class AppTranslations extends Translations {
           'community_join_whatsapp_group': 'Rejoindre le groupe WhatsApp',
           'whatsapp_open_failed':
               'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+          'kpb_prefill_case':
+              'Bonjour KPB Education, je reviens vers vous au sujet du dossier @ref.',
+          'kpb_prefill_program':
+              'Bonjour KPB Education, je suis intéressé(e) par le programme « @program » et j\'aimerais être accompagné(e).',
+          'kpb_prefill_program_with_country':
+              'Bonjour KPB Education, je suis intéressé(e) par le programme « @program » (@country) et j\'aimerais être accompagné(e).',
+          'kpb_prefill_service':
+              'Bonjour KPB Education, je souhaite en savoir plus sur le service « @service ».',
+          'kpb_prefill_country':
+              'Bonjour KPB Education, je souhaite être accompagné(e) pour mes études — destination : @country.',
+          'kpb_prefill_generic':
+              'Bonjour KPB Education, j\'aimerais être accompagné(e) dans mon projet d\'études.',
           'community_featured_badge': '📌 À la une',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
@@ -2052,6 +2064,18 @@ class AppTranslations extends Translations {
           'community_join_whatsapp_group': 'Join the WhatsApp group',
           'whatsapp_open_failed':
               'Could not open WhatsApp. Make sure the app is installed.',
+          'kpb_prefill_case':
+              'Hello KPB Education, I\'m getting back to you about case @ref.',
+          'kpb_prefill_program':
+              'Hello KPB Education, I\'m interested in the "@program" programme and would like some guidance.',
+          'kpb_prefill_program_with_country':
+              'Hello KPB Education, I\'m interested in the "@program" programme (@country) and would like some guidance.',
+          'kpb_prefill_service':
+              'Hello KPB Education, I\'d like to know more about the "@service" service.',
+          'kpb_prefill_country':
+              'Hello KPB Education, I\'d like guidance for my studies — destination: @country.',
+          'kpb_prefill_generic':
+              'Hello KPB Education, I\'d like some guidance with my study plans.',
           'community_featured_badge': '📌 Featured',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',

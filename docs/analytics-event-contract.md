@@ -27,6 +27,14 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 | `profile_updated` | — | Profile saved |
 | `theme_toggled` | `theme` (`dark` / `light`) | Theme switch |
 
+## Conversion & funnel
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `whatsapp_handoff` | `source` (call site, e.g. `program_detail`), `context_type` (e.g. `program`, `destination`, `case`, `fraud_report`, `community_group`), `success` (0/1) | Lead→advisor-contact hand-off; `success = 0` means WhatsApp could not be opened (lost conversion) |
+| `referral_invite_shared` | — | Invite shared via WhatsApp (KPB-69) |
+| `referral_redeemed` | — | Referral code redeemed by a referee (KPB-69) |
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |
@@ -37,6 +45,8 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 
 ## Recommended GA4 / BigQuery checks
 
+- **Hand-off failure rate:** Count `whatsapp_handoff` where `success = 0` / all `whatsapp_handoff` — spikes mean users can't reach the advisor (device without WhatsApp, broken link).
+- **Hand-off mix:** Breakdown of `whatsapp_handoff` by `source` × `context_type` to see which screens actually convert.
 - **Sync failure rate:** Count `sync_full_complete` where `success = 0` / all `sync_full_complete`.
 - **Slow sync:** Distribution of `elapsed_ms` on successful runs.
 - **Offline catalog pressure:** Sum `catalog_hive_fallback_count` or count `sync_catalog_hive_fallback`.

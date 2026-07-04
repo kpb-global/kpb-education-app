@@ -236,7 +236,8 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
     group: true,
-    message: 'whatsapp_open_failed'.tr,
+    source: 'forum_category',
+    contextType: 'community_group',
   );
 }
 

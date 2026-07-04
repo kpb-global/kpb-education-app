@@ -11,8 +11,10 @@ import '../services/analytics_service.dart';
 /// advisor immediately sees what the person is reaching out about. Each page
 /// passes the context it has (a service, a destination country, a program, a
 /// case reference). An explicit [custom] message — e.g. a catalog-configured
-/// `whatsAppPrefill` — always wins; otherwise a sensible default is built from
-/// the most specific context available, falling back to a generic request.
+/// `whatsAppPrefill` — always wins; otherwise a localized default is built
+/// from the most specific context available, falling back to a generic
+/// request. Localized so an English-speaking user writes to the advisor in
+/// the language they actually use.
 String kpbWhatsAppPrefill({
   String? custom,
   String? service,
@@ -23,28 +25,27 @@ String kpbWhatsAppPrefill({
   final overridden = custom?.trim() ?? '';
   if (overridden.isNotEmpty) return overridden;
 
-  const greeting = 'Bonjour KPB Education, ';
   final ref = reference?.trim() ?? '';
   final prog = program?.trim() ?? '';
   final svc = service?.trim() ?? '';
   final dest = country?.trim() ?? '';
 
   if (ref.isNotEmpty) {
-    return '${greeting}je reviens vers vous au sujet du dossier $ref.';
+    return 'kpb_prefill_case'.trParams({'ref': ref});
   }
   if (prog.isNotEmpty) {
-    final suffix = dest.isNotEmpty ? ' ($dest)' : '';
-    return '${greeting}je suis intéressé(e) par le programme « $prog »$suffix '
-        'et j\'aimerais être accompagné(e).';
+    return dest.isNotEmpty
+        ? 'kpb_prefill_program_with_country'
+            .trParams({'program': prog, 'country': dest})
+        : 'kpb_prefill_program'.trParams({'program': prog});
   }
   if (svc.isNotEmpty) {
-    return '${greeting}je souhaite en savoir plus sur le service « $svc ».';
+    return 'kpb_prefill_service'.trParams({'service': svc});
   }
   if (dest.isNotEmpty) {
-    return '${greeting}je souhaite être accompagné(e) pour mes études — '
-        'destination : $dest.';
+    return 'kpb_prefill_country'.trParams({'country': dest});
   }
-  return '${greeting}j\'aimerais être accompagné(e) dans mon projet d\'études.';
+  return 'kpb_prefill_generic'.tr;
 }
 
 Uri buildWhatsAppUri({String? phone, String? prefill, bool group = false}) {
@@ -71,9 +72,10 @@ Future<void> openWhatsAppOrToast({
   String? phone,
   String? prefill,
   bool group = false,
-  String title = 'WhatsApp',
-  String message =
-      "Impossible d'ouvrir WhatsApp. Vérifie que l'app est installée.",
+  // Toast copy when WhatsApp cannot be opened; defaults resolve through
+  // AppTranslations at call time (a const default couldn't use `.tr`).
+  String? title,
+  String? message,
   // Funnel attribution: where the hand-off was triggered and what context it
   // carried. The single choke-point for every WhatsApp hand-off, so logging
   // here measures the core lead→advisor-contact conversion step everywhere.
@@ -89,9 +91,18 @@ Future<void> openWhatsAppOrToast({
     await launchUrl(uri, mode: LaunchMode.externalApplication);
     return;
   }
+  // A failed hand-off is a lost conversion — surface it in the funnel instead
+  // of silently dropping to the toast.
+  unawaited(
+    AnalyticsService.instance.logWhatsAppHandoff(
+      source: source,
+      contextType: contextType,
+      success: false,
+    ),
+  );
   Get.snackbar(
-    title,
-    message,
+    title ?? 'WhatsApp',
+    message ?? 'whatsapp_open_failed'.tr,
     snackPosition: SnackPosition.BOTTOM,
     margin: const EdgeInsets.all(12),
     duration: const Duration(seconds: 3),

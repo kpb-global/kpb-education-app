@@ -249,10 +249,13 @@ class AnalyticsService {
   /// core lead→advisor-contact conversion step. [source] is the call site
   /// (e.g. 'case_detail', 'program_detail', 'service_packages') and
   /// [contextType] the kind of context attached (e.g. 'case', 'program',
-  /// 'service', 'destination', 'fraud_report', 'unknown').
+  /// 'service', 'destination', 'fraud_report', 'unknown'). [success] is false
+  /// when WhatsApp could not be opened — a lost conversion, which would
+  /// otherwise be invisible in the funnel.
   Future<void> logWhatsAppHandoff({
     String source = 'unknown',
     String contextType = 'unknown',
+    bool success = true,
   }) async {
     try {
       await _analytics.logEvent(
@@ -260,6 +263,7 @@ class AnalyticsService {
         parameters: {
           AnalyticsParamKey.source: source,
           AnalyticsParamKey.contextType: contextType,
+          AnalyticsParamKey.success: success ? 1 : 0,
         },
       );
     } catch (e, s) {

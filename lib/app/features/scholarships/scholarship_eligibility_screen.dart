@@ -292,6 +292,8 @@ class _ScholarshipEligibilityScreenState
   void _contactAdvisor() {
     openWhatsAppOrToast(
       prefill: 'eligibility_whatsapp_prefill'.trParams({'name': _name}),
+      source: 'scholarship_eligibility',
+      contextType: 'eligibility_result',
     );
   }
 }
