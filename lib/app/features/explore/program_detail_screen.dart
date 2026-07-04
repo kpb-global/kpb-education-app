@@ -502,7 +502,11 @@ class _BottomBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () => openWhatsAppOrToast(prefill: whatsAppPrefill),
+              onPressed: () => openWhatsAppOrToast(
+                prefill: whatsAppPrefill,
+                source: 'program_detail',
+                contextType: 'program',
+              ),
               icon: const Icon(Icons.chat_outlined, size: 18),
               label: const Text('WhatsApp'),
             ),

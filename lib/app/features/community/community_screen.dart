@@ -449,7 +449,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 Future<void> _launchWhatsApp() async {
   await openWhatsAppOrToast(
     group: true,
-    message: 'whatsapp_open_failed'.tr,
+    source: 'community',
+    contextType: 'community_group',
   );
 }
 
