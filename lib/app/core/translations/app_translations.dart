@@ -130,7 +130,6 @@ class AppTranslations extends Translations {
           'a11y_send_message': 'Envoyer le message',
           'a11y_remove': 'Retirer',
           'a11y_rate': 'Noter',
-          'a11y_call_advisor': 'Appeler le conseiller',
           'a11y_whatsapp_advisor': 'Contacter le conseiller sur WhatsApp',
           'parent_case_view_title': 'Dossier (lecture)',
           // --- KPB-89 wave2 ---
@@ -1632,6 +1631,11 @@ class AppTranslations extends Translations {
           'community_hub_alumni': 'Mentors',
           'community_hub_salon': 'Salons',
           'community_hub_parcours': 'Parcours',
+          // ── Mise à jour obligatoire ──
+          'force_update_title': 'Mise à jour requise',
+          'force_update_body':
+              'Cette version de l\'application n\'est plus prise en charge. Mets-la à jour pour continuer à utiliser KPB Education.',
+          'force_update_cta': 'Mettre à jour',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -1759,7 +1763,6 @@ class AppTranslations extends Translations {
           'a11y_send_message': 'Send message',
           'a11y_remove': 'Remove',
           'a11y_rate': 'Rate',
-          'a11y_call_advisor': 'Call advisor',
           'a11y_whatsapp_advisor': 'Message advisor on WhatsApp',
           'parent_case_view_title': 'Case (read-only)',
           // --- KPB-89 wave2 ---
@@ -3230,6 +3233,11 @@ class AppTranslations extends Translations {
           'community_hub_alumni': 'Mentors',
           'community_hub_salon': 'Fairs',
           'community_hub_parcours': 'Journeys',
+          // ── Force update ──
+          'force_update_title': 'Update required',
+          'force_update_body':
+              'This version of the app is no longer supported. Update it to keep using KPB Education.',
+          'force_update_cta': 'Update now',
         },
       };
 }

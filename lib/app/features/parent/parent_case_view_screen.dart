@@ -87,10 +87,10 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
     final prefill = title != null && title.isNotEmpty
         ? 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier « $title » sur KPB Education.'
         : 'Bonjour, je suis le parent et je souhaite échanger au sujet du dossier de mon enfant sur KPB Education.';
+    // No `phone:` on purpose: parents always reach the official KPB line,
+    // never a counsellor's personal number (anti-fraud, Item 12).
     await showVerifiedAdvisorThenWhatsApp(
       advisorName: (_case['assignedAdvisorName'] as String?)?.trim(),
-      phone: (_case['assignedAdvisorWhatsapp'] as String?)?.trim() ??
-          (_case['assignedAdvisorPhone'] as String?)?.trim(),
       prefill: prefill,
       source: 'parent_case',
       contextType: 'parent_advisor',

@@ -8,47 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:334788383631:android:7737186bbacaf375",
-        "android_client_info": {
-          "package_name": "com.idriss.karatou"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "334788383631-rdmld5c82liqrac13o4ue5uqline690f.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD7D1hwMfG18r3paVjugyyCECCz_X4avxs"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "334788383631-03g7eetlh5bl69prnst3d07kfpud032u.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "334788383631-59cfd9gdtauqpmnfvo1uju8qhmtkrk8b.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "Karatou.karatou",
-                "app_store_id": "1128659292"
-              }
-            }
-          ]
-        }
-      },
-      "admob_app_id": "ca-app-pub-9325209049757226~7186833197"
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:334788383631:android:4d5ce891b039cf1b7d71fa",
         "android_client_info": {
-          "package_name": "com.karatou.android"
+          "package_name": "com.kpbeducation.app"
         }
       },
       "oauth_client": [
@@ -73,7 +35,7 @@
               "client_id": "334788383631-59cfd9gdtauqpmnfvo1uju8qhmtkrk8b.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "Karatou.karatou",
+                "bundle_id": "com.kpbeducation.app",
                 "app_store_id": "1128659292"
               }
             }

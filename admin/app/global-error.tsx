@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+import { reportError } from '../lib/error-reporting';
+
 // global-error replaces the root layout entirely (it renders its own <html>/<body>)
 // and therefore sits OUTSIDE the i18n + auth providers — so copy here is intentionally
 // static English. This is the last-resort boundary for a crash in the root layout itself.
@@ -13,7 +15,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // TODO: forward to error monitoring (e.g. Sentry) once configured.
+    // Forwarded to Sentry when NEXT_PUBLIC_SENTRY_DSN is set; no-op otherwise.
+    reportError(error);
     console.error(error);
   }, [error]);
 

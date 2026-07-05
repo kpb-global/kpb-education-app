@@ -144,17 +144,20 @@ export class CoachService {
           return;
         }
 
-        // AI-processing consent gate (defense-in-depth; the client also gates
-        // entry to the coach). When the DB is available and the authoritative
-        // profile has not opted into AI processing, refuse before any PII
-        // reaches Groq.
-        const consented = await this.hasAiConsent(params.userId);
-        if (!consented) {
+        // Consent gates (defense-in-depth; the client also gates entry to the
+        // coach). When the DB is available and the authoritative profile has
+        // not opted into AI processing — or is a minor without recorded
+        // guardian consent — refuse before any PII reaches Groq.
+        const consentBlock = await this.consentBlockCode(params.userId);
+        if (consentBlock) {
           subscriber.next({
             data: {
               type: 'error',
-              code: 'ai_consent_required',
-              message: 'AI processing consent required.',
+              code: consentBlock,
+              message:
+                consentBlock === 'guardian_consent_required'
+                  ? 'Guardian consent required for minors.'
+                  : 'AI processing consent required.',
             },
           } as MessageEvent);
           subscriber.complete();
@@ -324,18 +327,41 @@ export class CoachService {
 
   // ── Consent + output guardrail ──────────────────────────────────────────────
 
-  /// Whether the authoritative profile has opted into third-party AI
-  /// processing. When the DB is unavailable (tryExecute → null) we cannot
-  /// verify, so we allow and rely on the client-side gate (local/dev mode).
-  private async hasAiConsent(userId: string): Promise<boolean> {
+  /// Consent checks against the authoritative profile: the user must have
+  /// opted into third-party AI processing, and a minor (under 18 by birthDate)
+  /// additionally needs a recorded guardian consent. Returns the blocking
+  /// error code, or null when the turn may proceed. When the DB is unavailable
+  /// (tryExecute → null) we cannot verify, so we allow and rely on the
+  /// client-side gate (local/dev mode) — same fail-open as aiConsentedAt.
+  private async consentBlockCode(
+    userId: string,
+  ): Promise<'ai_consent_required' | 'guardian_consent_required' | null> {
     const profile = await this.prisma.tryExecute((client) =>
       client.userProfile.findUnique({
         where: { id: userId },
-        select: { aiConsentedAt: true },
+        select: {
+          aiConsentedAt: true,
+          birthDate: true,
+          guardianConsentedAt: true,
+        },
       }),
     );
-    if (!profile) return true; // DB down or no row → don't hard-block.
-    return profile.aiConsentedAt != null;
+    if (!profile) return null; // DB down or no row → don't hard-block.
+    if (profile.aiConsentedAt == null) return 'ai_consent_required';
+    if (this.isMinor(profile.birthDate) && profile.guardianConsentedAt == null) {
+      return 'guardian_consent_required';
+    }
+    return null;
+  }
+
+  /// Under 18 at the time of the message. An unknown birthDate is NOT treated
+  /// as minor — onboarding does not require it, so blocking on null would
+  /// lock out every adult who skipped the field.
+  private isMinor(birthDate: Date | null | undefined): boolean {
+    if (!birthDate) return false;
+    const eighteenthBirthday = new Date(birthDate);
+    eighteenthBirthday.setFullYear(eighteenthBirthday.getFullYear() + 18);
+    return eighteenthBirthday.getTime() > Date.now();
   }
 
   // ── Storage helpers ─────────────────────────────────────────────────────────

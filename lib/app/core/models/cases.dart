@@ -99,8 +99,6 @@ class StudentCase {
     required this.messages,
     required this.documentRequests,
     this.assignedAdvisorName,
-    this.advisorPhone,
-    this.advisorWhatsapp,
     this.counsellorId,
     this.scheduledAt,
     this.parentCanView = false,
@@ -121,9 +119,10 @@ class StudentCase {
   final List<CaseTimelineEvent> timeline;
   final List<CaseMessage> messages;
   final List<DocumentRequest> documentRequests;
+  // Advisor contact numbers are deliberately NOT modeled: every WhatsApp/phone
+  // hand-off goes through the official KPB line (AppConfig.whatsappNumber) —
+  // personal counsellor numbers must never reach the client (anti-fraud).
   final String? assignedAdvisorName;
-  final String? advisorPhone;
-  final String? advisorWhatsapp;
 
   /// Marketplace counsellor id (Track B), when one is assigned. Null for cases
   /// handled by a free-text advisor. Used to attribute an admission-milestone
@@ -153,8 +152,6 @@ class StudentCase {
     List<CaseMessage>? messages,
     List<DocumentRequest>? documentRequests,
     String? assignedAdvisorName,
-    String? advisorPhone,
-    String? advisorWhatsapp,
     String? counsellorId,
     DateTime? scheduledAt,
     bool? parentCanView,
@@ -176,8 +173,6 @@ class StudentCase {
       messages: messages ?? this.messages,
       documentRequests: documentRequests ?? this.documentRequests,
       assignedAdvisorName: assignedAdvisorName ?? this.assignedAdvisorName,
-      advisorPhone: advisorPhone ?? this.advisorPhone,
-      advisorWhatsapp: advisorWhatsapp ?? this.advisorWhatsapp,
       counsellorId: counsellorId ?? this.counsellorId,
       scheduledAt: scheduledAt ?? this.scheduledAt,
       parentCanView: parentCanView ?? this.parentCanView,

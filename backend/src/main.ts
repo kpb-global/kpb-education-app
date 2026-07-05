@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import * as express from 'express';
 
 import { AppModule } from './app.module';
+import { resolveCorsOrigins } from './common/cors-origins';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
@@ -43,7 +44,7 @@ async function bootstrap() {
 
   // ── CORS ────────────────────────────────────────────────────────────────────
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') ?? ['http://localhost:3000'],
+    origin: resolveCorsOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],

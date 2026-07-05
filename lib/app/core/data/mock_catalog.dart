@@ -49,8 +49,6 @@ class MockCatalog {
         createdAt: now.subtract(const Duration(days: 3)),
         updatedAt: now.subtract(const Duration(hours: 6)),
         assignedAdvisorName: 'Amina KPB',
-        advisorPhone: '+227 90 00 00 00',
-        advisorWhatsapp: '+22790000000',
         nextStepTitle: const LocalizedText(
             fr: 'Préparer votre entretien',
             en: 'Prepare for your consultation'),

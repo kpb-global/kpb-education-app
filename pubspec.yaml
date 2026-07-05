@@ -47,7 +47,6 @@ dependencies:
   share_plus: ^12.0.2
   permission_handler: ^12.0.1
   url_launcher: ^6.2.6
-  rename: ^3.0.2
   shared_preferences: ^2.3.5
   cached_network_image: ^3.4.1
   pin_code_fields: ^9.3.0
@@ -91,6 +90,7 @@ dependencies:
   quick_actions: ^1.1.0
   pdf: ^3.12.0
   printing: ^5.14.3
+  package_info_plus: ^9.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

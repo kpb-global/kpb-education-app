@@ -67,6 +67,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'karatoupostbac-178213.firebasestorage.app',
     iosClientId:
         '334788383631-59cfd9gdtauqpmnfvo1uju8qhmtkrk8b.apps.googleusercontent.com',
-    iosBundleId: 'Karatou.karatou',
+    iosBundleId: 'com.kpbeducation.app',
   );
 }

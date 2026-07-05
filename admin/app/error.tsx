@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 
+import { reportError } from '../lib/error-reporting';
 import { useLocale } from '../components/locale-provider';
 
 export default function Error({
@@ -14,7 +15,8 @@ export default function Error({
   const { t } = useLocale();
 
   useEffect(() => {
-    // TODO: forward to error monitoring (e.g. Sentry) once configured.
+    // Forwarded to Sentry when NEXT_PUBLIC_SENTRY_DSN is set; no-op otherwise.
+    reportError(error);
     console.error(error);
   }, [error]);
 

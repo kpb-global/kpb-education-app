@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
+import { CampaignMailService } from './campaign-mail.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
 interface ResolvedTemplate {
@@ -18,6 +19,7 @@ export class CampaignExecutorService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly pushService: OneSignalSenderService,
+    private readonly mailService: CampaignMailService,
   ) {}
 
   async execute(campaignId: string): Promise<{ enqueued: number }> {
@@ -125,21 +127,51 @@ export class CampaignExecutorService {
       }
     }
 
+    let emailsSent = 0;
     if (campaign.channels.includes('email') && template) {
-      // No email provider is wired yet (SendGrid/SES — TODO). We must NOT
-      // fabricate a "delivered" status: nothing is actually sent, so queued
-      // email deliveries are marked failed and campaign stats stay honest.
-      const emailRecipients = recipients.filter((u) => u.email).length;
-      await this.prismaService.execute((prisma) =>
-        prisma.notificationDelivery.updateMany({
-          where: { campaignId, channel: 'email', status: 'queued' },
-          data: { status: 'failed' },
-        }),
-      );
-      this.logger.warn(
-        `Email provider not configured — ${emailRecipients} email recipient(s) ` +
-          `for campaign ${campaignId} marked failed (not sent).`,
-      );
+      if (this.mailService.isEnabled) {
+        for (const user of recipients) {
+          const subject =
+            user.preferredLanguage === 'en' ? template.titleEn : template.titleFr;
+          const text =
+            user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
+          const ok = user.email
+            ? await this.mailService.send(user.email, subject, text)
+            : false;
+          if (ok) emailsSent += 1;
+
+          // Same honesty rule as push: record the real per-recipient outcome
+          // (no address / provider failure → failed, never fake "delivered").
+          await this.prismaService.execute((prisma) =>
+            prisma.notificationDelivery.updateMany({
+              where: {
+                campaignId,
+                recipientId: user.id,
+                channel: 'email',
+                status: 'queued',
+              },
+              data: ok
+                ? { status: 'delivered', deliveredAt: new Date() }
+                : { status: 'failed' },
+            }),
+          );
+        }
+      } else {
+        // No email provider configured (RESEND_API_KEY unset). We must NOT
+        // fabricate a "delivered" status: nothing is actually sent, so queued
+        // email deliveries are marked failed and campaign stats stay honest.
+        const emailRecipients = recipients.filter((u) => u.email).length;
+        await this.prismaService.execute((prisma) =>
+          prisma.notificationDelivery.updateMany({
+            where: { campaignId, channel: 'email', status: 'queued' },
+            data: { status: 'failed' },
+          }),
+        );
+        this.logger.warn(
+          `Email provider not configured — ${emailRecipients} email recipient(s) ` +
+            `for campaign ${campaignId} marked failed (not sent).`,
+        );
+      }
     }
 
     await this.prismaService.execute((prisma) =>
@@ -150,7 +182,8 @@ export class CampaignExecutorService {
     );
 
     this.logger.log(
-      `Campaign ${campaignId} executed: ${recipients.length} recipients, ${delivered} push sent.`,
+      `Campaign ${campaignId} executed: ${recipients.length} recipients, ` +
+        `${delivered} push sent, ${emailsSent} emails sent.`,
     );
     return { enqueued: recipients.length };
   }

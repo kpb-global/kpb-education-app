@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>Karatou.karatou</string>
+	<string>com.kpbeducation.app</string>
 	<key>PROJECT_ID</key>
 	<string>karatoupostbac-178213</string>
 	<key>STORAGE_BUCKET</key>

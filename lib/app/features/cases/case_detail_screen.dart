@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/navigation/shell_tabs.dart';
@@ -19,26 +18,19 @@ import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
 
 Future<void> _openWhatsapp({
-  String? phone,
   String? prefill,
   String? advisorName,
 }) async {
   // Gate every case hand-off behind the verified-advisor card so an impostor
-  // number is obvious before the user leaves the app.
+  // number is obvious before the user leaves the app. No `phone:` on purpose:
+  // case hand-offs always target the official KPB line, never a counsellor's
+  // personal number (anti-fraud, Item 12).
   await showVerifiedAdvisorThenWhatsApp(
     advisorName: advisorName,
-    phone: phone,
     prefill: prefill,
     source: 'case_detail',
     contextType: 'case',
   );
-}
-
-Future<void> _callPhone(String phone) async {
-  final uri = Uri(scheme: 'tel', path: phone);
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri);
-  }
 }
 
 class CaseDetailScreen extends StatefulWidget {
@@ -529,34 +521,25 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                     ],
                                   ),
                                 ),
-                                if (c.advisorWhatsapp != null)
-                                  _AdvisorAction(
-                                    icon: Icons.chat_rounded,
-                                    color: KpbColors.success,
-                                    semanticLabel: 'a11y_whatsapp_advisor'.tr,
-                                    onTap: () => _openWhatsapp(
-                                      phone: c.advisorWhatsapp,
-                                      advisorName: c.assignedAdvisorName,
-                                      prefill: c.isReferenceProvisional
-                                          ? 'case_whatsapp_advisor_prefill_provisional'
-                                              .trParams({
-                                              'title': _ctrl.resolve(c.title)
-                                            })
-                                          : 'case_whatsapp_advisor_prefill'
-                                              .trParams({
-                                              'reference': c.referenceCode
-                                            }),
-                                    ),
+                                _AdvisorAction(
+                                  icon: Icons.chat_rounded,
+                                  color: KpbColors.success,
+                                  semanticLabel: 'a11y_whatsapp_advisor'.tr,
+                                  // Official KPB line only (no phone: —
+                                  // personal counsellor numbers must never
+                                  // be a WhatsApp target, anti-fraud).
+                                  onTap: () => _openWhatsapp(
+                                    advisorName: c.assignedAdvisorName,
+                                    prefill: c.isReferenceProvisional
+                                        ? 'case_whatsapp_advisor_prefill_provisional'
+                                            .trParams({
+                                            'title': _ctrl.resolve(c.title)
+                                          })
+                                        : 'case_whatsapp_advisor_prefill'
+                                            .trParams(
+                                                {'reference': c.referenceCode}),
                                   ),
-                                if (c.advisorPhone != null) ...[
-                                  const SizedBox(width: 8),
-                                  _AdvisorAction(
-                                    icon: Icons.call_rounded,
-                                    color: KpbColors.blue,
-                                    semanticLabel: 'a11y_call_advisor'.tr,
-                                    onTap: () => _callPhone(c.advisorPhone!),
-                                  ),
-                                ],
+                                ),
                               ],
                             ),
                           ),
@@ -569,7 +552,6 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         // advisor is assigned yet.
                         _WhatsappContinueButton(
                           onTap: () => _openWhatsapp(
-                            phone: c.advisorWhatsapp,
                             advisorName: c.assignedAdvisorName,
                             prefill: c.isReferenceProvisional
                                 ? 'case_whatsapp_continue_prefill_provisional'
@@ -577,7 +559,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                 : 'case_whatsapp_continue_prefill'
                                     .trParams({'reference': c.referenceCode}),
                           ),
-                          hasAdvisor: c.advisorWhatsapp != null,
+                          hasAdvisor: c.assignedAdvisorName != null,
                         ),
                         const SizedBox(height: KpbSpacing.sm),
                         const KpbAntiFraudNotice(source: 'case_detail'),

@@ -10,6 +10,8 @@ import {
   S3ClientConfig,
 } from '@aws-sdk/client-s3';
 
+import { AntivirusService } from './antivirus.service';
+
 const DEFAULT_DIR = resolve(process.cwd(), 'uploads');
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME = new Set([
@@ -53,7 +55,7 @@ export class StorageService {
   private readonly driver: Driver;
   private readonly s3Client: S3Client | null;
 
-  constructor() {
+  constructor(private readonly antivirusService: AntivirusService) {
     const hasS3 =
       !!this.s3Bucket &&
       !!this.s3AccessKey &&
@@ -114,6 +116,11 @@ export class StorageService {
     if (fileBuffer.byteLength > MAX_BYTES) {
       throw new Error('File exceeds 10 MB limit.');
     }
+
+    // Antivirus gate BEFORE anything is persisted: an infected file must never
+    // reach the uploads volume/bucket (422 if infected, 503 if the scanner is
+    // configured but unavailable — fail-closed).
+    await this.antivirusService.assertClean(fileBuffer, originalName);
 
     const ext = extname(originalName).toLowerCase() || '.bin';
     const key = `${new Date().toISOString().slice(0, 10)}/${Date.now()}-${randomUUID()}${ext}`;
