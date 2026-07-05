@@ -224,7 +224,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Long-stay student visa after confirmed admission.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['business', 'computer_science', 'engineering'],
+    popularFieldIds: ['d02', 'd01', 'd03'],
     quiz: {
       questions: [
         levelQuestion,
@@ -333,7 +333,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Blocked account + national visa required.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['engineering', 'computer_science'],
+    popularFieldIds: ['d03', 'd01'],
     quiz: {
       questions: [
         levelQuestion,
@@ -374,9 +374,9 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
           'Quel domaine veux-tu étudier ?',
           'Which field do you want to study?',
           [
-            ['engineering', 'Ingénierie / Informatique', 'Engineering / IT'],
+            ['d03', 'Ingénierie / Informatique', 'Engineering / IT'],
             ['sciences', 'Sciences', 'Sciences'],
-            ['business', 'Business', 'Business'],
+            ['d02', 'Business', 'Business'],
             ['other', 'Autre', 'Other'],
           ],
         ),
@@ -427,7 +427,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'F-1 visa after I-20.',
     admissionDifficultyFr: 'Haute',
     admissionDifficultyEn: 'High',
-    popularFieldIds: ['business', 'computer_science'],
+    popularFieldIds: ['d02', 'd01'],
     quiz: {
       questions: [levelQuestion, diplomaQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('USA', 'USA', ['can', 'mar']),
@@ -476,7 +476,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Study permit + post-graduation options.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['business', 'computer_science'],
+    popularFieldIds: ['d02', 'd01'],
     quiz: {
       questions: [levelQuestion, diplomaQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('Canada', 'Canada'),
@@ -525,7 +525,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Student visa depending on nationality.',
     admissionDifficultyFr: 'Faible',
     admissionDifficultyEn: 'Low',
-    popularFieldIds: ['business', 'computer_science'],
+    popularFieldIds: ['d02', 'd01'],
     quiz: {
       questions: [
         levelQuestion,
@@ -589,7 +589,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Standard student visa.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['business', 'engineering'],
+    popularFieldIds: ['d02', 'd03'],
     quiz: {
       questions: [levelQuestion, diplomaQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('Turquie', 'Turkey', ['mar', 'are']),
@@ -638,7 +638,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Institution-sponsored student visa.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['business'],
+    popularFieldIds: ['d02'],
     quiz: {
       questions: [levelQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('EAU', 'UAE', ['tur', 'mar']),
@@ -687,7 +687,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'UK student visa (CAS).',
     admissionDifficultyFr: 'Haute',
     admissionDifficultyEn: 'High',
-    popularFieldIds: ['business', 'computer_science'],
+    popularFieldIds: ['d02', 'd01'],
     quiz: {
       questions: [levelQuestion, diplomaQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('Royaume-Uni', 'UK', ['can', 'esp']),
@@ -736,7 +736,7 @@ export const M5_COUNTRY_SEEDS: M5CountrySeed[] = [
     visaOverviewEn: 'Schengen student visa.',
     admissionDifficultyFr: 'Moyenne',
     admissionDifficultyEn: 'Medium',
-    popularFieldIds: ['business'],
+    popularFieldIds: ['d02'],
     quiz: {
       questions: [levelQuestion, diplomaQuestion, englishQuestion, budgetQuestion],
       verdicts: defaultVerdicts('Espagne', 'Spain', ['fra', 'mar']),

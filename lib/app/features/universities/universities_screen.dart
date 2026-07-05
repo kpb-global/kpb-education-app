@@ -37,9 +37,26 @@ class _UniversitiesScreenState extends State<UniversitiesScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    // When arriving with a pre-filter (orientation → "voir les écoles") and
+    // no PARTNER program matches that field, land on "Toutes les écoles"
+    // instead of a confusing empty partner tab.
+    var startOnPartners = true;
+    if (widget.initialFieldId != null) {
+      final controller = Get.find<AppController>();
+      final partnerMatches = ProgramFilterService.apply(
+        controller.programs,
+        ProgramFilterState(partnerOnly: true, fieldId: widget.initialFieldId),
+        controller,
+      );
+      startOnPartners = partnerMatches.isNotEmpty;
+    }
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: startOnPartners ? 0 : 1,
+    );
     _filters = ProgramFilterState(
-      partnerOnly: true,
+      partnerOnly: startOnPartners,
       fieldId: widget.initialFieldId,
     );
     _tabController.addListener(() {
@@ -209,11 +226,13 @@ class _PaginatedProgramList extends StatelessWidget {
 
     return ListView.separated(
       controller: scrollController,
+      // Bottom padding clears the floating shell nav bar (same 100px gap as
+      // the home/cases scrollables) so the last card stays reachable.
       padding: const EdgeInsets.fromLTRB(
         KpbSpacing.pagePad,
         0,
         KpbSpacing.pagePad,
-        KpbSpacing.pagePad,
+        100 + KpbSpacing.pagePad,
       ),
       itemCount: shown.length + (hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -319,73 +338,88 @@ class _FilterHeader extends StatelessWidget {
           ),
           if (expanded) ...[
             const SizedBox(height: 8),
-            _CountryFilter(
-              countries: controller.countries,
-              selectedId: filters.countryId,
-              onChanged: (id) => onFiltersChanged(
-                filters.copyWith(
-                  countryId: id,
-                  clearCountryId: id == null,
-                ),
+            // Height-capped and scrollable: the full panel used to be fixed
+            // and squeezed the results into a sliver of screen behind the
+            // floating nav bar.
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.38,
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'm6_filter_budget'.trParams({
-                'max': '${filters.budgetMaxEur.round()}',
-              }),
-              style: KpbTextStyles.caption,
-            ),
-            Slider(
-              value: filters.budgetMaxEur,
-              min: 1000,
-              max: 30000,
-              divisions: 29,
-              label: '${filters.budgetMaxEur.round()} €',
-              onChanged: (value) =>
-                  onFiltersChanged(filters.copyWith(budgetMaxEur: value)),
-            ),
-            _ChipRow(
-              label: 'm6_filter_level'.tr,
-              options: programLevelFilters
-                  .map((e) => (e.key, 'm6_level_${e.key}'.tr))
-                  .toList(),
-              selectedKey: filters.levelKey,
-              onSelected: (key) => onFiltersChanged(
-                filters.copyWith(
-                  levelKey: key,
-                  clearLevelKey: key == null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _ChipRow(
-              label: 'm6_filter_field'.tr,
-              options: [
-                (null, 'catalog_filter_all'.tr),
-                ...controller.fields.map(
-                  (f) => (f.id, controller.resolve(f.name)),
-                ),
-              ],
-              selectedKey: filters.fieldId,
-              onSelected: (key) => onFiltersChanged(
-                filters.copyWith(
-                  fieldId: key,
-                  clearFieldId: key == null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _ChipRow(
-              label: 'm6_filter_language'.tr,
-              options: programLanguageFilters
-                  .map((e) => (e.key, 'm6_language_${e.key}'.tr))
-                  .toList(),
-              selectedKey: filters.languageKey,
-              onSelected: (key) => onFiltersChanged(
-                filters.copyWith(
-                  languageKey: key,
-                  clearLanguageKey: key == null,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _CountryFilter(
+                      countries: controller.countries,
+                      selectedId: filters.countryId,
+                      onChanged: (id) => onFiltersChanged(
+                        filters.copyWith(
+                          countryId: id,
+                          clearCountryId: id == null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'm6_filter_budget'.trParams({
+                        'max': '${filters.budgetMaxEur.round()}',
+                      }),
+                      style: KpbTextStyles.caption,
+                    ),
+                    Slider(
+                      value: filters.budgetMaxEur,
+                      min: 1000,
+                      max: 30000,
+                      divisions: 29,
+                      label: '${filters.budgetMaxEur.round()} €',
+                      onChanged: (value) => onFiltersChanged(
+                          filters.copyWith(budgetMaxEur: value)),
+                    ),
+                    _ChipRow(
+                      label: 'm6_filter_level'.tr,
+                      options: programLevelFilters
+                          .map((e) => (e.key, 'm6_level_${e.key}'.tr))
+                          .toList(),
+                      selectedKey: filters.levelKey,
+                      onSelected: (key) => onFiltersChanged(
+                        filters.copyWith(
+                          levelKey: key,
+                          clearLevelKey: key == null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _ChipRow(
+                      label: 'm6_filter_field'.tr,
+                      options: [
+                        (null, 'catalog_filter_all'.tr),
+                        ...controller.fields.map(
+                          (f) => (f.id, controller.resolve(f.name)),
+                        ),
+                      ],
+                      selectedKey: filters.fieldId,
+                      onSelected: (key) => onFiltersChanged(
+                        filters.copyWith(
+                          fieldId: key,
+                          clearFieldId: key == null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _ChipRow(
+                      label: 'm6_filter_language'.tr,
+                      options: programLanguageFilters
+                          .map((e) => (e.key, 'm6_language_${e.key}'.tr))
+                          .toList(),
+                      selectedKey: filters.languageKey,
+                      onSelected: (key) => onFiltersChanged(
+                        filters.copyWith(
+                          languageKey: key,
+                          clearLanguageKey: key == null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -508,25 +508,25 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       onSelected: (_) => setState(() => _fieldFilter = null),
                     ),
                     const SizedBox(width: 8),
+                    // Canonical d-ids (d01 informatique, d02 business,
+                    // d03 ingénierie) — the legacy business/computer_science/
+                    // engineering ids were remapped in the catalog.
                     FilterChip(
                       label: Text('catalog_filter_business'.tr),
-                      selected: _fieldFilter == 'business',
-                      onSelected: (_) =>
-                          setState(() => _fieldFilter = 'business'),
+                      selected: _fieldFilter == 'd02',
+                      onSelected: (_) => setState(() => _fieldFilter = 'd02'),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: Text('catalog_filter_cs'.tr),
-                      selected: _fieldFilter == 'computer_science',
-                      onSelected: (_) =>
-                          setState(() => _fieldFilter = 'computer_science'),
+                      selected: _fieldFilter == 'd01',
+                      onSelected: (_) => setState(() => _fieldFilter = 'd01'),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: Text('catalog_filter_engineering'.tr),
-                      selected: _fieldFilter == 'engineering',
-                      onSelected: (_) =>
-                          setState(() => _fieldFilter = 'engineering'),
+                      selected: _fieldFilter == 'd03',
+                      onSelected: (_) => setState(() => _fieldFilter = 'd03'),
                     ),
                   ],
                 ),

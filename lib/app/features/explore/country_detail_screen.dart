@@ -474,9 +474,11 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                         Text('kpb_offer_formulas'.tr,
                             style: KpbTextStyles.label),
                         const SizedBox(height: 8),
+                        // No pricing in-app (product decision): the packs
+                        // describe the services, and the sales team discusses
+                        // price after the case-consultation request.
                         _PackCard(
                           name: 'pack_admission'.tr,
-                          price: '249 €',
                           description: 'pack_admission_desc'.tr,
                           services: [
                             'svc_school_search'.tr,
@@ -487,7 +489,6 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                         const SizedBox(height: 8),
                         _PackCard(
                           name: 'pack_envol'.tr,
-                          price: '399 €',
                           description: 'pack_envol_desc'.tr,
                           highlight: true,
                           services: [
@@ -495,20 +496,6 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                             'svc_application'.tr,
                             'svc_interview'.tr,
                             'svc_visa'.tr,
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.local_offer_outlined,
-                                size: 15, color: KpbColors.success),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text('kpb_offer_partner_discount'.tr,
-                                  style: KpbTextStyles.caption.copyWith(
-                                      color: KpbColors.success,
-                                      fontWeight: FontWeight.w600)),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -812,14 +799,12 @@ class _OfferCondition extends StatelessWidget {
 class _PackCard extends StatelessWidget {
   const _PackCard({
     required this.name,
-    required this.price,
     required this.description,
     required this.services,
     this.highlight = false,
   });
 
   final String name;
-  final String price;
   final String description;
   final List<String> services;
   final bool highlight;
@@ -840,22 +825,9 @@ class _PackCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  name,
-                  style: KpbTextStyles.titleMd.copyWith(color: accent),
-                ),
-              ),
-              Text(
-                price,
-                style: KpbTextStyles.titleMd.copyWith(
-                  color: accent,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
+          Text(
+            name,
+            style: KpbTextStyles.titleMd.copyWith(color: accent),
           ),
           const SizedBox(height: 2),
           Text(description, style: KpbTextStyles.caption),

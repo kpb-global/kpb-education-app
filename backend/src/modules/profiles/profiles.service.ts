@@ -29,7 +29,7 @@ export class ProfilesService {
     currentLevel: 'High school',
     targetLevel: 'Bachelor',
     languageLevel: 'Intermediate',
-    fieldIds: ['computer_science', 'business'],
+    fieldIds: ['d01', 'd02'],
     // Active ISO country ids (see seed:countries-m5) — matches the catalog after
     // the canada->can / france->fra remap so coach targeting + UI resolve them.
     targetCountryIds: ['can', 'fra'],

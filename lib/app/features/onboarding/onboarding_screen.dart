@@ -168,7 +168,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
   _DialCode _waCode = _dialCodes[0];
-  final Set<String> _fieldIds = {'computer_science', 'business'};
+  final Set<String> _fieldIds = {'d01', 'd02'};
   final Set<String> _countryIds = {'canada', 'france'};
   final Set<String> _docs = {'Passport', 'Transcripts'};
   bool _hasConsented = false;

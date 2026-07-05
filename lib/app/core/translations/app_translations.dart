@@ -1133,10 +1133,8 @@ class AppTranslations extends Translations {
           'svc_application': 'CV + lettre de motivation',
           'svc_interview': 'Préparation à l\'entretien',
           'svc_visa': 'Procédure visa accompagnée',
-          'kpb_offer_partner_discount':
-              '−30 % si tu étudies dans une école partenaire KPB',
-          'kpb_offer_price_note':
-              'Tarif indicatif · payable après échange avec un conseiller',
+          // Pas de tarif dans l'app : les commerciaux parlent prix avec le
+          // client après la demande de consultation de dossier.
           'onboarding_title': 'Construisons votre parcours',
           'partner_redirect':
               'Les partenariats sont gérés via un formulaire dédié et un suivi KPB.',
@@ -1353,12 +1351,12 @@ class AppTranslations extends Translations {
           'home_for_parent': 'Tableau de bord parent',
           'home_for_partner': 'Espace partenariat',
           'book_consultation': 'Réserver une consultation',
-          'request_support': 'Demander un accompagnement',
+          'request_support': 'Demander une consultation de dossier',
           'view_cases': 'Voir mes dossiers',
           'continue_orientation': 'Continuer mon orientation',
           'explore_fields': 'Explorer les filières',
           'explore_countries': 'Explorer les pays',
-          'scholarships_for_you': 'Écoles pour vous',
+          'scholarships_for_you': 'Bourses pour vous',
           'profile_completion': 'Complétude du profil',
           'orientation_intro':
               'Répondez à quelques questions. KPB vous propose des pistes de filières, des pays et des grandes écoles cohérents.',
@@ -2746,10 +2744,8 @@ class AppTranslations extends Translations {
           'svc_application': 'CV + motivation letter',
           'svc_interview': 'Interview preparation',
           'svc_visa': 'Guided visa process',
-          'kpb_offer_partner_discount':
-              '−30% if you study at a KPB partner school',
-          'kpb_offer_price_note':
-              'Indicative price · payable after talking to an advisor',
+          // No pricing in-app: sales staff discusses price with the client
+          // after the case-consultation request.
           'onboarding_title': 'Let’s build your journey',
           'partner_redirect':
               'Partnerships are handled through a dedicated form and KPB follow-up.',
@@ -2962,12 +2958,12 @@ class AppTranslations extends Translations {
           'home_for_parent': 'Parent dashboard',
           'home_for_partner': 'Partnership space',
           'book_consultation': 'Book consultation',
-          'request_support': 'Request support',
+          'request_support': 'Request a case consultation',
           'view_cases': 'View my cases',
           'continue_orientation': 'Continue orientation',
           'explore_fields': 'Explore fields',
           'explore_countries': 'Explore countries',
-          'scholarships_for_you': 'Schools for you',
+          'scholarships_for_you': 'Scholarships for you',
           'profile_completion': 'Profile completion',
           'orientation_intro':
               'Answer a few questions. KPB will suggest fields, countries, and top schools that fit your profile.',

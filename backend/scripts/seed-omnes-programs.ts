@@ -94,12 +94,12 @@ function inferFieldId(row: OmnesRow): string {
       text,
     )
   ) {
-    return 'computer_science';
+    return 'd01';
   }
   if (/engineer|ingenier|ingénier|aeronaut|aéronaut/.test(text)) {
-    return 'engineering';
+    return 'd03';
   }
-  return 'business';
+  return 'd02';
 }
 
 function studyLevelsFor(row: OmnesRow): string[] {

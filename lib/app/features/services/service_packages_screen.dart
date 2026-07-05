@@ -9,12 +9,12 @@ import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
 ///
-/// Fixed-price bundles (10k–25k FCFA) where KPB reviews CV, motivation and
-/// recommendation letters in FR + EN before submission.
+/// Service bundles where KPB reviews CV, motivation and recommendation
+/// letters in FR + EN before submission.
 ///
-/// The screen splits the catalog by category. There is no in-app checkout —
-/// our (largely African) audience arranges payment directly with an advisor,
-/// so each package's CTA opens WhatsApp pre-filled with that service's name.
+/// No pricing is shown in-app (product decision): the cards describe the
+/// service, and the CTA requests a case consultation — the sales team then
+/// discusses price directly with the client on WhatsApp.
 class ServicePackagesScreen extends StatefulWidget {
   const ServicePackagesScreen({
     super.key,
@@ -160,7 +160,6 @@ class _PackageCard extends StatelessWidget {
     final summary = ((en ? pkg['summaryEn'] : pkg['summaryFr']) as String?) ??
         (pkg['summaryFr'] as String?) ??
         '';
-    final price = (pkg['priceXOF'] as num?)?.toInt() ?? 0;
     final turnaround =
         ((en ? pkg['turnaroundEn'] : pkg['turnaroundFr']) as String?) ??
             (pkg['turnaroundFr'] as String?) ??
@@ -192,13 +191,6 @@ class _PackageCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(summary, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 12),
-            Text(
-              '${_formatFcfa(price)} FCFA',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
             if (turnaround.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text('${'turnaround_label'.tr} : $turnaround',
@@ -224,7 +216,7 @@ class _PackageCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 icon: const Icon(Icons.chat_rounded),
-                label: Text('contact_advisor'.tr),
+                label: Text('request_support'.tr),
                 onPressed: () => onContact(pkg),
               ),
             ),
@@ -247,16 +239,5 @@ class _PackageCard extends StatelessWidget {
       default:
         return 'service_packages_category_default'.tr;
     }
-  }
-
-  static String _formatFcfa(int value) {
-    // Group thousands with a non-breaking space — matches local convention.
-    final s = value.toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buf.write('\u00A0');
-      buf.write(s[i]);
-    }
-    return buf.toString();
   }
 }

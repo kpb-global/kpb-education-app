@@ -583,6 +583,13 @@ class _DocumentsStep extends StatelessWidget {
                     ),
                   OutlinedButton(
                     onPressed: () => onPick(label),
+                    // The theme's minimumSize (Size.fromHeight) means an
+                    // INFINITE min width — fatal inside a Row (the whole
+                    // Documents step rendered blank). Finite local minimum.
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
                     child: Text(
                         path == null ? 'common_add'.tr : 'common_replace'.tr),
                   ),

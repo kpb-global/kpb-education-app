@@ -1,7 +1,7 @@
 export const mockCatalog = {
   fields: [
     {
-      id: 'computer_science',
+      id: 'd01',
       name: { fr: 'Informatique', en: 'Computer Science' },
       description: {
         fr: 'Programmes orientés logiciel, data et produits numériques.',
@@ -9,7 +9,7 @@ export const mockCatalog = {
       },
     },
     {
-      id: 'business',
+      id: 'd02',
       name: { fr: 'Business', en: 'Business' },
       description: {
         fr: 'Gestion, stratégie, entrepreneuriat et finance.',
@@ -17,7 +17,7 @@ export const mockCatalog = {
       },
     },
     {
-      id: 'engineering',
+      id: 'd03',
       name: { fr: 'Ingénierie', en: 'Engineering' },
       description: {
         fr: 'Filières techniques pour concevoir et optimiser des systèmes.',
@@ -66,7 +66,7 @@ export const mockCatalog = {
       id: 'uottawa-cs',
       institutionId: 'uottawa',
       countryId: 'can',
-      fieldId: 'computer_science',
+      fieldId: 'd01',
       name: { fr: 'Bachelor en informatique', en: 'Bachelor in Computer Science' },
       level: { fr: 'Licence', en: 'Bachelor' },
     },
@@ -74,7 +74,7 @@ export const mockCatalog = {
       id: 'essec-mim',
       institutionId: 'essec',
       countryId: 'fra',
-      fieldId: 'business',
+      fieldId: 'd02',
       name: { fr: 'Master in Management', en: 'Master in Management' },
       level: { fr: 'Master', en: 'Master' },
     },
