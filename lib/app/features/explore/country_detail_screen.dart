@@ -642,12 +642,18 @@ class _HeroChip extends StatelessWidget {
         children: [
           Icon(icon, size: 13, color: Colors.white),
           const SizedBox(width: 5),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+          // Flexible + ellipsis: a long catalog value (e.g. a verbose tuition
+          // range) must truncate instead of overflowing the hero card.
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
