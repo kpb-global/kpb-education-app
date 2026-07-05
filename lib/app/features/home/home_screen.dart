@@ -95,16 +95,24 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          firstName.isNotEmpty
-                              ? 'home_greeting_named'
-                                  .trParams({'name': firstName})
-                              : 'home_greeting'.tr,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: c.textPrimary,
-                            letterSpacing: -0.5,
+                        // Scale down instead of ellipsizing: with the drawer
+                        // hamburger + 3 action chips the title area is narrow,
+                        // and "Bonjour, Ami…" reads as a bug to the user.
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            firstName.isNotEmpty
+                                ? 'home_greeting_named'
+                                    .trParams({'name': firstName})
+                                : 'home_greeting'.tr,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: c.textPrimary,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                         ),
                         Text(

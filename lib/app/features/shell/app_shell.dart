@@ -8,7 +8,6 @@ import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/components/kpb_offline_banner.dart';
 import '../../core/ui/components/kpb_sample_data_banner.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../cases/cases_screen.dart';
 import '../destinations/destinations_screen.dart';
 import '../home/home_screen.dart';
@@ -67,21 +66,11 @@ class AppShell extends StatelessWidget {
                   ),
                 ],
               ),
-              // Top-left hamburger overlay. Tab screens have their own
-              // Scaffolds without leading icons, so we surface the drawer entry
-              // point from the AppShell level. Sits clear of the dynamic-island
-              // / notch via SafeArea.
-              Positioned(
-                top: 0,
-                left: 0,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: KpbSpacing.xs, top: KpbSpacing.xs),
-                    child: _KpbDrawerButton(),
-                  ),
-                ),
-              ),
+              // No floating hamburger overlay: it doubled the auto-implied
+              // drawer icon of the shell-hosted tabs (home/cases/profile) and
+              // sat on top of the offline/sample banners. Every tab now owns
+              // its drawer entry in its app bar (auto-implied, or an explicit
+              // leading for the tabs with inner Scaffolds).
               if (index != StudentShellTab.home) const CoachFab(),
               Positioned(
                 left: 0,
@@ -294,30 +283,6 @@ class _NavItem extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Small floating menu (hamburger) button that opens the KPB tools drawer.
-/// Lives in the AppShell stack so it surfaces regardless of which tab is
-/// currently rendered (each tab has its own Scaffold without a leading icon).
-class _KpbDrawerButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.kpb.cardBg.withValues(alpha: 0.85),
-          shape: BoxShape.circle,
-          boxShadow: KpbShadow.soft,
-        ),
-        child: IconButton(
-          icon: Icon(Icons.menu_rounded, color: context.kpb.textPrimary),
-          tooltip: 'tools_drawer_title'.tr,
-          onPressed: () => KpbToolsDrawer.open(context),
         ),
       ),
     );

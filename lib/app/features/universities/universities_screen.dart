@@ -9,6 +9,7 @@ import '../../core/utils/country_utils.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/utils/study_level.dart';
 import '../explore/program_detail_screen.dart';
+import '../shell/kpb_tools_drawer.dart';
 import 'widgets/program_catalog_card.dart';
 
 /// M6 — Recherche universités avec filtres et onglets Partenaires / Toutes.
@@ -89,6 +90,13 @@ class _UniversitiesScreenState extends State<UniversitiesScreen>
 
         return Scaffold(
           appBar: AppBar(
+            // Inner Scaffold has no drawer, so surface the shell drawer entry
+            // explicitly (the other tabs get it auto-implied by the shell).
+            leading: IconButton(
+              icon: const Icon(Icons.menu_rounded),
+              tooltip: 'tools_drawer_title'.tr,
+              onPressed: () => KpbToolsDrawer.open(context),
+            ),
             title: Text('nav_universities'.tr),
             bottom: TabBar(
               controller: _tabController,

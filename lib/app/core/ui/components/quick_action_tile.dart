@@ -39,16 +39,21 @@ class QuickActionTile extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textPrimary,
-                height: 1.3,
+            // Single line, scaled down to fit: the tiles are ~70px wide, so a
+            // label like "Orientation" used to wrap mid-word ("Orientatio/n")
+            // and misalign the row of cards.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: c.textPrimary,
+                  height: 1.3,
+                ),
               ),
             ),
           ],
