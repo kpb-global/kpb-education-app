@@ -536,9 +536,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                                             'title': _ctrl.resolve(c.title)
                                           })
                                         : 'case_whatsapp_advisor_prefill'
-                                            .trParams({
-                                            'reference': c.referenceCode
-                                          }),
+                                            .trParams(
+                                                {'reference': c.referenceCode}),
                                   ),
                                 ),
                               ],
