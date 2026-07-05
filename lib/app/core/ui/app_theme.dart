@@ -50,20 +50,17 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) return KpbColors.blue;
           return const Color(0xFF2D3748);
         }),
-        labelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            );
-          }
-          return const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-          );
-        }),
+        // Same trap as the light theme: only labelStyle.color is
+        // state-resolved by Chip, so use WidgetStateColor, never
+        // WidgetStateTextStyle.
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          color: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return Colors.white;
+            return const Color(0xFF9CA3AF);
+          }),
+        ),
         side: BorderSide.none,
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -248,9 +245,11 @@ class AppTheme {
       ),
 
       // ── Chips ───────────────────────────────────────────────────────────
-      // Unselected chip: gray100 fill + gray300 border + textPrimary label.
-      // The previous textSecondary label rendered as low-contrast grey-on-grey
-      // across ~13 filter screens (universités, orientation, search, etc.).
+      // Unselected chip: gray100 fill + gray300 border + gray700 label.
+      // CAUTION: Chip only resolves labelStyle.color (resolveAs<Color?>), so a
+      // WidgetStateTextStyle here reads as an all-null TextStyle and the label
+      // silently loses its color (rendered white on ~13 filter screens). The
+      // state-dependent color MUST be a WidgetStateColor on a plain TextStyle.
       chipTheme: ChipThemeData(
         shape: const RoundedRectangleBorder(
           borderRadius: KpbRadius.pillBr,
@@ -261,20 +260,14 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) return KpbColors.blue;
           return KpbColors.gray100;
         }),
-        labelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            );
-          }
-          return const TextStyle(
-            color: KpbColors.textPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          );
-        }),
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          color: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return Colors.white;
+            return KpbColors.gray700;
+          }),
+        ),
         side: WidgetStateBorderSide.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const BorderSide(color: Colors.transparent);
