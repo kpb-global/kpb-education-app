@@ -74,6 +74,7 @@ import { ReportsController } from './modules/reports/reports.controller';
 import { ReportsService } from './modules/reports/reports.service';
 import { SavedItemsController } from './modules/saved-items/saved-items.controller';
 import { SavedItemsService } from './modules/saved-items/saved-items.service';
+import { AntivirusService } from './modules/storage/antivirus.service';
 import { StorageService } from './modules/storage/storage.service';
 import {
   AdminCounsellorsController,
@@ -239,6 +240,7 @@ import { SalonService } from './modules/salon/salon.service';
     PrismaService,
     ReportsService,
     SavedItemsService,
+    AntivirusService,
     StorageService,
     CounsellorsService,
     PaymentsService,

@@ -57,6 +57,12 @@ services:
       - KPB_S3_FORCE_PATH_STYLE=${KPB_S3_FORCE_PATH_STYLE:-}
       - KPB_UPLOADS_DIR=${KPB_UPLOADS_DIR:-/app/uploads}
       - KPB_UPLOADS_PUBLIC_URL=${KPB_UPLOADS_PUBLIC_URL:-}
+      # Antivirus: uploads are scanned by the clamav sidecar before being
+      # persisted (fail-closed). Set CLAMAV_HOST= (empty) in .env to disable.
+      # Note `${VAR-default}` (no colon): an explicitly empty value disables
+      # scanning, while an unset var defaults to the sidecar.
+      - CLAMAV_HOST=${CLAMAV_HOST-clamav}
+      - CLAMAV_PORT=${CLAMAV_PORT:-3310}
     volumes:
       # Persist uploaded case documents across container recreation
       # (`docker-compose up -d --build`). Without this, the local-disk fallback
@@ -65,6 +71,23 @@ services:
     depends_on:
       db:
         condition: service_healthy # Wait for DB to be genuinely ready
+      clamav:
+        # `service_started`, NOT `service_healthy`: ClamAV's first boot spends
+        # minutes downloading signatures; uploads simply 503 (fail-closed)
+        # until clamd is ready, and the rest of the API must not wait on it.
+        condition: service_started
+
+  # Antivirus daemon for uploaded case documents. The API streams every upload
+  # to clamd (INSTREAM, port 3310) before persisting it — files never leave the
+  # compose network. Needs ~1–1.5 GB RAM; signatures live on kpb-clamav-db and
+  # are refreshed by the image's built-in freshclam.
+  clamav:
+    image: clamav/clamav:stable
+    container_name: kpb_clamav
+    restart: always
+    # No host port on purpose: only the api container talks to clamd.
+    volumes:
+      - kpb-clamav-db:/var/lib/clamav
 
   db:
     image: postgres:15-alpine
@@ -124,3 +147,4 @@ services:
 volumes:
   kpb-db-data:
   kpb-uploads:
+  kpb-clamav-db:
