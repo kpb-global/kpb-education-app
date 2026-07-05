@@ -73,6 +73,14 @@ class _CasesScreenState extends State<CasesScreen> {
                       FilledButton.icon(
                         icon: const Icon(Icons.add_rounded, size: 18),
                         label: Text('new_case'.tr),
+                        // The theme's minimumSize (Size.fromHeight) means an
+                        // INFINITE min width — fatal inside a Row, whose
+                        // children get unbounded width constraints. Override
+                        // with a finite minimum for this inline button.
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 44),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                        ),
                         onPressed: () => showModalBottomSheet<void>(
                           context: context,
                           isScrollControlled: true,

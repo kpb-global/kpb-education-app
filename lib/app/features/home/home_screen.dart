@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/config/app_config.dart';
@@ -90,6 +91,9 @@ class HomeScreen extends StatelessWidget {
                   toolbarHeight: 64,
                   backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
+                  // Transparent app bars default to light status-bar icons
+                  // (white clock, invisible on our light page background).
+                  systemOverlayStyle: SystemUiOverlayStyle.dark,
                   title: Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Column(
@@ -943,11 +947,14 @@ class _AiAdvisorBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  // Badge top-aligned: the title may wrap to 2 lines instead
+                  // of ellipsizing ("Conseiller d'Orientation…").
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Flexible(
                       child: Text(
                         'home_ai_advisor_title'.tr,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
@@ -1548,11 +1555,14 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        // Badge top-aligned: the title may wrap to 2 lines
+                        // instead of ellipsizing ("Inscriptions à l'Ét…").
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Flexible(
                             child: Text(
                               'register_abroad_title'.tr,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
