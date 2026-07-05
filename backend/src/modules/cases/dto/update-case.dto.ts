@@ -22,14 +22,6 @@ export class UpdateCaseDto {
   assignedAdvisorName?: string;
 
   @IsOptional()
-  @IsString()
-  assignedAdvisorPhone?: string;
-
-  @IsOptional()
-  @IsString()
-  assignedAdvisorWhatsapp?: string;
-
-  @IsOptional()
   @IsISO8601()
   scheduledAt?: string;
 }

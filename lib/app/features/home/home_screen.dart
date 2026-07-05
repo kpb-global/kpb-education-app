@@ -807,8 +807,6 @@ final _placeholder = StudentCase(
   timeline: const [],
   messages: const [],
   documentRequests: const [],
-  advisorPhone: null,
-  advisorWhatsapp: null,
 );
 
 class _StepData {

@@ -130,7 +130,6 @@ class AppTranslations extends Translations {
           'a11y_send_message': 'Envoyer le message',
           'a11y_remove': 'Retirer',
           'a11y_rate': 'Noter',
-          'a11y_call_advisor': 'Appeler le conseiller',
           'a11y_whatsapp_advisor': 'Contacter le conseiller sur WhatsApp',
           'parent_case_view_title': 'Dossier (lecture)',
           // --- KPB-89 wave2 ---
@@ -1764,7 +1763,6 @@ class AppTranslations extends Translations {
           'a11y_send_message': 'Send message',
           'a11y_remove': 'Remove',
           'a11y_rate': 'Rate',
-          'a11y_call_advisor': 'Call advisor',
           'a11y_whatsapp_advisor': 'Message advisor on WhatsApp',
           'parent_case_view_title': 'Case (read-only)',
           // --- KPB-89 wave2 ---

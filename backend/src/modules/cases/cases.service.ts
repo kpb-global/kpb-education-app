@@ -257,12 +257,6 @@ export class CasesService {
             ...(input.assignedAdvisorName
               ? { assignedAdvisorName: input.assignedAdvisorName }
               : {}),
-            ...(input.assignedAdvisorPhone
-              ? { assignedAdvisorPhone: input.assignedAdvisorPhone }
-              : {}),
-            ...(input.assignedAdvisorWhatsapp
-              ? { assignedAdvisorWhatsapp: input.assignedAdvisorWhatsapp }
-              : {}),
             ...(input.scheduledAt
               ? { scheduledAt: new Date(input.scheduledAt) }
               : {}),
@@ -436,12 +430,10 @@ export class CasesService {
           data: {
             status: newStatus,
             assignedAdvisorName: input.assignedAdvisorName,
-            ...(input.assignedAdvisorPhone
-              ? { assignedAdvisorPhone: input.assignedAdvisorPhone }
-              : {}),
-            ...(input.assignedAdvisorWhatsapp
-              ? { assignedAdvisorWhatsapp: input.assignedAdvisorWhatsapp }
-              : {}),
+            // Official-line policy (Item 12): a manual assignment clears any
+            // legacy personal number instead of writing a new one.
+            assignedAdvisorPhone: null,
+            assignedAdvisorWhatsapp: null,
             leadTag: 'to_follow_up',
             lastCommercialInteractionAt: new Date(),
             nextStepTitle:

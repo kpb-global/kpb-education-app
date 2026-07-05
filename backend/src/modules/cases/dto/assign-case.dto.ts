@@ -1,17 +1,12 @@
 import { IsISO8601, IsOptional, IsString, MaxLength } from 'class-validator';
 
+// No advisor phone/WhatsApp fields on purpose: student contact always goes
+// through the official KPB line, so personal numbers are never stored on a
+// case (anti-fraud, Item 12).
 export class AssignCaseDto {
   @IsString()
   @MaxLength(120)
   assignedAdvisorName!: string;
-
-  @IsOptional()
-  @IsString()
-  assignedAdvisorPhone?: string;
-
-  @IsOptional()
-  @IsString()
-  assignedAdvisorWhatsapp?: string;
 
   @IsOptional()
   @IsString()

@@ -298,8 +298,6 @@ class LocalAppRepository implements AppRepository {
       'documentRequests':
           caseItem.documentRequests.map(_documentRequestToJson).toList(),
       'assignedAdvisorName': caseItem.assignedAdvisorName,
-      'advisorPhone': caseItem.advisorPhone,
-      'advisorWhatsapp': caseItem.advisorWhatsapp,
       'counsellorId': caseItem.counsellorId,
       'scheduledAt': caseItem.scheduledAt?.toIso8601String(),
       'parentCanView': caseItem.parentCanView,
@@ -345,8 +343,6 @@ class LocalAppRepository implements AppRepository {
               .map(_documentRequestFromJson)
               .toList(),
       assignedAdvisorName: json['assignedAdvisorName'] as String?,
-      advisorPhone: json['advisorPhone'] as String?,
-      advisorWhatsapp: json['advisorWhatsapp'] as String?,
       counsellorId: json['counsellorId'] as String?,
       scheduledAt: DateTime.tryParse(json['scheduledAt'] as String? ?? ''),
       parentCanView: json['parentCanView'] as bool? ?? false,

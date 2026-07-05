@@ -72,10 +72,11 @@ export default function CasesPage() {
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // No advisor phone/WhatsApp fields on purpose: students and parents only
+  // ever see the official KPB line, so per-counsellor numbers stored on a
+  // case would never reach them (anti-fraud, Item 12).
   const [assignForm, setAssignForm] = useState({
     assignedAdvisorName: '',
-    assignedAdvisorPhone: '',
-    assignedAdvisorWhatsapp: '',
     nextStepTitle: '',
     nextStepDescription: '',
     scheduledAt: '',
@@ -130,8 +131,6 @@ export default function CasesPage() {
     }
     setAssignForm({
       assignedAdvisorName: selectedCase.assignedAdvisorName ?? '',
-      assignedAdvisorPhone: '',
-      assignedAdvisorWhatsapp: '',
       nextStepTitle: selectedCase.nextStepTitle,
       nextStepDescription: selectedCase.nextStepDescription,
       scheduledAt: '',
@@ -154,9 +153,6 @@ export default function CasesPage() {
         method: 'POST',
         body: {
           assignedAdvisorName: assignForm.assignedAdvisorName,
-          assignedAdvisorPhone: assignForm.assignedAdvisorPhone || undefined,
-          assignedAdvisorWhatsapp:
-            assignForm.assignedAdvisorWhatsapp || undefined,
           nextStepTitle: assignForm.nextStepTitle || undefined,
           nextStepDescription: assignForm.nextStepDescription || undefined,
           scheduledAt: assignForm.scheduledAt
@@ -397,32 +393,6 @@ export default function CasesPage() {
                         setAssignForm((current) => ({
                           ...current,
                           assignedAdvisorName: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Phone
-                    <input
-                      value={assignForm.assignedAdvisorPhone}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorPhone: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    WhatsApp
-                    <input
-                      value={assignForm.assignedAdvisorWhatsapp}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorWhatsapp: event.target.value,
                         }))
                       }
                       style={inputStyle}
