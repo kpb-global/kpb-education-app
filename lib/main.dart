@@ -16,6 +16,7 @@ import 'app/core/config/app_routes.dart';
 import 'app/core/repositories/app_api_client.dart';
 import 'app/core/repositories/local_app_repository.dart';
 import 'app/core/services/analytics_service.dart';
+import 'app/core/services/app_version_gate.dart';
 import 'app/core/services/case_message_outbox.dart';
 import 'app/core/services/catalog_cache_service.dart';
 import 'app/core/services/connectivity_service.dart';
@@ -94,6 +95,10 @@ Future<void> main() async {
     if (controller.profile != null) {
       unawaited(controller.syncOneSignalIdentity());
     }
+
+    // Force-update gate: async so an unreachable backend never delays boot;
+    // replaces the stack with the update screen once the app has mounted.
+    unawaited(AppVersionGate.check(apiClient));
 
     ConnectivityService.instance.startMonitoring();
     ConnectivityService.instance.bindReconnectSync(() async {

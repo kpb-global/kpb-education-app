@@ -86,8 +86,10 @@ export class CaseReassignmentCronService {
             data: {
               counsellorId: next.id,
               assignedAdvisorName: next.fullName,
-              assignedAdvisorPhone: next.phone,
-              assignedAdvisorWhatsapp: next.whatsApp ?? null,
+              // Official-line policy (Item 12): clear any legacy personal
+              // number instead of copying the new counsellor's contact.
+              assignedAdvisorPhone: null,
+              assignedAdvisorWhatsapp: null,
               updatedAt: new Date(),
             },
           });

@@ -62,8 +62,14 @@ describe('CoachService — AI consent gate', () => {
 
   // Prisma stub that runs the caller's callback against a fake client; all
   // tables return null (→ in-memory conversation path) except userProfile,
-  // whose consent value is parameterized per test.
-  function makeService(aiConsentedAt: Date | null) {
+  // whose consent/birth-date values are parameterized per test.
+  function makeService(
+    aiConsentedAt: Date | null,
+    profileExtra: {
+      birthDate?: Date | null;
+      guardianConsentedAt?: Date | null;
+    } = {},
+  ) {
     const llm = {
       // eslint-disable-next-line @typescript-eslint/require-await
       async *streamText() {
@@ -84,7 +90,13 @@ describe('CoachService — AI consent gate', () => {
       coachMessage: { create: async () => null },
       country: { findMany: async () => null },
       scholarship: { findMany: async () => null },
-      userProfile: { findUnique: async () => ({ aiConsentedAt }) },
+      userProfile: {
+        findUnique: async () => ({
+          aiConsentedAt,
+          birthDate: profileExtra.birthDate ?? null,
+          guardianConsentedAt: profileExtra.guardianConsentedAt ?? null,
+        }),
+      },
     };
     const prisma = {
       tryExecute: async (fn: (c: typeof fakeClient) => unknown) => fn(fakeClient),
@@ -126,5 +138,89 @@ describe('CoachService — AI consent gate', () => {
     expect(events.some((e) => e.type === 'token')).toBe(true);
     expect(events.some((e) => e.type === 'done')).toBe(true);
     expect(events.some((e) => e.code === 'ai_consent_required')).toBe(false);
+  });
+
+  // ── Guardian consent gate (minors) ─────────────────────────────────────────
+
+  function birthDateYearsAgo(years: number): Date {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - years);
+    return date;
+  }
+
+  it('blocks a minor without guardian consent (guardian_consent_required)', async () => {
+    const service = makeService(new Date(), {
+      birthDate: birthDateYearsAgo(15),
+      guardianConsentedAt: null,
+    });
+    const created = await service.createConversation('user-a', {});
+    const events = await collect(
+      service.streamReply({
+        conversationId: created.conversationId,
+        userId: 'user-a',
+        message: 'Bonjour',
+        profile: { preferredLanguage: 'fr' },
+      }),
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'error',
+      code: 'guardian_consent_required',
+    });
+    expect(events.some((e) => e.type === 'token')).toBe(false);
+  });
+
+  it('streams for a minor once guardian consent is recorded', async () => {
+    const service = makeService(new Date(), {
+      birthDate: birthDateYearsAgo(15),
+      guardianConsentedAt: new Date(),
+    });
+    const created = await service.createConversation('user-a', {});
+    const events = await collect(
+      service.streamReply({
+        conversationId: created.conversationId,
+        userId: 'user-a',
+        message: 'Bonjour',
+        profile: { preferredLanguage: 'fr' },
+      }),
+    );
+    expect(events.some((e) => e.type === 'token')).toBe(true);
+    expect(events.some((e) => e.code === 'guardian_consent_required')).toBe(false);
+  });
+
+  it('does not require guardian consent for an adult', async () => {
+    const service = makeService(new Date(), {
+      birthDate: birthDateYearsAgo(25),
+      guardianConsentedAt: null,
+    });
+    const created = await service.createConversation('user-a', {});
+    const events = await collect(
+      service.streamReply({
+        conversationId: created.conversationId,
+        userId: 'user-a',
+        message: 'Bonjour',
+        profile: { preferredLanguage: 'fr' },
+      }),
+    );
+    expect(events.some((e) => e.type === 'token')).toBe(true);
+    expect(events.some((e) => e.code === 'guardian_consent_required')).toBe(false);
+  });
+
+  it('does not treat an unknown birthDate as minor', async () => {
+    const service = makeService(new Date(), {
+      birthDate: null,
+      guardianConsentedAt: null,
+    });
+    const created = await service.createConversation('user-a', {});
+    const events = await collect(
+      service.streamReply({
+        conversationId: created.conversationId,
+        userId: 'user-a',
+        message: 'Bonjour',
+        profile: { preferredLanguage: 'fr' },
+      }),
+    );
+    expect(events.some((e) => e.type === 'token')).toBe(true);
+    expect(events.some((e) => e.code === 'guardian_consent_required')).toBe(false);
   });
 });

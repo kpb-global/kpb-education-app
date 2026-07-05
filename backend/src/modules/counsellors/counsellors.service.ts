@@ -75,7 +75,21 @@ export class CounsellorsService {
     const counsellor = await this.prismaService.execute((prisma) =>
       prisma.counsellor.findFirst({
         where: { id, isActive: true, kycStatus: 'approved' },
-        include: {
+        // Explicit select: the public detail view must never leak the
+        // counsellor's personal contact details (email/phone/whatsApp) or
+        // internal KYC/commission fields.
+        select: {
+          id: true,
+          fullName: true,
+          countryOfResidence: true,
+          specialties: true,
+          languagesSpoken: true,
+          bioFr: true,
+          bioEn: true,
+          yearsExperience: true,
+          hourlyRateXOF: true,
+          avgRating: true,
+          reviewCount: true,
           reviews: {
             where: { isPublished: true },
             orderBy: { createdAt: 'desc' },

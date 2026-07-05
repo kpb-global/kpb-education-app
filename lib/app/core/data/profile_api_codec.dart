@@ -9,8 +9,14 @@ abstract final class ProfileApiCodec {
     Map<String, dynamic> json, {
     required String fallbackLocale,
   }) {
+    final id = json['id'] as String?;
+    // A profile without an id would silently impersonate a placeholder user
+    // and poison the local store; the sync call-site catches and reports.
+    if (id == null || id.isEmpty) {
+      throw const FormatException('Profile payload is missing "id".');
+    }
     return UserProfile(
-      id: json['id'] as String? ?? 'demo-user',
+      id: id,
       accountType: AccountType.values
               .firstWhereOrNull((item) => item.name == json['accountType']) ??
           AccountType.student,

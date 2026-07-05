@@ -29,11 +29,13 @@ import { CommunityController } from './modules/community/community.controller';
 import { CommunityService } from './modules/community/community.service';
 import { ContentController } from './modules/content/content.controller';
 import { ContentService } from './modules/content/content.service';
+import { AppConfigController } from './modules/config/app-config.controller';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { OneSignalSenderService } from './modules/notifications/onesignal-sender.service';
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
+import { CampaignMailService } from './modules/notifications/campaign-mail.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { DeadlineReminderCronService } from './modules/notifications/deadline-reminder-cron.service';
 import { MilestoneReminderService } from './modules/notifications/milestone-reminder.service';
@@ -158,6 +160,7 @@ import { SalonService } from './modules/salon/salon.service';
     DeviceTokensController,
     AdminPushController,
     DocumentReviewController,
+    AppConfigController,
     HealthController,
     NotificationsController,
     OrientationController,
@@ -212,6 +215,7 @@ import { SalonService } from './modules/salon/salon.service';
     ContentService,
     OneSignalSenderService,
     CampaignExecutorService,
+    CampaignMailService,
     CampaignCronService,
     DeadlineReminderCronService,
     MilestoneReminderService,

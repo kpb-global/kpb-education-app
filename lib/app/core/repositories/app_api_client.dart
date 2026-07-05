@@ -58,6 +58,9 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Public app config (`/config/app`) — drives the force-update gate.
+  Future<Map<String, dynamic>> getAppConfig() => get('/config/app');
+
   // Legacy /device-tokens registration removed: push identity is now owned
   // end-to-end by OneSignal (see OneSignalService), and these client methods
   // were never called. The backend table is retained for now.

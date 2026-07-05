@@ -11,6 +11,7 @@ import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Server, Socket } from 'socket.io';
 
+import { resolveCorsOrigins } from '../../common/cors-origins';
 import { SupabaseAuthService } from '../auth/supabase-auth.service';
 import { CasesService } from './cases.service';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
@@ -21,7 +22,9 @@ import { OneSignalSenderService } from '../notifications/onesignal-sender.servic
 @WebSocketGateway({
   namespace: '/cases',
   cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') ?? ['http://localhost:3000'],
+    // Evaluated at import time: in production a missing CORS_ORIGINS throws
+    // here and aborts boot (fail-loud) instead of shipping a localhost list.
+    origin: resolveCorsOrigins(),
     credentials: true,
   },
 })

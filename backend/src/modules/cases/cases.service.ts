@@ -147,8 +147,9 @@ export class CasesService {
                   status: CaseStatus.CounselorAssigned,
                   counsellorId: nextCounsellor.id,
                   assignedAdvisorName: nextCounsellor.fullName,
-                  assignedAdvisorPhone: nextCounsellor.phone ?? null,
-                  assignedAdvisorWhatsapp: nextCounsellor.whatsApp ?? null,
+                  // Personal counsellor numbers are deliberately NOT copied
+                  // onto the case: every student/parent contact goes through
+                  // the official KPB WhatsApp line (anti-fraud, Item 12).
                   leadTag: 'to_follow_up',
                   lastCommercialInteractionAt: new Date(),
                   nextStepTitle: 'A counselor has been assigned',
@@ -629,8 +630,13 @@ export class CasesService {
       nextStepTitle: c.nextStepTitle,
       nextStepDescription: c.nextStepDescription,
       assignedAdvisorName: c.assignedAdvisorName,
-      assignedAdvisorPhone: c.assignedAdvisorPhone,
-      assignedAdvisorWhatsapp: c.assignedAdvisorWhatsapp,
+      // Counsellor contact details are internal-only: students and parents
+      // must reach KPB through the official WhatsApp line, so legacy rows that
+      // still carry personal numbers are not exposed on student-facing reads.
+      assignedAdvisorPhone: includeInternal ? c.assignedAdvisorPhone : null,
+      assignedAdvisorWhatsapp: includeInternal
+        ? c.assignedAdvisorWhatsapp
+        : null,
       // Marketplace counsellor id (Track B) — used by the app to attribute an
       // admission-milestone review to the right counsellor (KPB-75).
       counsellorId: c.counsellorId ?? null,
