@@ -1,5 +1,10 @@
 # 🎯 KPB Education — Audit MVP & Roadmap de livraison
 
+> Note 2026-07-07: ce document est un ancien audit et certaines observations
+> sont maintenant périmées par les travaux récents et par le nouveau starter kit
+> Karatou. Utiliser `docs/phase0-new-plan-alignment.md` comme source de vérité
+> Phase 0 avant d'exécuter une tâche issue de cette roadmap.
+
 **Date** : 23 mai 2026
 **Référence spec** : `docs/App goal/00_CAHIER_DES_CHARGES_MASTER.md` + 6 annexes
 **État actuel** : ~30 % du MVP livré (audit code complet)
