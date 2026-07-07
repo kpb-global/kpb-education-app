@@ -230,6 +230,7 @@ model UserProfile {
   referralsMade        Referral[]               @relation("referral_referrer")
   referralReceived     Referral?                @relation("referral_referee")
   creditTransactions   CreditTransaction[]
+  matches              Match[]
 
   @@index([accountType])
   @@index([createdAt])
@@ -767,6 +768,16 @@ model Program {
   // [{ campus: string, tuitionUpfront: number|null,
   //    tuitionInstallments: number|null, intake: string|null }]
   campusOfferings Json?
+  // ── Match scoring inputs (Phase 0 / P0-D, kit matching_algorithm.md) ──────
+  // Nullable on purpose: the scoring service treats a missing value as a
+  // neutral 0.5 factor and flags the match `isEstimate`, so no backfill is
+  // required to ship. Populating these per program is a catalog/ops task.
+  // `tuitionFr/En` above stay the human-readable labels; `tuitionMinEur` is
+  // the machine-readable floor used for budget scoring.
+  minGpaRequired      Float?
+  tuitionMinEur       Int?
+  applicationDeadline DateTime?
+  teachingLanguages   String[]  @default([])
   lastVerifiedAt  DateTime?
   sourceUrl       String?
   verifiedById    String?
@@ -778,6 +789,57 @@ model Program {
   @@index([countryId])
   @@index([fieldId])
   @@index([lastVerifiedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admission-probability matches (Phase 0 / P0-D — kit US-003/US-004)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum MatchZone {
+  green // probability > 0.70
+  yellow // 0.30–0.70
+  blue // < 0.30
+}
+
+// One scored (user, program) pair. Rows are a 24h cache of the deterministic
+// v1 scoring (see MatchesService) — safe to delete wholesale; they are always
+// recomputable. `programId` is a plain string like every other catalog
+// reference in this schema (catalog rows may come from the mock fallback, so
+// no FK). The UserProfile FK cascades so GDPR deleteMe needs no extra step.
+model Match {
+  id               String            @id @default(cuid())
+  userProfileId    String
+  programId        String
+  institutionId    String
+  probability      Float
+  zone             MatchZone
+  algorithmVersion String            @default("v1")
+  // True when ≥1 scoring input was missing and defaulted to neutral 0.5 —
+  // mobile shows "Estimation — complète ton dossier pour plus de précision".
+  isEstimate       Boolean           @default(false)
+  expiresAt        DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  userProfile      UserProfile       @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  explanation      MatchExplanation?
+
+  @@unique([userProfileId, programId])
+  @@index([userProfileId])
+  @@index([programId])
+  @@index([expiresAt])
+}
+
+// Per-factor breakdown + human narrative for one match. `factors` is the kit
+// contract shape: [{ name, weight, score, isEstimate }].
+model MatchExplanation {
+  id          String   @id @default(cuid())
+  matchId     String   @unique
+  factors     Json
+  narrativeFr String   @default("")
+  narrativeEn String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  match       Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 }
 
 model Scholarship {

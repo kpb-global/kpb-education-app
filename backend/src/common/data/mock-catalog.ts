@@ -69,6 +69,12 @@ export const mockCatalog = {
       fieldId: 'computer_science',
       name: { fr: 'Bachelor en informatique', en: 'Bachelor in Computer Science' },
       level: { fr: 'Licence', en: 'Bachelor' },
+      // Match-scoring inputs (P0-D): keep the mock scorable so /matches
+      // returns non-estimate results without a database.
+      minGpaRequired: 12,
+      tuitionMinEur: 24000,
+      applicationDeadline: '2027-01-15T00:00:00.000Z',
+      teachingLanguages: ['fr', 'en'],
     },
     {
       id: 'essec-mim',
@@ -77,6 +83,10 @@ export const mockCatalog = {
       fieldId: 'business',
       name: { fr: 'Master in Management', en: 'Master in Management' },
       level: { fr: 'Master', en: 'Master' },
+      minGpaRequired: 14,
+      tuitionMinEur: 24000,
+      applicationDeadline: '2026-12-01T00:00:00.000Z',
+      teachingLanguages: ['en'],
     },
   ],
   scholarships: [

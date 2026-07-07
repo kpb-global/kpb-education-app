@@ -11,6 +11,7 @@ import {
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { CommunityService } from './community.service';
 import { UpsertForumTaxonomyDto } from './dto/upsert-forum-taxonomy.dto';
@@ -19,12 +20,16 @@ import { UpsertForumTaxonomyDto } from './dto/upsert-forum-taxonomy.dto';
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
+  // Community is hidden in the MVP app (AppConfig.mvpOnly) — gate the public
+  // routes to match (P0-C). Admin taxonomy routes below stay open.
   @Get('community/forum-categories')
+  @UseGuards(MvpGuard)
   listForumCategories() {
     return this.communityService.listForumCategories();
   }
 
   @Get('community/forum-tags')
+  @UseGuards(MvpGuard)
   listForumTags() {
     return this.communityService.listForumTags();
   }

@@ -8,6 +8,7 @@ import '../../core/models/app_models.dart';
 import '../../core/services/onesignal_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../legal/legal_pages.dart';
+import '../matches/aha_moment_screen.dart';
 import 'onboarding_m2_constants.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -461,8 +462,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Ask for push permission via OneSignal; identity is linked in
     // completeOnboarding() → syncOneSignalIdentity().
     await OneSignalService.instance.requestPermission();
-    _ctrl.completeOnboarding(_buildProfile());
-    Get.offAllNamed(AppRoutes.home);
+    final profile = _buildProfile();
+    if (_accountType == AccountType.student) {
+      // AHA moment (P0-D): await the profile PATCH so the server scores the
+      // answers just given, then reveal the matches. Guest/skip paths never
+      // reach _submit, so they keep landing on home.
+      await _ctrl.completeOnboardingSynced(profile);
+      if (!mounted) return;
+      Get.offAll(() => const AhaMomentScreen());
+    } else {
+      _ctrl.completeOnboarding(profile);
+      Get.offAllNamed(AppRoutes.home);
+    }
   }
 
   @override

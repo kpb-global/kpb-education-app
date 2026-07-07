@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { verify as jsonwebtokenVerify } from 'jsonwebtoken';
 import { createPublicKey } from 'crypto';
 import type { JsonWebKey as CryptoJsonWebKey } from 'crypto';
 
@@ -110,11 +111,15 @@ export class SupabaseAuthService {
       }
 
       const pem = await this.resolveSigningKey(token);
-      return this.jwtService.verify(token, {
-        publicKey: pem,
+      // Deliberately NOT this.jwtService.verify here: @nestjs/jwt resolves the
+      // module-level `secret` (KPB_JWT_SECRET, registered globally in
+      // AppModule) with higher priority than a per-call `publicKey`, so the
+      // ES256 signature would be checked against the HS256 secret and always
+      // fail. jsonwebtoken.verify takes the key positionally — no shadowing.
+      return jsonwebtokenVerify(token, pem, {
         algorithms: ['ES256', 'RS256'],
         ...verifyOptions,
-      });
+      }) as Record<string, unknown>;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
       throw new UnauthorizedException('Invalid or expired access token.');

@@ -448,6 +448,15 @@ abstract class _AppControllerBase extends GetxController {
       onboardingSkipped || (profile?.completionScore ?? 0) < 0.5;
 
   void completeOnboarding(UserProfile newProfile) {
+    unawaited(completeOnboardingSynced(newProfile));
+  }
+
+  /// Same as [completeOnboarding], but the returned future resolves once the
+  /// profile PATCH has been attempted. The AHA moment (P0-D) awaits this so
+  /// `GET /matches/aha-moment` scores the profile the user just submitted
+  /// instead of a stale/empty server copy. Push failures still resolve (the
+  /// screen falls back to local scoring); `_profileNeedsPush` keeps the retry.
+  Future<void> completeOnboardingSynced(UserProfile newProfile) async {
     profile = newProfile;
     localeCode = newProfile.preferredLanguage;
     // Apply the language chosen during onboarding to all `.tr` strings.
@@ -461,13 +470,13 @@ abstract class _AppControllerBase extends GetxController {
     // profile to unblock submitCase, which would discard the case they just
     // built). The next syncRemoteData will reconcile from the server.
     _profileNeedsPush = true;
-    unawaited(_pushProfileUpdate());
     _persist();
     update();
     unawaited(syncOneSignalIdentity());
     if (AppConfig.enableRemoteSync) {
       unawaited(syncRemoteData(silent: true));
     }
+    await _pushProfileUpdate();
   }
 
   void setThemeMode(ThemeMode mode) {

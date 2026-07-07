@@ -93,6 +93,26 @@ class AppApiClient {
     await _dio.delete<void>('/profiles/me');
   }
 
+  // ── Matches (Phase 0 / P0-D — kit US-003/US-004) ──────────────
+
+  /// Top-N server-scored matches for the post-onboarding AHA moment.
+  /// Returns `{items: [SchoolMatch JSON], isEstimate: bool}`.
+  Future<Map<String, dynamic>> getAhaMatches({int limit = 3}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/matches/aha-moment',
+      queryParameters: {'limit': limit},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Best-scoring program of one institution for the caller.
+  Future<Map<String, dynamic>> getSchoolMatch(String institutionId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/matches/school/$institutionId',
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   // ── Referrals (KPB-69) ────────────────────────────────────────
 
   /// The caller's stable referral code + attribution stats.

@@ -14,14 +14,20 @@ import { Request } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { SalonService } from './salon.service';
 
 type StudentReq = Request & { studentUser?: { id: string } };
 
-/** Public event + session listing. */
+/**
+ * Public event + session listing. Salon is hidden in the MVP app
+ * (AppConfig.mvpOnly) — gated to match (P0-C). Admin routes stay open so
+ * events can be prepared before the flag flips.
+ */
 @Controller('salon')
+@UseGuards(MvpGuard)
 export class SalonController {
   constructor(private readonly salonService: SalonService) {}
 

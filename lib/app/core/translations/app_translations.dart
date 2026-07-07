@@ -1636,6 +1636,19 @@ class AppTranslations extends Translations {
           'force_update_body':
               'Cette version de l\'application n\'est plus prise en charge. Mets-la à jour pour continuer à utiliser KPB Education.',
           'force_update_cta': 'Mettre à jour',
+          // ── AHA moment post-onboarding (P0-D) ──
+          'aha_loading': 'Calcul de tes compatibilités…',
+          'aha_title': 'Tes écoles compatibles',
+          'aha_subtitle':
+              'Basé sur ton profil, voici où tes chances sont les meilleures.',
+          'aha_empty_body':
+              'Pas encore de match — explore le catalogue pour découvrir les écoles.',
+          'aha_estimate_note':
+              'Estimation — complète ton profil pour plus de précision.',
+          'aha_zone_green': 'Chances élevées',
+          'aha_zone_yellow': 'Jouable avec un bon dossier',
+          'aha_zone_blue': 'Ambitieux pour ton profil actuel',
+          'aha_cta': 'Découvrir mon espace',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -3238,6 +3251,19 @@ class AppTranslations extends Translations {
           'force_update_body':
               'This version of the app is no longer supported. Update it to keep using KPB Education.',
           'force_update_cta': 'Update now',
+          // ── AHA moment post-onboarding (P0-D) ──
+          'aha_loading': 'Scoring your matches…',
+          'aha_title': 'Your school matches',
+          'aha_subtitle':
+              'Based on your profile, here is where your chances look best.',
+          'aha_empty_body':
+              'No matches yet — explore the catalog to discover schools.',
+          'aha_estimate_note':
+              'Estimate — complete your profile for more precision.',
+          'aha_zone_green': 'Strong chances',
+          'aha_zone_yellow': 'Within reach with a solid application',
+          'aha_zone_blue': 'Ambitious for your current profile',
+          'aha_cta': 'Explore my home',
         },
       };
 }

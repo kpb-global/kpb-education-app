@@ -12,6 +12,7 @@ import {
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { ScholarshipsIndexService } from './scholarships-index.service';
@@ -56,7 +57,11 @@ export class AdminScholarshipsController {
   }
 }
 
-/** Public endpoint — consumed by the mobile app. */
+/**
+ * Public endpoint — consumed by the mobile app. The live-scholarships index
+ * is hidden in the MVP app (AppConfig.mvpOnly renders ComingSoon) — gated to
+ * match (P0-C); the curated `/catalog/scholarships` stays open.
+ */
 @Controller('scholarships')
 export class ScholarshipsController {
   constructor(
@@ -64,7 +69,7 @@ export class ScholarshipsController {
   ) {}
 
   @Get()
-  @UseGuards(StudentAuthGuard)
+  @UseGuards(MvpGuard, StudentAuthGuard)
   list(
     @Query('lang') lang: string = 'fr',
     @Query('level') level?: string,

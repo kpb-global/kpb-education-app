@@ -1,0 +1,125 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:mocktail/mocktail.dart';
+
+import 'package:karatou/app/core/translations/app_translations.dart';
+import 'package:karatou/app/core/ui/components/match_badge.dart';
+import 'package:karatou/app/features/matches/aha_moment_screen.dart';
+
+import '../widget_test_helpers.dart';
+
+Map<String, dynamic> matchJson({
+  String institutionId = 'inst-1',
+  String programId = 'prog-1',
+  double probability = 0.74,
+  String zone = 'green',
+  bool isEstimate = false,
+}) {
+  return {
+    'institutionId': institutionId,
+    'institutionName': {'fr': 'Université Test', 'en': 'Test University'},
+    'programId': programId,
+    'programName': {'fr': 'Master Informatique', 'en': 'MSc Computer Science'},
+    'probability': probability,
+    'zone': zone,
+    'isEstimate': isEstimate,
+    'algorithmVersion': 'v1',
+    'factors': [
+      {'name': 'academic', 'weight': 0.3, 'score': 1, 'isEstimate': false},
+    ],
+    'narrative': {
+      'fr': 'Ton profil correspond très bien.',
+      'en': 'Your profile is a strong match.',
+    },
+  };
+}
+
+void main() {
+  setUp(() {
+    // Labels are localized via `.tr`; register translations + a FR locale so
+    // assertions read the real strings, not raw keys.
+    Get.addTranslations(AppTranslations().keys);
+    Get.locale = const Locale('fr');
+  });
+  tearDown(resetGetxSingleton);
+
+  testWidgets('renders server matches with probability badge and narrative',
+      (tester) async {
+    final api = MockApiClient();
+    when(() => api.getAhaMatches()).thenAnswer(
+      (_) async => {
+        'items': [matchJson()],
+        'isEstimate': false,
+      },
+    );
+
+    await pumpTestApp(tester,
+        child: const AhaMomentScreen(), mockApiClient: api);
+
+    expect(find.text('Université Test'), findsOneWidget);
+    expect(find.text('Master Informatique'), findsOneWidget);
+    expect(find.text('74%'), findsOneWidget);
+    expect(find.text('Ton profil correspond très bien.'), findsOneWidget);
+    // Not an estimate → no precision note.
+    expect(
+      find.textContaining('complète ton profil', findRichText: true),
+      findsNothing,
+    );
+    verify(() => api.getAhaMatches()).called(1);
+  });
+
+  testWidgets('shows the estimate note when a match is flagged isEstimate',
+      (tester) async {
+    final api = MockApiClient();
+    when(() => api.getAhaMatches()).thenAnswer(
+      (_) async => {
+        'items': [matchJson(isEstimate: true, zone: 'yellow')],
+        'isEstimate': true,
+      },
+    );
+
+    await pumpTestApp(tester,
+        child: const AhaMomentScreen(), mockApiClient: api);
+
+    expect(find.textContaining('Estimation'), findsOneWidget);
+  });
+
+  testWidgets('falls back to local scoring when the API call fails',
+      (tester) async {
+    final api = MockApiClient();
+    when(() => api.getAhaMatches()).thenThrow(
+      DioException(requestOptions: RequestOptions(path: '/matches/aha-moment')),
+    );
+
+    await pumpTestApp(tester,
+        child: const AhaMomentScreen(), mockApiClient: api);
+
+    // The initial snapshot still carries the bundled mock catalog, so the
+    // local AppSearchService fallback produces scored cards (flagged as
+    // estimates) instead of a dead end.
+    expect(find.byType(MatchBadge), findsWidgets);
+    expect(find.textContaining('Estimation'), findsOneWidget);
+    // CTA is always present.
+    expect(find.text('Découvrir mon espace'), findsOneWidget);
+  });
+
+  testWidgets('CTA navigates home', (tester) async {
+    final api = MockApiClient();
+    when(() => api.getAhaMatches()).thenAnswer(
+      (_) async => {
+        'items': [matchJson()],
+        'isEstimate': false,
+      },
+    );
+
+    await pumpTestApp(tester,
+        child: const AhaMomentScreen(), mockApiClient: api);
+
+    await tester.tap(find.text('Découvrir mon espace'));
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, '/');
+  });
+}

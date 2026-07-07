@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { AlumniService } from './alumni.service';
@@ -24,8 +25,13 @@ import { SetBadgeVisibleDto } from './dto/set-badge-visible.dto';
 type StudentReq = Request & { studentUser?: { id: string } };
 type AdminReq = Request & { adminUser?: { id?: string; sub?: string } };
 
-/** Public mentor directory — no auth. Renders the community badge strip. */
+/**
+ * Public mentor directory — no auth. Renders the community badge strip.
+ * Alumni surfaces are hidden in the MVP app (AppConfig.mvpOnly) — gated to
+ * match (P0-C). `me/alumni` (own status/apply) and admin review stay open.
+ */
 @Controller('alumni')
+@UseGuards(MvpGuard)
 export class AlumniController {
   constructor(private readonly alumniService: AlumniService) {}
 

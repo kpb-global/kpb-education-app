@@ -148,6 +148,12 @@ export function mapProgram(row: Program) {
     requirements: localizedList(row.requirementsFr, row.requirementsEn),
     // Multi-campus formations (OMNES): per-campus price/intake. Null otherwise.
     campusOfferings: row.campusOfferings ?? null,
+    // Match-scoring inputs (P0-D). Nullable — missing values score as neutral
+    // estimates server-side; exposed here so clients can show data provenance.
+    minGpaRequired: row.minGpaRequired,
+    tuitionMinEur: row.tuitionMinEur,
+    applicationDeadline: row.applicationDeadline,
+    teachingLanguages: row.teachingLanguages,
     // Flat keys kept for backward compatibility with older clients.
     nameFr: row.nameFr,
     nameEn: row.nameEn,
