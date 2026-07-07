@@ -31,6 +31,42 @@ Purpose:
 Purpose:
 - feed Explore, Scholarships, and recommendation surfaces
 
+## Matches (Phase 0 / P0-D — kit US-003/US-004)
+
+- `GET /matches/aha-moment?limit=3` (student auth)
+- `GET /matches/school/:institutionId` (student auth)
+
+Purpose:
+- deterministic admission-probability scoring (algorithm v1, 5 weighted
+  factors — see `docs/phase0-new-plan-alignment.md` and the kit's
+  `matching_algorithm.md`)
+- `aha-moment` returns the top-N institutions (best program each) across the
+  caller's target countries/fields, for the post-onboarding reveal
+- `school/:institutionId` returns the best-scoring program of one institution
+
+Response item shape:
+
+```json
+{
+  "institutionId": "…",
+  "institutionName": { "fr": "…", "en": "…" },
+  "programId": "…",
+  "programName": { "fr": "…", "en": "…" },
+  "probability": 0.74,
+  "zone": "green | yellow | blue",
+  "isEstimate": false,
+  "algorithmVersion": "v1",
+  "factors": [
+    { "name": "academic", "weight": 0.3, "score": 1, "isEstimate": false }
+  ],
+  "narrative": { "fr": "…", "en": "…" }
+}
+```
+
+`aha-moment` wraps items as `{ "items": [...], "isEstimate": bool }`.
+Zones: green > 0.70 · yellow 0.30–0.70 · blue < 0.30. Missing inputs score a
+neutral 0.5 with `isEstimate`; ≥2 missing caps probability at 0.65.
+
 ## Content
 
 - `GET /content/service-offers`

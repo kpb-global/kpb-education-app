@@ -62,6 +62,8 @@ import { YoutubeController } from './modules/content-youtube/youtube.controller'
 import { YoutubeService } from './modules/content-youtube/youtube.service';
 import { KayakController } from './modules/kayak/kayak.controller';
 import { KayakService } from './modules/kayak/kayak.service';
+import { MatchesController } from './modules/matches/matches.controller';
+import { MatchesService } from './modules/matches/matches.service';
 import { LlmService } from './modules/ai/llm.service';
 import { OrientationController } from './modules/orientation/orientation.controller';
 import { OrientationService } from './modules/orientation/orientation.service';
@@ -173,6 +175,7 @@ import { SalonService } from './modules/salon/salon.service';
     ToolsController,
     YoutubeController,
     KayakController,
+    MatchesController,
     PartnerLeadsController,
     ProfilesController,
     ReportsController,
@@ -235,6 +238,7 @@ import { SalonService } from './modules/salon/salon.service';
     ToolsService,
     YoutubeService,
     KayakService,
+    MatchesService,
     PartnerLeadsService,
     ProfilesService,
     PrismaService,

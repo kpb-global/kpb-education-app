@@ -11,6 +11,7 @@ import {
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { ContentService } from './content.service';
 
@@ -28,7 +29,11 @@ export class ContentController {
     return this.contentService.listSupportDestinations();
   }
 
+  // Blog/articles are hidden in the MVP app (AppConfig.mvpOnly) — gate to
+  // match (P0-C). service-offers/support-destinations above stay open: the
+  // MVP home screen consumes them.
   @Get('content/articles')
+  @UseGuards(MvpGuard)
   listArticles() {
     return this.contentService.listArticles();
   }
