@@ -3290,7 +3290,8 @@ class AppTranslations extends Translations {
           'amb_withdraw_error': 'Withdrawal unavailable right now.',
           'amb_history': 'HISTORY',
           'amb_toast_share': 'WhatsApp opens — code + invite link ready 📤',
-          'amb_toast_withdraw': 'Wave withdrawal requested — @amount within 48h ✓',
+          'amb_toast_withdraw':
+              'Wave withdrawal requested — @amount within 48h ✓',
           'amb_referrals_empty':
               'No referrals yet. Share your code to get started!',
           'amb_history_empty': 'No activity yet.',

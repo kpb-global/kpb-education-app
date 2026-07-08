@@ -27,19 +27,53 @@ Map<String, dynamic> _sampleDashboard() => {
         {'reason': 'referral_placed', 'amountFCFA': 35000},
       ],
       'leaderboard': [
-        {'rank': 1, 'name': 'Omar F.', 'initials': 'OF', 'referrals': 19, 'isMe': false},
-        {'rank': 2, 'name': 'Binta Sarr', 'initials': 'BS', 'referrals': 12, 'isMe': true},
+        {
+          'rank': 1,
+          'name': 'Omar F.',
+          'initials': 'OF',
+          'referrals': 19,
+          'isMe': false
+        },
+        {
+          'rank': 2,
+          'name': 'Binta Sarr',
+          'initials': 'BS',
+          'referrals': 12,
+          'isMe': true
+        },
       ],
       'referrals': [
-        {'name': 'Aïcha Diallo', 'initials': 'AD', 'note': 'Dossier Grenoble', 'status': 'application_created', 'gainFCFA': 1000},
-        {'name': 'Moussa Dieng', 'initials': 'MD', 'note': 'Admis à Laval', 'status': 'placed', 'gainFCFA': 36000},
+        {
+          'name': 'Aïcha Diallo',
+          'initials': 'AD',
+          'note': 'Dossier Grenoble',
+          'status': 'application_created',
+          'gainFCFA': 1000
+        },
+        {
+          'name': 'Moussa Dieng',
+          'initials': 'MD',
+          'note': 'Admis à Laval',
+          'status': 'placed',
+          'gainFCFA': 36000
+        },
       ],
       'balanceFCFA': 47000,
       'withdrawableFCFA': 47000,
       'minWithdrawalFCFA': 20000,
       'history': [
-        {'label': 'Moussa placé', 'date': '2026-07-02', 'kind': 'referral_placed', 'amountFCFA': 35000},
-        {'label': 'Retrait Wave', 'date': '2026-06-28', 'kind': 'withdrawal', 'amountFCFA': -25000},
+        {
+          'label': 'Moussa placé',
+          'date': '2026-07-02',
+          'kind': 'referral_placed',
+          'amountFCFA': 35000
+        },
+        {
+          'label': 'Retrait Wave',
+          'date': '2026-06-28',
+          'kind': 'withdrawal',
+          'amountFCFA': -25000
+        },
       ],
     };
 
@@ -103,8 +137,12 @@ void main() {
     final mock = MockApiClient();
     when(() => mock.getAmbassadorDashboard())
         .thenAnswer((_) async => _sampleDashboard());
-    when(() => mock.requestAmbassadorWithdrawal()).thenAnswer((_) async =>
-        {'id': 'wd-1', 'amountFCFA': 47000, 'status': 'requested', 'etaHours': 48});
+    when(() => mock.requestAmbassadorWithdrawal()).thenAnswer((_) async => {
+          'id': 'wd-1',
+          'amountFCFA': 47000,
+          'status': 'requested',
+          'etaHours': 48
+        });
 
     await pump(tester, mock);
     await tester.tap(find.text('amb_nav_payout'));

@@ -205,8 +205,7 @@ class AmbassadorDashboard {
       balanceFCFA: (j['balanceFCFA'] as num?)?.toInt() ?? 0,
       withdrawableFCFA: (j['withdrawableFCFA'] as num?)?.toInt() ?? 0,
       minWithdrawalFCFA: (j['minWithdrawalFCFA'] as num?)?.toInt() ?? 20000,
-      history:
-          _list(j['history']).map(AmbassadorHistoryItem.fromApi).toList(),
+      history: _list(j['history']).map(AmbassadorHistoryItem.fromApi).toList(),
     );
   }
 }

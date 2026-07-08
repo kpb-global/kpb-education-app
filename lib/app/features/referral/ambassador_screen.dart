@@ -171,7 +171,8 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
       body: _loading && d == null
           ? const Center(child: CircularProgressIndicator())
           : d == null
-              ? _ErrorState(message: _error ?? 'amb_load_error'.tr, onRetry: _load)
+              ? _ErrorState(
+                  message: _error ?? 'amb_load_error'.tr, onRetry: _load)
               : Column(
                   children: [
                     if (d.isSample) const _SampleBanner(),
@@ -245,8 +246,8 @@ class _DashboardTab extends StatelessWidget {
                   ),
                   if (a.rankLabel.isNotEmpty)
                     Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: const Color(0x406366F1),
                         borderRadius: BorderRadius.circular(100),
@@ -379,7 +380,9 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(value,
               style: TextStyle(
-                  fontSize: valueSize, fontWeight: FontWeight.w800, color: color)),
+                  fontSize: valueSize,
+                  fontWeight: FontWeight.w800,
+                  color: color)),
           const SizedBox(height: 3),
           Text(label,
               textAlign: TextAlign.center,
@@ -468,7 +471,9 @@ class _HowYouEarnCard extends StatelessWidget {
         children: [
           Text('amb_how_title'.tr,
               style: const TextStyle(
-                  fontSize: 13.5, fontWeight: FontWeight.w800, color: _Amb.ink)),
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: _Amb.ink)),
           const SizedBox(height: 11),
           for (final r in rewards) ...[
             _RewardRow(reward: r),
@@ -535,7 +540,9 @@ class _LeaderboardCard extends StatelessWidget {
                   ? 'amb_leaderboard_title_generic'.tr
                   : 'amb_leaderboard_title'.trParams({'city': city}),
               style: const TextStyle(
-                  fontSize: 13.5, fontWeight: FontWeight.w800, color: _Amb.ink)),
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: _Amb.ink)),
           const SizedBox(height: 11),
           for (final e in entries) ...[
             Row(
@@ -640,7 +647,8 @@ class _ReferralCard extends StatelessWidget {
                   Text(entry.note,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10.5, color: _Amb.slate)),
+                      style:
+                          const TextStyle(fontSize: 10.5, color: _Amb.slate)),
               ],
             ),
           ),
@@ -649,8 +657,7 @@ class _ReferralCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
                     color: s.bg, borderRadius: BorderRadius.circular(100)),
                 child: Text(s.label,
@@ -869,7 +876,8 @@ BoxDecoration _cardDecoration() => BoxDecoration(
     );
 
 class _Avatar extends StatelessWidget {
-  const _Avatar({required this.initials, required this.seed, required this.size});
+  const _Avatar(
+      {required this.initials, required this.seed, required this.size});
   final String initials;
   final String seed;
   final double size;
@@ -879,7 +887,8 @@ class _Avatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: _Amb.avatar(seed), shape: BoxShape.circle),
+      decoration:
+          BoxDecoration(color: _Amb.avatar(seed), shape: BoxShape.circle),
       alignment: Alignment.center,
       child: Text(initials,
           style: TextStyle(
@@ -957,7 +966,9 @@ class _EmptyHint extends StatelessWidget {
           Text(textKey.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w600, color: _Amb.slate)),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: _Amb.slate)),
         ],
       ),
     );
@@ -1024,7 +1035,8 @@ class _BottomNav extends StatelessWidget {
                       width: 52,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: current == i ? _Amb.blueSoft : Colors.transparent,
+                        color:
+                            current == i ? _Amb.blueSoft : Colors.transparent,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Icon(_items[i].icon,
@@ -1092,12 +1104,13 @@ _StatusStyle _statusStyle(ReferralMilestone s) {
     case ReferralMilestone.placed:
       return _StatusStyle('amb_status_placed'.tr, _Amb.greenSoft, _Amb.green);
     case ReferralMilestone.applicationCreated:
-      return _StatusStyle('amb_status_application'.tr, _Amb.blueSoft, _Amb.blue);
+      return _StatusStyle(
+          'amb_status_application'.tr, _Amb.blueSoft, _Amb.blue);
     case ReferralMilestone.quizCompleted:
       return _StatusStyle('amb_status_quiz'.tr, _Amb.skySoft, _Amb.sky);
     case ReferralMilestone.premiumSubscribed:
-      return _StatusStyle(
-          'amb_status_premium'.tr, const Color(0xFFEDE9FE), const Color(0xFF6D28D9));
+      return _StatusStyle('amb_status_premium'.tr, const Color(0xFFEDE9FE),
+          const Color(0xFF6D28D9));
     case ReferralMilestone.churned:
       return _StatusStyle(
           'amb_status_churned'.tr, const Color(0xFFFEE2E2), _Amb.red);
