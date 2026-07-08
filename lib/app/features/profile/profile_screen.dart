@@ -13,6 +13,7 @@ import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';
 import '../eligibility/eligibility_simulator_screen.dart';
 import '../parcours/parcours_screen.dart';
+import '../referral/ambassador_screen.dart';
 import '../referral/referral_screen.dart';
 import '../legal/legal_pages.dart';
 import '../onboarding/onboarding_m2_constants.dart';
@@ -390,6 +391,14 @@ class ProfileScreen extends StatelessWidget {
                               label: 'referral_title'.tr,
                               color: KpbColors.gold,
                               onTap: () => Get.to(() => const ReferralScreen()),
+                            ),
+                            const KpbDivider(indent: 52),
+                            _QuickAccessTile(
+                              icon: Icons.diversity_3_outlined,
+                              label: 'referral_become_ambassador'.tr,
+                              color: KpbColors.blue,
+                              onTap: () =>
+                                  Get.to(() => const AmbassadorScreen()),
                             ),
                             const KpbDivider(indent: 52),
                             _QuickAccessTile(
