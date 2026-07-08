@@ -272,8 +272,10 @@ class _ParentSurfaceScreenState extends State<ParentSurfaceScreen> {
                 key: PageStorageKey<int>(_tab),
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: switch (_tab) {
-                  1 => _CaseTab(d: d, onAskAccess: () => _whatsapp(
-                      'parent_wa_ask_access'.tr, 'parent_ask_access'),
+                  1 => _CaseTab(
+                      d: d,
+                      onAskAccess: () => _whatsapp(
+                          'parent_wa_ask_access'.tr, 'parent_ask_access'),
                       onUploadProof: () =>
                           _whatsapp('parent_wa_upload'.tr, 'parent_upload')),
                   2 => _UpdatesTab(
@@ -287,8 +289,8 @@ class _ParentSurfaceScreenState extends State<ParentSurfaceScreen> {
                           'parent_payment')),
                   _ => _OverviewTab(
                       d: d,
-                      onAdvisor: () => _whatsapp(
-                          'parent_wa_advisor'.tr, 'parent_advisor')),
+                      onAdvisor: () =>
+                          _whatsapp('parent_wa_advisor'.tr, 'parent_advisor')),
                 },
               ),
             ),
@@ -376,8 +378,8 @@ class _OnboardingLink extends StatelessWidget {
                           'parent_onboarding_b1'.tr),
                       _bullet(Icons.shield_outlined, _P.blue,
                           'parent_onboarding_b2'.tr),
-                      _bullet(Icons.chat, _P.whatsapp,
-                          'parent_onboarding_b3'.tr),
+                      _bullet(
+                          Icons.chat, _P.whatsapp, 'parent_onboarding_b3'.tr),
                     ]),
                   ],
                 ),
@@ -475,9 +477,7 @@ class _OverviewTab extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            'parent_hello'
-                                .trParams({'name': d.parentName}),
+                        Text('parent_hello'.trParams({'name': d.parentName}),
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -579,9 +579,8 @@ class _OverviewTab extends StatelessWidget {
                       value: '${d.stepsDone}/${d.stepsTotal} '
                           '${'parent_steps'.tr}',
                       valueColor: _P.ink,
-                      progress: d.stepsTotal == 0
-                          ? 0
-                          : d.stepsDone / d.stepsTotal,
+                      progress:
+                          d.stepsTotal == 0 ? 0 : d.stepsDone / d.stepsTotal,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -665,8 +664,8 @@ class _MiniCard extends StatelessWidget {
               color: _P.slate400)),
       const SizedBox(height: 4),
       Text(value,
-          style:
-              TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: valueColor)),
+          style: TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w800, color: valueColor)),
       if (progress != null) ...[
         const SizedBox(height: 6),
         ClipRRect(
@@ -913,9 +912,24 @@ class _UpdatesTab extends StatelessWidget {
   final VoidCallback onAskAccess;
 
   static const _updates = [
-    (icon: Icons.rate_review, bg: _P.blueSoft, c: _P.blue, key: 'parent_upd_letter'),
-    (icon: Icons.schedule, bg: _P.amberSoft, c: _P.amber, key: 'parent_upd_eiffel'),
-    (icon: Icons.verified, bg: _P.greenSoft, c: _P.green, key: 'parent_upd_bulletins'),
+    (
+      icon: Icons.rate_review,
+      bg: _P.blueSoft,
+      c: _P.blue,
+      key: 'parent_upd_letter'
+    ),
+    (
+      icon: Icons.schedule,
+      bg: _P.amberSoft,
+      c: _P.amber,
+      key: 'parent_upd_eiffel'
+    ),
+    (
+      icon: Icons.verified,
+      bg: _P.greenSoft,
+      c: _P.green,
+      key: 'parent_upd_bulletins'
+    ),
     (icon: Icons.podcasts, bg: _P.redSoft, c: _P.red, key: 'parent_upd_live'),
   ];
 
@@ -981,7 +995,9 @@ class _UpdatesTab extends StatelessWidget {
             _cardBox(children: [
               Text('parent_msg_from'.tr,
                   style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w800, color: _P.ink)),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: _P.ink)),
               const SizedBox(height: 4),
               Text('parent_msg_body'.tr,
                   style: const TextStyle(
@@ -1010,8 +1026,16 @@ class _PaymentsTab extends StatelessWidget {
   final void Function(String item) onPay;
 
   static const _packs = [
-    (nameKey: 'parent_pack_review', descKey: 'parent_pack_review_desc', price: '25 000 FCFA'),
-    (nameKey: 'parent_pack_full', descKey: 'parent_pack_full_desc', price: '75 000 FCFA'),
+    (
+      nameKey: 'parent_pack_review',
+      descKey: 'parent_pack_review_desc',
+      price: '25 000 FCFA'
+    ),
+    (
+      nameKey: 'parent_pack_full',
+      descKey: 'parent_pack_full_desc',
+      price: '75 000 FCFA'
+    ),
   ];
 
   @override
@@ -1072,7 +1096,8 @@ class _PaymentsTab extends StatelessWidget {
                   child: Container(
                     height: 46,
                     decoration: BoxDecoration(
-                        color: _P.blue, borderRadius: BorderRadius.circular(14)),
+                        color: _P.blue,
+                        borderRadius: BorderRadius.circular(14)),
                     alignment: Alignment.center,
                     child: Text('parent_premium_cta'.tr,
                         style: const TextStyle(
@@ -1092,8 +1117,8 @@ class _PaymentsTab extends StatelessWidget {
               padded: false,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Expanded(
@@ -1108,7 +1133,9 @@ class _PaymentsTab extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(p.descKey.tr,
                                 style: const TextStyle(
-                                    fontSize: 11, height: 1.45, color: _P.slate)),
+                                    fontSize: 11,
+                                    height: 1.45,
+                                    color: _P.slate)),
                             const SizedBox(height: 3),
                             Text(p.price,
                                 style: const TextStyle(
@@ -1163,7 +1190,8 @@ Widget _cardBox({required List<Widget> children, bool padded = true}) {
       border: Border.all(color: _P.border),
       borderRadius: BorderRadius.circular(16),
     ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, children: children),
   );
 }
 
@@ -1247,7 +1275,8 @@ class _LockedCard extends StatelessWidget {
 }
 
 class _PrivacyNote extends StatelessWidget {
-  const _PrivacyNote({required this.textKey, this.icon = Icons.shield_outlined});
+  const _PrivacyNote(
+      {required this.textKey, this.icon = Icons.shield_outlined});
   final String textKey;
   final IconData icon;
 
@@ -1339,8 +1368,7 @@ class _BottomNav extends StatelessWidget {
                       width: 52,
                       height: 28,
                       decoration: BoxDecoration(
-                        color:
-                            current == i ? _P.blueSoft : Colors.transparent,
+                        color: current == i ? _P.blueSoft : Colors.transparent,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Icon(_items[i].icon,

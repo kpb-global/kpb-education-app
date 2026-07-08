@@ -51,7 +51,11 @@ void main() {
           }
         ]);
     when(() => mock.listParentVisibleCases()).thenAnswer((_) async => const [
-          {'id': 'c1', 'title': 'Université Grenoble Alpes', 'status': 'in_progress'}
+          {
+            'id': 'c1',
+            'title': 'Université Grenoble Alpes',
+            'status': 'in_progress'
+          }
         ]);
 
     await pump(tester, mock);
