@@ -41,7 +41,8 @@ class ParcoursStoryScreen extends StatelessWidget {
           const SizedBox(height: KpbSpacing.lg),
           Text(
             story.title.resolve(localeCode),
-            style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
+            style:
+                KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
           ),
           if (summary.isNotEmpty) ...[
             const SizedBox(height: KpbSpacing.sm),
@@ -59,8 +60,8 @@ class ParcoursStoryScreen extends StatelessWidget {
               children: [
                 for (final tag in story.tags)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: context.kpb.gray100,
                       borderRadius: BorderRadius.circular(KpbRadius.pill),

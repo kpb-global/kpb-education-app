@@ -1,7 +1,8 @@
 part of '../app_controller.dart';
 
 mixin _ParcoursMixin on _AppControllerBase {
-  List<ParcoursStory> get parcoursStories => List.unmodifiable(_parcoursStories);
+  List<ParcoursStory> get parcoursStories =>
+      List.unmodifiable(_parcoursStories);
 
   static const _parcoursCacheKey = 'parcours_stories';
 

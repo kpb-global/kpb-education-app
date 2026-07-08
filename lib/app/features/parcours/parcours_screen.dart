@@ -79,8 +79,8 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
             return _ParcoursEmptyState(
               icon: Icons.wifi_off_rounded,
               title: 'parcours_empty_error_title'.tr,
-              subtitle:
-                  controller.parcoursError ?? 'parcours_empty_error_subtitle'.tr,
+              subtitle: controller.parcoursError ??
+                  'parcours_empty_error_subtitle'.tr,
               onRetry: _refresh,
             );
           }
@@ -820,7 +820,8 @@ class _NowPlaying extends StatelessWidget {
       children: [
         Text(
           story.title.resolve(localeCode),
-          style: KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
+          style:
+              KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
         ),
         if (story.personName.isNotEmpty || role.isNotEmpty) ...[
           const SizedBox(height: 6),
@@ -833,7 +834,8 @@ class _NowPlaying extends StatelessWidget {
           const SizedBox(height: KpbSpacing.md),
           Text(
             summary,
-            style: KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
+            style:
+                KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
           ),
         ],
         if (story.tags.isNotEmpty) ...[

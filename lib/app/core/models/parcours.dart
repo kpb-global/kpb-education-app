@@ -121,8 +121,9 @@ class ParcoursStory {
       slug: json['slug'] as String? ?? '',
       kind: _parseKind(json['kind']),
       fieldId: json['fieldId'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>? ?? const []).map((e) => '$e').toList(),
+      tags: (json['tags'] as List<dynamic>? ?? const [])
+          .map((e) => '$e')
+          .toList(),
       personName: json['personName'] as String? ?? '',
       role: _loc(json['role']),
       title: _loc(json['title']),
