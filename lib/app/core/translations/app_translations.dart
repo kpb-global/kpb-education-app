@@ -201,6 +201,25 @@ class AppTranslations extends Translations {
           'housing_studapart_partnership_desc':
               'Louez votre logement en France facilement avec ou sans garant local.',
           'parent_load_error': 'Impossible de charger. Vérifie ta connexion.',
+          'parent_child_default': 'votre enfant',
+          'parent_readonly_chip': 'Lecture seule',
+          'parent_create_cta': 'Générer un code d\'invitation',
+          'parent_share_cta': 'Partager sur WhatsApp',
+          'parent_link_refresh': 'J\'ai partagé — actualiser',
+          'parent_code_share_note':
+              'Partagez ce code avec votre enfant. Il l\'entre dans son app (Profil → Suivi parental) pour lier vos comptes.',
+          'parent_invite_share_msg':
+              'Bonjour, voici mon code parent KPB : @code. Ajoute-le dans ton app KPB (Profil → Suivi parental) pour me partager ton parcours.',
+          'parent_waiting_title': '@child n\'a pas encore partagé de dossier',
+          'parent_waiting_body':
+              'Dès que votre enfant partage un dossier depuis son app, son avancement apparaîtra ici.',
+          'parent_nextstep_label': 'PROCHAINE ÉTAPE',
+          'parent_docs_managed_note':
+              'Lecture seule — les documents sont gérés par votre enfant et son conseiller.',
+          'parent_financing_body':
+              'Vous pouvez envoyer une preuve de financement (relevé, attestation) à votre conseiller KPB.',
+          'parent_no_updates':
+              'Les actualités partagées par le conseiller apparaîtront ici.',
           'parent_appbar': 'Espace parent',
           'parent_enter_code': 'Entrez le code d\'invitation',
           'parent_linked_ok': 'Compte lié ✓',
@@ -234,7 +253,7 @@ class AppTranslations extends Translations {
           'parent_doc_required': 'Requis',
           'parent_docs_locked_title': 'Documents non partagés',
           'parent_docs_locked_body':
-              'Votre enfant n\'a pas activé le partage des documents pour ce dossier.',
+              '@child n\'a pas encore partagé de dossier avec vous.',
           'parent_financing_label': 'Financement',
           'parent_fin_statement': 'Relevé bancaire (3 mois)',
           'parent_fin_sent': 'Envoyé ✓',
@@ -289,7 +308,7 @@ class AppTranslations extends Translations {
           'parent_nav_pay': 'Paiements',
           'parent_onboarding_title': 'Suivez le parcours de votre enfant',
           'parent_onboarding_sub':
-              'Votre enfant vous a invité. Entrez le code reçu par WhatsApp pour lier votre compte au sien.',
+              'Générez un code d\'invitation et partagez-le avec votre enfant. Il l\'entre dans son app pour lier vos comptes.',
           'parent_invite_code_label': 'Code d\'invitation',
           'parent_onboarding_b1':
               'Toujours visible : jauge de préparation, progression, échéances',
@@ -1952,6 +1971,25 @@ class AppTranslations extends Translations {
           'housing_studapart_partnership_desc':
               'Rent your home in France easily, with or without a local guarantor.',
           'parent_load_error': 'Could not load. Check your connection.',
+          'parent_child_default': 'your child',
+          'parent_readonly_chip': 'Read-only',
+          'parent_create_cta': 'Generate an invite code',
+          'parent_share_cta': 'Share on WhatsApp',
+          'parent_link_refresh': 'I\'ve shared — refresh',
+          'parent_code_share_note':
+              'Share this code with your child. They enter it in their app (Profile → Parent access) to link your accounts.',
+          'parent_invite_share_msg':
+              'Hi, here\'s my KPB parent code: @code. Add it in your KPB app (Profile → Parent access) to share your journey with me.',
+          'parent_waiting_title': '@child hasn\'t shared an application yet',
+          'parent_waiting_body':
+              'As soon as your child shares an application from their app, their progress will appear here.',
+          'parent_nextstep_label': 'NEXT STEP',
+          'parent_docs_managed_note':
+              'Read-only — documents are managed by your child and their advisor.',
+          'parent_financing_body':
+              'You can send a proof of funds (statement, attestation) to your KPB advisor.',
+          'parent_no_updates':
+              'Updates shared by the advisor will appear here.',
           'parent_appbar': 'Parent space',
           'parent_enter_code': 'Enter the invite code',
           'parent_linked_ok': 'Account linked ✓',
@@ -1985,7 +2023,7 @@ class AppTranslations extends Translations {
           'parent_doc_required': 'Required',
           'parent_docs_locked_title': 'Documents not shared',
           'parent_docs_locked_body':
-              'Your child hasn\'t enabled document sharing for this application.',
+              '@child hasn\'t shared an application with you yet.',
           'parent_financing_label': 'Financing',
           'parent_fin_statement': 'Bank statement (3 months)',
           'parent_fin_sent': 'Sent ✓',
@@ -2038,7 +2076,7 @@ class AppTranslations extends Translations {
           'parent_nav_pay': 'Payments',
           'parent_onboarding_title': 'Follow your child\'s journey',
           'parent_onboarding_sub':
-              'Your child invited you. Enter the code received on WhatsApp to link your account to theirs.',
+              'Generate an invite code and share it with your child. They enter it in their app to link your accounts.',
           'parent_invite_code_label': 'Invite code',
           'parent_onboarding_b1':
               'Always visible: readiness gauge, progress, deadlines',
