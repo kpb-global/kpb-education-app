@@ -52,6 +52,101 @@ interface ArticleItem {
   status: string;
 }
 
+interface ParcoursQa {
+  question: string;
+  answer: string;
+}
+
+interface ParcoursItem {
+  id: string;
+  slug: string;
+  kind: 'video' | 'text';
+  fieldId: string | null;
+  tags: string[];
+  personName: string;
+  role: { fr: string; en: string };
+  title: { fr: string; en: string };
+  hook?: { fr?: string; en?: string };
+  summary?: { fr?: string; en?: string };
+  thumbnailUrl?: string;
+  photoUrl?: string;
+  youtubeId: string | null;
+  durationMinutes: number | null;
+  interview?: { fr?: ParcoursQa[] | null; en?: ParcoursQa[] | null };
+  status: string;
+  featured: boolean;
+  displayOrder: number;
+}
+
+// Catalog field domains (d01..d12) — kept in sync with the backend
+// orientation-fields taxonomy so the theme filter matches the mobile app.
+const PARCOURS_FIELD_OPTIONS: { id: string; label: string }[] = [
+  { id: '', label: '— Unmapped (no theme)' },
+  { id: 'd01', label: 'Informatique & IA' },
+  { id: 'd02', label: 'Commerce & Management' },
+  { id: 'd03', label: 'Ingénierie & Sciences' },
+  { id: 'd04', label: 'Santé & Sciences de la Vie' },
+  { id: 'd05', label: 'Architecture & BTP' },
+  { id: 'd06', label: 'Design, Médias & Communication' },
+  { id: 'd07', label: 'Droit & Relations Internationales' },
+  { id: 'd08', label: 'Environnement & Agriculture' },
+  { id: 'd09', label: 'Sciences Humaines & Éducation' },
+  { id: 'd10', label: 'Hôtellerie & Tourisme' },
+  { id: 'd11', label: 'Arts & Culture' },
+  { id: 'd12', label: 'Logistique & Supply Chain' },
+];
+
+const EMPTY_PARCOURS_FORM = {
+  slug: '',
+  kind: 'video',
+  fieldId: 'd01',
+  youtubeId: '',
+  personName: '',
+  roleFr: '',
+  roleEn: '',
+  titleFr: '',
+  titleEn: '',
+  hookFr: '',
+  hookEn: '',
+  summaryFr: '',
+  summaryEn: '',
+  tags: '',
+  durationMinutes: '',
+  thumbnailUrl: '',
+  photoUrl: '',
+  interviewFr: '',
+  interviewEn: '',
+  status: 'published',
+  featured: false,
+};
+
+// Parse the admin interview textarea (JSON array of {question, answer}).
+// Returns null for empty input; throws a readable error for invalid JSON so
+// submitParcours can surface it instead of silently dropping the content.
+function parseInterview(raw: string, label: string): ParcoursQa[] | null {
+  const trimmed = raw.trim();
+  if (trimmed === '') return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    throw new Error(`Interview ${label}: invalid JSON.`);
+  }
+  if (!Array.isArray(parsed)) {
+    throw new Error(`Interview ${label}: expected a JSON array of {question, answer}.`);
+  }
+  return parsed.map((item, index) => {
+    if (!item || typeof item !== 'object') {
+      throw new Error(`Interview ${label}: item ${index + 1} is not an object.`);
+    }
+    const record = item as Record<string, unknown>;
+    return {
+      question: String(record.question ?? ''),
+      answer: String(record.answer ?? ''),
+    };
+  });
+}
+
 export default function ContentPage() {
   const { session } = useAdminAuth();
   const [serviceOffers, setServiceOffers] = useState<ServiceOfferItem[]>([]);
@@ -100,24 +195,33 @@ export default function ContentPage() {
     authorName: 'KPB Editorial',
     status: 'draft',
   });
+  const [parcours, setParcours] = useState<ParcoursItem[]>([]);
+  const [parcoursForm, setParcoursForm] = useState({ ...EMPTY_PARCOURS_FORM });
   const [editingOfferId, setEditingOfferId] = useState<string | null>(null);
   const [editingDestinationId, setEditingDestinationId] = useState<string | null>(null);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  const [editingParcoursId, setEditingParcoursId] = useState<string | null>(null);
 
   async function loadContent() {
     setErrorMessage(null);
     try {
-      const [offersResponse, destinationsResponse, articlesResponse] =
-        await Promise.all([
-          apiFetch<{ items: ServiceOfferItem[] }>('/admin/service-offers'),
-          apiFetch<{ items: SupportDestinationItem[] }>(
-            '/admin/support-destinations',
-          ),
-          apiFetch<{ items: ArticleItem[] }>('/admin/articles'),
-        ]);
+      const [
+        offersResponse,
+        destinationsResponse,
+        articlesResponse,
+        parcoursResponse,
+      ] = await Promise.all([
+        apiFetch<{ items: ServiceOfferItem[] }>('/admin/service-offers'),
+        apiFetch<{ items: SupportDestinationItem[] }>(
+          '/admin/support-destinations',
+        ),
+        apiFetch<{ items: ArticleItem[] }>('/admin/articles'),
+        apiFetch<{ items: ParcoursItem[] }>('/admin/parcours'),
+      ]);
       setServiceOffers(offersResponse.items);
       setSupportDestinations(destinationsResponse.items);
       setArticles(articlesResponse.items);
+      setParcours(parcoursResponse.items);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to load content.',
@@ -360,6 +464,101 @@ export default function ContentPage() {
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to create article.',
+      );
+    }
+  }
+
+  async function submitParcours(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatusMessage(null);
+    setErrorMessage(null);
+
+    const durationRaw = parcoursForm.durationMinutes.trim();
+    const duration = durationRaw === '' ? null : Number(durationRaw);
+
+    let interviewFr: ParcoursQa[] | null;
+    let interviewEn: ParcoursQa[] | null;
+    try {
+      interviewFr = parseInterview(parcoursForm.interviewFr, 'FR');
+      interviewEn = parseInterview(parcoursForm.interviewEn, 'EN');
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Invalid interview JSON.',
+      );
+      return;
+    }
+
+    // Shared body — NOTE: `source` is intentionally omitted so an edit never
+    // clobbers the provenance ('excel'/'legacy_db') of an imported story.
+    const body: Record<string, unknown> = {
+      slug:
+        parcoursForm.slug.trim() ||
+        `parcours-${parcoursForm.titleFr
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+          .slice(0, 48)}`,
+      kind: parcoursForm.kind,
+      fieldId: parcoursForm.fieldId || null,
+      youtubeId: parcoursForm.youtubeId.trim() || null,
+      durationMinutes:
+        duration !== null && Number.isFinite(duration) ? duration : null,
+      personName: parcoursForm.personName,
+      role: { fr: parcoursForm.roleFr, en: parcoursForm.roleEn },
+      title: { fr: parcoursForm.titleFr, en: parcoursForm.titleEn },
+      hook: { fr: parcoursForm.hookFr, en: parcoursForm.hookEn },
+      summary: { fr: parcoursForm.summaryFr, en: parcoursForm.summaryEn },
+      thumbnailUrl: parcoursForm.thumbnailUrl.trim(),
+      photoUrl: parcoursForm.photoUrl.trim(),
+      interview: { fr: interviewFr, en: interviewEn },
+      tags: splitList(parcoursForm.tags),
+      status: parcoursForm.status,
+      featured: parcoursForm.featured,
+    };
+
+    try {
+      if (editingParcoursId) {
+        await apiFetch(`/admin/parcours/${editingParcoursId}`, {
+          method: 'PATCH',
+          body,
+        });
+        setStatusMessage('Parcours story updated successfully.');
+      } else {
+        // Only new rows are stamped as manually authored.
+        await apiFetch('/admin/parcours', {
+          method: 'POST',
+          body: { ...body, source: 'manual' },
+        });
+        setStatusMessage('Parcours story added.');
+      }
+      setParcoursForm({ ...EMPTY_PARCOURS_FORM });
+      setEditingParcoursId(null);
+      await loadContent();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Unable to save the parcours story.',
+      );
+    }
+  }
+
+  async function deleteParcours(id: string) {
+    setStatusMessage(null);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/parcours/${id}`, { method: 'DELETE' });
+      if (editingParcoursId === id) {
+        setEditingParcoursId(null);
+        setParcoursForm({ ...EMPTY_PARCOURS_FORM });
+      }
+      setStatusMessage('Parcours story deleted.');
+      await loadContent();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Unable to delete the parcours story.',
       );
     }
   }
@@ -1057,6 +1256,413 @@ export default function ContentPage() {
                   {article.category} • {article.authorName}
                 </p>
                 <span style={badgeStyle}>{article.status}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+          <div>
+            <h3 style={{ marginTop: 0 }}>Parcours & témoignages</h3>
+            <p style={mutedTextStyle}>
+              Manage the free &quot;Parcours&quot; stories shown in the mobile
+              app — curated YouTube videos and imported written interviews.
+              Fill the YouTube ID for a video story; leave it empty for a
+              written testimonial.
+            </p>
+          </div>
+          <form
+            onSubmit={submitParcours}
+            style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}
+          >
+            <label style={labelStyle}>
+              Kind
+              <select
+                value={parcoursForm.kind}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    kind: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              >
+                <option value="video">Video</option>
+                <option value="text">Written interview</option>
+              </select>
+            </label>
+            <label style={labelStyle}>
+              Field domain
+              <select
+                value={parcoursForm.fieldId}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    fieldId: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              >
+                {PARCOURS_FIELD_OPTIONS.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.id} — {f.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label style={labelStyle}>
+              YouTube ID (video only)
+              <input
+                value={parcoursForm.youtubeId}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    youtubeId: event.target.value,
+                  }))
+                }
+                placeholder="e.g. l_0UPSeH5sU"
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Duration (minutes)
+              <input
+                value={parcoursForm.durationMinutes}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    durationMinutes: event.target.value,
+                  }))
+                }
+                inputMode="numeric"
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Person name
+              <input
+                value={parcoursForm.personName}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    personName: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Slug (optional)
+              <input
+                value={parcoursForm.slug}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    slug: event.target.value,
+                  }))
+                }
+                placeholder="auto from title if empty"
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Role (FR)
+              <input
+                value={parcoursForm.roleFr}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    roleFr: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Role (EN)
+              <input
+                value={parcoursForm.roleEn}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    roleEn: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Title (FR)
+              <input
+                value={parcoursForm.titleFr}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    titleFr: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Title (EN)
+              <input
+                value={parcoursForm.titleEn}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    titleEn: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Hook / one-liner (FR)
+              <input
+                value={parcoursForm.hookFr}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    hookFr: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Hook / one-liner (EN)
+              <input
+                value={parcoursForm.hookEn}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    hookEn: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Summary (FR)
+              <textarea
+                value={parcoursForm.summaryFr}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    summaryFr: event.target.value,
+                  }))
+                }
+                style={textareaStyle}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Summary (EN)
+              <textarea
+                value={parcoursForm.summaryEn}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    summaryEn: event.target.value,
+                  }))
+                }
+                style={textareaStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Thumbnail URL (optional — videos derive one from the YouTube ID)
+              <input
+                value={parcoursForm.thumbnailUrl}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    thumbnailUrl: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Photo URL (person portrait, optional)
+              <input
+                value={parcoursForm.photoUrl}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    photoUrl: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Interview FR — JSON array of {'{ question, answer }'} (written
+              stories only)
+              <textarea
+                value={parcoursForm.interviewFr}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    interviewFr: event.target.value,
+                  }))
+                }
+                placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
+                style={{ ...textareaStyle, minHeight: 120, fontFamily: 'monospace' }}
+              />
+            </label>
+            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
+              Interview EN — JSON array of {'{ question, answer }'} (optional;
+              falls back to FR)
+              <textarea
+                value={parcoursForm.interviewEn}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    interviewEn: event.target.value,
+                  }))
+                }
+                placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
+                style={{ ...textareaStyle, minHeight: 120, fontFamily: 'monospace' }}
+              />
+            </label>
+            <label style={labelStyle}>
+              Tags
+              <input
+                value={parcoursForm.tags}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    tags: event.target.value,
+                  }))
+                }
+                placeholder="Google,Tech,Témoignage"
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Status
+              <select
+                value={parcoursForm.status}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    status: event.target.value,
+                  }))
+                }
+                style={inputStyle}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
+            </label>
+            <label
+              style={{
+                ...labelStyle,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={parcoursForm.featured}
+                onChange={(event) =>
+                  setParcoursForm((current) => ({
+                    ...current,
+                    featured: event.target.checked,
+                  }))
+                }
+              />
+              Featured
+            </label>
+            <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
+              {editingParcoursId ? 'Update story' : 'Add story'}
+            </button>
+            {editingParcoursId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingParcoursId(null);
+                  setParcoursForm({ ...EMPTY_PARCOURS_FORM });
+                }}
+                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
+              >
+                Cancel
+              </button>
+            )}
+          </form>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {parcours.map((story) => (
+              <div
+                key={story.id}
+                style={{
+                  borderTop: '1px solid #E2E8F0',
+                  paddingTop: 12,
+                  background:
+                    editingParcoursId === story.id ? '#f1f5f9' : 'transparent',
+                  padding: '12px 8px',
+                  borderRadius: 8,
+                }}
+              >
+                <div
+                  onClick={() => {
+                    setEditingParcoursId(story.id);
+                    setParcoursForm({
+                      slug: story.slug,
+                      kind: story.kind,
+                      fieldId: story.fieldId ?? '',
+                      youtubeId: story.youtubeId ?? '',
+                      personName: story.personName ?? '',
+                      roleFr: story.role?.fr ?? '',
+                      roleEn: story.role?.en ?? '',
+                      titleFr: story.title?.fr ?? '',
+                      titleEn: story.title?.en ?? '',
+                      hookFr: story.hook?.fr ?? '',
+                      hookEn: story.hook?.en ?? '',
+                      summaryFr: story.summary?.fr ?? '',
+                      summaryEn: story.summary?.en ?? '',
+                      tags: story.tags?.join(',') ?? '',
+                      durationMinutes:
+                        story.durationMinutes != null
+                          ? String(story.durationMinutes)
+                          : '',
+                      thumbnailUrl: story.thumbnailUrl ?? '',
+                      photoUrl: story.photoUrl ?? '',
+                      interviewFr: story.interview?.fr
+                        ? JSON.stringify(story.interview.fr, null, 2)
+                        : '',
+                      interviewEn: story.interview?.en
+                        ? JSON.stringify(story.interview.en, null, 2)
+                        : '',
+                      status: story.status,
+                      featured: story.featured,
+                    });
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <strong>{story.title.fr}</strong>
+                  <p style={{ margin: '6px 0' }}>
+                    {story.kind === 'video' ? '🎬 Video' : '📝 Written'}
+                    {story.fieldId ? ` • ${story.fieldId}` : ''}
+                    {story.personName ? ` • ${story.personName}` : ''}
+                    {story.featured ? ' • ⭐ Featured' : ''}
+                  </p>
+                  <span style={badgeStyle}>{story.status}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => deleteParcours(story.id)}
+                  style={{
+                    ...buttonStyle,
+                    marginTop: 8,
+                    background: '#B91C1C',
+                    width: 'fit-content',
+                    padding: '6px 12px',
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>

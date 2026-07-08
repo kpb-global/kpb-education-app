@@ -53,6 +53,14 @@ enum PublicationStatus {
   archived
 }
 
+// Parcours & Témoignages — a story is either a YouTube video (the curated KPB
+// channel content) or a written interview (legacy Q&A imported from the first
+// KPB app). Same feature, two render paths in the app.
+enum ParcoursKind {
+  video
+  text
+}
+
 enum NotificationCampaignStatus {
   draft
   scheduled
@@ -745,29 +753,29 @@ model Institution {
 }
 
 model Program {
-  id              String    @id @default(cuid())
-  institutionId   String
-  countryId       String
-  fieldId         String
-  nameFr          String
-  nameEn          String
-  levelFr         String
-  levelEn         String
-  durationFr      String
-  durationEn      String
-  tuitionFr       String
-  tuitionEn       String
-  languageFr      String
-  languageEn      String
-  requirementsFr  String[]
-  requirementsEn  String[]
+  id                  String    @id @default(cuid())
+  institutionId       String
+  countryId           String
+  fieldId             String
+  nameFr              String
+  nameEn              String
+  levelFr             String
+  levelEn             String
+  durationFr          String
+  durationEn          String
+  tuitionFr           String
+  tuitionEn           String
+  languageFr          String
+  languageEn          String
+  requirementsFr      String[]
+  requirementsEn      String[]
   // Multi-campus formations (OMNES, and any future school whose programme is
   // delivered on several campuses). Same formation = one Program row; the
   // per-campus price/intake live here instead of duplicating the row.
   // Null for single-campus programs. Shape:
   // [{ campus: string, tuitionUpfront: number|null,
   //    tuitionInstallments: number|null, intake: string|null }]
-  campusOfferings Json?
+  campusOfferings     Json?
   // ── Match scoring inputs (Phase 0 / P0-D, kit matching_algorithm.md) ──────
   // Nullable on purpose: the scoring service treats a missing value as a
   // neutral 0.5 factor and flags the match `isEstimate`, so no backfill is
@@ -778,12 +786,12 @@ model Program {
   tuitionMinEur       Int?
   applicationDeadline DateTime?
   teachingLanguages   String[]  @default([])
-  lastVerifiedAt  DateTime?
-  sourceUrl       String?
-  verifiedById    String?
-  verifiedByName  String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  lastVerifiedAt      DateTime?
+  sourceUrl           String?
+  verifiedById        String?
+  verifiedByName      String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([institutionId])
   @@index([countryId])
@@ -1367,4 +1375,63 @@ model OrientationSession {
   completedAt     DateTime @default(now())
 
   @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parcours & Témoignages KPB (Chantier C)
+// ─────────────────────────────────────────────────────────────────────────────
+// Inspiring career/education journeys shown in the app's free "Parcours"
+// section. Two kinds share one model so the screen can filter/search across
+// both (kind=video → in-app YouTube player; kind=text → a written Q&A
+// interview imported from the first KPB app's database).
+//
+// `fieldId` reuses the catalog field domains (d01..d12) so the mobile filter
+// chips match the rest of the app and a story can deep-link to its field.
+// The written interview is stored as JSON: [{ question, answer }].
+model ParcoursStory {
+  id              String            @id @default(cuid())
+  // Stable slug — dedup key across re-seeds and deep-links.
+  slug            String            @unique
+  kind            ParcoursKind      @default(video)
+  // Discovery
+  fieldId         String? // catalog field domain (d01..d12), null if unmapped
+  tags            String[]          @default([])
+  // Person featured. personName may be "" for generic "how to become X" videos.
+  personName      String            @default("")
+  roleFr          String            @default("")
+  roleEn          String            @default("")
+  // Card + detail content (localized)
+  titleFr         String
+  titleEn         String
+  hookFr          String            @default("")
+  hookEn          String            @default("")
+  summaryFr       String            @default("")
+  summaryEn       String            @default("")
+  // Media
+  thumbnailUrl    String            @default("")
+  photoUrl        String            @default("")
+  // Video-specific
+  youtubeId       String?
+  durationMinutes Int?
+  // Text-specific — the written interview, shape [{ question, answer }].
+  // FR is authoritative; EN is optional and the app falls back to FR.
+  interviewFr     Json?
+  interviewEn     Json?
+  // Publication / ordering
+  status          PublicationStatus @default(published)
+  isActive        Boolean           @default(true)
+  featured        Boolean           @default(false)
+  displayOrder    Int               @default(0)
+  // Legacy popularity signal ("vues" from the old DB) — used as a tiebreak.
+  popularity      Int               @default(0)
+  // Provenance: excel | legacy_db | manual
+  source          String            @default("manual")
+  publishedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([kind, isActive])
+  @@index([status])
+  @@index([fieldId])
+  @@index([displayOrder])
 }

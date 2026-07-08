@@ -347,8 +347,18 @@ class AppTranslations extends Translations {
               'Les vidéos de parcours et témoignages arrivent très vite. Reviens bientôt !',
           'parcours_empty_error_title': 'Contenu indisponible',
           'parcours_empty_error_subtitle':
-              'Impossible de charger les vidéos pour le moment.',
+              'Impossible de charger les parcours pour le moment.',
           'parcours_intro_title': 'Ils l\'ont fait avant toi',
+          'parcours_search_hint': 'Rechercher un métier, une école, un nom…',
+          'parcours_filter_all': 'Tous',
+          'parcours_kind_written': 'Témoignage écrit',
+          'parcours_empty_filter_title': 'Aucun résultat',
+          'parcours_empty_filter_subtitle':
+              'Essaie un autre thème ou une autre recherche.',
+          'parcours_up_next': 'À suivre',
+          'parcours_story_appbar': 'Témoignage',
+          'parcours_video_unavailable':
+              'Cette vidéo n\'est pas disponible pour le moment.',
           'orientation_roadmap_appbar_title': 'Mon parcours',
           'orientation_roadmap_heading': 'Ton parcours de candidature',
           'orientation_roadmap_create_case_button': 'Créer mon dossier',
@@ -1988,8 +1998,18 @@ class AppTranslations extends Translations {
               'Journey and testimonial videos are coming very soon. Check back soon!',
           'parcours_empty_error_title': 'Content unavailable',
           'parcours_empty_error_subtitle':
-              'Unable to load the videos right now.',
+              'Unable to load the journeys right now.',
           'parcours_intro_title': 'They did it before you',
+          'parcours_search_hint': 'Search a career, a school, a name…',
+          'parcours_filter_all': 'All',
+          'parcours_kind_written': 'Written story',
+          'parcours_empty_filter_title': 'No results',
+          'parcours_empty_filter_subtitle':
+              'Try another theme or another search.',
+          'parcours_up_next': 'Up next',
+          'parcours_story_appbar': 'Testimonial',
+          'parcours_video_unavailable':
+              'This video is not available right now.',
           'orientation_roadmap_appbar_title': 'My journey',
           'orientation_roadmap_heading': 'Your application journey',
           'orientation_roadmap_create_case_button': 'Create my case',

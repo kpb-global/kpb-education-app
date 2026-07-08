@@ -29,6 +29,8 @@ import { CommunityController } from './modules/community/community.controller';
 import { CommunityService } from './modules/community/community.service';
 import { ContentController } from './modules/content/content.controller';
 import { ContentService } from './modules/content/content.service';
+import { ParcoursController } from './modules/parcours/parcours.controller';
+import { ParcoursService } from './modules/parcours/parcours.service';
 import { AppConfigController } from './modules/config/app-config.controller';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
@@ -160,6 +162,7 @@ import { SalonService } from './modules/salon/salon.service';
     CasesController,
     CommunityController,
     ContentController,
+    ParcoursController,
     DeviceTokensController,
     AdminPushController,
     DocumentReviewController,
@@ -217,6 +220,7 @@ import { SalonService } from './modules/salon/salon.service';
     CatalogService,
     CommunityService,
     ContentService,
+    ParcoursService,
     OneSignalSenderService,
     CampaignExecutorService,
     CampaignMailService,
