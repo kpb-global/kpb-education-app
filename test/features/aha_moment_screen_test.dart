@@ -105,6 +105,26 @@ void main() {
     expect(find.text('Découvrir mon espace'), findsOneWidget);
   });
 
+  testWidgets('shows the primary "see all universities" CTA alongside home',
+      (tester) async {
+    final api = MockApiClient();
+    when(() => api.getAhaMatches()).thenAnswer(
+      (_) async => {
+        'items': [matchJson()],
+        'isEstimate': false,
+      },
+    );
+
+    await pumpTestApp(tester,
+        child: const AhaMomentScreen(), mockApiClient: api);
+
+    // Primary CTA (App-engagement handoff: "See all universities") is new;
+    // the original "Découvrir mon espace" home link stays as the secondary
+    // action so the existing navigation test below keeps working.
+    expect(find.text('Voir toutes les universités'), findsOneWidget);
+    expect(find.text('Découvrir mon espace'), findsOneWidget);
+  });
+
   testWidgets('CTA navigates home', (tester) async {
     final api = MockApiClient();
     when(() => api.getAhaMatches()).thenAnswer(

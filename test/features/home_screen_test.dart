@@ -65,5 +65,34 @@ void main() {
 
       await tester.binding.setSurfaceSize(null);
     });
+
+    testWidgets('renders the Diambar Gauge card and the WhatsApp CTA',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1440, 2560));
+      final profile = createTestProfile();
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: profile,
+      );
+
+      await pumpTestApp(
+        tester,
+        child: const HomeScreen(),
+        initialSnapshot: snapshot,
+      );
+
+      // Profile isn't 100% complete (no monthly budget) → the readiness ring
+      // + its "Diambar Gauge" eyebrow render (App-engagement handoff).
+      // `.tr` resolves to the raw key in this harness (no translations
+      // loaded), matching the convention used across this test suite.
+      expect(find.text('home_gauge_eyebrow'), findsOneWidget);
+
+      // The "Talk to a KPB counselor" WhatsApp hand-off card is always on
+      // Home now — real WhatsApp routing, no in-app checkout.
+      expect(find.text('home_counselor_cta_title'), findsOneWidget);
+
+      await tester.binding.setSurfaceSize(null);
+    });
   });
 }
