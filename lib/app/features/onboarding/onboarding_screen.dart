@@ -12,6 +12,26 @@ import '../matches/aha_moment_screen.dart';
 import 'onboarding_m2_constants.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · obWelcome/obQuiz).
+// Local to this file — see the Parent/Commercial/Ambassadeur surfaces for the
+// same pattern; there is no shared design-system file yet.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+  static const page = Color(0xFFF8FAFC);
+  static const subtle = Color(0xFFF1F5F9);
+  static const red = Color(0xFFDC2626);
+  static const amber = Color(0xFFB45309);
+  static const amberSoft = Color(0xFFFEF3C7);
+  static const green = Color(0xFF16A34A);
+  static const greenSoft = Color(0xFFDCFCE7);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Dial codes
 // ─────────────────────────────────────────────────────────────────────────────
 class _DialCode {
@@ -369,8 +389,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               snackPosition: SnackPosition.BOTTOM,
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
-              icon: const Icon(Icons.privacy_tip_outlined,
-                  color: KpbColors.error),
+              icon: const Icon(Icons.privacy_tip_outlined, color: _Palette.red),
             );
             return false;
           }
@@ -382,7 +401,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 snackPosition: SnackPosition.BOTTOM,
                 margin: const EdgeInsets.all(12),
                 duration: const Duration(seconds: 3),
-                icon: const Icon(Icons.cake_outlined, color: KpbColors.error),
+                icon: const Icon(Icons.cake_outlined, color: _Palette.red),
               );
               return false;
             }
@@ -399,7 +418,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 margin: const EdgeInsets.all(12),
                 duration: const Duration(seconds: 3),
                 icon: const Icon(Icons.family_restroom_outlined,
-                    color: KpbColors.error),
+                    color: _Palette.red),
               );
               return false;
             }
@@ -416,7 +435,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
               icon:
-                  const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
+                  const Icon(Icons.info_outline_rounded, color: _Palette.amber),
             );
             return false;
           }
@@ -428,7 +447,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               margin: const EdgeInsets.all(12),
               duration: const Duration(seconds: 3),
               icon:
-                  const Icon(Icons.info_outline_rounded, color: KpbColors.gold),
+                  const Icon(Icons.info_outline_rounded, color: _Palette.amber),
             );
             return false;
           }
@@ -479,7 +498,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.kpb.pageBg,
+      backgroundColor: _Palette.page,
       body: Column(
         children: [
           // ── Progress bar ─────────────────────────────────────────
@@ -654,38 +673,43 @@ class _ProgressHeader extends StatelessWidget {
                     child: GestureDetector(
                       onTap: onBack,
                       child: Container(
-                        width: 36,
-                        height: 36,
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
-                          color: context.kpb.cardBg,
-                          borderRadius: KpbRadius.smBr,
-                          boxShadow: KpbShadow.soft,
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: _Palette.border),
                         ),
-                        child: Icon(Icons.arrow_back_rounded,
-                            size: 18, color: context.kpb.textPrimary),
+                        child: const Icon(Icons.arrow_back_rounded,
+                            size: 18, color: _Palette.navy),
                       ),
                     ),
                   )
                 else
-                  const SizedBox(width: 36),
+                  const SizedBox(width: 38),
                 const Spacer(),
                 Text(
                   '${page + 1} / $total',
-                  style: KpbTextStyles.label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.slate,
+                  ),
                 ),
                 const Spacer(),
                 if (onSkip != null)
                   TextButton(
                     onPressed: onSkip,
                     style: TextButton.styleFrom(
+                      foregroundColor: _Palette.slate,
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      minimumSize: const Size(36, 36),
+                      minimumSize: const Size(38, 38),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text('skip'.tr),
                   )
                 else
-                  const SizedBox(width: 36),
+                  const SizedBox(width: 38),
               ],
             ),
             const SizedBox(height: KpbSpacing.sm),
@@ -693,9 +717,9 @@ class _ProgressHeader extends StatelessWidget {
               borderRadius: KpbRadius.pillBr,
               child: LinearProgressIndicator(
                 value: (page + 1) / total,
-                minHeight: 4,
-                backgroundColor: context.kpb.gray200,
-                valueColor: const AlwaysStoppedAnimation<Color>(KpbColors.blue),
+                minHeight: 6,
+                backgroundColor: _Palette.border,
+                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.blue),
               ),
             ),
           ],
@@ -727,9 +751,25 @@ class _Page extends StatelessWidget {
         padding: const EdgeInsets.all(KpbSpacing.pagePad),
         children: [
           const SizedBox(height: KpbSpacing.sm),
-          Text(title, style: KpbTextStyles.headline),
-          const SizedBox(height: 4),
-          Text(subtitle, style: KpbTextStyles.bodySm),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              height: 1.25,
+              color: _Palette.navy,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 13,
+              color: _Palette.slate,
+              height: 1.4,
+            ),
+          ),
           const SizedBox(height: KpbSpacing.lg),
           child,
         ],
@@ -760,14 +800,26 @@ class _BottomBar extends StatelessWidget {
         KpbSpacing.pagePad,
         KpbSpacing.md + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        border: Border(top: BorderSide(color: context.kpb.gray100)),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: _Palette.border)),
       ),
       child: SizedBox(
         width: double.infinity,
         child: FilledButton(
           onPressed: onNext,
+          style: FilledButton.styleFrom(
+            backgroundColor: _Palette.blue,
+            foregroundColor: Colors.white,
+            minimumSize: const Size.fromHeight(52),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 14.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           child: Text(isLast ? 'create_account'.tr : 'continue'.tr),
         ),
       ),
@@ -855,9 +907,10 @@ class _PageIdentity extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: sel ? KpbColors.blue : context.kpb.cardBg,
+                    color: sel ? _Palette.blue : Colors.white,
                     borderRadius: KpbRadius.mdBr,
-                    boxShadow: KpbShadow.card,
+                    border: sel ? null : Border.all(color: _Palette.border),
+                    boxShadow: sel ? KpbShadow.card : null,
                   ),
                   child: Column(
                     children: [
@@ -867,7 +920,7 @@ class _PageIdentity extends StatelessWidget {
                             : t == AccountType.parent
                                 ? Icons.family_restroom_outlined
                                 : Icons.handshake_outlined,
-                        color: sel ? Colors.white : context.kpb.textSecondary,
+                        color: sel ? Colors.white : _Palette.slate,
                         size: 22,
                       ),
                       const SizedBox(height: 4),
@@ -880,7 +933,7 @@ class _PageIdentity extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: sel ? Colors.white : context.kpb.textSecondary,
+                          color: sel ? Colors.white : _Palette.slate,
                         ),
                       ),
                     ],
@@ -1010,9 +1063,8 @@ class _PageIdentity extends StatelessWidget {
                 birthDate == null
                     ? 'birth_date_hint'.tr
                     : '${birthDate!.day.toString().padLeft(2, '0')}/${birthDate!.month.toString().padLeft(2, '0')}/${birthDate!.year}',
-                style: birthDate == null
-                    ? TextStyle(color: context.kpb.textSecondary)
-                    : null,
+                style:
+                    birthDate == null ? TextStyle(color: _Palette.slate) : null,
               ),
             ),
           ),
@@ -1021,14 +1073,10 @@ class _PageIdentity extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: guardianConsented
-                    ? KpbColors.successLight
-                    : context.kpb.gray50,
+                color: guardianConsented ? _Palette.greenSoft : _Palette.subtle,
                 borderRadius: KpbRadius.mdBr,
                 border: Border.all(
-                  color: guardianConsented
-                      ? KpbColors.success
-                      : context.kpb.gray200,
+                  color: guardianConsented ? _Palette.green : _Palette.border,
                 ),
               ),
               child: Column(
@@ -1040,7 +1088,7 @@ class _PageIdentity extends StatelessWidget {
                     'minor_guardian_intro'.tr,
                     style: TextStyle(
                       fontSize: 13,
-                      color: context.kpb.textSecondary,
+                      color: _Palette.slate,
                       height: 1.4,
                     ),
                   ),
@@ -1059,7 +1107,7 @@ class _PageIdentity extends StatelessWidget {
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     value: guardianConsented,
-                    activeColor: KpbColors.success,
+                    activeColor: _Palette.green,
                     title: Text('guardian_consent_checkbox'.tr,
                         style: KpbTextStyles.bodySm),
                     onChanged: (v) => onGuardianConsent(v ?? false),
@@ -1075,10 +1123,10 @@ class _PageIdentity extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: hasConsented ? KpbColors.successLight : context.kpb.gray50,
+            color: hasConsented ? _Palette.greenSoft : _Palette.subtle,
             borderRadius: KpbRadius.mdBr,
             border: Border.all(
-              color: hasConsented ? KpbColors.success : context.kpb.gray200,
+              color: hasConsented ? _Palette.green : _Palette.border,
             ),
           ),
           child: Row(
@@ -1090,7 +1138,7 @@ class _PageIdentity extends StatelessWidget {
                 child: Checkbox(
                   value: hasConsented,
                   onChanged: (v) => onConsent(v ?? false),
-                  activeColor: KpbColors.success,
+                  activeColor: _Palette.green,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -1102,7 +1150,7 @@ class _PageIdentity extends StatelessWidget {
                   TextSpan(
                     style: TextStyle(
                       fontSize: 13,
-                      color: context.kpb.textSecondary,
+                      color: _Palette.slate,
                       height: 1.4,
                     ),
                     children: [
@@ -1116,10 +1164,10 @@ class _PageIdentity extends StatelessWidget {
                             'privacy_policy_inline'.tr,
                             style: TextStyle(
                               fontSize: 13,
-                              color: KpbColors.blue,
+                              color: _Palette.blue,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
-                              decorationColor: KpbColors.blue,
+                              decorationColor: _Palette.blue,
                             ),
                           ),
                         ),
@@ -1135,10 +1183,10 @@ class _PageIdentity extends StatelessWidget {
                             'onboarding_terms_of_use_inline'.tr,
                             style: TextStyle(
                               fontSize: 13,
-                              color: KpbColors.blue,
+                              color: _Palette.blue,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
-                              decorationColor: KpbColors.blue,
+                              decorationColor: _Palette.blue,
                             ),
                           ),
                         ),
@@ -1233,9 +1281,9 @@ class _PageAcademic extends StatelessWidget {
         KpbPressable(
           onTap: () => onWantsScholarship(!wantsScholarship),
           child: KpbCard(
-            color: wantsScholarship ? KpbColors.goldLight : context.kpb.cardBg,
+            color: wantsScholarship ? _Palette.amberSoft : Colors.white,
             border: Border.all(
-              color: wantsScholarship ? KpbColors.gold : context.kpb.gray200,
+              color: wantsScholarship ? _Palette.amber : _Palette.border,
             ),
             child: Row(
               children: [
@@ -1244,14 +1292,14 @@ class _PageAcademic extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color: wantsScholarship
-                        ? KpbColors.gold.withValues(alpha: 0.2)
-                        : context.kpb.gray100,
+                        ? _Palette.amber.withValues(alpha: 0.15)
+                        : _Palette.subtle,
                     borderRadius: KpbRadius.mdBr,
                   ),
                   child: Icon(
                     Icons.workspace_premium_outlined,
                     color:
-                        wantsScholarship ? KpbColors.gold : context.kpb.gray400,
+                        wantsScholarship ? _Palette.amber : _Palette.slate400,
                     size: 22,
                   ),
                 ),
@@ -1266,8 +1314,7 @@ class _PageAcademic extends StatelessWidget {
                   wantsScholarship
                       ? Icons.check_circle_rounded
                       : Icons.circle_outlined,
-                  color:
-                      wantsScholarship ? KpbColors.gold : context.kpb.gray300,
+                  color: wantsScholarship ? _Palette.amber : _Palette.slate400,
                   size: 24,
                 ),
               ],
@@ -1290,7 +1337,7 @@ class _PagePartner extends StatelessWidget {
       padding: const EdgeInsets.all(KpbSpacing.lg),
       child: Column(
         children: [
-          const Icon(Icons.handshake_outlined, size: 48, color: KpbColors.blue),
+          const Icon(Icons.handshake_outlined, size: 48, color: _Palette.blue),
           const SizedBox(height: KpbSpacing.md),
           Text('onboarding_partnership_space'.tr, style: KpbTextStyles.title),
           const SizedBox(height: 8),
@@ -1339,6 +1386,17 @@ class _PageInterests extends StatelessWidget {
               label: Text(controller.resolve(f.name)),
               selected: sel,
               onSelected: (_) => onToggleField(f.id),
+              selectedColor: _Palette.blue,
+              backgroundColor: Colors.white,
+              checkmarkColor: Colors.white,
+              labelStyle: TextStyle(
+                color: sel ? Colors.white : _Palette.navy,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              shape: StadiumBorder(
+                side: BorderSide(color: sel ? _Palette.blue : _Palette.border),
+              ),
             );
           }).toList(),
         ),
@@ -1354,6 +1412,17 @@ class _PageInterests extends StatelessWidget {
               label: Text(controller.resolve(c.name)),
               selected: sel,
               onSelected: (_) => onToggleCountry(c.id),
+              selectedColor: _Palette.blue,
+              backgroundColor: Colors.white,
+              checkmarkColor: Colors.white,
+              labelStyle: TextStyle(
+                color: sel ? Colors.white : _Palette.navy,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              shape: StadiumBorder(
+                side: BorderSide(color: sel ? _Palette.blue : _Palette.border),
+              ),
             );
           }).toList(),
         ),
@@ -1369,6 +1438,17 @@ class _PageInterests extends StatelessWidget {
               label: Text(_optionLabel(e.$1)),
               selected: sel,
               onSelected: (_) => onToggleDoc(e.$1),
+              selectedColor: _Palette.blue,
+              backgroundColor: Colors.white,
+              checkmarkColor: Colors.white,
+              labelStyle: TextStyle(
+                color: sel ? Colors.white : _Palette.navy,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              shape: StadiumBorder(
+                side: BorderSide(color: sel ? _Palette.blue : _Palette.border),
+              ),
             );
           }).toList(),
         ),
@@ -1400,9 +1480,10 @@ class _LangBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? KpbColors.blue : context.kpb.cardBg,
+            color: selected ? _Palette.blue : Colors.white,
             borderRadius: KpbRadius.mdBr,
-            boxShadow: KpbShadow.card,
+            border: selected ? null : Border.all(color: _Palette.border),
+            boxShadow: selected ? KpbShadow.card : null,
           ),
           child: Center(
             child: Text(
@@ -1410,7 +1491,7 @@ class _LangBtn extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : context.kpb.textSecondary,
+                color: selected ? Colors.white : _Palette.slate,
               ),
             ),
           ),
@@ -1469,7 +1550,7 @@ class _PhoneRow extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(KpbRadius.md),
-            border: Border.all(color: context.kpb.gray200),
+            border: Border.all(color: _Palette.border),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<_DialCode>(

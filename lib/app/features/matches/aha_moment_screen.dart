@@ -5,7 +5,20 @@ import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/match_api_codec.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/kpb_components.dart';
+import '../../core/navigation/shell_tabs.dart';
+import '../../core/ui/components/match_badge.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · obAha). Local to
+// this file — see the Parent/Commercial/Ambassadeur/Onboarding surfaces for
+// the same pattern; there is no shared design-system file yet.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const sky = Color(0xFF38BDF8);
+  static const slate400 = Color(0xFF94A3B8);
+}
 
 /// Post-onboarding AHA moment (Phase 0 / P0-D — kit US-003): the first thing
 /// a student sees after completing their profile is where their chances are
@@ -79,76 +92,162 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
 
   void _goHome() => Get.offAllNamed(AppRoutes.home);
 
+  void _seeAllUniversities() {
+    _ctrl.goToTab(StudentShellTab.universities);
+    Get.offAllNamed(AppRoutes.home);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.kpb.pageBg,
+      backgroundColor: _Palette.navy,
       body: SafeArea(
         child: _loading
             ? Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: KpbSpacing.md),
-                    Text('aha_loading'.tr, style: KpbTextStyles.bodySm),
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(_Palette.sky),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'aha_loading'.tr,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: _Palette.slate400,
+                      ),
+                    ),
                   ],
                 ),
               )
-            : Padding(
-                padding: const EdgeInsets.all(KpbSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: KpbSpacing.lg),
-                    const Icon(
-                      Icons.auto_awesome_rounded,
-                      size: 48,
-                      color: KpbColors.gold,
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('🎉', style: TextStyle(fontSize: 30)),
+                        const SizedBox(height: 10),
+                        Text(
+                          _headline(),
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                            height: 1.2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _matches.isEmpty
+                              ? 'aha_empty_body'.tr
+                              : 'aha_subtitle'.tr,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.5,
+                            color: _Palette.slate400,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: KpbSpacing.md),
-                    Text(
-                      'aha_title'.tr,
-                      style: KpbTextStyles.headline,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: KpbSpacing.sm),
-                    Text(
-                      _matches.isEmpty
-                          ? 'aha_empty_body'.tr
-                          : 'aha_subtitle'.tr,
-                      style: KpbTextStyles.bodySm,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: KpbSpacing.lg),
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: _matches.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: KpbSpacing.md),
-                        itemBuilder: (context, index) =>
-                            _MatchCard(match: _matches[index]),
-                      ),
-                    ),
-                    if (_matches.any((m) => m.isEstimate)) ...[
-                      const SizedBox(height: KpbSpacing.sm),
-                      Text(
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: _matches.isEmpty
+                        ? const SizedBox.shrink()
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 4),
+                            itemCount: _matches.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) =>
+                                _MatchCard(match: _matches[index]),
+                          ),
+                  ),
+                  if (_matches.any((m) => m.isEstimate)) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
                         'aha_estimate_note'.tr,
-                        style: KpbTextStyles.caption,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: _Palette.slate400,
+                        ),
                         textAlign: TextAlign.center,
                       ),
-                    ],
-                    const SizedBox(height: KpbSpacing.md),
-                    FilledButton(
-                      onPressed: _goHome,
-                      child: Text('aha_cta'.tr),
                     ),
-                    const SizedBox(height: KpbSpacing.sm),
+                    const SizedBox(height: 12),
                   ],
-                ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: _seeAllUniversities,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: _Palette.blue,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size.fromHeight(52),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('aha_see_all_cta'.tr),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward_rounded,
+                                    size: 17),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextButton(
+                          onPressed: _goHome,
+                          style: TextButton.styleFrom(
+                            foregroundColor: _Palette.slate400,
+                            minimumSize: const Size.fromHeight(44),
+                          ),
+                          child: Text(
+                            'aha_cta'.tr,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
       ),
     );
+  }
+
+  /// Personalizes with the student's real first name + real match count when
+  /// available; falls back to the generic title otherwise (never a fabricated
+  /// name or count).
+  String _headline() {
+    final firstName = (_ctrl.profile?.fullName ?? '').trim().split(' ').first;
+    if (firstName.isEmpty || _matches.isEmpty) return 'aha_title'.tr;
+    return 'aha_title_named'
+        .trParams({'name': firstName, 'count': '${_matches.length}'});
   }
 }
 
@@ -165,49 +264,102 @@ class _MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = Get.find<AppController>().localeCode;
+    final ctrl = Get.find<AppController>();
+    final locale = ctrl.localeCode;
     final institutionName = match.institutionName.resolve(locale);
     final programName = match.programName.resolve(locale);
     final narrative = match.narrative.resolve(locale);
 
+    // Enrich with real catalog data (flag/city/fees) when we can resolve the
+    // institution — never fabricated, just a lookup by the same institutionId
+    // the match already carries.
+    final institution = ctrl.institutionByIdOrNull(match.institutionId);
+    final country = institution == null
+        ? null
+        : ctrl.countryByIdOrNull(institution.countryId);
+    final flag = country?.flagEmoji ?? '';
+    final location =
+        institution == null ? '' : ctrl.resolve(institution.location);
+    final fees =
+        institution == null ? '' : ctrl.resolve(institution.tuitionLabel);
+
     return Container(
-      padding: const EdgeInsets.all(KpbSpacing.md),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        borderRadius: KpbRadius.lgBr,
-        border: Border.all(color: context.kpb.divider),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              if (flag.isNotEmpty) ...[
+                Text(flag, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: Text(
                   institutionName,
-                  style: KpbTextStyles.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.navy,
+                    height: 1.25,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: KpbSpacing.sm),
+              const SizedBox(width: 8),
               MatchBadge(score: match.probabilityPercent),
             ],
           ),
+          if (location.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              location,
+              style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
           if (programName.isNotEmpty) ...[
-            const SizedBox(height: KpbSpacing.xs),
+            const SizedBox(height: 6),
             Text(
               programName,
-              style: KpbTextStyles.bodySm,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          const SizedBox(height: KpbSpacing.xs),
-          Text(_zoneKey.tr, style: KpbTextStyles.caption),
+          Text(_zoneKey.tr,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
           if (narrative.isNotEmpty) ...[
-            const SizedBox(height: KpbSpacing.sm),
-            Text(narrative, style: KpbTextStyles.bodySm),
+            const SizedBox(height: 6),
+            Text(
+              narrative,
+              style: const TextStyle(
+                fontSize: 12.5,
+                height: 1.4,
+                color: Color(0xFF334155),
+              ),
+            ),
+          ],
+          if (fees.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              fees,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: _Palette.blue,
+              ),
+            ),
           ],
         ],
       ),

@@ -1231,6 +1231,21 @@ class AppTranslations extends Translations {
           'home_badge_guidance': "Accompagnement",
           'home_student_tools_title': 'Outils etudiants',
           'home_student_tools_subtitle': 'CV, lettres de motivation, et plus',
+          // ── Diambar Gauge card (App-engagement handoff) ──
+          'home_gauge_eyebrow': 'JAUGE DIAMBAR',
+          'home_gauge_bar_level': 'Niveau',
+          'home_gauge_bar_interests': 'Intérêts',
+          'home_gauge_bar_documents': 'Documents',
+          'home_gauge_bar_budget': 'Budget',
+          'home_case_documents_ratio': '@done/@total documents fournis',
+          // ── Parcours preview (Home) ──
+          'home_parcours_title': 'Ils l\'ont fait avant toi',
+          'home_parcours_subtitle':
+              'Parcours vidéo d\'étudiants africains — gratuit',
+          // ── Contact conseiller KPB (Home, App-engagement handoff) ──
+          'home_counselor_cta_title': 'Parler à un conseiller KPB',
+          'home_counselor_cta_subtitle':
+              'Sur WhatsApp, avec ton profil déjà partagé. Réponse en ~2h.',
           'sample_data_notice':
               'Données d’exemple — connexion au serveur impossible. Le catalogue affiché n’est pas encore à jour.',
           'freshness_saved': 'données enregistrées',
@@ -1815,6 +1830,7 @@ class AppTranslations extends Translations {
           // ── AHA moment post-onboarding (P0-D) ──
           'aha_loading': 'Calcul de tes compatibilités…',
           'aha_title': 'Tes écoles compatibles',
+          'aha_title_named': '@name, voici tes @count écoles compatibles',
           'aha_subtitle':
               'Basé sur ton profil, voici où tes chances sont les meilleures.',
           'aha_empty_body':
@@ -1825,6 +1841,7 @@ class AppTranslations extends Translations {
           'aha_zone_yellow': 'Jouable avec un bon dossier',
           'aha_zone_blue': 'Ambitieux pour ton profil actuel',
           'aha_cta': 'Découvrir mon espace',
+          'aha_see_all_cta': 'Voir toutes les universités',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -3031,6 +3048,20 @@ class AppTranslations extends Translations {
           'home_badge_guidance': 'Guidance',
           'home_student_tools_title': 'Student tools',
           'home_student_tools_subtitle': 'CV, cover letters, and more',
+          // ── Diambar Gauge card (App-engagement handoff) ──
+          'home_gauge_eyebrow': 'DIAMBAR GAUGE',
+          'home_gauge_bar_level': 'Level',
+          'home_gauge_bar_interests': 'Interests',
+          'home_gauge_bar_documents': 'Documents',
+          'home_gauge_bar_budget': 'Budget',
+          'home_case_documents_ratio': '@done/@total documents provided',
+          // ── Parcours preview (Home) ──
+          'home_parcours_title': 'They did it before you',
+          'home_parcours_subtitle': 'Video journeys of African students — free',
+          // ── Contact KPB counselor (Home, App-engagement handoff) ──
+          'home_counselor_cta_title': 'Talk to a KPB counselor',
+          'home_counselor_cta_subtitle':
+              'On WhatsApp, with your profile already shared. Replies in ~2h.',
           'sample_data_notice':
               'Sample data — couldn’t reach the server. The catalog shown isn’t live yet.',
           'freshness_saved': 'saved data',
@@ -3604,6 +3635,8 @@ class AppTranslations extends Translations {
           // ── AHA moment post-onboarding (P0-D) ──
           'aha_loading': 'Scoring your matches…',
           'aha_title': 'Your school matches',
+          'aha_title_named':
+              '@name, here are your @count matching universities',
           'aha_subtitle':
               'Based on your profile, here is where your chances look best.',
           'aha_empty_body':
@@ -3614,6 +3647,7 @@ class AppTranslations extends Translations {
           'aha_zone_yellow': 'Within reach with a solid application',
           'aha_zone_blue': 'Ambitious for your current profile',
           'aha_cta': 'Explore my home',
+          'aha_see_all_cta': 'See all universities',
         },
       };
 }

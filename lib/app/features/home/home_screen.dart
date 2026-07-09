@@ -9,6 +9,7 @@ import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/ui/skeleton.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
@@ -18,6 +19,8 @@ import '../search/search_screen.dart';
 import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../parcours/parcours_screen.dart';
+import '../parcours/parcours_story_screen.dart';
 import '../tools/student_tools_screen.dart';
 import 'counsellor_testimonials_carousel.dart';
 import 'home_impact_proof.dart';
@@ -26,6 +29,27 @@ import 'home_impact_proof.dart';
 // Flag helpers
 // ─────────────────────────────────────────────────────────────────────────────
 String _flag(String id) => countryFlag(id);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · isHome). Local to
+// this file — see the Parent/Commercial/Ambassadeur/Onboarding surfaces for
+// the same pattern; there is no shared design-system file yet.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const sky = Color(0xFF38BDF8);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+  static const page = Color(0xFFF8FAFC);
+  static const subtle = Color(0xFFF1F5F9);
+  static const red = Color(0xFFDC2626);
+  static const amber = Color(0xFFB45309);
+  static const amberSoft = Color(0xFFFEF3C7);
+  static const green = Color(0xFF16A34A);
+  static const whatsapp = Color(0xFF25D366);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HomeScreen — light premium, momentum-first
@@ -45,7 +69,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
-    final c = context.kpb;
 
     return GetBuilder<AppController>(
       builder: (_) {
@@ -77,7 +100,7 @@ class HomeScreen extends StatelessWidget {
         final urgentScholarship = _findUrgentDeadline(scholarships);
 
         return Container(
-          color: c.pageBg,
+          color: _Palette.page,
           child: KpbRefresh(
             onRefresh: controller.pullToRefresh,
             child: CustomScrollView(
@@ -103,7 +126,7 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: c.textPrimary,
+                            color: _Palette.navy,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -114,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                                   ? 'home_subtitle_parent'.tr
                                   : 'home_subtitle_partner'.tr,
                           style: KpbTextStyles.caption
-                              .copyWith(color: c.textSecondary),
+                              .copyWith(color: _Palette.slate),
                         ),
                       ],
                     ),
@@ -281,6 +304,15 @@ class HomeScreen extends StatelessWidget {
                       child: SizedBox(height: KpbSpacing.xl)),
                 ],
 
+                // ── 5.7 Ils l'ont fait avant toi (Parcours & Témoignages) ──
+                // Real stories from the existing Parcours feature (PR #109) —
+                // just surfaced here, not rebuilt.
+                if (controller.isStudent || controller.isParent) ...[
+                  const SliverToBoxAdapter(child: _ParcoursHomeCarousel()),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: KpbSpacing.xl)),
+                ],
+
                 // ── 6. Bourses pour toi ───────────────────────────────
                 if (scholarships.isNotEmpty &&
                     (controller.isStudent || controller.isParent)) ...[
@@ -334,6 +366,15 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+
+                // ── 8. Parler à un conseiller KPB (WhatsApp) ──────────
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        KpbSpacing.pagePad, 0, KpbSpacing.pagePad, 0),
+                    child: _CounselorWhatsAppCard(),
+                  ),
+                ),
 
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
@@ -407,20 +448,65 @@ class _AppBarChip extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: c.cardBg,
+            color: Colors.white,
             shape: BoxShape.circle,
             boxShadow: c.softShadow,
-            border: Border.all(color: c.border),
+            border: Border.all(color: _Palette.border),
           ),
-          child: Icon(icon, size: 20, color: c.textSecondary),
+          child: Icon(icon, size: 20, color: _Palette.slate),
         ),
       ),
     );
   }
 }
 
+/// Decomposes the real [UserProfile.completionScore] inputs into 5 named
+/// groups so the gauge card can show sub-bars — same underlying booleans as
+/// `completionScore`, just grouped for display. No fabricated categories
+/// (no "letters"/"applications"/"community" sub-score — we don't track
+/// those yet), so only groups we can actually compute are shown.
+List<(String, double)> _gaugeBars(UserProfile? profile) {
+  if (profile == null) return const [];
+  double frac(List<bool> items) => items.where((e) => e).length / items.length;
+  return [
+    (
+      'home_hero_profile_ring_label'.tr,
+      frac([
+        profile.fullName.trim().isNotEmpty,
+        profile.email.trim().isNotEmpty,
+        profile.phone.trim().isNotEmpty,
+        profile.countryOfResidence.trim().isNotEmpty,
+        profile.preferredLanguage.trim().isNotEmpty,
+      ]),
+    ),
+    (
+      'home_gauge_bar_level'.tr,
+      frac([
+        (profile.currentLevel ?? '').trim().isNotEmpty,
+        (profile.targetLevel ?? '').trim().isNotEmpty,
+        (profile.languageLevel ?? '').trim().isNotEmpty,
+        (profile.gradeRange ?? '').trim().isNotEmpty ||
+            (profile.bacSeries ?? '').trim().isNotEmpty,
+      ]),
+    ),
+    (
+      'home_gauge_bar_interests'.tr,
+      frac([profile.fieldIds.isNotEmpty, profile.targetCountryIds.isNotEmpty]),
+    ),
+    (
+      'home_gauge_bar_documents'.tr,
+      frac([profile.availableDocuments.isNotEmpty]),
+    ),
+    (
+      'home_gauge_bar_budget'.tr,
+      frac([profile.monthlyBudgetEur != null && profile.monthlyBudgetEur! > 0]),
+    ),
+  ];
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero Card — brand banner + animated progress ring
+// Hero / "Diambar Gauge" Card — dark navy readiness card + sub-score bars.
+// The ring + sub-bars are the real profile.completionScore, decomposed.
 // ─────────────────────────────────────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.controller});
@@ -432,90 +518,135 @@ class _HeroCard extends StatelessWidget {
     final progress = (profile?.completionScore ?? 0.0).clamp(0.0, 1.0);
     final pct = (progress * 100).round();
     final showRing = controller.isStudent && pct < 100;
+    final bars = showRing ? _gaugeBars(profile) : const [];
 
     return Container(
       decoration: BoxDecoration(
-        gradient: KpbColors.heroGradient,
+        color: _Palette.navy,
         borderRadius: KpbRadius.xlBr,
         boxShadow: KpbShadow.blue,
       ),
       padding: const EdgeInsets.all(KpbSpacing.lg),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.isPartner
-                      ? 'home_hero_title_partner'.tr
-                      : controller.isParent
-                          ? 'home_hero_title_parent'.tr
-                          : 'home_hero_title_student'.tr,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 23,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  controller.isStudent
-                      ? 'home_hero_subtitle_student'.tr
-                      : 'home_hero_subtitle_other'.tr,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _HeroCta(
-                  label: controller.isStudent
-                      ? 'nav_orientation'.tr
-                      : controller.isParent
-                          ? 'home_hero_cta_consultation'.tr
-                          : 'home_hero_cta_become_partner'.tr,
-                  onTap: () {
-                    if (controller.isStudent) {
-                      Get.to(() => const OrientationScreen());
-                    } else {
-                      showModalBottomSheet<void>(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (_) => CaseComposerSheet(
-                          caseType: CaseType.consultation,
-                          title: 'home_case_title_book_appointment'.tr,
-                          contextLabel: 'KPB Education',
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (showRing) ...[
+                      Text(
+                        'home_gauge_eyebrow'.tr,
+                        style: const TextStyle(
+                          color: _Palette.sky,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
                         ),
-                      );
-                    }
-                  },
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      controller.isPartner
+                          ? 'home_hero_title_partner'.tr
+                          : controller.isParent
+                              ? 'home_hero_title_parent'.tr
+                              : 'home_hero_title_student'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      controller.isStudent
+                          ? 'home_hero_subtitle_student'.tr
+                          : 'home_hero_subtitle_other'.tr,
+                      style: const TextStyle(
+                        color: _Palette.slate400,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _HeroCta(
+                      label: controller.isStudent
+                          ? 'nav_orientation'.tr
+                          : controller.isParent
+                              ? 'home_hero_cta_consultation'.tr
+                              : 'home_hero_cta_become_partner'.tr,
+                      onTap: () {
+                        if (controller.isStudent) {
+                          Get.to(() => const OrientationScreen());
+                        } else {
+                          showModalBottomSheet<void>(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (_) => CaseComposerSheet(
+                              caseType: CaseType.consultation,
+                              title: 'home_case_title_book_appointment'.tr,
+                              contextLabel: 'KPB Education',
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              if (showRing) ...[
+                const SizedBox(width: KpbSpacing.md),
+                KpbPressable(
+                  onTap: () => controller.goToTab(StudentShellTab.profile),
+                  child: _AnimatedRing(value: progress),
                 ),
               ],
-            ),
+            ],
           ),
-          if (showRing) ...[
-            const SizedBox(width: KpbSpacing.md),
-            KpbPressable(
-              onTap: () => controller.goToTab(StudentShellTab.profile),
-              child: Column(
-                children: [
-                  _AnimatedRing(value: progress),
-                  const SizedBox(height: 8),
-                  Text(
-                    'home_hero_profile_ring_label'.tr,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+          if (bars.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                for (final b in bars)
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(right: b == bars.last ? 0 : 6),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: LinearProgressIndicator(
+                              value: b.$2,
+                              minHeight: 5,
+                              backgroundColor:
+                                  Colors.white.withValues(alpha: 0.12),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  _Palette.sky),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            b.$1,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: _Palette.slate400,
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ],
         ],
@@ -524,7 +655,7 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-// Animated white progress ring used in the hero.
+// Animated progress ring used in the gauge card (navy background).
 class _AnimatedRing extends StatelessWidget {
   const _AnimatedRing({required this.value});
   final double value;
@@ -536,26 +667,40 @@ class _AnimatedRing extends StatelessWidget {
       duration: const Duration(milliseconds: 900),
       curve: Curves.easeOutCubic,
       builder: (_, v, __) => SizedBox(
-        height: 72,
-        width: 72,
+        height: 76,
+        width: 76,
         child: Stack(
           fit: StackFit.expand,
           children: [
             CircularProgressIndicator(
               value: v,
-              strokeWidth: 6,
+              strokeWidth: 7,
               strokeCap: StrokeCap.round,
-              backgroundColor: Colors.white.withValues(alpha: 0.22),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: Colors.white.withValues(alpha: 0.12),
+              valueColor: const AlwaysStoppedAnimation<Color>(_Palette.sky),
             ),
             Center(
-              child: Text(
-                '${(v * 100).round()}%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${(v * 100).round()}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
+                  ),
+                  const Text(
+                    '/100',
+                    style: TextStyle(
+                      color: _Palette.slate400,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -588,12 +733,12 @@ class _HeroCta extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: KpbColors.blue,
+                color: _Palette.blue,
               ),
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_rounded,
-                size: 16, color: KpbColors.blue),
+                size: 16, color: _Palette.blue),
           ],
         ),
       ),
@@ -623,7 +768,7 @@ class _NextStepCard extends StatelessWidget {
           onTap: step.onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: c.cardBg,
+              color: Colors.white,
               borderRadius: KpbRadius.lgBr,
               border: Border.all(color: step.iconColor.withValues(alpha: 0.25)),
               boxShadow: c.cardShadow,
@@ -660,14 +805,14 @@ class _NextStepCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: c.textPrimary,
+                          color: _Palette.navy,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         step.subtitle,
                         style: KpbTextStyles.caption.copyWith(
-                          color: c.textSecondary,
+                          color: _Palette.slate,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -726,7 +871,7 @@ class _NextStepCard extends StatelessWidget {
             : isDocs
                 ? Icons.upload_file_rounded
                 : Icons.reply_rounded,
-        iconColor: KpbColors.error,
+        iconColor: _Palette.red,
         onTap: () => Get.to(() => CaseDetailScreen(caseId: urgentCase.id)),
       );
     }
@@ -741,7 +886,7 @@ class _NextStepCard extends StatelessWidget {
             ? 'home_next_step_subtitle_missing_info'.tr
             : 'home_profile_pct_notice'.trParams({'pct': '$pct'}),
         icon: Icons.tune_rounded,
-        iconColor: KpbColors.blue,
+        iconColor: _Palette.blue,
         onTap: () => Get.to(() => const OnboardingScreen()),
       );
     }
@@ -753,7 +898,7 @@ class _NextStepCard extends StatelessWidget {
         title: 'home_next_step_title_take_orientation'.tr,
         subtitle: 'home_next_step_subtitle_orientation'.tr,
         icon: Icons.psychology_rounded,
-        iconColor: KpbColors.blue,
+        iconColor: _Palette.blue,
         onTap: () => Get.to(() => const OrientationScreen()),
       );
     }
@@ -765,7 +910,7 @@ class _NextStepCard extends StatelessWidget {
         title: 'home_next_step_title_start_case'.tr,
         subtitle: 'home_next_step_subtitle_start_case'.tr,
         icon: Icons.rocket_launch_rounded,
-        iconColor: KpbColors.success,
+        iconColor: _Palette.green,
         onTap: () => showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
@@ -784,7 +929,7 @@ class _NextStepCard extends StatelessWidget {
       title: 'home_next_step_title_discover_opportunities'.tr,
       subtitle: 'home_next_step_subtitle_explore'.tr,
       icon: Icons.explore_rounded,
-      iconColor: KpbColors.sky,
+      iconColor: _Palette.sky,
       onTap: () => controller.goToTab(StudentShellTab.destinations),
     );
   }
@@ -839,25 +984,25 @@ class _QuickActions extends StatelessWidget {
       (
         Icons.psychology_rounded,
         'nav_orientation'.tr,
-        KpbColors.blue,
+        _Palette.blue,
         () => Get.to(() => const OrientationScreen()),
       ),
       (
         Icons.explore_rounded,
         'home_next_step_label_explore'.tr,
-        KpbColors.sky,
+        _Palette.sky,
         () => controller.goToTab(StudentShellTab.destinations),
       ),
       (
         Icons.workspace_premium_rounded,
         'home_quick_action_scholarships'.tr,
-        KpbColors.gold,
+        _Palette.amber,
         () => Get.toNamed(AppRoutes.scholarships),
       ),
       (
         Icons.folder_copy_rounded,
         'home_quick_action_cases'.tr,
-        KpbColors.success,
+        _Palette.green,
         () => controller.goToTab(StudentShellTab.cases),
       ),
     ];
@@ -891,15 +1036,15 @@ class _AiAdvisorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: KpbColors.bgDarkCard,
+        color: _Palette.navy,
         borderRadius: KpbRadius.lgBr,
         border: Border.all(
-          color: KpbColors.blue.withValues(alpha: 0.3),
+          color: _Palette.blue.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: KpbColors.blue.withValues(alpha: 0.1),
+            color: _Palette.blue.withValues(alpha: 0.1),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -912,11 +1057,11 @@ class _AiAdvisorBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              gradient: KpbColors.heroGradient,
+              color: _Palette.blue,
               borderRadius: KpbRadius.mdBr,
               boxShadow: [
                 BoxShadow(
-                  color: KpbColors.blue.withValues(alpha: 0.4),
+                  color: _Palette.blue.withValues(alpha: 0.4),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -953,10 +1098,10 @@ class _AiAdvisorBanner extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: KpbColors.blue.withValues(alpha: 0.2),
+                        color: _Palette.blue.withValues(alpha: 0.2),
                         borderRadius: KpbRadius.xsBr,
                         border: Border.all(
-                          color: KpbColors.blue.withValues(alpha: 0.5),
+                          color: _Palette.blue.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),
@@ -965,7 +1110,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: KpbColors.blue,
+                          color: _Palette.blue,
                         ),
                       ),
                     ),
@@ -976,7 +1121,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                   'home_find_school_desc'.tr,
                   style: TextStyle(
                     fontSize: 12,
-                    color: KpbColors.textDarkSecondary,
+                    color: _Palette.slate400,
                     height: 1.35,
                   ),
                 ),
@@ -991,14 +1136,14 @@ class _AiAdvisorBanner extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: KpbColors.blue,
+                          color: _Palette.blue,
                         ),
                       ),
                       SizedBox(width: 4),
                       Icon(
                         Icons.arrow_forward_rounded,
                         size: 14,
-                        color: KpbColors.blue,
+                        color: _Palette.blue,
                       ),
                     ],
                   ),
@@ -1024,43 +1169,83 @@ class _ActiveCaseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final si = _statusInfo(item.status);
 
+    // Real document-completion ratio (no fabricated "X/10 steps" — only shown
+    // when the case actually has document requests to count).
+    final docs = item.documentRequests;
+    final docsDone = docs.where((d) => d.isProvided).length;
+    final docsPct = docs.isEmpty ? null : docsDone / docs.length;
+
     return KpbPressable(
       onTap: () => Get.to(() => CaseDetailScreen(caseId: item.id)),
       child: KpbCard(
         padding: const EdgeInsets.all(KpbSpacing.md),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: si.color,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.resolve(item.title),
-                    style: KpbTextStyles.titleMd,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: si.color,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 3),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.resolve(item.title),
+                        style: KpbTextStyles.titleMd,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        controller.resolve(item.nextStepTitle),
+                        style: KpbTextStyles.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                KpbBadge(label: si.label, color: si.color, small: true),
+              ],
+            ),
+            if (docsPct != null) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: LinearProgressIndicator(
+                        value: docsPct,
+                        minHeight: 6,
+                        backgroundColor: _Palette.subtle,
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(_Palette.blue),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Text(
-                    controller.resolve(item.nextStepTitle),
-                    style: KpbTextStyles.caption,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    'home_case_documents_ratio'.trParams(
+                        {'done': '$docsDone', 'total': '${docs.length}'}),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: _Palette.slate,
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 10),
-            KpbBadge(label: si.label, color: si.color, small: true),
+            ],
           ],
         ),
       ),
@@ -1071,44 +1256,38 @@ class _ActiveCaseCard extends StatelessWidget {
     switch (s) {
       case CaseStatus.documentsNeeded:
         return (
-          color: KpbColors.warning,
+          color: _Palette.amber,
           label: 'case_status_documents_needed'.tr
         );
       case CaseStatus.awaitingPayment:
-        return (
-          color: KpbColors.error,
-          label: 'case_status_awaiting_payment'.tr
-        );
+        return (color: _Palette.red, label: 'case_status_awaiting_payment'.tr);
       case CaseStatus.awaitingStudent:
-        return (
-          color: KpbColors.error,
-          label: 'case_status_awaiting_student'.tr
-        );
+        return (color: _Palette.red, label: 'case_status_awaiting_student'.tr);
       case CaseStatus.scheduled:
-        return (color: KpbColors.success, label: 'case_status_scheduled'.tr);
+        return (color: _Palette.green, label: 'case_status_scheduled'.tr);
       case CaseStatus.inProgress:
-        return (color: KpbColors.blue, label: 'case_status_in_progress'.tr);
+        return (color: _Palette.blue, label: 'case_status_in_progress'.tr);
       case CaseStatus.underReview:
-        return (color: KpbColors.gold, label: 'case_status_under_review'.tr);
+        return (color: _Palette.amber, label: 'case_status_under_review'.tr);
       case CaseStatus.counselorAssigned:
         return (
-          color: KpbColors.sky,
+          color: _Palette.sky,
           label: 'case_status_counselor_assigned'.tr
         );
       case CaseStatus.submitted:
-        return (color: KpbColors.sky, label: 'case_status_submitted'.tr);
+        return (color: _Palette.sky, label: 'case_status_submitted'.tr);
       case CaseStatus.applicationSubmitted:
         return (
-          color: KpbColors.blueMid,
+          color: _Palette.blue,
           label: 'case_status_application_submitted'.tr
         );
       case CaseStatus.waitingDecision:
         return (
-          color: KpbColors.gold,
+          color: _Palette.amber,
           label: 'case_status_waiting_decision'.tr
         );
       default:
-        return (color: KpbColors.gray400, label: 'case_status_in_progress'.tr);
+        return (color: _Palette.slate400, label: 'case_status_in_progress'.tr);
     }
   }
 }
@@ -1144,7 +1323,7 @@ class _InstitutionCard extends StatelessWidget {
         width: 210,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: c.cardBg,
+          color: Colors.white,
           borderRadius: KpbRadius.lgBr,
           boxShadow: c.cardShadow,
         ),
@@ -1165,7 +1344,7 @@ class _InstitutionCard extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: KpbBadge(
                         label: 'badge_partner'.tr,
-                        color: KpbColors.gold,
+                        color: _Palette.amber,
                         small: true,
                       ),
                     ),
@@ -1179,7 +1358,7 @@ class _InstitutionCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+                color: _Palette.navy,
                 height: 1.25,
               ),
               maxLines: 2,
@@ -1188,7 +1367,7 @@ class _InstitutionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               location,
-              style: KpbTextStyles.caption.copyWith(color: c.textMuted),
+              style: KpbTextStyles.caption.copyWith(color: _Palette.slate400),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1198,7 +1377,7 @@ class _InstitutionCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: KpbColors.blue,
+                color: _Palette.blue,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -1237,7 +1416,7 @@ class _ScholarshipCard extends StatelessWidget {
         width: 210,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: c.cardBg,
+          color: Colors.white,
           borderRadius: KpbRadius.lgBr,
           boxShadow: c.cardShadow,
         ),
@@ -1257,7 +1436,7 @@ class _ScholarshipCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+                color: _Palette.navy,
                 height: 1.25,
               ),
               maxLines: 2,
@@ -1267,7 +1446,7 @@ class _ScholarshipCard extends StatelessWidget {
             Row(
               children: [
                 const Icon(Icons.payments_rounded,
-                    size: 14, color: KpbColors.success),
+                    size: 14, color: _Palette.green),
                 const SizedBox(width: 5),
                 Expanded(
                   child: Text(
@@ -1275,7 +1454,7 @@ class _ScholarshipCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: KpbColors.success,
+                      color: _Palette.green,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1310,14 +1489,10 @@ class _UrgentDeadlineCard extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoutes.scholarships),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFF7ED), Color(0xFFFEF3C7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: _Palette.amberSoft,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-              color: KpbColors.gold.withValues(alpha: 0.4), width: 1.5),
+              color: _Palette.amber.withValues(alpha: 0.4), width: 1.5),
         ),
         padding: const EdgeInsets.all(KpbSpacing.md),
         child: Row(
@@ -1329,7 +1504,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: KpbColors.gold,
+                    color: _Palette.amber,
                     height: 1,
                   ),
                 ),
@@ -1338,7 +1513,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: KpbColors.gold,
+                    color: _Palette.amber,
                   ),
                 ),
               ],
@@ -1356,7 +1531,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: KpbColors.gold,
+                      color: _Palette.amber,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -1370,8 +1545,8 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${'closing_label'.tr} : $deadline',
-                    style: const TextStyle(
-                        fontSize: 12, color: KpbColors.textMuted),
+                    style:
+                        const TextStyle(fontSize: 12, color: _Palette.slate400),
                   ),
                 ],
               ),
@@ -1380,7 +1555,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: const BoxDecoration(
-                color: KpbColors.gold,
+                color: _Palette.amber,
                 borderRadius: KpbRadius.mdBr,
               ),
               child: Text(
@@ -1443,7 +1618,7 @@ class _ArticleCard extends StatelessWidget {
               width: 4,
               height: 56,
               decoration: const BoxDecoration(
-                color: KpbColors.blue,
+                color: _Palette.blue,
                 borderRadius: KpbRadius.pillBr,
               ),
             ),
@@ -1470,7 +1645,7 @@ class _ArticleCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
-                size: 18, color: context.kpb.gray300),
+                size: 18, color: _Palette.slate400),
           ],
         ),
       ),
@@ -1493,15 +1668,15 @@ class _AbroadEnrollmentCard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          color: KpbColors.bgDarkCard,
+          color: _Palette.navy,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-            color: KpbColors.gold.withValues(alpha: 0.3),
+            color: _Palette.amber.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: KpbColors.gold.withValues(alpha: 0.08),
+              color: _Palette.amber.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -1517,11 +1692,11 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    gradient: KpbColors.goldGradient,
+                    color: _Palette.amber,
                     borderRadius: KpbRadius.mdBr,
                     boxShadow: [
                       BoxShadow(
-                        color: KpbColors.gold.withValues(alpha: 0.4),
+                        color: _Palette.amber.withValues(alpha: 0.4),
                         blurRadius: 10,
                         offset: Offset(0, 2),
                       ),
@@ -1558,10 +1733,10 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: KpbColors.gold.withValues(alpha: 0.15),
+                              color: _Palette.amber.withValues(alpha: 0.15),
                               borderRadius: KpbRadius.xsBr,
                               border: Border.all(
-                                color: KpbColors.gold.withValues(alpha: 0.4),
+                                color: _Palette.amber.withValues(alpha: 0.4),
                                 width: 0.5,
                               ),
                             ),
@@ -1570,7 +1745,7 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
-                                color: KpbColors.gold,
+                                color: _Palette.amber,
                               ),
                             ),
                           ),
@@ -1581,7 +1756,7 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                         'home_apply_world_desc'.tr,
                         style: TextStyle(
                           fontSize: 12,
-                          color: KpbColors.textDarkSecondary,
+                          color: _Palette.slate400,
                           height: 1.35,
                         ),
                       ),
@@ -1632,14 +1807,14 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: KpbColors.gold,
+                        color: _Palette.amber,
                       ),
                     ),
                     SizedBox(width: 4),
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: 14,
-                      color: KpbColors.gold,
+                      color: _Palette.amber,
                     ),
                   ],
                 ),
@@ -1667,7 +1842,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
     builder: (context) {
       return Container(
         decoration: BoxDecoration(
-          color: KpbColors.bgDarkMidnight,
+          color: _Palette.navy,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -1723,7 +1898,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
               'home_destinations_desc'.tr,
               style: TextStyle(
                 fontSize: 13,
-                color: KpbColors.textDarkSecondary,
+                color: _Palette.slate400,
                 height: 1.4,
               ),
             ),
@@ -1736,7 +1911,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: KpbColors.bgDarkCard,
+                        color: _Palette.navy,
                         borderRadius: KpbRadius.mdBr,
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.05),
@@ -1825,7 +2000,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                           controller.resolve(country.whyStudy),
                                           style: const TextStyle(
                                             fontSize: 12,
-                                            color: KpbColors.textDarkSecondary,
+                                            color: _Palette.slate400,
                                             height: 1.35,
                                           ),
                                         ),
@@ -1836,7 +2011,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             const Icon(
                                               Icons.payments_outlined,
                                               size: 14,
-                                              color: KpbColors.gold,
+                                              color: _Palette.amber,
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
@@ -1854,7 +2029,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
-                                                color: KpbColors.gold,
+                                                color: _Palette.amber,
                                               ),
                                             ),
                                           ],
@@ -1906,13 +2081,13 @@ class _StudentToolsBanner extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              KpbColors.blue.withValues(alpha: 0.15),
-              KpbColors.success.withValues(alpha: 0.10),
+              _Palette.blue.withValues(alpha: 0.15),
+              _Palette.green.withValues(alpha: 0.10),
             ],
           ),
           borderRadius: KpbRadius.xlBr,
           border: Border.all(
-            color: KpbColors.blue.withValues(alpha: 0.25),
+            color: _Palette.blue.withValues(alpha: 0.25),
           ),
         ),
         child: Row(
@@ -1921,12 +2096,12 @@ class _StudentToolsBanner extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: KpbColors.blue.withValues(alpha: 0.15),
+                color: _Palette.blue.withValues(alpha: 0.15),
                 borderRadius: KpbRadius.mdBr,
               ),
               child: const Icon(
                 Icons.build_circle_rounded,
-                color: KpbColors.blue,
+                color: _Palette.blue,
                 size: 26,
               ),
             ),
@@ -1940,7 +2115,7 @@ class _StudentToolsBanner extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: context.kpb.textPrimary,
+                      color: _Palette.navy,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1948,7 +2123,7 @@ class _StudentToolsBanner extends StatelessWidget {
                     'home_student_tools_subtitle'.tr,
                     style: TextStyle(
                       fontSize: 12,
-                      color: context.kpb.textMuted,
+                      color: _Palette.slate400,
                     ),
                   ),
                 ],
@@ -1957,8 +2132,312 @@ class _StudentToolsBanner extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 16,
-              color: context.kpb.textMuted,
+              color: _Palette.slate400,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// "They did it before you" — real Parcours & Témoignages stories (PR #109),
+// just surfaced on Home. Fetches once; self-hides until real stories load.
+// Does not modify anything under lib/app/features/parcours/.
+// ─────────────────────────────────────────────────────────────────────────────
+class _ParcoursHomeCarousel extends StatefulWidget {
+  const _ParcoursHomeCarousel();
+
+  @override
+  State<_ParcoursHomeCarousel> createState() => _ParcoursHomeCarouselState();
+}
+
+class _ParcoursHomeCarouselState extends State<_ParcoursHomeCarousel> {
+  @override
+  void initState() {
+    super.initState();
+    // Safe to call repeatedly — skips the network round-trip once populated.
+    Get.find<AppController>().fetchParcoursStories();
+  }
+
+  void _open(ParcoursStory story, List<ParcoursStory> videoStories) {
+    if (story.isVideo) {
+      final playable = videoStories
+          .where((v) => (v.youtubeId ?? '').isNotEmpty)
+          .toList(growable: false);
+      if ((story.youtubeId ?? '').isEmpty || playable.isEmpty) {
+        Get.snackbar(
+          'parcours_appbar_title'.tr,
+          'parcours_video_unavailable'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      final index = playable.indexWhere((v) => v.slug == story.slug);
+      Get.to(() => ParcoursPlayerScreen(
+            videos: playable,
+            initialIndex: index < 0 ? 0 : index,
+          ));
+    } else {
+      Get.to(() => ParcoursStoryScreen(story: story));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<AppController>(
+      builder: (controller) {
+        final stories = controller.parcoursStories.take(6).toList();
+        if (stories.isEmpty) return const SizedBox.shrink();
+        final videoStories =
+            controller.parcoursStories.where((s) => s.isVideo).toList();
+        final locale = controller.localeCode;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'home_parcours_title'.tr,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w800,
+                          color: _Palette.navy,
+                        ),
+                      ),
+                      Text(
+                        'home_parcours_subtitle'.tr,
+                        style: const TextStyle(
+                            fontSize: 10.5, color: _Palette.slate),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.to(() => const ParcoursScreen()),
+                  child: Text(
+                    'see_all'.tr,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: _Palette.blue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 168,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.zero,
+                itemCount: stories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 11),
+                itemBuilder: (ctx, i) {
+                  final story = stories[i];
+                  return _ParcoursHomeCard(
+                    story: story,
+                    locale: locale,
+                    onTap: () => _open(story, videoStories),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ParcoursHomeCard extends StatelessWidget {
+  const _ParcoursHomeCard({
+    required this.story,
+    required this.locale,
+    required this.onTap,
+  });
+
+  final ParcoursStory story;
+  final String locale;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = story.title.resolve(locale);
+    final who = story.personName.isNotEmpty
+        ? story.personName
+        : story.role.resolve(locale);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 172,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _Palette.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 96,
+              width: double.infinity,
+              color: _Palette.navy,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        story.isVideo
+                            ? Icons.play_arrow_rounded
+                            : Icons.menu_book_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                  if (story.durationMinutes != null)
+                    Positioned(
+                      bottom: 6,
+                      right: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${story.durationMinutes} min',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: _Palette.navy,
+                      height: 1.3,
+                    ),
+                  ),
+                  if (who.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      who,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          const TextStyle(fontSize: 10, color: _Palette.slate),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// "Talk to a KPB counselor" — dark navy WhatsApp hand-off card. No in-app
+// payment/checkout anywhere on Home; every advisor contact routes through
+// the official KPB WhatsApp line.
+// ─────────────────────────────────────────────────────────────────────────────
+class _CounselorWhatsAppCard extends StatelessWidget {
+  const _CounselorWhatsAppCard();
+
+  void _open() {
+    openWhatsAppOrToast(
+      phone: AppConfig.whatsappNumber,
+      prefill: kpbWhatsAppPrefill(),
+      source: 'home',
+      contextType: 'home_counselor_card',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KpbPressable(
+      onTap: _open,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _Palette.navy,
+          borderRadius: KpbRadius.xlBr,
+        ),
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: _Palette.whatsapp,
+                borderRadius: KpbRadius.mdBr,
+              ),
+              child:
+                  const Icon(Icons.chat_rounded, color: Colors.white, size: 22),
+            ),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'home_counselor_cta_title'.tr,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'home_counselor_cta_subtitle'.tr,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      height: 1.4,
+                      color: _Palette.slate400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_rounded,
+                color: _Palette.sky, size: 17),
           ],
         ),
       ),
