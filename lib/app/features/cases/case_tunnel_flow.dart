@@ -11,6 +11,16 @@ import '../../core/services/speech_input_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 
+// Palette (App-engagement handoff). Local to this file — palette-only pass so
+// the creation tunnel matches the restyled Dossier/Demandes screens.
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const chipBg = Color(0xFFEFF6FF);
+  static const line = Color(0xFFF1F5F9);
+  static const red = Color(0xFFDC2626);
+}
+
 class CaseTunnelPrefill {
   const CaseTunnelPrefill({
     required this.title,
@@ -330,21 +340,27 @@ class _StepHeader extends StatelessWidget {
       children: [
         Text(
           'create_case'.tr,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.4,
+            color: _Palette.navy,
+          ),
         ),
         SizedBox(height: 4),
         Text(
           '${'step_label'.tr} ${step + 1}/$total · ${labels[step]}',
           style: KpbTextStyles.caption,
         ),
-        const SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: (step + 1) / total,
-          minHeight: 4,
-          backgroundColor: context.kpb.gray100,
-          color: KpbColors.blue,
+        const SizedBox(height: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: LinearProgressIndicator(
+            value: (step + 1) / total,
+            minHeight: 5,
+            backgroundColor: _Palette.line,
+            color: _Palette.blue,
+          ),
         ),
       ],
     );
@@ -386,7 +402,7 @@ class _TypeStep extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Material(
-            color: isSelected ? KpbColors.skyLight : context.kpb.cardBg,
+            color: isSelected ? _Palette.chipBg : context.kpb.cardBg,
             borderRadius: KpbRadius.mdBr,
             child: InkWell(
               onTap: () => onSelected(type),
@@ -396,14 +412,14 @@ class _TypeStep extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: KpbRadius.mdBr,
                   border: Border.all(
-                    color: isSelected ? KpbColors.blue : context.kpb.gray200,
+                    color: isSelected ? _Palette.blue : context.kpb.gray200,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(icon,
                         color:
-                            isSelected ? KpbColors.blue : context.kpb.gray400),
+                            isSelected ? _Palette.blue : context.kpb.gray400),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -416,7 +432,7 @@ class _TypeStep extends StatelessWidget {
                     ),
                     if (isSelected)
                       const Icon(Icons.check_circle_rounded,
-                          color: KpbColors.blue, size: 20),
+                          color: _Palette.blue, size: 20),
                   ],
                 ),
               ),
@@ -509,7 +525,7 @@ class _ContextRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: KpbColors.blue),
+        Icon(icon, size: 18, color: _Palette.blue),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -699,7 +715,7 @@ class _MessageStepState extends State<_MessageStep> {
             onPressed: _toggleDictation,
             icon: Icon(
               _listening ? Icons.stop_rounded : Icons.mic_rounded,
-              color: _listening ? KpbColors.error : KpbColors.blue,
+              color: _listening ? _Palette.red : _Palette.blue,
             ),
             label: Text(
               _listening
@@ -713,7 +729,7 @@ class _MessageStepState extends State<_MessageStep> {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               'listening_speak_clearly'.tr,
-              style: KpbTextStyles.caption.copyWith(color: KpbColors.blue),
+              style: KpbTextStyles.caption.copyWith(color: _Palette.blue),
             ),
           ),
         const SizedBox(height: 16),

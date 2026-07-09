@@ -55,6 +55,31 @@ const _timelineTitleKeys = <CaseStatus, String>{
   CaseStatus.completed: 'case_timeline_status_completed',
 };
 
+/// Real, status-driven completion of the 10-step M14 pipeline — the value
+/// behind the Dossier progress ring and the list-row progress bar. It mirrors
+/// the checklist exactly: the fraction returned equals the number of steps
+/// rendered as "done" (state == passed) over the total, so ring and checklist
+/// can never disagree. Terminal states are handled explicitly (completed →
+/// 100%, cancelled → 0%); a rejected case keeps the progress it reached before
+/// the rejection rather than fabricating a number.
+double caseTimelineProgress(CaseStatus status) {
+  if (status == CaseStatus.completed) return 1;
+  if (status == CaseStatus.cancelled) return 0;
+  final index = caseTimelineIndexForStatus(status);
+  if (index < 0) return 0;
+  return (index / kCaseTimelineOrder.length).clamp(0.0, 1.0);
+}
+
+/// Whether [status] is one where the ball is in the STUDENT's court — i.e. the
+/// step deserves the design's red "Your turn" badge. Kept honest: a step the
+/// counsellor/KPB is working (under review, waiting decision…) never claims to
+/// need the student. Matches the urgent-case heuristic on the home dashboard.
+bool isCaseStudentActionStatus(CaseStatus status) {
+  return status == CaseStatus.documentsNeeded ||
+      status == CaseStatus.awaitingStudent ||
+      status == CaseStatus.awaitingPayment;
+}
+
 int caseTimelineIndexForStatus(CaseStatus status) {
   switch (status) {
     case CaseStatus.draft:

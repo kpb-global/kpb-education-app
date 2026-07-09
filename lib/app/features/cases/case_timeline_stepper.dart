@@ -5,6 +5,13 @@ import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 
+// Palette (App-engagement handoff). Local to this file — palette-only pass.
+class _Palette {
+  static const blue = Color(0xFF2563EB);
+  static const green = Color(0xFF16A34A);
+  static const red = Color(0xFFDC2626);
+}
+
 /// A sleek, vertical timeline showing the high-level progress of an application.
 class CaseTimelineStepper extends StatelessWidget {
   const CaseTimelineStepper({super.key, required this.currentStatus});
@@ -61,16 +68,15 @@ class CaseTimelineStepper extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: isErrorState
-                                ? KpbColors.error
+                                ? _Palette.red
                                 : isCompleted
-                                    ? KpbColors.success
+                                    ? _Palette.green
                                     : isActive
-                                        ? KpbColors.blue
+                                        ? _Palette.blue
                                         : context.kpb.gray200,
                             border: isActive && !isErrorState
                                 ? Border.all(
-                                    color:
-                                        KpbColors.blue.withValues(alpha: 0.3),
+                                    color: _Palette.blue.withValues(alpha: 0.3),
                                     width: 4)
                                 : null,
                           ),
@@ -88,7 +94,7 @@ class CaseTimelineStepper extends StatelessWidget {
                             child: Container(
                               width: 2,
                               color: isCompleted
-                                  ? KpbColors.success
+                                  ? _Palette.green
                                   : context.kpb.gray200,
                             ),
                           ),
@@ -110,7 +116,7 @@ class CaseTimelineStepper extends StatelessWidget {
                               fontWeight:
                                   isActive ? FontWeight.w700 : FontWeight.w600,
                               color: isErrorState
-                                  ? KpbColors.error
+                                  ? _Palette.red
                                   : isActive || isCompleted
                                       ? context.kpb.textPrimary
                                       : context.kpb.textMuted,
