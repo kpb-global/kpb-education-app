@@ -21,6 +21,7 @@ import '../budget/budget_calculator_screen.dart';
 import '../travel/flight_estimator_screen.dart';
 import '../housing/housing_estimator_screen.dart';
 import '../parent/parent_dashboard_screen.dart';
+import '../parent/parent_surface_screen.dart';
 import '../saved/saved_screen.dart';
 import '../services/service_packages_screen.dart';
 import '../alumni/alumni_directory_screen.dart';
@@ -471,8 +472,9 @@ class ProfileScreen extends StatelessWidget {
                                 ? 'profile_quick_parent_space'.tr
                                 : 'profile_quick_parent_mode'.tr,
                             color: KpbColors.gold,
-                            onTap: () =>
-                                Get.to(() => const ParentDashboardScreen()),
+                            onTap: () => Get.to(() => controller.isParent
+                                ? const ParentSurfaceScreen()
+                                : const ParentDashboardScreen()),
                           ),
                           const KpbDivider(indent: 52),
                           // Phase 3 — Monetized bundles: "Dossier prêt",

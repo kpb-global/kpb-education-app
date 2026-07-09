@@ -201,6 +201,130 @@ class AppTranslations extends Translations {
           'housing_studapart_partnership_desc':
               'Louez votre logement en France facilement avec ou sans garant local.',
           'parent_load_error': 'Impossible de charger. Vérifie ta connexion.',
+          'parent_child_default': 'votre enfant',
+          'parent_readonly_chip': 'Lecture seule',
+          'parent_create_cta': 'Générer un code d\'invitation',
+          'parent_share_cta': 'Partager sur WhatsApp',
+          'parent_link_refresh': 'J\'ai partagé — actualiser',
+          'parent_code_share_note':
+              'Partagez ce code avec votre enfant. Il l\'entre dans son app (Profil → Suivi parental) pour lier vos comptes.',
+          'parent_invite_share_msg':
+              'Bonjour, voici mon code parent KPB : @code. Ajoute-le dans ton app KPB (Profil → Suivi parental) pour me partager ton parcours.',
+          'parent_waiting_title': '@child n\'a pas encore partagé de dossier',
+          'parent_waiting_body':
+              'Dès que votre enfant partage un dossier depuis son app, son avancement apparaîtra ici.',
+          'parent_nextstep_label': 'PROCHAINE ÉTAPE',
+          'parent_docs_managed_note':
+              'Lecture seule — les documents sont gérés par votre enfant et son conseiller.',
+          'parent_financing_body':
+              'Vous pouvez envoyer une preuve de financement (relevé, attestation) à votre conseiller KPB.',
+          'parent_no_updates':
+              'Les actualités partagées par le conseiller apparaîtront ici.',
+          'parent_appbar': 'Espace parent',
+          'parent_enter_code': 'Entrez le code d\'invitation',
+          'parent_linked_ok': 'Compte lié ✓',
+          'parent_link_error': 'Code invalide ou expiré. Réessayez.',
+          'parent_greeting_generic': 'Bonjour',
+          'parent_hello': 'Bonjour, @name',
+          'parent_linked_readonly':
+              'Compte parent — lié à @child (lecture seule)',
+          'parent_jauge_label': 'JAUGE DE PRÉPARATION',
+          'parent_jauge_state': 'Préparation en bonne voie',
+          'parent_jauge_sub':
+              'Profil, documents, lettres, dossiers — toujours visible pour vous.',
+          'parent_weekly_label': 'RAPPORT HEBDOMADAIRE',
+          'parent_weekly_when': 'reçu dimanche 20h',
+          'parent_weekly_title': 'Le dossier a progressé cette semaine',
+          'parent_weekly_body':
+              'Lettre de motivation terminée ✓. Il reste le CV et les lettres de recommandation. Prochaine échéance à surveiller.',
+          'parent_dossier_label': 'Dossier',
+          'parent_steps': 'étapes',
+          'parent_deadline_label': 'Prochaine deadline',
+          'parent_advisor_title': 'Parler au conseiller KPB',
+          'parent_advisor_sub': 'WhatsApp · réponse en ~2 h',
+          'parent_privacy_note':
+              'C\'est votre enfant qui contrôle ce que vous voyez, champ par champ, depuis son app. La jauge et la progression restent toujours visibles.',
+          'parent_case_title': 'Dossier partagé',
+          'parent_docs_label': 'Documents du dossier',
+          'parent_docs_readonly':
+              'Lecture seule — les documents sont téléversés par votre enfant ou validés par son conseiller.',
+          'parent_doc_ok': 'Validé',
+          'parent_doc_review': 'En revue',
+          'parent_doc_required': 'Requis',
+          'parent_docs_locked_title': 'Documents non partagés',
+          'parent_docs_locked_body':
+              '@child n\'a pas encore partagé de dossier avec vous.',
+          'parent_financing_label': 'Financement',
+          'parent_fin_statement': 'Relevé bancaire (3 mois)',
+          'parent_fin_sent': 'Envoyé ✓',
+          'parent_fin_employer': 'Attestation employeur',
+          'parent_fin_required': 'Requis',
+          'parent_fin_upload': 'Envoyer une preuve de financement',
+          'parent_fin_note':
+              'Stockage sécurisé dédié aux documents financiers. Visible uniquement par votre enfant, vous et le conseiller.',
+          'parent_updates_title': 'Actualités',
+          'parent_updates_sub': 'Avancement partagé par le conseiller',
+          'parent_upd_letter_t': 'Lettre de motivation relue ✓',
+          'parent_upd_letter_s':
+              'Générée avec le copilote puis relue — prête pour le dossier.',
+          'parent_upd_eiffel_t': 'Bourse Eiffel — échéance proche',
+          'parent_upd_eiffel_s':
+              'Le dossier est éligible. CV et recommandations restants.',
+          'parent_upd_bulletins_t': 'Bulletins validés par le conseiller',
+          'parent_upd_bulletins_s':
+              'Aucune traduction supplémentaire nécessaire pour la France.',
+          'parent_upd_live_t': 'Live : « Réussir Campus France »',
+          'parent_upd_live_s': 'Animé par une alumni placée à l\'étranger.',
+          'parent_msg_from': 'Conseiller → votre enfant',
+          'parent_msg_body':
+              '« Très bonne lettre ! Envoie ton CV cette semaine pour rester dans les temps. »',
+          'parent_msg_locked_title': 'Messages non partagés',
+          'parent_msg_locked_body':
+              'Les messages privés entre votre enfant et son conseiller ne sont pas partagés.',
+          'parent_pay_title': 'Paiements',
+          'parent_pay_sub':
+              'Payez pour votre enfant — via votre conseiller KPB',
+          'parent_premium_title': 'Karatou Premium pour @child',
+          'parent_premium_sub':
+              'Copilote illimité · lettres illimitées · live VIP',
+          'parent_premium_item': 'Karatou Premium',
+          'parent_premium_cta': 'Activer via le conseiller KPB',
+          'parent_packs_label': 'Accompagnement KPB',
+          'parent_pack_review': 'Relecture de dossier KPB',
+          'parent_pack_review_desc':
+              'Un conseiller vérifié relit tout le dossier avant dépôt',
+          'parent_pack_full': 'Accompagnement complet',
+          'parent_pack_full_desc':
+              '3 sessions conseiller + suivi Campus France jusqu\'au dépôt',
+          'parent_pay_cta': 'Réserver',
+          'parent_pay_note':
+              'Paiement organisé avec votre conseiller KPB sur WhatsApp — reçu par message. Aucun paiement à des « agents » hors du circuit KPB.',
+          'parent_ask_access': 'Demander l\'accès',
+          'parent_sample_banner':
+              'Aperçu — l\'écran se remplit dès que votre enfant partage son dossier.',
+          'parent_nav_overview': 'Vue d\'ensemble',
+          'parent_nav_case': 'Dossier',
+          'parent_nav_updates': 'Actualités',
+          'parent_nav_pay': 'Paiements',
+          'parent_onboarding_title': 'Suivez le parcours de votre enfant',
+          'parent_onboarding_sub':
+              'Générez un code d\'invitation et partagez-le avec votre enfant. Il l\'entre dans son app pour lier vos comptes.',
+          'parent_invite_code_label': 'Code d\'invitation',
+          'parent_onboarding_b1':
+              'Toujours visible : jauge de préparation, progression, échéances',
+          'parent_onboarding_b2':
+              'Contrôlé par votre enfant : documents, messages, finances',
+          'parent_onboarding_b3':
+              'Contact direct avec le conseiller KPB sur WhatsApp',
+          'parent_link_cta': 'Lier le compte',
+          'parent_wa_advisor':
+              'Bonjour, je suis le parent d\'un étudiant suivi par KPB. J\'aimerais échanger avec le conseiller.',
+          'parent_wa_ask_access':
+              'Bonjour, je souhaite demander l\'accès à une information du dossier de mon enfant.',
+          'parent_wa_upload':
+              'Bonjour, je voudrais envoyer une preuve de financement pour le dossier de mon enfant.',
+          'parent_wa_pay':
+              'Bonjour, je souhaite régler « @item » pour mon enfant via KPB.',
           'parent_invite_create_error': 'Impossible de créer l\'invitation.',
           'parent_invite_code_title': 'Code d\'invitation',
           'parent_code_copied': 'Code copié.',
@@ -1857,6 +1981,128 @@ class AppTranslations extends Translations {
           'housing_studapart_partnership_desc':
               'Rent your home in France easily, with or without a local guarantor.',
           'parent_load_error': 'Could not load. Check your connection.',
+          'parent_child_default': 'your child',
+          'parent_readonly_chip': 'Read-only',
+          'parent_create_cta': 'Generate an invite code',
+          'parent_share_cta': 'Share on WhatsApp',
+          'parent_link_refresh': 'I\'ve shared — refresh',
+          'parent_code_share_note':
+              'Share this code with your child. They enter it in their app (Profile → Parent access) to link your accounts.',
+          'parent_invite_share_msg':
+              'Hi, here\'s my KPB parent code: @code. Add it in your KPB app (Profile → Parent access) to share your journey with me.',
+          'parent_waiting_title': '@child hasn\'t shared an application yet',
+          'parent_waiting_body':
+              'As soon as your child shares an application from their app, their progress will appear here.',
+          'parent_nextstep_label': 'NEXT STEP',
+          'parent_docs_managed_note':
+              'Read-only — documents are managed by your child and their advisor.',
+          'parent_financing_body':
+              'You can send a proof of funds (statement, attestation) to your KPB advisor.',
+          'parent_no_updates':
+              'Updates shared by the advisor will appear here.',
+          'parent_appbar': 'Parent space',
+          'parent_enter_code': 'Enter the invite code',
+          'parent_linked_ok': 'Account linked ✓',
+          'parent_link_error': 'Invalid or expired code. Try again.',
+          'parent_greeting_generic': 'Hello',
+          'parent_hello': 'Hello, @name',
+          'parent_linked_readonly':
+              'Parent account — linked to @child (read-only)',
+          'parent_jauge_label': 'READINESS GAUGE',
+          'parent_jauge_state': 'Preparation on track',
+          'parent_jauge_sub':
+              'Profile, documents, letters, cases — always visible to you.',
+          'parent_weekly_label': 'WEEKLY REPORT',
+          'parent_weekly_when': 'received Sunday 8pm',
+          'parent_weekly_title': 'The application progressed this week',
+          'parent_weekly_body':
+              'Motivation letter done ✓. CV and recommendation letters remain. Next deadline coming up.',
+          'parent_dossier_label': 'Application',
+          'parent_steps': 'steps',
+          'parent_deadline_label': 'Next deadline',
+          'parent_advisor_title': 'Talk to the KPB advisor',
+          'parent_advisor_sub': 'WhatsApp · replies in ~2h',
+          'parent_privacy_note':
+              'Your child controls what you see, field by field, from their app. The gauge and progress always stay visible.',
+          'parent_case_title': 'Shared application',
+          'parent_docs_label': 'Application documents',
+          'parent_docs_readonly':
+              'Read-only — documents are uploaded by your child or validated by their advisor.',
+          'parent_doc_ok': 'Validated',
+          'parent_doc_review': 'In review',
+          'parent_doc_required': 'Required',
+          'parent_docs_locked_title': 'Documents not shared',
+          'parent_docs_locked_body':
+              '@child hasn\'t shared an application with you yet.',
+          'parent_financing_label': 'Financing',
+          'parent_fin_statement': 'Bank statement (3 months)',
+          'parent_fin_sent': 'Sent ✓',
+          'parent_fin_employer': 'Employer attestation',
+          'parent_fin_required': 'Required',
+          'parent_fin_upload': 'Send a proof of funds',
+          'parent_fin_note':
+              'Secure storage for financial documents. Visible only to your child, you and the advisor.',
+          'parent_updates_title': 'Updates',
+          'parent_updates_sub': 'Progress shared by the advisor',
+          'parent_upd_letter_t': 'Motivation letter reviewed ✓',
+          'parent_upd_letter_s':
+              'Generated with the copilot then reviewed — ready for the application.',
+          'parent_upd_eiffel_t': 'Eiffel scholarship — deadline near',
+          'parent_upd_eiffel_s':
+              'The application is eligible. CV and recommendations remain.',
+          'parent_upd_bulletins_t': 'Transcripts validated by the advisor',
+          'parent_upd_bulletins_s': 'No extra translation needed for France.',
+          'parent_upd_live_t': 'Live: “Ace Campus France”',
+          'parent_upd_live_s': 'Hosted by an alumna placed abroad.',
+          'parent_msg_from': 'Advisor → your child',
+          'parent_msg_body':
+              '“Great letter! Send your CV this week to stay on schedule.”',
+          'parent_msg_locked_title': 'Messages not shared',
+          'parent_msg_locked_body':
+              'Private messages between your child and their advisor aren\'t shared.',
+          'parent_pay_title': 'Payments',
+          'parent_pay_sub': 'Pay for your child — via your KPB advisor',
+          'parent_premium_title': 'Karatou Premium for @child',
+          'parent_premium_sub':
+              'Unlimited copilot · unlimited letters · VIP live',
+          'parent_premium_item': 'Karatou Premium',
+          'parent_premium_cta': 'Activate via the KPB advisor',
+          'parent_packs_label': 'KPB support',
+          'parent_pack_review': 'KPB application review',
+          'parent_pack_review_desc':
+              'A verified advisor reviews the whole application before submission',
+          'parent_pack_full': 'Full support',
+          'parent_pack_full_desc':
+              '3 advisor sessions + Campus France follow-up to submission',
+          'parent_pay_cta': 'Book',
+          'parent_pay_note':
+              'Payment arranged with your KPB advisor on WhatsApp — receipt by message. Never pay “agents” outside the KPB channel.',
+          'parent_ask_access': 'Request access',
+          'parent_sample_banner':
+              'Preview — the screen fills in as soon as your child shares their application.',
+          'parent_nav_overview': 'Overview',
+          'parent_nav_case': 'Application',
+          'parent_nav_updates': 'Updates',
+          'parent_nav_pay': 'Payments',
+          'parent_onboarding_title': 'Follow your child\'s journey',
+          'parent_onboarding_sub':
+              'Generate an invite code and share it with your child. They enter it in their app to link your accounts.',
+          'parent_invite_code_label': 'Invite code',
+          'parent_onboarding_b1':
+              'Always visible: readiness gauge, progress, deadlines',
+          'parent_onboarding_b2':
+              'Controlled by your child: documents, messages, finances',
+          'parent_onboarding_b3':
+              'Direct contact with the KPB advisor on WhatsApp',
+          'parent_link_cta': 'Link the account',
+          'parent_wa_advisor':
+              'Hello, I\'m the parent of a student supported by KPB. I\'d like to talk to the advisor.',
+          'parent_wa_ask_access':
+              'Hello, I\'d like to request access to some information in my child\'s application.',
+          'parent_wa_upload':
+              'Hello, I\'d like to send a proof of funds for my child\'s application.',
+          'parent_wa_pay':
+              'Hello, I\'d like to pay for “@item” for my child via KPB.',
           'parent_invite_create_error': 'Could not create the invitation.',
           'parent_invite_code_title': 'Invite code',
           'parent_code_copied': 'Code copied.',
