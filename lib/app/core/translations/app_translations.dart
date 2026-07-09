@@ -398,6 +398,17 @@ class AppTranslations extends Translations {
           'deadlines_status_days': '@n jours',
           'compare_program_count': '@n programmes',
           'compare_open_case_for': 'Dossier @name',
+          'compare_subtitle': 'Touche une colonne pour changer d\'université',
+          'compare_pick': 'CHOISIR',
+          'compare_picker_title': 'Choisir une université',
+          'compare_search_hint': 'Rechercher une université…',
+          'compare_picker_empty':
+              'Aucune université ne correspond à ta recherche.',
+          'compare_verdict_higher_match':
+              'Meilleure compatibilité d\'admission : @name (@hi % contre @lo %)',
+          'compare_verdict_partner': '@name est un partenaire vérifié KPB.',
+          'compare_verdict_more_programs':
+              '@name propose plus de programmes (@hi contre @lo).',
           'compare_share_line': '🏛 @name — compatibilité @score%\n',
           'compare_share_tuition': '   Frais : @tuition\n',
           'compare_share_language': '   Langue : @lang\n\n',
@@ -2263,6 +2274,16 @@ class AppTranslations extends Translations {
           'deadlines_status_days': '@n days',
           'compare_program_count': '@n programs',
           'compare_open_case_for': '@name case',
+          'compare_subtitle': 'Tap a column to switch universities',
+          'compare_pick': 'PICK',
+          'compare_picker_title': 'Choose a university',
+          'compare_search_hint': 'Search a university…',
+          'compare_picker_empty': 'No university matches your search.',
+          'compare_verdict_higher_match':
+              'Higher admission match: @name (@hi% vs @lo%)',
+          'compare_verdict_partner': '@name is a verified KPB partner.',
+          'compare_verdict_more_programs':
+              '@name offers more programs (@hi vs @lo).',
           'compare_share_line': '🏛 @name — compatibility @score%\n',
           'compare_share_tuition': '   Fees: @tuition\n',
           'compare_share_language': '   Language: @lang\n\n',
