@@ -1891,6 +1891,18 @@ class AppTranslations extends Translations {
           'dest_more_coming_tip':
               'D\'autres destinations (Émirats, Chine, Corée du Sud…) arrivent '
                   'bientôt — dis-nous laquelle t\'intéresse.',
+          // ── Dossier / Application (App-engagement handoff) ─────────────
+          'case_steps_heading': 'Étapes de ta demande',
+          'case_step_your_turn': 'À toi',
+          'case_document_photo_tip':
+              'Pour les relevés de notes : prends une photo ou joins un PDF — '
+                  'les photos sont automatiquement compressées pour économiser '
+                  'tes données.',
+          'case_interview_sim_title': 'Simulateur d\'entretien',
+          'case_interview_sim_subtitle':
+              'Entraîne-toi aux entretiens visa et admission avec un retour IA',
+          'case_ai_review_subtitle':
+              'Fais relire un document par l\'IA avant de l\'envoyer',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -3745,6 +3757,17 @@ class AppTranslations extends Translations {
           'dest_more_coming_tip':
               'More destinations (UAE, China, South Korea…) are coming soon — '
                   'tell us which one you want.',
+          // ── Dossier / Application (App-engagement handoff) ─────────────
+          'case_steps_heading': 'Steps of your application',
+          'case_step_your_turn': 'Your turn',
+          'case_document_photo_tip':
+              'For transcripts: take a photo or attach a PDF — photos are '
+                  'automatically compressed to save your data.',
+          'case_interview_sim_title': 'Interview simulator',
+          'case_interview_sim_subtitle':
+              'Practice visa and admission interviews with AI feedback',
+          'case_ai_review_subtitle':
+              'Have the AI proofread a document before you send it',
         },
       };
 }

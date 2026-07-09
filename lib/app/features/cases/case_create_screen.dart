@@ -7,6 +7,12 @@ import '../../core/navigation/app_boot_screen.dart';
 import '../../core/ui/app_tokens.dart';
 import 'case_tunnel_flow.dart';
 
+// Palette (App-engagement handoff). Local to this file — palette-only pass so
+// the guest gate accent matches the restyled Dossier screens.
+class _Palette {
+  static const blue = Color(0xFF2563EB);
+}
+
 /// Full-screen entry for the `/new-case` route (deep links, CTAs).
 /// Accepts optional `Get.arguments` map: `type` ([CaseType]), `title` ([String]), `contextLabel` ([String]).
 class CaseCreateScreen extends StatelessWidget {
@@ -102,7 +108,7 @@ class _GuestCaseGate extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock_person_outlined,
-                    size: 64, color: KpbColors.blue),
+                    size: 64, color: _Palette.blue),
                 const SizedBox(height: KpbSpacing.lg),
                 Text(
                   'guest_case_gate_title'.tr,

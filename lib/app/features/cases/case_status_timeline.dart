@@ -1,199 +1,217 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import 'case_timeline_definition.dart';
 
-/// M14 per-status timeline with ✅ passées / 🔄 en cours / ⏸ à venir.
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · "Dossier" step checklist).
+// Local to this file — same pattern as the restyled Student surfaces (#110–116).
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const slate400 = Color(0xFF94A3B8);
+  static const body = Color(0xFF334155);
+  static const border = Color(0xFFE2E8F0);
+  static const lineSoft = Color(0xFFF8FAFC);
+  static const card = Color(0xFFFFFFFF);
+  static const outline = Color(0xFFCBD5E1);
+  static const green = Color(0xFF16A34A);
+  static const red = Color(0xFFDC2626);
+  static const redBg = Color(0xFFFEE2E2);
+  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
+  static const cardShadow = Color(0x0A0F172A);
+}
+
+const _cardShadow = <BoxShadow>[
+  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+];
+
+/// M14 per-status timeline rendered as the handoff's Dossier "step checklist":
+/// a done step gets a green check + struck-through label, the current step a
+/// numbered blue ring (plus a red "Your turn" badge only when it is genuinely
+/// the student's move), an upcoming step a muted number, and a terminal
+/// rejection a red cross.
+///
+/// Read-only by design: the steps are DERIVED from the case status (see
+/// [buildCaseTimelineSteps]) — there is no per-step "mark done" action in the
+/// model, so we render status-driven progress rather than fake toggles.
 class CaseStatusTimeline extends StatelessWidget {
-  const CaseStatusTimeline({
-    super.key,
-    required this.steps,
-    required this.localeCode,
-  });
+  const CaseStatusTimeline({super.key, required this.steps});
 
   final List<CaseTimelineStepViewModel> steps;
-  final String localeCode;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(KpbSpacing.md),
       decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        borderRadius: KpbRadius.lgBr,
-        boxShadow: KpbShadow.card,
-        border: Border.all(color: context.kpb.gray100),
+        color: _Palette.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _Palette.border),
+        boxShadow: _cardShadow,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'case_timeline_heading'.tr,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: KpbSpacing.md),
-          ...List.generate(steps.length, (index) {
-            final step = steps[index];
-            final isLast = index == steps.length - 1;
-            return _TimelineRow(
-              step: step,
-              isLast: isLast,
-              localeCode: localeCode,
-            );
-          }),
+          for (var i = 0; i < steps.length; i++)
+            _StepRow(
+              step: steps[i],
+              index: i,
+              isLast: i == steps.length - 1,
+            ),
         ],
       ),
     );
   }
 }
 
-class _TimelineRow extends StatelessWidget {
-  const _TimelineRow({
+class _StepRow extends StatelessWidget {
+  const _StepRow({
     required this.step,
+    required this.index,
     required this.isLast,
-    required this.localeCode,
   });
 
   final CaseTimelineStepViewModel step;
+  final int index;
   final bool isLast;
-  final String localeCode;
 
   @override
   Widget build(BuildContext context) {
-    final (icon, iconColor, bgColor) = _visuals(context, step.state);
-    final dateLabel = step.date != null
-        ? DateFormat('dd MMM yyyy', localeCode).format(step.date!)
-        : null;
+    final done = step.state == CaseTimelineStepState.passed ||
+        step.state == CaseTimelineStepState.terminalSuccess;
+    final isError = step.state == CaseTimelineStepState.terminalError;
+    final isCurrent = step.state == CaseTimelineStepState.current;
+    final yourTurn = isCurrent && isCaseStudentActionStatus(step.status);
 
-    return IntrinsicHeight(
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : const Border(bottom: BorderSide(color: _Palette.lineSoft)),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            width: 36,
+          _Marker(
+            done: done,
+            isError: isError,
+            isCurrent: isCurrent,
+            number: index + 1,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    shape: BoxShape.circle,
-                    border: step.state == CaseTimelineStepState.current
-                        ? Border.all(
-                            color: KpbColors.blue.withValues(alpha: 0.35),
-                            width: 3,
-                          )
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(icon,
-                        style: TextStyle(fontSize: 14, color: iconColor)),
+                Text(
+                  step.titleFr,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: done ? FontWeight.w600 : FontWeight.w700,
+                    color: done
+                        ? _Palette.slate400
+                        : isError
+                            ? _Palette.red
+                            : isCurrent
+                                ? _Palette.navy
+                                : _Palette.body,
+                    decoration: done ? TextDecoration.lineThrough : null,
+                    decorationColor: _Palette.slate400,
                   ),
                 ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: step.state == CaseTimelineStepState.passed
-                          ? KpbColors.success
-                          : context.kpb.gray200,
+                if ((step.subtitle ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    step.subtitle!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: _Palette.slate400,
                     ),
                   ),
+                ],
               ],
             ),
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    step.titleFr,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: step.state == CaseTimelineStepState.current
-                          ? FontWeight.w700
-                          : FontWeight.w600,
-                      color: _titleColor(context, step.state),
-                    ),
-                  ),
-                  if (step.subtitle != null) ...[
-                    SizedBox(height: 2),
-                    Text(
-                      step.subtitle!,
-                      style: KpbTextStyles.caption.copyWith(
-                        color: context.kpb.textSecondary,
-                      ),
-                    ),
-                  ],
-                  if (dateLabel != null) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      step.state == CaseTimelineStepState.current
-                          ? 'case_timeline_since_date'
-                              .trParams({'date': dateLabel})
-                          : 'case_timeline_on_date'
-                              .trParams({'date': dateLabel}),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.kpb.textMuted,
-                      ),
-                    ),
-                  ] else if (step.state == CaseTimelineStepState.upcoming) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      'upcoming'.tr,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.kpb.textMuted,
-                      ),
-                    ),
-                  ],
-                ],
+          if (yourTurn) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: _Palette.redBg,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Text(
+                'case_step_your_turn'.tr,
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  color: _Palette.red,
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
+}
 
-  (String, Color, Color) _visuals(
-    BuildContext context,
-    CaseTimelineStepState state,
-  ) {
-    switch (state) {
-      case CaseTimelineStepState.passed:
-        return ('✅', KpbColors.success, KpbColors.successLight);
-      case CaseTimelineStepState.current:
-        return ('🔄', KpbColors.blue, KpbColors.skyLight);
-      case CaseTimelineStepState.upcoming:
-        return ('⏸', context.kpb.textMuted, context.kpb.gray100);
-      case CaseTimelineStepState.terminalSuccess:
-        return ('✅', KpbColors.success, KpbColors.successLight);
-      case CaseTimelineStepState.terminalError:
-        return ('❌', KpbColors.error, KpbColors.errorLight);
-    }
-  }
+class _Marker extends StatelessWidget {
+  const _Marker({
+    required this.done,
+    required this.isError,
+    required this.isCurrent,
+    required this.number,
+  });
 
-  Color _titleColor(BuildContext context, CaseTimelineStepState state) {
-    switch (state) {
-      case CaseTimelineStepState.passed:
-      case CaseTimelineStepState.terminalSuccess:
-        return context.kpb.textPrimary;
-      case CaseTimelineStepState.current:
-        return context.kpb.textPrimary;
-      case CaseTimelineStepState.upcoming:
-        return context.kpb.textMuted;
-      case CaseTimelineStepState.terminalError:
-        return KpbColors.error;
+  final bool done;
+  final bool isError;
+  final bool isCurrent;
+  final int number;
+
+  @override
+  Widget build(BuildContext context) {
+    if (done) {
+      return Container(
+        width: 24,
+        height: 24,
+        decoration: const BoxDecoration(
+          color: _Palette.green,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.check_rounded, size: 15, color: Colors.white),
+      );
     }
+    if (isError) {
+      return Container(
+        width: 24,
+        height: 24,
+        decoration: const BoxDecoration(
+          color: _Palette.red,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.close_rounded, size: 15, color: Colors.white),
+      );
+    }
+    final accent = isCurrent ? _Palette.blue : _Palette.outline;
+    final numColor = isCurrent ? _Palette.blue : _Palette.slate400;
+    return Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: accent, width: 2),
+      ),
+      child: Text(
+        '$number',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          color: numColor,
+        ),
+      ),
+    );
   }
 }

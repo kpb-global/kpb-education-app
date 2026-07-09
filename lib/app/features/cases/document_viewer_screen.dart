@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
-import '../../core/ui/app_tokens.dart';
+// Palette (App-engagement handoff). Local to this file — palette-only pass.
+class _Palette {
+  static const blue = Color(0xFF2563EB);
+}
 
 class DocumentViewerScreen extends StatelessWidget {
   /// Renders a PDF from a network URL or a local File.
@@ -44,7 +47,7 @@ class DocumentViewerScreen extends StatelessWidget {
                   'doc_viewer_download_title'.tr,
                   'doc_viewer_download_body'.tr,
                   snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: KpbColors.blue,
+                  backgroundColor: _Palette.blue,
                   colorText: Colors.white,
                 );
               },
