@@ -638,6 +638,42 @@ class AppTranslations extends Translations {
               'Impossible de joindre le coach IA pour le moment.',
           'coach_ai_title': 'Coach IA',
           'coach_input_hint': 'Posez votre question sur les écoles, budgets...',
+          // ── App-engagement handoff : outils coaching + post-décision ──
+          'coach_status_tagline': 'Connaît ton profil · répond aussitôt',
+          'coach_quota_info_title': 'Messages Coach IA',
+          'coach_quota_info_body':
+              'Il te reste @rem message(s) sur @total cette semaine.',
+          'coach_generate_letter': 'Générer une lettre',
+          'letters_header_subtitle':
+              'Choisis un modèle, personnalise-le avec l\'IA (FR + EN).',
+          'letters_regenerate': 'Régénérer',
+          'letters_export': 'Exporter',
+          'interview_header_subtitle': 'Entraîne-toi avec un examinateur IA.',
+          'interview_header_progress':
+              'Question @current/@total · réponds comme face au jury',
+          'interview_jury_label': 'JURY',
+          'interview_score_line': 'Score : @score/100',
+          'interview_complete_title': 'Entretien terminé !',
+          'interview_verdict_strong':
+              'Excellent — tu es prêt(e) à convaincre le jury.',
+          'interview_verdict_promising':
+              'Bon départ — peaufine tes réponses et recommence.',
+          'interview_verdict_practice':
+              'Continue à t\'entraîner — chaque essai te rapproche du but.',
+          'interview_replay': 'Rejouer',
+          'interview_back_to_application': 'Retour au dossier',
+          'post_decision_title': 'Réponse reçue',
+          'post_decision_encouragement':
+              'Ce n\'est pas la fin du parcours. Ton profil reste solide : avec quelques ajustements, une prochaine candidature peut aboutir.',
+          'post_decision_plan_b_title': 'Ton plan B — déjà calculé',
+          'post_decision_counselor_title': 'Session conseiller offerte',
+          'post_decision_counselor_subtitle':
+              '15 min avec un conseiller KPB pour préparer ta prochaine candidature.',
+          'post_decision_whatsapp_prefill':
+              'Bonjour KPB Education, ma candidature « @title » a été refusée. J\'aimerais être accompagné(e) pour un plan B.',
+          'post_decision_entry_title': 'Réponse reçue — vois ton plan B',
+          'post_decision_entry_subtitle':
+              'Universités alternatives + session conseiller.',
           'scanner_pages_scanned': '@count page(s) scannée(s)',
           'interview_question_progress': 'Question @current / @total',
           'search_no_results_title': 'Aucun résultat pour « @query »',
@@ -2525,6 +2561,42 @@ class AppTranslations extends Translations {
           'coach_unreachable': 'Unable to reach the AI coach right now.',
           'coach_ai_title': 'AI Coach',
           'coach_input_hint': 'Ask your question about schools, budgets...',
+          // ── App-engagement handoff: coaching tools + post-decision ──
+          'coach_status_tagline': 'Knows your profile · replies instantly',
+          'coach_quota_info_title': 'AI Coach messages',
+          'coach_quota_info_body':
+              'You have @rem of @total messages left this week.',
+          'coach_generate_letter': 'Generate a letter',
+          'letters_header_subtitle':
+              'Pick a model, personalize it with AI (FR + EN).',
+          'letters_regenerate': 'Regenerate',
+          'letters_export': 'Export',
+          'interview_header_subtitle': 'Practice with an AI examiner.',
+          'interview_header_progress':
+              'Question @current/@total · answer as if facing the jury',
+          'interview_jury_label': 'JURY',
+          'interview_score_line': 'Score: @score/100',
+          'interview_complete_title': 'Interview complete!',
+          'interview_verdict_strong':
+              'Excellent — you\'re ready to convince the jury.',
+          'interview_verdict_promising':
+              'Good start — refine your answers and try again.',
+          'interview_verdict_practice':
+              'Keep practicing — every run gets you closer.',
+          'interview_replay': 'Replay',
+          'interview_back_to_application': 'Back to application',
+          'post_decision_title': 'Decision received',
+          'post_decision_encouragement':
+              'This isn\'t the end of the road. Your profile stays strong — with a few adjustments, a next application can succeed.',
+          'post_decision_plan_b_title': 'Your plan B — already computed',
+          'post_decision_counselor_title': 'Free counselor session',
+          'post_decision_counselor_subtitle':
+              '15 min with a KPB counselor to prepare your next application.',
+          'post_decision_whatsapp_prefill':
+              'Hello KPB Education, my application "@title" was refused. I\'d like guidance on a plan B.',
+          'post_decision_entry_title': 'Decision received — see your plan B',
+          'post_decision_entry_subtitle':
+              'Alternative universities + counselor session.',
           'scanner_pages_scanned': '@count page(s) scanned',
           'interview_question_progress': 'Question @current / @total',
           'search_no_results_title': 'No results for « @query »',
