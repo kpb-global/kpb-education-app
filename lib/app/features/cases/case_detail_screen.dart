@@ -16,6 +16,7 @@ import '../../core/services/document_upload_service.dart';
 import '../services/service_packages_screen.dart';
 import '../tools/interview_simulator_screen.dart';
 import 'case_status_timeline.dart';
+import 'post_decision_screen.dart';
 import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
 
@@ -371,6 +372,21 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   progress: progress,
                 ),
                 const SizedBox(height: 14),
+
+                // ── Decision received → honest "plan B" surface ──────────────
+                // Real entry point for the post-decision screen (Notifications
+                // isn't built yet): only when the case is genuinely rejected.
+                if (c.status == CaseStatus.rejected) ...[
+                  _NavCard(
+                    icon: Icons.flag_rounded,
+                    iconColor: _Palette.red,
+                    iconBg: _Palette.redBg,
+                    title: 'post_decision_entry_title'.tr,
+                    subtitle: 'post_decision_entry_subtitle'.tr,
+                    onTap: () => Get.to(() => PostDecisionScreen(caseId: c.id)),
+                  ),
+                  const SizedBox(height: 14),
+                ],
 
                 // ── Admission-milestone review prompt (KPB-75) ───────────────
                 if (c.status == CaseStatus.completed &&

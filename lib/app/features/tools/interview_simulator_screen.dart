@@ -2,7 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/kpb_components.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · "Simulateur d'entretien").
+// Local to this file — same per-file pattern as the other restyled Student
+// surfaces (#110–117). Visual only; the real question/answer/scoring flow
+// (backend `tools/interview/*`) is preserved. The completion score is the mean
+// of the REAL per-answer scores — nothing is fabricated. The design's "pick
+// your answer" chips are OMITTED: the sim takes a free-text answer, there are
+// no backed multiple-choice options.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const body = Color(0xFF334155);
+  static const border = Color(0xFFE2E8F0);
+  static const line = Color(0xFFF1F5F9);
+  static const page = Color(0xFFF8FAFC);
+  static const card = Color(0xFFFFFFFF);
+  static const chipBg = Color(0xFFEFF6FF);
+  static const green = Color(0xFF16A34A);
+  static const greenBg = Color(0xFFDCFCE7);
+  static const amber = Color(0xFFB45309);
+  static const amberBg = Color(0xFFFEF3C7);
+  static const red = Color(0xFFDC2626);
+  static const redBg = Color(0xFFFEE2E2);
+  static const cardShadow = Color(0x0A0F172A);
+}
+
+const _cardShadow = <BoxShadow>[
+  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+];
+
+/// One question turn: the prompt plus the student's real answer and the real
+/// backend feedback once submitted.
+class _IvTurn {
+  _IvTurn(this.question);
+  final String question;
+  String? answer;
+  Map<String, dynamic>? feedback;
+}
 
 /// AI Interview Simulator — visa / admission / scholarship mock interviews
 /// with per-answer scoring and feedback (powered by Groq).
@@ -14,23 +55,45 @@ class InterviewSimulatorScreen extends StatefulWidget {
       _InterviewSimulatorScreenState();
 }
 
-enum _Stage { pickType, loading, interview, feedback }
+enum _Stage { pickType, loading, chat }
 
 class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   final _ctrl = Get.find<AppController>();
   final _answerCtrl = TextEditingController();
+  final _scrollController = ScrollController();
 
   _Stage _stage = _Stage.pickType;
   String _type = 'visa';
-  List<String> _questions = [];
+  List<_IvTurn> _turns = [];
   int _currentIndex = 0;
   bool _evaluating = false;
-  Map<String, dynamic>? _feedback;
+
+  _IvTurn? get _currentTurn =>
+      _turns.isEmpty ? null : _turns[_currentIndex.clamp(0, _turns.length - 1)];
+
+  bool get _currentAnswered => _currentTurn?.feedback != null;
+
+  bool get _isLast => _currentIndex >= _turns.length - 1;
+
+  bool get _isDone => _turns.isNotEmpty && _isLast && _currentAnswered;
 
   @override
   void dispose() {
     _answerCtrl.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _start(String type) async {
@@ -64,10 +127,11 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       final qs = (result['questions'] as List?)?.cast<String>() ?? [];
       if (mounted) {
         setState(() {
-          _questions = qs;
+          _turns = qs.map((q) => _IvTurn(q)).toList();
           _currentIndex = 0;
-          _stage = qs.isEmpty ? _Stage.pickType : _Stage.interview;
+          _stage = qs.isEmpty ? _Stage.pickType : _Stage.chat;
         });
+        _scrollToBottom();
       }
     } catch (_) {
       if (mounted) {
@@ -80,20 +144,24 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   }
 
   Future<void> _submitAnswer() async {
-    if (_answerCtrl.text.trim().isEmpty) return;
+    final text = _answerCtrl.text.trim();
+    final turn = _currentTurn;
+    if (text.isEmpty || turn == null) return;
     setState(() => _evaluating = true);
     try {
       final result = await _ctrl.apiClient.post('tools/interview/feedback', {
         'type': _type,
-        'question': _questions[_currentIndex],
-        'answer': _answerCtrl.text.trim(),
+        'question': turn.question,
+        'answer': text,
         'language': _ctrl.localeCode == 'en' ? 'en' : 'fr',
       });
       if (mounted) {
         setState(() {
-          _feedback = result;
-          _stage = _Stage.feedback;
+          turn.answer = text;
+          turn.feedback = result;
         });
+        _answerCtrl.clear();
+        _scrollToBottom();
       }
     } catch (_) {
       if (mounted) {
@@ -107,61 +175,159 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   }
 
   void _next() {
-    _answerCtrl.clear();
     setState(() {
-      _feedback = null;
-      if (_currentIndex < _questions.length - 1) {
-        _currentIndex++;
-        _stage = _Stage.interview;
-      } else {
-        _stage = _Stage.pickType; // finished
-      }
+      if (_currentIndex < _turns.length - 1) _currentIndex++;
     });
+    _scrollToBottom();
+  }
+
+  void _replay() {
+    _answerCtrl.clear();
+    _start(_type);
+  }
+
+  /// Mean of the REAL per-answer scores — a derived summary, never a made-up
+  /// number.
+  int get _averageScore {
+    final scores = _turns
+        .map((t) => (t.feedback?['score'] as num?)?.toInt())
+        .whereType<int>()
+        .toList();
+    if (scores.isEmpty) return 0;
+    return (scores.reduce((a, b) => a + b) / scores.length).round();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('interview_title'.tr)),
-      body: switch (_stage) {
-        _Stage.pickType => _buildPicker(context),
-        _Stage.loading => const Center(child: CircularProgressIndicator()),
-        _Stage.interview => _buildInterview(context),
-        _Stage.feedback => _buildFeedback(context),
-      },
+      backgroundColor: _Palette.page,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: switch (_stage) {
+                _Stage.pickType => _buildPicker(),
+                _Stage.loading =>
+                  const Center(child: CircularProgressIndicator()),
+                _Stage.chat => _buildChat(),
+              },
+            ),
+            if (_stage == _Stage.chat && !_isDone) _buildBottomBar(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  Widget _buildHeader() {
+    final subtitle = _stage == _Stage.chat && _turns.isNotEmpty
+        ? 'interview_header_progress'.trParams({
+            'current': '${_currentIndex + 1}',
+            'total': '${_turns.length}',
+          })
+        : 'interview_header_subtitle'.tr;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: const BoxDecoration(
+        color: _Palette.card,
+        border: Border(bottom: BorderSide(color: _Palette.border)),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Semantics(
+              button: true,
+              label: 'a11y_back'.tr,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: _Palette.line,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back_rounded,
+                    color: _Palette.navy, size: 18),
+              ),
+            ),
+          ),
+          const SizedBox(width: 11),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: _Palette.amberBg,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.mic_rounded, color: _Palette.amber),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'interview_title'.tr,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.navy,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: _Palette.slate,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // ── Type picker ──────────────────────────────────────────────────────────
-  Widget _buildPicker(BuildContext context) {
+  Widget _buildPicker() {
     return ListView(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
+      padding: const EdgeInsets.all(16),
       children: [
         Text(
           'interview_picker_intro'.tr,
-          style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
+          style:
+              const TextStyle(fontSize: 13, height: 1.5, color: _Palette.slate),
         ),
-        const SizedBox(height: KpbSpacing.lg),
+        const SizedBox(height: 16),
         _typeCard(
           'visa',
           Icons.flight_takeoff_rounded,
-          KpbColors.blue,
+          _Palette.blue,
+          _Palette.chipBg,
           'interview_type_visa_title'.tr,
           'interview_type_visa_subtitle'.tr,
         ),
-        const SizedBox(height: KpbSpacing.md),
+        const SizedBox(height: 10),
         _typeCard(
           'admission',
           Icons.school_rounded,
-          KpbColors.success,
+          _Palette.green,
+          _Palette.greenBg,
           'interview_type_admission_title'.tr,
           'interview_type_admission_subtitle'.tr,
         ),
-        const SizedBox(height: KpbSpacing.md),
+        const SizedBox(height: 10),
         _typeCard(
           'scholarship',
           Icons.emoji_events_rounded,
-          KpbColors.gold,
+          _Palette.amber,
+          _Palette.amberBg,
           'interview_type_scholarship_title'.tr,
           'interview_type_scholarship_subtitle'.tr,
         ),
@@ -169,290 +335,430 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     );
   }
 
-  Widget _typeCard(
-      String type, IconData icon, Color color, String title, String subtitle) {
-    return KpbCard(
-      onTap: () => _start(type),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: KpbRadius.mdBr,
-            ),
-            child: Icon(icon, color: color, size: 26),
+  Widget _typeCard(String type, IconData icon, Color color, Color bg,
+      String title, String subtitle) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _start(type),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: _Palette.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _Palette.border),
+            boxShadow: _cardShadow,
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: context.kpb.textPrimary)),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style:
-                        TextStyle(fontSize: 12, color: context.kpb.textMuted)),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: context.kpb.textMuted),
-        ],
-      ),
-    );
-  }
-
-  // ── Interview question ─────────────────────────────────────────────────────
-  Widget _buildInterview(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Progress
-          Row(
+          padding: const EdgeInsets.all(14),
+          child: Row(
             children: [
-              Text(
-                'interview_question_progress'.trParams({
-                  'current': '${_currentIndex + 1}',
-                  'total': '${_questions.length}'
-                }),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: context.kpb.textMuted,
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(13),
                 ),
+                child: Icon(icon, color: color, size: 24),
               ),
-              const Spacer(),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: (_currentIndex + 1) / _questions.length,
-              minHeight: 6,
-              backgroundColor: context.kpb.gray200,
-              valueColor: const AlwaysStoppedAnimation(KpbColors.blue),
-            ),
-          ),
-          const SizedBox(height: KpbSpacing.lg),
-
-          // Question bubble
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(KpbSpacing.md),
-            decoration: BoxDecoration(
-              color: KpbColors.blue.withValues(alpha: 0.08),
-              borderRadius: KpbRadius.lgBr,
-              border: Border.all(color: KpbColors.blue.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.record_voice_over_rounded,
-                    color: KpbColors.blue, size: 22),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _questions[_currentIndex],
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: context.kpb.textPrimary,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: KpbSpacing.lg),
-
-          // Answer field
-          Expanded(
-            child: TextField(
-              controller: _answerCtrl,
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              decoration: InputDecoration(
-                hintText: 'interview_answer_hint'.tr,
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-            ),
-          ),
-          const SizedBox(height: KpbSpacing.md),
-
-          KpbButton(
-            label: _evaluating
-                ? 'interview_evaluating'.tr
-                : 'interview_submit_answer'.tr,
-            icon: Icons.send_rounded,
-            fullWidth: true,
-            onTap: _evaluating ? null : _submitAnswer,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Feedback ────────────────────────────────────────────────────────────────
-  Widget _buildFeedback(BuildContext context) {
-    final fb = _feedback ?? {};
-    final score = (fb['score'] as num?)?.toInt() ?? 0;
-    final strengths = (fb['strengths'] as List?)?.cast<String>() ?? [];
-    final improvements = (fb['improvements'] as List?)?.cast<String>() ?? [];
-    final modelAnswer = fb['modelAnswer'] as String? ?? '';
-    final scoreColor = score >= 75
-        ? KpbColors.success
-        : score >= 50
-            ? KpbColors.gold
-            : KpbColors.error;
-
-    return ListView(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
-      children: [
-        // Score ring
-        Center(
-          child: Column(
-            children: [
-              SizedBox(
-                width: 110,
-                height: 110,
-                child: Stack(
-                  alignment: Alignment.center,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 110,
-                      height: 110,
-                      child: CircularProgressIndicator(
-                        value: score / 100,
-                        strokeWidth: 9,
-                        backgroundColor: context.kpb.gray200,
-                        valueColor: AlwaysStoppedAnimation(scoreColor),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '$score',
-                          style: TextStyle(
-                            fontSize: 30,
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: scoreColor,
-                          ),
-                        ),
-                        Text('/ 100',
-                            style: TextStyle(
-                                fontSize: 11, color: context.kpb.textMuted)),
-                      ],
-                    ),
+                            color: _Palette.navy)),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 11.5,
+                            height: 1.4,
+                            color: _Palette.slate)),
                   ],
                 ),
               ),
+              const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
             ],
           ),
         ),
-        const SizedBox(height: KpbSpacing.lg),
+      ),
+    );
+  }
 
-        if (strengths.isNotEmpty)
-          _feedbackBlock(
-            context,
-            'interview_feedback_strengths'.tr,
-            Icons.check_circle_rounded,
-            KpbColors.success,
-            strengths,
-          ),
-        if (improvements.isNotEmpty)
-          _feedbackBlock(
-            context,
-            'interview_feedback_improvements'.tr,
-            Icons.lightbulb_rounded,
-            KpbColors.gold,
-            improvements,
-          ),
+  // ── Chat transcript ────────────────────────────────────────────────────────
+  Widget _buildChat() {
+    final visible = _currentIndex + 1; // questions revealed so far
+    return ListView(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      children: [
+        for (var i = 0; i < visible && i < _turns.length; i++)
+          ..._turnWidgets(_turns[i]),
+        if (_isDone) _completionCard(),
+      ],
+    );
+  }
 
-        if (modelAnswer.isNotEmpty) ...[
-          const SizedBox(height: KpbSpacing.md),
-          KpbCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.star_rounded,
-                        color: KpbColors.blue, size: 20),
-                    const SizedBox(width: 8),
-                    Text('model_answer'.tr,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: context.kpb.textPrimary)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(modelAnswer,
-                    style: TextStyle(
-                        fontSize: 13,
-                        height: 1.5,
-                        color: context.kpb.textPrimary)),
-              ],
+  List<Widget> _turnWidgets(_IvTurn turn) {
+    return [
+      // JURY question — dark bubble
+      Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Text(
+          'interview_jury_label'.tr,
+          style: const TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.7,
+            color: _Palette.slate400,
+          ),
+        ),
+      ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.88),
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+          decoration: const BoxDecoration(
+            color: _Palette.navy,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+              bottomLeft: Radius.circular(4),
+            ),
+          ),
+          child: Text(
+            turn.question,
+            style: const TextStyle(
+                fontSize: 13.5,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white),
+          ),
+        ),
+      ),
+      // Student answer — blue bubble
+      if (turn.answer != null)
+        Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.85),
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+            decoration: const BoxDecoration(
+              color: _Palette.blue,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(4),
+              ),
+            ),
+            child: Text(
+              turn.answer!,
+              style: const TextStyle(
+                  fontSize: 13, height: 1.5, color: Colors.white),
+            ),
+          ),
+        ),
+      // Feedback rows
+      if (turn.feedback != null) ..._feedbackWidgets(turn.feedback!),
+    ];
+  }
+
+  List<Widget> _feedbackWidgets(Map<String, dynamic> fb) {
+    final score = (fb['score'] as num?)?.toInt() ?? 0;
+    final strengths = (fb['strengths'] as List?)?.cast<String>() ?? const [];
+    final improvements =
+        (fb['improvements'] as List?)?.cast<String>() ?? const [];
+    final modelAnswer = fb['modelAnswer'] as String? ?? '';
+    final tone = _scoreTone(score);
+
+    return [
+      // Score chip
+      Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: tone.bg,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.grade_rounded, size: 15, color: tone.fg),
+            const SizedBox(width: 8),
+            Text(
+              'interview_score_line'.trParams({'score': '$score'}),
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w800, color: tone.fg),
+            ),
+          ],
+        ),
+      ),
+      for (final s in strengths)
+        _feedbackRow(
+            Icons.check_circle_rounded, _Palette.green, _Palette.greenBg, s),
+      for (final s in improvements)
+        _feedbackRow(
+            Icons.lightbulb_rounded, _Palette.amber, _Palette.amberBg, s),
+      if (modelAnswer.isNotEmpty)
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: _Palette.card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _Palette.border),
+            boxShadow: _cardShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.star_rounded,
+                      color: _Palette.blue, size: 17),
+                  const SizedBox(width: 6),
+                  Text('model_answer'.tr,
+                      style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                          color: _Palette.navy)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(modelAnswer,
+                  style: const TextStyle(
+                      fontSize: 12.5, height: 1.55, color: _Palette.body)),
+            ],
+          ),
+        ),
+    ];
+  }
+
+  Widget _feedbackRow(IconData icon, Color fg, Color bg, String text) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 15, color: fg),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                  fontSize: 12,
+                  height: 1.5,
+                  fontWeight: FontWeight.w600,
+                  color: fg),
             ),
           ),
         ],
+      ),
+    );
+  }
 
-        const SizedBox(height: KpbSpacing.lg),
-        KpbButton(
-          label: _currentIndex < _questions.length - 1
-              ? 'interview_next_question'.tr
-              : 'interview_finish'.tr,
-          icon: Icons.arrow_forward_rounded,
-          fullWidth: true,
-          onTap: _next,
+  ({Color fg, Color bg}) _scoreTone(int score) {
+    if (score >= 75) return (fg: _Palette.green, bg: _Palette.greenBg);
+    if (score >= 50) return (fg: _Palette.amber, bg: _Palette.amberBg);
+    return (fg: _Palette.red, bg: _Palette.redBg);
+  }
+
+  Widget _completionCard() {
+    final avg = _averageScore;
+    final verdict = avg >= 75
+        ? 'interview_verdict_strong'.tr
+        : avg >= 50
+            ? 'interview_verdict_promising'.tr
+            : 'interview_verdict_practice'.tr;
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: BoxDecoration(
+        color: _Palette.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _Palette.border),
+        boxShadow: _cardShadow,
+      ),
+      child: Column(
+        children: [
+          const Text('🎓', style: TextStyle(fontSize: 26)),
+          const SizedBox(height: 8),
+          Text('interview_complete_title'.tr,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: _Palette.navy)),
+          const SizedBox(height: 4),
+          Text(
+            'interview_score_line'.trParams({'score': '$avg'}),
+            style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: _Palette.blue),
+          ),
+          const SizedBox(height: 4),
+          Text(verdict,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 12, height: 1.5, color: _Palette.slate)),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: _replay,
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: _Palette.border, width: 1.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text('interview_replay'.tr,
+                        style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: _Palette.slate)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 6,
+                child: GestureDetector(
+                  onTap: () => Get.back(),
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _Palette.blue,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text('interview_back_to_application'.tr,
+                        style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Bottom bar: answer input, or "next question" after feedback ────────────
+  Widget _buildBottomBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      decoration: const BoxDecoration(
+        color: _Palette.page,
+        border: Border(top: BorderSide(color: _Palette.border, width: 0.5)),
+      ),
+      child: _currentAnswered ? _nextButton() : _answerInput(),
+    );
+  }
+
+  Widget _answerInput() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 46),
+            decoration: BoxDecoration(
+              color: _Palette.card,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: _Palette.border, width: 1.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: TextField(
+              controller: _answerCtrl,
+              minLines: 1,
+              maxLines: 5,
+              style: const TextStyle(
+                  color: _Palette.navy,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                hintText: 'interview_answer_hint'.tr,
+                hintStyle:
+                    const TextStyle(color: _Palette.slate400, fontSize: 13),
+                border: InputBorder.none,
+                isCollapsed: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 11),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Semantics(
+          button: true,
+          label: 'interview_submit_answer'.tr,
+          child: GestureDetector(
+            onTap: _evaluating ? null : _submitAnswer,
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: _evaluating
+                    ? _Palette.blue.withValues(alpha: 0.6)
+                    : _Palette.blue,
+                shape: BoxShape.circle,
+              ),
+              child: _evaluating
+                  ? const Padding(
+                      padding: EdgeInsets.all(13),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.send_rounded,
+                      color: Colors.white, size: 20),
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _feedbackBlock(BuildContext context, String title, IconData icon,
-      Color color, List<String> items) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: KpbSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(width: 6),
-              Text(title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: context.kpb.textPrimary)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ...items.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 4, left: 24),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('• ', style: TextStyle(color: color)),
-                    Expanded(
-                      child: Text(s,
-                          style: TextStyle(
-                              fontSize: 13, color: context.kpb.textPrimary)),
-                    ),
-                  ],
-                ),
-              )),
-        ],
+  Widget _nextButton() {
+    return GestureDetector(
+      onTap: _next,
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: _Palette.blue,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('interview_next_question'.tr,
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white)),
+            const SizedBox(width: 6),
+            const Icon(Icons.arrow_forward_rounded,
+                color: Colors.white, size: 18),
+          ],
+        ),
       ),
     );
   }
