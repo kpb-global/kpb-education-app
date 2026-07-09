@@ -17,6 +17,21 @@ import 'program_detail_screen.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 String _flag(String id) => countryFlag(id);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · "Onglet pays"). Local
+// to this file — same pattern as Home/Onboarding; no shared design-system file.
+// Only the Countries grid below is restyled to the handoff (PR2).
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const sky = Color(0xFF38BDF8);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+  static const body = Color(0xFF475569);
+}
+
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
 
@@ -245,19 +260,30 @@ class CountriesCatalogGrid extends StatelessWidget {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(KpbSpacing.pagePad),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: countries.length,
+    // "Onglet pays" (handoff): a subtitle, a vertical list of dark navy country
+    // guide cards, and a closing "more coming" tip card.
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+      itemCount: countries.length + 2,
+      separatorBuilder: (_, index) => SizedBox(height: index == 0 ? 11 : 10),
       itemBuilder: (context, index) {
-        final country = countries[index];
-        final saved = controller.isSaved(SavedItemType.country, country.id);
+        if (index == 0) {
+          return Text(
+            'dest_list_subtitle'.tr,
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              color: _Palette.slate,
+            ),
+          );
+        }
+        if (index == countries.length + 1) {
+          return const _MoreDestinationsTip();
+        }
+
+        final country = countries[index - 1];
         final intake = controller.resolve(country.nextIntakeLabel);
+        final tuition = controller.resolve(country.tuitionRange);
         final popularFields = country.popularFieldIds.take(2).map((id) {
           try {
             return controller.resolve(controller.fieldById(id).name);
@@ -265,17 +291,18 @@ class CountriesCatalogGrid extends StatelessWidget {
             return id;
           }
         }).toList();
+        // Bind the most useful real field available as the card subtitle.
+        final subtitle = intake.isNotEmpty
+            ? intake
+            : tuition.isNotEmpty
+                ? tuition
+                : popularFields.join(' · ');
 
-        return _CountryGridCard(
+        return _CountryGuideCard(
           flag:
               displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
           name: controller.resolve(country.name),
-          tuition: controller.resolve(country.tuitionRange),
-          intake: intake,
-          fields: popularFields,
-          saved: saved,
-          onSave: () =>
-              controller.toggleSaved(SavedItemType.country, country.id),
+          subtitle: subtitle,
           onTap: () => Get.to(() => CountryDetailScreen(countryId: country.id)),
         );
       },
@@ -283,25 +310,19 @@ class CountriesCatalogGrid extends StatelessWidget {
   }
 }
 
-class _CountryGridCard extends StatelessWidget {
-  const _CountryGridCard({
+/// Dark navy "country guide" row (App-engagement handoff). Flag + name +
+/// real-data subtitle + a GUIDE → affordance; opens the full country guide.
+class _CountryGuideCard extends StatelessWidget {
+  const _CountryGuideCard({
     required this.flag,
     required this.name,
-    required this.tuition,
-    required this.intake,
-    required this.fields,
-    required this.saved,
-    required this.onSave,
+    required this.subtitle,
     required this.onTap,
   });
 
   final String flag;
   final String name;
-  final String tuition;
-  final String intake;
-  final List<String> fields;
-  final bool saved;
-  final VoidCallback onSave;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -310,112 +331,102 @@ class _CountryGridCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: context.kpb.cardBg,
-          borderRadius: KpbRadius.lgBr,
-          boxShadow: KpbShadow.card,
+          color: _Palette.navy,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(16),
+        child: Row(
           children: [
-            // Flag + save
-            Container(
-              height: 90,
-              decoration: BoxDecoration(
-                color: context.kpb.surfaceBg,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(KpbRadius.lg),
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Text(flag, style: const TextStyle(fontSize: 48)),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Semantics(
-                      button: true,
-                      label: 'a11y_save'.tr,
-                      child: GestureDetector(
-                        onTap: onSave,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.85),
-                            borderRadius: KpbRadius.smBr,
-                          ),
-                          child: Icon(
-                            saved
-                                ? Icons.bookmark_rounded
-                                : Icons.bookmark_border_rounded,
-                            size: 16,
-                            color: saved ? KpbColors.blue : context.kpb.gray400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Content
+            Text(flag, style: const TextStyle(fontSize: 34)),
+            const SizedBox(width: 13),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: context.kpb.textPrimary,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.2,
                     ),
-                    if (intake.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      KpbBadgeLight(
-                        label: intake,
-                        bgColor: KpbColors.skyLight,
-                        textColor: KpbColors.blue,
-                      ),
-                    ],
-                    const SizedBox(height: 4),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
                     Text(
-                      tuition,
-                      style: KpbTextStyles.caption,
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: _Palette.slate400,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
-                            children: fields
-                                .map(
-                                  (f) => KpbBadgeLight(
-                                    label: f,
-                                    bgColor: KpbColors.skyLight,
-                                    textColor: KpbColors.blue,
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
-                ),
+                ],
               ),
+            ),
+            const SizedBox(width: 10),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'guide_short'.tr,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.sky,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_rounded,
+                    size: 13, color: _Palette.sky),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Closing tip card: honest "more destinations coming" note (no fabricated
+/// countries), matching the handoff's "Onglet pays" footer.
+class _MoreDestinationsTip extends StatelessWidget {
+  const _MoreDestinationsTip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.kpb.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _Palette.border),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.tips_and_updates_rounded,
+              size: 18, color: _Palette.blue),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'dest_more_coming_tip'.tr,
+              style: const TextStyle(
+                fontSize: 11.5,
+                height: 1.55,
+                fontWeight: FontWeight.w600,
+                color: _Palette.body,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
