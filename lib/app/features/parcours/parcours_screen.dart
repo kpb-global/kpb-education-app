@@ -1,16 +1,28 @@
 // M-Parcours (Chantier C) — "Parcours & Témoignages KPB".
 //
-// A dedicated, free section fed by the KPB YouTube channel playlist (videos
-// come from the backend proxy, cached offline). Tapping a card opens an in-app
-// player. The Academy module stays separate for paid courses.
+// A free section of inspiring career/education journeys, served from the
+// backend catalog (`/content/parcours`) and cached offline. Two kinds share
+// the screen: videos open an in-app YouTube player; written interviews open a
+// Q&A reader. Discovery is by field-domain theme chips + a search bar.
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/mock_catalog.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import 'parcours_story_screen.dart';
+
+/// Localized short label for a field domain id (d01..d12).
+String parcoursFieldLabel(String? fieldId, String localeCode) {
+  if (fieldId == null) return '';
+  for (final f in MockCatalog.fields) {
+    if (f.id == fieldId) return f.name.resolve(localeCode);
+  }
+  return '';
+}
 
 class ParcoursScreen extends StatefulWidget {
   const ParcoursScreen({super.key});
@@ -20,42 +32,48 @@ class ParcoursScreen extends StatefulWidget {
 }
 
 class _ParcoursScreenState extends State<ParcoursScreen> {
+  final _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.find<AppController>().fetchParcoursVideos();
+      Get.find<AppController>().fetchParcoursStories();
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _refresh() =>
-      Get.find<AppController>().fetchParcoursVideos(force: true);
+      Get.find<AppController>().fetchParcoursStories(force: true);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.kpb.pageBg,
       appBar: AppBar(
-        // Renamed: the screen only shows YouTube videos (no separate
-        // témoignages section yet). Aligning title with content.
         title: Text('parcours_appbar_title'.tr),
         backgroundColor: Colors.transparent,
       ),
       body: GetBuilder<AppController>(
         builder: (controller) {
-          final videos = controller.parcoursVideos;
+          final all = controller.parcoursStories;
 
-          if (controller.isLoadingParcours && videos.isEmpty) {
+          if (controller.isLoadingParcours && all.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (videos.isEmpty) {
-            // Distinguish "not configured" from a transient error.
-            if (!controller.parcoursConfigured) {
+          if (all.isEmpty) {
+            if (controller.parcoursError == null) {
               return _ParcoursEmptyState(
                 icon: Icons.video_library_outlined,
                 title: 'parcours_empty_soon_title'.tr,
                 subtitle: 'parcours_empty_soon_subtitle'.tr,
+                onRetry: _refresh,
               );
             }
             return _ParcoursEmptyState(
@@ -67,39 +85,95 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
             );
           }
 
+          final stories = controller.filteredParcoursStories;
+          // The player's "up next" playlist should only contain videos.
+          final videoStories =
+              stories.where((s) => s.isVideo).toList(growable: false);
+
           return RefreshIndicator(
             onRefresh: _refresh,
             child: CustomScrollView(
               slivers: [
                 const SliverToBoxAdapter(child: _ParcoursIntro()),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(
-                    KpbSpacing.pagePad,
-                    KpbSpacing.sm,
-                    KpbSpacing.pagePad,
-                    100, // clear the floating nav bar if shown
-                  ),
-                  sliver: SliverList.separated(
-                    itemCount: videos.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: KpbSpacing.md),
-                    itemBuilder: (context, index) => _VideoCard(
-                      video: videos[index],
-                      onTap: () => Get.to(
-                        () => ParcoursPlayerScreen(
-                          videos: videos,
-                          initialIndex: index,
-                        ),
-                      ),
-                    ),
+                SliverToBoxAdapter(
+                  child: _ParcoursSearchField(
+                    controller: _searchController,
+                    onChanged: controller.setParcoursQuery,
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: _ThemeFilterBar(
+                    fieldIds: controller.parcoursFieldIds,
+                    selected: controller.parcoursFieldFilter,
+                    localeCode: controller.localeCode,
+                    onSelected: controller.setParcoursFieldFilter,
+                  ),
+                ),
+                if (stories.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _ParcoursEmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: 'parcours_empty_filter_title'.tr,
+                      subtitle: 'parcours_empty_filter_subtitle'.tr,
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      KpbSpacing.pagePad,
+                      KpbSpacing.sm,
+                      KpbSpacing.pagePad,
+                      100, // clear the floating nav bar if shown
+                    ),
+                    sliver: SliverList.separated(
+                      itemCount: stories.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: KpbSpacing.md),
+                      itemBuilder: (context, index) {
+                        final story = stories[index];
+                        return _StoryCard(
+                          story: story,
+                          localeCode: controller.localeCode,
+                          onTap: () => _openStory(story, videoStories),
+                        );
+                      },
+                    ),
+                  ),
               ],
             ),
           );
         },
       ),
     );
+  }
+
+  void _openStory(ParcoursStory story, List<ParcoursStory> videoStories) {
+    if (story.isVideo) {
+      // Only hand the player videos with a real YouTube id — a malformed
+      // "video" story with no id would otherwise open a permanently blank
+      // player (and desync the "up next" list).
+      final playable = videoStories
+          .where((v) => (v.youtubeId ?? '').isNotEmpty)
+          .toList(growable: false);
+      if ((story.youtubeId ?? '').isEmpty || playable.isEmpty) {
+        Get.snackbar(
+          'parcours_appbar_title'.tr,
+          'parcours_video_unavailable'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      final index = playable.indexWhere((v) => v.slug == story.slug);
+      Get.to(
+        () => ParcoursPlayerScreen(
+          videos: playable,
+          initialIndex: index < 0 ? 0 : index,
+        ),
+      );
+    } else {
+      Get.to(() => ParcoursStoryScreen(story: story));
+    }
   }
 }
 
@@ -125,13 +199,13 @@ class _ParcoursIntro extends StatelessWidget {
         children: [
           Text(
             'parcours_intro_title'.tr,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             'parcours_intro'.tr,
             style: TextStyle(
@@ -145,14 +219,146 @@ class _ParcoursIntro extends StatelessWidget {
   }
 }
 
-class _VideoCard extends StatelessWidget {
-  const _VideoCard({required this.video, required this.onTap});
+class _ParcoursSearchField extends StatelessWidget {
+  const _ParcoursSearchField({
+    required this.controller,
+    required this.onChanged,
+  });
 
-  final YoutubeVideo video;
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        KpbSpacing.pagePad,
+        KpbSpacing.md,
+        KpbSpacing.pagePad,
+        0,
+      ),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'parcours_search_hint'.tr,
+          prefixIcon: const Icon(Icons.search_rounded, size: 20),
+          isDense: true,
+          filled: true,
+          fillColor: context.kpb.cardBg,
+          border: OutlineInputBorder(
+            borderRadius: KpbRadius.mdBr,
+            borderSide: BorderSide(color: context.kpb.gray200),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: KpbRadius.mdBr,
+            borderSide: BorderSide(color: context.kpb.gray200),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: KpbRadius.mdBr,
+            borderSide: const BorderSide(color: KpbColors.blue, width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeFilterBar extends StatelessWidget {
+  const _ThemeFilterBar({
+    required this.fieldIds,
+    required this.selected,
+    required this.localeCode,
+    required this.onSelected,
+  });
+
+  final List<String> fieldIds;
+  final String? selected;
+  final String localeCode;
+  final ValueChanged<String?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (fieldIds.isEmpty) return const SizedBox(height: KpbSpacing.sm);
+    return SizedBox(
+      height: 48,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(
+          KpbSpacing.pagePad,
+          KpbSpacing.md,
+          KpbSpacing.pagePad,
+          0,
+        ),
+        children: [
+          _Chip(
+            label: 'parcours_filter_all'.tr,
+            selected: selected == null,
+            onTap: () => onSelected(null),
+          ),
+          for (final id in fieldIds) ...[
+            const SizedBox(width: KpbSpacing.sm),
+            _Chip(
+              label: parcoursFieldLabel(id, localeCode),
+              selected: selected == id,
+              onTap: () => onSelected(id),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => onTap(),
+      showCheckmark: false,
+      labelStyle: TextStyle(
+        fontSize: 13,
+        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        color: selected ? Colors.white : context.kpb.textPrimary,
+      ),
+      selectedColor: KpbColors.blue,
+      backgroundColor: context.kpb.cardBg,
+      side: BorderSide(
+        color: selected ? KpbColors.blue : context.kpb.gray200,
+      ),
+      shape: const StadiumBorder(),
+    );
+  }
+}
+
+class _StoryCard extends StatelessWidget {
+  const _StoryCard({
+    required this.story,
+    required this.localeCode,
+    required this.onTap,
+  });
+
+  final ParcoursStory story;
+  final String localeCode;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = parcoursFieldLabel(story.fieldId, localeCode);
+    final subtitle = _subtitle();
     return KpbCard(
       padding: EdgeInsets.zero,
       child: InkWell(
@@ -161,49 +367,225 @@ class _VideoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail with a play overlay.
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    KpbNetworkImage(
-                      imageUrl: video.thumbnailUrl,
-                      targetWidth: 360,
-                      placeholderIcon: Icons.ondemand_video_rounded,
-                      errorIcon: Icons.broken_image_outlined,
-                      iconSize: 40,
-                    ),
-                    Center(
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.55),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.play_arrow_rounded,
-                            color: Colors.white, size: 32),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _StoryMedia(story: story),
             Padding(
               padding: const EdgeInsets.all(KpbSpacing.md),
-              child: Text(
-                video.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: KpbTextStyles.titleMd,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    story.title.resolve(localeCode),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: KpbTextStyles.titleMd,
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: KpbTextStyles.bodySm
+                          .copyWith(color: context.kpb.textMuted),
+                    ),
+                  ],
+                  if (theme.isNotEmpty) ...[
+                    const SizedBox(height: KpbSpacing.sm),
+                    Row(
+                      children: [
+                        Icon(
+                          story.isVideo
+                              ? Icons.play_circle_outline_rounded
+                              : Icons.menu_book_outlined,
+                          size: 15,
+                          color: KpbColors.blue,
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            theme,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: KpbTextStyles.labelSm
+                                .copyWith(color: KpbColors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  String _subtitle() {
+    final role = story.role.resolve(localeCode);
+    final name = story.personName;
+    if (name.isNotEmpty && role.isNotEmpty) return '$name · $role';
+    if (name.isNotEmpty) return name;
+    if (role.isNotEmpty) return role;
+    return story.hook.resolve(localeCode);
+  }
+}
+
+/// The 16:9 media band at the top of a card — a video thumbnail with a play
+/// overlay + duration badge, or (for written stories) a gradient banner with a
+/// monogram, so the list keeps a uniform rhythm.
+class _StoryMedia extends StatelessWidget {
+  const _StoryMedia({required this.story});
+
+  final ParcoursStory story;
+
+  @override
+  Widget build(BuildContext context) {
+    const radius = BorderRadius.vertical(top: Radius.circular(16));
+    if (story.isVideo) {
+      return ClipRRect(
+        borderRadius: radius,
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              KpbNetworkImage(
+                imageUrl: story.effectiveThumbnailUrl,
+                targetWidth: 360,
+                placeholderIcon: Icons.ondemand_video_rounded,
+                errorIcon: Icons.broken_image_outlined,
+                iconSize: 40,
+              ),
+              Center(
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded,
+                      color: Colors.white, size: 32),
+                ),
+              ),
+              if (story.durationMinutes != null)
+                Positioned(
+                  right: 8,
+                  bottom: 8,
+                  child: _Pill(
+                    label: '${story.durationMinutes} min',
+                    background: Colors.black.withValues(alpha: 0.7),
+                    foreground: Colors.white,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Written testimonial: gradient banner + monogram + "written story" pill.
+    return ClipRRect(
+      borderRadius: radius,
+      child: Container(
+        height: 96,
+        width: double.infinity,
+        decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
+        padding: const EdgeInsets.all(KpbSpacing.md),
+        child: Row(
+          children: [
+            _Monogram(name: story.personName),
+            const Spacer(),
+            _Pill(
+              label: 'parcours_kind_written'.tr,
+              background: Colors.white.withValues(alpha: 0.22),
+              foreground: Colors.white,
+              icon: Icons.menu_book_rounded,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Monogram extends StatelessWidget {
+  const _Monogram({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = _initials(name);
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.2),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+
+  static String _initials(String name) {
+    final parts =
+        name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '★';
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({
+    required this.label,
+    required this.background,
+    required this.foreground,
+    this.icon,
+  });
+
+  final String label;
+  final Color background;
+  final Color foreground;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(KpbRadius.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: foreground),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: foreground,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -256,7 +638,8 @@ class _ParcoursEmptyState extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Player — embeds the selected video and lets the user jump between videos.
+// Player — embeds the selected video, shows its summary/tags, and lets the
+// user jump between the other videos.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class ParcoursPlayerScreen extends StatefulWidget {
@@ -266,7 +649,7 @@ class ParcoursPlayerScreen extends StatefulWidget {
     this.initialIndex = 0,
   });
 
-  final List<YoutubeVideo> videos;
+  final List<ParcoursStory> videos;
   final int initialIndex;
 
   @override
@@ -280,10 +663,14 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex.clamp(0, widget.videos.length - 1);
-    final video = widget.videos[_currentIndex];
+    _currentIndex = widget.videos.isEmpty
+        ? 0
+        : widget.initialIndex.clamp(0, widget.videos.length - 1);
+    final videoId = widget.videos.isEmpty
+        ? ''
+        : (widget.videos[_currentIndex].youtubeId ?? '');
     _controller = YoutubePlayerController(
-      initialVideoId: video.videoId,
+      initialVideoId: videoId,
       flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
     );
   }
@@ -297,12 +684,23 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
   void _playAt(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
-    _controller?.load(widget.videos[index].videoId);
+    final id = widget.videos[index].youtubeId;
+    if (id != null && id.isNotEmpty) _controller?.load(id);
   }
 
   @override
   Widget build(BuildContext context) {
+    final localeCode = Get.find<AppController>().localeCode;
     final controller = _controller!;
+    // Defensive: no current call path opens the player with an empty list, but
+    // guard so a future caller can't crash on the index access below.
+    if (widget.videos.isEmpty) {
+      return Scaffold(
+        backgroundColor: context.kpb.pageBg,
+        appBar: AppBar(title: Text('parcours_appbar_title'.tr)),
+        body: Center(child: Text('parcours_empty_filter_title'.tr)),
+      );
+    }
     final current = widget.videos[_currentIndex];
 
     return YoutubePlayerBuilder(
@@ -320,7 +718,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
             iconTheme: const IconThemeData(color: Colors.white),
             title: Text(
               'parcours_appbar_title'.tr,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
@@ -333,66 +731,135 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                 color: Colors.black,
                 child: AspectRatio(aspectRatio: 16 / 9, child: player),
               ),
-              Padding(
-                padding: const EdgeInsets.all(KpbSpacing.lg),
-                child: Text(
-                  current.title,
-                  style: KpbTextStyles.headline
-                      .copyWith(color: context.kpb.textPrimary),
-                ),
-              ),
-              Divider(color: context.kpb.gray100, height: 1),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: widget.videos.length,
-                  separatorBuilder: (_, __) => Divider(
-                      color: context.kpb.gray100, height: 1, indent: 84),
-                  itemBuilder: (context, index) {
-                    final v = widget.videos[index];
-                    final isCurrent = index == _currentIndex;
-                    return ListTile(
-                      onTap: () => _playAt(index),
-                      tileColor: isCurrent
-                          ? KpbColors.blue.withValues(alpha: 0.06)
-                          : Colors.transparent,
-                      leading: ClipRRect(
-                        borderRadius: KpbRadius.smBr,
-                        child: SizedBox(
-                          width: 64,
-                          height: 40,
-                          child: KpbNetworkImage(
-                            imageUrl: v.thumbnailUrl,
-                            targetWidth: 64,
-                            placeholderIcon: Icons.ondemand_video_rounded,
-                            iconSize: 18,
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(KpbSpacing.lg),
+                      child: _NowPlaying(
+                        story: current,
+                        localeCode: localeCode,
+                      ),
+                    ),
+                    Divider(color: context.kpb.gray100, height: 1),
+                    if (widget.videos.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                            KpbSpacing.lg, KpbSpacing.md, KpbSpacing.lg, 4),
+                        child: Text(
+                          'parcours_up_next'.tr,
+                          style: KpbTextStyles.label
+                              .copyWith(color: context.kpb.textMuted),
+                        ),
+                      ),
+                    ...List.generate(widget.videos.length, (index) {
+                      final v = widget.videos[index];
+                      final isCurrent = index == _currentIndex;
+                      return ListTile(
+                        onTap: () => _playAt(index),
+                        tileColor: isCurrent
+                            ? KpbColors.blue.withValues(alpha: 0.06)
+                            : Colors.transparent,
+                        leading: ClipRRect(
+                          borderRadius: KpbRadius.smBr,
+                          child: SizedBox(
+                            width: 64,
+                            height: 40,
+                            child: KpbNetworkImage(
+                              imageUrl: v.effectiveThumbnailUrl,
+                              targetWidth: 64,
+                              placeholderIcon: Icons.ondemand_video_rounded,
+                              iconSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                      title: Text(
-                        v.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isCurrent
-                              ? KpbColors.blue
-                              : context.kpb.textPrimary,
-                          fontSize: 14,
-                          fontWeight:
-                              isCurrent ? FontWeight.w700 : FontWeight.w500,
+                        title: Text(
+                          v.title.resolve(localeCode),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isCurrent
+                                ? KpbColors.blue
+                                : context.kpb.textPrimary,
+                            fontSize: 14,
+                            fontWeight:
+                                isCurrent ? FontWeight.w700 : FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      trailing: isCurrent
-                          ? Icon(Icons.equalizer_rounded, color: KpbColors.blue)
-                          : null,
-                    );
-                  },
+                        trailing: isCurrent
+                            ? const Icon(Icons.equalizer_rounded,
+                                color: KpbColors.blue)
+                            : null,
+                      );
+                    }),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _NowPlaying extends StatelessWidget {
+  const _NowPlaying({required this.story, required this.localeCode});
+
+  final ParcoursStory story;
+  final String localeCode;
+
+  @override
+  Widget build(BuildContext context) {
+    final role = story.role.resolve(localeCode);
+    final summary = story.summary.resolve(localeCode);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          story.title.resolve(localeCode),
+          style:
+              KpbTextStyles.headline.copyWith(color: context.kpb.textPrimary),
+        ),
+        if (story.personName.isNotEmpty || role.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            [story.personName, role].where((s) => s.isNotEmpty).join(' · '),
+            style: KpbTextStyles.bodySm.copyWith(color: KpbColors.blue),
+          ),
+        ],
+        if (summary.isNotEmpty) ...[
+          const SizedBox(height: KpbSpacing.md),
+          Text(
+            summary,
+            style:
+                KpbTextStyles.body.copyWith(color: context.kpb.textSecondary),
+          ),
+        ],
+        if (story.tags.isNotEmpty) ...[
+          const SizedBox(height: KpbSpacing.md),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final tag in story.tags)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: context.kpb.gray100,
+                    borderRadius: BorderRadius.circular(KpbRadius.pill),
+                  ),
+                  child: Text(tag,
+                      style: KpbTextStyles.caption
+                          .copyWith(color: context.kpb.textSecondary)),
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

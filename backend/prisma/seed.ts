@@ -6,12 +6,15 @@ import {
   InternalRole,
   NotificationCampaignStatus,
   NotificationChannel,
+  ParcoursKind,
+  Prisma,
   PrismaClient,
   PublicationStatus,
 } from '@prisma/client';
 
 import { mockAdminData } from '../src/common/data/mock-admin';
 import { mockCatalog } from '../src/common/data/mock-catalog';
+import { PARCOURS_SEED } from '../src/modules/parcours/data/parcours.seed';
 import * as bcrypt from 'bcrypt';
 
 loadEnvFile?.('.env');
@@ -527,6 +530,50 @@ async function main() {
         status: delivery.status,
         deliveredAt: delivery.deliveredAt ? new Date(delivery.deliveredAt) : null,
       },
+    });
+  }
+
+  // Parcours & Témoignages — curated videos + legacy written interviews.
+  // Keyed by the stable slug so re-seeding is idempotent (it always converges
+  // to the same state). NOTE: `update` rewrites every seeded field, so the
+  // seed is authoritative — re-running reverts admin edits (status, order,
+  // featured, copy) on seeded rows. Admin-created rows have their own slugs
+  // and are never touched.
+  for (const story of PARCOURS_SEED) {
+    const data = {
+      kind: story.kind as ParcoursKind,
+      fieldId: story.fieldId,
+      tags: story.tags,
+      personName: story.personName,
+      roleFr: story.roleFr,
+      roleEn: story.roleEn,
+      titleFr: story.titleFr,
+      titleEn: story.titleEn,
+      hookFr: story.hookFr,
+      hookEn: story.hookEn,
+      summaryFr: story.summaryFr,
+      summaryEn: story.summaryEn,
+      thumbnailUrl: story.thumbnailUrl,
+      photoUrl: story.photoUrl,
+      youtubeId: story.youtubeId,
+      durationMinutes: story.durationMinutes,
+      interviewFr:
+        (story.interviewFr as unknown as Prisma.InputJsonValue | null) ??
+        Prisma.JsonNull,
+      interviewEn:
+        (story.interviewEn as unknown as Prisma.InputJsonValue | null) ??
+        Prisma.JsonNull,
+      status: story.status as PublicationStatus,
+      isActive: story.isActive,
+      featured: story.featured,
+      displayOrder: story.displayOrder,
+      popularity: story.popularity,
+      source: story.source,
+    };
+    await prisma.parcoursStory.upsert({
+      where: { slug: story.slug },
+      update: data,
+      create: { slug: story.slug, ...data },
     });
   }
 }

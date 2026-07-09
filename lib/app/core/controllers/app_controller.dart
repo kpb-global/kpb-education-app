@@ -158,15 +158,13 @@ abstract class _AppControllerBase extends GetxController {
   CommercialStats commercialStats = CommercialStats.empty;
   bool isLoadingCommercialStats = false;
 
-  // ── Parcours (Chantier C) — KPB YouTube playlist ──────────────────────────
-  final List<YoutubeVideo> _parcoursVideos = <YoutubeVideo>[];
+  // ── Parcours & Témoignages (Chantier C) ───────────────────────────────────
+  final List<ParcoursStory> _parcoursStories = <ParcoursStory>[];
   bool isLoadingParcours = false;
   String? parcoursError;
-  // True once the backend confirms a YOUTUBE_API_KEY is configured.
-  // Default false → cold-start shows the friendly "Bientôt disponible" empty
-  // state rather than the harsh "Contenu indisponible / wifi_off" error.
-  // Set to true only once fetchParcoursVideos reports the backend is configured.
-  bool parcoursConfigured = false;
+  // Discovery state (theme + search) — see _ParcoursMixin.
+  String? parcoursFieldFilter; // null = "All"
+  String parcoursQuery = '';
 
   List<SavedItem> get savedItems => List.unmodifiable(_savedItems);
   List<StudentCase> get cases => List.unmodifiable(_cases);

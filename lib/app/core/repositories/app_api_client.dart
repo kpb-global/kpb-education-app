@@ -304,23 +304,22 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  // ── Parcours (Chantier C) — KPB YouTube playlist ───────────────────────────
+  // ── Parcours & Témoignages (Chantier C) ────────────────────────────────────
 
-  /// Returns the playlist videos plus a `configured` flag (false when the
-  /// backend has no YOUTUBE_API_KEY → the UI shows an informative empty state).
-  Future<({List<YoutubeVideo> items, bool configured})>
-      listParcoursVideos() async {
+  /// Returns the curated Parcours stories (videos + written interviews) from
+  /// the DB-backed `/content/parcours` endpoint. Works without a YouTube API
+  /// key: the content is served from the backend catalog (or its seed).
+  Future<List<ParcoursStory>> listParcoursStories() async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/content/youtube-playlist',
+      '/content/parcours',
     );
     final data = response.data ?? <String, dynamic>{};
     final rawItems = (data['items'] as List<dynamic>? ?? const []);
-    final items = rawItems
+    return rawItems
         .whereType<Map<String, dynamic>>()
-        .map(YoutubeVideo.fromApi)
-        .where((v) => v.videoId.isNotEmpty)
+        .map(ParcoursStory.fromApi)
+        .where((s) => s.slug.isNotEmpty)
         .toList();
-    return (items: items, configured: data['configured'] as bool? ?? false);
   }
 
   Future<List<dynamic>> listCatalog(String resource) async {
