@@ -7,8 +7,39 @@ import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
-import 'widgets/application_requirement_badge.dart';
 import 'widgets/application_steps_timeline.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · "Scholarships" / "Fiche bourse").
+// Local to this file — same pattern as Home / Onboarding / Comparateur (#110–115).
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const body = Color(0xFF334155);
+  static const border = Color(0xFFE2E8F0);
+  static const line = Color(0xFFF1F5F9);
+  static const lineSoft = Color(0xFFF8FAFC);
+  static const page = Color(0xFFF8FAFC);
+  static const card = Color(0xFFFFFFFF);
+  static const chipBg = Color(0xFFEFF6FF);
+  static const chipBorder = Color(0xFFBFDBFE);
+  static const green = Color(0xFF16A34A);
+  static const greenBg = Color(0xFFDCFCE7);
+  static const amber = Color(0xFFB45309);
+  static const amberBg = Color(0xFFFEF3C7);
+  static const amberSolid = Color(0xFFF59E0B);
+  static const red = Color(0xFFDC2626);
+  static const redBg = Color(0xFFFEE2E2);
+  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
+  static const cardShadow = Color(0x0A0F172A);
+}
+
+const _cardShadow = <BoxShadow>[
+  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+];
 
 const _flagMap = <String, String>{
   'Japan': '🇯🇵',
@@ -54,10 +85,93 @@ const _flagMap = <String, String>{
 
 String _flag(String country) => _flagMap[country] ?? '🌍';
 
+// ── Real-data helpers ──────────────────────────────────────────────────────
+
+/// Countdown badge derived from the REAL [LiveScholarshipModel.deadlineAt].
+/// Returns null when the scholarship has no parsed date — the UI then shows a
+/// neutral label rather than a fabricated countdown.
+class _DeadlineBadge {
+  const _DeadlineBadge(this.text, this.bg, this.fg, {this.soon = false});
+  final String text;
+  final Color bg;
+  final Color fg;
+  final bool soon;
+}
+
+_DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
+  final at = s.deadlineAt;
+  if (at == null) return null;
+  final days = at.difference(DateTime.now()).inDays;
+  if (days < 0) {
+    return _DeadlineBadge(
+        'live_scholarships_deadline_closed'.tr, _Palette.line, _Palette.slate);
+  }
+  final text = 'D-$days';
+  if (days <= 7) {
+    return _DeadlineBadge(text, _Palette.redBg, _Palette.red, soon: true);
+  }
+  if (days <= 30) {
+    return _DeadlineBadge(text, _Palette.amberBg, _Palette.amber,
+        soon: days <= 14);
+  }
+  return _DeadlineBadge(text, _Palette.chipBg, _Palette.blue);
+}
+
+/// Color-coded funding chip — bound to the real [fundingType].
+(Color, Color, String) _fundingChip(LiveScholarshipModel s) {
+  if (s.isFullyFunded) {
+    return (
+      _Palette.greenBg,
+      _Palette.green,
+      'live_scholarships_fully_funded'.tr
+    );
+  }
+  if (s.isPartiallyFunded) {
+    return (
+      _Palette.amberBg,
+      _Palette.amber,
+      'live_scholarships_partially_funded'.tr
+    );
+  }
+  return (
+    _Palette.line,
+    _Palette.slate,
+    'live_scholarships_funding_unknown'.tr
+  );
+}
+
+/// Color-coded application-requirement chip — bound to the real
+/// [applicationRequirement] (there is no per-scholarship eligibility verdict to
+/// bind, so we surface this real categorical instead of inventing one).
+(Color, Color, String) _requirementChip(LiveScholarshipModel s) {
+  if (s.isAutomaticAdmission) {
+    return (
+      _Palette.greenBg,
+      _Palette.green,
+      'live_scholarships_requirement_automatic'.tr
+    );
+  }
+  return (
+    _Palette.chipBg,
+    _Palette.blue,
+    'live_scholarships_requirement_separate_application'.tr
+  );
+}
+
+Future<void> _launchUrl(String url) async {
+  final uri = Uri.tryParse(url);
+  if (uri != null && await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
+
 /// Live scholarship index screen — fetches from the scraped /scholarships API.
 /// Displays scholarships filtered and ranked by the user's profile.
 class LiveScholarshipsScreen extends StatefulWidget {
-  const LiveScholarshipsScreen({super.key});
+  /// Optional [apiClient] for tests; production uses [AppApiClient] when null.
+  const LiveScholarshipsScreen({super.key, this.apiClient});
+
+  final AppApiClient? apiClient;
 
   @override
   State<LiveScholarshipsScreen> createState() => _LiveScholarshipsScreenState();
@@ -84,7 +198,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
       final controller = Get.find<AppController>();
       final profile = controller.profile;
       final lang = profile?.preferredLanguage ?? 'fr';
-      final client = AppApiClient();
+      final client = widget.apiClient ?? AppApiClient();
       final raw = await client.fetchLiveScholarships(
         lang: lang,
         level: profile?.targetLevel,
@@ -113,65 +227,61 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = KpbColors.blue;
-
     return Scaffold(
-      backgroundColor: context.kpb.pageBg,
+      backgroundColor: _Palette.page,
       body: SafeArea(
         child: KpbRefresh(
           onRefresh: _load,
           child: CustomScrollView(
             slivers: [
-              // ── App Bar ────────────────────────────────────────────────────
+              // ── App bar ────────────────────────────────────────────────────
               SliverAppBar(
                 floating: true,
                 snap: true,
-                backgroundColor: context.kpb.pageBg,
+                backgroundColor: _Palette.page,
+                surfaceTintColor: _Palette.page,
+                elevation: 0,
                 automaticallyImplyLeading: false,
                 leading: Navigator.canPop(context)
                     ? IconButton(
                         tooltip: 'a11y_back'.tr,
-                        icon: Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 20, color: context.kpb.textPrimary),
+                        icon: const Icon(Icons.arrow_back_rounded,
+                            size: 20, color: _Palette.navy),
                         onPressed: () => Navigator.pop(context),
                       )
                     : null,
                 title: Text(
                   'scholarships_title'.tr,
-                  style: KpbTextStyles.headline
-                      .copyWith(color: context.kpb.textPrimary),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                    color: _Palette.navy,
+                  ),
                 ),
                 actions: [
                   IconButton(
                     tooltip: 'a11y_refresh'.tr,
-                    icon: Icon(Icons.refresh_rounded,
-                        color: context.kpb.textSecondary),
+                    icon: const Icon(Icons.refresh_rounded,
+                        color: _Palette.slate),
                     onPressed: _load,
                   ),
                 ],
               ),
 
-              // ── Header ─────────────────────────────────────────────────────
+              // ── Sub-header + filters ─────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'recommended_opportunities'.tr,
-                        style: KpbTextStyles.titleLg
-                            .copyWith(color: context.kpb.textPrimary),
+                        'scholarships_sorted_hint'.tr,
+                        style: const TextStyle(
+                            fontSize: 11.5, color: _Palette.slate, height: 1.4),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'ranked_by_profile'.tr,
-                        style: KpbTextStyles.body
-                            .copyWith(color: context.kpb.textSecondary),
-                      ),
-                      const SizedBox(height: KpbSpacing.md),
-                      // Funding filter chips
+                      const SizedBox(height: 14),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -179,32 +289,20 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                             _FilterChip(
                               label: 'live_scholarships_filter_all'.tr,
                               active: _fundingFilter == 'all',
-                              accent: accent,
-                              onTap: () => setState(() {
-                                _fundingFilter = 'all';
-                                _load();
-                              }),
+                              onTap: () => _applyFilter('all'),
                             ),
                             const SizedBox(width: 8),
                             _FilterChip(
                               label: 'live_scholarships_filter_fully_funded'.tr,
                               active: _fundingFilter == 'fully_funded',
-                              accent: accent,
-                              onTap: () => setState(() {
-                                _fundingFilter = 'fully_funded';
-                                _load();
-                              }),
+                              onTap: () => _applyFilter('fully_funded'),
                             ),
                             const SizedBox(width: 8),
                             _FilterChip(
                               label: 'live_scholarships_filter_partially_funded'
                                   .tr,
                               active: _fundingFilter == 'partially_funded',
-                              accent: accent,
-                              onTap: () => setState(() {
-                                _fundingFilter = 'partially_funded';
-                                _load();
-                              }),
+                              onTap: () => _applyFilter('partially_funded'),
                             ),
                           ],
                         ),
@@ -214,10 +312,10 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                 ),
               ),
 
-              // ── Content ────────────────────────────────────────────────────
+              // ── Content ──────────────────────────────────────────────────────
               if (_loading)
                 const SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       _buildShimmerCard,
@@ -237,7 +335,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                       action: KpbButton(
                         text: 'retry'.tr,
                         onPressed: _load,
-                        bgColor: accent,
+                        bgColor: _Palette.blue,
                       ),
                     ),
                   ),
@@ -254,22 +352,19 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   ),
                 )
               else ...[
-                // Result count
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(KpbSpacing.pagePad, 0,
-                        KpbSpacing.pagePad, KpbSpacing.md),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Text(
                       'live_scholarships_result_count'
                           .trParams({'count': '${_items.length}'}),
-                      style: KpbTextStyles.caption
-                          .copyWith(color: context.kpb.textMuted),
+                      style: const TextStyle(
+                          fontSize: 11, color: _Palette.slate400),
                     ),
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: KpbSpacing.pagePad),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -277,12 +372,10 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                         return StaggeredSlide(
                           index: index,
                           child: Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: KpbSpacing.md),
+                            padding: const EdgeInsets.only(bottom: 10),
                             child: _LiveScholarshipCard(
                               scholarship: s,
-                              accent: accent,
-                              onTap: () => _openDetail(context, s, accent),
+                              onTap: () => _openDetail(context, s),
                             ),
                           ),
                         );
@@ -301,27 +394,124 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
     );
   }
 
-  /// Shimmer placeholder card for the loading state.
+  void _applyFilter(String value) {
+    setState(() {
+      _fundingFilter = value;
+      _load();
+    });
+  }
+
   static Widget _buildShimmerCard(BuildContext context, int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: KpbSpacing.md),
+      padding: const EdgeInsets.only(bottom: 10),
       child: _ShimmerCard(delay: index * 70),
     );
   }
 
-  void _openDetail(BuildContext context, LiveScholarshipModel s, Color accent) {
+  void _openDetail(BuildContext context, LiveScholarshipModel s) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.80,
+        initialChildSize: 0.82,
         maxChildSize: 0.97,
-        builder: (_, sc) => _LiveScholarshipDetail(
-          scholarship: s,
-          accent: accent,
-          scrollController: sc,
+        builder: (_, sc) =>
+            _LiveScholarshipDetail(scholarship: s, scrollController: sc),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// List row (handoff "Scholarships")
+// ─────────────────────────────────────────────────────────────────────────────
+class _LiveScholarshipCard extends StatelessWidget {
+  const _LiveScholarshipCard({required this.scholarship, required this.onTap});
+
+  final LiveScholarshipModel scholarship;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = scholarship;
+    final deadline = _deadlineBadge(s);
+    final (fundBg, fundFg, fundLabel) = _fundingChip(s);
+    final subtitle =
+        s.level.isEmpty ? s.countryName : '${s.countryName} · ${s.level}';
+
+    return Material(
+      color: _Palette.card,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: _Palette.card,
+            border: Border.all(color: _Palette.border),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: _cardShadow,
+          ),
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(_flag(s.countryName), style: const TextStyle(fontSize: 24)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.title,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: _Palette.navy,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style:
+                          const TextStyle(fontSize: 11, color: _Palette.slate),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 7),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (deadline != null)
+                          _pill(deadline.text, deadline.bg, deadline.fg)
+                        else
+                          _pill(
+                            s.deadlineLabel.isEmpty
+                                ? 'live_scholarships_no_deadline'.tr
+                                : s.deadlineLabel,
+                            _Palette.line,
+                            _Palette.slate,
+                          ),
+                        if (deadline?.soon ?? false)
+                          _pill('live_scholarships_deadline_soon'.tr,
+                              _Palette.amberSolid, Colors.white),
+                        _pill(fundLabel, fundBg, fundFg),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              _SaveButton(scholarship: s, size: 34),
+            ],
+          ),
         ),
       ),
     );
@@ -329,475 +519,205 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// List card
-// ─────────────────────────────────────────────────────────────────────────────
-class _LiveScholarshipCard extends StatelessWidget {
-  const _LiveScholarshipCard({
-    required this.scholarship,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final LiveScholarshipModel scholarship;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = scholarship;
-    final fundingColor = s.isFullyFunded
-        ? KpbColors.success
-        : s.isPartiallyFunded
-            ? KpbColors.warning
-            : context.kpb.gray400;
-    final fundingLabel = s.isFullyFunded
-        ? 'live_scholarships_fully_funded'.tr
-        : s.isPartiallyFunded
-            ? 'live_scholarships_partially_funded'.tr
-            : 'live_scholarships_funding_unknown'.tr;
-
-    return KpbCard(
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Country flag avatar
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: context.kpb.surfaceBg,
-                  borderRadius: KpbRadius.mdBr,
-                  border: Border.all(color: context.kpb.gray100),
-                ),
-                child: Center(
-                  child: Text(
-                    _flag(s.countryName),
-                    style: const TextStyle(fontSize: 26),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      s.countryName.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: accent,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      s.title,
-                      style: KpbTextStyles.titleMd.copyWith(
-                          color: context.kpb.textPrimary, height: 1.2),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              // Match score + favorite
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  AdmissionMeter(
-                      score: s.matchScore, size: 34, strokeWidth: 3.5),
-                  const SizedBox(height: 8),
-                  GetBuilder<AppController>(
-                    builder: (controller) {
-                      final saved =
-                          controller.isSaved(SavedItemType.scholarship, s.id);
-                      return Semantics(
-                        button: true,
-                        label: 'a11y_save'.tr,
-                        child: GestureDetector(
-                          onTap: () => controller.toggleSaved(
-                            SavedItemType.scholarship,
-                            s.id,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: saved
-                                  ? KpbColors.blue.withValues(alpha: 0.1)
-                                  : Colors.transparent,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              saved
-                                  ? Icons.bookmark_rounded
-                                  : Icons.bookmark_outline_rounded,
-                              color:
-                                  saved ? KpbColors.blue : context.kpb.gray400,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              // Funding badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: fundingColor.withValues(alpha: 0.12),
-                  borderRadius: KpbRadius.pillBr,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      s.isFullyFunded
-                          ? Icons.verified_rounded
-                          : Icons.payments_outlined,
-                      size: 13,
-                      color: fundingColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      fundingLabel,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: fundingColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              ApplicationRequirementBadge(
-                isAutomatic: s.isAutomaticAdmission,
-                accent: accent,
-                compact: true,
-              ),
-              const SizedBox(width: 10),
-              if (s.deadlineLabel.isNotEmpty)
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(Icons.event_outlined,
-                          size: 13, color: context.kpb.gray400),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          s.deadlineLabel,
-                          style: KpbTextStyles.caption
-                              .copyWith(color: context.kpb.textSecondary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Detail bottom sheet
+// Detail sheet (handoff "Fiche bourse")
 // ─────────────────────────────────────────────────────────────────────────────
 class _LiveScholarshipDetail extends StatelessWidget {
   const _LiveScholarshipDetail({
     required this.scholarship,
-    required this.accent,
     required this.scrollController,
   });
 
   final LiveScholarshipModel scholarship;
-  final Color accent;
   final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
     final s = scholarship;
-    final fundingColor = s.isFullyFunded
-        ? KpbColors.success
-        : s.isPartiallyFunded
-            ? KpbColors.warning
-            : context.kpb.gray400;
-    final fundingLabel = s.isFullyFunded
-        ? 'live_scholarships_fully_funded'.tr
-        : s.isPartiallyFunded
-            ? 'live_scholarships_partially_funded'.tr
-            : 'live_scholarships_funding_unspecified'.tr;
+    final deadline = _deadlineBadge(s);
+    final (_, fundFg, fundLabel) = _fundingChip(s);
+    final (reqBg, reqFg, reqLabel) = _requirementChip(s);
+
+    final deadlineValue = deadline != null
+        ? deadline.text
+        : (s.deadlineLabel.isEmpty
+            ? 'live_scholarships_see_official_site'.tr
+            : s.deadlineLabel);
+    final deadlineColor = deadline?.fg ?? _Palette.slate;
 
     return Container(
-      decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: const BoxDecoration(
+        color: _Palette.card,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: ListView(
         controller: scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
-          const SizedBox(height: KpbSpacing.md),
-          // Drag handle
           Center(
             child: Container(
-              width: 48,
+              width: 44,
               height: 4,
               decoration: BoxDecoration(
-                color: context.kpb.gray200,
-                borderRadius: KpbRadius.pillBr,
+                color: _Palette.border,
+                borderRadius: BorderRadius.circular(100),
               ),
             ),
           ),
-          const SizedBox(height: KpbSpacing.xl),
+          const SizedBox(height: 18),
 
           // ── Header ───────────────────────────────────────────────────────
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: context.kpb.surfaceBg,
-                  borderRadius: KpbRadius.lgBr,
-                  border: Border.all(color: context.kpb.gray100),
-                ),
-                child: Center(
-                  child: Text(
-                    _flag(s.countryName),
-                    style: const TextStyle(fontSize: 30),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
+              Text(_flag(s.countryName), style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    KpbBadge(
-                      label: s.countryName.toUpperCase(),
-                      color: accent,
-                    ),
-                    const SizedBox(height: 8),
                     Text(
                       s.title,
-                      style: KpbTextStyles.displaySm.copyWith(
-                          color: context.kpb.textPrimary, height: 1.1),
-                    ),
-                  ],
-                ),
-              ),
-              GetBuilder<AppController>(
-                builder: (controller) {
-                  final saved =
-                      controller.isSaved(SavedItemType.scholarship, s.id);
-                  return Semantics(
-                    button: true,
-                    label: 'a11y_save'.tr,
-                    child: GestureDetector(
-                      onTap: () => controller.toggleSaved(
-                        SavedItemType.scholarship,
-                        s.id,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: saved
-                              ? KpbColors.blue.withValues(alpha: 0.1)
-                              : Colors.transparent,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          saved
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_outline_rounded,
-                          color: saved ? KpbColors.blue : context.kpb.gray400,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: KpbSpacing.lg),
-
-          // ── Funding + application-requirement badges ─────────────────────
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: fundingColor.withValues(alpha: 0.1),
-                  borderRadius: KpbRadius.lgBr,
-                  border:
-                      Border.all(color: fundingColor.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      s.isFullyFunded
-                          ? Icons.verified_rounded
-                          : Icons.payments_rounded,
-                      size: 18,
-                      color: fundingColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      fundingLabel,
-                      style: TextStyle(
-                        color: fundingColor,
+                      style: const TextStyle(
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                        letterSpacing: -0.3,
+                        color: _Palette.navy,
+                        height: 1.2,
                       ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      s.countryName,
+                      style:
+                          const TextStyle(fontSize: 11, color: _Palette.slate),
                     ),
                   ],
                 ),
               ),
-              ApplicationRequirementBadge(
-                isAutomatic: s.isAutomaticAdmission,
-                accent: accent,
-              ),
+              const SizedBox(width: 10),
+              _SaveButton(scholarship: s, size: 38),
             ],
           ),
-          const SizedBox(height: KpbSpacing.md),
+          const SizedBox(height: 14),
 
-          // ── Key info rows ─────────────────────────────────────────────────
-          _InfoRow(
-            icon: Icons.school_outlined,
-            label: 'live_scholarships_level_label'.tr,
-            value:
-                s.level.isEmpty ? 'live_scholarships_all_levels'.tr : s.level,
-            accent: accent,
-          ),
-          _InfoRow(
-            icon: Icons.event_outlined,
-            label: 'live_scholarships_deadline_label'.tr,
-            value: s.deadlineLabel.isEmpty
-                ? 'live_scholarships_see_official_site'.tr
-                : s.deadlineLabel,
-            accent: accent,
-          ),
-          const SizedBox(height: KpbSpacing.xl),
-
-          // ── Match score banner ────────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.all(KpbSpacing.lg),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.08),
-              borderRadius: KpbRadius.xlBr,
-              border: Border.all(color: accent.withValues(alpha: 0.2)),
-            ),
+          // ── AMOUNT / DEADLINE grid ─────────────────────────────────────────
+          IntrinsicHeight(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AdmissionMeter(score: s.matchScore, size: 52, strokeWidth: 5),
-                SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'profile_compatibility'.tr,
-                        style: TextStyle(
-                          color: accent,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        s.matchScore >= 70
-                            ? 'live_scholarships_match_excellent'.tr
-                            : s.matchScore >= 40
-                                ? 'live_scholarships_match_compatible'.tr
-                                : 'live_scholarships_match_partial'.tr,
-                        style: TextStyle(
-                          color: context.kpb.textSecondary,
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
+                  child: _StatTile(
+                    label: 'live_scholarships_funding_tile'.tr,
+                    value: fundLabel,
+                    valueColor: fundFg,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _StatTile(
+                    label: 'live_scholarships_deadline_label'.tr,
+                    value: deadlineValue,
+                    valueColor: deadlineColor,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: KpbSpacing.xl),
+          const SizedBox(height: 8),
 
-          // ── Description ───────────────────────────────────────────────────
-          if (s.description.isNotEmpty) ...[
-            _SectionHeader(
-                label: 'live_scholarships_section_description'.tr,
-                icon: Icons.info_outline_rounded),
-            const SizedBox(height: 10),
-            Text(
-              s.description,
-              style: KpbTextStyles.body
-                  .copyWith(color: context.kpb.textSecondary, height: 1.6),
+          // ── Requirement chip + level + "why" ───────────────────────────────
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: _Palette.card,
+              border: Border.all(color: _Palette.border),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: _cardShadow,
             ),
-            const SizedBox(height: KpbSpacing.xl),
-          ],
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _pill(reqLabel, reqBg, reqFg, big: true),
+                    if (s.level.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          s.level,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: _Palette.navy,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (s.description.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    s.description,
+                    style: const TextStyle(
+                        fontSize: 12, height: 1.6, color: _Palette.body),
+                  ),
+                ],
+              ],
+            ),
+          ),
 
-          // ── Advantages ────────────────────────────────────────────────────
+          // ── Benefits ───────────────────────────────────────────────────────
           if (s.advantages.isNotEmpty) ...[
-            _SectionHeader(
-                label: 'live_scholarships_section_advantages'.tr,
-                icon: Icons.star_outline_rounded),
             const SizedBox(height: 10),
-            ...s.advantages
-                .map((a) => _BulletItem(text: a, color: KpbColors.success)),
-            const SizedBox(height: KpbSpacing.xl),
+            _SectionCard(
+              title: 'live_scholarships_section_advantages'.tr,
+              children: s.advantages
+                  .map((a) => _BulletItem(text: a, color: _Palette.green))
+                  .toList(),
+            ),
           ],
 
-          // ── Eligibility ───────────────────────────────────────────────────
+          // ── Eligibility criteria (real list, not a verdict) ────────────────
           if (s.eligibility.isNotEmpty) ...[
-            _SectionHeader(
-                label: 'live_scholarships_section_eligibility'.tr,
-                icon: Icons.checklist_rounded),
             const SizedBox(height: 10),
-            ...s.eligibility.map((e) => _BulletItem(text: e, color: accent)),
-            const SizedBox(height: KpbSpacing.xl),
+            _SectionCard(
+              title: 'live_scholarships_section_eligibility'.tr,
+              children: s.eligibility
+                  .map((e) => _BulletItem(text: e, color: _Palette.blue))
+                  .toList(),
+            ),
           ],
 
-          // ── How to apply ──────────────────────────────────────────────────
+          // ── How to apply ───────────────────────────────────────────────────
           if (s.applicationSteps.isNotEmpty) ...[
-            _SectionHeader(
-                label: 'live_scholarships_section_application_steps'.tr,
-                icon: Icons.route_outlined),
-            const SizedBox(height: 14),
-            ApplicationStepsTimeline(steps: s.applicationSteps, accent: accent),
-            const SizedBox(height: KpbSpacing.md),
+            const SizedBox(height: 10),
+            _SectionCard(
+              title: 'live_scholarships_section_application_steps'.tr,
+              children: [
+                ApplicationStepsTimeline(
+                    steps: s.applicationSteps, accent: _Palette.blue),
+              ],
+            ),
           ],
 
-          // ── CTAs ──────────────────────────────────────────────────────────
-          // Primary: Apply with KPB
-          KpbButton(
-            text: 'live_scholarships_apply_with_kpb'.tr,
-            onPressed: () {
+          const SizedBox(height: 16),
+
+          // ── CTAs ───────────────────────────────────────────────────────────
+          if (s.applicationUrl.isNotEmpty) ...[
+            _PrimaryButton(
+              label: 'live_scholarships_official_form'.tr,
+              icon: Icons.open_in_new_rounded,
+              onTap: () => _launchUrl(s.applicationUrl),
+            ),
+            const SizedBox(height: 10),
+          ],
+          _SecondaryButton(
+            label: 'live_scholarships_apply_with_kpb'.tr,
+            onTap: () {
               Navigator.pop(context);
               showModalBottomSheet<void>(
                 context: context,
@@ -810,62 +730,88 @@ class _LiveScholarshipDetail extends StatelessWidget {
                 ),
               );
             },
-            bgColor: accent,
-            icon: Icons.rocket_launch_rounded,
           ),
-          const SizedBox(height: KpbSpacing.md),
-          // Secondary: Go to official page
-          if (s.applicationUrl.isNotEmpty)
-            GestureDetector(
-              onTap: () async {
-                final uri = Uri.tryParse(s.applicationUrl);
-                if (uri != null && await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  border: Border.all(color: context.kpb.gray200),
-                  borderRadius: KpbRadius.lgBr,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.open_in_new_rounded,
-                        size: 18, color: context.kpb.textSecondary),
-                    const SizedBox(width: 8),
-                    Text(
-                      'live_scholarships_view_official_application'.tr,
-                      style: KpbTextStyles.body.copyWith(
-                        color: context.kpb.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: KpbSpacing.xxl),
         ],
       ),
     );
   }
 }
 
-// ── Small helper widgets ──────────────────────────────────────────────────────
+// ── Shared small widgets ─────────────────────────────────────────────────────
+
+Widget _pill(String text, Color bg, Color fg, {bool big = false}) {
+  return Container(
+    padding:
+        EdgeInsets.symmetric(horizontal: big ? 10 : 8, vertical: big ? 3 : 2),
+    decoration:
+        BoxDecoration(color: bg, borderRadius: BorderRadius.circular(100)),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: big ? 10.5 : 9.5,
+        fontWeight: FontWeight.w800,
+        color: fg,
+      ),
+    ),
+  );
+}
+
+/// Round trailing toggle. The handoff shows a "bell" push-reminder toggle here,
+/// but no per-scholarship reminder mechanism exists in the app (OneSignal only
+/// carries global user tags), so we bind this slot to the REAL, persisted
+/// save/bookmark action instead of rendering a fake reminder toggle.
+class _SaveButton extends StatelessWidget {
+  const _SaveButton({required this.scholarship, required this.size});
+
+  final LiveScholarshipModel scholarship;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<AppController>(
+      builder: (controller) {
+        final saved =
+            controller.isSaved(SavedItemType.scholarship, scholarship.id);
+        return Semantics(
+          button: true,
+          label: 'a11y_save'.tr,
+          child: Material(
+            color: saved ? _Palette.chipBg : _Palette.card,
+            shape: CircleBorder(
+              side: BorderSide(
+                  color: saved ? _Palette.chipBorder : _Palette.border),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => controller.toggleSaved(
+                  SavedItemType.scholarship, scholarship.id),
+              child: SizedBox(
+                width: size,
+                height: size,
+                child: Icon(
+                  saved
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_outline_rounded,
+                  size: size * 0.52,
+                  color: saved ? _Palette.blue : _Palette.slate400,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
 class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,
     required this.active,
-    required this.accent,
     required this.onTap,
   });
   final String label;
   final bool active;
-  final Color accent;
   final VoidCallback onTap;
 
   @override
@@ -876,18 +822,16 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? accent : context.kpb.surfaceBg,
-          borderRadius: KpbRadius.pillBr,
-          border: Border.all(
-            color: active ? accent : context.kpb.gray200,
-          ),
+          color: active ? _Palette.blue : _Palette.card,
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(color: active ? _Palette.blue : _Palette.border),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: active ? Colors.white : context.kpb.textSecondary,
+            color: active ? Colors.white : _Palette.slate,
           ),
         ),
       ),
@@ -895,66 +839,83 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.label, required this.icon});
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+  });
   final String label;
-  final IconData icon;
+  final String value;
+  final Color valueColor;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: context.kpb.textPrimary),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: KpbTextStyles.titleMd.copyWith(color: context.kpb.textPrimary),
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: _Palette.card,
+        border: Border.all(color: _Palette.border),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: _cardShadow,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+              color: _Palette.slate400,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: valueColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.accent,
-  });
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color accent;
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.title, required this.children});
+  final String title;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: _Palette.card,
+        border: Border.all(color: _Palette.border),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: _cardShadow,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: context.kpb.surfaceBg,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 18, color: accent),
-          ),
-          const SizedBox(width: 12),
-          Text('$label : ',
-              style: KpbTextStyles.body.copyWith(color: context.kpb.textMuted)),
-          Expanded(
-            child: Text(
-              value,
-              style: KpbTextStyles.body.copyWith(
-                fontWeight: FontWeight.w700,
-                color: context.kpb.textPrimary,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.2,
+              color: _Palette.navy,
             ),
           ),
+          const SizedBox(height: 12),
+          ...children,
         ],
       ),
     );
@@ -969,24 +930,101 @@ class _BulletItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 2, right: 10),
-            child: Icon(Icons.check_circle_rounded, size: 18, color: color),
+            padding: const EdgeInsets.only(top: 1, right: 10),
+            child: Icon(Icons.check_circle_rounded, size: 17, color: color),
           ),
           Expanded(
             child: Text(
               text,
-              style: KpbTextStyles.body.copyWith(
-                color: context.kpb.textSecondary,
-                height: 1.5,
-              ),
+              style: const TextStyle(
+                  fontSize: 12.5, height: 1.5, color: _Palette.body),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  const _PrimaryButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: _Palette.blue,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 17, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SecondaryButton extends StatelessWidget {
+  const _SecondaryButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: _Palette.card,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: _Palette.card,
+            border: Border.all(color: _Palette.border),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SizedBox(
+            height: 50,
+            child: Center(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: _Palette.navy,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1029,66 +1067,69 @@ class _ShimmerCardState extends State<_ShimmerCard>
 
   @override
   Widget build(BuildContext context) {
-    final base = context.kpb.surfaceBg;
-    final shimmer = context.kpb.gray200;
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) {
-        final color = Color.lerp(base, shimmer, _anim.value)!;
+        final block =
+            Color.lerp(_Palette.lineSoft, _Palette.border, _anim.value)!;
         return Container(
-          height: 120,
+          height: 92,
           decoration: BoxDecoration(
-            color: color,
-            borderRadius: KpbRadius.lgBr,
+            color: _Palette.card,
+            border: Border.all(color: _Palette.border),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: _cardShadow,
           ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(14),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Color.lerp(shimmer, base, _anim.value),
-                      borderRadius: KpbRadius.mdBr,
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: block,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: block,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 10,
-                          width: 60,
-                          decoration: BoxDecoration(
-                            color: Color.lerp(shimmer, base, _anim.value),
-                            borderRadius: KpbRadius.pillBr,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: Color.lerp(shimmer, base, _anim.value),
-                            borderRadius: KpbRadius.pillBr,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          height: 14,
-                          width: 180,
-                          decoration: BoxDecoration(
-                            color: Color.lerp(shimmer, base, _anim.value),
-                            borderRadius: KpbRadius.pillBr,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 10,
+                      width: 140,
+                      decoration: BoxDecoration(
+                        color: block,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 14,
+                      width: 90,
+                      decoration: BoxDecoration(
+                        color: block,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(color: block, shape: BoxShape.circle),
               ),
             ],
           ),
