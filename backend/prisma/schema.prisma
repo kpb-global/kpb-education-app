@@ -1435,3 +1435,134 @@ model ParcoursStory {
   @@index([fieldId])
   @@index([displayOrder])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Growth & Parrainage — Ambassadeur program (App-engagement handoff, US-032→035)
+// ─────────────────────────────────────────────────────────────────────────────
+// A CASH referral program (Wave payouts, FCFA commissions, city leaderboard),
+// distinct from the existing no-cash `Referral`/`CreditTransaction` review-credit
+// system. Named `AmbassadorReferral` to avoid colliding with that `Referral`.
+// `userProfileId` is a plain string ref (like catalog refs elsewhere) — the
+// GDPR deleteMe flow prunes these rows explicitly (see ProfilesService).
+
+enum ReferralStatus {
+  signed_up // inscription + code, quiz not done
+  quiz_completed // quiz done → +1 000 FCFA
+  application_created // dossier ouvert
+  premium_subscribed
+  placed // placé dans une école via KPB → +35 000 FCFA
+  churned
+}
+
+enum CommissionReason {
+  referral_signup // ~1 000 FCFA — inscription + quiz complété
+  referral_premium // ~6 500 FCFA
+  referral_placed // ~35 000 FCFA
+  referral_scholarship // ~65 000 FCFA
+  bonus_leaderboard // bonus objectif / classement
+}
+
+enum WithdrawalMethod {
+  wave
+  money_fusion
+  orange_money
+  bank_transfer
+}
+
+enum WithdrawalStatus {
+  requested
+  processing
+  completed
+  failed
+  rejected
+}
+
+model Ambassador {
+  id                   String           @id @default(cuid())
+  userProfileId        String           @unique
+  // Stable, shareable referral code, e.g. "KTOU-BS-7c21".
+  code                 String           @unique
+  // Display identity for the ambassador surface.
+  displayName          String           @default("")
+  campus               String           @default("") // "Ambassadrice campus — UCAD Dakar"
+  city                 String           @default("") // leaderboard grouping key, e.g. "Dakar"
+  // Wave (or other) payout destination — store masked for display.
+  payoutMethod         WithdrawalMethod @default(wave)
+  payoutAccount        String           @default("") // full number, server-side only
+  kycStatus            KycStatus        @default(pending)
+  monthlyObjective     Int              @default(15)
+  monthlyBonusFCFA     Int              @default(10000)
+  // Denormalized counters (recomputed on write); the ledger is the source of truth.
+  totalReferrals       Int              @default(0)
+  totalCommissionsFCFA Int              @default(0)
+  activatedAt          DateTime         @default(now())
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  referrals   AmbassadorReferral[]
+  commissions Commission[]
+  withdrawals Withdrawal[]
+
+  @@index([city])
+}
+
+enum KycStatus {
+  pending
+  verified
+  rejected
+}
+
+model AmbassadorReferral {
+  id                   String         @id @default(cuid())
+  ambassadorId         String
+  // The referred student's profile (plain ref; unique = referred at most once).
+  refereeProfileId     String         @unique
+  refereeName          String         @default("")
+  status               ReferralStatus @default(signed_up)
+  note                 String         @default("") // "Dossier Grenoble 30 % · très active"
+  signedUpAt           DateTime       @default(now())
+  quizCompletedAt      DateTime?
+  applicationCreatedAt DateTime?
+  premiumSubscribedAt  DateTime?
+  placedAt             DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  ambassador           Ambassador     @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+
+  @@index([ambassadorId])
+  @@index([status])
+}
+
+model Commission {
+  id           String           @id @default(cuid())
+  ambassadorId String
+  referralId   String? // nullable for leaderboard/objective bonuses
+  amountFCFA   Int
+  reason       CommissionReason
+  label        String           @default("")
+  earnedAt     DateTime         @default(now())
+  // Set once this commission is paid out in a withdrawal batch.
+  withdrawalId String?
+  ambassador   Ambassador       @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  withdrawal   Withdrawal?      @relation(fields: [withdrawalId], references: [id])
+
+  @@index([ambassadorId, earnedAt])
+  @@index([withdrawalId])
+}
+
+model Withdrawal {
+  id                 String           @id @default(cuid())
+  ambassadorId       String
+  amountFCFA         Int
+  method             WithdrawalMethod @default(wave)
+  destinationAccount String           @default("")
+  status             WithdrawalStatus @default(requested)
+  requestedAt        DateTime         @default(now())
+  processedAt        DateTime?
+  transactionId      String?
+  ambassador         Ambassador       @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  commissions        Commission[]
+
+  @@index([ambassadorId])
+  @@index([status])
+}
