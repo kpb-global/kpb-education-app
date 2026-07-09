@@ -813,6 +813,13 @@ class AppTranslations extends Translations {
           'live_scholarships_apply_with_kpb': '🎯  Candidater avec KPB',
           'live_scholarships_view_official_application':
               'Voir le site officiel de candidature',
+          'live_scholarships_official_form': 'Formulaire officiel',
+          'live_scholarships_deadline_soon': 'Deadline imminente',
+          'live_scholarships_deadline_closed': 'Clôturée',
+          'live_scholarships_no_deadline': 'Pas de date limite',
+          'live_scholarships_funding_tile': 'Financement',
+          'scholarships_sorted_hint':
+              'Classées selon ton profil. Enregistre celles qui t\'intéressent.',
           'eligibility_see_my_result': 'Voir mon résultat',
           'answer_yes': 'Oui',
           'answer_maybe': 'Peut-être',
@@ -2677,6 +2684,13 @@ class AppTranslations extends Translations {
           'live_scholarships_apply_with_kpb': '🎯  Apply with KPB',
           'live_scholarships_view_official_application':
               'View the official application site',
+          'live_scholarships_official_form': 'Official application form',
+          'live_scholarships_deadline_soon': 'Deadline soon',
+          'live_scholarships_deadline_closed': 'Closed',
+          'live_scholarships_no_deadline': 'No fixed deadline',
+          'live_scholarships_funding_tile': 'Funding',
+          'scholarships_sorted_hint':
+              'Ranked for your profile. Bookmark the ones you\'re aiming for.',
           'eligibility_see_my_result': 'See my result',
           'answer_yes': 'Yes',
           'answer_maybe': 'Maybe',
