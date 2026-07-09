@@ -5,12 +5,38 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
-import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../france/france_private_admission_screen.dart';
 import 'eligibility_quiz_screen.dart';
+import 'program_detail_screen.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · "Page destination").
+// Local to this file — same pattern as Home/Onboarding.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const gradientEnd = Color(0xFF1E3A8A);
+  static const blue = Color(0xFF2563EB);
+  static const heading = Color(0xFF1E40AF);
+  static const sky = Color(0xFF38BDF8);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+  static const page = Color(0xFFF8FAFC);
+  static const crumbBg = Color(0xFFEFF6FF);
+  static const crumbBorder = Color(0xFFDBEAFE);
+  static const green = Color(0xFF16A34A);
+  static const amber = Color(0xFFB45309);
+  static const amberBg = Color(0xFFFEF3C7);
+  static const red = Color(0xFFDC2626);
+  static const whatsapp = Color(0xFF25D366);
+  static const body = Color(0xFF475569);
+  static const bodyStrong = Color(0xFF334155);
+  static const cloud = Color(0xFFCBD5E1);
+}
 
 class CountryDetailScreen extends StatefulWidget {
   const CountryDetailScreen({super.key, required this.countryId});
@@ -77,577 +103,339 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return Scaffold(
-        backgroundColor: context.kpb.pageBg,
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        backgroundColor: _Palette.page,
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     final country = _country ?? _controller.countryByIdOrNull(_countryKey);
     if (country == null) {
       return Scaffold(
+        backgroundColor: _Palette.page,
         body: Center(child: Text('country_not_found'.tr)),
       );
     }
 
     final locale = _controller.localeCode;
-    final partners = _partnerInstitutions(country);
-    final scholarships = _countryScholarships(country);
+    final name = _controller.resolve(country.name);
+    final marketing = _controller.resolve(country.marketingDescription);
+    final whyStudy = _controller.resolve(country.whyStudy);
     final bullets = country.whyStudyBulletsFor(locale);
     final steps = country.howItWorksStepsFor(locale);
     final mvpNote = country.mvpNote.resolve(locale);
+    final visa = _controller.resolve(country.visaOverview);
+    final languageText = _controller.resolve(country.languageSection).isNotEmpty
+        ? _controller.resolve(country.languageSection)
+        : _controller.resolve(country.mainLanguage);
+    final scholarshipsIntro = _controller.resolve(country.scholarshipsSection);
+    final partners = _partnerInstitutions(country);
+    final scholarships = _countryScholarships(country);
+    final isFrance = country.id == 'fra' || country.id == 'france';
 
-    return Scaffold(
-      backgroundColor: context.kpb.pageBg,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 240,
-            pinned: true,
-            backgroundColor: KpbColors.navy,
-            foregroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: FlexibleSpaceBar(
-              background:
-                  _CountryHero(country: country, controller: _controller),
-              collapseMode: CollapseMode.parallax,
-            ),
-            actions: [
-              IconButton(
-                tooltip: 'a11y_save'.tr,
-                icon: Icon(
-                  _controller.isSaved(SavedItemType.country, country.id)
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_border_rounded,
-                  color: Colors.white,
-                ),
-                onPressed: () =>
-                    _controller.toggleSaved(SavedItemType.country, country.id),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(KpbSpacing.pagePad),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Wrap(
-                        spacing: 10,
-                        runSpacing: 6,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          VerifiedBadge(
-                            lastVerifiedAt: country.lastVerifiedAt,
-                          ),
-                          KpbSourceLink(url: country.sourceUrl),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (mvpNote.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: context.kpb.gray100,
-                          borderRadius: KpbRadius.mdBr,
-                          border: Border.all(color: context.kpb.gray200),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.schedule_rounded,
-                                size: 18, color: context.kpb.textSecondary),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                mvpNote,
-                                style: KpbTextStyles.bodySm.copyWith(
-                                  color: context.kpb.textSecondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (country.id == 'fra' || country.id == 'france')
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: KpbCard(
-                        onTap: () =>
-                            Get.to(() => FrancePrivateAdmissionScreen()),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: KpbColors.skyLight,
-                                borderRadius: KpbRadius.mdBr,
-                              ),
-                              child: Icon(Icons.school_outlined,
-                                  color: KpbColors.blue),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'private_schools_admission'.tr,
-                                    style: KpbTextStyles.titleMd,
-                                  ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    'dedicated_path_sept_2026'.tr,
-                                    style: KpbTextStyles.caption,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Icon(Icons.chevron_right_rounded,
-                                color: context.kpb.gray400),
-                          ],
-                        ),
-                      ),
-                    ),
-                  FilledButton.icon(
-                    onPressed: () => Get.to(
-                      () => EligibilityQuizScreen(countryId: country.id),
-                    ),
-                    icon: const Icon(Icons.quiz_outlined),
-                    label: Text('take_eligibility_quiz'.tr),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _SectionCard(
-                    icon: Icons.lightbulb_outline_rounded,
-                    iconColor: KpbColors.gold,
-                    title: 'country_why_this_country'.tr,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_controller
-                            .resolve(country.marketingDescription)
-                            .isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              _controller.resolve(country.marketingDescription),
-                              style: KpbTextStyles.body,
-                            ),
-                          ),
-                        Text(
-                          _controller.resolve(country.whyStudy),
-                          style: KpbTextStyles.body,
-                        ),
-                        if (bullets.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          ...bullets.map(
-                            (bullet) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.check_circle_outline,
-                                      size: 18, color: KpbColors.success),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(bullet,
-                                        style: KpbTextStyles.bodySm),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (steps.isNotEmpty)
-                    _SectionCard(
-                      icon: Icons.route_outlined,
-                      iconColor: KpbColors.blue,
-                      title: 'country_how_it_works'.tr,
-                      child: Column(
-                        children: [
-                          for (var i = 0; i < steps.length; i++) ...[
-                            if (i > 0) const SizedBox(height: 10),
-                            _StepRow(index: i + 1, text: steps[i]),
-                          ],
-                        ],
-                      ),
-                    ),
-                  _SectionCard(
-                    icon: Icons.payments_outlined,
-                    iconColor: KpbColors.blue,
-                    title: 'country_costs'.tr,
-                    child: Column(
-                      children: [
-                        if (_controller
-                            .resolve(country.costsOverview)
-                            .isNotEmpty)
-                          Text(
-                            _controller.resolve(country.costsOverview),
-                            style: KpbTextStyles.body,
-                          ),
-                        if (_controller
-                            .resolve(country.costsOverview)
-                            .isNotEmpty)
-                          const SizedBox(height: 10),
-                        KpbInfoRow(
-                          icon: Icons.school_outlined,
-                          label: 'country_tuition_fees'.tr,
-                          value: _controller.resolve(country.tuitionRange),
-                          iconColor: KpbColors.blue,
-                        ),
-                        const KpbDivider(indent: 48),
-                        KpbInfoRow(
-                          icon: Icons.home_outlined,
-                          label: 'country_living_cost_per_month'.tr,
-                          value: _controller.resolve(country.livingCostRange),
-                          iconColor: KpbColors.success,
-                        ),
-                        const KpbDivider(indent: 48),
-                        KpbInfoRow(
-                          icon: Icons.article_outlined,
-                          label: 'country_visa_and_insurance'.tr,
-                          value: _controller.resolve(country.visaOverview),
-                          iconColor: KpbColors.warning,
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SectionCard(
-                    icon: Icons.translate_rounded,
-                    iconColor: KpbColors.success,
-                    title: 'country_required_language'.tr,
-                    child: Text(
-                      _controller.resolve(country.languageSection).isNotEmpty
-                          ? _controller.resolve(country.languageSection)
-                          : _controller.resolve(country.mainLanguage),
-                      style: KpbTextStyles.body,
-                    ),
-                  ),
-                  _SectionCard(
-                    icon: Icons.account_balance_outlined,
-                    iconColor: KpbColors.blue,
-                    title: 'country_partner_schools'.tr,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_controller
-                            .resolve(country.partnerSchools)
-                            .isNotEmpty)
-                          Text(
-                            _controller.resolve(country.partnerSchools),
-                            style: KpbTextStyles.bodySm,
-                          ),
-                        if (partners.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 130,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: partners.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 10),
-                              itemBuilder: (context, index) {
-                                final inst = partners[index];
-                                return SizedBox(
-                                  width: 220,
-                                  child: KpbCard(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _controller.resolve(inst.name),
-                                          style: KpbTextStyles.titleMd,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          _controller.resolve(inst.location),
-                                          style: KpbTextStyles.caption,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const Spacer(),
-                                        KpbBadge(
-                                          label: 'badge_partner'.tr,
-                                          color: KpbColors.success,
-                                          small: true,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (_controller
-                          .resolve(country.scholarshipsSection)
-                          .isNotEmpty ||
-                      scholarships.isNotEmpty)
-                    _SectionCard(
-                      icon: Icons.emoji_events_outlined,
-                      iconColor: KpbColors.gold,
-                      title: 'country_available_scholarships'.tr,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_controller
-                              .resolve(country.scholarshipsSection)
-                              .isNotEmpty)
-                            Text(
-                              _controller.resolve(country.scholarshipsSection),
-                              style: KpbTextStyles.body,
-                            ),
-                          ...scholarships.map(
-                            (s) => Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.star_outline,
-                                      size: 16, color: KpbColors.gold),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      _controller.resolve(s.name),
-                                      style: KpbTextStyles.bodySm,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  KpbCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.workspace_premium_outlined,
-                                color: KpbColors.blue, size: 22),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text('kpb_offer_title'.tr,
-                                  style: KpbTextStyles.titleMd),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text('kpb_offer_intro'.tr, style: KpbTextStyles.body),
-                        const SizedBox(height: 16),
+    // Contiguous numbering across the sections actually present (honest — a
+    // section with no catalog data is skipped rather than shown empty).
+    var n = 0;
+    String num() => '${++n}.';
 
-                        // ── Conditions d'éligibilité ──────────────────────
-                        Text('kpb_offer_conditions'.tr,
-                            style: KpbTextStyles.label),
-                        const SizedBox(height: 8),
-                        _OfferCondition(text: 'kpb_cond_grades'.tr),
-                        _OfferCondition(text: 'kpb_cond_language'.tr),
-                        _OfferCondition(text: 'kpb_cond_guarantor'.tr),
-                        const SizedBox(height: 16),
-
-                        // ── Nos formules ──────────────────────────────────
-                        Text('kpb_offer_formulas'.tr,
-                            style: KpbTextStyles.label),
-                        const SizedBox(height: 8),
-                        _PackCard(
-                          name: 'pack_admission'.tr,
-                          price: '249 €',
-                          description: 'pack_admission_desc'.tr,
-                          services: [
-                            'svc_school_search'.tr,
-                            'svc_application'.tr,
-                            'svc_interview'.tr,
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        _PackCard(
-                          name: 'pack_envol'.tr,
-                          price: '399 €',
-                          description: 'pack_envol_desc'.tr,
-                          highlight: true,
-                          services: [
-                            'svc_school_search'.tr,
-                            'svc_application'.tr,
-                            'svc_interview'.tr,
-                            'svc_visa'.tr,
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.local_offer_outlined,
-                                size: 15, color: KpbColors.success),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text('kpb_offer_partner_discount'.tr,
-                                  style: KpbTextStyles.caption.copyWith(
-                                      color: KpbColors.success,
-                                      fontWeight: FontWeight.w600)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton(
-                          onPressed: () => showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (_) => CaseComposerSheet(
-                              caseType: CaseType.applicationSupport,
-                              title: 'country_study_in'.trParams({
-                                'country': _controller.resolve(country.name)
-                              }),
-                              contextLabel: _controller.resolve(country.name),
-                              countryId: country.id,
-                            ),
-                          ),
-                          child: Text('request_support'.tr),
-                        ),
-                        const SizedBox(height: 8),
-                        OutlinedButton.icon(
-                          onPressed: () => openWhatsAppOrToast(
-                            prefill: kpbWhatsAppPrefill(
-                              custom:
-                                  _controller.resolve(country.whatsAppPrefill),
-                              country: _controller.resolve(country.name),
-                            ),
-                            source: 'country_detail_offer',
-                            contextType: 'destination',
-                          ),
-                          icon: const Icon(Icons.chat_outlined),
-                          label: Text('chat_on_whatsapp'.tr),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar:
-          _BottomCta(country: country, controller: _controller),
-    );
-  }
-}
-
-class _CountryHero extends StatelessWidget {
-  const _CountryHero({required this.country, required this.controller});
-
-  final CountryModel country;
-  final AppController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final tagline = controller.resolve(country.tagline);
-    final intake = controller.resolve(country.nextIntakeLabel);
-    final language = controller.resolve(country.mainLanguage);
-
-    return Container(
-      decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
-      padding: const EdgeInsets.fromLTRB(24, 100, 24, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
-            style: const TextStyle(fontSize: 52),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            controller.resolve(country.name),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-            ),
-          ),
-          if (tagline.isNotEmpty) ...[
-            const SizedBox(height: 6),
+    final children = <Widget>[
+      _Breadcrumb(crumb: 'nav_destinations'.tr, onBack: () => Get.back()),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Text(
-              tagline,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              name,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.6,
+                color: _Palette.navy,
               ),
+            ),
+            const SizedBox(height: 14),
+            _Hero(
+              flag: displayCountryFlag(
+                  id: country.id, flagEmoji: country.flagEmoji),
+              badge: 'country_guide_badge'.tr,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                VerifiedBadge(lastVerifiedAt: country.lastVerifiedAt),
+                KpbSourceLink(url: country.sourceUrl),
+              ],
             ),
           ],
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              if (intake.isNotEmpty)
-                _HeroChip(icon: Icons.calendar_month_outlined, label: intake),
-              if (language.isNotEmpty)
-                _HeroChip(icon: Icons.language_outlined, label: language),
-              _HeroChip(
-                icon: Icons.school_outlined,
-                label: controller.resolve(country.tuitionRange),
+        ),
+      ),
+    ];
+
+    if (mvpNote.isNotEmpty) {
+      children.add(_NoteBox(text: mvpNote));
+    }
+    if (isFrance) {
+      children.add(_FranceCard(
+        onTap: () => Get.to(() => FrancePrivateAdmissionScreen()),
+      ));
+    }
+
+    // 1. Overview & highlights.
+    if (marketing.isNotEmpty || whyStudy.isNotEmpty) {
+      children.add(_Heading('${num()} ${'country_overview_highlights'.tr}'));
+      children.add(_GuideCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (marketing.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: whyStudy.isNotEmpty ? 10 : 0),
+                child: Text(marketing, style: _bodyStyle),
+              ),
+            if (whyStudy.isNotEmpty) Text(whyStudy, style: _bodyStyle),
+          ],
+        ),
+      ));
+      children.add(_ConsultPill(
+        onTap: () => _openConsultation(context, _controller, country),
+      ));
+    }
+
+    // 2. Why study here.
+    if (bullets.isNotEmpty) {
+      children.add(_Heading('${num()} ${'country_why_this_country'.tr}'));
+      children.add(_GuideCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var i = 0; i < bullets.length; i++) ...[
+              if (i > 0) const SizedBox(height: 11),
+              _CheckBullet(text: bullets[i]),
+            ],
+          ],
+        ),
+      ));
+    }
+
+    // 3. Admission routes & process.
+    if (steps.isNotEmpty) {
+      children.add(_Heading('${num()} ${'country_admission_routes'.tr}'));
+      children.add(_GuideCard(
+        child: Column(
+          children: [
+            for (var i = 0; i < steps.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              _NumberStep(index: i + 1, text: steps[i]),
+            ],
+          ],
+        ),
+      ));
+    }
+
+    // 4. Tuition & cost of living — deliberately NO price; routes to KPB.
+    children.add(_Heading('${num()} ${'country_tuition_living'.tr}'));
+    children.add(_CostCard(
+      onTap: () => _openConsultation(context, _controller, country),
+    ));
+
+    // 5. Student visa procedure.
+    if (visa.isNotEmpty) {
+      children.add(_Heading('${num()} ${'country_visa_procedure'.tr}'));
+      children.add(_VisaCard(text: visa));
+    }
+
+    // Verified universities (no number — matches the handoff).
+    if (partners.isNotEmpty) {
+      children.add(_Heading('country_verified_universities'.tr));
+      for (final inst in partners) {
+        children.add(_UniRow(
+          name: _controller.resolve(inst.name),
+          location: _controller.resolve(inst.location),
+          score: _controller.institutionMatch(inst),
+          onTap: inst.programIds.isNotEmpty
+              ? () => Get.to(
+                  () => ProgramDetailScreen(programId: inst.programIds.first))
+              : null,
+        ));
+      }
+    }
+
+    // Required language (real catalog data; compact card).
+    if (languageText.isNotEmpty) {
+      children.add(_Heading('country_required_language'.tr));
+      children.add(_GuideCard(child: Text(languageText, style: _bodyStyle)));
+    }
+
+    // Available scholarships (real catalog data).
+    if (scholarshipsIntro.isNotEmpty || scholarships.isNotEmpty) {
+      children.add(_Heading('country_available_scholarships'.tr));
+      children.add(_GuideCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (scholarshipsIntro.isNotEmpty)
+              Padding(
+                padding:
+                    EdgeInsets.only(bottom: scholarships.isNotEmpty ? 10 : 0),
+                child: Text(scholarshipsIntro, style: _bodyStyle),
+              ),
+            for (var i = 0; i < scholarships.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.emoji_events_outlined,
+                      size: 16, color: _Palette.amber),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _controller.resolve(scholarships[i].name),
+                      style: _bodyStyle,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
+          ],
+        ),
+      ));
+    }
+
+    // 6. KPB support services.
+    children.add(_Heading('${num()} ${'country_support_services'.tr}'));
+    children.add(_GuideCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          _SupportBullet(
+              icon: Icons.travel_explore_rounded,
+              labelKey: 'svc_school_search'),
+          SizedBox(height: 11),
+          _SupportBullet(
+              icon: Icons.description_outlined, labelKey: 'svc_application'),
+          SizedBox(height: 11),
+          _SupportBullet(
+              icon: Icons.record_voice_over_outlined,
+              labelKey: 'svc_interview'),
+          SizedBox(height: 11),
+          _SupportBullet(
+              icon: Icons.flight_takeoff_rounded, labelKey: 'svc_visa'),
         ],
+      ),
+    ));
+
+    // Secondary — eligibility self-check (existing feature).
+    children.add(Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: OutlinedButton.icon(
+        onPressed: () =>
+            Get.to(() => EligibilityQuizScreen(countryId: country.id)),
+        icon: const Icon(Icons.quiz_outlined, size: 18),
+        label: Text('take_eligibility_quiz'.tr),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          side: const BorderSide(color: _Palette.border, width: 1.5),
+          foregroundColor: _Palette.blue,
+        ),
+      ),
+    ));
+
+    // Primary hand-off — WhatsApp "Get supported".
+    children.add(_GetSupportedCta(
+      label: 'get_supported'.tr,
+      onTap: () => _openWhatsApp(_controller, country),
+    ));
+
+    children.add(const SizedBox(height: 28));
+
+    return Scaffold(
+      backgroundColor: _Palette.page,
+      body: SafeArea(
+        bottom: false,
+        child: ListView(padding: EdgeInsets.zero, children: children),
       ),
     );
   }
 }
 
-class _HeroChip extends StatelessWidget {
-  const _HeroChip({required this.icon, required this.label});
+const _bodyStyle = TextStyle(
+  fontSize: 12.5,
+  height: 1.6,
+  color: _Palette.body,
+);
 
-  final IconData icon;
-  final String label;
+// ─────────────────────────────────────────────────────────────────────────────
+// CTA actions.
+// ─────────────────────────────────────────────────────────────────────────────
+void _openConsultation(
+  BuildContext context,
+  AppController controller,
+  CountryModel country,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => CaseComposerSheet(
+      caseType: CaseType.consultation,
+      title: 'country_study_in'
+          .trParams({'country': controller.resolve(country.name)}),
+      contextLabel: controller.resolve(country.name),
+      countryId: country.id,
+    ),
+  );
+}
+
+void _openWhatsApp(AppController controller, CountryModel country) {
+  openWhatsAppOrToast(
+    prefill: kpbWhatsAppPrefill(
+      custom: controller.resolve(country.whatsAppPrefill),
+      country: controller.resolve(country.name),
+    ),
+    source: 'country_detail',
+    contextType: 'destination',
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Header pieces.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Breadcrumb extends StatelessWidget {
+  const _Breadcrumb({required this.crumb, required this.onBack});
+  final String crumb;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: KpbRadius.pillBr,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-      ),
+      color: _Palette.crumbBg,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: Colors.white),
-          const SizedBox(width: 5),
+          GestureDetector(
+            onTap: onBack,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                border: Border.all(color: _Palette.crumbBorder),
+              ),
+              child: const Icon(Icons.arrow_back_rounded,
+                  size: 15, color: _Palette.blue),
+            ),
+          ),
+          const SizedBox(width: 9),
           Text(
-            label,
+            crumb,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: _Palette.blue,
             ),
           ),
         ],
@@ -656,46 +444,207 @@ class _HeroChip extends StatelessWidget {
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.child,
-  });
+class _Hero extends StatelessWidget {
+  const _Hero({required this.flag, required this.badge});
+  final String flag;
+  final String badge;
 
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [_Palette.navy, _Palette.gradientEnd],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(flag, style: const TextStyle(fontSize: 52)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: _Palette.red,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: [
+                BoxShadow(
+                  color: _Palette.red.withValues(alpha: 0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              badge,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section building blocks.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Heading extends StatelessWidget {
+  const _Heading(this.text);
+  final String text;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: KpbCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: iconColor, size: 20),
-                const SizedBox(width: 8),
-                Text(title, style: KpbTextStyles.titleMd),
-              ],
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: _Palette.heading,
         ),
       ),
     );
   }
 }
 
-class _StepRow extends StatelessWidget {
-  const _StepRow({required this.index, required this.text});
+class _GuideCard extends StatelessWidget {
+  const _GuideCard({required this.child});
+  final Widget child;
 
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _Palette.border),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _NoteBox extends StatelessWidget {
+  const _NoteBox({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: _Palette.crumbBg,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 11,
+            height: 1.55,
+            fontWeight: FontWeight.w600,
+            color: _Palette.heading,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FranceCard extends StatelessWidget {
+  const _FranceCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _Palette.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: _Palette.crumbBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.school_outlined, color: _Palette.blue),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'private_schools_admission'.tr,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: _Palette.navy,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'dedicated_path_sept_2026'.tr,
+                      style: const TextStyle(
+                          fontSize: 11.5, color: _Palette.slate),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, color: _Palette.slate400),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CheckBullet extends StatelessWidget {
+  const _CheckBullet({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.check_circle_rounded, size: 16, color: _Palette.green),
+        const SizedBox(width: 10),
+        Expanded(child: Text(text, style: _bodyStyle)),
+      ],
+    );
+  }
+}
+
+class _NumberStep extends StatelessWidget {
+  const _NumberStep({required this.index, required this.text});
   final int index;
   final String text;
 
@@ -705,169 +654,322 @@ class _StepRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 28,
-          height: 28,
+          width: 22,
+          height: 22,
           decoration: const BoxDecoration(
-            color: KpbColors.blue,
-            borderRadius: KpbRadius.smBr,
+            shape: BoxShape.circle,
+            color: _Palette.crumbBg,
           ),
-          child: Center(
-            child: Text(
-              '$index',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-              ),
+          alignment: Alignment.center,
+          child: Text(
+            '$index',
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              color: _Palette.blue,
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: KpbTextStyles.bodySm)),
+        const SizedBox(width: 11),
+        Expanded(child: Text(text, style: _bodyStyle)),
       ],
     );
   }
 }
 
-class _BottomCta extends StatelessWidget {
-  const _BottomCta({required this.country, required this.controller});
-
-  final CountryModel country;
-  final AppController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        KpbSpacing.pagePad,
-        12,
-        KpbSpacing.pagePad,
-        12 + MediaQuery.of(context).padding.bottom,
-      ),
-      decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        border: Border(top: BorderSide(color: context.kpb.gray100)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => openWhatsAppOrToast(
-                prefill: kpbWhatsAppPrefill(
-                  custom: controller.resolve(country.whatsAppPrefill),
-                  country: controller.resolve(country.name),
-                ),
-                source: 'country_detail_bottom_bar',
-                contextType: 'destination',
-              ),
-              icon: const Icon(Icons.chat_outlined, size: 18),
-              label: const Text('WhatsApp'),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: FilledButton(
-              onPressed: () => Get.to(
-                () => EligibilityQuizScreen(countryId: country.id),
-              ),
-              child: Text('eligibility_quiz_short'.tr),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// KPB accompaniment offer — eligibility condition row + service-pack card.
-// ─────────────────────────────────────────────────────────────────────────────
-class _OfferCondition extends StatelessWidget {
-  const _OfferCondition({required this.text});
+class _VisaCard extends StatelessWidget {
+  const _VisaCard({required this.text});
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.check_circle, size: 18, color: KpbColors.success),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, style: KpbTextStyles.bodySm)),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _Palette.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: _Palette.amberBg,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.badge_outlined,
+                  size: 13, color: _Palette.amber),
+            ),
+            const SizedBox(width: 11),
+            Expanded(child: Text(text, style: _bodyStyle)),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _PackCard extends StatelessWidget {
-  const _PackCard({
-    required this.name,
-    required this.price,
-    required this.description,
-    required this.services,
-    this.highlight = false,
-  });
-
-  final String name;
-  final String price;
-  final String description;
-  final List<String> services;
-  final bool highlight;
+class _CostCard extends StatelessWidget {
+  const _CostCard({required this.onTap});
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final accent = highlight ? KpbColors.blue : context.kpb.gray400;
-    return Container(
-      padding: const EdgeInsets.all(KpbSpacing.md),
-      decoration: BoxDecoration(
-        color: highlight ? KpbColors.skyLight : context.kpb.gray50,
-        borderRadius: KpbRadius.lgBr,
-        border: Border.all(
-          color: highlight ? KpbColors.blue : context.kpb.gray200,
-          width: highlight ? 1.5 : 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _Palette.navy,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: _Palette.sky.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(Icons.calculate_rounded,
+                    size: 20, color: _Palette.sky),
+              ),
+              const SizedBox(width: 13),
               Expanded(
                 child: Text(
-                  name,
-                  style: KpbTextStyles.titleMd.copyWith(color: accent),
-                ),
-              ),
-              Text(
-                price,
-                style: KpbTextStyles.titleMd.copyWith(
-                  color: accent,
-                  fontWeight: FontWeight.w800,
+                  'country_cost_estimate_body'.tr,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.6,
+                    color: _Palette.cloud,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 2),
-          Text(description, style: KpbTextStyles.caption),
-          const SizedBox(height: 10),
-          ...services.map(
-            (s) => Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.check_rounded, size: 16, color: accent),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(s, style: KpbTextStyles.bodySm)),
-                ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UniRow extends StatelessWidget {
+  const _UniRow({
+    required this.name,
+    required this.location,
+    required this.score,
+    required this.onTap,
+  });
+
+  final String name;
+  final String location;
+  final int score;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _Palette.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: _Palette.navy,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (location.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        location,
+                        style: const TextStyle(
+                            fontSize: 10.5, color: _Palette.slate),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _Palette.crumbBg,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Text(
+                  '$score%',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.blue,
+                  ),
+                ),
+              ),
+              if (onTap != null)
+                const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Icon(Icons.chevron_right_rounded,
+                      size: 18, color: _Palette.slate400),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SupportBullet extends StatelessWidget {
+  const _SupportBullet({required this.icon, required this.labelKey});
+  final IconData icon;
+  final String labelKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: _Palette.blue),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            labelKey.tr,
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.6,
+              fontWeight: FontWeight.w700,
+              color: _Palette.bodyStrong,
             ),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CTAs.
+// ─────────────────────────────────────────────────────────────────────────────
+class _ConsultPill extends StatelessWidget {
+  const _ConsultPill({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            decoration: BoxDecoration(
+              color: _Palette.blue,
+              borderRadius: BorderRadius.circular(100),
+              boxShadow: [
+                BoxShadow(
+                  color: _Palette.blue.withValues(alpha: 0.3),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'book_consultation'.tr,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded,
+                    size: 15, color: Colors.white),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GetSupportedCta extends StatelessWidget {
+  const _GetSupportedCta({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: _Palette.whatsapp,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: _Palette.whatsapp.withValues(alpha: 0.3),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.chat_rounded, size: 18, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,16 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
-import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_tunnel_flow.dart';
+import '../search/match_explanation_sheet.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Palette (App-engagement handoff · Student App.dc.html · "Fiche université").
+// Local to this file — same pattern as Home/Onboarding.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Palette {
+  static const navy = Color(0xFF0F172A);
+  static const blue = Color(0xFF2563EB);
+  static const sky = Color(0xFF38BDF8);
+  static const slate = Color(0xFF64748B);
+  static const slate400 = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+  static const page = Color(0xFFF8FAFC);
+  static const heartPink = Color(0xFFFCA5A5);
+  static const green = Color(0xFF16A34A);
+  static const greenBg = Color(0xFFDCFCE7);
+  static const greenBorder = Color(0xFFBBF7D0);
+  static const amber = Color(0xFFB45309);
+  static const amberBg = Color(0xFFFEF3C7);
+  static const chipBg = Color(0xFFEFF6FF);
+  static const whatsapp = Color(0xFF25D366);
+  static const body = Color(0xFF334155);
+  static const bodySoft = Color(0xFF475569);
+}
+
+(Color, Color) _zoneColors(int score) {
+  if (score >= 85) return (_Palette.greenBg, _Palette.green);
+  if (score >= 70) return (_Palette.chipBg, _Palette.blue);
+  if (score >= 50) return (_Palette.amberBg, _Palette.amber);
+  return (const Color(0xFFF1F5F9), _Palette.slate);
+}
+
+String _zoneLabel(int score) {
+  if (score >= 85) return 'match_zone_strong'.tr;
+  if (score >= 70) return 'match_zone_good'.tr;
+  return 'match_zone_stretch'.tr;
+}
 
 class ProgramDetailScreen extends StatelessWidget {
   const ProgramDetailScreen({super.key, required this.programId});
@@ -23,18 +61,35 @@ class ProgramDetailScreen extends StatelessWidget {
     final program = controller.programByIdOrNull(programId);
     if (program == null) {
       return Scaffold(
+        backgroundColor: _Palette.page,
         body: Center(child: Text('program_not_found'.tr)),
       );
     }
 
     final institution = controller.institutionByIdOrNull(program.institutionId);
     final country = controller.countryByIdOrNull(program.countryId);
-    FieldModel? field;
-    try {
-      field = controller.fieldById(program.fieldId);
-    } catch (_) {}
 
-    final isPartner = institution?.isPartner ?? false;
+    final level = programLevelLabel(controller.resolve(program.level));
+    final city =
+        institution != null ? controller.resolve(institution.location) : '';
+    final tuition = controller.resolve(program.tuition);
+    final fcfa = TuitionUtils.fcfaSuffixFromTuition(tuition);
+    final language = controller.resolve(program.language);
+
+    // No dedicated "deadline" field exists on the catalog → surface the real
+    // intake instead (never fabricate a date).
+    final intake =
+        country != null ? controller.resolve(country.nextIntakeLabel) : '';
+    final intakeValue = intake.isNotEmpty
+        ? intake
+        : (institution != null && institution.intakePeriods.isNotEmpty
+            ? institution.intakePeriods.join(' · ')
+            : 'school_intake_on_request'.tr);
+
+    final description =
+        institution != null ? controller.resolve(institution.overview) : '';
+    final score = controller.programMatch(program);
+
     final applicationSteps = [
       'program_step_eligibility_choice'.tr,
       'program_step_build_file'.tr,
@@ -44,327 +99,567 @@ class ProgramDetailScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: context.kpb.pageBg,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            backgroundColor: KpbColors.navy,
-            foregroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration:
-                    const BoxDecoration(gradient: KpbColors.heroGradient),
-                padding: const EdgeInsets.fromLTRB(20, 88, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (isPartner)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 8),
-                        child: KpbBadge(
-                          label: 'badge_kpb_partner'.tr,
-                          color: KpbColors.gold,
-                          small: true,
+      backgroundColor: _Palette.page,
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          _Header(
+            controller: controller,
+            program: program,
+            institution: institution,
+            flag: countryFlag(program.countryId),
+            name: controller.resolve(program.name),
+            subtitle: city.isNotEmpty ? '$level · $city' : level,
+            score: score,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 2-col grid — real tuition + intake/language. IntrinsicHeight
+                // gives the stretch Row a bounded height inside the ListView.
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _StatTile(
+                          label: 'school_fees_per_year'.tr,
+                          value: tuition.isNotEmpty
+                              ? tuition
+                              : 'school_intake_on_request'.tr,
+                          sub: fcfa,
+                          subColor: _Palette.blue,
                         ),
                       ),
-                    Text(
-                      controller.resolve(program.name),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    if (institution != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        controller.resolve(institution.name),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 14,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _StatTile(
+                          label: 'school_intake'.tr,
+                          value: intakeValue,
+                          sub: language.isNotEmpty
+                              ? '${'program_language'.tr}: $language'
+                              : '',
+                          subColor: _Palette.slate,
                         ),
                       ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            actions: [
-              IconButton(
-                tooltip: 'a11y_save'.tr,
-                icon: Icon(
-                  controller.isSaved(SavedItemType.program, program.id)
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_border_rounded,
-                  color: Colors.white,
-                ),
-                onPressed: () =>
-                    controller.toggleSaved(SavedItemType.program, program.id),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(KpbSpacing.pagePad),
-              child: Column(
-                children: [
-                  _Section(
-                    icon: Icons.info_outline_rounded,
-                    title: 'program_at_a_glance'.tr,
+                if (description.isNotEmpty) ...[
+                  const SizedBox(height: 13),
+                  _Card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: VerifiedBadge(
-                            lastVerifiedAt: program.lastVerifiedAt,
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            height: 1.65,
+                            color: _Palette.body,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        KpbInfoRow(
-                          icon: Icons.school_outlined,
-                          label: 'program_level'.tr,
-                          value: programLevelLabel(
-                              controller.resolve(program.level)),
-                          iconColor: KpbColors.blue,
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            VerifiedBadge(
+                                lastVerifiedAt: program.lastVerifiedAt),
+                            KpbSourceLink(url: program.sourceUrl),
+                          ],
                         ),
-                        const KpbDivider(indent: 48),
-                        KpbInfoRow(
-                          icon: Icons.schedule_outlined,
-                          label: 'program_duration'.tr,
-                          value: controller.resolve(program.duration),
-                          iconColor: KpbColors.success,
-                        ),
-                        const KpbDivider(indent: 48),
-                        KpbInfoRow(
-                          icon: Icons.language_outlined,
-                          label: 'program_language'.tr,
-                          value: controller.resolve(program.language),
-                          iconColor: KpbColors.warning,
-                        ),
-                        if (country != null) ...[
-                          const KpbDivider(indent: 48),
-                          KpbInfoRow(
-                            icon: Icons.public_outlined,
-                            label: 'program_country'.tr,
-                            value:
-                                '${displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji)} ${controller.resolve(country.name)}',
-                            iconColor: KpbColors.blue,
-                          ),
-                        ],
-                        if (institution != null &&
-                            program.campusOfferings.isEmpty) ...[
-                          const KpbDivider(indent: 48),
-                          KpbInfoRow(
-                            icon: Icons.location_on_outlined,
-                            label: 'program_campus'.tr,
-                            value: controller.resolve(institution.location),
-                            iconColor: KpbColors.blue,
-                          ),
-                        ],
-                        if (country != null &&
-                            controller
-                                .resolve(country.nextIntakeLabel)
-                                .isNotEmpty) ...[
-                          const KpbDivider(indent: 48),
-                          KpbInfoRow(
-                            icon: Icons.calendar_month_outlined,
-                            label: 'program_intake'.tr,
-                            value: controller.resolve(country.nextIntakeLabel),
-                            iconColor: KpbColors.gold,
-                          ),
-                        ],
-                        if (field != null) ...[
-                          const KpbDivider(indent: 48),
-                          KpbInfoRow(
-                            icon: Icons.category_outlined,
-                            label: 'program_field'.tr,
-                            value: controller.resolve(field.name),
-                            iconColor: field.accentColor,
-                          ),
-                        ],
                       ],
                     ),
                   ),
+                ],
+                if (program.campusOfferings.isNotEmpty) ...[
+                  const SizedBox(height: 13),
                   _Section(
-                    icon: Icons.payments_outlined,
-                    title: 'country_tuition_fees'.tr,
+                    title: 'program_available_on_campuses'.trParams(
+                        {'count': '${program.campusOfferings.length}'}),
+                    icon: Icons.location_city_outlined,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          controller.resolve(program.tuition),
-                          style: KpbTextStyles.titleMd.copyWith(
-                            color: KpbColors.gold,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          TuitionUtils.fcfaSuffixFromTuition(
-                            controller.resolve(program.tuition),
-                          ),
-                          style: KpbTextStyles.caption,
-                        ),
-                        if (institution != null &&
-                            program.campusOfferings.isEmpty &&
-                            controller
-                                .resolve(institution.tuitionLabel)
-                                .isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            institution.tuitionLabel.resolve(
-                              controller.localeCode,
-                            ),
-                            style: KpbTextStyles.bodySm,
+                        for (var i = 0;
+                            i < program.campusOfferings.length;
+                            i++) ...[
+                          if (i > 0) const Divider(height: 18),
+                          _CampusOfferingRow(
+                            offering: program.campusOfferings[i],
+                            localeCode: controller.localeCode,
                           ),
                         ],
-                        const SizedBox(height: 8),
-                        KpbSourceLink(url: program.sourceUrl),
                       ],
                     ),
                   ),
-                  if (program.campusOfferings.isNotEmpty)
-                    _Section(
-                      icon: Icons.location_city_outlined,
-                      title: 'program_available_on_campuses'.trParams(
-                          {'count': '${program.campusOfferings.length}'}),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (var i = 0;
-                              i < program.campusOfferings.length;
-                              i++) ...[
-                            if (i > 0) const KpbDivider(indent: 48),
-                            _CampusOfferingRow(
-                              offering: program.campusOfferings[i],
-                              localeCode: controller.localeCode,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  if (program.requirements.isNotEmpty)
-                    _Section(
-                      icon: Icons.fact_check_outlined,
-                      title: 'program_admission_requirements'.tr,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: program.requirements
-                            .map(
-                              (req) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.check_circle_outline,
-                                        size: 18, color: KpbColors.success),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        controller.resolve(req),
-                                        style: KpbTextStyles.bodySm,
+                ],
+                if (program.requirements.isNotEmpty) ...[
+                  const SizedBox(height: 13),
+                  _Section(
+                    title: 'program_admission_requirements'.tr,
+                    icon: Icons.fact_check_outlined,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: program.requirements
+                          .map(
+                            (req) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.check_circle_rounded,
+                                      size: 16, color: _Palette.green),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      controller.resolve(req),
+                                      style: const TextStyle(
+                                        fontSize: 12.5,
+                                        height: 1.55,
+                                        color: _Palette.bodySoft,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            )
-                            .toList(),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 13),
+                _Section(
+                  title: 'program_application_process'.tr,
+                  icon: Icons.route_outlined,
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < applicationSteps.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 12),
+                        _StepRow(index: i + 1, text: applicationSteps[i]),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Primary CTA — creates a KPB application case (dossier).
+                _PrimaryCta(
+                  label: 'create_application'.tr,
+                  icon: Icons.create_new_folder_rounded,
+                  onTap: () => _openCaseTunnel(
+                    context,
+                    controller,
+                    program,
+                    institution,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Secondary CTA — WhatsApp hand-off to a KPB counselor.
+                _CounselorCta(
+                  onTap: () => openWhatsAppOrToast(
+                    prefill: kpbWhatsAppPrefill(
+                      custom: country != null &&
+                              controller
+                                  .resolve(country.whatsAppPrefill)
+                                  .isNotEmpty
+                          ? controller.resolve(country.whatsAppPrefill)
+                          : null,
+                      program: controller.resolve(program.name),
+                      country: country != null
+                          ? controller.resolve(country.name)
+                          : null,
+                    ),
+                    source: 'program_detail',
+                    contextType: 'program',
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dark navy header — back / share / save, identity, and the match-explain card.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.controller,
+    required this.program,
+    required this.institution,
+    required this.flag,
+    required this.name,
+    required this.subtitle,
+    required this.score,
+  });
+
+  final AppController controller;
+  final ProgramModel program;
+  final InstitutionModel? institution;
+  final String flag;
+  final String name;
+  final String subtitle;
+  final int score;
+
+  void _share() {
+    final parts = <String>[name];
+    if (institution != null) parts.add(controller.resolve(institution!.name));
+    SharePlus.instance.share(
+      ShareParams(
+          text: '${parts.join(' · ')}\n\n${'explore_share_university'.tr}'),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final saved = controller.isSaved(SavedItemType.program, program.id);
+    final (zoneBg, zoneFg) = _zoneColors(score);
+
+    return Container(
+      color: _Palette.navy,
+      padding: EdgeInsets.fromLTRB(
+        16,
+        MediaQuery.of(context).padding.top + 10,
+        16,
+        18,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              _RoundButton(
+                icon: Icons.arrow_back_rounded,
+                onTap: () => Get.back(),
+              ),
+              const Spacer(),
+              _RoundButton(
+                icon: Icons.ios_share_rounded,
+                onTap: _share,
+                semanticLabel: 'a11y_share'.tr,
+              ),
+              const SizedBox(width: 10),
+              _RoundButton(
+                icon: saved
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                iconColor: _Palette.heartPink,
+                onTap: () =>
+                    controller.toggleSaved(SavedItemType.program, program.id),
+                semanticLabel: 'a11y_save'.tr,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(flag, style: const TextStyle(fontSize: 34)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
+                        color: Colors.white,
                       ),
                     ),
-                  _Section(
-                    icon: Icons.route_outlined,
-                    title: 'program_application_process'.tr,
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: _Palette.slate400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => showMatchExplanation(
+              context,
+              name,
+              score,
+              controller.matchExplanation(SearchResultType.program, program.id),
+              controller,
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: zoneBg,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Text(
+                      '$score%',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: zoneFg,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        for (var i = 0; i < applicationSteps.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 28,
-                                height: 28,
-                                decoration: const BoxDecoration(
-                                  color: KpbColors.blue,
-                                  borderRadius: KpbRadius.smBr,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${i + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  applicationSteps[i],
-                                  style: KpbTextStyles.bodySm,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          _zoneLabel(score),
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
                           ),
-                        ],
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'match_zone_tap_hint'.tr,
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            color: _Palette.slate400,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 80),
+                  const Icon(Icons.expand_less_rounded,
+                      size: 18, color: _Palette.sky),
                 ],
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: _BottomBar(
-        program: program,
-        institution: institution,
-        country: country,
-        controller: controller,
+    );
+  }
+}
+
+class _RoundButton extends StatelessWidget {
+  const _RoundButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor = Colors.white,
+    this.semanticLabel,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color iconColor;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.12),
+          ),
+          child: Icon(icon, size: 18, color: iconColor),
+        ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reusable cards + rows.
+// ─────────────────────────────────────────────────────────────────────────────
+class _Card extends StatelessWidget {
+  const _Card({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _Palette.border),
+      ),
+      child: child,
     );
   }
 }
 
 class _Section extends StatelessWidget {
   const _Section({
-    required this.icon,
     required this.title,
+    required this.icon,
     required this.child,
   });
 
-  final IconData icon;
   final String title;
+  final IconData icon;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: KpbCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: KpbColors.blue, size: 20),
-                const SizedBox(width: 8),
-                Text(title, style: KpbTextStyles.titleMd),
-              ],
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
-        ),
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: _Palette.blue),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.navy,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
       ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.label,
+    required this.value,
+    required this.sub,
+    required this.subColor,
+  });
+
+  final String label;
+  final String value;
+  final String sub;
+  final Color subColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _Palette.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+              color: _Palette.slate400,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: _Palette.navy,
+            ),
+          ),
+          if (sub.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              sub,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                color: subColor,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _StepRow extends StatelessWidget {
+  const _StepRow({required this.index, required this.text});
+
+  final int index;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: _Palette.chipBg,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$index',
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              color: _Palette.blue,
+            ),
+          ),
+        ),
+        const SizedBox(width: 11),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.55,
+              color: _Palette.bodySoft,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -381,146 +676,179 @@ class _CampusOfferingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final intake = offering.intake;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.location_on_outlined,
-              size: 18, color: KpbColors.blue),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  offering.campus,
-                  style: KpbTextStyles.bodySm.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.location_on_outlined, size: 18, color: _Palette.blue),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                offering.campus,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: _Palette.navy,
                 ),
-                if (intake != null && intake.isNotEmpty)
-                  Text('${'intake_label'.tr} $intake',
-                      style: KpbTextStyles.caption),
-              ],
-            ),
+              ),
+              if (intake != null && intake.isNotEmpty)
+                Text(
+                  '${'intake_label'.tr} $intake',
+                  style: const TextStyle(fontSize: 11, color: _Palette.slate),
+                ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Text(
-            offering.tuitionLabel(localeCode),
-            style: KpbTextStyles.bodySm.copyWith(
-              color: KpbColors.gold,
-              fontWeight: FontWeight.w700,
-            ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          offering.tuitionLabel(localeCode),
+          style: const TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w800,
+            color: _Palette.blue,
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CTAs.
+// ─────────────────────────────────────────────────────────────────────────────
+class _PrimaryCta extends StatelessWidget {
+  const _PrimaryCta({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: _Palette.blue,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: _Palette.blue.withValues(alpha: 0.3),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  const _BottomBar({
-    required this.program,
-    required this.institution,
-    required this.country,
-    required this.controller,
-  });
+class _CounselorCta extends StatelessWidget {
+  const _CounselorCta({required this.onTap});
+  final VoidCallback onTap;
 
-  final ProgramModel program;
-  final InstitutionModel? institution;
-  final CountryModel? country;
-  final AppController controller;
-
-  void _openCaseTunnel(BuildContext context) {
-    final prefill = CaseTunnelPrefill(
-      title: controller.resolve(program.name),
-      contextLabel: institution != null
-          ? controller.resolve(institution!.name)
-          : controller.resolve(program.name),
-      initialType: CaseType.applicationSupport,
-      countryId: program.countryId,
-      institutionId: program.institutionId,
-      programId: program.id,
-    );
-
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.92,
-        minChildSize: 0.6,
-        maxChildSize: 0.96,
-        builder: (_, __) => Padding(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            16,
-            20,
-            MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          child: CaseTunnelFlow(
-            prefill: prefill,
-            onClose: () => Navigator.pop(ctx),
-            onSubmitted: () {
-              Navigator.pop(ctx);
-              Get.snackbar(
-                'KPB Education',
-                'request_submitted'.tr,
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          ),
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _Palette.greenBorder, width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.chat_rounded, size: 17, color: _Palette.whatsapp),
+            const SizedBox(width: 8),
+            Text(
+              'ask_kpb_counselor'.tr,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: _Palette.green,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    final whatsAppPrefill = kpbWhatsAppPrefill(
-      custom: country != null &&
-              controller.resolve(country!.whatsAppPrefill).isNotEmpty
-          ? controller.resolve(country!.whatsAppPrefill)
-          : null,
-      program: controller.resolve(program.name),
-      country: country != null ? controller.resolve(country!.name) : null,
-    );
+// ─────────────────────────────────────────────────────────────────────────────
+// Case tunnel — creates a KPB application dossier (unchanged flow).
+// ─────────────────────────────────────────────────────────────────────────────
+void _openCaseTunnel(
+  BuildContext context,
+  AppController controller,
+  ProgramModel program,
+  InstitutionModel? institution,
+) {
+  final prefill = CaseTunnelPrefill(
+    title: controller.resolve(program.name),
+    contextLabel: institution != null
+        ? controller.resolve(institution.name)
+        : controller.resolve(program.name),
+    initialType: CaseType.applicationSupport,
+    countryId: program.countryId,
+    institutionId: program.institutionId,
+    programId: program.id,
+  );
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        KpbSpacing.pagePad,
-        12,
-        KpbSpacing.pagePad,
-        12 + MediaQuery.of(context).padding.bottom,
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.92,
+      minChildSize: 0.6,
+      maxChildSize: 0.96,
+      builder: (_, __) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          16,
+          20,
+          MediaQuery.of(ctx).viewInsets.bottom + 20,
+        ),
+        child: CaseTunnelFlow(
+          prefill: prefill,
+          onClose: () => Navigator.pop(ctx),
+          onSubmitted: () {
+            Navigator.pop(ctx);
+            Get.snackbar(
+              'KPB Education',
+              'request_submitted'.tr,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          },
+        ),
       ),
-      decoration: BoxDecoration(
-        color: context.kpb.cardBg,
-        border: Border(top: BorderSide(color: context.kpb.gray100)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => openWhatsAppOrToast(
-                prefill: whatsAppPrefill,
-                source: 'program_detail',
-                contextType: 'program',
-              ),
-              icon: const Icon(Icons.chat_outlined, size: 18),
-              label: const Text('WhatsApp'),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: FilledButton(
-              onPressed: () => _openCaseTunnel(context),
-              child: Text('enroll_with_kpb'.tr),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    ),
+  );
 }

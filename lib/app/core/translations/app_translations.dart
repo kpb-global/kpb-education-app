@@ -1842,6 +1842,37 @@ class AppTranslations extends Translations {
           'aha_zone_blue': 'Ambitieux pour ton profil actuel',
           'aha_cta': 'Découvrir mon espace',
           'aha_see_all_cta': 'Voir toutes les universités',
+          // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
+          'uni_list_subtitle':
+              'Triées par probabilité d\'admission — calculée pour toi',
+          'full_guide': 'GUIDE COMPLET',
+          'guide_short': 'GUIDE',
+          'school_fees_per_year': 'FRAIS / AN',
+          'school_intake': 'RENTRÉE',
+          'school_intake_on_request': 'Sur demande',
+          'match_zone_tap_hint': 'Touche pour voir les 5 facteurs du calcul',
+          'match_zone_strong': 'Très bon profil pour cette école',
+          'match_zone_good': 'Bon profil pour cette école',
+          'match_zone_stretch': 'École ambitieuse pour ton profil',
+          'create_application': 'Créer un dossier',
+          'ask_kpb_counselor': 'Poser une question à un conseiller KPB',
+          'country_guide_badge': 'GUIDE PAYS',
+          'country_overview_highlights': 'Aperçu et points forts',
+          'country_admission_routes': 'Voies et processus d\'admission',
+          'country_tuition_living': 'Frais d\'études et coût de la vie',
+          'country_visa_procedure': 'Procédure d\'obtention du visa étudiant',
+          'country_verified_universities': 'Universités vérifiées',
+          'country_support_services': 'Services d\'accompagnement KPB',
+          'country_cost_estimate_body':
+              'Chaque situation est différente : budget familial, bourses, '
+                  'logement… Contacte l\'équipe KPB pour une estimation '
+                  'personnalisée et à jour, lors de ta consultation gratuite.',
+          'get_supported': 'Être accompagné',
+          'dest_list_subtitle':
+              'Guides complets : visa, coûts, universités, accompagnement',
+          'dest_more_coming_tip':
+              'D\'autres destinations (Émirats, Chine, Corée du Sud…) arrivent '
+                  'bientôt — dis-nous laquelle t\'intéresse.',
         },
         'en': {
           'app_title': 'KPB Education',
@@ -3648,6 +3679,37 @@ class AppTranslations extends Translations {
           'aha_zone_blue': 'Ambitious for your current profile',
           'aha_cta': 'Explore my home',
           'aha_see_all_cta': 'See all universities',
+          // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
+          'uni_list_subtitle':
+              'Sorted by admission probability — computed for you',
+          'full_guide': 'FULL GUIDE',
+          'guide_short': 'GUIDE',
+          'school_fees_per_year': 'TUITION / YR',
+          'school_intake': 'INTAKE',
+          'school_intake_on_request': 'On request',
+          'match_zone_tap_hint': 'Tap to see the 5 factors behind the score',
+          'match_zone_strong': 'Strong match for your profile',
+          'match_zone_good': 'Good match for your profile',
+          'match_zone_stretch': 'Ambitious pick for your profile',
+          'create_application': 'Create an application',
+          'ask_kpb_counselor': 'Ask a KPB counselor a question',
+          'country_guide_badge': 'COUNTRY GUIDE',
+          'country_overview_highlights': 'Overview & highlights',
+          'country_admission_routes': 'Admission routes & process',
+          'country_tuition_living': 'Tuition & cost of living',
+          'country_visa_procedure': 'Student visa procedure',
+          'country_verified_universities': 'Verified universities',
+          'country_support_services': 'KPB support services',
+          'country_cost_estimate_body':
+              'Every situation is different: family budget, scholarships, '
+                  'housing… Contact the KPB team for a personalized, up-to-date '
+                  'estimate during your free consultation.',
+          'get_supported': 'Get supported',
+          'dest_list_subtitle':
+              'Full guides: visa, costs, universities, support',
+          'dest_more_coming_tip':
+              'More destinations (UAE, China, South Korea…) are coming soon — '
+                  'tell us which one you want.',
         },
       };
 }
