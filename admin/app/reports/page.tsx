@@ -1,21 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
-import { badgeStyle, mutedTextStyle, panelStyle } from '../../lib/ui';
+import {
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  CellText,
+  EmptyState,
+} from '../../components/ui';
 
 interface FunnelRow {
   label: string;
   value: number;
-}
-
-interface PerformanceRow {
-  label: string;
-  value: string;
-  secondary: string;
 }
 
 interface CounselorPerformanceRow {
@@ -56,37 +58,38 @@ interface ServiceRevenueResponse {
 }
 
 function formatFcfa(value: number) {
-  return new Intl.NumberFormat('fr-FR').format(value);
+  return `${new Intl.NumberFormat('fr-FR').format(value)} FCFA`;
 }
 
-function ReportSection({
-  title,
-  rows,
-}: Readonly<{ title: string; rows: PerformanceRow[] }>) {
-  return (
-    <section style={panelStyle}>
-      <h3 style={{ marginTop: 0 }}>{title}</h3>
-      <div style={{ display: 'grid', gap: 12 }}>
-        {rows.map((row) => (
-          <div key={`${title}-${row.label}`} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-            <strong>{row.label}</strong>
-            <p style={{ margin: '6px 0' }}>{row.value}</p>
-            <span style={badgeStyle}>{row.secondary}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
+const cardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const sectionTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
+const sectionSubtitleStyle: CSSProperties = {
+  margin: '4px 0 0',
+  fontSize: 'var(--text-xs)',
+  color: 'var(--text-muted)',
+};
 
 export default function ReportsPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [funnel, setFunnel] = useState<FunnelRow[]>([]);
   const [counselorPerformance, setCounselorPerformance] = useState<
-    PerformanceRow[]
+    CounselorPerformanceRow[]
   >([]);
   const [campaignPerformance, setCampaignPerformance] = useState<
-    PerformanceRow[]
+    CampaignPerformanceRow[]
   >([]);
   const [serviceRevenue, setServiceRevenue] = useState<ServiceRevenueResponse>({
     bySku: [],
@@ -115,119 +118,205 @@ export default function ReportsPage() {
           campaignResponse,
           serviceRevenueResponse,
         ]) => {
-        setFunnel(funnelResponse.items);
-        setCounselorPerformance(
-          counselorResponse.items.map((row) => ({
-            label: row.counselor,
-            value: `${row.activeCases} active cases`,
-            secondary: `${row.avgResponseHours.toFixed(1)}h average response`,
-          })),
-        );
-        setCampaignPerformance(
-          campaignResponse.items.map((row) => ({
-            label: row.campaign,
-            value: `${row.delivered} delivered`,
-            secondary: `${row.opened} opened`,
-          })),
-        );
-        setServiceRevenue(serviceRevenueResponse);
-        setErrorMessage(null);
-      })
+          setFunnel(funnelResponse.items);
+          setCounselorPerformance(counselorResponse.items);
+          setCampaignPerformance(campaignResponse.items);
+          setServiceRevenue(serviceRevenueResponse);
+          setErrorMessage(null);
+        },
+      )
       .catch((error) =>
         setErrorMessage(
-          error instanceof Error ? error.message : 'Unable to load reports.',
+          error instanceof Error ? error.message : t('reports.loadError'),
         ),
       );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   return (
-    <DashboardShell title="Reports">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('reports.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <section style={panelStyle}>
-          <h3 style={{ marginTop: 0 }}>Funnel</h3>
-          <p style={mutedTextStyle}>
-            Live pipeline view from lead capture to paid service conversion.
-          </p>
+        <section style={cardStyle} aria-label={t('reports.funnelTitle')}>
+          <h3 style={sectionTitleStyle}>{t('reports.funnelTitle')}</h3>
+          <p style={sectionSubtitleStyle}>{t('reports.funnelSubtitle')}</p>
           <div
             style={{
               display: 'grid',
-              gap: 12,
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: 10,
+              marginTop: 14,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
             }}
           >
             {funnel.map((row) => (
-              <div key={row.label} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                <strong>{row.label}</strong>
-                <p style={{ marginBottom: 0, fontSize: 26 }}>{row.value}</p>
+              <div
+                key={row.label}
+                style={{
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: 12,
+                  padding: '11px 12px',
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 9.5,
+                    fontWeight: 800,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-faint)',
+                  }}
+                >
+                  {row.label}
+                </p>
+                <p
+                  style={{
+                    margin: '6px 0 0',
+                    fontSize: 24,
+                    fontWeight: 800,
+                    letterSpacing: '-0.5px',
+                    color: 'var(--ink)',
+                    fontFamily: 'var(--font-jakarta, inherit)',
+                  }}
+                >
+                  {row.value}
+                </p>
               </div>
             ))}
           </div>
+          {/* The backend reports module currently serves demo aggregates
+              (known gap, tracked separately) — keep that honest in the UI. */}
+          <p style={{ margin: '12px 0 0', fontSize: 10.5, color: 'var(--text-faint)' }}>
+            {t('reports.mockNote')}
+          </p>
         </section>
 
-        <ReportSection
-          title="Counselor performance"
-          rows={counselorPerformance}
-        />
-        <ReportSection
-          title="Notification campaigns"
-          rows={campaignPerformance}
-        />
-        <section style={panelStyle}>
-          <h3 style={{ marginTop: 0 }}>Service revenue attribution</h3>
-          <p style={mutedTextStyle}>
-            Revenue recognized after manual or provider payment, grouped by
-            in-app SKU and originating destination.
-          </p>
-          <div
-            style={{
-              display: 'grid',
-              gap: 16,
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            }}
-          >
-            <div>
-              <h4>By SKU</h4>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {serviceRevenue.bySku.map((row) => (
-                  <div key={row.sku} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                    <strong>{row.packageName}</strong>
-                    <p style={{ margin: '6px 0' }}>
-                      {formatFcfa(row.recognizedRevenueXOF)} FCFA recognized ·{' '}
-                      {formatFcfa(row.pendingPipelineXOF)} FCFA pending
-                    </p>
-                    <span style={badgeStyle}>
-                      {row.sku} · {row.paidCount}/{row.purchasesCount} paid
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4>By destination</h4>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {serviceRevenue.byDestination.map((row) => (
-                  <div key={row.destinationId} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                    <strong>{row.destinationId}</strong>
-                    <p style={{ margin: '6px 0' }}>
-                      {formatFcfa(row.recognizedRevenueXOF)} FCFA recognized ·{' '}
-                      {formatFcfa(row.pendingPipelineXOF)} FCFA pending
-                    </p>
-                    <span style={badgeStyle}>
-                      {row.paidCount}/{row.purchasesCount} paid ·{' '}
-                      {row.pendingCount} pending
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <AdminTable
+          title={t('reports.counselorTitle')}
+          columns={[
+            t('reports.colCounselor'),
+            t('reports.colActiveCases'),
+            t('reports.colAvgResponse'),
+          ]}
+          cols="1.6fr 1fr 1fr"
+          footnote={t('reports.mockNote')}
+        >
+          {counselorPerformance.length === 0 ? (
+            <EmptyState title={t('reports.empty')} />
+          ) : (
+            counselorPerformance.map((row) => (
+              <AdminTableRow key={row.counselor}>
+                <CellText primary={row.counselor} />
+                <CellText
+                  primary={row.activeCases}
+                  sub={t('reports.activeCasesValue')}
+                />
+                <CellText
+                  primary={`${row.avgResponseHours.toFixed(1)}h`}
+                  sub={t('reports.avgResponseValue')}
+                />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <AdminTable
+          title={t('reports.campaignTitle')}
+          columns={[
+            t('reports.colCampaign'),
+            t('reports.colDelivered'),
+            t('reports.colOpened'),
+          ]}
+          cols="1.6fr 1fr 1fr"
+          footnote={t('reports.mockNote')}
+        >
+          {campaignPerformance.length === 0 ? (
+            <EmptyState title={t('reports.empty')} />
+          ) : (
+            campaignPerformance.map((row) => (
+              <AdminTableRow key={row.campaign}>
+                <CellText primary={row.campaign} />
+                <CellText primary={row.delivered} muted />
+                <CellText primary={row.opened} muted />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <section style={cardStyle} aria-label={t('reports.revenueTitle')}>
+          <h3 style={sectionTitleStyle}>{t('reports.revenueTitle')}</h3>
+          <p style={sectionSubtitleStyle}>{t('reports.revenueSubtitle')}</p>
         </section>
+
+        <AdminTable
+          title={t('reports.bySkuTitle')}
+          columns={[
+            t('reports.colPackage'),
+            t('reports.colCategory'),
+            t('reports.colPaid'),
+            t('reports.colRecognized'),
+            t('reports.colPending'),
+          ]}
+          cols="1.5fr 0.9fr 0.8fr 1.1fr 1.1fr"
+          footnote={t('reports.mockNote')}
+        >
+          {serviceRevenue.bySku.length === 0 ? (
+            <EmptyState title={t('reports.empty')} />
+          ) : (
+            serviceRevenue.bySku.map((row) => (
+              <AdminTableRow key={row.sku}>
+                <CellText primary={row.packageName} sub={row.sku} />
+                <CellText primary={row.category} muted />
+                <div>
+                  <Badge
+                    variant={
+                      row.paidCount === row.purchasesCount ? 'success' : 'warning'
+                    }
+                  >
+                    {row.paidCount} {t('reports.paidOf')} {row.purchasesCount}
+                  </Badge>
+                </div>
+                <CellText primary={formatFcfa(row.recognizedRevenueXOF)} />
+                <CellText primary={formatFcfa(row.pendingPipelineXOF)} muted />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <AdminTable
+          title={t('reports.byDestinationTitle')}
+          columns={[
+            t('reports.colDestination'),
+            t('reports.colPaid'),
+            t('reports.colRecognized'),
+            t('reports.colPending'),
+          ]}
+          cols="1.4fr 0.9fr 1.1fr 1.1fr"
+          footnote={t('reports.mockNote')}
+        >
+          {serviceRevenue.byDestination.length === 0 ? (
+            <EmptyState title={t('reports.empty')} />
+          ) : (
+            serviceRevenue.byDestination.map((row) => (
+              <AdminTableRow key={row.destinationId}>
+                <CellText primary={row.destinationId} />
+                <div>
+                  <Badge
+                    variant={
+                      row.paidCount === row.purchasesCount ? 'success' : 'warning'
+                    }
+                  >
+                    {row.paidCount} {t('reports.paidOf')} {row.purchasesCount}
+                  </Badge>
+                </div>
+                <CellText primary={formatFcfa(row.recognizedRevenueXOF)} />
+                <CellText primary={formatFcfa(row.pendingPipelineXOF)} muted />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
       </div>
     </DashboardShell>
   );
