@@ -289,6 +289,49 @@ class AppTranslations extends Translations {
               'Copilote illimité · lettres illimitées · live VIP',
           'parent_premium_item': 'Karatou Premium',
           'parent_premium_cta': 'Activer via le conseiller KPB',
+          // --- App-engagement: Student Profil + honest Premium ---
+          'profile_target_universities': 'Mes universités cibles',
+          'profile_universities_see_all': 'Voir tout',
+          'profile_universities_empty':
+              'Aucune université enregistrée pour l\'instant.',
+          'profile_explore_schools': 'Explorer les écoles',
+          'profile_preferences': 'Préférences',
+          'profile_replay_onboarding': 'Revoir le tutoriel de démarrage',
+          'profile_replay_confirm_title': 'Revoir le tutoriel ?',
+          'profile_replay_confirm_body':
+              'Vous reverrez l\'intro de démarrage. Vos informations de profil sont conservées.',
+          'profile_replay_confirm_cta': 'Revoir',
+          'profile_parent_access': 'Accès parent',
+          'profile_parent_access_desc':
+              'Reliez un parent avec un code d\'invitation pour partager votre progression. Vous choisissez ce qu\'il peut voir, dossier par dossier.',
+          'profile_parent_access_cta': 'Relier un parent',
+          'profile_premium_card_title': 'Karatou Premium',
+          'profile_premium_card_sub': 'Bientôt — activez via un conseiller KPB',
+          'premium_screen_title': 'Karatou Premium',
+          'premium_badge_soon': 'Bientôt disponible',
+          'premium_hero_title': 'Passez à Karatou Premium',
+          'premium_hero_sub':
+              'Premium arrive bientôt. En attendant, un conseiller KPB peut vous accompagner — sans aucun paiement dans l\'application.',
+          'premium_value_ai_coach':
+              'Coach IA illimité — l\'offre gratuite inclut @count messages par semaine.',
+          'premium_value_advisors':
+              'Accompagnement prioritaire par un conseiller KPB vérifié.',
+          'premium_value_more_soon':
+              'De nouveaux avantages Premium arrivent bientôt.',
+          'premium_compare_title': 'Gratuit vs Premium',
+          'premium_compare_feature': 'Ce que vous obtenez',
+          'premium_compare_free': 'Gratuit',
+          'premium_compare_premium': 'Premium',
+          'premium_row_ai_coach': 'Messages Coach IA',
+          'premium_free_ai_coach': '@count / sem.',
+          'premium_unlimited_soon': 'Illimité (bientôt)',
+          'premium_how_title': 'Comment activer Premium',
+          'premium_how_body':
+              'Aucun paiement dans l\'application. Premium arrive bientôt — un conseiller KPB vous guidera pour l\'activer.',
+          'premium_wa_prefill':
+              'Bonjour KPB, je souhaite en savoir plus sur Karatou Premium.',
+          'premium_no_payment_note':
+              'Karatou ne propose aucun paiement intégré.',
           'parent_packs_label': 'Accompagnement KPB',
           'parent_pack_review': 'Relecture de dossier KPB',
           'parent_pack_review_desc':
@@ -2234,6 +2277,47 @@ class AppTranslations extends Translations {
               'Unlimited copilot · unlimited letters · VIP live',
           'parent_premium_item': 'Karatou Premium',
           'parent_premium_cta': 'Activate via the KPB advisor',
+          // --- App-engagement: Student Profil + honest Premium ---
+          'profile_target_universities': 'My target universities',
+          'profile_universities_see_all': 'See all',
+          'profile_universities_empty': 'No saved universities yet.',
+          'profile_explore_schools': 'Explore schools',
+          'profile_preferences': 'Preferences',
+          'profile_replay_onboarding': 'Replay the getting-started tutorial',
+          'profile_replay_confirm_title': 'Replay the tutorial?',
+          'profile_replay_confirm_body':
+              'You\'ll see the getting-started intro again. Your profile details are kept.',
+          'profile_replay_confirm_cta': 'Replay',
+          'profile_parent_access': 'Parent access',
+          'profile_parent_access_desc':
+              'Link a parent with an invite code to share your progress. You choose what they can see, case by case.',
+          'profile_parent_access_cta': 'Link a parent',
+          'profile_premium_card_title': 'Karatou Premium',
+          'profile_premium_card_sub':
+              'Coming soon — activate via a KPB advisor',
+          'premium_screen_title': 'Karatou Premium',
+          'premium_badge_soon': 'Coming soon',
+          'premium_hero_title': 'Upgrade to Karatou Premium',
+          'premium_hero_sub':
+              'Premium is coming soon. In the meantime, a KPB advisor can help you — with no in-app payment.',
+          'premium_value_ai_coach':
+              'Unlimited AI Coach — the free plan includes @count messages per week.',
+          'premium_value_advisors':
+              'Priority guidance from a verified KPB advisor.',
+          'premium_value_more_soon': 'More Premium benefits are coming soon.',
+          'premium_compare_title': 'Free vs Premium',
+          'premium_compare_feature': 'What you get',
+          'premium_compare_free': 'Free',
+          'premium_compare_premium': 'Premium',
+          'premium_row_ai_coach': 'AI Coach messages',
+          'premium_free_ai_coach': '@count / week',
+          'premium_unlimited_soon': 'Unlimited (coming soon)',
+          'premium_how_title': 'How to activate Premium',
+          'premium_how_body':
+              'No in-app payment. Premium is coming soon — a KPB advisor will guide you to activate it.',
+          'premium_wa_prefill':
+              'Hello KPB, I\'d like to learn more about Karatou Premium.',
+          'premium_no_payment_note': 'Karatou has no in-app payment.',
           'parent_packs_label': 'KPB support',
           'parent_pack_review': 'KPB application review',
           'parent_pack_review_desc':
