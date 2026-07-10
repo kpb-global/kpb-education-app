@@ -16,20 +16,20 @@ import {
 } from '../../components/ui';
 
 interface FunnelRow {
-  label: string;
+  key: string;
   value: number;
 }
 
 interface CounselorPerformanceRow {
   counselor: string;
   activeCases: number;
-  avgResponseHours: number;
+  avgResponseHours: number | null;
 }
 
 interface CampaignPerformanceRow {
   campaign: string;
+  sent: number;
   delivered: number;
-  opened: number;
 }
 
 interface RevenueSkuRow {
@@ -151,7 +151,7 @@ export default function ReportsPage() {
           >
             {funnel.map((row) => (
               <div
-                key={row.label}
+                key={row.key}
                 style={{
                   background: 'var(--bg)',
                   border: '1px solid var(--border-soft)',
@@ -169,7 +169,7 @@ export default function ReportsPage() {
                     color: 'var(--text-faint)',
                   }}
                 >
-                  {row.label}
+                  {t(`reports.funnelStage_${row.key}`)}
                 </p>
                 <p
                   style={{
@@ -186,11 +186,6 @@ export default function ReportsPage() {
               </div>
             ))}
           </div>
-          {/* The backend reports module currently serves demo aggregates
-              (known gap, tracked separately) — keep that honest in the UI. */}
-          <p style={{ margin: '12px 0 0', fontSize: 10.5, color: 'var(--text-faint)' }}>
-            {t('reports.mockNote')}
-          </p>
         </section>
 
         <AdminTable
@@ -201,7 +196,6 @@ export default function ReportsPage() {
             t('reports.colAvgResponse'),
           ]}
           cols="1.6fr 1fr 1fr"
-          footnote={t('reports.mockNote')}
         >
           {counselorPerformance.length === 0 ? (
             <EmptyState title={t('reports.empty')} />
@@ -214,7 +208,11 @@ export default function ReportsPage() {
                   sub={t('reports.activeCasesValue')}
                 />
                 <CellText
-                  primary={`${row.avgResponseHours.toFixed(1)}h`}
+                  primary={
+                    row.avgResponseHours === null
+                      ? '—'
+                      : `${row.avgResponseHours.toFixed(1)}h`
+                  }
                   sub={t('reports.avgResponseValue')}
                 />
               </AdminTableRow>
@@ -226,11 +224,10 @@ export default function ReportsPage() {
           title={t('reports.campaignTitle')}
           columns={[
             t('reports.colCampaign'),
+            t('reports.colSent'),
             t('reports.colDelivered'),
-            t('reports.colOpened'),
           ]}
           cols="1.6fr 1fr 1fr"
-          footnote={t('reports.mockNote')}
         >
           {campaignPerformance.length === 0 ? (
             <EmptyState title={t('reports.empty')} />
@@ -238,8 +235,8 @@ export default function ReportsPage() {
             campaignPerformance.map((row) => (
               <AdminTableRow key={row.campaign}>
                 <CellText primary={row.campaign} />
+                <CellText primary={row.sent} muted />
                 <CellText primary={row.delivered} muted />
-                <CellText primary={row.opened} muted />
               </AdminTableRow>
             ))
           )}
@@ -260,7 +257,6 @@ export default function ReportsPage() {
             t('reports.colPending'),
           ]}
           cols="1.5fr 0.9fr 0.8fr 1.1fr 1.1fr"
-          footnote={t('reports.mockNote')}
         >
           {serviceRevenue.bySku.length === 0 ? (
             <EmptyState title={t('reports.empty')} />
@@ -294,7 +290,6 @@ export default function ReportsPage() {
             t('reports.colPending'),
           ]}
           cols="1.4fr 0.9fr 1.1fr 1.1fr"
-          footnote={t('reports.mockNote')}
         >
           {serviceRevenue.byDestination.length === 0 ? (
             <EmptyState title={t('reports.empty')} />
