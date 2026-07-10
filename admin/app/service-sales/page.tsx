@@ -1,19 +1,30 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import {
+  CSSProperties,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  secondaryButtonStyle,
-  textareaStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Select,
+  Textarea,
+} from '../../components/ui';
+import type { BadgeVariant } from '../../components/ui';
 
 const PURCHASE_STATUSES = [
   'pending_payment',
@@ -23,6 +34,15 @@ const PURCHASE_STATUSES = [
   'cancelled',
   'refunded',
 ];
+
+const STATUS_VARIANT: Record<string, BadgeVariant> = {
+  pending_payment: 'warning',
+  paid: 'success',
+  in_progress: 'brand',
+  delivered: 'success',
+  cancelled: 'danger',
+  refunded: 'warning',
+};
 
 interface ServicePurchaseItem {
   id: string;
@@ -58,18 +78,72 @@ interface PurchaseFormState {
   internalNotes: string;
 }
 
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
+const metaLabelStyle: CSSProperties = {
+  fontSize: 9.5,
+  fontWeight: 800,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: 'var(--text-faint)',
+};
+
+const metaValueStyle: CSSProperties = {
+  fontSize: 'var(--text-sm)',
+  fontWeight: 700,
+};
+
 function formatFcfa(value: number) {
   return new Intl.NumberFormat('fr-FR').format(value);
 }
 
 export default function ServiceSalesPage() {
+  const { t, locale } = useLocale();
   const [items, setItems] = useState<ServicePurchaseItem[]>([]);
   const [filter, setFilter] = useState('');
   const [forms, setForms] = useState<Record<string, PurchaseFormState>>({});
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const selected = useMemo(
+    () => items.find((item) => item.id === selectedId) ?? null,
+    [items, selectedId],
+  );
+
+  function statusLabel(status: string) {
+    const key = `serviceSales.status_${status}`;
+    const label = t(key);
+    return label === key ? status.replace(/_/g, ' ') : label;
+  }
+
+  function formatDate(value: string | null) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  }
+
   const loadPurchases = useCallback(async () => {
+    setLoading(true);
     setErrorMessage(null);
     try {
       const response = await apiFetch<{ items: ServicePurchaseItem[] }>(
@@ -87,13 +161,19 @@ export default function ServiceSalesPage() {
           ]),
         ),
       );
+      setSelectedId((current) =>
+        current && response.items.some((item) => item.id === current)
+          ? current
+          : (response.items[0]?.id ?? null),
+      );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to load service purchases.',
+        error instanceof Error ? error.message : t('serviceSales.loadError'),
       );
+    } finally {
+      setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   useEffect(() => {
@@ -108,6 +188,7 @@ export default function ServiceSalesPage() {
     const form = forms[purchaseId];
     if (!form) return;
 
+    setSaving(true);
     setStatusMessage(null);
     setErrorMessage(null);
     try {
@@ -118,163 +199,229 @@ export default function ServiceSalesPage() {
           internalNotes: form.internalNotes || undefined,
         },
       });
-      setStatusMessage('Service purchase updated.');
+      setStatusMessage(t('serviceSales.updated'));
       await loadPurchases();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to update service purchase.',
+        error instanceof Error ? error.message : t('serviceSales.updateError'),
       );
+    } finally {
+      setSaving(false);
     }
   }
 
-  return (
-    <DashboardShell title="Service sales">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div
-            style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}
-          >
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div
-            style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}
-          >
-            {errorMessage}
-          </div>
-        ) : null}
+  function renderDetail(item: ServicePurchaseItem) {
+    const form = forms[item.id] ?? {
+      status: item.status,
+      internalNotes: item.internalNotes ?? '',
+    };
 
-        <section style={panelStyle}>
-          <div
-            style={{
-              display: 'flex',
-              gap: 12,
-              justifyContent: 'space-between',
-              alignItems: 'end',
-            }}
-          >
-            <label style={{ ...labelStyle, maxWidth: 280 }}>
-              Status
-              <select
-                value={filter}
-                onChange={(event) => setFilter(event.target.value)}
-                style={inputStyle}
+    return (
+      <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
+          <h3 style={panelTitleStyle}>{item.package.nameFr}</h3>
+          <Badge variant={STATUS_VARIANT[item.status] ?? 'neutral'}>
+            {statusLabel(item.status)}
+          </Badge>
+        </div>
+
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <Badge variant="brand">{item.package.code}</Badge>
+          <Badge variant="neutral">{item.source.replace(/_/g, ' ')}</Badge>
+          <Badge variant="neutral">{item.package.category.replace(/_/g, ' ')}</Badge>
+        </div>
+
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('serviceSales.clientLabel')}</span>
+            <span style={metaValueStyle}>{item.user.fullName}</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+              {item.user.email}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('serviceSales.amountLabel')}</span>
+            <span style={metaValueStyle}>{formatFcfa(item.amountXOF)} FCFA</span>
+          </div>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('serviceSales.dateLabel')}</span>
+            <span style={metaValueStyle}>{formatDate(item.createdAt)}</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('serviceSales.caseLabel')}</span>
+            <span style={metaValueStyle}>
+              {item.case
+                ? `${item.case.referenceCode} · ${
+                    item.case.requestedCountryId ??
+                    t('serviceSales.unknownDestination')
+                  }`
+                : t('serviceSales.noCase')}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('serviceSales.paymentLabel')}</span>
+            <span style={metaValueStyle}>
+              {item.paymentIntent
+                ? `${item.paymentIntent.provider} · ${item.paymentIntent.status.replace(/_/g, ' ')}`
+                : t('serviceSales.manualPayment')}
+            </span>
+          </div>
+        </div>
+
+        <form
+          onSubmit={(event) => submitUpdate(event, item.id)}
+          style={{ display: 'grid', gap: 10 }}
+        >
+          <Field label={t('serviceSales.lifecycleLabel')}>
+            {({ id }) => (
+              <Select
+                id={id}
+                value={form.status}
+                onChange={(event) =>
+                  setForms((current) => ({
+                    ...current,
+                    [item.id]: { ...form, status: event.target.value },
+                  }))
+                }
               >
-                <option value="">All purchases</option>
                 {PURCHASE_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {status.replaceAll('_', ' ')}
+                    {statusLabel(status)}
                   </option>
                 ))}
-              </select>
-            </label>
-            <button
-              type="button"
-              onClick={() => void loadPurchases()}
-              style={secondaryButtonStyle}
-            >
-              Refresh
-            </button>
+              </Select>
+            )}
+          </Field>
+          <Field label={t('serviceSales.notesLabel')}>
+            {({ id }) => (
+              <Textarea
+                id={id}
+                value={form.internalNotes}
+                onChange={(event) =>
+                  setForms((current) => ({
+                    ...current,
+                    [item.id]: { ...form, internalNotes: event.target.value },
+                  }))
+                }
+              />
+            )}
+          </Field>
+          <div>
+            <Button type="submit" loading={saving}>
+              {t('serviceSales.saveCta')}
+            </Button>
           </div>
-        </section>
+        </form>
+      </section>
+    );
+  }
 
-        <div style={{ display: 'grid', gap: 14 }}>
-          {items.map((item) => {
-            const form = forms[item.id] ?? {
-              status: item.status,
-              internalNotes: item.internalNotes ?? '',
-            };
+  return (
+    <DashboardShell title={t('serviceSales.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-            return (
-              <section key={item.id} style={panelStyle}>
-                <div
-                  style={{
-                    display: 'grid',
-                    gap: 16,
-                    gridTemplateColumns: '1fr 320px',
-                  }}
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ width: 260 }}>
+            <Field label={t('serviceSales.statusFilterLabel')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={filter}
+                  onChange={(event) => setFilter(event.target.value)}
                 >
-                  <div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={badgeStyle}>{item.status}</span>
-                      <span style={badgeStyle}>{item.source}</span>
-                      <span style={badgeStyle}>{item.package.code}</span>
-                    </div>
-                    <h3 style={{ marginBottom: 8 }}>{item.package.nameFr}</h3>
-                    <p style={{ margin: '6px 0' }}>
-                      {formatFcfa(item.amountXOF)} FCFA · {item.user.fullName}{' '}
-                      · {item.user.email}
-                    </p>
-                    <p style={mutedTextStyle}>
-                      Dossier:{' '}
-                      {item.case
-                        ? `${item.case.referenceCode} · ${item.case.requestedCountryId ?? 'destination inconnue'}`
-                        : 'non rattaché'}
-                    </p>
-                    <p style={mutedTextStyle}>
-                      Paiement:{' '}
-                      {item.paymentIntent
-                        ? `${item.paymentIntent.provider} · ${item.paymentIntent.status}`
-                        : 'manuel / WhatsApp'}
-                    </p>
-                  </div>
+                  <option value="">{t('serviceSales.allPurchases')}</option>
+                  {PURCHASE_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {statusLabel(status)}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          </div>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => void loadPurchases()}
+          >
+            {t('serviceSales.refreshCta')}
+          </Button>
+        </div>
 
-                  <form
-                    onSubmit={(event) => submitUpdate(event, item.id)}
-                    style={{ display: 'grid', gap: 10 }}
-                  >
-                    <label style={labelStyle}>
-                      Lifecycle
-                      <select
-                        value={form.status}
-                        onChange={(event) =>
-                          setForms((current) => ({
-                            ...current,
-                            [item.id]: {
-                              ...form,
-                              status: event.target.value,
-                            },
-                          }))
-                        }
-                        style={inputStyle}
-                      >
-                        {PURCHASE_STATUSES.map((status) => (
-                          <option key={status} value={status}>
-                            {status.replaceAll('_', ' ')}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label style={labelStyle}>
-                      Internal notes
-                      <textarea
-                        value={form.internalNotes}
-                        onChange={(event) =>
-                          setForms((current) => ({
-                            ...current,
-                            [item.id]: {
-                              ...form,
-                              internalNotes: event.target.value,
-                            },
-                          }))
-                        }
-                        style={textareaStyle}
-                      />
-                    </label>
-                    <button type="submit" style={buttonStyle}>
-                      Save lifecycle
-                    </button>
-                  </form>
-                </div>
-              </section>
-            );
-          })}
-          {items.length === 0 ? (
-            <section style={panelStyle}>No service purchases yet.</section>
-          ) : null}
+        <div
+          style={{
+            display: 'grid',
+            gap: 14,
+            gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
+            alignItems: 'start',
+          }}
+        >
+          <AdminTable
+            aria-label={t('serviceSales.title')}
+            columns={[
+              t('serviceSales.colService'),
+              t('serviceSales.colAmount'),
+              t('serviceSales.colDate'),
+              t('serviceSales.colStatus'),
+            ]}
+            cols="1.7fr 0.8fr 0.7fr 0.9fr"
+            footnote={t('serviceSales.tableNote')}
+          >
+            {loading ? (
+              <EmptyState title={t('serviceSales.loading')} />
+            ) : items.length === 0 ? (
+              <EmptyState title={t('serviceSales.empty')} />
+            ) : (
+              items.map((item) => (
+                <AdminTableRow
+                  key={item.id}
+                  selected={selectedId === item.id}
+                  onSelect={() => setSelectedId(item.id)}
+                >
+                  <CellText
+                    primary={item.package.nameFr}
+                    sub={item.user.fullName}
+                  />
+                  <CellText primary={`${formatFcfa(item.amountXOF)} FCFA`} />
+                  <CellText primary={formatDate(item.createdAt)} muted />
+                  <div>
+                    <Badge variant={STATUS_VARIANT[item.status] ?? 'neutral'}>
+                      {statusLabel(item.status)}
+                    </Badge>
+                  </div>
+                </AdminTableRow>
+              ))
+            )}
+          </AdminTable>
+
+          {selected ? (
+            renderDetail(selected)
+          ) : (
+            <section style={panelCardStyle}>
+              <EmptyState title={t('serviceSales.selectHint')} />
+            </section>
+          )}
         </div>
       </div>
     </DashboardShell>

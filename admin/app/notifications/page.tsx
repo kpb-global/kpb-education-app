@@ -1,20 +1,26 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { CSSProperties, FormEvent, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
+import { splitList } from '../../lib/ui';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  splitList,
-  textareaStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Textarea,
+} from '../../components/ui';
 
 interface NotificationTemplateItem {
   id: string;
@@ -44,14 +50,44 @@ interface NotificationDeliveryItem {
   deliveredAt: string | null;
 }
 
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
+const hintStyle: CSSProperties = {
+  margin: '4px 0 0',
+  fontSize: 'var(--text-xs)',
+  color: 'var(--text-muted)',
+};
+
+const checkboxLabelStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 'var(--text-sm)',
+  fontWeight: 600,
+};
+
 export default function NotificationsPage() {
   const { session } = useAdminAuth();
+  const { t, locale } = useLocale();
   const [templates, setTemplates] = useState<NotificationTemplateItem[]>([]);
   const [campaigns, setCampaigns] = useState<NotificationCampaignItem[]>([]);
   const [deliveries, setDeliveries] = useState<NotificationDeliveryItem[]>([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
     null,
   );
+  const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [templateForm, setTemplateForm] = useState({
@@ -73,6 +109,19 @@ export default function NotificationsPage() {
     linkedCaseId: '',
   });
 
+  function formatDateTime(value: string | null) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  }
+
   async function loadNotifications() {
     setErrorMessage(null);
     try {
@@ -87,24 +136,15 @@ export default function NotificationsPage() {
 
       setTemplates(templatesResponse.items);
       setCampaigns(campaignsResponse.items);
-      const nextCampaignId =
-        selectedCampaignId ?? campaignsResponse.items[0]?.id ?? null;
-      setSelectedCampaignId(nextCampaignId);
-
-      if (nextCampaignId) {
-        const deliveriesResponse = await apiFetch<{
-          items: NotificationDeliveryItem[];
-        }>(`/admin/notifications/campaigns/${nextCampaignId}/deliveries`);
-        setDeliveries(deliveriesResponse.items);
-      } else {
-        setDeliveries([]);
-      }
+      setSelectedCampaignId(
+        (current) => current ?? campaignsResponse.items[0]?.id ?? null,
+      );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to load notifications.',
+        error instanceof Error ? error.message : t('notifications.loadError'),
       );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -139,12 +179,13 @@ export default function NotificationsPage() {
           setErrorMessage(
             error instanceof Error
               ? error.message
-              : 'Unable to load deliveries.',
+              : t('notifications.deliveriesError'),
           );
       });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCampaignId, session]);
 
   async function submitTemplate(event: FormEvent<HTMLFormElement>) {
@@ -172,11 +213,13 @@ export default function NotificationsPage() {
         channels: 'push,in_app,email',
         isCritical: false,
       });
-      setStatusMessage('Notification template created.');
+      setStatusMessage(t('notifications.templateCreated'));
       await loadNotifications();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create template.',
+        error instanceof Error
+          ? error.message
+          : t('notifications.templateError'),
       );
     }
   }
@@ -191,7 +234,7 @@ export default function NotificationsPage() {
       try {
         parsedFilters = JSON.parse(campaignForm.filtersJson);
       } catch {
-        setErrorMessage('Filters JSON is invalid. Please enter valid JSON.');
+        setErrorMessage(t('notifications.filtersJsonError'));
         return;
       }
       await apiFetch('/admin/notifications/campaigns', {
@@ -217,304 +260,367 @@ export default function NotificationsPage() {
         scheduledFor: '',
         linkedCaseId: '',
       });
-      setStatusMessage('Notification campaign created.');
+      setStatusMessage(t('notifications.campaignCreated'));
       await loadNotifications();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create campaign.',
+        error instanceof Error
+          ? error.message
+          : t('notifications.campaignError'),
       );
     }
   }
 
   return (
-    <DashboardShell title="Notifications">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('notifications.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1fr 1fr' }}>
-          <section style={{ ...panelStyle, display: 'grid', gap: 14 }}>
+        <div
+          style={{
+            display: 'grid',
+            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+            alignItems: 'start',
+          }}
+        >
+          <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
             <div>
-              <h3 style={{ marginTop: 0 }}>Templates</h3>
-              <p style={mutedTextStyle}>
-                Create reusable push, in-app, or email templates for group or
-                case-specific communication.
-              </p>
+              <h3 style={panelTitleStyle}>{t('notifications.templatesTitle')}</h3>
+              <p style={hintStyle}>{t('notifications.templatesHint')}</p>
             </div>
-            <form onSubmit={submitTemplate} style={{ display: 'grid', gap: 12 }}>
-              <label style={labelStyle}>
-                Template name
-                <input
-                  value={templateForm.name}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Title (FR)
-                <input
-                  value={templateForm.titleFr}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      titleFr: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Title (EN)
-                <input
-                  value={templateForm.titleEn}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      titleEn: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Body (FR)
-                <textarea
-                  value={templateForm.bodyFr}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      bodyFr: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Body (EN)
-                <textarea
-                  value={templateForm.bodyEn}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      bodyEn: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Channels
-                <input
-                  value={templateForm.channels}
-                  onChange={(event) =>
-                    setTemplateForm((current) => ({
-                      ...current,
-                      channels: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={{ ...labelStyle, alignContent: 'end' }}>
-                <span>Critical template</span>
+            <form onSubmit={submitTemplate} style={{ display: 'grid', gap: 10 }}>
+              <Field label={t('notifications.templateNameLabel')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={templateForm.name}
+                    onChange={(e) =>
+                      setTemplateForm((current) => ({
+                        ...current,
+                        name: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <div
+                style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}
+              >
+                <Field label={t('notifications.titleFrLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={templateForm.titleFr}
+                      onChange={(e) =>
+                        setTemplateForm((current) => ({
+                          ...current,
+                          titleFr: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label={t('notifications.titleEnLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={templateForm.titleEn}
+                      onChange={(e) =>
+                        setTemplateForm((current) => ({
+                          ...current,
+                          titleEn: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+              </div>
+              <Field label={t('notifications.bodyFrLabel')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={templateForm.bodyFr}
+                    onChange={(e) =>
+                      setTemplateForm((current) => ({
+                        ...current,
+                        bodyFr: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <Field label={t('notifications.bodyEnLabel')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={templateForm.bodyEn}
+                    onChange={(e) =>
+                      setTemplateForm((current) => ({
+                        ...current,
+                        bodyEn: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <Field label={t('notifications.channelsLabel')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={templateForm.channels}
+                    placeholder="push,in_app,email"
+                    onChange={(e) =>
+                      setTemplateForm((current) => ({
+                        ...current,
+                        channels: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <label style={checkboxLabelStyle}>
                 <input
                   type="checkbox"
                   checked={templateForm.isCritical}
-                  onChange={(event) =>
+                  onChange={(e) =>
                     setTemplateForm((current) => ({
                       ...current,
-                      isCritical: event.target.checked,
+                      isCritical: e.target.checked,
                     }))
                   }
                 />
+                {t('notifications.criticalLabel')}
               </label>
-              <button type="submit" style={buttonStyle}>
-                Add template
-              </button>
+              <div>
+                <Button type="submit">{t('notifications.addTemplateCta')}</Button>
+              </div>
             </form>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {templates.map((template) => (
-                <div key={template.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                  <strong>{template.name}</strong>
-                  <p style={{ margin: '6px 0' }}>{template.channels.join(', ')}</p>
-                  <span style={badgeStyle}>
-                    {template.isCritical ? 'critical' : 'standard'}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <AdminTable
+              columns={[
+                t('notifications.colTemplate'),
+                t('notifications.colChannels'),
+                t('notifications.colType'),
+              ]}
+              cols="1.5fr 1.2fr 0.8fr"
+            >
+              {loading ? (
+                <EmptyState title={t('notifications.loading')} />
+              ) : templates.length === 0 ? (
+                <EmptyState title={t('notifications.templatesEmpty')} />
+              ) : (
+                templates.map((template) => (
+                  <AdminTableRow key={template.id}>
+                    <CellText primary={template.name} sub={template.title.fr} />
+                    <CellText
+                      primary={template.channels.join(', ')}
+                      muted
+                    />
+                    <div>
+                      <Badge variant={template.isCritical ? 'danger' : 'neutral'}>
+                        {template.isCritical
+                          ? t('notifications.critical')
+                          : t('notifications.standard')}
+                      </Badge>
+                    </div>
+                  </AdminTableRow>
+                ))
+              )}
+            </AdminTable>
           </section>
 
-          <section style={{ ...panelStyle, display: 'grid', gap: 14 }}>
+          <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
             <div>
-              <h3 style={{ marginTop: 0 }}>Campaigns</h3>
-              <p style={mutedTextStyle}>
-                Launch a grouped reminder, a segmented push, or a case-specific
-                update directly from operations.
-              </p>
+              <h3 style={panelTitleStyle}>{t('notifications.campaignsTitle')}</h3>
+              <p style={hintStyle}>{t('notifications.campaignsHint')}</p>
             </div>
-            <form onSubmit={submitCampaign} style={{ display: 'grid', gap: 12 }}>
-              <label style={labelStyle}>
-                Campaign name
-                <input
-                  value={campaignForm.name}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Template
-                <select
-                  value={campaignForm.templateId}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      templateId: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                >
-                  <option value="">No template</option>
-                  {templates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label style={labelStyle}>
-                Audience type
-                <input
-                  value={campaignForm.audienceType}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      audienceType: event.target.value,
-                    }))
-                  }
-                  placeholder="all_users / by_case_status / by_role / specific_users"
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Channels
-                <input
-                  value={campaignForm.channels}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      channels: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Filters JSON
-                <textarea
-                  value={campaignForm.filtersJson}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      filtersJson: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Scheduled for
-                <input
-                  type="datetime-local"
-                  value={campaignForm.scheduledFor}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      scheduledFor: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Linked case ID
-                <input
-                  value={campaignForm.linkedCaseId}
-                  onChange={(event) =>
-                    setCampaignForm((current) => ({
-                      ...current,
-                      linkedCaseId: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <button type="submit" style={buttonStyle}>
-                Launch campaign
-              </button>
+            <form onSubmit={submitCampaign} style={{ display: 'grid', gap: 10 }}>
+              <Field label={t('notifications.campaignNameLabel')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={campaignForm.name}
+                    onChange={(e) =>
+                      setCampaignForm((current) => ({
+                        ...current,
+                        name: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <div
+                style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}
+              >
+                <Field label={t('notifications.templateLabel')}>
+                  {({ id }) => (
+                    <Select
+                      id={id}
+                      value={campaignForm.templateId}
+                      onChange={(e) =>
+                        setCampaignForm((current) => ({
+                          ...current,
+                          templateId: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">{t('notifications.noTemplate')}</option>
+                      {templates.map((template) => (
+                        <option key={template.id} value={template.id}>
+                          {template.name}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+                <Field label={t('notifications.channelsLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={campaignForm.channels}
+                      onChange={(e) =>
+                        setCampaignForm((current) => ({
+                          ...current,
+                          channels: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+              </div>
+              <Field label={t('notifications.audienceLabel')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={campaignForm.audienceType}
+                    placeholder="all_users / by_case_status / by_role / specific_users"
+                    onChange={(e) =>
+                      setCampaignForm((current) => ({
+                        ...current,
+                        audienceType: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <Field label={t('notifications.filtersLabel')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={campaignForm.filtersJson}
+                    onChange={(e) =>
+                      setCampaignForm((current) => ({
+                        ...current,
+                        filtersJson: e.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </Field>
+              <div
+                style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}
+              >
+                <Field label={t('notifications.scheduledForLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      type="datetime-local"
+                      value={campaignForm.scheduledFor}
+                      onChange={(e) =>
+                        setCampaignForm((current) => ({
+                          ...current,
+                          scheduledFor: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label={t('notifications.linkedCaseLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={campaignForm.linkedCaseId}
+                      onChange={(e) =>
+                        setCampaignForm((current) => ({
+                          ...current,
+                          linkedCaseId: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+              </div>
+              <div>
+                <Button type="submit">{t('notifications.launchCta')}</Button>
+              </div>
             </form>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {campaigns.map((campaign) => (
-                <button
-                  key={campaign.id}
-                  onClick={() => setSelectedCampaignId(campaign.id)}
-                  style={{
-                    textAlign: 'left',
-                    border: '1px solid #E2E8F0',
-                    borderRadius: 16,
-                    padding: 14,
-                    background:
-                      selectedCampaignId === campaign.id ? '#EEF2FF' : '#fff',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <strong>{campaign.name}</strong>
-                  <p style={{ margin: '6px 0' }}>
-                    {campaign.audienceType} • {campaign.channels.join(', ')}
-                  </p>
-                  <span style={badgeStyle}>{campaign.status}</span>
-                </button>
-              ))}
-            </div>
+            <AdminTable
+              columns={[
+                t('notifications.colCampaign'),
+                t('notifications.colChannels'),
+                t('notifications.colScheduled'),
+                t('notifications.colStatus'),
+              ]}
+              cols="1.5fr 0.9fr 1fr 0.8fr"
+              footnote={t('notifications.campaignsNote')}
+            >
+              {loading ? (
+                <EmptyState title={t('notifications.loading')} />
+              ) : campaigns.length === 0 ? (
+                <EmptyState title={t('notifications.campaignsEmpty')} />
+              ) : (
+                campaigns.map((campaign) => (
+                  <AdminTableRow
+                    key={campaign.id}
+                    selected={selectedCampaignId === campaign.id}
+                    onSelect={() => setSelectedCampaignId(campaign.id)}
+                  >
+                    <CellText
+                      primary={campaign.name}
+                      sub={campaign.audienceType.replace(/_/g, ' ')}
+                    />
+                    <CellText primary={campaign.channels.join(', ')} muted />
+                    <CellText
+                      primary={formatDateTime(campaign.scheduledFor)}
+                      muted
+                    />
+                    <div>
+                      <StatusBadge status={campaign.status} />
+                    </div>
+                  </AdminTableRow>
+                ))
+              )}
+            </AdminTable>
           </section>
         </div>
 
-        <section style={panelStyle}>
-          <h3 style={{ marginTop: 0 }}>Recent deliveries</h3>
-          <p style={mutedTextStyle}>
-            Delivery tracking for the selected campaign.
-          </p>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {deliveries.map((delivery) => (
-              <div key={delivery.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                <strong>{delivery.recipientName}</strong>
-                <p style={{ margin: '6px 0' }}>{delivery.channel}</p>
-                <span style={badgeStyle}>
-                  {delivery.status}
-                  {delivery.deliveredAt ? ` • ${delivery.deliveredAt}` : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
+        <AdminTable
+          title={t('notifications.deliveriesTitle')}
+          columns={[
+            t('notifications.colRecipient'),
+            t('notifications.colChannel'),
+            t('notifications.colStatus'),
+            t('notifications.colDeliveredAt'),
+          ]}
+          cols="1.6fr 0.8fr 0.8fr 1fr"
+          footnote={t('notifications.deliveriesHint')}
+        >
+          {deliveries.length === 0 ? (
+            <EmptyState title={t('notifications.deliveriesEmpty')} />
+          ) : (
+            deliveries.map((delivery) => (
+              <AdminTableRow key={delivery.id}>
+                <CellText primary={delivery.recipientName} />
+                <CellText primary={delivery.channel.replace(/_/g, ' ')} muted />
+                <div>
+                  <StatusBadge status={delivery.status} />
+                </div>
+                <CellText primary={formatDateTime(delivery.deliveredAt)} muted />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
       </div>
     </DashboardShell>
   );
