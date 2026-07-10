@@ -430,6 +430,7 @@ class AppTranslations extends Translations {
           'time_ago_days': 'il y a @n j',
           'time_ago_weeks': 'il y a @n sem.',
           'time_ago_months': 'il y a @n mois',
+          'time_ago_just_now': 'à l\'instant',
           'lead_motive_prefix': 'Motif : @motive',
           'saved_count_one': '@count élément sauvegardé',
           'saved_count_other': '@count éléments sauvegardés',
@@ -728,6 +729,26 @@ class AppTranslations extends Translations {
           'post_decision_entry_title': 'Réponse reçue — vois ton plan B',
           'post_decision_entry_subtitle':
               'Universités alternatives + session conseiller.',
+          'notifications_title': 'Notifications',
+          'notifications_mark_all_read': 'Tout marquer comme lu',
+          'notifications_empty_title': 'Tu es à jour',
+          'notifications_empty_body':
+              'On te préviendra ici dès qu\'il y aura du nouveau sur tes candidatures et tes décisions.',
+          'notif_action_needed_title': 'Action requise : @step',
+          'notif_action_needed_fallback': 'Une étape attend ton action',
+          'notif_decision_received_title': 'Réponse reçue',
+          'notif_decision_received_body':
+              'Une décision est arrivée pour « @title » — vois ton plan B.',
+          'notifications_push_section': 'NOTIFICATIONS PUSH',
+          'notifications_enable_push_title': 'Activer les notifications push',
+          'notifications_enable_push_subtitle':
+              'Reçois une alerte sur cet appareil pour tes candidatures et décisions.',
+          'notifications_push_enable_action': 'Activer',
+          'notifications_push_os_note':
+              'La distribution des notifications est gérée par ton appareil. '
+                  'Tu peux les modifier à tout moment dans les réglages du téléphone.',
+          'notifications_push_requested':
+              'Si l\'invite s\'affiche, autorise les notifications pour rester informé(e).',
           'scanner_pages_scanned': '@count page(s) scannée(s)',
           'interview_question_progress': 'Question @current / @total',
           'search_no_results_title': 'Aucun résultat pour « @query »',
@@ -2418,6 +2439,7 @@ class AppTranslations extends Translations {
           'time_ago_days': '@n d ago',
           'time_ago_weeks': '@n wk ago',
           'time_ago_months': '@n mo ago',
+          'time_ago_just_now': 'just now',
           'lead_motive_prefix': 'Reason: @motive',
           'saved_count_one': '@count saved item',
           'saved_count_other': '@count saved items',
@@ -2708,6 +2730,26 @@ class AppTranslations extends Translations {
           'post_decision_entry_title': 'Decision received — see your plan B',
           'post_decision_entry_subtitle':
               'Alternative universities + counselor session.',
+          'notifications_title': 'Notifications',
+          'notifications_mark_all_read': 'Mark all read',
+          'notifications_empty_title': 'You\'re all caught up',
+          'notifications_empty_body':
+              'We\'ll notify you here about your applications and decisions.',
+          'notif_action_needed_title': 'Action needed: @step',
+          'notif_action_needed_fallback': 'A step needs your attention',
+          'notif_decision_received_title': 'Decision received',
+          'notif_decision_received_body':
+              'A decision arrived for « @title » — see your plan B.',
+          'notifications_push_section': 'PUSH NOTIFICATIONS',
+          'notifications_enable_push_title': 'Enable push notifications',
+          'notifications_enable_push_subtitle':
+              'Get alerts on this device about your applications and decisions.',
+          'notifications_push_enable_action': 'Enable',
+          'notifications_push_os_note':
+              'Notification delivery is managed by your device. '
+                  'You can change this anytime in your phone settings.',
+          'notifications_push_requested':
+              'If prompted, allow notifications to stay informed.',
           'scanner_pages_scanned': '@count page(s) scanned',
           'interview_question_progress': 'Question @current / @total',
           'search_no_results_title': 'No results for « @query »',

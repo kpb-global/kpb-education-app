@@ -18,6 +18,7 @@ import '../saved/saved_screen.dart';
 import '../search/search_screen.dart';
 import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
+import '../notifications/notifications_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../parcours/parcours_screen.dart';
 import '../parcours/parcours_story_screen.dart';
@@ -150,6 +151,10 @@ class HomeScreen extends StatelessWidget {
                     _AppBarChip(
                       icon: Icons.bookmark_border_rounded,
                       onTap: () => Get.to(() => const SavedScreen()),
+                    ),
+                    _NotifBellChip(
+                      hasUnread: hasDerivedNotifications(controller),
+                      onTap: () => Get.to(() => const NotificationsScreen()),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -454,6 +459,62 @@ class _AppBarChip extends StatelessWidget {
             border: Border.all(color: _Palette.border),
           ),
           child: Icon(icon, size: 20, color: _Palette.slate),
+        ),
+      ),
+    );
+  }
+}
+
+/// Notifications bell (App-engagement handoff). The unread dot is HONEST: it is
+/// shown only when the real case list yields at least one live-derived
+/// notification (`hasDerivedNotifications`) — there is no stored feed, so it
+/// never signals fabricated activity.
+class _NotifBellChip extends StatelessWidget {
+  const _NotifBellChip({required this.hasUnread, required this.onTap});
+  final bool hasUnread;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.kpb;
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Semantics(
+        button: true,
+        label: 'notifications_title'.tr,
+        child: KpbPressable(
+          onTap: onTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: c.softShadow,
+                  border: Border.all(color: _Palette.border),
+                ),
+                child: const Icon(Icons.notifications_none_rounded,
+                    size: 20, color: _Palette.slate),
+              ),
+              if (hasUnread)
+                Positioned(
+                  top: 8,
+                  right: 9,
+                  child: Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: _Palette.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
