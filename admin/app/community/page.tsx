@@ -1,19 +1,25 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { CSSProperties, FormEvent, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  textareaStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from '../../components/ui';
+import type { BadgeVariant } from '../../components/ui';
 
 interface ForumCategoryItem {
   id: string;
@@ -39,33 +45,83 @@ interface ModerationItem {
   suggestedAction: string;
 }
 
+interface TaxonomyFormState {
+  labelFr: string;
+  labelEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  displayOrder: string;
+  status: string;
+}
+
+const EMPTY_FORM: TaxonomyFormState = {
+  labelFr: '',
+  labelEn: '',
+  descriptionFr: '',
+  descriptionEn: '',
+  displayOrder: '1',
+  status: 'draft',
+};
+
+const STATUS_VALUES = ['draft', 'published', 'archived'] as const;
+
+const STATUS_VARIANT: Record<string, BadgeVariant> = {
+  draft: 'neutral',
+  published: 'success',
+  archived: 'neutral',
+};
+
+const ACTION_VARIANT: Record<string, BadgeVariant> = {
+  hide: 'danger',
+  remove: 'danger',
+  ban: 'danger',
+  warn: 'warning',
+  review: 'warning',
+};
+
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
+const hintStyle: CSSProperties = {
+  margin: '4px 0 0',
+  fontSize: 'var(--text-xs)',
+  color: 'var(--text-muted)',
+};
+
 export default function CommunityPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [forumCategories, setForumCategories] = useState<ForumCategoryItem[]>(
     [],
   );
   const [forumTags, setForumTags] = useState<ForumTagItem[]>([]);
   const [moderationQueue, setModerationQueue] = useState<ModerationItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [categoryForm, setCategoryForm] = useState({
-    labelFr: '',
-    labelEn: '',
-    descriptionFr: '',
-    descriptionEn: '',
-    displayOrder: '1',
-    status: 'draft',
-  });
-  const [tagForm, setTagForm] = useState({
-    labelFr: '',
-    labelEn: '',
-    descriptionFr: '',
-    descriptionEn: '',
-    displayOrder: '1',
-    status: 'draft',
-  });
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [categoryForm, setCategoryForm] = useState<TaxonomyFormState>(EMPTY_FORM);
+  const [tagForm, setTagForm] = useState<TaxonomyFormState>(EMPTY_FORM);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
+    null,
+  );
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
+
+  function statusLabel(status: string) {
+    const key = `community.status_${status}`;
+    const label = t(key);
+    return label === key ? status.replace(/_/g, ' ') : label;
+  }
 
   async function loadCommunity() {
     setErrorMessage(null);
@@ -81,8 +137,10 @@ export default function CommunityPage() {
       setModerationQueue(moderationResponse.items);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to load community.',
+        error instanceof Error ? error.message : t('community.loadError'),
       );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -91,6 +149,7 @@ export default function CommunityPage() {
       return;
     }
     void loadCommunity();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   async function submitCategory(event: FormEvent<HTMLFormElement>) {
@@ -98,50 +157,34 @@ export default function CommunityPage() {
     setStatusMessage(null);
     setErrorMessage(null);
 
+    const body = {
+      label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
+      description: {
+        fr: categoryForm.descriptionFr,
+        en: categoryForm.descriptionEn,
+      },
+      displayOrder: Number(categoryForm.displayOrder),
+      status: categoryForm.status,
+    };
+
     try {
       if (editingCategoryId) {
         await apiFetch(`/admin/forum-categories/${editingCategoryId}`, {
           method: 'PATCH',
-          body: {
-            label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
-            description: {
-              fr: categoryForm.descriptionFr,
-              en: categoryForm.descriptionEn,
-            },
-            displayOrder: Number(categoryForm.displayOrder),
-            status: categoryForm.status,
-          },
+          body,
         });
-        setStatusMessage('Forum category updated successfully.');
+        setStatusMessage(t('community.categoryUpdated'));
       } else {
-        await apiFetch('/admin/forum-categories', {
-          method: 'POST',
-          body: {
-            label: { fr: categoryForm.labelFr, en: categoryForm.labelEn },
-            description: {
-              fr: categoryForm.descriptionFr,
-              en: categoryForm.descriptionEn,
-            },
-            displayOrder: Number(categoryForm.displayOrder),
-            status: categoryForm.status,
-          },
-        });
-        setStatusMessage('Forum category created successfully.');
+        await apiFetch('/admin/forum-categories', { method: 'POST', body });
+        setStatusMessage(t('community.categoryCreated'));
       }
 
-      setCategoryForm({
-        labelFr: '',
-        labelEn: '',
-        descriptionFr: '',
-        descriptionEn: '',
-        displayOrder: '1',
-        status: 'draft',
-      });
+      setCategoryForm(EMPTY_FORM);
       setEditingCategoryId(null);
       await loadCommunity();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create category.',
+        error instanceof Error ? error.message : t('community.categoryError'),
       );
     }
   }
@@ -151,380 +194,305 @@ export default function CommunityPage() {
     setStatusMessage(null);
     setErrorMessage(null);
 
+    const body = {
+      label: { fr: tagForm.labelFr, en: tagForm.labelEn },
+      description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
+      displayOrder: Number(tagForm.displayOrder),
+      status: tagForm.status,
+    };
+
     try {
       if (editingTagId) {
         await apiFetch(`/admin/forum-tags/${editingTagId}`, {
           method: 'PATCH',
-          body: {
-            label: { fr: tagForm.labelFr, en: tagForm.labelEn },
-            description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
-            displayOrder: Number(tagForm.displayOrder),
-            status: tagForm.status,
-          },
+          body,
         });
-        setStatusMessage('Forum topic tag updated successfully.');
+        setStatusMessage(t('community.tagUpdated'));
       } else {
-        await apiFetch('/admin/forum-tags', {
-          method: 'POST',
-          body: {
-            label: { fr: tagForm.labelFr, en: tagForm.labelEn },
-            description: { fr: tagForm.descriptionFr, en: tagForm.descriptionEn },
-            displayOrder: Number(tagForm.displayOrder),
-            status: tagForm.status,
-          },
-        });
-        setStatusMessage('Forum topic tag created successfully.');
+        await apiFetch('/admin/forum-tags', { method: 'POST', body });
+        setStatusMessage(t('community.tagCreated'));
       }
 
-      setTagForm({
-        labelFr: '',
-        labelEn: '',
-        descriptionFr: '',
-        descriptionEn: '',
-        displayOrder: '1',
-        status: 'draft',
-      });
+      setTagForm(EMPTY_FORM);
       setEditingTagId(null);
       await loadCommunity();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create tag.',
+        error instanceof Error ? error.message : t('community.tagError'),
       );
     }
   }
 
-  return (
-    <DashboardShell title="Community">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+  function renderTaxonomyForm(
+    form: TaxonomyFormState,
+    setForm: (updater: (current: TaxonomyFormState) => TaxonomyFormState) => void,
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void,
+    editingId: string | null,
+    onCancel: () => void,
+    submitLabel: string,
+    updateLabel: string,
+  ) {
+    return (
+      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 10 }}>
+        <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
+          <Field label={t('community.labelFr')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                value={form.labelFr}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, labelFr: e.target.value }))
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('community.labelEn')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                value={form.labelEn}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, labelEn: e.target.value }))
+                }
+              />
+            )}
+          </Field>
+        </div>
+        <Field label={t('community.descriptionFr')}>
+          {({ id }) => (
+            <Textarea
+              id={id}
+              value={form.descriptionFr}
+              onChange={(e) =>
+                setForm((current) => ({
+                  ...current,
+                  descriptionFr: e.target.value,
+                }))
+              }
+            />
+          )}
+        </Field>
+        <Field label={t('community.descriptionEn')}>
+          {({ id }) => (
+            <Textarea
+              id={id}
+              value={form.descriptionEn}
+              onChange={(e) =>
+                setForm((current) => ({
+                  ...current,
+                  descriptionEn: e.target.value,
+                }))
+              }
+            />
+          )}
+        </Field>
+        <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
+          <Field label={t('community.displayOrderLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                value={form.displayOrder}
+                onChange={(e) =>
+                  setForm((current) => ({
+                    ...current,
+                    displayOrder: e.target.value,
+                  }))
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('community.statusLabel')}>
+            {({ id }) => (
+              <Select
+                id={id}
+                value={form.status}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, status: e.target.value }))
+                }
+              >
+                {STATUS_VALUES.map((status) => (
+                  <option key={status} value={status}>
+                    {statusLabel(status)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button type="submit">{editingId ? updateLabel : submitLabel}</Button>
+          {editingId ? (
+            <Button variant="secondary" onClick={onCancel}>
+              {t('community.cancelCta')}
+            </Button>
+          ) : null}
+        </div>
+      </form>
+    );
+  }
 
-        <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1fr 1fr' }}>
-          <section style={{ ...panelStyle, display: 'grid', gap: 14 }}>
-            <div>
-              <h3 style={{ marginTop: 0 }}>Forum categories</h3>
-              <p style={mutedTextStyle}>
-                Structure the student community by adding visible topic families.
-              </p>
-            </div>
-            <form onSubmit={submitCategory} style={{ display: 'grid', gap: 12 }}>
-              <label style={labelStyle}>
-                Label (FR)
-                <input
-                  value={categoryForm.labelFr}
-                  onChange={(event) =>
-                    setCategoryForm((current) => ({
-                      ...current,
-                      labelFr: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Label (EN)
-                <input
-                  value={categoryForm.labelEn}
-                  onChange={(event) =>
-                    setCategoryForm((current) => ({
-                      ...current,
-                      labelEn: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Description (FR)
-                <textarea
-                  value={categoryForm.descriptionFr}
-                  onChange={(event) =>
-                    setCategoryForm((current) => ({
-                      ...current,
-                      descriptionFr: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Description (EN)
-                <textarea
-                  value={categoryForm.descriptionEn}
-                  onChange={(event) =>
-                    setCategoryForm((current) => ({
-                      ...current,
-                      descriptionEn: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
-                <label style={labelStyle}>
-                  Display order
-                  <input
-                    value={categoryForm.displayOrder}
-                    onChange={(event) =>
-                      setCategoryForm((current) => ({
-                        ...current,
-                        displayOrder: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Status
-                  <select
-                    value={categoryForm.status}
-                    onChange={(event) =>
-                      setCategoryForm((current) => ({
-                        ...current,
-                        status: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </label>
+  function renderTaxonomyTable(
+    items: Array<ForumCategoryItem | ForumTagItem>,
+    editingId: string | null,
+    onSelect: (item: ForumCategoryItem | ForumTagItem) => void,
+    emptyLabel: string,
+  ) {
+    return (
+      <AdminTable
+        columns={[
+          t('community.colLabel'),
+          t('community.colOrder'),
+          t('community.colStatus'),
+        ]}
+        cols="1.8fr 0.5fr 0.9fr"
+        footnote={t('community.editHint')}
+      >
+        {loading ? (
+          <EmptyState title={t('community.loading')} />
+        ) : items.length === 0 ? (
+          <EmptyState title={emptyLabel} />
+        ) : (
+          items.map((item) => (
+            <AdminTableRow
+              key={item.id}
+              selected={editingId === item.id}
+              onSelect={() => onSelect(item)}
+            >
+              <CellText primary={item.label.fr} sub={item.description.fr} />
+              <CellText primary={String(item.displayOrder)} muted />
+              <div>
+                <Badge variant={STATUS_VARIANT[item.status] ?? 'neutral'}>
+                  {statusLabel(item.status)}
+                </Badge>
               </div>
-              <button type="submit" style={buttonStyle}>
-                {editingCategoryId ? 'Update category' : 'Add category'}
-              </button>
-              {editingCategoryId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingCategoryId(null);
-                    setCategoryForm({
-                      labelFr: '',
-                      labelEn: '',
-                      descriptionFr: '',
-                      descriptionEn: '',
-                      displayOrder: '1',
-                      status: 'draft',
-                    });
-                  }}
-                  style={{ ...buttonStyle, background: '#64748b' }}
-                >
-                  Cancel
-                </button>
-              )}
-            </form>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {forumCategories.map((category) => (
-                <div 
-                  key={category.id} 
-                  onClick={() => {
-                    setEditingCategoryId(category.id);
-                    setCategoryForm({
-                      labelFr: category.label.fr,
-                      labelEn: category.label.en,
-                      descriptionFr: category.description.fr,
-                      descriptionEn: category.description.en,
-                      displayOrder: String(category.displayOrder),
-                      status: category.status,
-                    });
-                  }}
-                  style={{ 
-                    borderTop: '1px solid #E2E8F0', 
-                    paddingTop: 12,
-                    cursor: 'pointer',
-                    background: editingCategoryId === category.id ? '#f1f5f9' : 'transparent',
-                    padding: '12px 8px',
-                    borderRadius: 8,
-                  }}
-                >
-                  <strong>{category.label.fr}</strong>
-                  <p style={{ margin: '6px 0' }}>{category.description.fr}</p>
-                  <span style={badgeStyle}>
-                    Order {category.displayOrder} • {category.status}
-                  </span>
-                </div>
-              ))}
+            </AdminTableRow>
+          ))
+        )}
+      </AdminTable>
+    );
+  }
+
+  function toFormState(item: ForumCategoryItem | ForumTagItem): TaxonomyFormState {
+    return {
+      labelFr: item.label.fr,
+      labelEn: item.label.en,
+      descriptionFr: item.description.fr,
+      descriptionEn: item.description.en,
+      displayOrder: String(item.displayOrder),
+      status: item.status,
+    };
+  }
+
+  return (
+    <DashboardShell title={t('community.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
+
+        <div
+          style={{
+            display: 'grid',
+            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+            alignItems: 'start',
+          }}
+        >
+          <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
+            <div>
+              <h3 style={panelTitleStyle}>{t('community.categoriesTitle')}</h3>
+              <p style={hintStyle}>{t('community.categoriesHint')}</p>
             </div>
+            {renderTaxonomyForm(
+              categoryForm,
+              setCategoryForm,
+              submitCategory,
+              editingCategoryId,
+              () => {
+                setEditingCategoryId(null);
+                setCategoryForm(EMPTY_FORM);
+              },
+              t('community.addCategoryCta'),
+              t('community.updateCategoryCta'),
+            )}
+            {renderTaxonomyTable(
+              forumCategories,
+              editingCategoryId,
+              (item) => {
+                setEditingCategoryId(item.id);
+                setCategoryForm(toFormState(item));
+              },
+              t('community.categoriesEmpty'),
+            )}
           </section>
 
-          <section style={{ ...panelStyle, display: 'grid', gap: 14 }}>
+          <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
             <div>
-              <h3 style={{ marginTop: 0 }}>Forum topic tags</h3>
-              <p style={mutedTextStyle}>
-                Add lightweight tags used to guide discussions and discovery.
-              </p>
+              <h3 style={panelTitleStyle}>{t('community.tagsTitle')}</h3>
+              <p style={hintStyle}>{t('community.tagsHint')}</p>
             </div>
-            <form onSubmit={submitTag} style={{ display: 'grid', gap: 12 }}>
-              <label style={labelStyle}>
-                Label (FR)
-                <input
-                  value={tagForm.labelFr}
-                  onChange={(event) =>
-                    setTagForm((current) => ({
-                      ...current,
-                      labelFr: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Label (EN)
-                <input
-                  value={tagForm.labelEn}
-                  onChange={(event) =>
-                    setTagForm((current) => ({
-                      ...current,
-                      labelEn: event.target.value,
-                    }))
-                  }
-                  style={inputStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Description (FR)
-                <textarea
-                  value={tagForm.descriptionFr}
-                  onChange={(event) =>
-                    setTagForm((current) => ({
-                      ...current,
-                      descriptionFr: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <label style={labelStyle}>
-                Description (EN)
-                <textarea
-                  value={tagForm.descriptionEn}
-                  onChange={(event) =>
-                    setTagForm((current) => ({
-                      ...current,
-                      descriptionEn: event.target.value,
-                    }))
-                  }
-                  style={textareaStyle}
-                />
-              </label>
-              <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
-                <label style={labelStyle}>
-                  Display order
-                  <input
-                    value={tagForm.displayOrder}
-                    onChange={(event) =>
-                      setTagForm((current) => ({
-                        ...current,
-                        displayOrder: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Status
-                  <select
-                    value={tagForm.status}
-                    onChange={(event) =>
-                      setTagForm((current) => ({
-                        ...current,
-                        status: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </label>
-              </div>
-              <button type="submit" style={buttonStyle}>
-                {editingTagId ? 'Update topic tag' : 'Add topic tag'}
-              </button>
-              {editingTagId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingTagId(null);
-                    setTagForm({
-                      labelFr: '',
-                      labelEn: '',
-                      descriptionFr: '',
-                      descriptionEn: '',
-                      displayOrder: '1',
-                      status: 'draft',
-                    });
-                  }}
-                  style={{ ...buttonStyle, background: '#64748b' }}
-                >
-                  Cancel
-                </button>
-              )}
-            </form>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {forumTags.map((tag) => (
-                <div 
-                  key={tag.id} 
-                  onClick={() => {
-                    setEditingTagId(tag.id);
-                    setTagForm({
-                      labelFr: tag.label.fr,
-                      labelEn: tag.label.en,
-                      descriptionFr: tag.description.fr,
-                      descriptionEn: tag.description.en,
-                      displayOrder: String(tag.displayOrder),
-                      status: tag.status,
-                    });
-                  }}
-                  style={{ 
-                    borderTop: '1px solid #E2E8F0', 
-                    paddingTop: 12,
-                    cursor: 'pointer',
-                    background: editingTagId === tag.id ? '#f1f5f9' : 'transparent',
-                    padding: '12px 8px',
-                    borderRadius: 8,
-                  }}
-                >
-                  <strong>{tag.label.fr}</strong>
-                  <p style={{ margin: '6px 0' }}>{tag.description.fr}</p>
-                  <span style={badgeStyle}>
-                    Order {tag.displayOrder} • {tag.status}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {renderTaxonomyForm(
+              tagForm,
+              setTagForm,
+              submitTag,
+              editingTagId,
+              () => {
+                setEditingTagId(null);
+                setTagForm(EMPTY_FORM);
+              },
+              t('community.addTagCta'),
+              t('community.updateTagCta'),
+            )}
+            {renderTaxonomyTable(
+              forumTags,
+              editingTagId,
+              (item) => {
+                setEditingTagId(item.id);
+                setTagForm(toFormState(item));
+              },
+              t('community.tagsEmpty'),
+            )}
           </section>
         </div>
 
-        <section style={panelStyle}>
-          <h3 style={{ marginTop: 0 }}>Moderation queue</h3>
-          <p style={mutedTextStyle}>
-            Reported items remain visible here for moderator follow-up and
-            escalation.
-          </p>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {moderationQueue.map((item) => (
-              <div key={item.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                <strong>{item.subject}</strong>
-                <p style={{ margin: '6px 0' }}>
-                  {item.targetType} • {item.reportsCount} reports
-                </p>
-                <span style={badgeStyle}>{item.suggestedAction}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+        <AdminTable
+          title={`${t('community.moderationTitle')} — ${moderationQueue.length}`}
+          columns={[
+            t('community.colContent'),
+            t('community.colType'),
+            t('community.colReports'),
+            t('community.colSuggested'),
+          ]}
+          cols="2fr 0.9fr 0.7fr 1fr"
+          footnote={t('community.moderationNote')}
+        >
+          {loading ? (
+            <EmptyState title={t('community.loading')} />
+          ) : moderationQueue.length === 0 ? (
+            <EmptyState title={t('community.moderationEmpty')} />
+          ) : (
+            moderationQueue.map((item) => (
+              <AdminTableRow key={item.id}>
+                <CellText primary={item.subject} />
+                <CellText primary={item.targetType.replace(/_/g, ' ')} muted />
+                <div>
+                  <Badge variant={item.reportsCount > 1 ? 'danger' : 'warning'}>
+                    {item.reportsCount}
+                  </Badge>
+                </div>
+                <div>
+                  <Badge
+                    variant={
+                      ACTION_VARIANT[item.suggestedAction.toLowerCase()] ??
+                      'neutral'
+                    }
+                  >
+                    {item.suggestedAction.replace(/_/g, ' ')}
+                  </Badge>
+                </div>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
       </div>
     </DashboardShell>
   );
