@@ -1,19 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  secondaryButtonStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+} from '../../components/ui';
+import type { BadgeVariant } from '../../components/ui';
 
 type ModerationStatus = 'pending' | 'approved' | 'rejected';
 type ApplicationRequirement = 'automatic' | 'separate_application';
@@ -51,11 +56,6 @@ interface StepDraft {
 
 const EMPTY_STEP_DRAFT: StepDraft = { stepNumber: '', titleFr: '', titleEn: '' };
 
-const requirementLabels: Record<ApplicationRequirement, string> = {
-  automatic: 'Automatique (attribuée à l’admission)',
-  separate_application: 'Candidature séparée requise',
-};
-
 interface ModerationResponse {
   items: ScholarshipEntry[];
 }
@@ -67,38 +67,34 @@ interface RefreshSummary {
   [key: string]: unknown;
 }
 
-const STATUS_FILTERS: { value: ModerationStatus; label: string }[] = [
-  { value: 'pending', label: 'En attente' },
-  { value: 'approved', label: 'Approuvées' },
-  { value: 'rejected', label: 'Rejetées' },
-];
+const STATUS_VALUES: ModerationStatus[] = ['pending', 'approved', 'rejected'];
 
-const approveButtonStyle = {
-  ...buttonStyle,
-  background: '#16A34A',
+const STATUS_VARIANT: Record<ModerationStatus, BadgeVariant> = {
+  pending: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
-const rejectButtonStyle = {
-  ...buttonStyle,
-  background: '#DC2626',
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
 };
 
-const chipStyle = {
-  ...badgeStyle,
-  background: '#E9EEF6',
-  color: '#334155',
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
 };
 
-const statusBadgeStyles: Record<ModerationStatus, typeof badgeStyle> = {
-  pending: { ...badgeStyle, background: '#FEF3C7', color: '#92400E' },
-  approved: { ...badgeStyle, background: '#ECFDF5', color: '#166534' },
-  rejected: { ...badgeStyle, background: '#FEF2F2', color: '#B91C1C' },
-};
-
-const statusLabels: Record<ModerationStatus, string> = {
-  pending: 'En attente',
-  approved: 'Approuvée',
-  rejected: 'Rejetée',
+const metaLabelStyle: CSSProperties = {
+  fontSize: 9.5,
+  fontWeight: 800,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: 'var(--text-faint)',
 };
 
 function formatDeadline(iso: string | null): string {
@@ -117,16 +113,32 @@ function formatDeadline(iso: string | null): string {
 
 export default function ScholarshipsPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [statusFilter, setStatusFilter] = useState<ModerationStatus>('pending');
   const [items, setItems] = useState<ScholarshipEntry[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [expandedStepsId, setExpandedStepsId] = useState<string | null>(null);
   const [stepDrafts, setStepDrafts] = useState<Record<string, StepDraft>>({});
   const [stepPendingId, setStepPendingId] = useState<string | null>(null);
+
+  const selected = useMemo(
+    () => items.find((item) => item.id === selectedId) ?? null,
+    [items, selectedId],
+  );
+
+  function statusLabel(status: ModerationStatus) {
+    return t(`scholarships.status_${status}`);
+  }
+
+  function requirementLabel(value: ApplicationRequirement) {
+    return value === 'automatic'
+      ? t('scholarships.requirementAutomatic')
+      : t('scholarships.requirementSeparate');
+  }
 
   async function loadScholarships(status: ModerationStatus) {
     setLoading(true);
@@ -135,12 +147,16 @@ export default function ScholarshipsPage() {
       const response = await apiFetch<ModerationResponse>(
         `/admin/scholarships/moderation?status=${status}`,
       );
-      setItems(response?.items ?? []);
+      const nextItems = response?.items ?? [];
+      setItems(nextItems);
+      setSelectedId((current) =>
+        current && nextItems.some((item) => item.id === current)
+          ? current
+          : (nextItems[0]?.id ?? null),
+      );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Impossible de charger les bourses.',
+        error instanceof Error ? error.message : t('scholarships.loadError'),
       );
     } finally {
       setLoading(false);
@@ -152,6 +168,7 @@ export default function ScholarshipsPage() {
       return;
     }
     void loadScholarships(statusFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, statusFilter]);
 
   function changeFilter(next: ModerationStatus) {
@@ -178,15 +195,13 @@ export default function ScholarshipsPage() {
           : null;
       setStatusMessage(
         processed !== null
-          ? `Flux rafraîchi — ${processed} bourse(s) traitée(s).`
-          : 'Flux rafraîchi.',
+          ? `${t('scholarships.refreshSuccess')} ${processed} ${t('scholarships.processedSuffix')}`
+          : t('scholarships.refreshSuccess'),
       );
       await loadScholarships(statusFilter);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Impossible de rafraîchir le flux.',
+        error instanceof Error ? error.message : t('scholarships.refreshError'),
       );
     } finally {
       setRefreshing(false);
@@ -203,16 +218,15 @@ export default function ScholarshipsPage() {
       });
       // The row no longer matches the active filter, so drop it from the list.
       setItems((current) => current.filter((item) => item.id !== entry.id));
+      setSelectedId((current) => (current === entry.id ? null : current));
       setStatusMessage(
         action === 'approve'
-          ? 'Bourse approuvée.'
-          : 'Bourse rejetée.',
+          ? t('scholarships.approveSuccess')
+          : t('scholarships.rejectSuccess'),
       );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Impossible de mettre à jour la bourse.',
+        error instanceof Error ? error.message : t('scholarships.updateError'),
       );
     } finally {
       setPendingId(null);
@@ -243,13 +257,9 @@ export default function ScholarshipsPage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : 'Impossible de mettre à jour le type de candidature.',
+          : t('scholarships.requirementError'),
       );
     }
-  }
-
-  function toggleSteps(entryId: string) {
-    setExpandedStepsId((current) => (current === entryId ? null : entryId));
   }
 
   function updateDraft(entryId: string, patch: Partial<StepDraft>) {
@@ -263,7 +273,7 @@ export default function ScholarshipsPage() {
     const draft = stepDrafts[entry.id] ?? EMPTY_STEP_DRAFT;
     const stepNumber = Number(draft.stepNumber);
     if (!draft.titleFr.trim() || !Number.isFinite(stepNumber)) {
-      setErrorMessage('Numéro d’étape et titre (FR) requis.');
+      setErrorMessage(t('scholarships.stepValidationError'));
       return;
     }
     setStepPendingId(entry.id);
@@ -295,7 +305,7 @@ export default function ScholarshipsPage() {
       setStepDrafts((current) => ({ ...current, [entry.id]: EMPTY_STEP_DRAFT }));
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Impossible d'ajouter l'étape.",
+        error instanceof Error ? error.message : t('scholarships.stepAddError'),
       );
     } finally {
       setStepPendingId(null);
@@ -321,141 +331,96 @@ export default function ScholarshipsPage() {
       );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Impossible de supprimer l'étape.",
+        error instanceof Error ? error.message : t('scholarships.stepRemoveError'),
       );
     } finally {
       setStepPendingId(null);
     }
   }
 
-  function renderApplicationSteps(entry: ScholarshipEntry) {
-    const expanded = expandedStepsId === entry.id;
+  function renderStepsEditor(entry: ScholarshipEntry) {
     const draft = stepDrafts[entry.id] ?? EMPTY_STEP_DRAFT;
     const busy = stepPendingId === entry.id;
 
     return (
-      <div style={{ display: 'grid', gap: 8 }}>
-        <button
-          type="button"
-          onClick={() => toggleSteps(entry.id)}
-          style={{ ...secondaryButtonStyle, justifySelf: 'start', padding: '6px 12px' }}
-        >
-          {expanded ? 'Masquer' : 'Étapes de candidature'} ({entry.applicationSteps.length})
-        </button>
-        {expanded ? (
-          <div style={{ display: 'grid', gap: 10, paddingLeft: 12 }}>
-            {entry.applicationSteps.map((step) => (
-              <div
-                key={step.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                }}
-              >
-                <span>
-                  <strong>{step.stepNumber}.</strong> {step.titleFr}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeStep(entry, step)}
-                  disabled={busy}
-                  style={{ ...rejectButtonStyle, opacity: busy ? 0.6 : 1, padding: '4px 10px' }}
-                >
-                  Retirer
-                </button>
-              </div>
-            ))}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-              <label style={{ display: 'grid', gap: 4 }}>
-                <span style={labelStyle}>N°</span>
-                <input
+      <div style={{ display: 'grid', gap: 10 }}>
+        <span style={metaLabelStyle}>
+          {t('scholarships.stepsTitle')} ({entry.applicationSteps.length})
+        </span>
+        {entry.applicationSteps.map((step) => (
+          <div
+            key={step.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              background: 'var(--bg)',
+              border: '1px solid var(--border-soft)',
+              borderRadius: 12,
+              padding: '8px 12px',
+            }}
+          >
+            <span style={{ fontSize: 'var(--text-sm)' }}>
+              <strong>{step.stepNumber}.</strong> {step.titleFr}
+            </span>
+            <Button
+              size="sm"
+              variant="dangerOutline"
+              disabled={busy}
+              onClick={() => removeStep(entry, step)}
+            >
+              {t('scholarships.removeStepCta')}
+            </Button>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ width: 72 }}>
+            <Field label={t('scholarships.stepNumberLabel')}>
+              {({ id }) => (
+                <Input
+                  id={id}
                   type="number"
                   value={draft.stepNumber}
                   onChange={(e) => updateDraft(entry.id, { stepNumber: e.target.value })}
-                  style={{ ...inputStyle, width: 64 }}
                 />
-              </label>
-              <label style={{ display: 'grid', gap: 4, flex: 1, minWidth: 160 }}>
-                <span style={labelStyle}>Titre (FR)</span>
-                <input
-                  type="text"
+              )}
+            </Field>
+          </div>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <Field label={t('scholarships.stepTitleFrLabel')}>
+              {({ id }) => (
+                <Input
+                  id={id}
                   value={draft.titleFr}
                   onChange={(e) => updateDraft(entry.id, { titleFr: e.target.value })}
-                  style={inputStyle}
                 />
-              </label>
-              <label style={{ display: 'grid', gap: 4, flex: 1, minWidth: 160 }}>
-                <span style={labelStyle}>Titre (EN)</span>
-                <input
-                  type="text"
+              )}
+            </Field>
+          </div>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <Field label={t('scholarships.stepTitleEnLabel')}>
+              {({ id }) => (
+                <Input
+                  id={id}
                   value={draft.titleEn}
                   onChange={(e) => updateDraft(entry.id, { titleEn: e.target.value })}
-                  style={inputStyle}
                 />
-              </label>
-              <button
-                type="button"
-                onClick={() => addStep(entry)}
-                disabled={busy}
-                style={{ ...buttonStyle, opacity: busy ? 0.6 : 1 }}
-              >
-                Ajouter
-              </button>
-            </div>
+              )}
+            </Field>
           </div>
-        ) : null}
+          <Button size="sm" variant="secondary" loading={busy} onClick={() => addStep(entry)}>
+            {t('scholarships.addStepCta')}
+          </Button>
+        </div>
       </div>
     );
   }
 
-  function renderActions(entry: ScholarshipEntry) {
+  function renderDetail(entry: ScholarshipEntry) {
     const isPending = pendingId === entry.id;
-    const buttons: React.ReactNode[] = [];
-
-    if (entry.moderationStatus === 'pending' || entry.moderationStatus === 'rejected') {
-      buttons.push(
-        <button
-          key="approve"
-          type="button"
-          onClick={() => moderate(entry, 'approve')}
-          disabled={isPending}
-          style={{ ...approveButtonStyle, opacity: isPending ? 0.6 : 1 }}
-        >
-          Approuver
-        </button>,
-      );
-    }
-
-    if (entry.moderationStatus === 'pending' || entry.moderationStatus === 'approved') {
-      buttons.push(
-        <button
-          key="reject"
-          type="button"
-          onClick={() => moderate(entry, 'reject')}
-          disabled={isPending}
-          style={{ ...rejectButtonStyle, opacity: isPending ? 0.6 : 1 }}
-        >
-          Rejeter
-        </button>,
-      );
-    }
-
-    return <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{buttons}</div>;
-  }
-
-  function renderEntry(entry: ScholarshipEntry) {
     return (
-      <div
-        key={entry.id}
-        style={{
-          borderTop: '1px solid #E2E8F0',
-          paddingTop: 12,
-          display: 'grid',
-          gap: 10,
-        }}
-      >
+      <section style={{ ...panelCardStyle, display: 'grid', gap: 14 }}>
         <div
           style={{
             display: 'flex',
@@ -465,120 +430,192 @@ export default function ScholarshipsPage() {
             flexWrap: 'wrap',
           }}
         >
-          <strong>{entry.nameFr}</strong>
-          <span style={statusBadgeStyles[entry.moderationStatus]}>
-            {statusLabels[entry.moderationStatus]}
-          </span>
+          <h3 style={panelTitleStyle}>{entry.nameFr}</h3>
+          <Badge variant={STATUS_VARIANT[entry.moderationStatus]}>
+            {statusLabel(entry.moderationStatus)}
+          </Badge>
         </div>
-        <div style={{ ...mutedTextStyle, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <span>Pays : {entry.countryId || '—'}</span>
-          <span>Échéance : {formatDeadline(entry.deadlineAt)}</span>
+
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('scholarships.countryLabel')}</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700 }}>
+              {entry.countryId || '—'}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <span style={metaLabelStyle}>{t('scholarships.deadlineLabel')}</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700 }}>
+              {formatDeadline(entry.deadlineAt)}
+            </span>
+          </div>
         </div>
-        {entry.sourceUrl ? (
-          <a
-            href={entry.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'var(--brand)', wordBreak: 'break-all' }}
-          >
-            {entry.sourceUrl}
-          </a>
-        ) : (
-          <span style={mutedTextStyle}>Aucune source</span>
-        )}
+
+        <div style={{ display: 'grid', gap: 2 }}>
+          <span style={metaLabelStyle}>{t('scholarships.sourceLabel')}</span>
+          {entry.sourceUrl ? (
+            <a
+              href={entry.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: 'var(--brand)',
+                wordBreak: 'break-all',
+                fontSize: 'var(--text-sm)',
+              }}
+            >
+              {entry.sourceUrl}
+            </a>
+          ) : (
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+              {t('scholarships.noSource')}
+            </span>
+          )}
+        </div>
+
         {entry.tags.length > 0 ? (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {entry.tags.map((tag) => (
-              <span key={tag} style={chipStyle}>
+              <Badge key={tag} variant="neutral">
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         ) : null}
-        <label style={{ display: 'grid', gap: 4, maxWidth: 320 }}>
-          <span style={labelStyle}>Type de candidature</span>
-          <select
-            value={entry.applicationRequirement}
-            onChange={(e) =>
-              updateRequirement(entry, e.target.value as ApplicationRequirement)
-            }
-            style={inputStyle}
-          >
-            {(Object.keys(requirementLabels) as ApplicationRequirement[]).map((value) => (
-              <option key={value} value={value}>
-                {requirementLabels[value]}
+
+        <Field label={t('scholarships.requirementLabel')}>
+          {({ id }) => (
+            <Select
+              id={id}
+              value={entry.applicationRequirement}
+              onChange={(e) =>
+                updateRequirement(entry, e.target.value as ApplicationRequirement)
+              }
+            >
+              <option value="automatic">{requirementLabel('automatic')}</option>
+              <option value="separate_application">
+                {requirementLabel('separate_application')}
               </option>
-            ))}
-          </select>
-        </label>
-        {renderApplicationSteps(entry)}
-        {renderActions(entry)}
-      </div>
+            </Select>
+          )}
+        </Field>
+
+        {renderStepsEditor(entry)}
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {entry.moderationStatus === 'pending' ||
+          entry.moderationStatus === 'rejected' ? (
+            <Button
+              variant="success"
+              loading={isPending}
+              onClick={() => moderate(entry, 'approve')}
+            >
+              {t('scholarships.approveCta')}
+            </Button>
+          ) : null}
+          {entry.moderationStatus === 'pending' ||
+          entry.moderationStatus === 'approved' ? (
+            <Button
+              variant="dangerOutline"
+              disabled={isPending}
+              onClick={() => moderate(entry, 'reject')}
+            >
+              {t('scholarships.rejectCta')}
+            </Button>
+          ) : null}
+        </div>
+      </section>
     );
   }
 
   return (
-    <DashboardShell title="Modération des bourses">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('scholarships.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {STATUS_VALUES.map((value) => (
+              <Button
+                key={value}
+                size="sm"
+                variant={value === statusFilter ? 'primary' : 'secondary'}
+                onClick={() => changeFilter(value)}
+              >
+                {t(`scholarships.filter_${value}`)}
+              </Button>
+            ))}
+          </div>
+          <Button size="sm" loading={refreshing} onClick={refreshFeed}>
+            {refreshing
+              ? t('scholarships.refreshing')
+              : t('scholarships.refreshCta')}
+          </Button>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gap: 14,
+            gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
+            alignItems: 'start',
+          }}
+        >
+          <AdminTable
+            aria-label={t('scholarships.title')}
+            columns={[
+              t('scholarships.colName'),
+              t('scholarships.colDeadline'),
+              t('scholarships.colSteps'),
+              t('scholarships.colStatus'),
+            ]}
+            cols="1.6fr 0.8fr 0.6fr 0.8fr"
+            footnote={t('scholarships.tableNote')}
           >
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {STATUS_FILTERS.map((filter) => {
-                const active = filter.value === statusFilter;
-                return (
-                  <button
-                    key={filter.value}
-                    type="button"
-                    onClick={() => changeFilter(filter.value)}
-                    style={{
-                      ...(active ? buttonStyle : secondaryButtonStyle),
-                      padding: '10px 14px',
-                    }}
-                  >
-                    {filter.label}
-                  </button>
-                );
-              })}
-            </div>
-            <button
-              type="button"
-              onClick={refreshFeed}
-              disabled={refreshing}
-              style={{ ...buttonStyle, opacity: refreshing ? 0.6 : 1 }}
-            >
-              {refreshing ? 'Rafraîchissement…' : 'Rafraîchir le flux'}
-            </button>
-          </div>
+            {loading ? (
+              <EmptyState title={t('scholarships.loading')} />
+            ) : items.length === 0 ? (
+              <EmptyState title={t('scholarships.empty')} />
+            ) : (
+              items.map((entry) => (
+                <AdminTableRow
+                  key={entry.id}
+                  selected={selectedId === entry.id}
+                  onSelect={() => setSelectedId(entry.id)}
+                >
+                  <CellText
+                    primary={entry.nameFr}
+                    sub={entry.countryId || undefined}
+                  />
+                  <CellText primary={formatDeadline(entry.deadlineAt)} muted />
+                  <CellText primary={String(entry.applicationSteps.length)} muted />
+                  <div>
+                    <Badge variant={STATUS_VARIANT[entry.moderationStatus]}>
+                      {statusLabel(entry.moderationStatus)}
+                    </Badge>
+                  </div>
+                </AdminTableRow>
+              ))
+            )}
+          </AdminTable>
 
-          {loading ? (
-            <p style={mutedTextStyle}>Chargement des bourses…</p>
-          ) : items.length === 0 ? (
-            <p style={mutedTextStyle}>Aucune bourse à modérer</p>
+          {selected ? (
+            renderDetail(selected)
           ) : (
-            <div style={{ display: 'grid', gap: 12 }}>
-              {items.map((entry) => renderEntry(entry))}
-            </div>
+            <section style={panelCardStyle}>
+              <EmptyState title={t('scholarships.selectHint')} />
+            </section>
           )}
-        </section>
+        </div>
       </div>
     </DashboardShell>
   );

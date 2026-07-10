@@ -54,6 +54,22 @@
 .danger:hover:not(:disabled) {
   filter: brightness(0.92);
 }
+/* Handoff moderation pair: solid green confirm + red-outline alternative. */
+.success {
+  background: var(--success-fg);
+  color: #fff;
+}
+.success:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+.dangerOutline {
+  background: transparent;
+  border-color: #fecaca;
+  color: var(--danger-fg);
+}
+.dangerOutline:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
 .sm {
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);

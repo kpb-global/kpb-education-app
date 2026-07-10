@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { fetchVerificationDue } from '../../lib/catalog-api';
 import type {
   VerificationPolicy,
@@ -11,30 +12,29 @@ import type {
 } from '../../lib/catalog-api';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  mutedTextStyle,
-  panelStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Input,
+} from '../../components/ui';
 
-const resetButtonStyle = {
-  ...buttonStyle,
-  background: 'var(--surface-2)',
-  color: 'var(--text)',
+const policyCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+  display: 'grid',
+  gap: 8,
+  justifyItems: 'start',
 };
-
-function formatDate(value: string | null) {
-  if (!value) return 'Jamais';
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value));
-}
 
 export default function VerificationPage() {
   const { session } = useAdminAuth();
+  const { t, locale } = useLocale();
   const [items, setItems] = useState<VerificationQueueItem[]>([]);
   const [policies, setPolicies] = useState<VerificationPolicy[]>([]);
   const [sourceInputs, setSourceInputs] = useState<Record<string, string>>({});
@@ -42,6 +42,15 @@ export default function VerificationPage() {
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  function formatDate(value: string | null) {
+    if (!value) return t('verification.never');
+    return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(new Date(value));
+  }
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
@@ -60,13 +69,12 @@ export default function VerificationPage() {
       );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Impossible de charger la file de verification.',
+        error instanceof Error ? error.message : t('verification.loadError'),
       );
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -125,14 +133,12 @@ export default function VerificationPage() {
       }));
       setStatusMessage(
         verified
-          ? 'Entree marquee comme verifiee.'
-          : 'Verification reinitialisee.',
+          ? t('verification.verifiedSuccess')
+          : t('verification.resetSuccess'),
       );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Impossible de mettre a jour la verification.',
+        error instanceof Error ? error.message : t('verification.updateError'),
       );
     } finally {
       setPendingKey(null);
@@ -140,146 +146,108 @@ export default function VerificationPage() {
   }
 
   return (
-    <DashboardShell title="Verification catalogue">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('verification.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
         <div
           style={{
             display: 'grid',
-            gap: 14,
+            gap: 12,
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           }}
         >
           {policies.map((policy) => (
-            <div key={policy.key} style={panelStyle}>
-              <span style={badgeStyle}>{policy.cadenceDays} jours</span>
-              <h3 style={{ marginBottom: 8 }}>{policy.label}</h3>
-              <p style={{ ...mutedTextStyle, margin: 0 }}>{policy.owner}</p>
-            </div>
+            <section key={policy.key} style={policyCardStyle} aria-label={policy.label}>
+              <Badge variant="brand">
+                {policy.cadenceDays} {t('verification.daysSuffix')}
+              </Badge>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 'var(--text-base)',
+                  fontWeight: 800,
+                  color: 'var(--ink)',
+                }}
+              >
+                {policy.label}
+              </h3>
+              <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                {policy.owner}
+              </p>
+            </section>
           ))}
         </div>
 
-        <section style={panelStyle}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 16,
-              alignItems: 'center',
-              marginBottom: 14,
-            }}
-          >
-            <h3 style={{ margin: 0 }}>Lignes a revoir</h3>
-            <span style={badgeStyle}>{items.length} ouvertes</span>
-          </div>
-
+        <AdminTable
+          title={`${t('verification.queueTitle')} — ${items.length} ${t('verification.openSuffix')}`}
+          columns={[
+            t('verification.colItem'),
+            t('verification.colCategory'),
+            t('verification.colLastCheck'),
+            t('verification.colVerifiedBy'),
+            t('verification.colSource'),
+            t('verification.colActions'),
+          ]}
+          cols="1.5fr 0.9fr 0.8fr 0.9fr 1.6fr 1.1fr"
+          footnote={t('verification.tableNote')}
+        >
           {loading ? (
-            <p style={mutedTextStyle}>Chargement...</p>
+            <EmptyState title={t('verification.loading')} />
           ) : items.length === 0 ? (
-            <p style={mutedTextStyle}>Aucune ligne catalogue a revoir.</p>
+            <EmptyState title={t('verification.empty')} />
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table
-                style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  minWidth: 980,
-                }}
-              >
-                <thead>
-                  <tr style={{ textAlign: 'left', color: '#64748B' }}>
-                    <th style={{ padding: '10px 8px' }}>Ligne</th>
-                    <th style={{ padding: '10px 8px' }}>Categorie</th>
-                    <th style={{ padding: '10px 8px' }}>Responsable</th>
-                    <th style={{ padding: '10px 8px' }}>Dernier check</th>
-                    <th style={{ padding: '10px 8px' }}>Verifie par</th>
-                    <th style={{ padding: '10px 8px' }}>Source</th>
-                    <th style={{ padding: '10px 8px' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => {
-                    const key = `${item.entityType}:${item.id}`;
-                    const isPending = pendingKey === key;
-                    return (
-                      <tr key={key}>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          <strong>{item.label}</strong>
-                          <br />
-                          <span style={mutedTextStyle}>
-                            {item.entityType}
-                            {item.context ? ` / ${item.context}` : ''}
-                          </span>
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          {item.categoryLabel}
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          {item.owner}
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          {formatDate(item.lastVerifiedAt)}
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          {item.verifiedByName ?? 'Non renseigne'}
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          <input
-                            value={sourceInputs[key] ?? ''}
-                            onChange={(event) =>
-                              setSourceInputs((current) => ({
-                                ...current,
-                                [key]: event.target.value,
-                              }))
-                            }
-                            placeholder="https://source-officielle.example"
-                            style={{ ...inputStyle, minWidth: 260 }}
-                          />
-                        </td>
-                        <td style={{ borderTop: '1px solid #E2E8F0', padding: 8 }}>
-                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            <button
-                              type="button"
-                              onClick={() => verifyItem(item, true)}
-                              disabled={isPending}
-                              style={{
-                                ...buttonStyle,
-                                opacity: isPending ? 0.6 : 1,
-                              }}
-                            >
-                              Valider
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => verifyItem(item, false)}
-                              disabled={isPending}
-                              style={{
-                                ...resetButtonStyle,
-                                opacity: isPending ? 0.6 : 1,
-                              }}
-                            >
-                              Reset
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            items.map((item) => {
+              const key = `${item.entityType}:${item.id}`;
+              const isPending = pendingKey === key;
+              return (
+                <AdminTableRow key={key}>
+                  <CellText
+                    primary={item.label}
+                    sub={`${item.entityType}${item.context ? ` / ${item.context}` : ''}`}
+                  />
+                  <CellText primary={item.categoryLabel} sub={item.owner} muted />
+                  <CellText primary={formatDate(item.lastVerifiedAt)} muted />
+                  <CellText
+                    primary={item.verifiedByName ?? t('verification.notProvided')}
+                    muted={!item.verifiedByName}
+                  />
+                  <Input
+                    value={sourceInputs[key] ?? ''}
+                    onChange={(event) =>
+                      setSourceInputs((current) => ({
+                        ...current,
+                        [key]: event.target.value,
+                      }))
+                    }
+                    placeholder={t('verification.sourcePlaceholder')}
+                    aria-label={t('verification.colSource')}
+                    style={{ padding: '8px 10px', fontSize: 'var(--text-sm)' }}
+                  />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Button
+                      size="sm"
+                      variant="success"
+                      loading={isPending}
+                      onClick={() => verifyItem(item, true)}
+                    >
+                      {t('verification.validateCta')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="dangerOutline"
+                      disabled={isPending}
+                      onClick={() => verifyItem(item, false)}
+                    >
+                      {t('verification.resetCta')}
+                    </Button>
+                  </div>
+                </AdminTableRow>
+              );
+            })
           )}
-        </section>
+        </AdminTable>
       </div>
     </DashboardShell>
   );
