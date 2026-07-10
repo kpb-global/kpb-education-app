@@ -87,7 +87,7 @@
   transition: box-shadow 0.15s ease, transform 0.05s ease;
 }
 .cardInteractive:hover {
-  box-shadow: 0 16px 40px rgba(18, 32, 51, 0.1);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
 }
 
 /* ── Field / Input ──────────────────────────────────────────────────────── */

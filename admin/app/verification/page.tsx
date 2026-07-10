@@ -20,8 +20,8 @@ import {
 
 const resetButtonStyle = {
   ...buttonStyle,
-  background: '#E2E8F0',
-  color: '#122033',
+  background: 'var(--surface-2)',
+  color: 'var(--text)',
 };
 
 function formatDate(value: string | null) {

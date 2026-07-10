@@ -30,8 +30,8 @@ export default function GlobalError({
           minHeight: '100vh',
           display: 'grid',
           placeItems: 'center',
-          background: '#F4F7FB',
-          color: '#122033',
+          background: '#F8FAFC',
+          color: '#0F172A',
         }}
       >
         <div
@@ -41,7 +41,7 @@ export default function GlobalError({
             background: '#fff',
             borderRadius: 20,
             padding: 32,
-            boxShadow: '0 12px 32px rgba(18,32,51,0.06)',
+            boxShadow: '0 12px 32px rgba(15,23,42,0.06)',
             textAlign: 'center',
           }}
         >
@@ -57,7 +57,7 @@ export default function GlobalError({
               border: 'none',
               borderRadius: 14,
               padding: '12px 16px',
-              background: '#004AAD',
+              background: '#2563EB',
               color: '#fff',
               fontWeight: 700,
               cursor: 'pointer',

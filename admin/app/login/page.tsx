@@ -47,7 +47,7 @@ export default function LoginPage() {
         display: 'grid',
         placeItems: 'center',
         background:
-          'linear-gradient(145deg, #0F172A 0%, #122033 45%, #E2E8F0 160%)',
+          'linear-gradient(145deg, var(--ink) 0%, #1e293b 45%, var(--border) 160%)',
         padding: 24,
       }}
     >
@@ -58,14 +58,23 @@ export default function LoginPage() {
           background: '#fff',
           borderRadius: 28,
           padding: 32,
-          boxShadow: '0 24px 60px rgba(15,23,42,0.28)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
-        <p style={{ marginTop: 0, color: '#F97316', fontWeight: 700 }}>
-          KPB Operations
+        <p
+          style={{
+            marginTop: 0,
+            color: 'var(--brand)',
+            fontWeight: 800,
+            fontSize: 12,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          {t('login.eyebrow')}
         </p>
         <h1 style={{ marginTop: 0, marginBottom: 8 }}>{t('login.title')}</h1>
-        <p style={{ color: '#64748B', lineHeight: 1.6 }}>{t('login.subtitle')}</p>
+        <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>{t('login.subtitle')}</p>
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
           <label style={{ display: 'grid', gap: 8 }}>
             <span style={{ fontWeight: 600 }}>{t('login.emailLabel')}</span>
@@ -75,7 +84,7 @@ export default function LoginPage() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@karatoupostbac.com"
               style={{
-                border: '1px solid #CBD5E1',
+                border: '1px solid var(--border)',
                 borderRadius: 14,
                 padding: '13px 14px',
                 fontSize: 15,
@@ -83,14 +92,14 @@ export default function LoginPage() {
             />
           </label>
           <label style={{ display: 'grid', gap: 8 }}>
-            <span style={{ fontWeight: 600 }}>Password</span>
+            <span style={{ fontWeight: 600 }}>{t('login.passwordLabel')}</span>
             <input
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
               style={{
-                border: '1px solid #CBD5E1',
+                border: '1px solid var(--border)',
                 borderRadius: 14,
                 padding: '13px 14px',
                 fontSize: 15,
@@ -101,8 +110,8 @@ export default function LoginPage() {
             <div
               style={{
                 borderRadius: 14,
-                background: '#FEF2F2',
-                color: '#B91C1C',
+                background: 'var(--danger-bg)',
+                color: 'var(--danger-fg)',
                 padding: '12px 14px',
               }}
             >
@@ -116,7 +125,7 @@ export default function LoginPage() {
               border: 'none',
               borderRadius: 14,
               padding: '14px 16px',
-              background: '#122033',
+              background: 'var(--brand)',
               color: '#fff',
               fontWeight: 700,
               cursor: isSubmitting ? 'wait' : 'pointer',

@@ -296,7 +296,7 @@ export default function CasesPage() {
                         borderRadius: 18,
                         padding: 16,
                         background: '#fff',
-                        boxShadow: '0 12px 32px rgba(18,32,51,0.06)',
+                        boxShadow: 'var(--shadow-sm)',
                         cursor: 'pointer',
                       }}
                     >

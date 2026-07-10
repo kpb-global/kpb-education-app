@@ -5,34 +5,38 @@
    Dark mode later is a one-file [data-theme="dark"] override of this block.
    ────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Brand — KPB blue. The single accent: primary actions, active state, focus, links. */
-  --brand: #004aad;
-  --brand-strong: #003a87; /* hover / pressed */
-  --brand-soft: #e6eef8; /* tinted background */
+  /* Brand — App-engagement handoff blue. The single accent: primary actions,
+     active state, focus, links. Matches the shipped mobile surfaces. */
+  --brand: #2563eb;
+  --brand-strong: #1e40af; /* hover / pressed */
+  --brand-soft: #eff6ff; /* tinted background */
   --brand-fg: #ffffff; /* text/icon on brand */
 
   /* Surfaces & neutrals */
-  --bg: #f4f7fb; /* app background */
+  --bg: #f8fafc; /* app background */
   --surface: #ffffff; /* cards / panels */
-  --surface-2: #e9eef6; /* soft panel / secondary button */
-  --border: #cbd5e1;
-  --ink: #122033; /* sidebar surface + strongest text */
+  --surface-2: #f1f5f9; /* soft panel / secondary button */
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9; /* hairline inside cards */
+  --ink: #0f172a; /* sidebar surface + strongest text */
+  --sky: #38bdf8; /* accent on the dark sidebar (eyebrow, active icon) */
 
   /* Text */
-  --text: #122033;
-  --text-muted: #475569; /* AA on --surface */
+  --text: #0f172a;
+  --text-muted: #64748b; /* AA on --surface */
+  --text-faint: #94a3b8; /* hints, table headers, sidebar inactive */
   --text-on-ink: #ffffff;
 
   /* Semantic status (bg / fg pairs) */
-  --success-bg: #ecfdf5;
-  --success-fg: #166534;
+  --success-bg: #dcfce7;
+  --success-fg: #16a34a;
   --warning-bg: #fef3c7;
-  --warning-fg: #92400e;
-  --danger-bg: #fef2f2;
-  --danger-fg: #b91c1c;
-  --info-bg: #eef2ff;
-  --info-fg: #4338ca;
-  --accent: #c2410c; /* single warm accent (AA on white) */
+  --warning-fg: #b45309;
+  --danger-bg: #fee2e2;
+  --danger-fg: #dc2626;
+  --info-bg: #dbeafe;
+  --info-fg: #2563eb;
+  --accent: var(--brand); /* legacy alias — the warm accent is retired */
 
   /* Spacing scale (4 / 8) */
   --space-1: 4px;
@@ -57,7 +61,7 @@
   --text-2xl: 28px;
 
   /* Elevation */
-  --shadow-sm: 0 12px 32px rgba(18, 32, 51, 0.06);
+  --shadow-sm: 0 12px 32px rgba(15, 23, 42, 0.06);
   --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.28);
 
   /* Focus */
@@ -68,9 +72,19 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* --font-inter / --font-jakarta are injected by next/font in app/layout.tsx. */
+  font-family: var(--font-inter, ui-sans-serif), system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-jakarta, var(--font-inter, ui-sans-serif)), system-ui,
+    sans-serif;
+  letter-spacing: -0.02em;
 }
 
 * {
