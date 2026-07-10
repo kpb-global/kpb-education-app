@@ -168,7 +168,7 @@ class AppTranslations extends Translations {
               'Formation débloquée avec succès. Vous pouvez maintenant suivre les cours.',
           'academy_player_no_session': 'Aucune session disponible',
           'academy_player_session_progress': 'Session @current sur @total',
-          'budget_calculator_title': 'Simulateur de Budget',
+          'budget_calculator_title': 'Simulateur de coût',
           'budget_lifestyle_econome': 'Économe',
           'budget_lifestyle_standard': 'Standard',
           'budget_lifestyle_confort': 'Confort',
@@ -1495,6 +1495,11 @@ class AppTranslations extends Translations {
               'Anticipez vos dépenses mensuelles selon votre destination et votre mode de vie.',
           'estimated_monthly_budget': 'Budget Mensuel Estimé',
           'details_by_category': 'Détails par catégorie',
+          'budget_subtitle_monthly': 'coût de la vie mensuel',
+          'budget_monthly_range': 'Fourchette mensuelle',
+          'budget_sources_note':
+              'Estimations du coût de la vie compilées par KPB Education · montants mensuels indicatifs.',
+          'budget_see_scholarships_cta': 'Voir les bourses disponibles',
           'app_locked': 'Application Verrouillée',
           'app_lock_prompt':
               'Veuillez vous authentifier pour accéder à vos documents et suivis KPB.',
@@ -2157,7 +2162,7 @@ class AppTranslations extends Translations {
               'Course unlocked successfully. You can now start the lessons.',
           'academy_player_no_session': 'No session available',
           'academy_player_session_progress': 'Session @current of @total',
-          'budget_calculator_title': 'Budget Simulator',
+          'budget_calculator_title': 'Cost simulator',
           'budget_lifestyle_econome': 'Thrifty',
           'budget_lifestyle_standard': 'Standard',
           'budget_lifestyle_confort': 'Comfort',
@@ -3459,6 +3464,11 @@ class AppTranslations extends Translations {
               'Anticipate your monthly expenses based on your destination and lifestyle.',
           'estimated_monthly_budget': 'Estimated monthly budget',
           'details_by_category': 'Details by category',
+          'budget_subtitle_monthly': 'monthly living cost',
+          'budget_monthly_range': 'Monthly range',
+          'budget_sources_note':
+              'Living-cost estimates compiled by KPB Education · indicative monthly amounts.',
+          'budget_see_scholarships_cta': 'See available scholarships',
           'app_locked': 'App locked',
           'app_lock_prompt':
               'Please authenticate to access your KPB documents and cases.',
