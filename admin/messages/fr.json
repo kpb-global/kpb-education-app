@@ -7,7 +7,8 @@
     "loading": "Chargement de l'espace admin…",
     "description": "Contenus mobiles, gestion des dossiers et workflows équipe depuis cet espace.",
     "logout": "Se déconnecter",
-    "language": "Langue"
+    "language": "Langue",
+    "eyebrow": "KPB Education"
   },
   "nav": {
     "overview": "Tableau de bord",
@@ -22,21 +23,35 @@
     "reports": "Rapports"
   },
   "login": {
+    "eyebrow": "KPB Opérations",
     "title": "Connexion",
     "subtitle": "Utilisez votre email KPB pour accéder à l'espace d'opérations.",
     "emailLabel": "Email",
+    "passwordLabel": "Mot de passe",
     "submit": "Se connecter",
     "loading": "Connexion en cours…",
     "error": "Email introuvable ou inactif."
   },
   "overview": {
     "title": "Tableau de bord",
-    "casesInProgress": "Dossiers en cours",
-    "casesPending": "En attente",
-    "newThisWeek": "Nouveaux cette semaine",
-    "activeStudents": "Étudiants actifs",
-    "recentCases": "Dossiers récents",
-    "noRecent": "Aucun dossier récent."
+    "loadError": "Impossible de charger le tableau de bord.",
+    "activeCases": "Dossiers actifs",
+    "activeCasesHint": "Dossiers actuellement en cours",
+    "awaitingDocs": "Docs en attente",
+    "awaitingDocsHint": "Dossiers bloqués sur des documents étudiants",
+    "submittedThisWeek": "Soumis cette semaine",
+    "submittedThisWeekHint": "Nouvelles soumissions sur les 7 derniers jours",
+    "premiumConversions": "Conversions premium",
+    "premiumConversionsHint": "Dossiers convertis en accompagnement premium",
+    "responseSla": "SLA réponse conseiller",
+    "responseSlaHint": "Temps moyen de première réponse",
+    "focusTitle": "Priorités opérationnelles de la semaine",
+    "focusItem1": "Unifier toutes les demandes étudiantes sérieuses dans Mes dossiers.",
+    "focusItem2": "Lancer les offres d'accompagnement et la couverture des destinations par marché.",
+    "focusItem3": "Segmenter les campagnes de relance pour les documents manquants.",
+    "focusItem4": "Suivre les temps de réponse conseillers et la conversion vers l'accompagnement premium.",
+    "permTitle": "Permissions de l'équipe",
+    "permBody": "Les admins gèrent les opérations de la plateforme, les conseillers font avancer les dossiers, les commerciaux assurent le suivi, et les rôles contenu/modération gardent les surfaces étudiantes à jour et sûres."
   },
   "errors": {
     "title": "Une erreur est survenue",

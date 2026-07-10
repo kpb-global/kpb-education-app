@@ -23,7 +23,7 @@ export default function NotFound() {
           background: '#fff',
           borderRadius: 20,
           padding: 32,
-          boxShadow: '0 12px 32px rgba(18,32,51,0.06)',
+          boxShadow: 'var(--shadow-sm)',
           textAlign: 'center',
         }}
       >
@@ -37,7 +37,7 @@ export default function NotFound() {
             display: 'inline-block',
             borderRadius: 14,
             padding: '12px 16px',
-            background: '#004AAD',
+            background: 'var(--brand)',
             color: '#fff',
             fontWeight: 700,
           }}

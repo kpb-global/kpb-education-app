@@ -7,7 +7,8 @@
     "loading": "Loading admin workspace…",
     "description": "Mobile-facing content, case operations, and team workflows live from this workspace.",
     "logout": "Log out",
-    "language": "Language"
+    "language": "Language",
+    "eyebrow": "KPB Education"
   },
   "nav": {
     "overview": "Overview",
@@ -22,21 +23,35 @@
     "reports": "Reports"
   },
   "login": {
+    "eyebrow": "KPB Operations",
     "title": "Sign in",
     "subtitle": "Use your KPB email to access the operations workspace.",
     "emailLabel": "Email",
+    "passwordLabel": "Password",
     "submit": "Sign in",
     "loading": "Signing in…",
     "error": "Email not found or inactive."
   },
   "overview": {
     "title": "Overview",
-    "casesInProgress": "Cases in progress",
-    "casesPending": "Pending",
-    "newThisWeek": "New this week",
-    "activeStudents": "Active students",
-    "recentCases": "Recent cases",
-    "noRecent": "No recent cases."
+    "loadError": "Unable to load overview.",
+    "activeCases": "Active cases",
+    "activeCasesHint": "Cases currently in progress",
+    "awaitingDocs": "Awaiting documents",
+    "awaitingDocsHint": "Cases blocked on student documents",
+    "submittedThisWeek": "Submitted this week",
+    "submittedThisWeekHint": "New submissions over the last 7 days",
+    "premiumConversions": "Premium conversions",
+    "premiumConversionsHint": "Cases converted to premium support",
+    "responseSla": "Counselor response SLA",
+    "responseSlaHint": "Average first-response time",
+    "focusTitle": "Operational focus this week",
+    "focusItem1": "Unify all serious student requests under My Cases.",
+    "focusItem2": "Launch support offers and destination coverage by market.",
+    "focusItem3": "Segment reminder campaigns for missing documents.",
+    "focusItem4": "Track counselor response times and conversion to premium support.",
+    "permTitle": "Team permissions",
+    "permBody": "Admins manage platform operations, counselors move cases forward, commercials own follow-up, and content/moderation roles keep the student-facing surfaces fresh and safe."
   },
   "errors": {
     "title": "Something went wrong",

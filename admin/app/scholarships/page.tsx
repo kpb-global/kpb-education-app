@@ -479,7 +479,7 @@ export default function ScholarshipsPage() {
             href={entry.sourceUrl}
             target="_blank"
             rel="noreferrer"
-            style={{ color: '#004aad', wordBreak: 'break-all' }}
+            style={{ color: 'var(--brand)', wordBreak: 'break-all' }}
           >
             {entry.sourceUrl}
           </a>
