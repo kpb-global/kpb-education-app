@@ -11,8 +11,8 @@ interface OverviewMetrics {
   activeCases: number;
   awaitingDocuments: number;
   submittedThisWeek: number;
-  premiumConversions: number;
-  counselorResponseSlaHours: number;
+  paidServicePurchases: number;
+  counselorResponseSlaHours: number | null;
 }
 
 const KPI_ICON_PATHS: Record<string, string> = {
@@ -77,6 +77,14 @@ export default function OverviewPage() {
     };
   }, [session, t]);
 
+  let slaValue = '…';
+  if (overview) {
+    slaValue =
+      overview.counselorResponseSlaHours === null
+        ? '—'
+        : `${overview.counselorResponseSlaHours.toFixed(1)}h`;
+  }
+
   const kpis: Array<{
     key: string;
     value: string;
@@ -106,17 +114,15 @@ export default function OverviewPage() {
       iconColor: 'var(--success-fg)',
     },
     {
-      key: 'premiumConversions',
-      value: String(overview?.premiumConversions ?? '…'),
+      key: 'paidServices',
+      value: String(overview?.paidServicePurchases ?? '…'),
       icon: 'star',
       iconBg: 'var(--brand-soft)',
       iconColor: 'var(--brand)',
     },
     {
       key: 'responseSla',
-      value: overview
-        ? `${overview.counselorResponseSlaHours.toFixed(1)}h`
-        : '…',
+      value: slaValue,
       icon: 'timer',
       iconBg: 'var(--danger-bg)',
       iconColor: 'var(--danger-fg)',

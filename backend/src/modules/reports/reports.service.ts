@@ -1,33 +1,218 @@
 import { Injectable } from '@nestjs/common';
 
-import { mockAdminData } from '../../common/data/mock-admin';
 import { PrismaService } from '../prisma/prisma.service';
 
-const REVENUE_STATUSES = ['paid', 'in_progress', 'delivered'];
+const REVENUE_STATUSES = ['paid', 'in_progress', 'delivered'] as const;
+// Terminal case statuses — everything else counts as "active" pipeline.
+const CLOSED_CASE_STATUSES = ['completed', 'rejected', 'cancelled'] as const;
+// Roles whose first message on a case counts as the advisor's first response
+// (same set the reassignment cron treats as staff activity).
+const ADVISOR_ROLES = ['counselor', 'advisor', 'commercial'] as const;
+// Statuses meaning the application actually went out the door.
+const APPLICATION_SUBMITTED_STATUSES = [
+  'application_submitted',
+  'waiting_decision',
+  'completed',
+] as const;
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface FirstResponseSample {
+  createdAt: Date;
+  messages: { createdAt: Date }[];
+}
+
+function averageResponseHours(samples: FirstResponseSample[]): number | null {
+  const deltas = samples
+    .filter((sample) => sample.messages.length > 0)
+    .map(
+      (sample) =>
+        (sample.messages[0].createdAt.getTime() -
+          sample.createdAt.getTime()) /
+        (60 * 60 * 1000),
+    )
+    .filter((hours) => hours >= 0);
+  if (deltas.length === 0) {
+    return null;
+  }
+  return deltas.reduce((sum, hours) => sum + hours, 0) / deltas.length;
+}
 
 @Injectable()
 export class ReportsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  getOverview() {
-    return mockAdminData.reports.overview;
+  async getOverview() {
+    const empty = {
+      activeCases: 0,
+      awaitingDocuments: 0,
+      submittedThisWeek: 0,
+      paidServicePurchases: 0,
+      counselorResponseSlaHours: null as number | null,
+    };
+    if (!this.prismaService.isEnabled) {
+      return empty;
+    }
+
+    const weekAgo = new Date(Date.now() - WEEK_MS);
+    const result = await this.prismaService.execute(async (prisma) => {
+      const [
+        activeCases,
+        awaitingDocuments,
+        submittedThisWeek,
+        paidServicePurchases,
+        responseSamples,
+      ] = await Promise.all([
+        prisma.case.count({
+          where: { status: { notIn: [...CLOSED_CASE_STATUSES] } },
+        }),
+        prisma.case.count({ where: { status: 'documents_needed' } }),
+        prisma.case.count({ where: { createdAt: { gte: weekAgo } } }),
+        prisma.servicePurchase.count({
+          where: { status: { in: [...REVENUE_STATUSES] } },
+        }),
+        prisma.case.findMany({
+          where: {
+            messages: { some: { senderRole: { in: [...ADVISOR_ROLES] } } },
+          },
+          select: {
+            createdAt: true,
+            messages: {
+              where: { senderRole: { in: [...ADVISOR_ROLES] } },
+              orderBy: { createdAt: 'asc' },
+              take: 1,
+              select: { createdAt: true },
+            },
+          },
+        }),
+      ]);
+
+      return {
+        activeCases,
+        awaitingDocuments,
+        submittedThisWeek,
+        paidServicePurchases,
+        counselorResponseSlaHours: averageResponseHours(responseSamples),
+      };
+    });
+
+    return result ?? empty;
   }
 
-  getFunnel() {
-    return { items: mockAdminData.reports.funnel };
+  async getFunnel() {
+    if (!this.prismaService.isEnabled) {
+      return { items: [] };
+    }
+
+    const items = await this.prismaService.execute(async (prisma) => {
+      const [studentSignups, casesCreated, applicationsSubmitted, paidServicePurchases] =
+        await Promise.all([
+          prisma.userProfile.count({ where: { accountType: 'student' } }),
+          prisma.case.count(),
+          prisma.case.count({
+            where: { status: { in: [...APPLICATION_SUBMITTED_STATUSES] } },
+          }),
+          prisma.servicePurchase.count({
+            where: { status: { in: [...REVENUE_STATUSES] } },
+          }),
+        ]);
+
+      return [
+        { key: 'studentSignups', value: studentSignups },
+        { key: 'casesCreated', value: casesCreated },
+        { key: 'applicationsSubmitted', value: applicationsSubmitted },
+        { key: 'paidServicePurchases', value: paidServicePurchases },
+      ];
+    });
+
+    return { items: items ?? [] };
   }
 
-  getCounselorPerformance() {
-    return { items: mockAdminData.reports.counselorPerformance };
+  async getCounselorPerformance() {
+    if (!this.prismaService.isEnabled) {
+      return { items: [] };
+    }
+
+    const cases = await this.prismaService.execute((prisma) =>
+      prisma.case.findMany({
+        where: { assignedAdvisorName: { not: null } },
+        select: {
+          assignedAdvisorName: true,
+          status: true,
+          createdAt: true,
+          messages: {
+            where: { senderRole: { in: [...ADVISOR_ROLES] } },
+            orderBy: { createdAt: 'asc' },
+            take: 1,
+            select: { createdAt: true },
+          },
+        },
+      }),
+    );
+
+    const byAdvisor = new Map<
+      string,
+      { activeCases: number; samples: FirstResponseSample[] }
+    >();
+    for (const caseRow of cases ?? []) {
+      const advisorName = caseRow.assignedAdvisorName;
+      if (!advisorName) {
+        continue;
+      }
+      const row =
+        byAdvisor.get(advisorName) ?? { activeCases: 0, samples: [] };
+      if (
+        !(CLOSED_CASE_STATUSES as readonly string[]).includes(caseRow.status)
+      ) {
+        row.activeCases += 1;
+      }
+      row.samples.push({
+        createdAt: caseRow.createdAt,
+        messages: caseRow.messages,
+      });
+      byAdvisor.set(advisorName, row);
+    }
+
+    const items = Array.from(byAdvisor.entries())
+      .map(([counselor, row]) => ({
+        counselor,
+        activeCases: row.activeCases,
+        avgResponseHours: averageResponseHours(row.samples),
+      }))
+      .sort((a, b) => b.activeCases - a.activeCases);
+
+    return { items };
   }
 
-  getCampaignPerformance() {
-    return { items: mockAdminData.reports.campaignPerformance };
+  async getCampaignPerformance() {
+    if (!this.prismaService.isEnabled) {
+      return { items: [] };
+    }
+
+    const campaigns = await this.prismaService.execute((prisma) =>
+      prisma.notificationCampaign.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          name: true,
+          deliveries: { select: { status: true } },
+        },
+      }),
+    );
+
+    const items = (campaigns ?? []).map((campaign) => ({
+      campaign: campaign.name,
+      sent: campaign.deliveries.length,
+      delivered: campaign.deliveries.filter(
+        (delivery) => delivery.status === 'delivered',
+      ).length,
+    }));
+
+    return { items };
   }
 
   async getServiceRevenue() {
     if (!this.prismaService.isEnabled) {
-      return mockAdminData.reports.serviceRevenue;
+      return { bySku: [], byDestination: [] };
     }
 
     const purchases = await this.prismaService.execute((prisma) =>
@@ -76,7 +261,9 @@ export class ReportsService {
     >();
 
     for (const purchase of purchases ?? []) {
-      const isPaid = REVENUE_STATUSES.includes(purchase.status);
+      const isPaid = (REVENUE_STATUSES as readonly string[]).includes(
+        purchase.status,
+      );
       const isPending = purchase.status === 'pending_payment';
       const amount = purchase.amountXOF;
       const skuKey = purchase.package.code;

@@ -286,32 +286,4 @@ export const mockAdminData = {
       workload: 0,
     },
   ],
-  reports: {
-    overview: {
-      activeCases: 124,
-      awaitingDocuments: 27,
-      submittedThisWeek: 31,
-      premiumConversions: 9,
-      counselorResponseSlaHours: 2.2,
-    },
-    funnel: [
-      { label: 'Leads', value: 520 },
-      { label: 'Qualified cases', value: 188 },
-      { label: 'Premium support', value: 74 },
-      { label: 'Applications submitted', value: 39 },
-      { label: 'Admissions received', value: 16 },
-    ],
-    counselorPerformance: [
-      { counselor: 'Amina KPB', activeCases: 18, avgResponseHours: 1.8 },
-      { counselor: 'Moussa KPB', activeCases: 11, avgResponseHours: 2.9 },
-    ],
-    campaignPerformance: [
-      { campaign: 'Orientation webinar invite', delivered: 420, opened: 210 },
-      { campaign: 'Cases missing docs - April batch', delivered: 64, opened: 33 },
-    ],
-    serviceRevenue: {
-      bySku: [],
-      byDestination: [],
-    },
-  },
 };
