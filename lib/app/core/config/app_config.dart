@@ -94,6 +94,15 @@ class AppConfig {
 
   static const storageNamespace = 'kpb_relaunch_v1';
 
+  // ── Brand identity ─────────────────────────────────────────────────────
+  /// Public brand name, used in shareable artifacts (e.g. the match card).
+  /// Kept as a single source of truth so shared copy stays truthful.
+  static const brandName = 'KPB Education';
+
+  /// Public brand domain (marketing site). Matches the `kpb-education.com`
+  /// API host; surfaced on shareable cards instead of any placeholder domain.
+  static const brandDomain = 'kpb-education.com';
+
   /// Pure resolver for tests and tooling.
   @visibleForTesting
   static String resolveApiBaseUrl({

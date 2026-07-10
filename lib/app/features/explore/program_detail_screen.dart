@@ -1,7 +1,13 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/source_link.dart';
@@ -19,6 +25,7 @@ import '../search/match_explanation_sheet.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 class _Palette {
   static const navy = Color(0xFF0F172A);
+  static const navyGradientEnd = Color(0xFF1E3A8A);
   static const blue = Color(0xFF2563EB);
   static const sky = Color(0xFF38BDF8);
   static const slate = Color(0xFF64748B);
@@ -310,13 +317,40 @@ class _Header extends StatelessWidget {
   final String subtitle;
   final int score;
 
-  void _share() {
-    final parts = <String>[name];
-    if (institution != null) parts.add(controller.resolve(institution!.name));
-    SharePlus.instance.share(
-      ShareParams(
-          text: '${parts.join(' · ')}\n\n${'explore_share_university'.tr}'),
+  /// Present the shareable "admission chances" match card (App-engagement
+  /// handoff). Every value is real: the match % + zone come from the live
+  /// [AppController.institutionMatch] for the institution whose detail launched
+  /// this (falling back to the program match when no institution is attached),
+  /// the name/flag from the real institution/country, the student first name
+  /// from the real profile, and the brand line from [AppConfig].
+  void _share(BuildContext context) {
+    final matchScore =
+        institution != null ? controller.institutionMatch(institution!) : score;
+    final schoolName =
+        institution != null ? controller.resolve(institution!.name) : name;
+    final firstName = _firstName(controller.profile?.fullName);
+    final (_, zoneFg) = _zoneColors(matchScore);
+
+    showDialog<void>(
+      context: context,
+      barrierColor: _Palette.navy.withValues(alpha: 0.65),
+      builder: (_) => _ShareMatchCard(
+        flag: flag,
+        score: matchScore,
+        zoneLabel: _zoneLabel(matchScore),
+        zoneColor: zoneFg,
+        schoolName: schoolName,
+        studentLine: 'match_card_applying_via'.trParams({'name': firstName}),
+      ),
     );
+  }
+
+  /// First token of the profile's full name, or a neutral fallback (never a
+  /// hardcoded placeholder name).
+  static String _firstName(String? fullName) {
+    final trimmed = (fullName ?? '').trim();
+    if (trimmed.isEmpty) return 'match_card_student_fallback'.tr;
+    return trimmed.split(RegExp(r'\s+')).first;
   }
 
   @override
@@ -344,7 +378,7 @@ class _Header extends StatelessWidget {
               const Spacer(),
               _RoundButton(
                 icon: Icons.ios_share_rounded,
-                onTap: _share,
+                onTap: () => _share(context),
                 semanticLabel: 'a11y_share'.tr,
               ),
               const SizedBox(width: 10),
@@ -851,4 +885,314 @@ void _openCaseTunnel(
       ),
     ),
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shareable match card (App-engagement handoff · "Carte de match partageable").
+//
+// A centered dark-gradient card over a dim scrim. The card is wrapped in a
+// [RepaintBoundary] so "Download" can rasterise exactly what is shown to a PNG
+// and hand it to the OS share sheet (reusing `share_plus`, no new packages).
+// "Share on WhatsApp" routes real result copy through the same wa.me pattern the
+// referral loop uses. All figures are real (see `_share`).
+// ─────────────────────────────────────────────────────────────────────────────
+class _ShareMatchCard extends StatefulWidget {
+  const _ShareMatchCard({
+    required this.flag,
+    required this.score,
+    required this.zoneLabel,
+    required this.zoneColor,
+    required this.schoolName,
+    required this.studentLine,
+  });
+
+  final String flag;
+  final int score;
+  final String zoneLabel;
+  final Color zoneColor;
+  final String schoolName;
+  final String studentLine;
+
+  @override
+  State<_ShareMatchCard> createState() => _ShareMatchCardState();
+}
+
+class _ShareMatchCardState extends State<_ShareMatchCard> {
+  final _cardKey = GlobalKey();
+  bool _busy = false;
+
+  String _shareText() => 'match_card_whatsapp_prefill'.trParams({
+        'pct': '${widget.score}',
+        'school': widget.schoolName,
+        'domain': AppConfig.brandDomain,
+      });
+
+  Future<void> _shareWhatsApp() async {
+    final text = _shareText();
+    final waUri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
+    if (await canLaunchUrl(waUri)) {
+      await launchUrl(waUri, mode: LaunchMode.externalApplication);
+    } else {
+      // WhatsApp unavailable → OS share sheet with the same message.
+      await SharePlus.instance.share(ShareParams(text: text));
+    }
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  Future<void> _download() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final boundary =
+          _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw StateError('boundary not ready');
+      final image = await boundary.toImage(pixelRatio: 3);
+      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      if (bytes == null) throw StateError('encode failed');
+      final file = File(
+        '${Directory.systemTemp.path}/kpb_match_'
+        '${DateTime.now().millisecondsSinceEpoch}.png',
+      );
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'image/png')],
+          text: _shareText(),
+        ),
+      );
+      if (mounted) Navigator.of(context).maybePop();
+    } catch (_) {
+      if (mounted) {
+        Get.snackbar(
+          AppConfig.brandName,
+          'match_card_share_error'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.all(24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 300),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RepaintBoundary(key: _cardKey, child: _card()),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  flex: 14,
+                  child: _ActionButton(
+                    bg: _Palette.whatsapp,
+                    fg: Colors.white,
+                    icon: Icons.chat_rounded,
+                    label: 'match_card_share_whatsapp'.tr,
+                    onTap: _busy ? null : _shareWhatsApp,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 10,
+                  child: _ActionButton(
+                    bg: Colors.white,
+                    fg: _Palette.navy,
+                    icon: Icons.download_rounded,
+                    label: 'match_card_download'.tr,
+                    busy: _busy,
+                    onTap: _busy ? null : _download,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _card() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_Palette.navy, _Palette.navyGradientEnd],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: _Palette.navy.withValues(alpha: 0.5),
+            blurRadius: 60,
+            offset: const Offset(0, 24),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: _Palette.blue,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Icon(Icons.school_rounded,
+                    size: 14, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'match_card_eyebrow'.tr,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.8,
+                    color: _Palette.sky,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(widget.flag, style: const TextStyle(fontSize: 40)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${widget.score}%',
+                      style: const TextStyle(
+                        fontSize: 44,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1.5,
+                        height: 1,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.zoneLabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: widget.zoneColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.schoolName,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              height: 1.25,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            widget.studentLine,
+            style: const TextStyle(fontSize: 11, color: _Palette.slate400),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.12),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${AppConfig.brandDomain} · ${'match_card_domain_tagline'.tr}',
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: _Palette.sky,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.bg,
+    required this.fg,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.busy = false,
+  });
+
+  final Color bg;
+  final Color fg;
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (busy)
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2, color: fg),
+              )
+            else
+              Icon(icon, size: 16, color: fg),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800,
+                  color: fg,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

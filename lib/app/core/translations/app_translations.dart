@@ -604,6 +604,17 @@ class AppTranslations extends Translations {
           'kpb_prefill_generic':
               'Bonjour KPB Education, j\'aimerais être accompagné(e) dans mon projet d\'études.',
           'community_featured_badge': '📌 À la une',
+          'community_safety_note':
+              'Modération IA + signalements. Signale toute « offre de bourse » privée payante — c\'est une arnaque.',
+          'match_card_eyebrow': 'TES CHANCES D\'ADMISSION',
+          'match_card_applying_via': '@name · candidature avec KPB Education',
+          'match_card_student_fallback': 'Futur·e étudiant·e',
+          'match_card_domain_tagline': 'calcule tes chances',
+          'match_card_share_whatsapp': 'Partager sur WhatsApp',
+          'match_card_download': 'Télécharger',
+          'match_card_whatsapp_prefill':
+              'Mes chances d\'admission à @school : @pct %. Calcule les tiennes sur @domain',
+          'match_card_share_error': 'Impossible de générer la carte. Réessaie.',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
           'alumni_load_error':
@@ -2530,6 +2541,17 @@ class AppTranslations extends Translations {
           'kpb_prefill_generic':
               'Hello KPB Education, I\'d like some guidance with my study plans.',
           'community_featured_badge': '📌 Featured',
+          'community_safety_note':
+              'AI moderation + reports. Report any paid private « scholarship offer » — it is a scam.',
+          'match_card_eyebrow': 'YOUR ADMISSION CHANCES',
+          'match_card_applying_via': '@name · applying with KPB Education',
+          'match_card_student_fallback': 'Future student',
+          'match_card_domain_tagline': 'compute your chances',
+          'match_card_share_whatsapp': 'Share on WhatsApp',
+          'match_card_download': 'Download',
+          'match_card_whatsapp_prefill':
+              'My admission chances at @school: @pct%. Compute yours on @domain',
+          'match_card_share_error': 'Could not generate the card. Try again.',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',
           'alumni_load_error': 'Could not load mentors. Check your connection.',
