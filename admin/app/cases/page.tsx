@@ -1,20 +1,24 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, FormEvent, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  softPanelStyle,
-  textareaStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Textarea,
+} from '../../components/ui';
 
 interface CaseTaskItem {
   id: string;
@@ -57,17 +61,30 @@ interface AdminCaseItem {
   timeline: CaseTimelineItem[];
 }
 
-const visibleStatuses = ['submitted', 'documents_needed', 'counselor_assigned', 'in_progress', 'application_submitted', 'completed'];
-
 const allStatuses = [
-  'draft', 'submitted', 'under_review', 'documents_needed', 
-  'counselor_assigned', 'awaiting_student', 'scheduled', 
-  'in_progress', 'application_submitted', 'waiting_decision', 
+  'draft', 'submitted', 'under_review', 'documents_needed',
+  'counselor_assigned', 'awaiting_student', 'scheduled',
+  'in_progress', 'application_submitted', 'waiting_decision',
   'awaiting_payment', 'completed', 'rejected', 'cancelled'
 ];
 
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
 export default function CasesPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [cases, setCases] = useState<AdminCaseItem[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -105,7 +122,7 @@ export default function CasesPage() {
       }
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to load cases.',
+        error instanceof Error ? error.message : t('cases.loadError'),
       );
     }
   }
@@ -160,11 +177,11 @@ export default function CasesPage() {
             : undefined,
         },
       });
-      setStatusMessage('Case assignment updated successfully.');
+      setStatusMessage(t('cases.assignSuccess'));
       await loadCases();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to assign case.',
+        error instanceof Error ? error.message : t('cases.assignError'),
       );
     }
   }
@@ -184,11 +201,11 @@ export default function CasesPage() {
           status: statusForm.status,
         },
       });
-      setStatusMessage('Case status updated successfully.');
+      setStatusMessage(t('cases.statusSuccess'));
       await loadCases();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to update case status.',
+        error instanceof Error ? error.message : t('cases.statusError'),
       );
     }
   }
@@ -221,11 +238,11 @@ export default function CasesPage() {
         dueAt: '',
         status: 'open',
       });
-      setStatusMessage('Task added to the selected case.');
+      setStatusMessage(t('cases.taskSuccess'));
       await loadCases();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create task.',
+        error instanceof Error ? error.message : t('cases.taskError'),
       );
     }
   }
@@ -248,290 +265,307 @@ export default function CasesPage() {
         },
       });
       setNoteForm({ body: '' });
-      setStatusMessage('Internal note added to the case.');
+      setStatusMessage(t('cases.noteSuccess'));
       await loadCases();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create note.',
+        error instanceof Error ? error.message : t('cases.noteError'),
       );
     }
   }
 
   return (
-    <DashboardShell title="Cases">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('cases.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
-        <div
-          style={{
-            display: 'grid',
-            gap: 16,
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          }}
+        <AdminTable
+          aria-label={t('cases.title')}
+          columns={[
+            t('cases.colReference'),
+            t('cases.colStudent'),
+            t('cases.colType'),
+            t('cases.colStatus'),
+            t('cases.colAdvisor'),
+            t('cases.colNextStep'),
+          ]}
+          cols="0.9fr 1.3fr 1fr 1fr 1fr 1.4fr"
+          footnote={t('cases.tableNote')}
         >
-          {visibleStatuses.map((status) => (
-            <section key={status} style={softPanelStyle}>
-              <h3 style={{ marginTop: 0, textTransform: 'capitalize' }}>
-                {status.replaceAll('_', ' ')}
-              </h3>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {cases
-                  .filter((item) => item.status === status)
-                  .map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setSelectedCaseId(item.id)}
-                      style={{
-                        textAlign: 'left',
-                        border: selectedCaseId === item.id ? '2px solid #1D4ED8' : 'none',
-                        borderRadius: 18,
-                        padding: 16,
-                        background: '#fff',
-                        boxShadow: 'var(--shadow-sm)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <strong>{item.referenceCode}</strong>
-                      <p style={{ marginBottom: 6 }}>{item.studentName}</p>
-                      <p style={{ margin: '6px 0', color: '#64748b' }}>
-                        {item.type} • {item.contextLabel} • {item.preferredLanguage}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>{item.nextStepTitle}</p>
-                    </button>
-                  ))}
-              </div>
-            </section>
-          ))}
-        </div>
+          {cases.length === 0 ? (
+            <EmptyState title={t('cases.empty')} />
+          ) : (
+            cases.map((item) => (
+              <AdminTableRow
+                key={item.id}
+                selected={selectedCaseId === item.id}
+                onSelect={() => setSelectedCaseId(item.id)}
+              >
+                <CellText
+                  primary={item.referenceCode}
+                  sub={item.preferredLanguage.toUpperCase()}
+                />
+                <CellText primary={item.studentName} sub={item.studentEmail} />
+                <CellText primary={item.type} sub={item.contextLabel} muted />
+                <div>
+                  <StatusBadge status={item.status} />
+                </div>
+                <CellText
+                  primary={item.assignedAdvisorName ?? t('cases.unassigned')}
+                  muted={!item.assignedAdvisorName}
+                />
+                <CellText
+                  primary={item.nextStepTitle}
+                  sub={item.nextStepDescription}
+                />
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
 
         {selectedCase ? (
-          <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1.15fr 0.85fr' }}>
-            <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-              <div>
-                <h3 style={{ marginTop: 0 }}>{selectedCase.referenceCode}</h3>
-                <p style={{ margin: '6px 0' }}>
+          <div style={{ display: 'grid', gap: 14, gridTemplateColumns: '1.15fr 0.85fr' }}>
+            <section style={{ ...panelCardStyle, display: 'grid', gap: 16, alignContent: 'start' }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <h3 style={panelTitleStyle}>{selectedCase.referenceCode}</h3>
+                <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
                   {selectedCase.studentName} • {selectedCase.studentEmail}
                 </p>
-                <span style={badgeStyle}>{selectedCase.status}</span>
+                <div>
+                  <StatusBadge status={selectedCase.status} />
+                </div>
               </div>
               <div>
-                <strong>Next step</strong>
-                <p style={{ margin: '8px 0 0', ...mutedTextStyle }}>
+                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--ink)' }}>
+                  {t('cases.nextStepHeading')}
+                </strong>
+                <p style={{ margin: '8px 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
                   {selectedCase.nextStepTitle} — {selectedCase.nextStepDescription}
                 </p>
               </div>
               <div>
-                <strong>Timeline</strong>
+                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--ink)' }}>
+                  {t('cases.timelineHeading')}
+                </strong>
                 <div style={{ display: 'grid', gap: 12, marginTop: 10 }}>
                   {selectedCase.timeline.map((item) => (
-                    <div key={item.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                      <strong>{item.title}</strong>
-                      <p style={{ margin: '6px 0' }}>{item.description}</p>
-                      <span style={badgeStyle}>{item.status}</span>
+                    <div
+                      key={item.id}
+                      style={{ borderTop: '1px solid var(--border-soft)', paddingTop: 12 }}
+                    >
+                      <strong style={{ fontSize: 'var(--text-sm)' }}>{item.title}</strong>
+                      <p style={{ margin: '6px 0', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                        {item.description}
+                      </p>
+                      <StatusBadge status={item.status} />
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <strong>Internal notes</strong>
+                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--ink)' }}>
+                  {t('cases.notesHeading')}
+                </strong>
                 <div style={{ display: 'grid', gap: 12, marginTop: 10 }}>
                   {selectedCase.internalNotes.map((item) => (
-                    <div key={item.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                      <strong>
+                    <div
+                      key={item.id}
+                      style={{ borderTop: '1px solid var(--border-soft)', paddingTop: 12 }}
+                    >
+                      <strong style={{ fontSize: 'var(--text-sm)' }}>
                         {item.authorName} • {item.authorRole}
                       </strong>
-                      <p style={{ margin: '6px 0' }}>{item.body}</p>
+                      <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                        {item.body}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            <div style={{ display: 'grid', gap: 18 }}>
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Update Status</h3>
+            <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
+              <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+                <h3 style={panelTitleStyle}>{t('cases.updateStatusTitle')}</h3>
                 <form onSubmit={submitStatus} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Status
-                    <select
-                      value={statusForm.status}
-                      onChange={(event) =>
-                        setStatusForm({ status: event.target.value })
-                      }
-                      style={inputStyle}
-                    >
-                      {allStatuses.map((s) => (
-                        <option key={s} value={s}>
-                          {s.replaceAll('_', ' ')}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Update status
-                  </button>
+                  <Field label={t('cases.statusLabel')}>
+                    {({ id }) => (
+                      <Select
+                        id={id}
+                        value={statusForm.status}
+                        onChange={(event) =>
+                          setStatusForm({ status: event.target.value })
+                        }
+                      >
+                        {allStatuses.map((s) => (
+                          <option key={s} value={s}>
+                            {s.replaceAll('_', ' ')}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </Field>
+                  <Button type="submit">{t('cases.updateStatusCta')}</Button>
                 </form>
               </section>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Assign counselor</h3>
+              <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+                <h3 style={panelTitleStyle}>{t('cases.assignTitle')}</h3>
                 <form onSubmit={submitAssignment} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Advisor name
-                    <input
-                      value={assignForm.assignedAdvisorName}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          assignedAdvisorName: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Next step title
-                    <input
-                      value={assignForm.nextStepTitle}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          nextStepTitle: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Next step description
-                    <textarea
-                      value={assignForm.nextStepDescription}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          nextStepDescription: event.target.value,
-                        }))
-                      }
-                      style={textareaStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Scheduled at
-                    <input
-                      type="datetime-local"
-                      value={assignForm.scheduledAt}
-                      onChange={(event) =>
-                        setAssignForm((current) => ({
-                          ...current,
-                          scheduledAt: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Save assignment
-                  </button>
+                  <Field label={t('cases.advisorNameLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.assignedAdvisorName}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            assignedAdvisorName: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.nextStepTitleLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={assignForm.nextStepTitle}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            nextStepTitle: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.nextStepDescriptionLabel')}>
+                    {({ id }) => (
+                      <Textarea
+                        id={id}
+                        value={assignForm.nextStepDescription}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            nextStepDescription: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.scheduledAtLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="datetime-local"
+                        value={assignForm.scheduledAt}
+                        onChange={(event) =>
+                          setAssignForm((current) => ({
+                            ...current,
+                            scheduledAt: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">{t('cases.saveAssignmentCta')}</Button>
                 </form>
               </section>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Create task</h3>
+              <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+                <h3 style={panelTitleStyle}>{t('cases.createTaskTitle')}</h3>
                 <form onSubmit={submitTask} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Task title
-                    <input
-                      value={taskForm.title}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          title: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Assignee name
-                    <input
-                      value={taskForm.assigneeName}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          assigneeName: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Assignee role
-                    <input
-                      value={taskForm.assigneeRole}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          assigneeRole: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Due at
-                    <input
-                      type="datetime-local"
-                      value={taskForm.dueAt}
-                      onChange={(event) =>
-                        setTaskForm((current) => ({
-                          ...current,
-                          dueAt: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Add task
-                  </button>
+                  <Field label={t('cases.taskTitleLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.title}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            title: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.assigneeNameLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.assigneeName}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            assigneeName: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.assigneeRoleLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={taskForm.assigneeRole}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            assigneeRole: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Field label={t('cases.dueAtLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="datetime-local"
+                        value={taskForm.dueAt}
+                        onChange={(event) =>
+                          setTaskForm((current) => ({
+                            ...current,
+                            dueAt: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">{t('cases.addTaskCta')}</Button>
                 </form>
                 <div style={{ display: 'grid', gap: 12 }}>
                   {selectedCase.tasks.map((task) => (
-                    <div key={task.id} style={{ borderTop: '1px solid #E2E8F0', paddingTop: 12 }}>
-                      <strong>{task.title}</strong>
-                      <p style={{ margin: '6px 0' }}>
-                        {task.assigneeName ?? 'Unassigned'} • {task.status}
+                    <div
+                      key={task.id}
+                      style={{ borderTop: '1px solid var(--border-soft)', paddingTop: 12 }}
+                    >
+                      <strong style={{ fontSize: 'var(--text-sm)' }}>{task.title}</strong>
+                      <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                        {task.assigneeName ?? t('cases.unassigned')} • {task.status}
                       </p>
                     </div>
                   ))}
                 </div>
               </section>
 
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Add internal note</h3>
+              <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+                <h3 style={panelTitleStyle}>{t('cases.addNoteTitle')}</h3>
                 <form onSubmit={submitNote} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Note
-                    <textarea
-                      value={noteForm.body}
-                      onChange={(event) =>
-                        setNoteForm({ body: event.target.value })
-                      }
-                      style={textareaStyle}
-                    />
-                  </label>
-                  <button type="submit" style={buttonStyle}>
-                    Save note
-                  </button>
+                  <Field label={t('cases.noteLabel')}>
+                    {({ id }) => (
+                      <Textarea
+                        id={id}
+                        value={noteForm.body}
+                        onChange={(event) =>
+                          setNoteForm({ body: event.target.value })
+                        }
+                      />
+                    )}
+                  </Field>
+                  <Button type="submit">{t('cases.saveNoteCta')}</Button>
                 </form>
               </section>
             </div>

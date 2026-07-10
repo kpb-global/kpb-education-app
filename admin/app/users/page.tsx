@@ -1,18 +1,23 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, FormEvent, useEffect, useMemo, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+} from '../../components/ui';
 
 interface AdminUserItem {
   id: string;
@@ -24,6 +29,15 @@ interface AdminUserItem {
   workload: number;
 }
 
+const ROLE_OPTIONS = [
+  'counselor',
+  'commercial',
+  'content_manager',
+  'moderator',
+  'admin',
+  'super_admin',
+];
+
 function splitList(value: string) {
   return value
     .split(',')
@@ -31,8 +45,23 @@ function splitList(value: string) {
     .filter(Boolean);
 }
 
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
 export default function UsersPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -54,6 +83,10 @@ export default function UsersPage() {
     tempPassword: string;
   } | null>(null);
 
+  function roleLabel(role: string) {
+    return ROLE_OPTIONS.includes(role) ? t(`roles.${role}`) : role;
+  }
+
   async function loadUsers() {
     setErrorMessage(null);
     try {
@@ -64,7 +97,7 @@ export default function UsersPage() {
       }
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to load users.',
+        error instanceof Error ? error.message : t('users.loadError'),
       );
     }
   }
@@ -125,11 +158,11 @@ export default function UsersPage() {
           tempPassword: created.tempPassword,
         });
       }
-      setStatusMessage('Internal operator created.');
+      setStatusMessage(t('users.createSuccess'));
       await loadUsers();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create user.',
+        error instanceof Error ? error.message : t('users.createError'),
       );
     }
   }
@@ -155,11 +188,11 @@ export default function UsersPage() {
           workload: Number(updateForm.workload),
         },
       });
-      setStatusMessage('User role and activation updated.');
+      setStatusMessage(t('users.updateSuccess'));
       await loadUsers();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to update user.',
+        error instanceof Error ? error.message : t('users.updateError'),
       );
     }
   }
@@ -179,10 +212,10 @@ export default function UsersPage() {
         email: result.email,
         tempPassword: result.tempPassword,
       });
-      setStatusMessage('Temporary password re-issued.');
+      setStatusMessage(t('users.resetSuccess'));
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to reset password.',
+        error instanceof Error ? error.message : t('users.resetError'),
       );
     }
   }
@@ -193,43 +226,37 @@ export default function UsersPage() {
     }
     try {
       await navigator.clipboard.writeText(credential.tempPassword);
-      setStatusMessage('Temporary password copied to clipboard.');
+      setStatusMessage(t('users.copySuccess'));
     } catch {
       // Clipboard may be unavailable (insecure context); value stays on screen.
     }
   }
 
   return (
-    <DashboardShell title="Users and roles">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+    <DashboardShell title={t('users.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
         {credential ? (
           <div
             style={{
-              ...panelStyle,
-              background: '#FFFBEB',
-              border: '1px solid #FCD34D',
+              ...panelCardStyle,
+              background: 'var(--warning-bg)',
+              border: '1px solid var(--warning-fg)',
               display: 'grid',
               gap: 8,
             }}
           >
-            <strong>Temporary password for {credential.email}</strong>
+            <strong style={{ fontSize: 'var(--text-sm)' }}>
+              {t('users.credentialTitle')} {credential.email}
+            </strong>
             <code
               style={{
                 fontSize: 18,
                 fontWeight: 700,
                 letterSpacing: 1,
-                background: '#fff',
-                border: '1px solid #E2E8F0',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
                 borderRadius: 10,
                 padding: '8px 12px',
                 wordBreak: 'break-all',
@@ -237,126 +264,147 @@ export default function UsersPage() {
             >
               {credential.tempPassword}
             </code>
-            <p style={{ ...mutedTextStyle, margin: 0 }}>
-              Shown once — copy it and share it privately. Re-issue a new one
-              anytime from the operator&apos;s panel.
+            <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--warning-fg)' }}>
+              {t('users.credentialHint')}
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" style={buttonStyle} onClick={copyCredential}>
-                Copy password
-              </button>
-              <button
-                type="button"
-                style={{ ...buttonStyle, background: '#E2E8F0', color: '#0F172A' }}
-                onClick={() => setCredential(null)}
-              >
-                Dismiss
-              </button>
+              <Button size="sm" onClick={copyCredential}>
+                {t('users.copyCta')}
+              </Button>
+              <Button size="sm" variant="secondary" onClick={() => setCredential(null)}>
+                {t('users.dismissCta')}
+              </Button>
             </div>
           </div>
         ) : null}
 
-        <div style={{ display: 'grid', gap: 18, gridTemplateColumns: '1.1fr 0.9fr' }}>
-          <section style={panelStyle}>
-            <h3 style={{ marginTop: 0 }}>Internal operators</h3>
-            <p style={mutedTextStyle}>
-              Manage counselor, commercial, moderator, content, and admin access
-              for the KPB team.
-            </p>
-            <div style={{ display: 'grid', gap: 12 }}>
-              {users.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
+        <div style={{ display: 'grid', gap: 14, gridTemplateColumns: '1.25fr 0.75fr' }}>
+          <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
+            <AdminTable
+              aria-label={t('users.title')}
+              columns={[
+                t('users.colName'),
+                t('users.colRole'),
+                t('users.colStatus'),
+                t('users.colLanguages'),
+                t('users.colWorkload'),
+                t('users.colActions'),
+              ]}
+              cols="1.5fr 1fr 0.8fr 0.7fr 0.6fr 0.8fr"
+              footnote={t('users.tableNote')}
+            >
+              {users.length === 0 ? (
+                <EmptyState title={t('users.empty')} />
+              ) : (
+                users.map((user) => (
+                  <AdminTableRow
+                    key={user.id}
+                    selected={selectedUserId === user.id}
+                  >
+                    <CellText primary={user.fullName} sub={user.email} />
+                    <div>
+                      <Badge variant="brand">{roleLabel(user.role)}</Badge>
+                    </div>
+                    <div>
+                      <Badge variant={user.isActive ? 'success' : 'neutral'}>
+                        {user.isActive ? t('users.active') : t('users.inactive')}
+                      </Badge>
+                    </div>
+                    <CellText
+                      primary={user.languageScope.join(', ').toUpperCase()}
+                      muted
+                    />
+                    <CellText primary={String(user.workload)} muted />
+                    <div>
+                      <Button
+                        size="sm"
+                        variant={selectedUserId === user.id ? 'primary' : 'secondary'}
+                        onClick={() => setSelectedUserId(user.id)}
+                      >
+                        {t('users.manageCta')}
+                      </Button>
+                    </div>
+                  </AdminTableRow>
+                ))
+              )}
+            </AdminTable>
+          </div>
+
+          <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
+            <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+              <h3 style={panelTitleStyle}>{t('users.createTitle')}</h3>
+              <form onSubmit={submitCreate} style={{ display: 'grid', gap: 12 }}>
+                <Field label={t('users.fullNameLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={createForm.fullName}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          fullName: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label={t('users.emailLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={createForm.email}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          email: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <Field label={t('users.roleLabel')}>
+                  {({ id }) => (
+                    <Select
+                      id={id}
+                      value={createForm.role}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          role: event.target.value,
+                        }))
+                      }
+                    >
+                      {ROLE_OPTIONS.map((role) => (
+                        <option key={role} value={role}>
+                          {roleLabel(role)}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+                <Field label={t('users.languageScopeLabel')}>
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      value={createForm.languageScope}
+                      onChange={(event) =>
+                        setCreateForm((current) => ({
+                          ...current,
+                          languageScope: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
+                </Field>
+                <label
                   style={{
-                    textAlign: 'left',
-                    border:
-                      selectedUserId === user.id
-                        ? '2px solid #1D4ED8'
-                        : '1px solid #E2E8F0',
-                    borderRadius: 16,
-                    padding: 14,
-                    background: '#fff',
-                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 600,
                   }}
                 >
-                  <strong>{user.fullName}</strong>
-                  <p style={{ margin: '6px 0' }}>
-                    {user.role} • {user.email}
-                  </p>
-                  <span style={badgeStyle}>
-                    {user.isActive ? 'active' : 'inactive'} • load {user.workload}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <div style={{ display: 'grid', gap: 18 }}>
-            <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-              <h3 style={{ marginTop: 0 }}>Create internal account</h3>
-              <form onSubmit={submitCreate} style={{ display: 'grid', gap: 12 }}>
-                <label style={labelStyle}>
-                  Full name
-                  <input
-                    value={createForm.fullName}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        fullName: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Email
-                  <input
-                    value={createForm.email}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        email: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={labelStyle}>
-                  Role
-                  <select
-                    value={createForm.role}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        role: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  >
-                    <option value="counselor">Counselor</option>
-                    <option value="commercial">Agent (Commercial)</option>
-                    <option value="content_manager">Content manager</option>
-                    <option value="moderator">Moderator</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super admin</option>
-                  </select>
-                </label>
-                <label style={labelStyle}>
-                  Language scope
-                  <input
-                    value={createForm.languageScope}
-                    onChange={(event) =>
-                      setCreateForm((current) => ({
-                        ...current,
-                        languageScope: event.target.value,
-                      }))
-                    }
-                    style={inputStyle}
-                  />
-                </label>
-                <label style={{ ...labelStyle, alignContent: 'end' }}>
-                  <span>Active</span>
                   <input
                     type="checkbox"
                     checked={createForm.isActive}
@@ -367,55 +415,62 @@ export default function UsersPage() {
                       }))
                     }
                   />
+                  {t('users.activeLabel')}
                 </label>
-                <button type="submit" style={buttonStyle}>
-                  Create operator
-                </button>
+                <Button type="submit">{t('users.createCta')}</Button>
               </form>
             </section>
 
             {selectedUser ? (
-              <section style={{ ...panelStyle, display: 'grid', gap: 12 }}>
-                <h3 style={{ marginTop: 0 }}>Update selected operator</h3>
-                <p style={mutedTextStyle}>
+              <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+                <h3 style={panelTitleStyle}>{t('users.updateTitle')}</h3>
+                <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
                   {selectedUser.fullName} • {selectedUser.email}
                 </p>
                 <form onSubmit={submitUpdate} style={{ display: 'grid', gap: 12 }}>
-                  <label style={labelStyle}>
-                    Role
-                    <select
-                      value={updateForm.role}
-                      onChange={(event) =>
-                        setUpdateForm((current) => ({
-                          ...current,
-                          role: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    >
-                      <option value="counselor">Counselor</option>
-                      <option value="commercial">Agent (Commercial)</option>
-                      <option value="content_manager">Content manager</option>
-                      <option value="moderator">Moderator</option>
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super admin</option>
-                    </select>
-                  </label>
-                  <label style={labelStyle}>
-                    Workload
-                    <input
-                      value={updateForm.workload}
-                      onChange={(event) =>
-                        setUpdateForm((current) => ({
-                          ...current,
-                          workload: event.target.value,
-                        }))
-                      }
-                      style={inputStyle}
-                    />
-                  </label>
-                  <label style={{ ...labelStyle, alignContent: 'end' }}>
-                    <span>Active</span>
+                  <Field label={t('users.roleLabel')}>
+                    {({ id }) => (
+                      <Select
+                        id={id}
+                        value={updateForm.role}
+                        onChange={(event) =>
+                          setUpdateForm((current) => ({
+                            ...current,
+                            role: event.target.value,
+                          }))
+                        }
+                      >
+                        {ROLE_OPTIONS.map((role) => (
+                          <option key={role} value={role}>
+                            {roleLabel(role)}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </Field>
+                  <Field label={t('users.workloadLabel')}>
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        value={updateForm.workload}
+                        onChange={(event) =>
+                          setUpdateForm((current) => ({
+                            ...current,
+                            workload: event.target.value,
+                          }))
+                        }
+                      />
+                    )}
+                  </Field>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 600,
+                    }}
+                  >
                     <input
                       type="checkbox"
                       checked={updateForm.isActive}
@@ -426,21 +481,15 @@ export default function UsersPage() {
                         }))
                       }
                     />
+                    {t('users.activeLabel')}
                   </label>
-                  <button type="submit" style={buttonStyle}>
-                    Save role changes
-                  </button>
+                  <Button type="submit">{t('users.saveCta')}</Button>
                 </form>
-                <button
-                  type="button"
-                  onClick={resetPassword}
-                  style={{ ...buttonStyle, background: '#B45309' }}
-                >
-                  Reset temporary password
-                </button>
-                <p style={{ ...mutedTextStyle, margin: 0 }}>
-                  Issues a fresh temp password and signs the operator out of any
-                  active session.
+                <Button variant="danger" onClick={resetPassword}>
+                  {t('users.resetPasswordCta')}
+                </Button>
+                <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  {t('users.resetPasswordHint')}
                 </p>
               </section>
             ) : null}
