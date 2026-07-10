@@ -1,20 +1,26 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { CSSProperties, FormEvent, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
+import { useLocale } from '../../components/locale-provider';
 import { apiFetch } from '../../lib/api-client';
+import { splitList } from '../../lib/ui';
 import {
-  badgeStyle,
-  buttonStyle,
-  inputStyle,
-  labelStyle,
-  mutedTextStyle,
-  panelStyle,
-  splitList,
-  textareaStyle,
-} from '../../lib/ui';
+  AdminTable,
+  AdminTableRow,
+  Alert,
+  Badge,
+  Button,
+  CellText,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  StatusBadge,
+  Textarea,
+} from '../../components/ui';
 
 interface ServiceOfferItem {
   id: string;
@@ -96,6 +102,48 @@ const PARCOURS_FIELD_OPTIONS: { id: string; label: string }[] = [
   { id: 'd12', label: 'Logistique & Supply Chain' },
 ];
 
+const EMPTY_OFFER_FORM = {
+  nameFr: '',
+  nameEn: '',
+  offerType: 'consultation',
+  destinationIds: '',
+  studyLevels: '',
+  priceFr: 'Sur devis',
+  priceEn: 'Quoted on request',
+  benefitsFr: '',
+  benefitsEn: '',
+  ctaFr: 'En savoir plus',
+  ctaEn: 'Learn more',
+  status: 'draft',
+};
+
+const EMPTY_DESTINATION_FORM = {
+  countryId: '',
+  countryFr: '',
+  countryEn: '',
+  supportLanguages: 'fr,en',
+  serviceTypes: 'consultation',
+  conditionsFr: '',
+  conditionsEn: '',
+  counselors: '',
+  isVisible: true,
+  status: 'draft',
+};
+
+const EMPTY_ARTICLE_FORM = {
+  slug: '',
+  category: 'guides',
+  titleFr: '',
+  titleEn: '',
+  summaryFr: '',
+  summaryEn: '',
+  contentFr: '',
+  contentEn: '',
+  tags: '',
+  authorName: 'KPB Editorial',
+  status: 'draft',
+};
+
 const EMPTY_PARCOURS_FORM = {
   slug: '',
   kind: 'video',
@@ -120,24 +168,67 @@ const EMPTY_PARCOURS_FORM = {
   featured: false,
 };
 
+const panelCardStyle: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 16,
+  padding: 16,
+};
+
+const panelTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 'var(--text-base)',
+  fontWeight: 800,
+  color: 'var(--ink)',
+};
+
+const panelSubtitleStyle: CSSProperties = {
+  margin: '4px 0 0',
+  fontSize: 'var(--text-xs)',
+  color: 'var(--text-muted)',
+  lineHeight: 1.5,
+};
+
+const formGridStyle: CSSProperties = {
+  display: 'grid',
+  gap: 12,
+  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+};
+
+const fullRowStyle: CSSProperties = { gridColumn: '1 / -1' };
+
+const checkboxLabelStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 'var(--text-sm)',
+  fontWeight: 600,
+};
+
 // Parse the admin interview textarea (JSON array of {question, answer}).
 // Returns null for empty input; throws a readable error for invalid JSON so
 // submitParcours can surface it instead of silently dropping the content.
-function parseInterview(raw: string, label: string): ParcoursQa[] | null {
+function parseInterview(
+  raw: string,
+  label: string,
+  t: (key: string) => string,
+): ParcoursQa[] | null {
   const trimmed = raw.trim();
   if (trimmed === '') return null;
   let parsed: unknown;
   try {
     parsed = JSON.parse(trimmed);
   } catch {
-    throw new Error(`Interview ${label}: invalid JSON.`);
+    throw new Error(`Interview ${label}: ${t('content.interviewInvalidJson')}`);
   }
   if (!Array.isArray(parsed)) {
-    throw new Error(`Interview ${label}: expected a JSON array of {question, answer}.`);
+    throw new Error(`Interview ${label}: ${t('content.interviewNotArray')}`);
   }
   return parsed.map((item, index) => {
     if (!item || typeof item !== 'object') {
-      throw new Error(`Interview ${label}: item ${index + 1} is not an object.`);
+      throw new Error(
+        `Interview ${label}: ${t('content.interviewItemInvalid')} (#${index + 1})`,
+      );
     }
     const record = item as Record<string, unknown>;
     return {
@@ -149,6 +240,7 @@ function parseInterview(raw: string, label: string): ParcoursQa[] | null {
 
 export default function ContentPage() {
   const { session } = useAdminAuth();
+  const { t } = useLocale();
   const [serviceOffers, setServiceOffers] = useState<ServiceOfferItem[]>([]);
   const [supportDestinations, setSupportDestinations] = useState<
     SupportDestinationItem[]
@@ -156,51 +248,40 @@ export default function ContentPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [offerForm, setOfferForm] = useState({
-    nameFr: '',
-    nameEn: '',
-    offerType: 'consultation',
-    destinationIds: '',
-    studyLevels: '',
-    priceFr: 'Sur devis',
-    priceEn: 'Quoted on request',
-    benefitsFr: '',
-    benefitsEn: '',
-    ctaFr: 'En savoir plus',
-    ctaEn: 'Learn more',
-    status: 'draft',
-  });
+  const [offerForm, setOfferForm] = useState({ ...EMPTY_OFFER_FORM });
   const [destinationForm, setDestinationForm] = useState({
-    countryId: '',
-    countryFr: '',
-    countryEn: '',
-    supportLanguages: 'fr,en',
-    serviceTypes: 'consultation',
-    conditionsFr: '',
-    conditionsEn: '',
-    counselors: '',
-    isVisible: true,
-    status: 'draft',
+    ...EMPTY_DESTINATION_FORM,
   });
-  const [articleForm, setArticleForm] = useState({
-    slug: '',
-    category: 'guides',
-    titleFr: '',
-    titleEn: '',
-    summaryFr: '',
-    summaryEn: '',
-    contentFr: '',
-    contentEn: '',
-    tags: '',
-    authorName: 'KPB Editorial',
-    status: 'draft',
-  });
+  const [articleForm, setArticleForm] = useState({ ...EMPTY_ARTICLE_FORM });
   const [parcours, setParcours] = useState<ParcoursItem[]>([]);
   const [parcoursForm, setParcoursForm] = useState({ ...EMPTY_PARCOURS_FORM });
   const [editingOfferId, setEditingOfferId] = useState<string | null>(null);
   const [editingDestinationId, setEditingDestinationId] = useState<string | null>(null);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [editingParcoursId, setEditingParcoursId] = useState<string | null>(null);
+
+  function patchOffer(patch: Partial<typeof EMPTY_OFFER_FORM>) {
+    setOfferForm((current) => ({ ...current, ...patch }));
+  }
+  function patchDestination(patch: Partial<typeof EMPTY_DESTINATION_FORM>) {
+    setDestinationForm((current) => ({ ...current, ...patch }));
+  }
+  function patchArticle(patch: Partial<typeof EMPTY_ARTICLE_FORM>) {
+    setArticleForm((current) => ({ ...current, ...patch }));
+  }
+  function patchParcours(patch: Partial<typeof EMPTY_PARCOURS_FORM>) {
+    setParcoursForm((current) => ({ ...current, ...patch }));
+  }
+
+  function statusOptions() {
+    return (
+      <>
+        <option value="draft">{t('content.statusDraft')}</option>
+        <option value="published">{t('content.statusPublished')}</option>
+        <option value="archived">{t('content.statusArchived')}</option>
+      </>
+    );
+  }
 
   async function loadContent() {
     setErrorMessage(null);
@@ -224,7 +305,7 @@ export default function ContentPage() {
       setParcours(parcoursResponse.items);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to load content.',
+        error instanceof Error ? error.message : t('content.loadError'),
       );
     }
   }
@@ -234,6 +315,7 @@ export default function ContentPage() {
       return;
     }
     void loadContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   async function submitOffer(event: FormEvent<HTMLFormElement>) {
@@ -241,76 +323,44 @@ export default function ContentPage() {
     setStatusMessage(null);
     setErrorMessage(null);
 
+    const body = {
+      name: { fr: offerForm.nameFr, en: offerForm.nameEn },
+      offerType: offerForm.offerType,
+      destinationIds: splitList(offerForm.destinationIds),
+      studyLevels: splitList(offerForm.studyLevels),
+      priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
+      benefits: {
+        fr: offerForm.benefitsFr
+          .split('\n')
+          .map((item) => item.trim())
+          .filter(Boolean),
+        en: offerForm.benefitsEn
+          .split('\n')
+          .map((item) => item.trim())
+          .filter(Boolean),
+      },
+      ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
+      status: offerForm.status,
+    };
+
     try {
       if (editingOfferId) {
         await apiFetch(`/admin/service-offers/${editingOfferId}`, {
           method: 'PATCH',
-          body: {
-            name: { fr: offerForm.nameFr, en: offerForm.nameEn },
-            offerType: offerForm.offerType,
-            destinationIds: splitList(offerForm.destinationIds),
-            studyLevels: splitList(offerForm.studyLevels),
-            priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
-            benefits: {
-              fr: offerForm.benefitsFr
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-              en: offerForm.benefitsEn
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-            },
-            ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
-            status: offerForm.status,
-          },
+          body,
         });
-        setStatusMessage('Service offer updated successfully.');
+        setStatusMessage(t('content.offerUpdated'));
       } else {
-        await apiFetch('/admin/service-offers', {
-          method: 'POST',
-          body: {
-            name: { fr: offerForm.nameFr, en: offerForm.nameEn },
-            offerType: offerForm.offerType,
-            destinationIds: splitList(offerForm.destinationIds),
-            studyLevels: splitList(offerForm.studyLevels),
-            priceLabel: { fr: offerForm.priceFr, en: offerForm.priceEn },
-            benefits: {
-              fr: offerForm.benefitsFr
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-              en: offerForm.benefitsEn
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-            },
-            ctaLabel: { fr: offerForm.ctaFr, en: offerForm.ctaEn },
-            status: offerForm.status,
-          },
-        });
-        setStatusMessage('Service offer published to the operations catalog.');
+        await apiFetch('/admin/service-offers', { method: 'POST', body });
+        setStatusMessage(t('content.offerCreated'));
       }
 
-      setOfferForm({
-        nameFr: '',
-        nameEn: '',
-        offerType: 'consultation',
-        destinationIds: '',
-        studyLevels: '',
-        priceFr: 'Sur devis',
-        priceEn: 'Quoted on request',
-        benefitsFr: '',
-        benefitsEn: '',
-        ctaFr: 'En savoir plus',
-        ctaEn: 'Learn more',
-        status: 'draft',
-      });
+      setOfferForm({ ...EMPTY_OFFER_FORM });
       setEditingOfferId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create offer.',
+        error instanceof Error ? error.message : t('content.offerError'),
       );
     }
   }
@@ -320,82 +370,47 @@ export default function ContentPage() {
     setStatusMessage(null);
     setErrorMessage(null);
 
+    const body = {
+      countryId: destinationForm.countryId,
+      countryName: {
+        fr: destinationForm.countryFr,
+        en: destinationForm.countryEn,
+      },
+      supportLanguages: splitList(destinationForm.supportLanguages),
+      availableServiceTypes: splitList(destinationForm.serviceTypes),
+      conditions: {
+        fr: destinationForm.conditionsFr
+          .split('\n')
+          .map((item) => item.trim())
+          .filter(Boolean),
+        en: destinationForm.conditionsEn
+          .split('\n')
+          .map((item) => item.trim())
+          .filter(Boolean),
+      },
+      counselorNames: splitList(destinationForm.counselors),
+      isVisible: destinationForm.isVisible,
+      status: destinationForm.status,
+    };
+
     try {
       if (editingDestinationId) {
         await apiFetch(`/admin/support-destinations/${editingDestinationId}`, {
           method: 'PATCH',
-          body: {
-            countryId: destinationForm.countryId,
-            countryName: {
-              fr: destinationForm.countryFr,
-              en: destinationForm.countryEn,
-            },
-            supportLanguages: splitList(destinationForm.supportLanguages),
-            availableServiceTypes: splitList(destinationForm.serviceTypes),
-            conditions: {
-              fr: destinationForm.conditionsFr
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-              en: destinationForm.conditionsEn
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-            },
-            counselorNames: splitList(destinationForm.counselors),
-            isVisible: destinationForm.isVisible,
-            status: destinationForm.status,
-          },
+          body,
         });
-        setStatusMessage('Support destination updated successfully.');
+        setStatusMessage(t('content.destinationUpdated'));
       } else {
-        await apiFetch('/admin/support-destinations', {
-          method: 'POST',
-          body: {
-            countryId: destinationForm.countryId,
-            countryName: {
-              fr: destinationForm.countryFr,
-              en: destinationForm.countryEn,
-            },
-            supportLanguages: splitList(destinationForm.supportLanguages),
-            availableServiceTypes: splitList(destinationForm.serviceTypes),
-            conditions: {
-              fr: destinationForm.conditionsFr
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-              en: destinationForm.conditionsEn
-                .split('\n')
-                .map((item) => item.trim())
-                .filter(Boolean),
-            },
-            counselorNames: splitList(destinationForm.counselors),
-            isVisible: destinationForm.isVisible,
-            status: destinationForm.status,
-          },
-        });
-        setStatusMessage('Support destination added successfully.');
+        await apiFetch('/admin/support-destinations', { method: 'POST', body });
+        setStatusMessage(t('content.destinationCreated'));
       }
 
-      setDestinationForm({
-        countryId: '',
-        countryFr: '',
-        countryEn: '',
-        supportLanguages: 'fr,en',
-        serviceTypes: 'consultation',
-        conditionsFr: '',
-        conditionsEn: '',
-        counselors: '',
-        isVisible: true,
-        status: 'draft',
-      });
+      setDestinationForm({ ...EMPTY_DESTINATION_FORM });
       setEditingDestinationId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to create support destination.',
+        error instanceof Error ? error.message : t('content.destinationError'),
       );
     }
   }
@@ -405,65 +420,37 @@ export default function ContentPage() {
     setStatusMessage(null);
     setErrorMessage(null);
 
+    const body = {
+      slug: articleForm.slug,
+      category: articleForm.category,
+      title: { fr: articleForm.titleFr, en: articleForm.titleEn },
+      summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
+      content: { fr: articleForm.contentFr, en: articleForm.contentEn },
+      tags: splitList(articleForm.tags),
+      authorName: articleForm.authorName,
+      status: articleForm.status,
+      publishedAt:
+        articleForm.status === 'published' ? new Date().toISOString() : null,
+    };
+
     try {
       if (editingArticleId) {
         await apiFetch(`/admin/articles/${editingArticleId}`, {
           method: 'PATCH',
-          body: {
-            slug: articleForm.slug,
-            category: articleForm.category,
-            title: { fr: articleForm.titleFr, en: articleForm.titleEn },
-            summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
-            content: { fr: articleForm.contentFr, en: articleForm.contentEn },
-            tags: splitList(articleForm.tags),
-            authorName: articleForm.authorName,
-            status: articleForm.status,
-            publishedAt:
-              articleForm.status === 'published'
-                ? new Date().toISOString()
-                : null,
-          },
+          body,
         });
-        setStatusMessage('Article updated successfully.');
+        setStatusMessage(t('content.articleUpdated'));
       } else {
-        await apiFetch('/admin/articles', {
-          method: 'POST',
-          body: {
-            slug: articleForm.slug,
-            category: articleForm.category,
-            title: { fr: articleForm.titleFr, en: articleForm.titleEn },
-            summary: { fr: articleForm.summaryFr, en: articleForm.summaryEn },
-            content: { fr: articleForm.contentFr, en: articleForm.contentEn },
-            tags: splitList(articleForm.tags),
-            authorName: articleForm.authorName,
-            status: articleForm.status,
-            publishedAt:
-              articleForm.status === 'published'
-                ? new Date().toISOString()
-                : null,
-          },
-        });
-        setStatusMessage('Article added to the editorial queue.');
+        await apiFetch('/admin/articles', { method: 'POST', body });
+        setStatusMessage(t('content.articleCreated'));
       }
 
-      setArticleForm({
-        slug: '',
-        category: 'guides',
-        titleFr: '',
-        titleEn: '',
-        summaryFr: '',
-        summaryEn: '',
-        contentFr: '',
-        contentEn: '',
-        tags: '',
-        authorName: 'KPB Editorial',
-        status: 'draft',
-      });
+      setArticleForm({ ...EMPTY_ARTICLE_FORM });
       setEditingArticleId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to create article.',
+        error instanceof Error ? error.message : t('content.articleError'),
       );
     }
   }
@@ -479,11 +466,13 @@ export default function ContentPage() {
     let interviewFr: ParcoursQa[] | null;
     let interviewEn: ParcoursQa[] | null;
     try {
-      interviewFr = parseInterview(parcoursForm.interviewFr, 'FR');
-      interviewEn = parseInterview(parcoursForm.interviewEn, 'EN');
+      interviewFr = parseInterview(parcoursForm.interviewFr, 'FR', t);
+      interviewEn = parseInterview(parcoursForm.interviewEn, 'EN', t);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Invalid interview JSON.',
+        error instanceof Error
+          ? error.message
+          : t('content.interviewInvalidJson'),
       );
       return;
     }
@@ -522,23 +511,21 @@ export default function ContentPage() {
           method: 'PATCH',
           body,
         });
-        setStatusMessage('Parcours story updated successfully.');
+        setStatusMessage(t('content.parcoursUpdated'));
       } else {
         // Only new rows are stamped as manually authored.
         await apiFetch('/admin/parcours', {
           method: 'POST',
           body: { ...body, source: 'manual' },
         });
-        setStatusMessage('Parcours story added.');
+        setStatusMessage(t('content.parcoursCreated'));
       }
       setParcoursForm({ ...EMPTY_PARCOURS_FORM });
       setEditingParcoursId(null);
       await loadContent();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to save the parcours story.',
+        error instanceof Error ? error.message : t('content.parcoursError'),
       );
     }
   }
@@ -552,1120 +539,954 @@ export default function ContentPage() {
         setEditingParcoursId(null);
         setParcoursForm({ ...EMPTY_PARCOURS_FORM });
       }
-      setStatusMessage('Parcours story deleted.');
+      setStatusMessage(t('content.parcoursDeleted'));
       await loadContent();
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : 'Unable to delete the parcours story.',
+          : t('content.parcoursDeleteError'),
       );
     }
   }
 
-  return (
-    <DashboardShell title="Content">
-      <div style={{ display: 'grid', gap: 18 }}>
-        {statusMessage ? (
-          <div style={{ ...panelStyle, background: '#ECFDF5', color: '#166534' }}>
-            {statusMessage}
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div style={{ ...panelStyle, background: '#FEF2F2', color: '#B91C1C' }}>
-            {errorMessage}
-          </div>
-        ) : null}
+  function selectOffer(offer: ServiceOfferItem) {
+    setEditingOfferId(offer.id);
+    setOfferForm({
+      nameFr: offer.name.fr,
+      nameEn: offer.name.en,
+      offerType: offer.offerType,
+      destinationIds: offer.destinationIds.join(','),
+      studyLevels: offer.studyLevels.join(','),
+      priceFr: offer.priceLabel.fr,
+      priceEn: offer.priceLabel.en,
+      benefitsFr: offer.benefits?.fr?.join('\n') ?? '',
+      benefitsEn: offer.benefits?.en?.join('\n') ?? '',
+      ctaFr: offer.ctaLabel?.fr ?? '',
+      ctaEn: offer.ctaLabel?.en ?? '',
+      status: offer.status,
+    });
+  }
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+  function selectDestination(destination: SupportDestinationItem) {
+    setEditingDestinationId(destination.id);
+    setDestinationForm({
+      countryId: destination.countryId ?? '',
+      countryFr: destination.countryName.fr,
+      countryEn: destination.countryName.en,
+      supportLanguages: destination.supportLanguages.join(','),
+      serviceTypes: destination.availableServiceTypes.join(','),
+      conditionsFr: destination.conditions?.fr?.join('\n') ?? '',
+      conditionsEn: destination.conditions?.en?.join('\n') ?? '',
+      counselors: destination.counselorNames.join(','),
+      isVisible: destination.isVisible,
+      status: destination.status,
+    });
+  }
+
+  function selectArticle(article: ArticleItem) {
+    setEditingArticleId(article.id);
+    setArticleForm({
+      slug: article.slug ?? '',
+      category: article.category,
+      titleFr: article.title.fr,
+      titleEn: article.title.en,
+      summaryFr: article.summary?.fr ?? '',
+      summaryEn: article.summary?.en ?? '',
+      contentFr: article.content?.fr ?? '',
+      contentEn: article.content?.en ?? '',
+      tags: article.tags?.join(',') ?? '',
+      authorName: article.authorName,
+      status: article.status,
+    });
+  }
+
+  function selectParcours(story: ParcoursItem) {
+    setEditingParcoursId(story.id);
+    setParcoursForm({
+      slug: story.slug,
+      kind: story.kind,
+      fieldId: story.fieldId ?? '',
+      youtubeId: story.youtubeId ?? '',
+      personName: story.personName ?? '',
+      roleFr: story.role?.fr ?? '',
+      roleEn: story.role?.en ?? '',
+      titleFr: story.title?.fr ?? '',
+      titleEn: story.title?.en ?? '',
+      hookFr: story.hook?.fr ?? '',
+      hookEn: story.hook?.en ?? '',
+      summaryFr: story.summary?.fr ?? '',
+      summaryEn: story.summary?.en ?? '',
+      tags: story.tags?.join(',') ?? '',
+      durationMinutes:
+        story.durationMinutes != null ? String(story.durationMinutes) : '',
+      thumbnailUrl: story.thumbnailUrl ?? '',
+      photoUrl: story.photoUrl ?? '',
+      interviewFr: story.interview?.fr
+        ? JSON.stringify(story.interview.fr, null, 2)
+        : '',
+      interviewEn: story.interview?.en
+        ? JSON.stringify(story.interview.en, null, 2)
+        : '',
+      status: story.status,
+      featured: story.featured,
+    });
+  }
+
+  return (
+    <DashboardShell title={t('content.title')}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
+
+        {/* ── Service offers ─────────────────────────────────────────── */}
+        <AdminTable
+          title={t('content.offersTitle')}
+          columns={[
+            t('content.colName'),
+            t('content.colType'),
+            t('content.colDestinations'),
+            t('content.colStatus'),
+          ]}
+          cols="1.6fr 0.9fr 1.1fr 0.8fr"
+          footnote={t('content.offersSubtitle')}
+        >
+          {serviceOffers.length === 0 ? (
+            <EmptyState title={t('content.offersEmpty')} />
+          ) : (
+            serviceOffers.map((offer) => (
+              <AdminTableRow
+                key={offer.id}
+                selected={editingOfferId === offer.id}
+                onSelect={() => selectOffer(offer)}
+              >
+                <CellText primary={offer.name.fr} sub={offer.name.en} />
+                <CellText primary={offer.offerType} muted />
+                <CellText
+                  primary={
+                    offer.destinationIds.join(', ') || t('content.global')
+                  }
+                  muted
+                />
+                <div>
+                  <StatusBadge status={offer.status} />
+                </div>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
           <div>
-            <h3 style={{ marginTop: 0 }}>Service offers</h3>
-            <p style={mutedTextStyle}>
-              Add a new KPB premium or consultative offer that can surface in the
-              mobile app.
-            </p>
+            <h3 style={panelTitleStyle}>
+              {editingOfferId
+                ? t('content.updateOfferCta')
+                : t('content.addOfferCta')}
+            </h3>
+            <p style={panelSubtitleStyle}>{t('content.offersSubtitle')}</p>
           </div>
-          <form
-            onSubmit={submitOffer}
-            style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}
-          >
-            <label style={labelStyle}>
-              Offer name (FR)
-              <input
-                value={offerForm.nameFr}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    nameFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Offer name (EN)
-              <input
-                value={offerForm.nameEn}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    nameEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Offer type
-              <input
-                value={offerForm.offerType}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    offerType: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Status
-              <select
-                value={offerForm.status}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </label>
-            <label style={labelStyle}>
-              Destination IDs
-              <input
-                value={offerForm.destinationIds}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    destinationIds: event.target.value,
-                  }))
-                }
-                placeholder="canada,france,germany"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Study levels
-              <input
-                value={offerForm.studyLevels}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    studyLevels: event.target.value,
-                  }))
-                }
-                placeholder="high_school,bachelor,master"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Price label (FR)
-              <input
-                value={offerForm.priceFr}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    priceFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Price label (EN)
-              <input
-                value={offerForm.priceEn}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    priceEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Benefits (FR, one per line)
-              <textarea
-                value={offerForm.benefitsFr}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    benefitsFr: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Benefits (EN, one per line)
-              <textarea
-                value={offerForm.benefitsEn}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    benefitsEn: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              CTA (FR)
-              <input
-                value={offerForm.ctaFr}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    ctaFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              CTA (EN)
-              <input
-                value={offerForm.ctaEn}
-                onChange={(event) =>
-                  setOfferForm((current) => ({
-                    ...current,
-                    ctaEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              {editingOfferId ? 'Update service offer' : 'Add service offer'}
-            </button>
-            {editingOfferId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingOfferId(null);
-                  setOfferForm({
-                    nameFr: '',
-                    nameEn: '',
-                    offerType: 'consultation',
-                    destinationIds: '',
-                    studyLevels: '',
-                    priceFr: 'Sur devis',
-                    priceEn: 'Quoted on request',
-                    benefitsFr: '',
-                    benefitsEn: '',
-                    ctaFr: 'En savoir plus',
-                    ctaEn: 'Learn more',
-                    status: 'draft',
-                  });
-                }}
-                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
-              >
-                Cancel
-              </button>
-            )}
+          <form onSubmit={submitOffer} style={formGridStyle}>
+            <Field label={t('content.offerNameFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.nameFr}
+                  onChange={(e) => patchOffer({ nameFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.offerNameEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.nameEn}
+                  onChange={(e) => patchOffer({ nameEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.offerType')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.offerType}
+                  onChange={(e) => patchOffer({ offerType: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.statusLabel')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={offerForm.status}
+                  onChange={(e) => patchOffer({ status: e.target.value })}
+                >
+                  {statusOptions()}
+                </Select>
+              )}
+            </Field>
+            <Field label={t('content.destinationIds')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.destinationIds}
+                  onChange={(e) => patchOffer({ destinationIds: e.target.value })}
+                  placeholder="canada,france,germany"
+                />
+              )}
+            </Field>
+            <Field label={t('content.studyLevels')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.studyLevels}
+                  onChange={(e) => patchOffer({ studyLevels: e.target.value })}
+                  placeholder="high_school,bachelor,master"
+                />
+              )}
+            </Field>
+            <Field label={t('content.priceFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.priceFr}
+                  onChange={(e) => patchOffer({ priceFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.priceEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.priceEn}
+                  onChange={(e) => patchOffer({ priceEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <div style={fullRowStyle}>
+              <Field label={t('content.benefitsFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={offerForm.benefitsFr}
+                    onChange={(e) => patchOffer({ benefitsFr: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.benefitsEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={offerForm.benefitsEn}
+                    onChange={(e) => patchOffer({ benefitsEn: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <Field label={t('content.ctaFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.ctaFr}
+                  onChange={(e) => patchOffer({ ctaFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.ctaEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={offerForm.ctaEn}
+                  onChange={(e) => patchOffer({ ctaEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <div style={{ ...fullRowStyle, display: 'flex', gap: 8 }}>
+              <Button type="submit">
+                {editingOfferId
+                  ? t('content.updateOfferCta')
+                  : t('content.addOfferCta')}
+              </Button>
+              {editingOfferId ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setEditingOfferId(null);
+                    setOfferForm({ ...EMPTY_OFFER_FORM });
+                  }}
+                >
+                  {t('content.cancelCta')}
+                </Button>
+              ) : null}
+            </div>
           </form>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {serviceOffers.map((offer) => (
-              <div 
-                key={offer.id} 
-                onClick={() => {
-                  setEditingOfferId(offer.id);
-                  setOfferForm({
-                    nameFr: offer.name.fr,
-                    nameEn: offer.name.en,
-                    offerType: offer.offerType,
-                    destinationIds: offer.destinationIds.join(','),
-                    studyLevels: offer.studyLevels.join(','),
-                    priceFr: offer.priceLabel.fr,
-                    priceEn: offer.priceLabel.en,
-                    benefitsFr: offer.benefits?.fr?.join('\n') ?? '',
-                    benefitsEn: offer.benefits?.en?.join('\n') ?? '',
-                    ctaFr: offer.ctaLabel?.fr ?? '',
-                    ctaEn: offer.ctaLabel?.en ?? '',
-                    status: offer.status,
-                  });
-                }}
-                style={{ 
-                  borderTop: '1px solid #E2E8F0', 
-                  paddingTop: 12,
-                  cursor: 'pointer',
-                  background: editingOfferId === offer.id ? '#f1f5f9' : 'transparent',
-                  padding: '12px 8px',
-                  borderRadius: 8,
-                }}
-              >
-                <strong>{offer.name.fr}</strong>
-                <p style={{ margin: '6px 0' }}>
-                  {offer.offerType} • {offer.destinationIds.join(', ') || 'global'}
-                </p>
-                <span style={badgeStyle}>{offer.status}</span>
-              </div>
-            ))}
-          </div>
         </section>
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
-          <div>
-            <h3 style={{ marginTop: 0 }}>Support destinations</h3>
-            <p style={mutedTextStyle}>
-              Control which accompaniment countries appear in the mobile explore
-              experience.
-            </p>
-          </div>
-          <form
-            onSubmit={submitDestination}
-            style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}
-          >
-            <label style={labelStyle}>
-              Country ID
-              <input
-                value={destinationForm.countryId}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    countryId: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Status
-              <select
-                value={destinationForm.status}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                style={inputStyle}
+        {/* ── Support destinations ───────────────────────────────────── */}
+        <AdminTable
+          title={t('content.destinationsTitle')}
+          columns={[
+            t('content.colCountry'),
+            t('content.colServices'),
+            t('content.colVisibility'),
+            t('content.colStatus'),
+          ]}
+          cols="1.3fr 1.4fr 0.8fr 0.8fr"
+          footnote={t('content.destinationsSubtitle')}
+        >
+          {supportDestinations.length === 0 ? (
+            <EmptyState title={t('content.destinationsEmpty')} />
+          ) : (
+            supportDestinations.map((destination) => (
+              <AdminTableRow
+                key={destination.id}
+                selected={editingDestinationId === destination.id}
+                onSelect={() => selectDestination(destination)}
               >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </label>
-            <label style={labelStyle}>
-              Country name (FR)
-              <input
-                value={destinationForm.countryFr}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    countryFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Country name (EN)
-              <input
-                value={destinationForm.countryEn}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    countryEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Support languages
-              <input
-                value={destinationForm.supportLanguages}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    supportLanguages: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Service types
-              <input
-                value={destinationForm.serviceTypes}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    serviceTypes: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Conditions (FR, one per line)
-              <textarea
-                value={destinationForm.conditionsFr}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    conditionsFr: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Conditions (EN, one per line)
-              <textarea
-                value={destinationForm.conditionsEn}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    conditionsEn: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Counselors
-              <input
-                value={destinationForm.counselors}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    counselors: event.target.value,
-                  }))
-                }
-                placeholder="Amina KPB,Fatou Admin"
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, alignContent: 'end' }}>
-              <span>Visibility</span>
+                <CellText
+                  primary={destination.countryName.fr}
+                  sub={destination.countryId}
+                />
+                <CellText
+                  primary={destination.availableServiceTypes.join(', ')}
+                  muted
+                />
+                <div>
+                  <Badge variant={destination.isVisible ? 'info' : 'neutral'}>
+                    {destination.isVisible
+                      ? t('content.visible')
+                      : t('content.hidden')}
+                  </Badge>
+                </div>
+                <div>
+                  <StatusBadge status={destination.status} />
+                </div>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
+          <div>
+            <h3 style={panelTitleStyle}>
+              {editingDestinationId
+                ? t('content.updateDestinationCta')
+                : t('content.addDestinationCta')}
+            </h3>
+            <p style={panelSubtitleStyle}>{t('content.destinationsSubtitle')}</p>
+          </div>
+          <form onSubmit={submitDestination} style={formGridStyle}>
+            <Field label={t('content.countryId')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.countryId}
+                  onChange={(e) => patchDestination({ countryId: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.statusLabel')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={destinationForm.status}
+                  onChange={(e) => patchDestination({ status: e.target.value })}
+                >
+                  {statusOptions()}
+                </Select>
+              )}
+            </Field>
+            <Field label={t('content.countryFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.countryFr}
+                  onChange={(e) => patchDestination({ countryFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.countryEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.countryEn}
+                  onChange={(e) => patchDestination({ countryEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.supportLanguages')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.supportLanguages}
+                  onChange={(e) =>
+                    patchDestination({ supportLanguages: e.target.value })
+                  }
+                />
+              )}
+            </Field>
+            <Field label={t('content.serviceTypes')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.serviceTypes}
+                  onChange={(e) =>
+                    patchDestination({ serviceTypes: e.target.value })
+                  }
+                />
+              )}
+            </Field>
+            <div style={fullRowStyle}>
+              <Field label={t('content.conditionsFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={destinationForm.conditionsFr}
+                    onChange={(e) =>
+                      patchDestination({ conditionsFr: e.target.value })
+                    }
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.conditionsEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={destinationForm.conditionsEn}
+                    onChange={(e) =>
+                      patchDestination({ conditionsEn: e.target.value })
+                    }
+                  />
+                )}
+              </Field>
+            </div>
+            <Field label={t('content.counselors')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={destinationForm.counselors}
+                  onChange={(e) => patchDestination({ counselors: e.target.value })}
+                  placeholder="Amina KPB,Fatou Admin"
+                />
+              )}
+            </Field>
+            <label style={{ ...checkboxLabelStyle, alignSelf: 'end' }}>
               <input
                 type="checkbox"
                 checked={destinationForm.isVisible}
-                onChange={(event) =>
-                  setDestinationForm((current) => ({
-                    ...current,
-                    isVisible: event.target.checked,
-                  }))
+                onChange={(e) =>
+                  patchDestination({ isVisible: e.target.checked })
                 }
               />
+              {t('content.visibleLabel')}
             </label>
-            <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              {editingDestinationId ? 'Update support destination' : 'Add support destination'}
-            </button>
-            {editingDestinationId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingDestinationId(null);
-                  setDestinationForm({
-                    countryId: '',
-                    countryFr: '',
-                    countryEn: '',
-                    supportLanguages: 'fr,en',
-                    serviceTypes: 'consultation',
-                    conditionsFr: '',
-                    conditionsEn: '',
-                    counselors: '',
-                    isVisible: true,
-                    status: 'draft',
-                  });
-                }}
-                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
-              >
-                Cancel
-              </button>
-            )}
+            <div style={{ ...fullRowStyle, display: 'flex', gap: 8 }}>
+              <Button type="submit">
+                {editingDestinationId
+                  ? t('content.updateDestinationCta')
+                  : t('content.addDestinationCta')}
+              </Button>
+              {editingDestinationId ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setEditingDestinationId(null);
+                    setDestinationForm({ ...EMPTY_DESTINATION_FORM });
+                  }}
+                >
+                  {t('content.cancelCta')}
+                </Button>
+              ) : null}
+            </div>
           </form>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {supportDestinations.map((destination) => (
-              <div
-                key={destination.id}
-                onClick={() => {
-                  setEditingDestinationId(destination.id);
-                  setDestinationForm({
-                    countryId: destination.countryId ?? '',
-                    countryFr: destination.countryName.fr,
-                    countryEn: destination.countryName.en,
-                    supportLanguages: destination.supportLanguages.join(','),
-                    serviceTypes: destination.availableServiceTypes.join(','),
-                    conditionsFr: destination.conditions?.fr?.join('\n') ?? '',
-                    conditionsEn: destination.conditions?.en?.join('\n') ?? '',
-                    counselors: destination.counselorNames.join(','),
-                    isVisible: destination.isVisible,
-                    status: destination.status,
-                  });
-                }}
-                style={{ 
-                  borderTop: '1px solid #E2E8F0', 
-                  paddingTop: 12,
-                  cursor: 'pointer',
-                  background: editingDestinationId === destination.id ? '#f1f5f9' : 'transparent',
-                  padding: '12px 8px',
-                  borderRadius: 8,
-                }}
-              >
-                <strong>{destination.countryName.fr}</strong>
-                <p style={{ margin: '6px 0' }}>
-                  {destination.availableServiceTypes.join(', ')}
-                </p>
-                <span style={badgeStyle}>
-                  {destination.status} • {destination.isVisible ? 'visible' : 'hidden'}
-                </span>
-              </div>
-            ))}
-          </div>
         </section>
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+        {/* ── Editorial content ──────────────────────────────────────── */}
+        <AdminTable
+          title={t('content.articlesTitle')}
+          columns={[
+            t('content.colTitle'),
+            t('content.colCategory'),
+            t('content.colAuthor'),
+            t('content.colStatus'),
+          ]}
+          cols="1.8fr 0.9fr 1fr 0.8fr"
+          footnote={t('content.articlesSubtitle')}
+        >
+          {articles.length === 0 ? (
+            <EmptyState title={t('content.articlesEmpty')} />
+          ) : (
+            articles.map((article) => (
+              <AdminTableRow
+                key={article.id}
+                selected={editingArticleId === article.id}
+                onSelect={() => selectArticle(article)}
+              >
+                <CellText primary={article.title.fr} sub={article.slug} />
+                <CellText primary={article.category} muted />
+                <CellText primary={article.authorName} muted />
+                <div>
+                  <StatusBadge status={article.status} />
+                </div>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
           <div>
-            <h3 style={{ marginTop: 0 }}>Editorial content</h3>
-            <p style={mutedTextStyle}>
-              Publish guidance articles that can surface on home, scholarships,
-              and community entry points.
-            </p>
+            <h3 style={panelTitleStyle}>
+              {editingArticleId
+                ? t('content.updateArticleCta')
+                : t('content.addArticleCta')}
+            </h3>
+            <p style={panelSubtitleStyle}>{t('content.articlesSubtitle')}</p>
           </div>
-          <form
-            onSubmit={submitArticle}
-            style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}
-          >
-            <label style={labelStyle}>
-              Slug
-              <input
-                value={articleForm.slug}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    slug: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Category
-              <input
-                value={articleForm.category}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    category: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Title (FR)
-              <input
-                value={articleForm.titleFr}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    titleFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Title (EN)
-              <input
-                value={articleForm.titleEn}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    titleEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Summary (FR)
-              <textarea
-                value={articleForm.summaryFr}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    summaryFr: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Summary (EN)
-              <textarea
-                value={articleForm.summaryEn}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    summaryEn: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Content (FR)
-              <textarea
-                value={articleForm.contentFr}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    contentFr: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Content (EN)
-              <textarea
-                value={articleForm.contentEn}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    contentEn: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Tags
-              <input
-                value={articleForm.tags}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    tags: event.target.value,
-                  }))
-                }
-                placeholder="scholarships,canada,bachelor"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Author
-              <input
-                value={articleForm.authorName}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    authorName: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Status
-              <select
-                value={articleForm.status}
-                onChange={(event) =>
-                  setArticleForm((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </label>
-            <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              {editingArticleId ? 'Update article' : 'Add article'}
-            </button>
-            {editingArticleId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingArticleId(null);
-                  setArticleForm({
-                    slug: '',
-                    category: 'guides',
-                    titleFr: '',
-                    titleEn: '',
-                    summaryFr: '',
-                    summaryEn: '',
-                    contentFr: '',
-                    contentEn: '',
-                    tags: '',
-                    authorName: 'KPB Editorial',
-                    status: 'draft',
-                  });
-                }}
-                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
-              >
-                Cancel
-              </button>
-            )}
+          <form onSubmit={submitArticle} style={formGridStyle}>
+            <Field label={t('content.slug')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.slug}
+                  onChange={(e) => patchArticle({ slug: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.category')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.category}
+                  onChange={(e) => patchArticle({ category: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.titleFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.titleFr}
+                  onChange={(e) => patchArticle({ titleFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.titleEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.titleEn}
+                  onChange={(e) => patchArticle({ titleEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <div style={fullRowStyle}>
+              <Field label={t('content.summaryFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={articleForm.summaryFr}
+                    onChange={(e) => patchArticle({ summaryFr: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.summaryEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={articleForm.summaryEn}
+                    onChange={(e) => patchArticle({ summaryEn: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.contentFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={articleForm.contentFr}
+                    onChange={(e) => patchArticle({ contentFr: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.contentEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={articleForm.contentEn}
+                    onChange={(e) => patchArticle({ contentEn: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <Field label={t('content.tags')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.tags}
+                  onChange={(e) => patchArticle({ tags: e.target.value })}
+                  placeholder="scholarships,canada,bachelor"
+                />
+              )}
+            </Field>
+            <Field label={t('content.author')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={articleForm.authorName}
+                  onChange={(e) => patchArticle({ authorName: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.statusLabel')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={articleForm.status}
+                  onChange={(e) => patchArticle({ status: e.target.value })}
+                >
+                  {statusOptions()}
+                </Select>
+              )}
+            </Field>
+            <div style={{ ...fullRowStyle, display: 'flex', gap: 8 }}>
+              <Button type="submit">
+                {editingArticleId
+                  ? t('content.updateArticleCta')
+                  : t('content.addArticleCta')}
+              </Button>
+              {editingArticleId ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setEditingArticleId(null);
+                    setArticleForm({ ...EMPTY_ARTICLE_FORM });
+                  }}
+                >
+                  {t('content.cancelCta')}
+                </Button>
+              ) : null}
+            </div>
           </form>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {articles.map((article) => (
-              <div 
-                key={article.id} 
-                onClick={() => {
-                  setEditingArticleId(article.id);
-                  setArticleForm({
-                    slug: article.slug ?? '',
-                    category: article.category,
-                    titleFr: article.title.fr,
-                    titleEn: article.title.en,
-                    summaryFr: article.summary?.fr ?? '',
-                    summaryEn: article.summary?.en ?? '',
-                    contentFr: article.content?.fr ?? '',
-                    contentEn: article.content?.en ?? '',
-                    tags: article.tags?.join(',') ?? '',
-                    authorName: article.authorName,
-                    status: article.status,
-                  });
-                }}
-                style={{ 
-                  borderTop: '1px solid #E2E8F0', 
-                  paddingTop: 12,
-                  cursor: 'pointer',
-                  background: editingArticleId === article.id ? '#f1f5f9' : 'transparent',
-                  padding: '12px 8px',
-                  borderRadius: 8,
-                }}
-              >
-                <strong>{article.title.fr}</strong>
-                <p style={{ margin: '6px 0' }}>
-                  {article.category} • {article.authorName}
-                </p>
-                <span style={badgeStyle}>{article.status}</span>
-              </div>
-            ))}
-          </div>
         </section>
 
-        <section style={{ ...panelStyle, display: 'grid', gap: 16 }}>
+        {/* ── Parcours & testimonials ────────────────────────────────── */}
+        <AdminTable
+          title={t('content.parcoursTitle')}
+          columns={[
+            t('content.colStory'),
+            t('content.colKind'),
+            t('content.colTheme'),
+            t('content.colStatus'),
+            t('content.colActions'),
+          ]}
+          cols="1.7fr 0.8fr 0.6fr 0.9fr 1fr"
+          footnote={t('content.parcoursSubtitle')}
+        >
+          {parcours.length === 0 ? (
+            <EmptyState title={t('content.parcoursEmpty')} />
+          ) : (
+            parcours.map((story) => (
+              <AdminTableRow
+                key={story.id}
+                selected={editingParcoursId === story.id}
+              >
+                <CellText primary={story.title.fr} sub={story.personName} />
+                <CellText
+                  primary={
+                    story.kind === 'video'
+                      ? t('content.kindVideo')
+                      : t('content.kindText')
+                  }
+                  muted
+                />
+                <CellText primary={story.fieldId ?? '—'} muted />
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <StatusBadge status={story.status} />
+                  {story.featured ? (
+                    <Badge variant="brand">{t('content.featuredBadge')}</Badge>
+                  ) : null}
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <Button
+                    size="sm"
+                    variant={
+                      editingParcoursId === story.id ? 'primary' : 'secondary'
+                    }
+                    onClick={() => selectParcours(story)}
+                  >
+                    {t('content.editCta')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="dangerOutline"
+                    onClick={() => deleteParcours(story.id)}
+                  >
+                    {t('content.deleteCta')}
+                  </Button>
+                </div>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminTable>
+
+        <section style={{ ...panelCardStyle, display: 'grid', gap: 12 }}>
           <div>
-            <h3 style={{ marginTop: 0 }}>Parcours & témoignages</h3>
-            <p style={mutedTextStyle}>
-              Manage the free &quot;Parcours&quot; stories shown in the mobile
-              app — curated YouTube videos and imported written interviews.
-              Fill the YouTube ID for a video story; leave it empty for a
-              written testimonial.
-            </p>
+            <h3 style={panelTitleStyle}>
+              {editingParcoursId
+                ? t('content.updateStoryCta')
+                : t('content.addStoryCta')}
+            </h3>
+            <p style={panelSubtitleStyle}>{t('content.parcoursSubtitle')}</p>
           </div>
-          <form
-            onSubmit={submitParcours}
-            style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}
-          >
-            <label style={labelStyle}>
-              Kind
-              <select
-                value={parcoursForm.kind}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    kind: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              >
-                <option value="video">Video</option>
-                <option value="text">Written interview</option>
-              </select>
-            </label>
-            <label style={labelStyle}>
-              Field domain
-              <select
-                value={parcoursForm.fieldId}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    fieldId: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              >
-                {PARCOURS_FIELD_OPTIONS.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.id} — {f.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label style={labelStyle}>
-              YouTube ID (video only)
-              <input
-                value={parcoursForm.youtubeId}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    youtubeId: event.target.value,
-                  }))
-                }
-                placeholder="e.g. l_0UPSeH5sU"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Duration (minutes)
-              <input
-                value={parcoursForm.durationMinutes}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    durationMinutes: event.target.value,
-                  }))
-                }
-                inputMode="numeric"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Person name
-              <input
-                value={parcoursForm.personName}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    personName: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Slug (optional)
-              <input
-                value={parcoursForm.slug}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    slug: event.target.value,
-                  }))
-                }
-                placeholder="auto from title if empty"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Role (FR)
-              <input
-                value={parcoursForm.roleFr}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    roleFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Role (EN)
-              <input
-                value={parcoursForm.roleEn}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    roleEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Title (FR)
-              <input
-                value={parcoursForm.titleFr}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    titleFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Title (EN)
-              <input
-                value={parcoursForm.titleEn}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    titleEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Hook / one-liner (FR)
-              <input
-                value={parcoursForm.hookFr}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    hookFr: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Hook / one-liner (EN)
-              <input
-                value={parcoursForm.hookEn}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    hookEn: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Summary (FR)
-              <textarea
-                value={parcoursForm.summaryFr}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    summaryFr: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Summary (EN)
-              <textarea
-                value={parcoursForm.summaryEn}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    summaryEn: event.target.value,
-                  }))
-                }
-                style={textareaStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Thumbnail URL (optional — videos derive one from the YouTube ID)
-              <input
-                value={parcoursForm.thumbnailUrl}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    thumbnailUrl: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Photo URL (person portrait, optional)
-              <input
-                value={parcoursForm.photoUrl}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    photoUrl: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Interview FR — JSON array of {'{ question, answer }'} (written
-              stories only)
-              <textarea
-                value={parcoursForm.interviewFr}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    interviewFr: event.target.value,
-                  }))
-                }
-                placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
-                style={{ ...textareaStyle, minHeight: 120, fontFamily: 'monospace' }}
-              />
-            </label>
-            <label style={{ ...labelStyle, gridColumn: '1 / -1' }}>
-              Interview EN — JSON array of {'{ question, answer }'} (optional;
-              falls back to FR)
-              <textarea
-                value={parcoursForm.interviewEn}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    interviewEn: event.target.value,
-                  }))
-                }
-                placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
-                style={{ ...textareaStyle, minHeight: 120, fontFamily: 'monospace' }}
-              />
-            </label>
-            <label style={labelStyle}>
-              Tags
-              <input
-                value={parcoursForm.tags}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    tags: event.target.value,
-                  }))
-                }
-                placeholder="Google,Tech,Témoignage"
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Status
-              <select
-                value={parcoursForm.status}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                style={inputStyle}
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </label>
-            <label
-              style={{
-                ...labelStyle,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
+          <form onSubmit={submitParcours} style={formGridStyle}>
+            <Field label={t('content.kind')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={parcoursForm.kind}
+                  onChange={(e) => patchParcours({ kind: e.target.value })}
+                >
+                  <option value="video">{t('content.kindVideo')}</option>
+                  <option value="text">{t('content.kindText')}</option>
+                </Select>
+              )}
+            </Field>
+            <Field label={t('content.fieldDomain')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={parcoursForm.fieldId}
+                  onChange={(e) => patchParcours({ fieldId: e.target.value })}
+                >
+                  {PARCOURS_FIELD_OPTIONS.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.id ? `${f.id} — ${f.label}` : f.label}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+            <Field label={t('content.youtubeId')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.youtubeId}
+                  onChange={(e) => patchParcours({ youtubeId: e.target.value })}
+                  placeholder="l_0UPSeH5sU"
+                />
+              )}
+            </Field>
+            <Field label={t('content.duration')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.durationMinutes}
+                  onChange={(e) =>
+                    patchParcours({ durationMinutes: e.target.value })
+                  }
+                  inputMode="numeric"
+                />
+              )}
+            </Field>
+            <Field label={t('content.personName')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.personName}
+                  onChange={(e) => patchParcours({ personName: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.slugOptional')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.slug}
+                  onChange={(e) => patchParcours({ slug: e.target.value })}
+                  placeholder={t('content.slugAutoHint')}
+                />
+              )}
+            </Field>
+            <Field label={t('content.roleFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.roleFr}
+                  onChange={(e) => patchParcours({ roleFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.roleEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.roleEn}
+                  onChange={(e) => patchParcours({ roleEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.titleFr')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.titleFr}
+                  onChange={(e) => patchParcours({ titleFr: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.titleEn')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.titleEn}
+                  onChange={(e) => patchParcours({ titleEn: e.target.value })}
+                />
+              )}
+            </Field>
+            <div style={fullRowStyle}>
+              <Field label={t('content.hookFr')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={parcoursForm.hookFr}
+                    onChange={(e) => patchParcours({ hookFr: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.hookEn')}>
+                {({ id }) => (
+                  <Input
+                    id={id}
+                    value={parcoursForm.hookEn}
+                    onChange={(e) => patchParcours({ hookEn: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.summaryFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={parcoursForm.summaryFr}
+                    onChange={(e) => patchParcours({ summaryFr: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.summaryEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={parcoursForm.summaryEn}
+                    onChange={(e) => patchParcours({ summaryEn: e.target.value })}
+                  />
+                )}
+              </Field>
+            </div>
+            <Field label={t('content.thumbnailUrl')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.thumbnailUrl}
+                  onChange={(e) => patchParcours({ thumbnailUrl: e.target.value })}
+                />
+              )}
+            </Field>
+            <Field label={t('content.photoUrl')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.photoUrl}
+                  onChange={(e) => patchParcours({ photoUrl: e.target.value })}
+                />
+              )}
+            </Field>
+            <div style={fullRowStyle}>
+              <Field label={t('content.interviewFr')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={parcoursForm.interviewFr}
+                    onChange={(e) => patchParcours({ interviewFr: e.target.value })}
+                    placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
+                    style={{ minHeight: 120, fontFamily: 'monospace' }}
+                  />
+                )}
+              </Field>
+            </div>
+            <div style={fullRowStyle}>
+              <Field label={t('content.interviewEn')}>
+                {({ id }) => (
+                  <Textarea
+                    id={id}
+                    value={parcoursForm.interviewEn}
+                    onChange={(e) => patchParcours({ interviewEn: e.target.value })}
+                    placeholder={'[\n  { "question": "…", "answer": "…" }\n]'}
+                    style={{ minHeight: 120, fontFamily: 'monospace' }}
+                  />
+                )}
+              </Field>
+            </div>
+            <Field label={t('content.tags')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  value={parcoursForm.tags}
+                  onChange={(e) => patchParcours({ tags: e.target.value })}
+                  placeholder="Google,Tech,Témoignage"
+                />
+              )}
+            </Field>
+            <Field label={t('content.statusLabel')}>
+              {({ id }) => (
+                <Select
+                  id={id}
+                  value={parcoursForm.status}
+                  onChange={(e) => patchParcours({ status: e.target.value })}
+                >
+                  {statusOptions()}
+                </Select>
+              )}
+            </Field>
+            <label style={{ ...checkboxLabelStyle, alignSelf: 'end' }}>
               <input
                 type="checkbox"
                 checked={parcoursForm.featured}
-                onChange={(event) =>
-                  setParcoursForm((current) => ({
-                    ...current,
-                    featured: event.target.checked,
-                  }))
-                }
+                onChange={(e) => patchParcours({ featured: e.target.checked })}
               />
-              Featured
+              {t('content.featured')}
             </label>
-            <button type="submit" style={{ ...buttonStyle, gridColumn: '1 / -1' }}>
-              {editingParcoursId ? 'Update story' : 'Add story'}
-            </button>
-            {editingParcoursId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingParcoursId(null);
-                  setParcoursForm({ ...EMPTY_PARCOURS_FORM });
-                }}
-                style={{ ...buttonStyle, gridColumn: '1 / -1', background: '#64748b' }}
-              >
-                Cancel
-              </button>
-            )}
-          </form>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {parcours.map((story) => (
-              <div
-                key={story.id}
-                style={{
-                  borderTop: '1px solid #E2E8F0',
-                  paddingTop: 12,
-                  background:
-                    editingParcoursId === story.id ? '#f1f5f9' : 'transparent',
-                  padding: '12px 8px',
-                  borderRadius: 8,
-                }}
-              >
-                <div
+            <div style={{ ...fullRowStyle, display: 'flex', gap: 8 }}>
+              <Button type="submit">
+                {editingParcoursId
+                  ? t('content.updateStoryCta')
+                  : t('content.addStoryCta')}
+              </Button>
+              {editingParcoursId ? (
+                <Button
+                  variant="secondary"
                   onClick={() => {
-                    setEditingParcoursId(story.id);
-                    setParcoursForm({
-                      slug: story.slug,
-                      kind: story.kind,
-                      fieldId: story.fieldId ?? '',
-                      youtubeId: story.youtubeId ?? '',
-                      personName: story.personName ?? '',
-                      roleFr: story.role?.fr ?? '',
-                      roleEn: story.role?.en ?? '',
-                      titleFr: story.title?.fr ?? '',
-                      titleEn: story.title?.en ?? '',
-                      hookFr: story.hook?.fr ?? '',
-                      hookEn: story.hook?.en ?? '',
-                      summaryFr: story.summary?.fr ?? '',
-                      summaryEn: story.summary?.en ?? '',
-                      tags: story.tags?.join(',') ?? '',
-                      durationMinutes:
-                        story.durationMinutes != null
-                          ? String(story.durationMinutes)
-                          : '',
-                      thumbnailUrl: story.thumbnailUrl ?? '',
-                      photoUrl: story.photoUrl ?? '',
-                      interviewFr: story.interview?.fr
-                        ? JSON.stringify(story.interview.fr, null, 2)
-                        : '',
-                      interviewEn: story.interview?.en
-                        ? JSON.stringify(story.interview.en, null, 2)
-                        : '',
-                      status: story.status,
-                      featured: story.featured,
-                    });
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <strong>{story.title.fr}</strong>
-                  <p style={{ margin: '6px 0' }}>
-                    {story.kind === 'video' ? '🎬 Video' : '📝 Written'}
-                    {story.fieldId ? ` • ${story.fieldId}` : ''}
-                    {story.personName ? ` • ${story.personName}` : ''}
-                    {story.featured ? ' • ⭐ Featured' : ''}
-                  </p>
-                  <span style={badgeStyle}>{story.status}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => deleteParcours(story.id)}
-                  style={{
-                    ...buttonStyle,
-                    marginTop: 8,
-                    background: '#B91C1C',
-                    width: 'fit-content',
-                    padding: '6px 12px',
+                    setEditingParcoursId(null);
+                    setParcoursForm({ ...EMPTY_PARCOURS_FORM });
                   }}
                 >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
+                  {t('content.cancelCta')}
+                </Button>
+              ) : null}
+            </div>
+          </form>
         </section>
       </div>
     </DashboardShell>

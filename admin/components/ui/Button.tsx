@@ -3,7 +3,13 @@ import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cx } from './cx';
 import styles from './ui.module.css';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'danger'
+  | 'success'
+  | 'dangerOutline';
 type Size = 'md' | 'sm';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,6 +24,8 @@ const variantClass: Record<Variant, string> = {
   secondary: styles.secondary,
   ghost: styles.ghost,
   danger: styles.danger,
+  success: styles.success,
+  dangerOutline: styles.dangerOutline,
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
