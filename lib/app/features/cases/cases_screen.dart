@@ -167,6 +167,12 @@ class _CasesScreenState extends State<CasesScreen> {
                         style: FilledButton.styleFrom(
                           backgroundColor: _Palette.blue,
                           foregroundColor: Colors.white,
+                          // Override the app theme's
+                          // `minimumSize: Size.fromHeight(52)` (infinite min
+                          // width): inside this Row the button gets unbounded
+                          // max width, and an infinite minWidth would force
+                          // w=Infinity and blank the whole tab (layout error).
+                          minimumSize: const Size(0, 44),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
