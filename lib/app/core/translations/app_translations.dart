@@ -101,6 +101,8 @@ class AppTranslations extends Translations {
               'Le départ et l\'arrivée doivent être différents.',
           'flight_searching': 'Recherche des meilleurs prix…',
           'flight_results_title': 'Meilleurs prix trouvés',
+          'flight_visa_advice':
+              'N\'achète ton billet qu\'après l\'obtention du visa — ou choisis un tarif remboursable.',
           'flight_cached_note': 'Prix vus récemment',
           'flight_cheapest_badge': 'Le moins cher',
           'flight_direct': 'Direct',
@@ -486,6 +488,12 @@ class AppTranslations extends Translations {
           'parcours_empty_error_subtitle':
               'Impossible de charger les parcours pour le moment.',
           'parcours_intro_title': 'Ils l\'ont fait avant toi',
+          'parcours_free_badge': 'GRATUIT',
+          'parcours_convert_title': 'Tu veux suivre un parcours similaire ?',
+          'parcours_convert_subtitle':
+              'Discute avec un conseiller KPB de ton projet.',
+          'parcours_whatsapp_prefill':
+              'Bonjour KPB, un parcours dans l\'app m\'a inspiré et j\'aimerais discuter de mon projet d\'études.',
           'parcours_search_hint': 'Rechercher un métier, une école, un nom…',
           'parcours_filter_all': 'Tous',
           'parcours_kind_written': 'Témoignage écrit',
@@ -2130,6 +2138,8 @@ class AppTranslations extends Translations {
           'flight_same_airports': 'Departure and arrival must be different.',
           'flight_searching': 'Finding the best prices…',
           'flight_results_title': 'Best prices found',
+          'flight_visa_advice':
+              'Only buy your ticket once your visa is granted — or pick a refundable fare.',
           'flight_cached_note': 'Recently seen prices',
           'flight_cheapest_badge': 'Cheapest',
           'flight_direct': 'Direct',
@@ -2505,6 +2515,12 @@ class AppTranslations extends Translations {
           'parcours_empty_error_subtitle':
               'Unable to load the journeys right now.',
           'parcours_intro_title': 'They did it before you',
+          'parcours_free_badge': 'FREE',
+          'parcours_convert_title': 'Want to follow a similar path?',
+          'parcours_convert_subtitle':
+              'Chat with a KPB advisor about your plan.',
+          'parcours_whatsapp_prefill':
+              'Hello KPB, a journey in the app inspired me and I\'d like to discuss my study plan.',
           'parcours_search_hint': 'Search a career, a school, a name…',
           'parcours_filter_all': 'All',
           'parcours_kind_written': 'Written story',
