@@ -276,7 +276,7 @@ class AppTranslations extends Translations {
           'premium_hero_sub':
               'Premium arrive bientôt. En attendant, un conseiller KPB peut vous accompagner — sans aucun paiement dans l\'application.',
           'premium_value_ai_coach':
-              'Coach IA illimité — l\'offre gratuite inclut @count messages par semaine.',
+              'KPB Intelligence illimité — l\'offre gratuite inclut @count messages par semaine.',
           'premium_value_advisors':
               'Accompagnement prioritaire par un conseiller KPB vérifié.',
           'premium_value_more_soon':
@@ -285,7 +285,7 @@ class AppTranslations extends Translations {
           'premium_compare_feature': 'Ce que vous obtenez',
           'premium_compare_free': 'Gratuit',
           'premium_compare_premium': 'Premium',
-          'premium_row_ai_coach': 'Messages Coach IA',
+          'premium_row_ai_coach': 'Messages KPB Intelligence',
           'premium_free_ai_coach': '@count / sem.',
           'premium_unlimited_soon': 'Illimité (bientôt)',
           'premium_how_title': 'Comment activer Premium',
@@ -303,6 +303,8 @@ class AppTranslations extends Translations {
           'parent_pack_full_desc':
               '3 sessions conseiller + suivi Campus France jusqu\'au dépôt',
           'parent_pay_cta': 'Réserver',
+          'parent_pay_history_label': 'Historique',
+          'parent_pay_history_empty': 'Vos reçus apparaîtront ici',
           'parent_pay_note':
               'Paiement organisé avec votre conseiller KPB sur WhatsApp — reçu par message. Aucun paiement à des « agents » hors du circuit KPB.',
           'parent_ask_access': 'Demander l\'accès',
@@ -575,7 +577,7 @@ class AppTranslations extends Translations {
           'deadlines_kind_document': 'Document',
           'deadlines_status_past': 'Passée',
           'deadlines_status_today_tomorrow': 'Aujourd’hui / demain',
-          'compare_title': 'Comparaison',
+          'compare_title': 'Comparer',
           'compare_row_match': 'Compatibilité',
           'compare_row_location': 'Localisation',
           'compare_row_tuition': 'Frais',
@@ -660,15 +662,15 @@ class AppTranslations extends Translations {
               'Tu es vérifié comme alumni. Ton badge est visible.',
           'alumni_status_rejected':
               'Ta dernière candidature a été refusée. Tu peux la renvoyer.',
-          'coach_quota_reached_title': 'Quota Coach IA atteint',
+          'coach_quota_reached_title': 'Quota KPB Intelligence atteint',
           'coach_unavailable': 'Coach indisponible.',
           'coach_unreachable':
               'Impossible de joindre le coach IA pour le moment.',
-          'coach_ai_title': 'Coach IA',
+          'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Posez votre question sur les écoles, budgets...',
           // ── App-engagement handoff : outils coaching + post-décision ──
           'coach_status_tagline': 'Connaît ton profil · répond aussitôt',
-          'coach_quota_info_title': 'Messages Coach IA',
+          'coach_quota_info_title': 'Messages KPB Intelligence',
           'coach_quota_info_body':
               'Il te reste @rem message(s) sur @total cette semaine.',
           'coach_generate_letter': 'Générer une lettre',
@@ -1278,7 +1280,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Espace partenaire',
           'home_active_cases_title': 'Dossiers actifs',
           'see_all': 'Voir tout',
-          'home_recommended_universities_title': 'Universités recommandées',
+          'home_recommended_universities_title': 'Tes meilleures chances',
           'home_hero_title_partner': 'Développons\nvotre réseau',
           'home_hero_title_parent': 'Accompagnez\nvotre enfant',
           'home_hero_title_student': 'Votre parcours\nvers l\'étranger',
@@ -1941,11 +1943,11 @@ class AppTranslations extends Translations {
               'Bonjour KPB Education, je souhaite utiliser mon bon parrainage @code pour une relecture approfondie de mon dossier.',
           'referral_voucher_error': 'Échec de l\'échange. Réessaie plus tard.',
           // ── Consentement IA (Coach) ──
-          'coach_ai': 'Coach IA',
-          'ai_consent_title': 'Activer le Coach IA',
+          'coach_ai': 'KPB Intelligence',
+          'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
               'Pour te répondre, le Coach KPB envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
-          'ai_consent_accept': 'J\'active le Coach IA',
+          'ai_consent_accept': 'J\'active KPB Intelligence',
           'ai_consent_decline': 'Plus tard',
           // ── Mes données / RGPD ──
           'data_rights_section': 'Mes données',
@@ -1969,7 +1971,7 @@ class AppTranslations extends Translations {
               'Indique ta date de naissance pour continuer.',
           'minor_guardian_title': 'Accord d\'un parent / tuteur',
           'minor_guardian_intro':
-              'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et Coach IA).',
+              'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et KPB Intelligence).',
           'guardian_name': 'Nom du parent / tuteur',
           'guardian_contact': 'Contact du parent / tuteur (WhatsApp ou email)',
           'guardian_consent_checkbox':
@@ -2030,6 +2032,7 @@ class AppTranslations extends Translations {
                   'logement… Contacte l\'équipe KPB pour une estimation '
                   'personnalisée et à jour, lors de ta consultation gratuite.',
           'get_supported': 'Être accompagné',
+          'dest_countries_heading': 'Pays',
           'dest_list_subtitle':
               'Guides complets : visa, coûts, universités, accompagnement',
           'dest_more_coming_tip':
@@ -2319,7 +2322,7 @@ class AppTranslations extends Translations {
           'premium_hero_sub':
               'Premium is coming soon. In the meantime, a KPB advisor can help you — with no in-app payment.',
           'premium_value_ai_coach':
-              'Unlimited AI Coach — the free plan includes @count messages per week.',
+              'Unlimited KPB Intelligence — the free plan includes @count messages per week.',
           'premium_value_advisors':
               'Priority guidance from a verified KPB advisor.',
           'premium_value_more_soon': 'More Premium benefits are coming soon.',
@@ -2327,7 +2330,7 @@ class AppTranslations extends Translations {
           'premium_compare_feature': 'What you get',
           'premium_compare_free': 'Free',
           'premium_compare_premium': 'Premium',
-          'premium_row_ai_coach': 'AI Coach messages',
+          'premium_row_ai_coach': 'KPB Intelligence messages',
           'premium_free_ai_coach': '@count / week',
           'premium_unlimited_soon': 'Unlimited (coming soon)',
           'premium_how_title': 'How to activate Premium',
@@ -2344,6 +2347,8 @@ class AppTranslations extends Translations {
           'parent_pack_full_desc':
               '3 advisor sessions + Campus France follow-up to submission',
           'parent_pay_cta': 'Book',
+          'parent_pay_history_label': 'History',
+          'parent_pay_history_empty': 'Your receipts will appear here',
           'parent_pay_note':
               'Payment arranged with your KPB advisor on WhatsApp — receipt by message. Never pay “agents” outside the KPB channel.',
           'parent_ask_access': 'Request access',
@@ -2607,7 +2612,7 @@ class AppTranslations extends Translations {
           'deadlines_kind_document': 'Document',
           'deadlines_status_past': 'Past',
           'deadlines_status_today_tomorrow': 'Today / tomorrow',
-          'compare_title': 'Comparison',
+          'compare_title': 'Compare',
           'compare_row_match': 'Match',
           'compare_row_location': 'Location',
           'compare_row_tuition': 'Tuition',
@@ -2690,14 +2695,14 @@ class AppTranslations extends Translations {
               'You are verified as an alumnus. Your badge is visible.',
           'alumni_status_rejected':
               'Your last application was rejected. You can resubmit it.',
-          'coach_quota_reached_title': 'AI Coach quota reached',
+          'coach_quota_reached_title': 'KPB Intelligence quota reached',
           'coach_unavailable': 'Coach unavailable.',
           'coach_unreachable': 'Unable to reach the AI coach right now.',
-          'coach_ai_title': 'AI Coach',
+          'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Ask your question about schools, budgets...',
           // ── App-engagement handoff: coaching tools + post-decision ──
           'coach_status_tagline': 'Knows your profile · replies instantly',
-          'coach_quota_info_title': 'AI Coach messages',
+          'coach_quota_info_title': 'KPB Intelligence messages',
           'coach_quota_info_body':
               'You have @rem of @total messages left this week.',
           'coach_generate_letter': 'Generate a letter',
@@ -3298,7 +3303,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Partner space',
           'home_active_cases_title': 'Active cases',
           'see_all': 'See all',
-          'home_recommended_universities_title': 'Recommended universities',
+          'home_recommended_universities_title': 'Your best chances',
           'home_hero_title_partner': 'Let\'s grow\\nyour network',
           'home_hero_title_parent': 'Support\\nyour child',
           'home_hero_title_student': 'Your journey\\nto study abroad',
@@ -3948,11 +3953,11 @@ class AppTranslations extends Translations {
               'Hello KPB Education, I would like to use my referral voucher @code for an in-depth review of my application.',
           'referral_voucher_error': 'Redemption failed. Try again later.',
           // ── AI consent (Coach) ──
-          'coach_ai': 'AI Coach',
-          'ai_consent_title': 'Enable the AI Coach',
+          'coach_ai': 'KPB Intelligence',
+          'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
               'To answer you, the KPB Coach sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
-          'ai_consent_accept': 'Enable AI Coach',
+          'ai_consent_accept': 'Enable KPB Intelligence',
           'ai_consent_decline': 'Not now',
           // ── My data / GDPR ──
           'data_rights_section': 'My data',
@@ -3975,7 +3980,7 @@ class AppTranslations extends Translations {
               'Enter your date of birth to continue.',
           'minor_guardian_title': 'Parent / guardian consent',
           'minor_guardian_intro':
-              'You are under 18. A parent or guardian must consent and provide their details for you to use KPB (data sync and AI Coach).',
+              'You are under 18. A parent or guardian must consent and provide their details for you to use KPB (data sync and KPB Intelligence).',
           'guardian_name': 'Parent / guardian name',
           'guardian_contact': 'Parent / guardian contact (WhatsApp or email)',
           'guardian_consent_checkbox':
@@ -4037,6 +4042,7 @@ class AppTranslations extends Translations {
                   'housing… Contact the KPB team for a personalized, up-to-date '
                   'estimate during your free consultation.',
           'get_supported': 'Get supported',
+          'dest_countries_heading': 'Countries',
           'dest_list_subtitle':
               'Full guides: visa, costs, universities, support',
           'dest_more_coming_tip':

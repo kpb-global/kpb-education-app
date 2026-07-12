@@ -462,9 +462,9 @@ class _LinkedSurface extends StatelessWidget {
                     sharedCase: sharedCase,
                     onAskAccess: onAskAccess,
                     onUploadProof: onUploadProof),
-                2 =>
+                2 => _PaymentsTab(childName: childName, onPay: onPay),
+                3 =>
                   _UpdatesTab(sharedCase: sharedCase, onAskAccess: onAskAccess),
-                3 => _PaymentsTab(childName: childName, onPay: onPay),
                 _ => _OverviewTab(
                     childName: childName,
                     childInitials: childInitials,
@@ -1001,6 +1001,31 @@ class _PaymentsTab extends StatelessWidget {
             ]),
             const SizedBox(height: 8),
           ],
+          const SizedBox(height: 6),
+          // HISTORIQUE — no payment history is exposed by the backend yet, so we
+          // show an honest empty state rather than fabricated receipts.
+          _sectionLabel('parent_pay_history_label'.tr),
+          const SizedBox(height: 8),
+          _cardBox(children: [
+            Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                      color: _P.page, borderRadius: BorderRadius.circular(11)),
+                  child: const Icon(Icons.receipt_long_outlined,
+                      size: 17, color: _P.slate400),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('parent_pay_history_empty'.tr,
+                      style: const TextStyle(
+                          fontSize: 12, height: 1.4, color: _P.slate)),
+                ),
+              ],
+            ),
+          ]),
           const SizedBox(height: 5),
           const _PrivacyNote(
               textKey: 'parent_pay_note', icon: Icons.verified_user),
@@ -1167,8 +1192,8 @@ class _BottomNav extends StatelessWidget {
   static const _items = [
     (icon: Icons.space_dashboard, key: 'parent_nav_overview'),
     (icon: Icons.folder_shared, key: 'parent_nav_case'),
-    (icon: Icons.campaign, key: 'parent_nav_updates'),
     (icon: Icons.account_balance_wallet, key: 'parent_nav_pay'),
+    (icon: Icons.campaign, key: 'parent_nav_updates'),
   ];
 
   @override

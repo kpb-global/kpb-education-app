@@ -8,6 +8,9 @@ import '../explore/explore_screen.dart';
 class DestinationsScreen extends StatelessWidget {
   const DestinationsScreen({super.key});
 
+  /// Navy heading colour (App-engagement handoff palette).
+  static const _navy = Color(0xFF0F172A);
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
@@ -17,7 +20,25 @@ class DestinationsScreen extends StatelessWidget {
         title: Text('nav_destinations'.tr),
       ),
       body: GetBuilder<AppController>(
-        builder: (_) => CountriesCatalogGrid(controller: controller),
+        builder: (_) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(
+                'dest_countries_heading'.tr,
+                style: const TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w800,
+                  color: _navy,
+                ),
+              ),
+            ),
+            Expanded(
+              child: CountriesCatalogGrid(controller: controller),
+            ),
+          ],
+        ),
       ),
     );
   }

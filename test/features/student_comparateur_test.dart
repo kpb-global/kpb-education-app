@@ -155,7 +155,7 @@ void main() {
     )));
     await tester.pumpAndSettle();
 
-    expect(find.text('Comparaison'), findsOneWidget); // compare_title
+    expect(find.text('Comparer'), findsOneWidget); // compare_title
     expect(find.text('ECE Paris'), findsWidgets);
     expect(find.text('EPITA Lyon'), findsWidgets);
     expect(find.textContaining('8 850'), findsWidgets); // real tuition row

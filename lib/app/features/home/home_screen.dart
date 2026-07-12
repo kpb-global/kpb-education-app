@@ -152,6 +152,10 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.bookmark_border_rounded,
                       onTap: () => Get.to(() => const SavedScreen()),
                     ),
+                    _AppBarChip(
+                      icon: Icons.auto_awesome_rounded,
+                      onTap: () => Get.to(() => const AiChatScreen()),
+                    ),
                     _NotifBellChip(
                       hasUnread: hasDerivedNotifications(controller),
                       onTap: () => Get.to(() => const NotificationsScreen()),
