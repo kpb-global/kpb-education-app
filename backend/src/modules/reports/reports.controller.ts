@@ -22,6 +22,11 @@ export class ReportsController {
     return this.reportsService.getOverview();
   }
 
+  @Get('dashboard-activation')
+  getDashboardActivation() {
+    return this.reportsService.getDashboardActivation();
+  }
+
   @Get('funnel')
   getFunnel() {
     return this.reportsService.getFunnel();

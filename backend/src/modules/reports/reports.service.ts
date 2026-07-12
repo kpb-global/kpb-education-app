@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { VERIFICATION_POLICIES } from '../admin-catalog/admin-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 const REVENUE_STATUSES = ['paid', 'in_progress', 'delivered'] as const;
@@ -16,6 +17,30 @@ const APPLICATION_SUBMITTED_STATUSES = [
 ] as const;
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Weeks shown on the dashboard's North-Star bar chart.
+const NORTH_STAR_WEEKS = 8;
+// A lead counts as "qualified" once it has at least reached that tag —
+// converted leads necessarily passed through qualification.
+const QUALIFIED_LEAD_TAGS = ['qualified', 'converted'] as const;
+
+/// Monday 00:00 UTC of the week containing [date].
+function weekStartUtc(date: Date): Date {
+  const day = date.getUTCDay(); // 0 = Sunday
+  const daysSinceMonday = (day + 6) % 7;
+  const start = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+  start.setUTCDate(start.getUTCDate() - daysSinceMonday);
+  return start;
+}
+
+function verificationDueWhere(cadenceDays: number, now: Date) {
+  const cutoff = new Date(now.getTime() - cadenceDays * DAY_MS);
+  return {
+    OR: [{ lastVerifiedAt: null }, { lastVerifiedAt: { lt: cutoff } }],
+  };
+}
 
 interface FirstResponseSample {
   createdAt: Date;
@@ -93,6 +118,111 @@ export class ReportsService {
         submittedThisWeek,
         paidServicePurchases,
         counselorResponseSlaHours: averageResponseHours(responseSamples),
+      };
+    });
+
+    return result ?? empty;
+  }
+
+  /// Dashboard activation block (App-engagement handoff, "Admin — Tableau de
+  /// bord"): the weekly North-Star series + the "Action immédiate requise"
+  /// counters. Everything is a real aggregate — no fabricated series.
+  async getDashboardActivation() {
+    const empty = {
+      weeklyQualifiedLeads: [] as { weekStart: string; count: number }[],
+      urgent: {
+        awaitingDocuments: 0,
+        verificationDue: 0,
+        moderationQueue: 0,
+      },
+    };
+    if (!this.prismaService.isEnabled) {
+      return empty;
+    }
+
+    const now = new Date();
+    const currentWeekStart = weekStartUtc(now);
+    const rangeStart = new Date(
+      currentWeekStart.getTime() - (NORTH_STAR_WEEKS - 1) * WEEK_MS,
+    );
+
+    const result = await this.prismaService.execute(async (prisma) => {
+      const [
+        qualifiedLeads,
+        awaitingDocuments,
+        countriesDue,
+        institutionsDue,
+        programsDue,
+        scholarshipsDue,
+        moderationQueue,
+      ] = await Promise.all([
+        // The Case model has no "tagged at" timestamp, so the series is
+        // honestly bucketed by the lead's CREATION week (stable, unlike
+        // updatedAt) — the chart hint states this.
+        prisma.case.findMany({
+          where: {
+            leadTag: { in: [...QUALIFIED_LEAD_TAGS] },
+            createdAt: { gte: rangeStart },
+          },
+          select: { createdAt: true },
+        }),
+        prisma.case.count({ where: { status: 'documents_needed' } }),
+        prisma.country.count({
+          where: {
+            isActive: true,
+            ...verificationDueWhere(
+              VERIFICATION_POLICIES.countryVisa.cadenceDays,
+              now,
+            ),
+          },
+        }),
+        prisma.institution.count({
+          where: verificationDueWhere(
+            VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
+            now,
+          ),
+        }),
+        prisma.program.count({
+          where: verificationDueWhere(
+            VERIFICATION_POLICIES.programScolarite.cadenceDays,
+            now,
+          ),
+        }),
+        prisma.scholarship.count({
+          where: {
+            isActive: true,
+            moderationStatus: 'approved',
+            ...verificationDueWhere(
+              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+              now,
+            ),
+          },
+        }),
+        prisma.forumModerationAction.count(),
+      ]);
+
+      const buckets = new Map<string, number>();
+      for (let i = 0; i < NORTH_STAR_WEEKS; i++) {
+        const week = new Date(rangeStart.getTime() + i * WEEK_MS);
+        buckets.set(week.toISOString().slice(0, 10), 0);
+      }
+      for (const lead of qualifiedLeads) {
+        const key = weekStartUtc(lead.createdAt).toISOString().slice(0, 10);
+        if (buckets.has(key)) {
+          buckets.set(key, (buckets.get(key) ?? 0) + 1);
+        }
+      }
+
+      return {
+        weeklyQualifiedLeads: Array.from(buckets.entries()).map(
+          ([weekStart, count]) => ({ weekStart, count }),
+        ),
+        urgent: {
+          awaitingDocuments,
+          verificationDue:
+            countriesDue + institutionsDue + programsDue + scholarshipsDue,
+          moderationQueue,
+        },
       };
     });
 
