@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'app_config.dart';
 import '../../features/alumni/alumni_directory_screen.dart';
 import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
@@ -13,7 +12,6 @@ import '../../features/scholarships/live_scholarships_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/services/service_packages_screen.dart';
 import '../../features/shell/app_shell.dart';
-import '../ui/components/coming_soon_screen.dart';
 
 /// Define named routes specifically for handling deep links and push notifications.
 ///
@@ -91,14 +89,12 @@ class AppRoutes {
       name: search,
       page: () => const SearchScreen(),
     ),
-    // Live-scholarships aggregator is a V1.1+ module. The route is always
-    // registered so external deep-links resolve; under the MVP lock it renders
-    // a graceful "coming soon" instead of the live aggregator.
+    // Live-scholarships aggregator (unlocked for launch): serves the real
+    // scraped /scholarships feed, with an honest empty state when the feed is
+    // empty. Community stays MVP-gated (no real forum content yet).
     GetPage(
       name: scholarships,
-      page: () => AppConfig.mvpOnly
-          ? const ComingSoonScreen()
-          : const LiveScholarshipsScreen(),
+      page: () => const LiveScholarshipsScreen(),
     ),
     // High-intent re-engagement destinations (KPB-63). Each is a standalone,
     // pushable screen with its own app bar.
