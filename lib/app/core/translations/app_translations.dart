@@ -661,6 +661,13 @@ class AppTranslations extends Translations {
           'match_card_share_error': 'Impossible de générer la carte. Réessaie.',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
+          'forum_filter_by_topic': 'Filtrer par sujet',
+          'forum_filter_all': 'Tous',
+          'forum_related_articles': 'Articles liés',
+          'forum_join_conversation_title': 'Rejoins la conversation',
+          'forum_join_conversation_body':
+              'Le forum in-app arrive bientôt. Rejoins WhatsApp pour discuter avec d\'autres étudiants et les conseillers KPB dès maintenant.',
+          'forum_open_whatsapp_group': 'Ouvrir le groupe WhatsApp',
           'alumni_load_error':
               'Impossible de charger les mentors. Vérifie ta connexion.',
           'alumni_directory_title': 'Mentors KPB — Alumni',
@@ -2718,6 +2725,13 @@ class AppTranslations extends Translations {
           'match_card_share_error': 'Could not generate the card. Try again.',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',
+          'forum_filter_by_topic': 'Filter by topic',
+          'forum_filter_all': 'All',
+          'forum_related_articles': 'Related articles',
+          'forum_join_conversation_title': 'Join the conversation',
+          'forum_join_conversation_body':
+              'The in-app forum is launching soon. Connect on WhatsApp to discuss with other students and KPB counselors now.',
+          'forum_open_whatsapp_group': 'Open WhatsApp group',
           'alumni_load_error': 'Could not load mentors. Check your connection.',
           'alumni_directory_title': 'KPB Mentors — Alumni',
           'alumni_search_hint': 'Search by university…',

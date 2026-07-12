@@ -139,9 +139,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Text(
-                      Get.locale?.languageCode == 'en'
-                          ? 'Filter by topic'
-                          : 'Filtrer par sujet',
+                      'forum_filter_by_topic'.tr,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -161,9 +159,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       itemBuilder: (ctx, i) {
                         if (i == 0) {
                           return _TagChip(
-                            label: Get.locale?.languageCode == 'en'
-                                ? 'All'
-                                : 'Tous',
+                            label: 'forum_filter_all'.tr,
                             selected: _selectedTag == null,
                             onTap: () => setState(() => _selectedTag = null),
                           );
@@ -186,9 +182,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                   child: Text(
-                    Get.locale?.languageCode == 'en'
-                        ? 'Related articles'
-                        : 'Articles liés',
+                    'forum_related_articles'.tr,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -214,9 +208,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                               size: 44, color: _Palette.slate400),
                           const SizedBox(height: 12),
                           Text(
-                            Get.locale?.languageCode == 'en'
-                                ? 'No articles tagged yet. Join the WhatsApp group to ask questions.'
-                                : 'forum_no_articles_tagged'.tr,
+                            'forum_no_articles_tagged'.tr,
                             style: const TextStyle(
                               fontSize: 12.5,
                               height: 1.45,
@@ -309,9 +301,7 @@ class _JoinCtaCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      Get.locale?.languageCode == 'en'
-                          ? 'Join the conversation'
-                          : 'Rejoins la conversation',
+                      'forum_join_conversation_title'.tr,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -320,9 +310,7 @@ class _JoinCtaCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      Get.locale?.languageCode == 'en'
-                          ? 'The in-app forum is launching soon. Connect on WhatsApp to discuss with other students and KPB counselors now.'
-                          : "Le forum in-app arrive bientôt. Rejoins WhatsApp pour discuter avec d'autres étudiants et les conseillers KPB dès maintenant.",
+                      'forum_join_conversation_body'.tr,
                       style: const TextStyle(
                         fontSize: 12.5,
                         height: 1.45,
@@ -349,9 +337,7 @@ class _JoinCtaCard extends StatelessWidget {
                   const Icon(Icons.chat_rounded, size: 17, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
-                    Get.locale?.languageCode == 'en'
-                        ? 'Open WhatsApp group'
-                        : 'Ouvrir le groupe WhatsApp',
+                    'forum_open_whatsapp_group'.tr,
                     style: const TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
