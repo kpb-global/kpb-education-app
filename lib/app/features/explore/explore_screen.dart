@@ -778,7 +778,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
                   ctrl.toggleSaved(SavedItemType.institution, inst.id),
               onCompare: () => _toggleCompare(inst.id),
               onShare: () => _shareInstitution(ctrl, inst),
-              onApply: () => _openInstitutionDetail(context, inst, ctrl),
+              onApply: () => openInstitutionDetail(context, inst, ctrl),
             );
           },
         ),
@@ -860,7 +860,9 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
   }
 }
 
-void _openInstitutionDetail(
+/// Opens the institution detail sheet. Public so other surfaces (e.g. the
+/// post-decision plan B list) can deep-link into the same real detail view.
+void openInstitutionDetail(
   BuildContext context,
   InstitutionModel institution,
   AppController controller,
