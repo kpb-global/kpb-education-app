@@ -228,7 +228,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
                   // Skills as tags
                   if (skills.isNotEmpty) ...[
-                    _sidebarSection(en ? 'SKILLS' : 'COMPETENCES'),
+                    _sidebarSection(en ? 'SKILLS' : 'COMPÉTENCES'),
                     pw.Wrap(
                       spacing: 4,
                       runSpacing: 4,
@@ -334,7 +334,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
                     // Experience
                     if (experiences.isNotEmpty) ...[
-                      _mainSection(en ? 'EXPERIENCE' : 'EXPERIENCE'),
+                      _mainSection(en ? 'EXPERIENCE' : 'EXPÉRIENCE'),
                       ...experiences.map((exp) => pw.Padding(
                             padding: const pw.EdgeInsets.only(bottom: 6),
                             child: pw.Row(
