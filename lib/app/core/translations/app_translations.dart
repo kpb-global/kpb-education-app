@@ -379,7 +379,7 @@ class AppTranslations extends Translations {
           'sync_data_stale_offline':
               'Données potentiellement obsolètes — hors ligne',
           'coach_requires_connection':
-              'Le coach IA nécessite une connexion au serveur KPB. ',
+              'KPB Intelligence nécessite une connexion au serveur KPB. ',
           'academy_hd_videos': 'Vidéos pas-à-pas en HD',
           'academy_letter_templates': 'Modèles de lettres de motivation',
           'housing_view_offers_in': 'Voir les offres à @city',
@@ -422,7 +422,7 @@ class AppTranslations extends Translations {
           'alumni_programme_label': 'Programme : @programme',
           'alumni_country_label': 'Pays : @country',
           'coach_welcome_message':
-              'Bonjour @name ! Je suis ton Coach KPB. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.',
+              'Bonjour @name ! Je suis KPB Intelligence. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.',
           'coach_quota_reached_body':
               'Tu as atteint la limite de @quota messages cette semaine. Reviens la semaine prochaine ou contacte un conseiller humain.',
           'coach_online_status':
@@ -663,9 +663,9 @@ class AppTranslations extends Translations {
           'alumni_status_rejected':
               'Ta dernière candidature a été refusée. Tu peux la renvoyer.',
           'coach_quota_reached_title': 'Quota KPB Intelligence atteint',
-          'coach_unavailable': 'Coach indisponible.',
+          'coach_unavailable': 'KPB Intelligence indisponible.',
           'coach_unreachable':
-              'Impossible de joindre le coach IA pour le moment.',
+              'Impossible de joindre KPB Intelligence pour le moment.',
           'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Posez votre question sur les écoles, budgets...',
           // ── App-engagement handoff : outils coaching + post-décision ──
@@ -1946,7 +1946,7 @@ class AppTranslations extends Translations {
           'coach_ai': 'KPB Intelligence',
           'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
-              'Pour te répondre, le Coach KPB envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
+              'Pour te répondre, KPB Intelligence envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
           'ai_consent_accept': 'J\'active KPB Intelligence',
           'ai_consent_decline': 'Plus tard',
           // ── Mes données / RGPD ──
@@ -2419,7 +2419,7 @@ class AppTranslations extends Translations {
           // --- KPB-89 lock-in ---
           'sync_data_stale_offline': 'Data may be out of date — offline',
           'coach_requires_connection':
-              'The AI coach needs a connection to the KPB server. ',
+              'KPB Intelligence needs a connection to the KPB server. ',
           'academy_hd_videos': 'Step-by-step HD videos',
           'academy_letter_templates': 'Motivation letter templates',
           'housing_view_offers_in': 'View offers in @city',
@@ -2461,7 +2461,7 @@ class AppTranslations extends Translations {
           'alumni_programme_label': 'Program: @programme',
           'alumni_country_label': 'Country: @country',
           'coach_welcome_message':
-              'Hi @name! I\'m your KPB Coach. 🤖\n\nAsk me anything about schools, budget, or partner programs.',
+              'Hi @name! I\'m KPB Intelligence. 🤖\n\nAsk me anything about schools, budget, or partner programs.',
           'coach_quota_reached_body':
               'You\'ve reached the limit of @quota messages this week. Come back next week or contact a human advisor.',
           'coach_online_status': 'Online • @rem/@total left this week',
@@ -2696,8 +2696,8 @@ class AppTranslations extends Translations {
           'alumni_status_rejected':
               'Your last application was rejected. You can resubmit it.',
           'coach_quota_reached_title': 'KPB Intelligence quota reached',
-          'coach_unavailable': 'Coach unavailable.',
-          'coach_unreachable': 'Unable to reach the AI coach right now.',
+          'coach_unavailable': 'KPB Intelligence unavailable.',
+          'coach_unreachable': 'Unable to reach KPB Intelligence right now.',
           'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Ask your question about schools, budgets...',
           // ── App-engagement handoff: coaching tools + post-decision ──
@@ -3956,7 +3956,7 @@ class AppTranslations extends Translations {
           'coach_ai': 'KPB Intelligence',
           'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
-              'To answer you, the KPB Coach sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
+              'To answer you, KPB Intelligence sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
           'ai_consent_accept': 'Enable KPB Intelligence',
           'ai_consent_decline': 'Not now',
           // ── My data / GDPR ──
