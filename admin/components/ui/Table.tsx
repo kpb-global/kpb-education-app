@@ -82,51 +82,6 @@ export function AdminTableRow({
   return <div className={className}>{children}</div>;
 }
 
-/**
- * Progress cell: a 6px inline track with a coloured fill plus a bold label,
- * matching the handoff table "bar" cell. `value` is clamped to 0–100. Pass a
- * `label` to override the default "NN%" text (e.g. a raw count) and `color`
- * to theme the fill (defaults to the brand blue).
- */
-export function CellBar({
-  value,
-  label,
-  color = 'var(--brand)',
-}: Readonly<{
-  value: number;
-  label?: ReactNode;
-  color?: string;
-}>) {
-  const pct = Math.max(0, Math.min(100, value));
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-      <div
-        style={{
-          flex: 1,
-          height: 6,
-          borderRadius: 'var(--radius-pill)',
-          background: 'var(--border-soft)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${pct}%`,
-            height: '100%',
-            borderRadius: 'var(--radius-pill)',
-            background: color,
-          }}
-        />
-      </div>
-      <div
-        style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)' }}
-      >
-        {label ?? `${Math.round(pct)}%`}
-      </div>
-    </div>
-  );
-}
-
 /** Text cell: primary line plus an optional faint sub-line, both ellipsized. */
 export function CellText({
   primary,

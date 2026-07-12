@@ -12,5 +12,5 @@ export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 export { EmptyState } from './EmptyState';
 export { Skeleton } from './Skeleton';
-export { AdminTable, AdminTableRow, CellText, CellBar } from './Table';
+export { AdminTable, AdminTableRow, CellText } from './Table';
 export { cx } from './cx';
