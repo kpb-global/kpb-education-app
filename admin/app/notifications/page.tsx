@@ -272,7 +272,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <DashboardShell title={t('notifications.title')}>
+    <DashboardShell title={t('notifications.title')} subtitle={t('notifications.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

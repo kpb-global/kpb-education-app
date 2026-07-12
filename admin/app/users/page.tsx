@@ -233,7 +233,7 @@ export default function UsersPage() {
   }
 
   return (
-    <DashboardShell title={t('users.title')}>
+    <DashboardShell title={t('users.title')} subtitle={t('users.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

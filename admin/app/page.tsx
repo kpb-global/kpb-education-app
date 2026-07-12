@@ -202,7 +202,7 @@ export default function OverviewPage() {
   ];
 
   return (
-    <DashboardShell title={t('overview.title')}>
+    <DashboardShell title={t('overview.title')} subtitle={t('overview.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {errorMessage ? (
           <div
