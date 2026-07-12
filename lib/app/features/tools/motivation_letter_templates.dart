@@ -27,13 +27,13 @@ List<LetterTemplate> get kLetterTemplates => <LetterTemplate>[
         category: 'admission',
         bodyFr: '''Madame, Monsieur,
 
-Actuellement etudiant(e) en [NIVEAU] dans le domaine de [DOMAINE], je souhaite integrer votre etablissement pour poursuivre mes etudes au sein de votre programme de [PROGRAMME].
+Actuellement étudiant(e) en [NIVEAU] dans le domaine de [DOMAINE], je souhaite intégrer votre établissement pour poursuivre mes études au sein de votre programme de [PROGRAMME].
 
-Votre universite m'attire particulierement par la qualite de son enseignement et son ouverture internationale. Au cours de mon parcours, j'ai developpe des competences solides en [COMPETENCES] et une capacite d'adaptation qui me permettront de contribuer activement a la vie academique de votre institution.
+Votre université m'attire particulièrement par la qualité de son enseignement et son ouverture internationale. Au cours de mon parcours, j'ai développé des compétences solides en [COMPETENCES] et une capacité d'adaptation qui me permettront de contribuer activement à la vie académique de votre institution.
 
-Mon objectif est de [OBJECTIF PROFESSIONNEL]. Je suis convaincu(e) que votre formation me donnera les outils necessaires pour y parvenir.
+Mon objectif est de [OBJECTIF PROFESSIONNEL]. Je suis convaincu(e) que votre formation me donnera les outils nécessaires pour y parvenir.
 
-Je reste a votre disposition pour tout entretien complementaire et vous prie d'agreer, Madame, Monsieur, l'expression de mes salutations distinguees.
+Je reste à votre disposition pour tout entretien complémentaire et vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
 
 [NOM]''',
       ),
@@ -45,15 +45,15 @@ Je reste a votre disposition pour tout entretien complementaire et vous prie d'a
         category: 'admission',
         bodyFr: '''Madame, Monsieur le Directeur du programme,
 
-Titulaire d'un [DIPLOME] en [DOMAINE] obtenu a [UNIVERSITE], je me permets de vous adresser ma candidature pour integrer votre programme de Master en [SPECIALITE].
+Titulaire d'un [DIPLOME] en [DOMAINE] obtenu à [UNIVERSITE], je me permets de vous adresser ma candidature pour intégrer votre programme de Master en [SPECIALITE].
 
-Mon parcours academique m'a permis d'acquerir une expertise en [DOMAINE EXPERTISE]. J'ai egalement eu l'opportunite de realiser [PROJET/STAGE] qui a renforce ma determination a me specialiser dans ce domaine.
+Mon parcours académique m'a permis d'acquérir une expertise en [DOMAINE EXPERTISE]. J'ai également eu l'opportunité de réaliser [PROJET/STAGE] qui a renforcé ma détermination à me spécialiser dans ce domaine.
 
-Votre programme se distingue par [POINT FORT DU PROGRAMME], ce qui correspond parfaitement a mon projet professionnel de [OBJECTIF]. Je suis particulierement interesse(e) par les modules de [MODULES] et la possibilite de [OPPORTUNITE].
+Votre programme se distingue par [POINT FORT DU PROGRAMME], ce qui correspond parfaitement à mon projet professionnel de [OBJECTIF]. Je suis particulièrement intéressé(e) par les modules de [MODULES] et la possibilité de [OPPORTUNITE].
 
-Je serais honore(e) de pouvoir contribuer a la richesse de votre promotion par mon parcours atypique et ma motivation sans faille.
+Je serais honoré(e) de pouvoir contribuer à la richesse de votre promotion par mon parcours atypique et ma motivation sans faille.
 
-Dans l'attente de votre reponse, veuillez agreer mes salutations respectueuses.
+Dans l'attente de votre réponse, veuillez agréer mes salutations respectueuses.
 
 [NOM]''',
       ),
@@ -64,20 +64,20 @@ Dans l'attente de votre reponse, veuillez agreer mes salutations respectueuses.
         titleFr: 'letter_tpl_scholarship_kpb_title'.tr,
         titleEn: 'KPB Education Scholarship',
         category: 'scholarship',
-        bodyFr: '''A l'attention du Comite de selection KPB Education,
+        bodyFr: '''À l'attention du Comité de sélection KPB Education,
 
-Je me permets de soumettre ma candidature pour la bourse d'etudes KPB Education en vue de poursuivre mes etudes en [DOMAINE] au [PAYS].
+Je me permets de soumettre ma candidature pour la bourse d'études KPB Education en vue de poursuivre mes études en [DOMAINE] au [PAYS].
 
-Issu(e) de [CONTEXTE], j'ai toujours fait preuve de determination pour atteindre mes objectifs academiques. Malgre [DIFFICULTES/DEFIS], j'ai obtenu d'excellents resultats qui temoignent de mon engagement envers l'excellence.
+Issu(e) de [CONTEXTE], j'ai toujours fait preuve de détermination pour atteindre mes objectifs académiques. Malgré [DIFFICULTES/DEFIS], j'ai obtenu d'excellents résultats qui témoignent de mon engagement envers l'excellence.
 
-Cette bourse representerait pour moi une opportunite decisive pour :
-- Acceder a une formation de qualite internationale en [DOMAINE]
-- Developper des competences qui me permettront de contribuer au developpement de mon pays
-- Rejoindre un reseau d'alumni engages et dynamiques
+Cette bourse représenterait pour moi une opportunité décisive pour :
+- Accéder à une formation de qualité internationale en [DOMAINE]
+- Développer des compétences qui me permettront de contribuer au développement de mon pays
+- Rejoindre un réseau d'alumni engagés et dynamiques
 
-Mon projet professionnel consiste a [OBJECTIF]. Je m'engage a mettre les connaissances acquises au service de [CAUSE/COMMUNAUTE].
+Mon projet professionnel consiste à [OBJECTIF]. Je m'engage à mettre les connaissances acquises au service de [CAUSE/COMMUNAUTE].
 
-Je vous remercie de l'attention portee a ma candidature.
+Je vous remercie de l'attention portée à ma candidature.
 
 [NOM]''',
       ),
@@ -89,18 +89,18 @@ Je vous remercie de l'attention portee a ma candidature.
         category: 'scholarship',
         bodyFr: '''Dear Selection Committee / Madame, Monsieur,
 
-Je soumets respectueusement ma candidature pour la bourse [NOM DE LA BOURSE] afin de poursuivre mes etudes de [NIVEAU] en [DOMAINE] au [PAYS].
+Je soumets respectueusement ma candidature pour la bourse [NOM DE LA BOURSE] afin de poursuivre mes études de [NIVEAU] en [DOMAINE] au [PAYS].
 
-Mon parcours academique est marque par [REALISATIONS]. Ces experiences m'ont forge(e) une vision claire : [VISION].
+Mon parcours académique est marqué par [REALISATIONS]. Ces expériences m'ont forgé(e) une vision claire : [VISION].
 
 Je crois fermement que cette bourse me permettra de :
-- Poursuivre des etudes dans un environnement academique d'excellence
-- Developper une expertise internationale en [DOMAINE]
-- Contribuer au rayonnement de [PAYS D'ORIGINE] par le transfert de competences
+- Poursuivre des études dans un environnement académique d'excellence
+- Développer une expertise internationale en [DOMAINE]
+- Contribuer au rayonnement de [PAYS D'ORIGINE] par le transfert de compétences
 
-A mon retour, je prevois de [PROJET DE RETOUR]. Mon engagement communautaire actuel dans [ACTIVITES] temoigne deja de cette volonte d'impact positif.
+À mon retour, je prévois de [PROJET DE RETOUR]. Mon engagement communautaire actuel dans [ACTIVITES] témoigne déjà de cette volonté d'impact positif.
 
-Je me tiens a votre entiere disposition pour tout complement d'information.
+Je me tiens à votre entière disposition pour tout complément d'information.
 
 Respectueusement,
 [NOM]''',
@@ -114,18 +114,18 @@ Respectueusement,
         category: 'visa',
         bodyFr: '''Madame, Monsieur le Consul,
 
-Je soussigne(e) [NOM], de nationalite [NATIONALITE], sollicite par la presente un visa etudiant pour le [PAYS] afin de poursuivre mes etudes de [NIVEAU] en [DOMAINE] a [UNIVERSITE].
+Je soussigné(e) [NOM], de nationalité [NATIONALITE], sollicite par la présente un visa étudiant pour le [PAYS] afin de poursuivre mes études de [NIVEAU] en [DOMAINE] à [UNIVERSITE].
 
-J'ai ete admis(e) au programme de [PROGRAMME] pour l'annee universitaire [ANNEE]. Mon projet d'etudes est le suivant :
-- Duree : [DUREE]
-- Diplome vise : [DIPLOME]
+J'ai été admis(e) au programme de [PROGRAMME] pour l'année universitaire [ANNEE]. Mon projet d'études est le suivant :
+- Durée : [DUREE]
+- Diplôme visé : [DIPLOME]
 - Financement : [BOURSE / FONDS PROPRES / GARANT]
 
-Je m'engage a respecter les lois et reglementations du pays d'accueil, a suivre assidument les cours et a retourner dans mon pays d'origine a l'issue de mes etudes. Mes attaches familiales et professionnelles dans mon pays garantissent mon retour.
+Je m'engage à respecter les lois et réglementations du pays d'accueil, à suivre assidûment les cours et à retourner dans mon pays d'origine à l'issue de mes études. Mes attaches familiales et professionnelles dans mon pays garantissent mon retour.
 
 Vous trouverez ci-joint l'ensemble des documents justificatifs requis.
 
-Je vous prie d'agreer, Madame, Monsieur le Consul, l'expression de ma haute consideration.
+Je vous prie d'agréer, Madame, Monsieur le Consul, l'expression de ma haute considération.
 
 [NOM]''',
       ),
@@ -138,13 +138,13 @@ Je vous prie d'agreer, Madame, Monsieur le Consul, l'expression de ma haute cons
         category: 'internship',
         bodyFr: '''Madame, Monsieur,
 
-Etudiant(e) en [NIVEAU] en [DOMAINE] a [UNIVERSITE], je recherche activement un stage / une alternance de [DUREE] dans le secteur de [SECTEUR] a compter de [DATE].
+Étudiant(e) en [NIVEAU] en [DOMAINE] à [UNIVERSITE], je recherche activement un stage / une alternance de [DUREE] dans le secteur de [SECTEUR] à compter de [DATE].
 
-Au cours de ma formation, j'ai acquis des competences en [COMPETENCES] ainsi qu'une experience pratique lors de [EXPERIENCE PRECEDENTE]. Mon profil international — je maitrise [LANGUES] — constitue un atout pour votre equipe.
+Au cours de ma formation, j'ai acquis des compétences en [COMPETENCES] ainsi qu'une expérience pratique lors de [EXPERIENCE PRECEDENTE]. Mon profil international — je maîtrise [LANGUES] — constitue un atout pour votre équipe.
 
-Votre entreprise m'interesse particulierement pour [RAISON : projet innovant, valeurs, secteur]. Je souhaite contribuer a [CONTRIBUTION CONCRETE] tout en developpant mon expertise dans [DOMAINE].
+Votre entreprise m'intéresse particulièrement pour [RAISON : projet innovant, valeurs, secteur]. Je souhaite contribuer à [CONTRIBUTION CONCRETE] tout en développant mon expertise dans [DOMAINE].
 
-Disponible et motive(e), je serais ravi(e) de vous presenter mon parcours lors d'un entretien.
+Disponible et motivé(e), je serais ravi(e) de vous présenter mon parcours lors d'un entretien.
 
 Cordialement,
 [NOM]''',

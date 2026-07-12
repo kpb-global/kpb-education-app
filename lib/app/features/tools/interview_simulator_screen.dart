@@ -618,6 +618,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           Row(
             children: [
               Expanded(
+                flex: 5,
                 child: GestureDetector(
                   onTap: _replay,
                   child: Container(

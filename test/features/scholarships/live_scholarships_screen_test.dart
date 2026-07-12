@@ -14,7 +14,7 @@ import '../../widget_test_helpers.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Smoke tests for the App-engagement restyle (PR4): the live scholarships list
 // + detail sheet. Verify the restyled row binds to REAL model fields (name,
-// funding, a D-<days> countdown computed from deadlineAt), that the "Deadline
+// funding, a J-<days> countdown computed from deadlineAt), that the "Deadline
 // soon" chip fires for a near deadline, that no fake push-reminder bell is
 // rendered (there is no reminder mechanism to back one), and that opening the
 // detail surfaces the external "Official application form" CTA.
@@ -82,7 +82,7 @@ void main() {
   tearDown(resetGetxSingleton);
 
   testWidgets(
-      'restyled list renders a real scholarship row (name, funding, D-days, '
+      'restyled list renders a real scholarship row (name, funding, J-days, '
       'soon chip) and no fake reminder bell', (tester) async {
     final mock = MockApiClient();
     _stubFetch(mock, <dynamic>[_scholarshipJson()]);
@@ -94,8 +94,9 @@ void main() {
     // Real data bound from the model.
     expect(find.text('MEXT Japan Scholarship'), findsOneWidget);
     expect(find.text('Entièrement financée'), findsWidgets); // fundingType chip
-    // D-<days> is computed from the real deadlineAt (~5 days out).
-    expect(find.textContaining('D-'), findsWidgets);
+    // J-<days> (localized "days until") is computed from the real deadlineAt
+    // (~5 days out); FR locale renders "J-", EN renders "D-".
+    expect(find.textContaining('J-'), findsWidgets);
     // Near deadline (<= 14 days) surfaces the amber "soon" chip.
     expect(find.text('Deadline imminente'), findsOneWidget);
     // Trailing round toggle is the REAL save/bookmark, not a push-reminder bell.

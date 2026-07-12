@@ -767,8 +767,8 @@ class AppTranslations extends Translations {
               'Remplissez les champs et laissez l\'IA rediger votre profil professionnel.',
           'cv_field_full_name': 'Nom complet',
           'cv_field_phone': 'Telephone',
-          'cv_field_study_level': 'Niveau d\'etudes',
-          'cv_field_field_of_study': 'Domaine d\'etudes',
+          'cv_field_study_level': 'Niveau d\'études',
+          'cv_field_field_of_study': 'Domaine d\'études',
           'cv_field_target_country': 'Pays cible',
           'cv_field_skills': 'Competences (separees par des virgules)',
           'cv_field_languages': 'Langues',
@@ -808,7 +808,7 @@ class AppTranslations extends Translations {
           'impact_satisfaction_rate': 'Taux de satisfaction',
           'interview_title': 'Simulateur d\'entretien',
           'interview_picker_intro':
-              'Entraine-toi avec un examinateur IA. Choisis un type d\'entretien :',
+              'Entraîne-toi avec un examinateur IA. Choisis un type d\'entretien :',
           'interview_type_visa_title': 'Entretien de visa étudiant',
           'interview_type_visa_subtitle':
               'Questions consulaires : financement, retour, projet d\'études.',
@@ -826,38 +826,38 @@ class AppTranslations extends Translations {
           'interview_next_question': 'Question suivante',
           'interview_finish': 'Terminer',
           'letter_tpl_admission_general_title':
-              'Admission universitaire (general)',
+              'Admission universitaire (général)',
           'letter_tpl_admission_master_title':
-              'Admission en Master / Programme specialise',
-          'letter_tpl_scholarship_kpb_title': 'Bourse d\'etudes KPB Education',
+              'Admission en Master / Programme spécialisé',
+          'letter_tpl_scholarship_kpb_title': 'Bourse d\'études KPB Education',
           'letter_tpl_scholarship_international_title':
               'Bourse d\'excellence internationale',
-          'letter_tpl_visa_student_title': 'Lettre de motivation visa etudiant',
+          'letter_tpl_visa_student_title': 'Lettre de motivation visa étudiant',
           'letter_tpl_internship_title':
-              'Stage ou alternance a l\'international',
+              'Stage ou alternance à l\'international',
           'letter_category_admission': 'Admissions',
           'letter_category_scholarship': 'Bourses',
           'letter_category_internship': 'Stage / Alternance',
           'letters_title': 'Lettres de motivation',
           'letters_filter_all': 'Tous',
-          'letters_personalized_badge': 'Personnalisee',
+          'letters_personalized_badge': 'Personnalisée',
           'letters_personalizing': 'Personnalisation...',
-          'letters_adapt_to_profile': 'Adapter a mon profil',
+          'letters_adapt_to_profile': 'Adapter à mon profil',
           'letters_copy_tooltip': 'Copier',
-          'letters_copied_snackbar': 'Copie dans le presse-papier',
+          'letters_copied_snackbar': 'Copié dans le presse-papier',
           'letters_share_tooltip': 'Partager',
           'student_tools_intro':
-              'Des outils pratiques pour preparer ta candidature.',
+              'Des outils pratiques pour préparer ta candidature.',
           'student_tools_cv_subtitle':
-              'Cree un CV professionnel pre-rempli depuis ton profil, ameliore par l\'IA.',
+              'Crée un CV professionnel pré-rempli depuis ton profil, amélioré par l\'IA.',
           'student_tools_letters_subtitle':
-              '6 modeles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
+              '6 modèles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
           'student_tools_interview_subtitle':
-              'Entraine-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
+              'Entraîne-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
           'student_tools_scanner_subtitle':
-              'Scanne et organise les pieces de ton dossier (passeport, diplomes...) en PDF.',
+              'Scanne et organise les pièces de ton dossier (passeport, diplômes...) en PDF.',
           'student_tools_impact_subtitle':
-              'Decouvre l\'impact de KPB Education : etudiants accompagnes, admissions, bourses.',
+              'Découvre l\'impact de KPB Education : étudiants accompagnés, admissions, bourses.',
           'search_field_not_found_title': 'Filière introuvable',
           'search_field_not_found_body':
               'Cette filière n\'est plus disponible.',
@@ -927,6 +927,7 @@ class AppTranslations extends Translations {
           'live_scholarships_official_form': 'Formulaire officiel',
           'live_scholarships_deadline_soon': 'Deadline imminente',
           'live_scholarships_deadline_closed': 'Clôturée',
+          'live_scholarships_deadline_days': 'J-@count',
           'live_scholarships_no_deadline': 'Pas de date limite',
           'live_scholarships_funding_tile': 'Financement',
           'scholarships_sorted_hint':
@@ -1358,7 +1359,7 @@ class AppTranslations extends Translations {
           'home_deadline_near_label': '⏰ DEADLINE PROCHE',
           'home_deadline_see_button': 'Voir →',
           'home_badge_guidance': "Accompagnement",
-          'home_student_tools_title': 'Outils etudiants',
+          'home_student_tools_title': 'Outils étudiants',
           'home_student_tools_subtitle': 'CV, lettres de motivation, et plus',
           // ── Diambar Gauge card (App-engagement handoff) ──
           'home_gauge_eyebrow': 'JAUGE DIAMBAR',
@@ -1641,7 +1642,7 @@ class AppTranslations extends Translations {
           'continue_orientation': 'Continuer mon orientation',
           'explore_fields': 'Explorer les filières',
           'explore_countries': 'Explorer les pays',
-          'scholarships_for_you': 'Écoles pour vous',
+          'scholarships_for_you': 'Bourses pour toi',
           'profile_completion': 'Complétude du profil',
           'orientation_intro':
               'Répondez à quelques questions. KPB vous propose des pistes de filières, des pays et des grandes écoles cohérents.',
@@ -2924,6 +2925,7 @@ class AppTranslations extends Translations {
           'live_scholarships_official_form': 'Official application form',
           'live_scholarships_deadline_soon': 'Deadline soon',
           'live_scholarships_deadline_closed': 'Closed',
+          'live_scholarships_deadline_days': 'D-@count',
           'live_scholarships_no_deadline': 'No fixed deadline',
           'live_scholarships_funding_tile': 'Funding',
           'scholarships_sorted_hint':
@@ -3627,7 +3629,7 @@ class AppTranslations extends Translations {
           'continue_orientation': 'Continue orientation',
           'explore_fields': 'Explore fields',
           'explore_countries': 'Explore countries',
-          'scholarships_for_you': 'Schools for you',
+          'scholarships_for_you': 'Scholarships for you',
           'profile_completion': 'Profile completion',
           'orientation_intro':
               'Answer a few questions. KPB will suggest fields, countries, and top schools that fit your profile.',
