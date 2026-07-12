@@ -15,6 +15,7 @@ import '../eligibility/eligibility_simulator_screen.dart';
 import '../explore/program_detail_screen.dart';
 import '../parcours/parcours_screen.dart';
 import '../premium/premium_screen.dart';
+import '../referral/ambassador_screen.dart';
 import '../referral/referral_screen.dart';
 import '../legal/legal_pages.dart';
 import '../onboarding/onboarding_m2_constants.dart';
@@ -1213,6 +1214,11 @@ class _QuickAccessCard extends StatelessWidget {
     if (controller.isStudent) {
       add(Icons.card_giftcard_outlined, _Palette.amber, 'referral_title'.tr,
           () => Get.to(() => const ReferralScreen()));
+      add(
+          Icons.diversity_3_outlined,
+          _Palette.blue,
+          'referral_become_ambassador'.tr,
+          () => Get.to(() => const AmbassadorScreen()));
       add(
           Icons.psychology_outlined,
           _Palette.blue,
