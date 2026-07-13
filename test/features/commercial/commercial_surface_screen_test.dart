@@ -11,7 +11,13 @@ import 'package:karatou/app/features/commercial/commercial_surface_screen.dart';
 
 import '../../widget_test_helpers.dart';
 
-CommercialLead _lead(String id, String name, String? tag, {int unread = 0}) {
+CommercialLead _lead(
+  String id,
+  String name,
+  String? tag, {
+  int unread = 0,
+  List<CommercialLeadDocument> documents = const <CommercialLeadDocument>[],
+}) {
   return CommercialLead(
     id: id,
     referenceCode: 'KPB-$id',
@@ -23,6 +29,7 @@ CommercialLead _lead(String id, String name, String? tag, {int unread = 0}) {
     createdAt: DateTime(2026, 7, 1),
     updatedAt: DateTime(2026, 7, 8),
     unreadMessages: unread,
+    documents: documents,
   );
 }
 
@@ -109,6 +116,55 @@ void main() {
       verify(() => mock.updateCommercialLead('l1',
           leadTag: 'converted',
           discussionMotive: any(named: 'discussionMotive'))).called(1);
+    });
+
+    testWidgets(
+        'lead detail → validating a pending document calls reviewCommercialDocument + shows the status chip',
+        (tester) async {
+      final mock = MockApiClient();
+      final leadWithDoc = _lead('l1', 'Aïcha Diallo', 'qualified', documents: [
+        const CommercialLeadDocument(
+          id: 'doc-1',
+          title: 'Passeport',
+          isProvided: true,
+        ),
+      ]);
+      when(() => mock.listCommercialLeads(
+          email: any(named: 'email'),
+          filter: any(named: 'filter'))).thenAnswer((_) async => [leadWithDoc]);
+      when(() => mock.getCommercialStats(email: any(named: 'email')))
+          .thenAnswer((_) async => {'totalLeads': 1, 'convertedLast30Days': 0});
+      when(() => mock
+              .reviewCommercialDocument('doc-1', status: any(named: 'status')))
+          .thenAnswer((_) async => {
+                'id': 'doc-1',
+                'caseId': 'l1',
+                'title': 'Passeport',
+                'isProvided': true,
+                'reviewStatus': 'validated',
+                'reviewedByName': 'Idriss',
+                'reviewedAt': '2026-07-13T10:00:00.000Z',
+              });
+
+      await pump(tester, mock);
+      await tester.tap(find.text('Aïcha Diallo'));
+      await tester.pumpAndSettle();
+
+      // The document + its three verdict buttons are rendered.
+      expect(find.text('Passeport'), findsOneWidget);
+      expect(find.text('commercial_doc_validate'), findsOneWidget);
+      expect(find.text('commercial_doc_redo'), findsOneWidget);
+      expect(find.text('commercial_doc_doubtful'), findsOneWidget);
+
+      await tester.tap(find.text('commercial_doc_validate'));
+      await tester.pumpAndSettle();
+
+      verify(() => mock.reviewCommercialDocument('doc-1', status: 'validated'))
+          .called(1);
+
+      // After the verdict the buttons are replaced by the "Validé" chip.
+      expect(find.text('commercial_doc_status_validated'), findsOneWidget);
+      expect(find.text('commercial_doc_validate'), findsNothing);
     });
   });
 }

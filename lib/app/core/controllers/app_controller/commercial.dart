@@ -63,6 +63,42 @@ mixin _CommercialMixin on _AppControllerBase {
     }
   }
 
+  /// Records a counsellor verdict ('validated' | 'redo' | 'doubtful') on an
+  /// uploaded case document (Feature D). Patches the in-memory lead so the
+  /// Dossiers list stays consistent, and returns the updated document.
+  Future<CommercialLeadDocument> reviewCommercialDocument(
+    String caseId,
+    String documentId, {
+    required String status,
+  }) async {
+    try {
+      final data = await _apiClient.reviewCommercialDocument(
+        documentId,
+        status: status,
+      );
+      final updatedDoc = CommercialLeadDocument.fromApi(data);
+      final idx = _commercialLeads.indexWhere((l) => l.id == caseId);
+      if (idx != -1) {
+        final lead = _commercialLeads[idx];
+        final docs = lead.documents
+            .map((d) => d.id == updatedDoc.id ? updatedDoc : d)
+            .toList(growable: false);
+        _commercialLeads[idx] = lead.copyWith(documents: docs);
+        update();
+      }
+      return updatedDoc;
+    } catch (e, s) {
+      safeRecordError(
+        e,
+        s,
+        reason: 'reviewCommercialDocument',
+        domain: CrashlyticsObsDomain.sync,
+        operation: 'review_commercial_document',
+      );
+      rethrow;
+    }
+  }
+
   Future<void> fetchCommercialStats() async {
     if (!isCommercial || !AppConfig.enableRemoteSync) return;
     final email = profile?.email;

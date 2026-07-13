@@ -323,6 +323,20 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Records a counsellor's verdict on an uploaded case document.
+  /// [status] must be 'validated', 'redo' or 'doubtful'. Returns the updated
+  /// document payload (id, reviewStatus, reviewedByName, reviewedAt, …).
+  Future<Map<String, dynamic>> reviewCommercialDocument(
+    String documentId, {
+    required String status,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/commercial/documents/$documentId/review',
+      data: {'status': status},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   Future<Map<String, dynamic>> getCommercialStats({
     required String email,
   }) async {

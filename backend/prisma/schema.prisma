@@ -423,6 +423,12 @@ model CaseDocument {
   fileUrl    String?
   uploadedAt DateTime?
   isProvided Boolean   @default(false)
+  // ── Commercial per-document review (Feature D) ──────────────────────────
+  // Counsellor verdict on an uploaded document. Allowed values:
+  // 'validated' | 'redo' | 'doubtful'. null = pending review.
+  reviewStatus   String?
+  reviewedByName String?
+  reviewedAt     DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   case       Case      @relation(fields: [caseId], references: [id])

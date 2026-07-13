@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CasesService } from '../cases/cases.service';
@@ -13,6 +18,10 @@ const LEAD_TAGS = [
 ] as const;
 
 export type LeadTag = (typeof LEAD_TAGS)[number];
+
+const DOCUMENT_REVIEW_STATUSES = ['validated', 'redo', 'doubtful'] as const;
+
+export type DocumentReviewStatus = (typeof DOCUMENT_REVIEW_STATUSES)[number];
 
 @Injectable()
 export class CommercialService {
@@ -42,6 +51,7 @@ export class CommercialService {
             include: {
               user: true,
               messages: { orderBy: { createdAt: 'desc' }, take: 20 },
+              documents: { orderBy: { createdAt: 'desc' } },
             },
             orderBy: { createdAt: 'desc' },
           }),
@@ -70,6 +80,15 @@ export class CommercialService {
         updatedAt: item.updatedAt,
         lastCommercialInteractionAt: item.lastCommercialInteractionAt,
         unreadMessages,
+        documents: (item.documents ?? []).map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+          isProvided: doc.isProvided,
+          uploadedAt: doc.uploadedAt?.toISOString() ?? null,
+          reviewStatus: doc.reviewStatus,
+          reviewedByName: doc.reviewedByName,
+          reviewedAt: doc.reviewedAt?.toISOString() ?? null,
+        })),
       };
     });
 
@@ -121,6 +140,52 @@ export class CommercialService {
     );
 
     return this.casesService.findOne(caseId);
+  }
+
+  /// Records a counsellor's verdict on an uploaded case document and stamps it
+  /// with who reviewed it and when. Mirrors the lead-tag validation pattern.
+  async reviewDocument(
+    documentId: string,
+    status: string,
+    reviewerName: string,
+  ) {
+    this.assertDb();
+
+    if (!DOCUMENT_REVIEW_STATUSES.includes(status as DocumentReviewStatus)) {
+      throw new BadRequestException(`Invalid review status ${status}`);
+    }
+
+    const existing = await this.prismaService.execute((prisma) =>
+      prisma.caseDocument.findUnique({ where: { id: documentId } }),
+    );
+    if (!existing) {
+      throw new NotFoundException(`Document ${documentId} not found.`);
+    }
+
+    const updated = await this.prismaService.execute((prisma) =>
+      prisma.caseDocument.update({
+        where: { id: documentId },
+        data: {
+          reviewStatus: status,
+          reviewedByName: reviewerName,
+          reviewedAt: new Date(),
+        },
+      }),
+    );
+    if (!updated) {
+      throw new NotFoundException(`Document ${documentId} not found.`);
+    }
+
+    return {
+      id: updated.id,
+      caseId: updated.caseId,
+      title: updated.title,
+      isProvided: updated.isProvided,
+      uploadedAt: updated.uploadedAt?.toISOString() ?? null,
+      reviewStatus: updated.reviewStatus,
+      reviewedByName: updated.reviewedByName,
+      reviewedAt: updated.reviewedAt?.toISOString() ?? null,
+    };
   }
 
   async performance() {
