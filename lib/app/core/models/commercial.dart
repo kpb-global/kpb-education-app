@@ -13,6 +13,7 @@ class CommercialLead {
     required this.createdAt,
     required this.updatedAt,
     this.unreadMessages = 0,
+    this.documents = const <CommercialLeadDocument>[],
   });
 
   final String id;
@@ -27,7 +28,11 @@ class CommercialLead {
   final DateTime updatedAt;
   final int unreadMessages;
 
+  /// Uploaded case documents the counsellor can review (Feature D).
+  final List<CommercialLeadDocument> documents;
+
   factory CommercialLead.fromApi(Map<String, dynamic> json) {
+    final rawDocs = json['documents'];
     return CommercialLead(
       id: json['id'] as String? ?? '',
       referenceCode: json['referenceCode'] as String? ?? '',
@@ -42,6 +47,66 @@ class CommercialLead {
       updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
           DateTime.now(),
       unreadMessages: json['unreadMessages'] as int? ?? 0,
+      documents: rawDocs is List
+          ? rawDocs
+              .whereType<Map<String, dynamic>>()
+              .map(CommercialLeadDocument.fromApi)
+              .toList()
+          : const <CommercialLeadDocument>[],
+    );
+  }
+
+  CommercialLead copyWith({List<CommercialLeadDocument>? documents}) {
+    return CommercialLead(
+      id: id,
+      referenceCode: referenceCode,
+      title: title,
+      status: status,
+      studentName: studentName,
+      studentLevel: studentLevel,
+      leadTag: leadTag,
+      discussionMotive: discussionMotive,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      unreadMessages: unreadMessages,
+      documents: documents ?? this.documents,
+    );
+  }
+}
+
+/// A single uploaded document on a case, with the counsellor's review verdict.
+/// [reviewStatus] is one of 'validated' | 'redo' | 'doubtful', or null when
+/// still pending review.
+class CommercialLeadDocument {
+  const CommercialLeadDocument({
+    required this.id,
+    required this.title,
+    required this.isProvided,
+    this.uploadedAt,
+    this.reviewStatus,
+    this.reviewedByName,
+    this.reviewedAt,
+  });
+
+  final String id;
+  final String title;
+  final bool isProvided;
+  final DateTime? uploadedAt;
+  final String? reviewStatus;
+  final String? reviewedByName;
+  final DateTime? reviewedAt;
+
+  bool get isReviewed => reviewStatus != null && reviewStatus!.isNotEmpty;
+
+  factory CommercialLeadDocument.fromApi(Map<String, dynamic> json) {
+    return CommercialLeadDocument(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      isProvided: json['isProvided'] as bool? ?? false,
+      uploadedAt: DateTime.tryParse(json['uploadedAt'] as String? ?? ''),
+      reviewStatus: json['reviewStatus'] as String?,
+      reviewedByName: json['reviewedByName'] as String?,
+      reviewedAt: DateTime.tryParse(json['reviewedAt'] as String? ?? ''),
     );
   }
 }

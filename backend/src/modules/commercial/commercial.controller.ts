@@ -1,16 +1,32 @@
-import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import type { AdminSessionUser } from '../auth/auth.service';
 import { CommercialService } from './commercial.service';
+
+type AdminRequest = { adminUser?: AdminSessionUser };
 
 @Controller('commercial')
 @UseGuards(AdminAuthGuard, RolesGuard)
 @Roles(InternalRole.Commercial, InternalRole.Admin, InternalRole.SuperAdmin)
 export class CommercialController {
   constructor(private readonly commercialService: CommercialService) {}
+
+  private reviewerName(req: AdminRequest): string {
+    return req.adminUser?.fullName?.trim() || 'Conseiller KPB';
+  }
 
   @Get('leads')
   listLeads(
@@ -29,6 +45,21 @@ export class CommercialController {
       leadTag: body.leadTag as never,
       discussionMotive: body.discussionMotive,
     });
+  }
+
+  // ── Per-document review (Feature D) ──────────────────────────────────────
+  // The authed counsellor records a verdict on an uploaded case document.
+  @Patch('documents/:id/review')
+  reviewDocument(
+    @Param('id') id: string,
+    @Body() body: { status?: string },
+    @Req() req: AdminRequest,
+  ) {
+    return this.commercialService.reviewDocument(
+      id,
+      body.status ?? '',
+      this.reviewerName(req),
+    );
   }
 
   @Get('stats')

@@ -1861,6 +1861,24 @@ class AppTranslations extends Translations {
           'commercial_nav_leads': 'Leads',
           'commercial_nav_cases': 'Dossiers',
           'commercial_nav_perf': 'Performance',
+          // ── Revue des documents par pièce (Feature D) ──
+          'commercial_docs_title': 'Documents du dossier',
+          'commercial_docs_sub': '@n document(s)',
+          'commercial_docs_to_review': '@n à réviser',
+          'commercial_docs_empty':
+              'Aucun document sur ce dossier pour le moment.',
+          'commercial_doc_provided': 'Fourni',
+          'commercial_doc_pending': 'En attente de dépôt',
+          'commercial_doc_validate': 'Valider',
+          'commercial_doc_redo': 'À refaire',
+          'commercial_doc_doubtful': 'Douteux',
+          'commercial_doc_status_validated': 'Validé',
+          'commercial_doc_status_redo': 'À refaire',
+          'commercial_doc_status_doubtful': 'Douteux',
+          'commercial_doc_reviewed_by': 'Révisé par @name',
+          'commercial_doc_reviewed_meta': 'Révisé par @name · @age',
+          'commercial_doc_review_error':
+              'Impossible d\'enregistrer la revue pour le moment.',
           // ── Ambassadeur (App-engagement · US-032→035) ──
           'referral_become_ambassador': 'Espace ambassadeur',
           'referral_become_ambassador_sub':
@@ -3878,6 +3896,22 @@ class AppTranslations extends Translations {
           'commercial_nav_leads': 'Leads',
           'commercial_nav_cases': 'Cases',
           'commercial_nav_perf': 'Performance',
+          // ── Per-document review (Feature D) ──
+          'commercial_docs_title': 'Case documents',
+          'commercial_docs_sub': '@n document(s)',
+          'commercial_docs_to_review': '@n to review',
+          'commercial_docs_empty': 'No document on this case yet.',
+          'commercial_doc_provided': 'Provided',
+          'commercial_doc_pending': 'Awaiting upload',
+          'commercial_doc_validate': 'Validate',
+          'commercial_doc_redo': 'Redo',
+          'commercial_doc_doubtful': 'Doubtful',
+          'commercial_doc_status_validated': 'Validated',
+          'commercial_doc_status_redo': 'To redo',
+          'commercial_doc_status_doubtful': 'Doubtful',
+          'commercial_doc_reviewed_by': 'Reviewed by @name',
+          'commercial_doc_reviewed_meta': 'Reviewed by @name · @age',
+          'commercial_doc_review_error': 'Could not save the review right now.',
           // ── Ambassador (App-engagement · US-032→035) ──
           'referral_become_ambassador': 'Ambassador space',
           'referral_become_ambassador_sub':

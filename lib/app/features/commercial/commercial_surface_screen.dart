@@ -5,10 +5,13 @@
 // blue #2563EB system.
 //
 // Binds the REAL commercial data already exposed by _CommercialMixin
-// (CommercialLead + CommercialStats). Fields the backend doesn't provide (the
-// verbatim WhatsApp message, per-doc review, 10-step progress) are omitted —
-// the surface shows only real lead data + honest empty states. The counsellor
-// replies on WhatsApp and converts a lead via the existing lead-tag endpoint.
+// (CommercialLead + CommercialStats + case documents). Per-document review
+// (Feature D) is wired end to end: the lead detail lists each uploaded document
+// with three verdicts (Valider / À refaire / Douteux) posted to
+// PATCH /commercial/documents/:id/review. Fields the backend still doesn't
+// provide (the verbatim WhatsApp message, 10-step progress) are omitted — the
+// surface shows only real data + honest empty states. The counsellor replies on
+// WhatsApp and converts a lead via the existing lead-tag endpoint.
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -418,6 +421,8 @@ class _CommercialLeadDetailScreenState
   final _ctrl = Get.find<AppController>();
   late String _tag = widget.lead.leadTag ?? 'new';
   bool _converting = false;
+  late List<CommercialLeadDocument> _docs = List.of(widget.lead.documents);
+  final Set<String> _reviewingDocIds = <String>{};
 
   void _toast(String msg) {
     if (!mounted) return;
@@ -443,6 +448,28 @@ class _CommercialLeadDetailScreenState
       _toast('commercial_convert_error'.tr);
     } finally {
       if (mounted) setState(() => _converting = false);
+    }
+  }
+
+  Future<void> _reviewDoc(CommercialLeadDocument doc, String status) async {
+    if (_reviewingDocIds.contains(doc.id)) return;
+    setState(() => _reviewingDocIds.add(doc.id));
+    try {
+      final updated = await _ctrl.reviewCommercialDocument(
+        widget.lead.id,
+        doc.id,
+        status: status,
+      );
+      if (!mounted) return;
+      setState(() {
+        _docs = _docs
+            .map((d) => d.id == updated.id ? updated : d)
+            .toList(growable: false);
+      });
+    } catch (_) {
+      _toast('commercial_doc_review_error'.tr);
+    } finally {
+      if (mounted) setState(() => _reviewingDocIds.remove(doc.id));
     }
   }
 
@@ -698,11 +725,294 @@ class _CommercialLeadDetailScreenState
                       ),
                     ),
                   ],
+                  const SizedBox(height: 12),
+                  _DocReviewCard(
+                    docs: _docs,
+                    reviewingIds: _reviewingDocIds,
+                    onReview: _reviewDoc,
+                  ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-document review (Feature D) — Commercial App.dc.html l.132-146
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A document's review verdict → chip label + bg/fg colors.
+class _RevStyle {
+  const _RevStyle(this.labelKey, this.bg, this.fg);
+  final String labelKey;
+  final Color bg;
+  final Color fg;
+}
+
+_RevStyle? _revStyle(String? status) {
+  switch (status) {
+    case 'validated':
+      return const _RevStyle(
+          'commercial_doc_status_validated', _C.greenSoft, _C.green);
+    case 'redo':
+      return const _RevStyle('commercial_doc_status_redo', _C.redSoft, _C.red);
+    case 'doubtful':
+      return const _RevStyle(
+          'commercial_doc_status_doubtful', _C.amberSoft, _C.amber);
+    default:
+      return null;
+  }
+}
+
+class _DocReviewCard extends StatelessWidget {
+  const _DocReviewCard({
+    required this.docs,
+    required this.reviewingIds,
+    required this.onReview,
+  });
+  final List<CommercialLeadDocument> docs;
+  final Set<String> reviewingIds;
+  final void Function(CommercialLeadDocument doc, String status) onReview;
+
+  @override
+  Widget build(BuildContext context) {
+    final pending = docs.where((d) => d.isProvided && !d.isReviewed).length;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: _C.border),
+          borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text('commercial_docs_title'.tr,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: _C.ink)),
+              ),
+              if (pending > 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: _C.amberSoft,
+                      borderRadius: BorderRadius.circular(100)),
+                  child: Text(
+                      'commercial_docs_to_review'.trParams({'n': '$pending'}),
+                      style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: _C.amber)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text('commercial_docs_sub'.trParams({'n': '${docs.length}'}),
+              style: const TextStyle(fontSize: 11, color: _C.slate400)),
+          const SizedBox(height: 12),
+          if (docs.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  const Icon(Icons.description_outlined,
+                      size: 18, color: _C.slate400),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text('commercial_docs_empty'.tr,
+                        style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: _C.slate)),
+                  ),
+                ],
+              ),
+            )
+          else
+            for (var i = 0; i < docs.length; i++) ...[
+              _DocRow(
+                doc: docs[i],
+                reviewing: reviewingIds.contains(docs[i].id),
+                onReview: onReview,
+              ),
+              if (i != docs.length - 1)
+                const Divider(height: 22, thickness: 1, color: _C.track),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DocRow extends StatelessWidget {
+  const _DocRow({
+    required this.doc,
+    required this.reviewing,
+    required this.onReview,
+  });
+  final CommercialLeadDocument doc;
+  final bool reviewing;
+  final void Function(CommercialLeadDocument doc, String status) onReview;
+
+  @override
+  Widget build(BuildContext context) {
+    final rev = _revStyle(doc.reviewStatus);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          color: _C.page,
+          border: Border.all(color: _C.track),
+          borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                  doc.isProvided
+                      ? Icons.description_rounded
+                      : Icons.upload_file_outlined,
+                  size: 16,
+                  color: doc.isProvided ? _C.slate : _C.slate400),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(doc.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: _C.ink)),
+              ),
+              const SizedBox(width: 8),
+              if (rev != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: rev.bg, borderRadius: BorderRadius.circular(100)),
+                  child: Text(rev.labelKey.tr,
+                      style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: rev.fg)),
+                )
+              else
+                Text(
+                    (doc.isProvided
+                            ? 'commercial_doc_provided'
+                            : 'commercial_doc_pending')
+                        .tr,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: doc.isProvided ? _C.green : _C.slate400)),
+            ],
+          ),
+          // Reviewer / timestamp line once a verdict exists.
+          if (rev != null && (doc.reviewedByName ?? '').isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+                doc.reviewedAt != null
+                    ? 'commercial_doc_reviewed_meta'.trParams({
+                        'name': doc.reviewedByName!,
+                        'age': _age(doc.reviewedAt!),
+                      })
+                    : 'commercial_doc_reviewed_by'
+                        .trParams({'name': doc.reviewedByName!}),
+                style: const TextStyle(fontSize: 10, color: _C.slate400)),
+          ],
+          // Verdict buttons — only for an uploaded, not-yet-reviewed document.
+          if (doc.isProvided && rev == null) ...[
+            const SizedBox(height: 10),
+            if (reviewing)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: _VerdictButton(
+                      labelKey: 'commercial_doc_validate',
+                      fillColor: _C.green,
+                      textColor: Colors.white,
+                      onTap: () => onReview(doc, 'validated'),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _VerdictButton(
+                      labelKey: 'commercial_doc_redo',
+                      borderColor: const Color(0xFFFECACA),
+                      textColor: _C.red,
+                      onTap: () => onReview(doc, 'redo'),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _VerdictButton(
+                      labelKey: 'commercial_doc_doubtful',
+                      borderColor: const Color(0xFFFDE68A),
+                      textColor: _C.amber,
+                      onTap: () => onReview(doc, 'doubtful'),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VerdictButton extends StatelessWidget {
+  const _VerdictButton({
+    required this.labelKey,
+    required this.textColor,
+    required this.onTap,
+    this.fillColor,
+    this.borderColor,
+  });
+  final String labelKey;
+  final Color textColor;
+  final VoidCallback onTap;
+  final Color? fillColor;
+  final Color? borderColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 34,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: fillColor ?? Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: borderColor != null
+              ? Border.all(color: borderColor!, width: 1.5)
+              : null,
+        ),
+        child: Text(labelKey.tr,
+            style: TextStyle(
+                fontSize: 10.5, fontWeight: FontWeight.w800, color: textColor)),
       ),
     );
   }
@@ -787,6 +1097,29 @@ class _CasesTab extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                       fontSize: 11, color: _C.slate)),
+                            Builder(builder: (_) {
+                              final pending = l.documents
+                                  .where((d) => d.isProvided && !d.isReviewed)
+                                  .length;
+                              if (pending == 0) return const SizedBox.shrink();
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.rate_review_outlined,
+                                        size: 11, color: _C.amber),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                        'commercial_docs_to_review'
+                                            .trParams({'n': '$pending'}),
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            color: _C.amber)),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
