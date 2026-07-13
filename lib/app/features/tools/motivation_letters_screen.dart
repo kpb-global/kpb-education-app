@@ -511,7 +511,7 @@ class _LetterCardState extends State<_LetterCard> {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: _Palette.navy,
+            color: _Palette.slate,
           ),
         ),
         const SizedBox(height: 6),
@@ -523,17 +523,17 @@ class _LetterCardState extends State<_LetterCard> {
             hintStyle:
                 const TextStyle(fontSize: 12.5, color: _Palette.slate400),
             filled: true,
-            fillColor: _Palette.chipBg,
+            fillColor: _Palette.card,
             isDense: true,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _Palette.border),
+              borderSide: const BorderSide(color: _Palette.border, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _Palette.border),
+              borderSide: const BorderSide(color: _Palette.border, width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
