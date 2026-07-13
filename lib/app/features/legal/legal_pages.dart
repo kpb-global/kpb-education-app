@@ -42,7 +42,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               title: 'privacy_s1_title'.tr,
               body:
                   'KPB Education (ci-après "nous", "notre", "KPB") est responsable du traitement des données personnelles collectées via l\'application mobile KPB Education.\n\n'
-                  'Contact : contact@kpbeducation.com',
+                  'Contact : contact@kpbeducation.cloud',
             ),
             _LegalSection(
               title: 'privacy_s2_title'.tr,
@@ -104,7 +104,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• De limiter le traitement\n'
                   '• De vous opposer au traitement\n'
                   '• De portabilité de vos données\n\n'
-                  'Pour exercer ces droits, contactez-nous à : privacy@kpbeducation.com',
+                  'Pour exercer ces droits, contactez-nous à : privacy@kpbeducation.cloud',
             ),
             _LegalSection(
               title: 'privacy_s9_title'.tr,
@@ -238,8 +238,8 @@ class TermsOfServiceScreen extends StatelessWidget {
             _LegalSection(
               title: 'terms_s11_title'.tr,
               body: 'Pour toute question relative aux présentes CGU :\n\n'
-                  'Email : contact@kpbeducation.com\n'
-                  'Site web : www.kpbeducation.com',
+                  'Email : contact@kpbeducation.cloud\n'
+                  'Site web : www.kpbeducation.cloud',
             ),
             const SizedBox(height: KpbSpacing.xxl),
           ],

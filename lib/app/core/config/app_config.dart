@@ -99,9 +99,9 @@ class AppConfig {
   /// Kept as a single source of truth so shared copy stays truthful.
   static const brandName = 'KPB Education';
 
-  /// Public brand domain (marketing site). Matches the `kpbeducation.com`
+  /// Public brand domain (marketing site). Matches the `kpbeducation.cloud`
   /// API host; surfaced on shareable cards instead of any placeholder domain.
-  static const brandDomain = 'kpbeducation.com';
+  static const brandDomain = 'kpbeducation.cloud';
 
   /// Pure resolver for tests and tooling.
   @visibleForTesting
@@ -120,7 +120,7 @@ class AppConfig {
         return 'https://api.vps-planethoster.com/api';
       case 'prod':
       default:
-        return 'https://api.kpbeducation.com/api';
+        return 'https://api.kpbeducation.cloud/api';
     }
   }
 }

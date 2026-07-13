@@ -34,11 +34,11 @@ SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_JWT_SECRET=            # seulement pour les projets HS256 legacy
 
 # Origines CORS autorisées (app admin web), séparées par des virgules
-CORS_ORIGINS=https://admin.kpbeducation.com
+CORS_ORIGINS=https://admin.kpbeducation.cloud
 ```
 
 3. Lancez : `docker-compose up -d --build`
-4. Configurez NGINX pour pointer le domaine de production `api.kpbeducation.com` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
+4. Configurez NGINX pour pointer le domaine de production `api.kpbeducation.cloud` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
 
 > ⚠️ **Le chat temps réel (WebSocket) exige l'upgrade côté nginx** — sans les
 > en-têtes ci-dessous, la connexion socket.io échoue en production. Prévoir aussi
@@ -46,7 +46,7 @@ CORS_ORIGINS=https://admin.kpbeducation.com
 >
 > ```nginx
 > server {
->   server_name api.kpbeducation.com;
+>   server_name api.kpbeducation.cloud;
 >   client_max_body_size 12m;                 # uploads (limite app = 10 Mo)
 >   location / {
 >     proxy_pass http://127.0.0.1:3000;
@@ -127,10 +127,10 @@ Android **et** iOS avant la soumission aux stores.
 
 ### API Endpoint :
 
-L'hôte API de production canonique est **`https://api.kpbeducation.com/api`**.
+L'hôte API de production canonique est **`https://api.kpbeducation.cloud/api`**.
 La CI compile l'app avec `--dart-define=KPB_APP_ENV=prod`, qui résout cet hôte
 via `app_config.dart` (ne pas hardcoder `KPB_API_BASE_URL`). Assurez-vous que le
-certificat TLS nginx couvre bien `api.kpbeducation.com`.
+certificat TLS nginx couvre bien `api.kpbeducation.cloud`.
 
 **⚠️ Attention pour iOS :**
 Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Cependant, pour l'envoyer sur l'App Store Connect, il te faudra soit :
@@ -142,17 +142,17 @@ B) Configurer `Fastlane match` et injecter tes Certificats Apple dans les GitHub
 ## 3. Panneau admin (Next.js)
 
 Le panneau admin est un service du `docker-compose.yml` (`admin`, image Next.js
-standalone), à placer derrière nginx sur `https://admin.kpbeducation.com` — ce
+standalone), à placer derrière nginx sur `https://admin.kpbeducation.cloud` — ce
 domaine doit figurer dans `CORS_ORIGINS` (déjà le cas dans l'exemple `.env`).
 
 - **Build/déploiement** : `docker-compose up -d --build admin`. L'URL de l'API
   est **inlinée au build** via l'argument `NEXT_PUBLIC_KPB_API_BASE_URL`
-  (défaut `https://api.kpbeducation.com/api`, surchargable par
+  (défaut `https://api.kpbeducation.cloud/api`, surchargable par
   `KPB_ADMIN_API_BASE_URL` dans le `.env`) — **rebuild** l'image si l'hôte API
   change.
-- **nginx** : proxy `admin.kpbeducation.com` → `http://127.0.0.1:3001`, HTTPS via
+- **nginx** : proxy `admin.kpbeducation.cloud` → `http://127.0.0.1:3001`, HTTPS via
   Certbot. Pour que le cookie de session admin (httpOnly, `Secure`) fonctionne,
   l'admin et l'API doivent être servis en HTTPS sur le même domaine parent
-  (`*.kpbeducation.com`).
+  (`*.kpbeducation.cloud`).
 - Le conteneur tourne en utilisateur non-root et n'expose que le port 3000
   interne (publié sur `127.0.0.1:3001`).

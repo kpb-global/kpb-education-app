@@ -29,7 +29,7 @@ export class MastereTnScraper implements ScholarshipScraper {
   private readonly LISTING_URL = 'https://www.mastere.tn/bourses/';
   private readonly HEADERS = {
     'User-Agent':
-      'KPB-Education-Bot/1.0 (kpbeducation.com; contact@kpbeducation.com)',
+      'KPB-Education-Bot/1.0 (kpbeducation.cloud; contact@kpbeducation.cloud)',
     Accept: 'text/html,application/xhtml+xml',
     'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
   };

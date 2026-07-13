@@ -17,7 +17,7 @@ void main() {
     test('prod default when override empty', () {
       expect(
         AppConfig.resolveApiBaseUrl(override: '', env: 'prod'),
-        'https://api.kpbeducation.com/api',
+        'https://api.kpbeducation.cloud/api',
       );
     });
 
