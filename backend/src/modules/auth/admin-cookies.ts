@@ -20,7 +20,7 @@ function baseOptions() {
     httpOnly: true,
     // Secure only in production: dev serves the admin over http://localhost.
     secure: process.env.NODE_ENV === 'production',
-    // Lax is enough: admin + API are same-site (*.kpb-education.com), so the
+    // Lax is enough: admin + API are same-site (*.kpbeducation.cloud), so the
     // cookie is sent on the admin's XHR while cross-site requests are blocked.
     sameSite: 'lax' as const,
   };

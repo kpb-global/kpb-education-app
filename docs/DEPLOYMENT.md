@@ -1,6 +1,62 @@
 # KPB Education - Deployment Guide
 
-## 1. Backend (VPS PlanetHoster)
+## 0. Production actuelle — VPS Hostinger derrière le Traefik existant
+
+C'est la procédure **de référence** pour le lancement. Le VPS Hostinger
+(`72.60.190.175`, domaine `kpbeducation.cloud`) fait déjà tourner un **Traefik
+v3** partagé (réseau Docker externe `traefik`, ports 80/443, certificats
+Let's Encrypt via resolver `letsencrypt`) devant n8n + Mautic. L'app KPB s'y
+**greffe** : pas de nginx, pas de ports 80/443 propres — `api` et `admin`
+rejoignent le réseau `traefik` et sont routés par des labels (déjà dans
+`docker-compose.yml`). `db` + `clamav` restent sur un réseau privé `internal`.
+
+**DNS** (déjà créés) : `api.kpbeducation.cloud` et `admin.kpbeducation.cloud`
+→ `72.60.190.175` (A). Requis avant le 1er déploiement pour l'émission du
+certificat (challenge HTTP-01 de Traefik).
+
+**Déploiement (SSH sur le VPS)** :
+
+```bash
+# 1. Récupérer le code
+git clone <repo> /docker/kpb && cd /docker/kpb   # ou git pull si déjà cloné
+
+# 2. Créer le .env de prod À CÔTÉ du docker-compose.yml (voir §1 pour le
+#    contenu complet ; secrets forts, jamais commités). Au minimum :
+#    POSTGRES_* , KPB_JWT_* , KPB_ADMIN_REFRESH_SECRET , SUPABASE_URL ,
+#    CORS_ORIGINS=https://admin.kpbeducation.cloud , GROQ/RESEND/ONESIGNAL…
+
+# 3. Le réseau Traefik existe déjà (créé par le stack marketing). Sinon :
+docker network create traefik
+
+# 4. Build + up (rejoint le Traefik existant, ne touche pas n8n/Mautic)
+docker compose up -d --build
+
+# 5. Migrations + seed (première fois)
+docker compose exec api npx prisma migrate deploy
+docker compose exec api npm run prisma:seed        # pays actifs + catalogue
+
+# 6. Vérifs
+curl -fsS https://api.kpbeducation.cloud/api/health        # 200 attendu
+#    admin.kpbeducation.cloud doit répondre en HTTPS (cert Let's Encrypt auto)
+```
+
+Traefik gère le TLS + l'upgrade WebSocket (chat des dossiers) automatiquement —
+aucune config nginx à écrire. Les limites `mem_limit` du `docker-compose.yml`
+protègent la box 8 Go partagée (une fuite Mautic/n8n ne peut pas tuer l'API).
+
+> Stockage des documents : le fallback disque est persisté sur le volume
+> `kpb-uploads` (OK sur VPS). Pour décharger le disque, renseigner les
+> `KPB_S3_*` (Scaleway Paris `fr-par`, Bunny, ou R2) — voir §backend.
+
+> ⚠️ Ne pas ajouter un 2ᵉ reverse-proxy : le conteneur `traefik-hctj` en
+> crash-loop sur la box est justement un Traefik en doublon à supprimer.
+
+---
+
+## 1. Backend — alternative : VPS dédié avec nginx
+
+*(Procédure historique, pour un VPS dédié SANS Traefik. Sur le VPS Hostinger
+actuel, suivre la §0 ci-dessus.)*
 
 We use Docker to ensure the backend environment on the PlanetHoster VPS perfectly matches development.
 
@@ -34,11 +90,11 @@ SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_JWT_SECRET=            # seulement pour les projets HS256 legacy
 
 # Origines CORS autorisées (app admin web), séparées par des virgules
-CORS_ORIGINS=https://admin.kpb-education.com
+CORS_ORIGINS=https://admin.kpbeducation.cloud
 ```
 
 3. Lancez : `docker-compose up -d --build`
-4. Configurez NGINX pour pointer le domaine de production `api.kpb-education.com` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
+4. Configurez NGINX pour pointer le domaine de production `api.kpbeducation.cloud` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
 
 > ⚠️ **Le chat temps réel (WebSocket) exige l'upgrade côté nginx** — sans les
 > en-têtes ci-dessous, la connexion socket.io échoue en production. Prévoir aussi
@@ -46,7 +102,7 @@ CORS_ORIGINS=https://admin.kpb-education.com
 >
 > ```nginx
 > server {
->   server_name api.kpb-education.com;
+>   server_name api.kpbeducation.cloud;
 >   client_max_body_size 12m;                 # uploads (limite app = 10 Mo)
 >   location / {
 >     proxy_pass http://127.0.0.1:3000;
@@ -127,10 +183,10 @@ Android **et** iOS avant la soumission aux stores.
 
 ### API Endpoint :
 
-L'hôte API de production canonique est **`https://api.kpb-education.com/api`**.
+L'hôte API de production canonique est **`https://api.kpbeducation.cloud/api`**.
 La CI compile l'app avec `--dart-define=KPB_APP_ENV=prod`, qui résout cet hôte
 via `app_config.dart` (ne pas hardcoder `KPB_API_BASE_URL`). Assurez-vous que le
-certificat TLS nginx couvre bien `api.kpb-education.com`.
+certificat TLS nginx couvre bien `api.kpbeducation.cloud`.
 
 **⚠️ Attention pour iOS :**
 Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Cependant, pour l'envoyer sur l'App Store Connect, il te faudra soit :
@@ -142,17 +198,17 @@ B) Configurer `Fastlane match` et injecter tes Certificats Apple dans les GitHub
 ## 3. Panneau admin (Next.js)
 
 Le panneau admin est un service du `docker-compose.yml` (`admin`, image Next.js
-standalone), à placer derrière nginx sur `https://admin.kpb-education.com` — ce
+standalone), à placer derrière nginx sur `https://admin.kpbeducation.cloud` — ce
 domaine doit figurer dans `CORS_ORIGINS` (déjà le cas dans l'exemple `.env`).
 
 - **Build/déploiement** : `docker-compose up -d --build admin`. L'URL de l'API
   est **inlinée au build** via l'argument `NEXT_PUBLIC_KPB_API_BASE_URL`
-  (défaut `https://api.kpb-education.com/api`, surchargable par
+  (défaut `https://api.kpbeducation.cloud/api`, surchargable par
   `KPB_ADMIN_API_BASE_URL` dans le `.env`) — **rebuild** l'image si l'hôte API
   change.
-- **nginx** : proxy `admin.kpb-education.com` → `http://127.0.0.1:3001`, HTTPS via
+- **nginx** : proxy `admin.kpbeducation.cloud` → `http://127.0.0.1:3001`, HTTPS via
   Certbot. Pour que le cookie de session admin (httpOnly, `Secure`) fonctionne,
   l'admin et l'API doivent être servis en HTTPS sur le même domaine parent
-  (`*.kpb-education.com`).
+  (`*.kpbeducation.cloud`).
 - Le conteneur tourne en utilisateur non-root et n'expose que le port 3000
   interne (publié sur `127.0.0.1:3001`).

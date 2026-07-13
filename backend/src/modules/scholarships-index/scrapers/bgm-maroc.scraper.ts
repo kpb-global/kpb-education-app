@@ -41,7 +41,7 @@ export class BgmMarocScraper implements ScholarshipScraper {
     // TODO(legal-clearance): uncomment the fetch once TOS review is complete.
     // const response = await fetch(
     //   'https://www.amci.ma/fr/content/bourses-detudes',
-    //   { headers: { 'User-Agent': 'KPB-Education-Bot/1.0 (contact@kpb-education.com)' } },
+    //   { headers: { 'User-Agent': 'KPB-Education-Bot/1.0 (contact@kpbeducation.cloud)' } },
     // );
     // if (!response.ok) {
     //   this.logger.warn(`AMCI returned ${response.status}`);
