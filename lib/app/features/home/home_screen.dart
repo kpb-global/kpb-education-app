@@ -152,6 +152,9 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.bookmark_border_rounded,
                       onTap: () => Get.to(() => const SavedScreen()),
                     ),
+                    _KpbIntelligenceChip(
+                      onTap: () => Get.to(() => const AiChatScreen()),
+                    ),
                     _NotifBellChip(
                       hasUnread: hasDerivedNotifications(controller),
                       onTap: () => Get.to(() => const NotificationsScreen()),
@@ -459,6 +462,45 @@ class _AppBarChip extends StatelessWidget {
             border: Border.all(color: _Palette.border),
           ),
           child: Icon(icon, size: 20, color: _Palette.slate),
+        ),
+      ),
+    );
+  }
+}
+
+/// Prominent KPB Intelligence entry button (App-engagement handoff): a filled
+/// blue circle with a white smart_toy icon, so it reads as the primary action
+/// in the header rather than a neutral chip like search/bookmark.
+class _KpbIntelligenceChip extends StatelessWidget {
+  const _KpbIntelligenceChip({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Semantics(
+        button: true,
+        label: 'coach_ai_title'.tr,
+        child: KpbPressable(
+          onTap: onTap,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _Palette.blue,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x332563EB),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.smart_toy_rounded,
+                size: 20, color: Colors.white),
+          ),
         ),
       ),
     );

@@ -553,7 +553,9 @@ class _LeaderboardCard extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
-                          color: e.rank == 1 ? _Amb.amber : _Amb.slate)),
+                          color: (e.rank == 1 || e.rank == 3)
+                              ? _Amb.amber
+                              : _Amb.slate)),
                 ),
                 _Avatar(initials: e.initials, seed: e.name, size: 30),
                 const SizedBox(width: 11),
@@ -906,16 +908,78 @@ class DottedBorderBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0x12FFFFFF),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x40FFFFFF)),
+    return CustomPaint(
+      painter: const _DashedRRectPainter(
+        color: Color(0x40FFFFFF), // rgba(255,255,255,0.25)
+        radius: 16,
+        strokeWidth: 1.5,
+        dashLength: 5,
+        gapLength: 4,
       ),
-      child: child,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0x12FFFFFF),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: child,
+      ),
     );
   }
+}
+
+/// Paints a dashed rounded-rectangle outline for [DottedBorderBox].
+class _DashedRRectPainter extends CustomPainter {
+  const _DashedRRectPainter({
+    required this.color,
+    required this.radius,
+    required this.strokeWidth,
+    required this.dashLength,
+    required this.gapLength,
+  });
+
+  final Color color;
+  final double radius;
+  final double strokeWidth;
+  final double dashLength;
+  final double gapLength;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final inset = strokeWidth / 2;
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        inset,
+        inset,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
+      Radius.circular(radius),
+    );
+
+    final source = Path()..addRRect(rrect);
+    for (final metric in source.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance += dashLength + gapLength;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedRRectPainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.radius != radius ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.dashLength != dashLength ||
+      oldDelegate.gapLength != gapLength;
 }
 
 class _TipBanner extends StatelessWidget {
