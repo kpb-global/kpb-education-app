@@ -23,6 +23,8 @@ export interface LetterPersonalizeDto {
   targetCountry?: string;
   targetInstitution?: string;
   targetScholarship?: string;
+  strengths?: string;
+  keyEvent?: string;
 }
 
 export interface InterviewQuestionsDto {
@@ -106,6 +108,8 @@ export class ToolsService {
       dto.targetCountry ? `Pays cible : ${dto.targetCountry}` : '',
       dto.targetInstitution ? `Établissement : ${dto.targetInstitution}` : '',
       dto.targetScholarship ? `Bourse visée : ${dto.targetScholarship}` : '',
+      dto.strengths ? `Points forts : ${dto.strengths}` : '',
+      dto.keyEvent ? `Événement marquant : ${dto.keyEvent}` : '',
     ]
       .filter(Boolean)
       .join('\n');

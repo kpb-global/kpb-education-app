@@ -180,6 +180,8 @@ class _LetterCard extends StatefulWidget {
 
 class _LetterCardState extends State<_LetterCard> {
   final _ctrl = Get.find<AppController>();
+  final _strengthsCtrl = TextEditingController();
+  final _eventCtrl = TextEditingController();
   bool _expanded = false;
   bool _isPersonalizing = false;
   String _personalizedFr = '';
@@ -188,6 +190,13 @@ class _LetterCardState extends State<_LetterCard> {
 
   bool get _hasPersonalized =>
       _personalizedFr.isNotEmpty || _personalizedEn.isNotEmpty;
+
+  @override
+  void dispose() {
+    _strengthsCtrl.dispose();
+    _eventCtrl.dispose();
+    super.dispose();
+  }
 
   IconData get _categoryIcon {
     switch (widget.template.category) {
@@ -229,6 +238,8 @@ class _LetterCardState extends State<_LetterCard> {
         'name': p?.fullName ?? '',
         'fieldOfStudy': field,
         'targetCountry': country,
+        'strengths': _strengthsCtrl.text.trim(),
+        'keyEvent': _eventCtrl.text.trim(),
       });
 
       if (mounted) {
@@ -377,7 +388,22 @@ class _LetterCardState extends State<_LetterCard> {
               ),
             ),
 
+            const SizedBox(height: 14),
+
+            // ── Guided inputs — fed to the AI personalize call ────────────────
+            _guidedField(
+              controller: _strengthsCtrl,
+              label: 'letters_field_strengths'.tr,
+              hint: 'letters_field_strengths_hint'.tr,
+            ),
             const SizedBox(height: 12),
+            _guidedField(
+              controller: _eventCtrl,
+              label: 'letters_field_event'.tr,
+              hint: 'letters_field_event_hint'.tr,
+            ),
+
+            const SizedBox(height: 14),
 
             // Action row — real generate/regenerate + real copy + real share
             Row(
@@ -469,6 +495,53 @@ class _LetterCardState extends State<_LetterCard> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _guidedField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: _Palette.navy,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          style: const TextStyle(fontSize: 12.5, color: _Palette.body),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle:
+                const TextStyle(fontSize: 12.5, color: _Palette.slate400),
+            filled: true,
+            fillColor: _Palette.chipBg,
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _Palette.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _Palette.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _Palette.blue, width: 1.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
