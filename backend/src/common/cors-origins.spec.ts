@@ -21,16 +21,16 @@ describe('resolveCorsOrigins', () => {
 
   it('splits comma-separated origins and trims whitespace', () => {
     process.env.CORS_ORIGINS =
-      ' https://admin.kpb-education.com , https://app.kpb-education.com ';
+      ' https://admin.kpbeducation.com , https://app.kpbeducation.com ';
     expect(resolveCorsOrigins()).toEqual([
-      'https://admin.kpb-education.com',
-      'https://app.kpb-education.com',
+      'https://admin.kpbeducation.com',
+      'https://app.kpbeducation.com',
     ]);
   });
 
   it('drops empty entries left by stray commas', () => {
-    process.env.CORS_ORIGINS = 'https://admin.kpb-education.com,,';
-    expect(resolveCorsOrigins()).toEqual(['https://admin.kpb-education.com']);
+    process.env.CORS_ORIGINS = 'https://admin.kpbeducation.com,,';
+    expect(resolveCorsOrigins()).toEqual(['https://admin.kpbeducation.com']);
   });
 
   it('falls back to localhost outside production', () => {

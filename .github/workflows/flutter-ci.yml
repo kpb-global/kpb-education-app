@@ -118,7 +118,7 @@ jobs:
         run: flutter pub get
 
       - name: Build release APK
-        # Production host is the branded domain (api.kpb-education.com/api),
+        # Production host is the branded domain (api.kpbeducation.com/api),
         # resolved from KPB_APP_ENV=prod in app_config.dart. Do not hardcode a
         # KPB_API_BASE_URL override here.
         run: flutter build apk --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292

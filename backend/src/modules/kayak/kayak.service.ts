@@ -36,7 +36,7 @@ import {
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours — Price-Insights is cached data.
 const KAYAK_PATH = '/i/api/affiliate/priceInsights/flights/v1';
 const DEFAULT_CURRENCY = 'EUR';
-const DEFAULT_USER_AGENT = 'KPB-Education/1.0 (+https://kpb-education.com)';
+const DEFAULT_USER_AGENT = 'KPB-Education/1.0 (+https://kpbeducation.com)';
 
 interface CacheEntry<T> {
   fetchedAt: number;

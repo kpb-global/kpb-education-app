@@ -30,7 +30,7 @@ export class GreatYopScraper implements ScholarshipScraper {
   private readonly LISTING_URL = 'https://greatyop.com/category/scholarships/';
   private readonly HEADERS = {
     'User-Agent':
-      'KPB-Education-Bot/1.0 (kpb-education.com; contact@kpb-education.com)',
+      'KPB-Education-Bot/1.0 (kpbeducation.com; contact@kpbeducation.com)',
     Accept: 'text/html,application/xhtml+xml',
   };
 

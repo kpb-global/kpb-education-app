@@ -37,7 +37,7 @@ export class MagicLinkMailService {
     const resendKey = process.env.RESEND_API_KEY?.trim();
     if (resendKey) {
       const from =
-        process.env.KPB_MAGIC_LINK_FROM?.trim() ?? 'KPB Education <noreply@kpb-education.com>';
+        process.env.KPB_MAGIC_LINK_FROM?.trim() ?? 'KPB Education <noreply@kpbeducation.com>';
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
