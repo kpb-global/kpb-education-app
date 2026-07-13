@@ -1,5 +1,19 @@
 version: '3.8'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Production deploy — Hostinger VPS behind the EXISTING Traefik v3.
+#
+# This box already runs a containerized Traefik (external network `traefik`)
+# that owns :80/:443 and issues Let's Encrypt certs (HTTP-01, resolver
+# `letsencrypt`). The KPB app therefore does NOT run its own nginx and does NOT
+# publish 80/443: `api` and `admin` join the shared `traefik` network and are
+# routed by host-based labels. `db` + `clamav` stay on a PRIVATE `internal`
+# network — the marketing stack (n8n/mautic/…) can never reach the PII database.
+#
+# Per-container mem_limit caps guard the shared 8 GB box: a leak in one service
+# can't OOM-kill the student-facing API. See docs/DEPLOYMENT.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
 services:
   api:
     build:
@@ -8,13 +22,16 @@ services:
     image: kpb-backend:latest
     container_name: kpb_api
     restart: always
-    ports:
-      - "127.0.0.1:3000:3000" # Expose only to localhost, let Nginx proxy it
+    # No host port: ingress is via the shared Traefik (labels below).
+    mem_limit: 768m
+    networks:
+      - traefik # reached by Traefik for api.kpbeducation.cloud
+      - internal # private link to db + clamav
     # All values come from the root .env file (see backend/.env.example).
     # No insecure defaults: a missing required secret makes the app fail loud at boot.
     environment:
       - NODE_ENV=production
-      - PORT=3000 # must match the published port above (app default is 4000)
+      - PORT=3000 # container port Traefik load-balances to (app default is 4000)
       # Timezone for scheduled reminders + date math (Node honors TZ via ICU).
       # Defaults to the primary audience zone; override in .env if needed.
       - TZ=${TZ:-Africa/Niamey}
@@ -65,7 +82,7 @@ services:
       - CLAMAV_PORT=${CLAMAV_PORT:-3310}
     volumes:
       # Persist uploaded case documents across container recreation
-      # (`docker-compose up -d --build`). Without this, the local-disk fallback
+      # (`docker compose up -d --build`). Without this, the local-disk fallback
       # lives on the container's ephemeral layer and every redeploy wipes it.
       - kpb-uploads:/app/uploads
     depends_on:
@@ -76,6 +93,16 @@ services:
         # minutes downloading signatures; uploads simply 503 (fail-closed)
         # until clamd is ready, and the rest of the API must not wait on it.
         condition: service_started
+    labels:
+      # Host-based routing through the shared Traefik. WebSockets (case chat)
+      # pass through transparently on the same router.
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.kpbapi.rule=Host(`api.kpbeducation.cloud`)"
+      - "traefik.http.routers.kpbapi.entrypoints=websecure"
+      - "traefik.http.routers.kpbapi.tls=true"
+      - "traefik.http.routers.kpbapi.tls.certresolver=letsencrypt"
+      - "traefik.http.services.kpbapi.loadbalancer.server.port=3000"
 
   # Antivirus daemon for uploaded case documents. The API streams every upload
   # to clamd (INSTREAM, port 3310) before persisting it — files never leave the
@@ -85,7 +112,10 @@ services:
     image: clamav/clamav:stable
     container_name: kpb_clamav
     restart: always
-    # No host port on purpose: only the api container talks to clamd.
+    mem_limit: 1536m
+    # Private network only: never exposed to Traefik or the marketing stack.
+    networks:
+      - internal
     volumes:
       - kpb-clamav-db:/var/lib/clamav
 
@@ -93,8 +123,11 @@ services:
     image: postgres:15-alpine
     container_name: kpb_db
     restart: always
+    mem_limit: 1g
+    networks:
+      - internal
     ports:
-      - "127.0.0.1:5432:5432" # Secure port
+      - "127.0.0.1:5432:5432" # localhost only — for pg_dump / manual psql on the VPS
     # No default credentials — compose errors if these are not set in .env.
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
@@ -109,12 +142,14 @@ services:
       retries: 5
 
   # Automated PostgreSQL backups: one gzipped pg_dump per day into ./backups
-  # (a host bind mount, so dumps survive `docker-compose down -v`), with
+  # (a host bind mount, so dumps survive `docker compose down -v`), with
   # retention. Copy ./backups off-site too — see docs/DEPLOYMENT.md.
   db-backup:
     image: postgres:15-alpine
     container_name: kpb_db_backup
     restart: always
+    networks:
+      - internal
     depends_on:
       db:
         condition: service_healthy
@@ -129,20 +164,39 @@ services:
       - ./backups:/backups
     entrypoint: ["sh", "/usr/local/bin/backup-loop.sh"]
 
-  # Admin console (Next.js standalone). Bound to localhost; put nginx in front
-  # for admin.kpb-education.com with HTTPS. The API base URL is inlined at BUILD
-  # time (NEXT_PUBLIC_*), so rebuild the image if it changes.
+  # Admin console (Next.js standalone). Routed by Traefik for
+  # admin.kpbeducation.cloud. The API base URL is inlined at BUILD time
+  # (NEXT_PUBLIC_*), so rebuild the image if it changes.
   admin:
     build:
       context: ./admin
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_KPB_API_BASE_URL: ${KPB_ADMIN_API_BASE_URL:-https://api.kpb-education.com/api}
+        NEXT_PUBLIC_KPB_API_BASE_URL: ${KPB_ADMIN_API_BASE_URL:-https://api.kpbeducation.cloud/api}
     image: kpb-admin:latest
     container_name: kpb_admin
     restart: always
-    ports:
-      - "127.0.0.1:3001:3000" # Expose only to localhost, let Nginx proxy it
+    mem_limit: 384m
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.kpbadmin.rule=Host(`admin.kpbeducation.cloud`)"
+      - "traefik.http.routers.kpbadmin.entrypoints=websecure"
+      - "traefik.http.routers.kpbadmin.tls=true"
+      - "traefik.http.routers.kpbadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.kpbadmin.loadbalancer.server.port=3000"
+
+networks:
+  # The shared edge network created by the existing Traefik stack. It must
+  # already exist:  docker network create traefik  (or it is created by the
+  # marketing compose). `external: true` = we attach, we don't own it.
+  traefik:
+    external: true
+  # Private network for the app's own data plane (api ↔ db ↔ clamav).
+  internal:
+    driver: bridge
 
 volumes:
   kpb-db-data:

@@ -19,7 +19,7 @@ Resolved in [`lib/app/core/config/app_config.dart`](../lib/app/core/config/app_c
 |---------------|----------|
 | `dev` | `http://127.0.0.1:4000/api` |
 | `staging` | `https://api.vps-planethoster.com/api` (adjust in code or always use `KPB_API_BASE_URL` for your real staging host) |
-| `prod` | `https://api.kpb-education.com/api` |
+| `prod` | `https://api.kpbeducation.cloud/api` |
 
 **Examples**
 
