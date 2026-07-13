@@ -134,7 +134,7 @@ export default function ReportsPage() {
   }, [session]);
 
   return (
-    <DashboardShell title={t('reports.title')}>
+    <DashboardShell title={t('reports.title')} subtitle={t('reports.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 

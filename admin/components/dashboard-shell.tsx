@@ -78,9 +78,13 @@ function initialsOf(fullName: string): string {
 
 export function DashboardShell({
   title,
+  subtitle,
   children,
 }: Readonly<{
   title: string;
+  /** Optional per-page contextual line under the title. Falls back to the
+   *  generic shell.description when omitted. */
+  subtitle?: string;
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
@@ -320,7 +324,7 @@ export function DashboardShell({
           {title}
         </h2>
         <p style={{ marginTop: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
-          {t('shell.description')}
+          {subtitle ?? t('shell.description')}
         </p>
         {children}
       </main>
