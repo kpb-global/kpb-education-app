@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Production deploy — Hostinger VPS behind the EXISTING Traefik v3.
 #
@@ -187,6 +185,35 @@ services:
       - "traefik.http.routers.kpbadmin.tls=true"
       - "traefik.http.routers.kpbadmin.tls.certresolver=letsencrypt"
       - "traefik.http.services.kpbadmin.loadbalancer.server.port=3000"
+
+  # One-off catalog/admin seeder — NOT started by `up` (gated by the `seed`
+  # profile). Run it manually after the first boot:
+  #   docker compose --profile seed run --rm seed
+  # It builds the Dockerfile `builder` stage (which keeps src/ + ts-node) since
+  # the slim runtime image ships only dist/ and can't run the ts-node seeds.
+  # Runs the base seed (fields, sample admins with printed temp passwords) then
+  # the full catalog (seed:catalog = countries-m5 + OMNES + partners + unique).
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder
+    image: kpb-seed:latest
+    profiles: ["seed"]
+    restart: "no"
+    env_file: .env
+    environment:
+      # Composed here because .env holds POSTGRES_* but not a full DATABASE_URL.
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-kpb}?schema=public
+    command: sh -c "npm run prisma:seed && npm run seed:catalog && npm run verify:catalog"
+    volumes:
+      # Some seed code reads a .env FILE (not just env vars); mount it read-only.
+      - ./.env:/app/.env:ro
+    networks:
+      - internal
+    depends_on:
+      db:
+        condition: service_healthy
 
 networks:
   # The shared edge network created by the existing Traefik stack. It must

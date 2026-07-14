@@ -31,9 +31,13 @@ docker network create traefik
 # 4. Build + up (rejoint le Traefik existant, ne touche pas n8n/Mautic)
 docker compose up -d --build
 
-# 5. Migrations + seed (première fois)
-docker compose exec api npx prisma migrate deploy
-docker compose exec api npm run prisma:seed        # pays actifs + catalogue
+# 5. Migrations : jouées automatiquement au boot de l'API (prisma migrate deploy).
+#    Seed (première fois) via le service dédié `seed` (profil, ne tourne pas au up).
+#    Il fait le seed de base (admins → mots de passe TEMPORAIRES imprimés UNE fois)
+#    puis le catalogue complet (countries-m5 + OMNES + partenaires + unique) :
+docker compose --profile seed run --rm seed
+#    ⚠️ Note bien les mots de passe admin affichés — non rejouables (re-seeder
+#    n'écrase jamais un mot de passe existant).
 
 # 6. Vérifs
 curl -fsS https://api.kpbeducation.cloud/api/health        # 200 attendu
