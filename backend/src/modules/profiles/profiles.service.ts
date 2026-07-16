@@ -34,6 +34,8 @@ export class ProfilesService {
     // the canada->can / france->fra remap so coach targeting + UI resolve them.
     targetCountryIds: ['can', 'fra'],
     gradeRange: '12 - 14/20',
+    annualTuitionBudgetEur: 7500,
+    preferredCurrency: 'XOF',
     wantsScholarshipSupport: true,
     availableDocuments: ['Passport', 'Transcripts'],
     updatedAt: new Date().toISOString(),
@@ -75,6 +77,12 @@ export class ProfilesService {
           ...(input.gradeRange ? { gradeRange: input.gradeRange } : {}),
           ...(input.monthlyBudgetEur !== undefined
             ? { monthlyBudgetEur: input.monthlyBudgetEur }
+            : {}),
+          ...(input.annualTuitionBudgetEur !== undefined
+            ? { annualTuitionBudgetEur: input.annualTuitionBudgetEur }
+            : {}),
+          ...(input.preferredCurrency
+            ? { preferredCurrency: input.preferredCurrency }
             : {}),
           ...(input.wantsScholarshipSupport !== undefined
             ? { wantsScholarship: input.wantsScholarshipSupport }
@@ -328,7 +336,9 @@ export class ProfilesService {
       targetLevel: p.targetLevel,
       languageLevel: p.languageLevel,
       gradeRange: p.gradeRange,
+      annualTuitionBudgetEur: p.annualTuitionBudgetEur,
       monthlyBudgetEur: p.monthlyBudgetEur,
+      preferredCurrency: p.preferredCurrency,
       wantsScholarshipSupport: p.wantsScholarship,
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,

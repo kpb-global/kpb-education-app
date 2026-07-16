@@ -100,6 +100,13 @@ import { ReferralsController } from './modules/referrals/referrals.controller';
 import { ReferralsService } from './modules/referrals/referrals.service';
 import { AdminScholarshipsController, ScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
 import { ScholarshipsIndexService } from './modules/scholarships-index/scholarships-index.service';
+import { ScholarshipAlertsController } from './modules/scholarships-index/scholarship-alerts.controller';
+import { ScholarshipAlertsService } from './modules/scholarships-index/scholarship-alerts.service';
+import { ScholarshipLifecycleService } from './modules/scholarships-index/scholarship-lifecycle.service';
+import { ScholarshipContentQualityService } from './modules/scholarships-index/scholarship-content-quality.service';
+import { ScholarshipVideosService } from './modules/scholarships-index/scholarship-videos.service';
+import { UserNotificationsController } from './modules/scholarships-index/user-notifications.controller';
+import { UserNotificationsService } from './modules/scholarships-index/user-notifications.service';
 import { GreatYopScraper } from './modules/scholarships-index/scrapers/greatyop.scraper';
 import { MastereTnScraper } from './modules/scholarships-index/scrapers/mastereTn.scraper';
 import { VisaAvailabilityController } from './modules/visa-availability/visa-availability.controller';
@@ -189,6 +196,8 @@ import { SalonService } from './modules/salon/salon.service';
     ReferralsController,
     AdminScholarshipsController,
     ScholarshipsController,
+    ScholarshipAlertsController,
+    UserNotificationsController,
     VisaAvailabilityController,
     ServicePackagesController,
     MyPurchasesController,
@@ -259,6 +268,11 @@ import { SalonService } from './modules/salon/salon.service';
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,
     ScholarshipsIndexService,
+    ScholarshipAlertsService,
+    ScholarshipLifecycleService,
+    ScholarshipContentQualityService,
+    ScholarshipVideosService,
+    UserNotificationsService,
     GreatYopScraper,
     MastereTnScraper,
     VisaAvailabilityService,

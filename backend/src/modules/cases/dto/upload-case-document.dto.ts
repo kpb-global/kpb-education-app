@@ -1,11 +1,7 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsString, MaxLength } from 'class-validator';
 
 export class UploadCaseDocumentDto {
   @IsString()
   @MaxLength(120)
   title!: string;
-
-  @IsOptional()
-  @IsString()
-  fileUrl?: string;
 }

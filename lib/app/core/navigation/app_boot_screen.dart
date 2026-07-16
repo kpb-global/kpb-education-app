@@ -4,11 +4,10 @@ import 'package:get/get.dart';
 import '../controllers/app_controller.dart';
 import '../services/auth_service.dart';
 import '../../features/auth/auth_welcome_screen.dart';
-import '../../features/onboarding/intro_slideshow_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/shell/app_root_shell.dart';
 
-/// Resolves the first screen after app bootstrap based on intro/auth/onboarding state.
+/// Resolves the first screen after app bootstrap based on auth/onboarding state.
 class AppBootScreen extends StatelessWidget {
   const AppBootScreen({super.key});
 
@@ -18,10 +17,6 @@ class AppBootScreen extends StatelessWidget {
       builder: (controller) {
         if (controller.hasCompletedOnboarding || controller.isGuestMode) {
           return const AppRootShell();
-        }
-
-        if (!controller.hasSeenIntro) {
-          return const IntroSlideshowScreen();
         }
 
         final authService =

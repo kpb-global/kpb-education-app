@@ -3,15 +3,18 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
+  Res,
   Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { StorageService } from '../storage/storage.service';
@@ -39,6 +42,44 @@ export class CasesController {
   @Get()
   findAll(@Req() req: any) {
     return this.casesService.findAll(req.studentUser.id);
+  }
+
+  @Get(':id/documents/:documentId/file')
+  async downloadDocument(
+    @Param('id') id: string,
+    @Param('documentId') documentId: string,
+    @Req() req: any,
+    @Res() response: Response,
+  ): Promise<void> {
+    const document = await this.casesService.getOwnedDocument(
+      id,
+      documentId,
+      req.studentUser.id,
+    );
+    const key = this.storageService.keyFromUrl(document.fileUrl);
+    if (!key) {
+      throw new NotFoundException('Document not found.');
+    }
+    const object = await this.storageService.getObject(key);
+    if (!object) {
+      throw new NotFoundException('Document not found.');
+    }
+
+    response.setHeader('Content-Type', object.mimeType);
+    response.setHeader('Content-Disposition', 'attachment');
+    response.setHeader('Cache-Control', 'private, no-store');
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    if (object.sizeBytes !== undefined) {
+      response.setHeader('Content-Length', object.sizeBytes.toString());
+    }
+    object.stream.on('error', () => {
+      if (!response.headersSent) {
+        response.status(503).end();
+      } else {
+        response.destroy();
+      }
+    });
+    object.stream.pipe(response);
   }
 
   @Get(':id')
@@ -80,12 +121,13 @@ export class CasesController {
   }
 
   @Post(':id/documents')
-  registerDocument(
-    @Param('id') id: string,
-    @Body() input: UploadCaseDocumentDto,
-    @Req() req: any,
-  ) {
-    return this.casesService.uploadDocument(id, input, req.studentUser.id);
+  registerDocument() {
+    // This legacy JSON endpoint used to accept a client-provided file URL.
+    // A document can now be marked provided only by the validated multipart
+    // route below, which is the sole code path allowed to write a file URL.
+    throw new BadRequestException(
+      'Use the multipart /documents/upload endpoint to provide a document.',
+    );
   }
 
   @Post(':id/documents/upload')
@@ -99,11 +141,6 @@ export class CasesController {
     if (!file) {
       throw new BadRequestException('File is required under field "file".');
     }
-    if (!this.storageService.isAllowedMime(file.mimetype)) {
-      throw new BadRequestException(
-        `Unsupported file type: ${file.mimetype}. Allowed: PDF, JPEG, PNG, HEIC, WebP.`,
-      );
-    }
     const stored = await this.storageService.save(
       file.buffer,
       file.originalname,
@@ -113,9 +150,9 @@ export class CasesController {
       id,
       {
         title: input.title || file.originalname,
-        fileUrl: stored.url,
       },
       req.studentUser.id,
+      stored.url,
     );
   }
 }

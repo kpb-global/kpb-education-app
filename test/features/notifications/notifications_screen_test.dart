@@ -1,9 +1,8 @@
-// Smoke tests for the HONEST net-new Notifications center (App-engagement PR10).
+// Smoke tests for the Notifications center.
 //
-// The list is DERIVED live from the real StudentCase list — never a stored
-// feed. Only two real sources feed it: a student-action-status case ("Action
-// needed" → CaseDetailScreen) and a rejected case ("Decision received" →
-// PostDecisionScreen). When no case qualifies, an honest empty state shows.
+// It combines durable scholarship-opening notifications with rows derived from
+// real StudentCase state. When neither source has content, an honest empty
+// state shows.
 // Translations aren't wired here, so `.tr` yields the raw key and assertions
 // use keys.
 //
@@ -11,6 +10,7 @@
 //   flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/models/app_models.dart';
@@ -46,7 +46,7 @@ StudentCase _case({
 }
 
 void main() {
-  group('NotificationsScreen (honest, live-derived)', () {
+  group('NotificationsScreen', () {
     setUp(resetGetxSingleton);
     tearDown(() {
       AppConfig.enableRemoteSyncOverride = null;
@@ -133,6 +133,43 @@ void main() {
       // The real push control is still offered.
       expect(find.text('notifications_push_section'), findsOneWidget);
 
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('renders a durable scholarship-opening notification',
+        (tester) async {
+      final api = MockApiClient();
+      when(() => api.fetchUserNotifications(any())).thenAnswer(
+        (_) async => <String, dynamic>{
+          'items': <dynamic>[
+            <String, dynamic>{
+              'id': 'notif-1',
+              'kind': 'scholarship_opened',
+              'title': 'La bourse Chevening est ouverte',
+              'body': 'Les candidatures sont ouvertes.',
+              'route': '/scholarships',
+              'readAt': null,
+              'createdAt': '2026-07-16T10:00:00.000Z',
+            },
+          ],
+          'unreadCount': 1,
+        },
+      );
+
+      await pumpTestApp(
+        tester,
+        child: const NotificationsScreen(),
+        mockApiClient: api,
+        initialSnapshot: AppSnapshot(
+          localeCode: 'fr',
+          hasCompletedOnboarding: true,
+          profile: createTestProfile(preferredLanguage: 'fr'),
+        ),
+      );
+
+      expect(find.text('La bourse Chevening est ouverte'), findsOneWidget);
+      expect(find.text('Les candidatures sont ouvertes.'), findsOneWidget);
+      expect(find.text('notifications_empty_title'), findsNothing);
       expect(tester.takeException(), isNull);
     });
   });

@@ -757,6 +757,7 @@ class LiveScholarshipModel {
     required this.description,
     required this.advantages,
     required this.eligibility,
+    this.keyRequirements = const [],
     required this.level,
     required this.deadlineLabel,
     this.deadlineAt,
@@ -764,7 +765,10 @@ class LiveScholarshipModel {
     this.sourceUrl,
     required this.tags,
     required this.matchScore,
+    this.currentCycle,
     this.applicationSteps = const [],
+    this.videos = const [],
+    this.isAlertEnabled,
   });
 
   final String id;
@@ -775,6 +779,7 @@ class LiveScholarshipModel {
   final String description;
   final List<String> advantages;
   final List<String> eligibility;
+  final List<String> keyRequirements;
   final String level;
   final String deadlineLabel;
   final DateTime? deadlineAt;
@@ -782,13 +787,23 @@ class LiveScholarshipModel {
   final String? sourceUrl;
   final List<String> tags;
   final int matchScore;
+  final ScholarshipCycleModel? currentCycle;
   final List<ScholarshipApplicationStepModel> applicationSteps;
+  final List<ScholarshipVideoModel> videos;
+  final bool? isAlertEnabled;
 
   bool get isFullyFunded => fundingType == 'fully_funded';
   bool get isPartiallyFunded => fundingType == 'partially_funded';
   bool get isAutomaticAdmission => applicationRequirement == 'automatic';
 
   factory LiveScholarshipModel.fromJson(Map<String, dynamic> json) {
+    final rawAlert = json['alert'];
+    final isAlertEnabled = json['isAlertEnabled'] is bool
+        ? json['isAlertEnabled'] as bool
+        : rawAlert is Map && rawAlert['subscribed'] is bool
+            ? rawAlert['subscribed'] as bool
+            : null;
+
     return LiveScholarshipModel(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
@@ -800,6 +815,8 @@ class LiveScholarshipModel {
       advantages: (json['advantages'] as List<dynamic>?)?.cast<String>() ?? [],
       eligibility:
           (json['eligibility'] as List<dynamic>?)?.cast<String>() ?? [],
+      keyRequirements:
+          (json['keyRequirements'] as List<dynamic>?)?.cast<String>() ?? [],
       level: json['level'] as String? ?? '',
       deadlineLabel: json['deadlineLabel'] as String? ?? '',
       deadlineAt: json['deadlineAt'] != null
@@ -809,11 +826,190 @@ class LiveScholarshipModel {
       sourceUrl: json['sourceUrl'] as String?,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
       matchScore: json['matchScore'] as int? ?? 0,
+      currentCycle: json['currentCycle'] is Map<String, dynamic>
+          ? ScholarshipCycleModel.fromJson(
+              json['currentCycle'] as Map<String, dynamic>)
+          : null,
       applicationSteps: (json['applicationSteps'] as List<dynamic>?)
               ?.map((e) => ScholarshipApplicationStepModel.fromJson(
                   e as Map<String, dynamic>))
               .toList() ??
           [],
+      videos: (() {
+        final videos = (json['videos'] as List<dynamic>?)
+                ?.whereType<Map>()
+                .map((e) => ScholarshipVideoModel.fromJson(
+                      Map<String, dynamic>.from(e),
+                    ))
+                .where((video) => video.youtubeVideoId.isNotEmpty)
+                .toList() ??
+            <ScholarshipVideoModel>[];
+        // List responses expose only one `featuredVideo`; detail responses
+        // expose the complete `videos` array. Preserve the list preview as a
+        // useful initial detail while the full record is loading.
+        if (videos.isEmpty && json['featuredVideo'] is Map) {
+          final featured = ScholarshipVideoModel.fromJson(
+            Map<String, dynamic>.from(json['featuredVideo'] as Map),
+          );
+          if (featured.youtubeVideoId.isNotEmpty) videos.add(featured);
+        }
+        videos.sort((a, b) {
+          if (a.isFeatured != b.isFeatured) return a.isFeatured ? -1 : 1;
+          return a.displayOrder.compareTo(b.displayOrder);
+        });
+        return videos;
+      })(),
+      isAlertEnabled: isAlertEnabled,
+    );
+  }
+}
+
+/// Optional YouTube explanation attached to a live scholarship.
+///
+/// The parser deliberately accepts both the target scholarship-video contract
+/// (`youtubeVideoId`) and older/general YouTube shapes (`videoId`, `youtubeId`,
+/// or a URL). That lets the mobile release ship before the backend migration
+/// without making video support a hard dependency for scholarship details.
+class ScholarshipVideoModel {
+  const ScholarshipVideoModel({
+    required this.id,
+    required this.youtubeVideoId,
+    required this.title,
+    required this.description,
+    required this.thumbnailUrl,
+    required this.language,
+    required this.displayOrder,
+    required this.durationSeconds,
+    required this.isFeatured,
+    required this.watchUrl,
+    required this.shareUrl,
+  });
+
+  final String id;
+  final String youtubeVideoId;
+  final String title;
+  final String description;
+  final String thumbnailUrl;
+  final String language;
+  final int displayOrder;
+  final int? durationSeconds;
+  final bool isFeatured;
+  final String watchUrl;
+  final String shareUrl;
+
+  String get effectiveThumbnailUrl => thumbnailUrl.trim().isNotEmpty
+      ? thumbnailUrl.trim()
+      : 'https://img.youtube.com/vi/$youtubeVideoId/hqdefault.jpg';
+
+  factory ScholarshipVideoModel.fromJson(Map<String, dynamic> json) {
+    String firstString(Iterable<String> keys) {
+      for (final key in keys) {
+        final value = json[key];
+        if (value is String && value.trim().isNotEmpty) return value.trim();
+      }
+      return '';
+    }
+
+    final rawId = firstString(const [
+      'youtubeVideoId',
+      'videoId',
+      'youtubeId',
+      'youtubeUrl',
+      'url',
+      'watchUrl',
+      'shareUrl',
+    ]);
+
+    return ScholarshipVideoModel(
+      id: firstString(const ['id']),
+      youtubeVideoId: _extractYoutubeVideoId(rawId),
+      title: firstString(const ['title', 'titleFr', 'titleEn']),
+      description:
+          firstString(const ['description', 'descriptionFr', 'descriptionEn']),
+      thumbnailUrl: firstString(const ['thumbnailUrl', 'thumbnail']),
+      language: firstString(const ['languageCode', 'language', 'lang']).isEmpty
+          ? 'fr'
+          : firstString(const ['languageCode', 'language', 'lang']),
+      displayOrder: json['displayOrder'] is num
+          ? (json['displayOrder'] as num).toInt()
+          : (json['position'] is num ? (json['position'] as num).toInt() : 0),
+      durationSeconds: json['durationSeconds'] is num
+          ? (json['durationSeconds'] as num).toInt()
+          : null,
+      isFeatured: json['isFeatured'] == true,
+      watchUrl: firstString(const ['watchUrl']),
+      shareUrl: firstString(const ['shareUrl']),
+    );
+  }
+
+  static String _extractYoutubeVideoId(String value) {
+    final raw = value.trim();
+    if (RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(raw)) return raw;
+    final uri = Uri.tryParse(raw);
+    if (uri == null) return '';
+    final host = uri.host.toLowerCase();
+    if (host == 'youtu.be' || host.endsWith('.youtu.be')) {
+      final segment = uri.pathSegments.isEmpty ? '' : uri.pathSegments.first;
+      return RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(segment) ? segment : '';
+    }
+    if (host == 'youtube.com' || host.endsWith('.youtube.com')) {
+      final queryId = uri.queryParameters['v'] ?? '';
+      if (RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(queryId)) return queryId;
+      final segments = uri.pathSegments;
+      final markerIndex = segments.indexWhere(
+        (segment) =>
+            segment == 'embed' || segment == 'shorts' || segment == 'live',
+      );
+      if (markerIndex >= 0 && markerIndex + 1 < segments.length) {
+        final segment = segments[markerIndex + 1];
+        return RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(segment) ? segment : '';
+      }
+    }
+    return '';
+  }
+}
+
+/// One annual application window. Estimated dates remain visibly distinct
+/// from admin-confirmed opening and closing dates.
+class ScholarshipCycleModel {
+  const ScholarshipCycleModel({
+    required this.id,
+    required this.academicYear,
+    required this.status,
+    required this.dateConfidence,
+    this.estimatedOpenAt,
+    this.estimatedCloseAt,
+    this.opensAt,
+    this.closesAt,
+  });
+
+  final String id;
+  final String academicYear;
+  final String status;
+  final String dateConfidence;
+  final DateTime? estimatedOpenAt;
+  final DateTime? estimatedCloseAt;
+  final DateTime? opensAt;
+  final DateTime? closesAt;
+
+  bool get isOpen => status == 'open';
+  bool get isEstimated => dateConfidence == 'estimated';
+
+  factory ScholarshipCycleModel.fromJson(Map<String, dynamic> json) {
+    DateTime? parse(String key) {
+      final raw = json[key];
+      return raw is String ? DateTime.tryParse(raw) : null;
+    }
+
+    return ScholarshipCycleModel(
+      id: json['id'] as String? ?? '',
+      academicYear: json['academicYear'] as String? ?? '',
+      status: json['status'] as String? ?? 'forecast',
+      dateConfidence: json['dateConfidence'] as String? ?? 'estimated',
+      estimatedOpenAt: parse('estimatedOpenAt'),
+      estimatedCloseAt: parse('estimatedCloseAt'),
+      opensAt: parse('opensAt'),
+      closesAt: parse('closesAt'),
     );
   }
 }

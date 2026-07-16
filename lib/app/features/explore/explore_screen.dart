@@ -7,6 +7,7 @@ import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/study_level.dart';
+import '../../core/utils/tuition_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../compare/institution_compare_screen.dart';
 import 'country_detail_screen.dart';
@@ -589,6 +590,7 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       level:
                           programLevelLabel(controller.resolve(program.level)),
                       tuition: controller.resolve(program.tuition),
+                      currencyCode: controller.profile?.preferredCurrency,
                       language: controller.resolve(program.language),
                       duration: controller.resolve(program.duration),
                       campusCount: program.campusOfferings.length,
@@ -617,6 +619,7 @@ class _ProgramCard extends StatelessWidget {
     required this.institution,
     required this.level,
     required this.tuition,
+    required this.currencyCode,
     required this.language,
     required this.duration,
     required this.flag,
@@ -631,6 +634,7 @@ class _ProgramCard extends StatelessWidget {
   final String? institution;
   final String level;
   final String tuition;
+  final String? currencyCode;
   final String language;
   final String duration;
   final String flag;
@@ -645,6 +649,10 @@ class _ProgramCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayedTuition = TuitionUtils.displayFromTuition(
+      tuition,
+      currencyCode,
+    );
     return KpbCard(
       onTap: onTap,
       child: Row(
@@ -694,7 +702,9 @@ class _ProgramCard extends StatelessWidget {
                     KpbBadgeLight(label: duration),
                     KpbBadgeLight(label: language),
                     KpbBadgeLight(
-                      label: tuition,
+                      label: displayedTuition.isNotEmpty
+                          ? displayedTuition
+                          : tuition,
                       bgColor: KpbColors.goldLight,
                       textColor: KpbColors.gold,
                     ),

@@ -1,6 +1,8 @@
+import 'currency_utils.dart';
+
 /// Parses annual tuition amounts from localized catalog strings.
 abstract final class TuitionUtils {
-  static const fcfaPerEur = 655;
+  static const fcfaPerEur = CurrencyUtils.xofPerEur;
 
   /// Extracts the first integer amount from a tuition label (EUR assumed).
   static int? parseEurAnnual(String tuition) {
@@ -10,17 +12,25 @@ abstract final class TuitionUtils {
     return int.tryParse(digits);
   }
 
-  static String formatFcfaEstimate(int eur) {
-    final fcfa = (eur * fcfaPerEur).toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]} ',
-        );
-    return '~ $fcfa FCFA/an';
+  static String formatTuition(
+    int eur,
+    String? currencyCode, {
+    bool approximate = true,
+  }) {
+    return CurrencyUtils.formatEur(
+      eur,
+      currencyCode,
+      approximate: approximate,
+    );
   }
 
-  static String fcfaSuffixFromTuition(String tuition) {
+  static String displayFromTuition(String tuition, String? currencyCode) {
     final amount = parseEurAnnual(tuition);
     if (amount == null) return '';
-    return formatFcfaEstimate(amount);
+    return formatTuition(amount, currencyCode);
   }
+
+  @Deprecated('Use displayFromTuition with the profile currency.')
+  static String fcfaSuffixFromTuition(String tuition) =>
+      displayFromTuition(tuition, DisplayCurrency.xof.code);
 }

@@ -142,7 +142,7 @@ export class MatchesService {
           gradeRange: true,
           languageLevel: true,
           targetLevel: true,
-          monthlyBudgetEur: true,
+          annualTuitionBudgetEur: true,
           fieldIds: true,
           targetCountryIds: true,
         },

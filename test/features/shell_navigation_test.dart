@@ -45,6 +45,61 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('keeps every tab label visible in the source-design order',
+        (tester) async {
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(),
+      );
+
+      await pumpTestApp(
+        tester,
+        child: const AppShell(),
+        initialSnapshot: snapshot,
+      );
+
+      for (final tabKey in const [
+        'kpb_nav_home',
+        'kpb_nav_universities',
+        'kpb_nav_scholarships',
+        'kpb_nav_cases',
+        'kpb_nav_profile',
+      ]) {
+        expect(
+          find.descendant(
+            of: find.byKey(ValueKey(tabKey)),
+            matching: find.byType(Text),
+          ),
+          findsOneWidget,
+        );
+      }
+
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('kpb_nav_home'))).dx,
+        lessThan(
+          tester
+              .getCenter(find.byKey(const ValueKey('kpb_nav_universities')))
+              .dx,
+        ),
+      );
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('kpb_nav_universities'))).dx,
+        lessThan(
+          tester
+              .getCenter(find.byKey(const ValueKey('kpb_nav_scholarships')))
+              .dx,
+        ),
+      );
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('kpb_nav_scholarships'))).dx,
+        lessThan(
+          tester.getCenter(find.byKey(const ValueKey('kpb_nav_cases'))).dx,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('starts on Home tab (index 0)', (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
@@ -66,7 +121,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('navigates to Destinations tab when tapped (index 1)',
+    testWidgets('navigates to Scholarships tab when tapped (index 1)',
         (tester) async {
       final profile = createTestProfile();
       final snapshot = AppSnapshot(
@@ -81,10 +136,13 @@ void main() {
         initialSnapshot: snapshot,
       );
 
-      // Tap Destinations (second tab) — scope to nav bar so page icons don't match.
+      // Tap Scholarships — scope to nav bar so page icons don't match.
       final bar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       await tester.tap(
-        find.descendant(of: bar, matching: find.byIcon(Icons.public_outlined)),
+        find.descendant(
+          of: bar,
+          matching: find.byIcon(Icons.notifications_none_rounded),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -162,7 +220,7 @@ void main() {
 
       final controller = Get.find<AppController>();
 
-      // Switch to Destinations (index 1)
+      // Switch to Scholarships (index 1)
       controller.goToTab(1);
       await tester.pumpAndSettle();
       expect(controller.shellIndex, equals(1));
@@ -316,7 +374,7 @@ void main() {
       final navBar = find.byKey(const ValueKey('kpb_shell_nav_bar'));
       expect(navBar, findsOneWidget);
       final container = tester.widget<Container>(navBar);
-      expect(container.constraints!.maxHeight, equals(68));
+      expect(container.constraints!.maxHeight, equals(62));
     });
   });
 }

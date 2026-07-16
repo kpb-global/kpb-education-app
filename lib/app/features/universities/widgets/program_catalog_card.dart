@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/controllers/app_controller.dart';
 import '../../../core/ui/kpb_components.dart';
 import '../../../core/utils/tuition_utils.dart';
 
@@ -35,7 +36,10 @@ class ProgramCatalogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fcfa = TuitionUtils.fcfaSuffixFromTuition(tuition);
+    final displayedTuition = TuitionUtils.displayFromTuition(
+      tuition,
+      Get.find<AppController>().profile?.preferredCurrency,
+    );
 
     return KpbCard(
       onTap: onTap,
@@ -78,16 +82,12 @@ class ProgramCatalogCard extends StatelessWidget {
                     KpbBadgeLight(label: duration),
                     KpbBadgeLight(label: language),
                     KpbBadgeLight(
-                      label: tuition,
+                      label: displayedTuition.isNotEmpty
+                          ? displayedTuition
+                          : tuition,
                       bgColor: KpbColors.goldLight,
                       textColor: KpbColors.gold,
                     ),
-                    if (fcfa.isNotEmpty)
-                      KpbBadgeLight(
-                        label: fcfa,
-                        bgColor: context.kpb.surfaceBg,
-                        textColor: context.kpb.textSecondary,
-                      ),
                   ],
                 ),
                 const SizedBox(height: 10),

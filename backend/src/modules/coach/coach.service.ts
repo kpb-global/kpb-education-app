@@ -195,6 +195,8 @@ export class CoachService {
         const system = buildCoachSystemPrompt({
           currentLevel: params.profile.currentLevel as string | undefined,
           targetCountryIds: params.profile.targetCountryIds as string[] | undefined,
+          annualTuitionBudgetEur:
+            params.profile.annualTuitionBudgetEur as number | undefined,
           monthlyBudgetEur: params.profile.monthlyBudgetEur as number | undefined,
           verifiedContext,
           language: lang,

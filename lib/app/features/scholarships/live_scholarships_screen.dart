@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
-import '../cases/case_composer_sheet.dart';
-import 'widgets/application_steps_timeline.dart';
+import 'scholarship_detail_screen.dart';
+import 'scholarship_guide_info_screen.dart';
+import 'scholarships_controller.dart';
+import 'widgets/scholarship_alert_button.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Palette (App-engagement handoff · "Scholarships" / "Fiche bourse").
@@ -18,7 +20,6 @@ class _Palette {
   static const blue = Color(0xFF2563EB);
   static const slate = Color(0xFF64748B);
   static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
   static const border = Color(0xFFE2E8F0);
   static const line = Color(0xFFF1F5F9);
   static const lineSoft = Color(0xFFF8FAFC);
@@ -85,6 +86,54 @@ const _flagMap = <String, String>{
 
 String _flag(String country) => _flagMap[country] ?? '🌍';
 
+String _shortDate(DateTime date) {
+  final local = date.toLocal();
+  final day = local.day.toString().padLeft(2, '0');
+  final month = local.month.toString().padLeft(2, '0');
+  return '$day/$month/${local.year}';
+}
+
+(String, Color, Color)? _cyclePill(LiveScholarshipModel scholarship) {
+  final cycle = scholarship.currentCycle;
+  if (cycle == null) return null;
+  if (cycle.isOpen) {
+    final closing = cycle.closesAt ?? cycle.estimatedCloseAt;
+    if (closing != null && closing.isBefore(DateTime.now())) {
+      return (
+        'live_scholarships_deadline_closed'.tr,
+        _Palette.line,
+        _Palette.slate,
+      );
+    }
+    return (
+      'live_scholarships_open_now'.tr,
+      _Palette.greenBg,
+      _Palette.green,
+    );
+  }
+  final estimatedOpen = cycle.estimatedOpenAt ?? cycle.opensAt;
+  final estimatedClose = cycle.estimatedCloseAt ?? cycle.closesAt;
+  if (estimatedOpen != null && estimatedClose != null) {
+    return (
+      'live_scholarships_period_estimated'.trParams({
+        'open': _shortDate(estimatedOpen),
+        'close': _shortDate(estimatedClose),
+      }),
+      _Palette.amberBg,
+      _Palette.amber,
+    );
+  }
+  if (estimatedOpen != null) {
+    return (
+      'live_scholarships_open_estimated'
+          .trParams({'date': _shortDate(estimatedOpen)}),
+      _Palette.amberBg,
+      _Palette.amber,
+    );
+  }
+  return null;
+}
+
 // ── Real-data helpers ──────────────────────────────────────────────────────
 
 /// Countdown badge derived from the REAL [LiveScholarshipModel.deadlineAt].
@@ -140,31 +189,6 @@ _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
   );
 }
 
-/// Color-coded application-requirement chip — bound to the real
-/// [applicationRequirement] (there is no per-scholarship eligibility verdict to
-/// bind, so we surface this real categorical instead of inventing one).
-(Color, Color, String) _requirementChip(LiveScholarshipModel s) {
-  if (s.isAutomaticAdmission) {
-    return (
-      _Palette.greenBg,
-      _Palette.green,
-      'live_scholarships_requirement_automatic'.tr
-    );
-  }
-  return (
-    _Palette.chipBg,
-    _Palette.blue,
-    'live_scholarships_requirement_separate_application'.tr
-  );
-}
-
-Future<void> _launchUrl(String url) async {
-  final uri = Uri.tryParse(url);
-  if (uri != null && await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-}
-
 /// Live scholarship index screen — fetches from the scraped /scholarships API.
 /// Displays scholarships filtered and ranked by the user's profile.
 class LiveScholarshipsScreen extends StatefulWidget {
@@ -178,51 +202,53 @@ class LiveScholarshipsScreen extends StatefulWidget {
 }
 
 class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
-  List<LiveScholarshipModel> _items = [];
-  bool _loading = true;
-  String? _error;
-  String _fundingFilter = 'all';
+  late final ScholarshipsController _scholarshipsController;
+  final ScrollController _paginationController = ScrollController();
+
+  List<LiveScholarshipModel> get _items => _scholarshipsController.items;
+  bool get _loading => _scholarshipsController.loading;
+  String? get _error => _scholarshipsController.error;
+  String get _fundingFilter => _scholarshipsController.fundingFilter;
+  Set<String> get _alertedScholarshipIds =>
+      _scholarshipsController.alertedScholarshipIds;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    final appController = Get.find<AppController>();
+    final profile = appController.profile;
+    _scholarshipsController = ScholarshipsController(
+      apiClient: widget.apiClient ?? appController.apiClient,
+      lang: profile?.preferredLanguage == 'en' ? 'en' : 'fr',
+      level: profile?.targetLevel,
+      fieldIds: profile?.fieldIds,
+    )..addListener(_onScholarshipsChanged);
+    _paginationController.addListener(_onScroll);
+    _scholarshipsController.loadInitial();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final controller = Get.find<AppController>();
-      final profile = controller.profile;
-      final lang = profile?.preferredLanguage ?? 'fr';
-      final client = widget.apiClient ?? AppApiClient();
-      final raw = await client.fetchLiveScholarships(
-        lang: lang,
-        level: profile?.targetLevel,
-        fieldIds: profile?.fieldIds,
-        fundingType: _fundingFilter == 'all' ? null : _fundingFilter,
-      );
-      final items = raw
-          .cast<Map<String, dynamic>>()
-          .map(LiveScholarshipModel.fromJson)
-          .toList();
-      if (mounted) {
-        setState(() {
-          _items = items;
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _loading = false;
-        });
-      }
+  void _onScholarshipsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onScroll() {
+    if (!_paginationController.hasClients) return;
+    if (_paginationController.position.extentAfter < 500) {
+      _scholarshipsController.loadMore();
     }
+  }
+
+  Future<void> _load() => _scholarshipsController.loadInitial();
+
+  @override
+  void dispose() {
+    _paginationController
+      ..removeListener(_onScroll)
+      ..dispose();
+    _scholarshipsController
+      ..removeListener(_onScholarshipsChanged)
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -233,6 +259,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
         child: KpbRefresh(
           onRefresh: _load,
           child: CustomScrollView(
+            controller: _paginationController,
             slivers: [
               // ── App bar ────────────────────────────────────────────────────
               SliverAppBar(
@@ -312,6 +339,16 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                 ),
               ),
 
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: _GuidePromoCard(
+                    onTap: () =>
+                        Get.to(() => const ScholarshipGuideInfoScreen()),
+                  ),
+                ),
+              ),
+
               // ── Content ──────────────────────────────────────────────────────
               if (_loading)
                 const SliverPadding(
@@ -375,6 +412,11 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                             padding: const EdgeInsets.only(bottom: 10),
                             child: _LiveScholarshipCard(
                               scholarship: s,
+                              alertEnabled:
+                                  _alertedScholarshipIds.contains(s.id),
+                              apiClient: widget.apiClient,
+                              onAlertChanged: (enabled) =>
+                                  _setAlertState(s.id, enabled),
                               onTap: () => _openDetail(context, s),
                             ),
                           ),
@@ -384,6 +426,13 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                     ),
                   ),
                 ),
+                if (_scholarshipsController.loadingMore)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 18),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
               ],
 
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -395,10 +444,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
   }
 
   void _applyFilter(String value) {
-    setState(() {
-      _fundingFilter = value;
-      _load();
-    });
+    _scholarshipsController.changeFundingFilter(value);
   }
 
   static Widget _buildShimmerCard(BuildContext context, int index) {
@@ -409,18 +455,20 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
   }
 
   void _openDetail(BuildContext context, LiveScholarshipModel s) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.82,
-        maxChildSize: 0.97,
-        builder: (_, sc) =>
-            _LiveScholarshipDetail(scholarship: s, scrollController: sc),
+    Get.to(
+      () => ScholarshipDetailScreen(
+        scholarshipId: s.id,
+        initialScholarship: s,
+        initialAlertEnabled: _alertedScholarshipIds.contains(s.id),
+        apiClient: widget.apiClient,
+        onAlertChanged: (enabled) => _setAlertState(s.id, enabled),
       ),
+      routeName: AppRoutes.scholarshipDetailPath(s.id),
     );
+  }
+
+  void _setAlertState(String scholarshipId, bool enabled) {
+    _scholarshipsController.setAlertState(scholarshipId, enabled);
   }
 }
 
@@ -428,16 +476,26 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
 // List row (handoff "Scholarships")
 // ─────────────────────────────────────────────────────────────────────────────
 class _LiveScholarshipCard extends StatelessWidget {
-  const _LiveScholarshipCard({required this.scholarship, required this.onTap});
+  const _LiveScholarshipCard({
+    required this.scholarship,
+    required this.alertEnabled,
+    required this.onAlertChanged,
+    required this.onTap,
+    this.apiClient,
+  });
 
   final LiveScholarshipModel scholarship;
+  final bool alertEnabled;
+  final ValueChanged<bool> onAlertChanged;
   final VoidCallback onTap;
+  final AppApiClient? apiClient;
 
   @override
   Widget build(BuildContext context) {
     final s = scholarship;
     final deadline = _deadlineBadge(s);
     final (fundBg, fundFg, fundLabel) = _fundingChip(s);
+    final cycle = _cyclePill(s);
     final subtitle =
         s.level.isEmpty ? s.countryName : '${s.countryName} · ${s.level}';
 
@@ -503,235 +561,24 @@ class _LiveScholarshipCard extends StatelessWidget {
                           _pill('live_scholarships_deadline_soon'.tr,
                               _Palette.amberSolid, Colors.white),
                         _pill(fundLabel, fundBg, fundFg),
+                        if (cycle != null) _pill(cycle.$1, cycle.$2, cycle.$3),
                       ],
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 10),
-              _SaveButton(scholarship: s, size: 34),
+              ScholarshipAlertButton(
+                scholarshipId: s.id,
+                scholarshipTitle: s.title,
+                initialEnabled: alertEnabled,
+                apiClient: apiClient,
+                onChanged: onAlertChanged,
+                compact: true,
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Detail sheet (handoff "Fiche bourse")
-// ─────────────────────────────────────────────────────────────────────────────
-class _LiveScholarshipDetail extends StatelessWidget {
-  const _LiveScholarshipDetail({
-    required this.scholarship,
-    required this.scrollController,
-  });
-
-  final LiveScholarshipModel scholarship;
-  final ScrollController scrollController;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = scholarship;
-    final deadline = _deadlineBadge(s);
-    final (_, fundFg, fundLabel) = _fundingChip(s);
-    final (reqBg, reqFg, reqLabel) = _requirementChip(s);
-
-    final deadlineValue = deadline != null
-        ? deadline.text
-        : (s.deadlineLabel.isEmpty
-            ? 'live_scholarships_see_official_site'.tr
-            : s.deadlineLabel);
-    final deadlineColor = deadline?.fg ?? _Palette.slate;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: _Palette.card,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: ListView(
-        controller: scrollController,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-        children: [
-          Center(
-            child: Container(
-              width: 44,
-              height: 4,
-              decoration: BoxDecoration(
-                color: _Palette.border,
-                borderRadius: BorderRadius.circular(100),
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // ── Header ───────────────────────────────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(_flag(s.countryName), style: const TextStyle(fontSize: 28)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      s.title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                        color: _Palette.navy,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      s.countryName,
-                      style:
-                          const TextStyle(fontSize: 11, color: _Palette.slate),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              _SaveButton(scholarship: s, size: 38),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // ── AMOUNT / DEADLINE grid ─────────────────────────────────────────
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: _StatTile(
-                    label: 'live_scholarships_funding_tile'.tr,
-                    value: fundLabel,
-                    valueColor: fundFg,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _StatTile(
-                    label: 'live_scholarships_deadline_label'.tr,
-                    value: deadlineValue,
-                    valueColor: deadlineColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Requirement chip + level + "why" ───────────────────────────────
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: _Palette.card,
-              border: Border.all(color: _Palette.border),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: _cardShadow,
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _pill(reqLabel, reqBg, reqFg, big: true),
-                    if (s.level.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          s.level,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: _Palette.navy,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                if (s.description.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    s.description,
-                    style: const TextStyle(
-                        fontSize: 12, height: 1.6, color: _Palette.body),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // ── Benefits ───────────────────────────────────────────────────────
-          if (s.advantages.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            _SectionCard(
-              title: 'live_scholarships_section_advantages'.tr,
-              children: s.advantages
-                  .map((a) => _BulletItem(text: a, color: _Palette.green))
-                  .toList(),
-            ),
-          ],
-
-          // ── Eligibility criteria (real list, not a verdict) ────────────────
-          if (s.eligibility.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            _SectionCard(
-              title: 'live_scholarships_section_eligibility'.tr,
-              children: s.eligibility
-                  .map((e) => _BulletItem(text: e, color: _Palette.blue))
-                  .toList(),
-            ),
-          ],
-
-          // ── How to apply ───────────────────────────────────────────────────
-          if (s.applicationSteps.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            _SectionCard(
-              title: 'live_scholarships_section_application_steps'.tr,
-              children: [
-                ApplicationStepsTimeline(
-                    steps: s.applicationSteps, accent: _Palette.blue),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 16),
-
-          // ── CTAs ───────────────────────────────────────────────────────────
-          if (s.applicationUrl.isNotEmpty) ...[
-            _PrimaryButton(
-              label: 'live_scholarships_official_form'.tr,
-              icon: Icons.open_in_new_rounded,
-              onTap: () => _launchUrl(s.applicationUrl),
-            ),
-            const SizedBox(height: 10),
-          ],
-          _SecondaryButton(
-            label: 'live_scholarships_apply_with_kpb'.tr,
-            onTap: () {
-              Navigator.pop(context);
-              showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => CaseComposerSheet(
-                  caseType: CaseType.scholarshipSupport,
-                  title: s.title,
-                  contextLabel: s.countryName,
-                ),
-              );
-            },
-          ),
-        ],
       ),
     );
   }
@@ -754,54 +601,6 @@ Widget _pill(String text, Color bg, Color fg, {bool big = false}) {
       ),
     ),
   );
-}
-
-/// Round trailing toggle. The handoff shows a "bell" push-reminder toggle here,
-/// but no per-scholarship reminder mechanism exists in the app (OneSignal only
-/// carries global user tags), so we bind this slot to the REAL, persisted
-/// save/bookmark action instead of rendering a fake reminder toggle.
-class _SaveButton extends StatelessWidget {
-  const _SaveButton({required this.scholarship, required this.size});
-
-  final LiveScholarshipModel scholarship;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<AppController>(
-      builder: (controller) {
-        final saved =
-            controller.isSaved(SavedItemType.scholarship, scholarship.id);
-        return Semantics(
-          button: true,
-          label: 'a11y_save'.tr,
-          child: Material(
-            color: saved ? _Palette.chipBg : _Palette.card,
-            shape: CircleBorder(
-              side: BorderSide(
-                  color: saved ? _Palette.chipBorder : _Palette.border),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => controller.toggleSaved(
-                  SavedItemType.scholarship, scholarship.id),
-              child: SizedBox(
-                width: size,
-                height: size,
-                child: Icon(
-                  saved
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_outline_rounded,
-                  size: size * 0.52,
-                  color: saved ? _Palette.blue : _Palette.slate400,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class _FilterChip extends StatelessWidget {
@@ -839,192 +638,68 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.label,
-    required this.value,
-    required this.valueColor,
-  });
-  final String label;
-  final String value;
-  final Color valueColor;
+class _GuidePromoCard extends StatelessWidget {
+  const _GuidePromoCard({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: const ValueKey('scholarship_guide_promo'),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: _Palette.card,
-        border: Border.all(color: _Palette.border),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: _cardShadow,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEFF6FF), Color(0xFFFFFFFF)],
+        ),
+        border: Border.all(color: _Palette.chipBorder),
+        borderRadius: BorderRadius.circular(17),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.6,
-              color: _Palette.slate400,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: valueColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.children});
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: _Palette.card,
-        border: Border.all(color: _Palette.border),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: _cardShadow,
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.2,
-              color: _Palette.navy,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...children,
-        ],
-      ),
-    );
-  }
-}
-
-class _BulletItem extends StatelessWidget {
-  const _BulletItem({required this.text, required this.color});
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1, right: 10),
-            child: Icon(Icons.check_circle_rounded, size: 17, color: color),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                  fontSize: 12.5, height: 1.5, color: _Palette.body),
+          Container(
+            width: 44,
+            height: 52,
+            decoration: BoxDecoration(
+              color: _Palette.blue,
+              borderRadius: BorderRadius.circular(11),
             ),
+            child: const Icon(Icons.auto_stories_rounded,
+                color: Colors.white, size: 23),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'scholarship_guide_short_title'.tr,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: _Palette.navy,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'scholarship_guide_promo_body'.tr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    height: 1.4,
+                    color: _Palette.slate,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: onTap,
+            child: Text('scholarship_guide_learn_more'.tr),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: _Palette.blue,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 50,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 17, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  const _SecondaryButton({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: _Palette.card,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: _Palette.card,
-            border: Border.all(color: _Palette.border),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: SizedBox(
-            height: 50,
-            child: Center(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

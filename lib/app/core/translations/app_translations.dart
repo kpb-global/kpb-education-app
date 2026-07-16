@@ -19,9 +19,14 @@ class AppTranslations extends Translations {
           'country': 'Pays',
           'current_level': 'Niveau actuel',
           'target_level': 'Niveau visé',
-          'language_level': 'Niveau de langue',
+          'language_level': 'Niveau d\'anglais',
           'grade_range': 'Moyenne académique sur les 3 dernières années',
           'monthly_budget': 'Budget mensuel (par mois)',
+          'tuition_budget_annual': 'Budget annuel pour les frais de scolarité',
+          'preferred_currency': 'Devise d\'affichage',
+          'currency_eur': 'Euro (€)',
+          'currency_xof': 'Franc CFA (FCFA)',
+          'currency_usd': "Dollar américain (\$)",
           'scholarship_interest': 'Recherche d\'écoles privées',
           'available_documents': 'Documents disponibles',
           'preferred_language': 'Langue préférée',
@@ -916,6 +921,8 @@ class AppTranslations extends Translations {
           'live_scholarships_section_description': 'Description',
           'live_scholarships_section_advantages': 'Avantages',
           'live_scholarships_section_eligibility': 'Critères d\'éligibilité',
+          'live_scholarships_section_key_requirements':
+              'Documents et exigences clés',
           'live_scholarships_section_application_steps': 'Comment postuler',
           'live_scholarships_requirement_automatic': 'Attribution automatique',
           'live_scholarships_requirement_separate_application':
@@ -929,8 +936,49 @@ class AppTranslations extends Translations {
           'live_scholarships_deadline_closed': 'Clôturée',
           'live_scholarships_no_deadline': 'Pas de date limite',
           'live_scholarships_funding_tile': 'Financement',
+          'live_scholarships_alert': 'M\'avertir',
+          'live_scholarships_alert_enabled': 'Alerte activée',
+          'live_scholarships_alert_error':
+              'Impossible de modifier cette alerte. Réessaie.',
+          'live_scholarships_open_now': 'Candidatures ouvertes',
+          'live_scholarships_open_estimated': 'Ouverture estimée : @date',
+          'live_scholarships_period_estimated':
+              'Période estimée : @open – @close',
+          'scholarship_detail_title': 'Détails de la bourse',
+          'scholarship_detail_not_found': 'Bourse introuvable',
+          'scholarship_detail_not_found_body':
+              'Cette bourse n’est plus disponible ou son lien a expiré.',
+          'scholarship_how_to_apply_unavailable':
+              'Les étapes détaillées seront ajoutées prochainement. Consulte le formulaire officiel pour les instructions à jour.',
+          'scholarship_videos_title': 'Vidéos explicatives',
+          'scholarship_video_explanation': 'Comprendre cette bourse',
+          'scholarship_video_play': 'Lire la vidéo',
+          'scholarship_video_unavailable':
+              'Cette vidéo n’est pas disponible pour le moment.',
+          'scholarship_video_open_youtube': 'Voir sur YouTube',
+          'scholarship_video_more': 'Autres vidéos',
+          'scholarship_guide_short_title': 'Le Guide Ultime du Boursier',
+          'scholarship_guide_promo_body':
+              'Une méthode claire pour préparer tes candidatures aux bourses internationales.',
+          'scholarship_guide_learn_more': 'En savoir plus',
+          'scholarship_guide_title': 'Le Guide Ultime du Boursier Africain',
+          'scholarship_guide_intro':
+              'Un parcours pratique pour passer du rêve d\'étudier à l\'étranger à une candidature structurée et compétitive.',
+          'scholarship_guide_inside_title': 'Ce que tu vas apprendre',
+          'scholarship_guide_item_opportunities':
+              'Identifier les bourses internationales accessibles aux étudiants africains.',
+          'scholarship_guide_item_documents':
+              'Construire un CV et une lettre de motivation adaptés à ton niveau.',
+          'scholarship_guide_item_recommendations':
+              'Préparer des demandes et modèles de lettres de recommandation.',
+          'scholarship_guide_item_steps':
+              'Organiser chaque candidature avec des étapes et checklists claires.',
+          'scholarship_guide_item_bonus':
+              'Renforcer ton anglais et éviter les erreurs les plus fréquentes.',
+          'scholarship_guide_author':
+              'Conçu par un lauréat Chevening 2024 ayant accompagné des centaines d\'étudiants africains.',
           'scholarships_sorted_hint':
-              'Classées selon ton profil. Enregistre celles qui t\'intéressent.',
+              'Classées selon ton profil. Active une alerte pour ne pas rater l\'ouverture.',
           'eligibility_see_my_result': 'Voir mon résultat',
           'answer_yes': 'Oui',
           'answer_maybe': 'Peut-être',
@@ -1296,6 +1344,13 @@ class AppTranslations extends Translations {
           // --- KPB-89 home ---
           'home_greeting': 'Bonjour 👋',
           'home_greeting_named': 'Bonjour, @name 👋',
+          'home_design_greeting': 'Salut 👋',
+          'home_design_greeting_named': 'Salut, @name 👋',
+          'home_design_header_subtitle': 'Tes destinations @countries',
+          'home_design_discovery_title': 'Parcours découverte',
+          'home_design_discovery_subtitle':
+              'Ta prochaine mission — créée avec ton compte',
+          'home_design_tools_title': 'Tes outils',
           'home_profile_pct_notice':
               'À @pct% — des champs manquants limitent tes recommandations',
           'home_admission_prefix': 'Admission : @value',
@@ -1454,7 +1509,7 @@ class AppTranslations extends Translations {
           'commercial_no_chat_body':
               'Ouvre un dossier depuis Mes leads pour discuter avec un étudiant.',
           'search': 'Rechercher',
-          'nav_scholarships': 'Écoles',
+          'nav_scholarships': 'Bourses',
           'nav_cases': 'Dossiers',
           'nav_saved': 'Sauvegardés',
           'nav_profile': 'Profil',
@@ -1705,6 +1760,19 @@ class AppTranslations extends Translations {
           'auth_welcome_title': 'Bienvenue sur KPB Education',
           'auth_welcome_subtitle':
               'Connectez-vous par email pour sauvegarder votre parcours, ou explorez l’app en mode invité.',
+          'auth_intelligence_title':
+              'KPB Intelligence, ton guide pour étudier à l’étranger',
+          'auth_intelligence_body':
+              'Réponds à 12 questions et découvre tes chances réelles d’admission, université par université.',
+          'auth_intelligence_benefit_probability':
+              'Probabilité d’admission chiffrée par université',
+          'auth_intelligence_benefit_ai':
+              'KPB Intelligence en français : lettre, entretien, budget',
+          'auth_intelligence_benefit_support':
+              'Accompagnement humain KPB via WhatsApp',
+          'auth_receive_email_link': 'Recevoir un lien par email',
+          'auth_intelligence_note':
+              'Gratuit · FCFA · pensé pour l’Afrique francophone',
           'auth_continue_google': 'Continuer avec Google',
           'auth_google_error': 'Connexion Google impossible. Réessayez.',
           'auth_continue_email': 'Continuer avec mon email',
@@ -1979,6 +2047,11 @@ class AppTranslations extends Translations {
           // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
           'uni_list_subtitle':
               'Triées par probabilité d\'admission — calculée pour toi',
+          'uni_filter_matches': 'Meilleurs matchs',
+          'uni_filter_france': '🇫🇷 France',
+          'uni_filter_canada': '🇨🇦 Canada',
+          'uni_filter_saved': '♥ Mes cibles',
+          'uni_filter_budget': '< 3 M FCFA',
           'full_guide': 'GUIDE COMPLET',
           'guide_short': 'GUIDE',
           'school_fees_per_year': 'FRAIS / AN',
@@ -2036,9 +2109,14 @@ class AppTranslations extends Translations {
           'country': 'Country',
           'current_level': 'Current level',
           'target_level': 'Target level',
-          'language_level': 'Language level',
+          'language_level': 'English level',
           'grade_range': 'Academic average over the last 3 years',
           'monthly_budget': 'Monthly budget (per month)',
+          'tuition_budget_annual': 'Annual tuition budget',
+          'preferred_currency': 'Display currency',
+          'currency_eur': 'Euro (€)',
+          'currency_xof': 'CFA franc (XOF)',
+          'currency_usd': 'US dollar (\$)',
           'scholarship_interest': 'Searching private schools',
           'available_documents': 'Available documents',
           'preferred_language': 'Preferred language',
@@ -2913,6 +2991,8 @@ class AppTranslations extends Translations {
           'live_scholarships_section_description': 'Description',
           'live_scholarships_section_advantages': 'Benefits',
           'live_scholarships_section_eligibility': 'Eligibility criteria',
+          'live_scholarships_section_key_requirements':
+              'Key documents and requirements',
           'live_scholarships_section_application_steps': 'How to apply',
           'live_scholarships_requirement_automatic': 'Automatically awarded',
           'live_scholarships_requirement_separate_application':
@@ -2926,8 +3006,49 @@ class AppTranslations extends Translations {
           'live_scholarships_deadline_closed': 'Closed',
           'live_scholarships_no_deadline': 'No fixed deadline',
           'live_scholarships_funding_tile': 'Funding',
+          'live_scholarships_alert': 'Notify me',
+          'live_scholarships_alert_enabled': 'Alert enabled',
+          'live_scholarships_alert_error':
+              'Unable to update this alert. Please try again.',
+          'live_scholarships_open_now': 'Applications open',
+          'live_scholarships_open_estimated': 'Estimated opening: @date',
+          'live_scholarships_period_estimated':
+              'Estimated period: @open – @close',
+          'scholarship_detail_title': 'Scholarship details',
+          'scholarship_detail_not_found': 'Scholarship not found',
+          'scholarship_detail_not_found_body':
+              'This scholarship is no longer available or its link has expired.',
+          'scholarship_how_to_apply_unavailable':
+              'Detailed steps will be added soon. Check the official form for current instructions.',
+          'scholarship_videos_title': 'Explanation videos',
+          'scholarship_video_explanation': 'Understand this scholarship',
+          'scholarship_video_play': 'Play video',
+          'scholarship_video_unavailable':
+              'This video is not available right now.',
+          'scholarship_video_open_youtube': 'Watch on YouTube',
+          'scholarship_video_more': 'More videos',
+          'scholarship_guide_short_title': 'The Ultimate Scholarship Guide',
+          'scholarship_guide_promo_body':
+              'A clear method for preparing competitive international scholarship applications.',
+          'scholarship_guide_learn_more': 'Learn more',
+          'scholarship_guide_title': 'The Ultimate African Scholarship Guide',
+          'scholarship_guide_intro':
+              'A practical path from the dream of studying abroad to a structured and competitive application.',
+          'scholarship_guide_inside_title': 'What you will learn',
+          'scholarship_guide_item_opportunities':
+              'Identify international scholarships open to African students.',
+          'scholarship_guide_item_documents':
+              'Build a CV and motivation letter suited to your study level.',
+          'scholarship_guide_item_recommendations':
+              'Prepare recommendation requests and letter templates.',
+          'scholarship_guide_item_steps':
+              'Organize every application with clear steps and checklists.',
+          'scholarship_guide_item_bonus':
+              'Strengthen your English and avoid the most common mistakes.',
+          'scholarship_guide_author':
+              'Created by a 2024 Chevening scholar who has supported hundreds of African students.',
           'scholarships_sorted_hint':
-              'Ranked for your profile. Bookmark the ones you\'re aiming for.',
+              'Ranked for your profile. Enable an alert so you do not miss the opening.',
           'eligibility_see_my_result': 'See my result',
           'answer_yes': 'Yes',
           'answer_maybe': 'Maybe',
@@ -3288,6 +3409,13 @@ class AppTranslations extends Translations {
           // --- KPB-89 home ---
           'home_greeting': 'Hi 👋',
           'home_greeting_named': 'Hi, @name 👋',
+          'home_design_greeting': 'Hi 👋',
+          'home_design_greeting_named': 'Hi, @name 👋',
+          'home_design_header_subtitle': 'Your destinations @countries',
+          'home_design_discovery_title': 'Discovery path',
+          'home_design_discovery_subtitle':
+              'Your next mission — created with your account',
+          'home_design_tools_title': 'Your tools',
           'home_profile_pct_notice':
               'At @pct% — missing fields limit your recommendations',
           'home_admission_prefix': 'Admission: @value',
@@ -3444,7 +3572,7 @@ class AppTranslations extends Translations {
           'commercial_no_chat_body':
               'Open a case from My leads to chat with a student.',
           'search': 'Search',
-          'nav_scholarships': 'Schools',
+          'nav_scholarships': 'Scholarships',
           'nav_cases': 'My Cases',
           'nav_saved': 'Saved',
           'nav_profile': 'Profile',
@@ -3691,6 +3819,19 @@ class AppTranslations extends Translations {
           'auth_welcome_title': 'Welcome to KPB Education',
           'auth_welcome_subtitle':
               'Sign in with email to save your journey, or browse as a guest.',
+          'auth_intelligence_title':
+              'KPB Intelligence, your guide to studying abroad',
+          'auth_intelligence_body':
+              'Answer 12 questions and discover your real admission chances, university by university.',
+          'auth_intelligence_benefit_probability':
+              'A quantified admission probability for each university',
+          'auth_intelligence_benefit_ai':
+              'KPB Intelligence in French: letter, interview, budget',
+          'auth_intelligence_benefit_support':
+              'Human KPB guidance via WhatsApp',
+          'auth_receive_email_link': 'Receive a link by email',
+          'auth_intelligence_note':
+              'Free · FCFA · designed for French-speaking Africa',
           'auth_continue_google': 'Continue with Google',
           'auth_google_error': 'Google sign-in failed. Try again.',
           'auth_continue_email': 'Continue with email',
@@ -3959,6 +4100,11 @@ class AppTranslations extends Translations {
           // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
           'uni_list_subtitle':
               'Sorted by admission probability — computed for you',
+          'uni_filter_matches': 'Best matches',
+          'uni_filter_france': '🇫🇷 France',
+          'uni_filter_canada': '🇨🇦 Canada',
+          'uni_filter_saved': '♥ My targets',
+          'uni_filter_budget': '< CFA 3M',
           'full_guide': 'FULL GUIDE',
           'guide_short': 'GUIDE',
           'school_fees_per_year': 'TUITION / YR',

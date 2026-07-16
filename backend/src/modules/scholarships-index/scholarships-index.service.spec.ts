@@ -2,6 +2,8 @@ import { GreatYopScraper } from './scrapers/greatyop.scraper';
 import { MastereTnScraper } from './scrapers/mastereTn.scraper';
 import { ScholarshipsIndexService } from './scholarships-index.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
+import { BadRequestException } from '@nestjs/common';
 
 /**
  * Guards the Bourses enrichment surfacing on both consumers of the live
@@ -73,6 +75,9 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
       prisma,
       {} as unknown as GreatYopScraper,
       {} as unknown as MastereTnScraper,
+      {
+        assertReady: jest.fn(),
+      } as unknown as ScholarshipContentQualityService,
     );
     return { service, findManyCalls };
   }
@@ -142,6 +147,108 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
           estimatedDurationDays: 30,
         },
       ]);
+    });
+  });
+
+  describe('publication safety and detail route', () => {
+    it('does not approve a scholarship rejected by the quality gate', async () => {
+      const update = jest.fn();
+      const quality = {
+        assertReady: jest
+          .fn()
+          .mockRejectedValue(new BadRequestException('not ready')),
+      };
+      const prisma = {
+        isEnabled: true,
+        execute: async (fn: (client: unknown) => unknown) =>
+          fn({ scholarship: { update } }),
+      } as unknown as PrismaService;
+      const service = new ScholarshipsIndexService(
+        prisma,
+        {} as GreatYopScraper,
+        {} as MastereTnScraper,
+        quality as unknown as ScholarshipContentQualityService,
+      );
+
+      await expect(service.setModeration('sch-1', 'approved')).rejects.toThrow(
+        'not ready',
+      );
+      expect(update).not.toHaveBeenCalled();
+    });
+
+    it('returns a localized detail with published videos and alert state', async () => {
+      const detailRow = {
+        ...baseRow,
+        typeOfFundingFr: 'Financement complet',
+        typeOfFundingEn: 'Fully funded',
+        keyRequirementsFr: ['Deux recommandations'],
+        keyRequirementsEn: ['Two references'],
+        cycles: [
+          {
+            id: 'cycle-1',
+            academicYear: '2026-2027',
+            status: 'open',
+            dateConfidence: 'confirmed',
+            estimatedOpenAt: null,
+            estimatedCloseAt: null,
+            opensAt: new Date('2026-08-01T00:00:00.000Z'),
+            closesAt: new Date('2026-11-01T00:00:00.000Z'),
+            sourceUrl: 'https://official.example.org',
+            verifiedAt: new Date('2026-07-16T00:00:00.000Z'),
+          },
+        ],
+        videos: [
+          {
+            id: 'video-1',
+            youtubeVideoId: 'dQw4w9WgXcQ',
+            titleFr: 'Comment postuler',
+            titleEn: 'How to apply',
+            descriptionFr: 'Tutoriel',
+            descriptionEn: 'Tutorial',
+            thumbnailUrl: 'https://img.youtube.com/test.jpg',
+            durationSeconds: 180,
+            languageCode: 'fr',
+            isFeatured: true,
+            displayOrder: 0,
+          },
+        ],
+      };
+      const client = {
+        scholarship: { findFirst: async () => detailRow },
+        scholarshipAlertSubscription: {
+          findUnique: async () => ({
+            pushEnabled: true,
+            inAppEnabled: true,
+          }),
+        },
+      };
+      const prisma = {
+        isEnabled: true,
+        execute: async (fn: (value: typeof client) => unknown) => fn(client),
+      } as unknown as PrismaService;
+      const service = new ScholarshipsIndexService(
+        prisma,
+        {} as GreatYopScraper,
+        {} as MastereTnScraper,
+        {} as ScholarshipContentQualityService,
+      );
+
+      const result = await service.getForProfile('sch-1', {
+        lang: 'fr',
+        userId: 'user-1',
+      });
+
+      expect(result.videos[0]).toMatchObject({
+        title: 'Comment postuler',
+        youtubeVideoId: 'dQw4w9WgXcQ',
+        shareUrl: 'https://youtu.be/dQw4w9WgXcQ',
+      });
+      expect(result.currentCycle).toMatchObject({ id: 'cycle-1' });
+      expect(result.alert).toEqual({
+        subscribed: true,
+        pushEnabled: true,
+        inAppEnabled: true,
+      });
     });
   });
 });

@@ -54,7 +54,9 @@ class UserProfile {
     this.targetCountryIds = const [],
     this.gradeRange,
     this.bacSeries,
+    this.annualTuitionBudgetEur,
     this.monthlyBudgetEur,
+    this.preferredCurrency = 'XOF',
     this.wantsScholarshipSupport = false,
     this.availableDocuments = const [],
     this.consentedAt,
@@ -80,7 +82,13 @@ class UserProfile {
   final List<String> targetCountryIds;
   final String? gradeRange;
   final String? bacSeries;
+
+  /// Annual tuition budget, stored in EUR for matching and filtering.
+  final int? annualTuitionBudgetEur;
+
+  /// Legacy living-budget value retained only to read older snapshots/APIs.
   final int? monthlyBudgetEur;
+  final String preferredCurrency;
   final bool wantsScholarshipSupport;
   final List<String> availableDocuments;
   final DateTime? consentedAt;
@@ -134,7 +142,9 @@ class UserProfile {
     List<String>? targetCountryIds,
     String? gradeRange,
     String? bacSeries,
+    int? annualTuitionBudgetEur,
     int? monthlyBudgetEur,
+    String? preferredCurrency,
     bool? wantsScholarshipSupport,
     List<String>? availableDocuments,
     DateTime? consentedAt,
@@ -160,7 +170,10 @@ class UserProfile {
       targetCountryIds: targetCountryIds ?? this.targetCountryIds,
       gradeRange: gradeRange ?? this.gradeRange,
       bacSeries: bacSeries ?? this.bacSeries,
+      annualTuitionBudgetEur:
+          annualTuitionBudgetEur ?? this.annualTuitionBudgetEur,
       monthlyBudgetEur: monthlyBudgetEur ?? this.monthlyBudgetEur,
+      preferredCurrency: preferredCurrency ?? this.preferredCurrency,
       wantsScholarshipSupport:
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       availableDocuments: availableDocuments ?? this.availableDocuments,
@@ -187,7 +200,7 @@ class UserProfile {
       targetCountryIds.isNotEmpty,
       (gradeRange ?? '').trim().isNotEmpty ||
           (bacSeries ?? '').trim().isNotEmpty,
-      monthlyBudgetEur != null && monthlyBudgetEur! > 0,
+      (annualTuitionBudgetEur ?? 0) > 0 || (monthlyBudgetEur ?? 0) > 0,
       availableDocuments.isNotEmpty,
     ];
     final completed = items.where((item) => item).length;

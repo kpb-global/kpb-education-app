@@ -1,11 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import {
   ScrapedScholarship,
   ScholarshipScraper,
 } from './scholarship-source.interface';
+import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
 import { GreatYopScraper } from './scrapers/greatyop.scraper';
 import { MastereTnScraper } from './scrapers/mastereTn.scraper';
 
@@ -26,6 +33,14 @@ export type RefreshResult = {
   totalDeactivated: number;
   totalMerged: number;
 };
+
+type ScholarshipReadRow = Prisma.ScholarshipGetPayload<{
+  include: {
+    applicationSteps: true;
+    cycles: true;
+    videos: true;
+  };
+}>;
 
 /**
  * Scholarship-index refresh — every 48 hours.
@@ -56,6 +71,7 @@ export class ScholarshipsIndexService {
     private readonly prismaService: PrismaService,
     greatYop: GreatYopScraper,
     mastereTn: MastereTnScraper,
+    private readonly contentQuality: ScholarshipContentQualityService,
   ) {
     this.scrapers = [greatYop, mastereTn];
   }
@@ -172,6 +188,7 @@ export class ScholarshipsIndexService {
    */
   async listForProfile(params: {
     lang: 'fr' | 'en';
+    userId?: string;
     level?: string;
     fieldIds?: string[];
     countryId?: string;
@@ -179,13 +196,33 @@ export class ScholarshipsIndexService {
     limit?: number;
     offset?: number;
   }) {
-    const { lang, limit = 20, offset = 0 } = params;
+    const lang = params.lang;
+    const limit = this.boundedInt(params.limit, 20, 1, 100);
+    const offset = this.boundedInt(params.offset, 0, 0, 10000);
+    const validFundingTypes = [
+      'fully_funded',
+      'partially_funded',
+      'unknown',
+    ];
+    if (
+      params.fundingType &&
+      !validFundingTypes.includes(params.fundingType)
+    ) {
+      throw new BadRequestException('Invalid fundingType filter.');
+    }
 
     const where = {
       isActive: true,
       // Only approved (curated default-approved + admin-approved scraped) is public.
       moderationStatus: 'approved' as const,
-      ...(params.fundingType ? { fundingType: params.fundingType as any } : {}),
+      ...(params.fundingType
+        ? {
+            fundingType: params.fundingType as
+              | 'fully_funded'
+              | 'partially_funded'
+              | 'unknown',
+          }
+        : {}),
       ...(params.countryId ? { countryId: params.countryId } : {}),
       ...(params.fieldIds?.length
         ? {
@@ -206,17 +243,42 @@ export class ScholarshipsIndexService {
         where,
         orderBy: [{ deadlineAt: 'asc' }, { createdAt: 'desc' }],
         take: MAX_CANDIDATES,
-        include: { applicationSteps: { orderBy: { stepNumber: 'asc' } } },
+        include: {
+          applicationSteps: { orderBy: { stepNumber: 'asc' } },
+          cycles: { orderBy: { academicYear: 'desc' }, take: 5 },
+          videos: {
+            where: { status: 'published' },
+            orderBy: [{ isFeatured: 'desc' }, { displayOrder: 'asc' }],
+            take: 1,
+          },
+        },
       }),
     );
 
-    if (!items) return { items: [], total: 0 };
+    if (!items) {
+      return { items: [], total: 0, limit, offset, hasMore: false };
+    }
     if (items.length === MAX_CANDIDATES) {
       this.logger.warn(
         `listForProfile hit the ${MAX_CANDIDATES}-candidate cap; ` +
           'matchScore ranking may be incomplete for very large result sets.',
       );
     }
+
+    const subscriptions = params.userId
+      ? await this.prismaService.execute((prisma) =>
+          prisma.scholarshipAlertSubscription.findMany({
+            where: {
+              userId: params.userId,
+              scholarshipId: { in: items.map((item) => item.id) },
+            },
+            select: { scholarshipId: true },
+          }),
+        )
+      : [];
+    const subscribedIds = new Set(
+      (subscriptions ?? []).map((row) => row.scholarshipId),
+    );
 
     const mapped = items.map((s) => {
       // Profile-match score
@@ -235,28 +297,12 @@ export class ScholarshipsIndexService {
       }
 
       return {
-        id: s.id,
-        title: lang === 'fr' ? s.nameFr : s.nameEn,
-        countryName: lang === 'fr' ? s.countryNameFr : s.countryNameEn,
-        fundingType: s.fundingType,
-        applicationRequirement: s.applicationRequirement,
-        description: lang === 'fr' ? s.descriptionFr : s.descriptionEn,
-        advantages: lang === 'fr' ? s.advantagesFr : s.advantagesEn,
-        eligibility: lang === 'fr' ? s.eligibilityFr : s.eligibilityEn,
-        level: lang === 'fr' ? s.levelEligibleFr : s.levelEligibleEn,
-        deadlineLabel: lang === 'fr' ? s.deadlineLabelFr : s.deadlineLabelEn,
-        deadlineAt: s.deadlineAt?.toISOString() ?? null,
-        applicationUrl: s.applicationUrl,
-        sourceUrl: s.sourceUrl,
-        tags: s.tags,
+        ...this.publicDto(s, lang),
         matchScore,
-        applicationSteps: s.applicationSteps.map((step) => ({
-          id: step.id,
-          stepNumber: step.stepNumber,
-          title: lang === 'fr' ? step.titleFr : step.titleEn,
-          description: lang === 'fr' ? step.descriptionFr : step.descriptionEn,
-          estimatedDurationDays: step.estimatedDurationDays,
-        })),
+        isAlertEnabled: subscribedIds.has(s.id),
+        featuredVideo: s.videos?.[0]
+          ? this.publicVideoDto(s.videos[0], lang)
+          : null,
       };
     });
 
@@ -275,7 +321,63 @@ export class ScholarshipsIndexService {
         prisma.scholarship.count({ where }),
       )) ?? mapped.length;
 
-    return { items: mapped.slice(offset, offset + limit), total };
+    const page = mapped.slice(offset, offset + limit);
+    return {
+      items: page,
+      total,
+      limit,
+      offset,
+      hasMore: offset + page.length < total,
+    };
+  }
+
+  async getForProfile(
+    id: string,
+    params: { lang: 'fr' | 'en'; userId: string },
+  ) {
+    const scholarship = await this.prismaService.execute((prisma) =>
+      prisma.scholarship.findFirst({
+        where: {
+          id,
+          isActive: true,
+          moderationStatus: 'approved',
+        },
+        include: {
+          applicationSteps: { orderBy: { stepNumber: 'asc' } },
+          cycles: { orderBy: { academicYear: 'desc' } },
+          videos: {
+            where: { status: 'published' },
+            orderBy: [{ isFeatured: 'desc' }, { displayOrder: 'asc' }],
+          },
+        },
+      }),
+    );
+    if (!scholarship) {
+      throw new NotFoundException(`Scholarship ${id} not found.`);
+    }
+    const subscription = await this.prismaService.execute((prisma) =>
+      prisma.scholarshipAlertSubscription.findUnique({
+        where: {
+          userId_scholarshipId: {
+            userId: params.userId,
+            scholarshipId: id,
+          },
+        },
+        select: { pushEnabled: true, inAppEnabled: true },
+      }),
+    );
+    return {
+      ...this.publicDto(scholarship, params.lang),
+      cycles: scholarship.cycles.map((cycle) => this.publicCycleDto(cycle)),
+      videos: scholarship.videos.map((video) =>
+        this.publicVideoDto(video, params.lang),
+      ),
+      alert: {
+        subscribed: Boolean(subscription),
+        pushEnabled: subscription?.pushEnabled ?? false,
+        inAppEnabled: subscription?.inAppEnabled ?? false,
+      },
+    };
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
@@ -342,12 +444,107 @@ export class ScholarshipsIndexService {
   /// moderationStatus is intentionally NOT touched by the refresh upsert, so an
   /// admin decision survives subsequent scraper runs.
   async setModeration(id: string, status: 'approved' | 'rejected' | 'pending') {
+    if (status === 'approved') {
+      await this.contentQuality.assertReady(id);
+    }
     return this.prismaService.execute((prisma) =>
       prisma.scholarship.update({
         where: { id },
         data: { moderationStatus: status },
       }),
     );
+  }
+
+  private boundedInt(
+    value: number | undefined,
+    fallback: number,
+    min: number,
+    max: number,
+  ): number {
+    if (!Number.isFinite(value)) return fallback;
+    return Math.min(Math.max(Math.trunc(value as number), min), max);
+  }
+
+  private publicDto(row: ScholarshipReadRow, lang: 'fr' | 'en') {
+    const currentCycle = this.selectCurrentCycle(row.cycles ?? []);
+    return {
+      id: row.id,
+      title: lang === 'fr' ? row.nameFr : row.nameEn,
+      countryId: row.countryId,
+      countryName: lang === 'fr' ? row.countryNameFr : row.countryNameEn,
+      fundingType: row.fundingType,
+      typeOfFunding:
+        lang === 'fr' ? row.typeOfFundingFr : row.typeOfFundingEn,
+      applicationRequirement: row.applicationRequirement,
+      description: lang === 'fr' ? row.descriptionFr : row.descriptionEn,
+      advantages: lang === 'fr' ? row.advantagesFr : row.advantagesEn,
+      eligibility: lang === 'fr' ? row.eligibilityFr : row.eligibilityEn,
+      keyRequirements:
+        lang === 'fr' ? row.keyRequirementsFr : row.keyRequirementsEn,
+      relatedFieldIds: row.relatedFieldIds,
+      level: lang === 'fr' ? row.levelEligibleFr : row.levelEligibleEn,
+      deadlineLabel:
+        lang === 'fr' ? row.deadlineLabelFr : row.deadlineLabelEn,
+      deadlineAt: row.deadlineAt?.toISOString() ?? null,
+      applicationUrl: row.applicationUrl,
+      sourceUrl: row.sourceUrl,
+      lastVerifiedAt: row.lastVerifiedAt?.toISOString() ?? null,
+      tags: row.tags,
+      currentCycle: currentCycle
+        ? this.publicCycleDto(currentCycle)
+        : null,
+      applicationSteps: row.applicationSteps.map((step) => ({
+        id: step.id,
+        stepNumber: step.stepNumber,
+        title: lang === 'fr' ? step.titleFr : step.titleEn,
+        description:
+          lang === 'fr' ? step.descriptionFr : step.descriptionEn,
+        estimatedDurationDays: step.estimatedDurationDays,
+      })),
+    };
+  }
+
+  private selectCurrentCycle(cycles: ScholarshipReadRow['cycles']) {
+    return (
+      cycles.find((cycle) => cycle.status === 'open') ??
+      cycles.find((cycle) => cycle.status === 'forecast') ??
+      cycles[0]
+    );
+  }
+
+  private publicCycleDto(cycle: ScholarshipReadRow['cycles'][number]) {
+    return {
+      id: cycle.id,
+      academicYear: cycle.academicYear,
+      status: cycle.status,
+      dateConfidence: cycle.dateConfidence,
+      estimatedOpenAt: cycle.estimatedOpenAt?.toISOString() ?? null,
+      estimatedCloseAt: cycle.estimatedCloseAt?.toISOString() ?? null,
+      opensAt: cycle.opensAt?.toISOString() ?? null,
+      closesAt: cycle.closesAt?.toISOString() ?? null,
+      sourceUrl: cycle.sourceUrl,
+      verifiedAt: cycle.verifiedAt?.toISOString() ?? null,
+    };
+  }
+
+  private publicVideoDto(
+    video: ScholarshipReadRow['videos'][number],
+    lang: 'fr' | 'en',
+  ) {
+    return {
+      id: video.id,
+      youtubeVideoId: video.youtubeVideoId,
+      title: lang === 'fr' ? video.titleFr : video.titleEn,
+      description:
+        lang === 'fr' ? video.descriptionFr : video.descriptionEn,
+      thumbnailUrl: video.thumbnailUrl,
+      durationSeconds: video.durationSeconds,
+      languageCode: video.languageCode,
+      isFeatured: video.isFeatured,
+      displayOrder: video.displayOrder,
+      watchUrl: `https://www.youtube.com/watch?v=${video.youtubeVideoId}`,
+      shareUrl: `https://youtu.be/${video.youtubeVideoId}`,
+    };
   }
 
   /// Admin moderation queue — scraped entries awaiting review (default pending).
@@ -359,7 +556,13 @@ export class ScholarshipsIndexService {
         where: { moderationStatus: status },
         orderBy: { lastVerifiedAt: 'desc' },
         take: 200,
-        include: { applicationSteps: { orderBy: { stepNumber: 'asc' } } },
+        include: {
+          applicationSteps: { orderBy: { stepNumber: 'asc' } },
+          cycles: { orderBy: { updatedAt: 'desc' }, take: 1 },
+          videos: {
+            orderBy: [{ isFeatured: 'desc' }, { displayOrder: 'asc' }],
+          },
+        },
       }),
     );
     return {
@@ -368,12 +571,49 @@ export class ScholarshipsIndexService {
         nameFr: r.nameFr,
         nameEn: r.nameEn,
         countryId: r.countryId,
+        countryNameFr: r.countryNameFr,
+        countryNameEn: r.countryNameEn,
+        levelEligibleFr: r.levelEligibleFr,
+        levelEligibleEn: r.levelEligibleEn,
+        typeOfFundingFr: r.typeOfFundingFr,
+        typeOfFundingEn: r.typeOfFundingEn,
+        fundingType: r.fundingType,
+        deadlineLabelFr: r.deadlineLabelFr,
+        deadlineLabelEn: r.deadlineLabelEn,
+        descriptionFr: r.descriptionFr,
+        descriptionEn: r.descriptionEn,
+        advantagesFr: r.advantagesFr,
+        advantagesEn: r.advantagesEn,
+        eligibilityFr: r.eligibilityFr,
+        eligibilityEn: r.eligibilityEn,
+        keyRequirementsFr: r.keyRequirementsFr,
+        keyRequirementsEn: r.keyRequirementsEn,
+        relatedFieldIds: r.relatedFieldIds,
+        baseMatch: r.baseMatch,
         sourceUrl: r.sourceUrl,
         applicationUrl: r.applicationUrl,
         deadlineAt: r.deadlineAt,
         moderationStatus: r.moderationStatus,
         lastVerifiedAt: r.lastVerifiedAt,
+        isActive: r.isActive,
         tags: r.tags,
+        videos: (r.videos ?? []).map((video) => ({
+          ...video,
+          watchUrl: `https://www.youtube.com/watch?v=${video.youtubeVideoId}`,
+          shareUrl: `https://youtu.be/${video.youtubeVideoId}`,
+        })),
+        currentCycle: r.cycles?.[0]
+          ? {
+              id: r.cycles[0].id,
+              academicYear: r.cycles[0].academicYear,
+              status: r.cycles[0].status,
+              dateConfidence: r.cycles[0].dateConfidence,
+              estimatedOpenAt: r.cycles[0].estimatedOpenAt,
+              estimatedCloseAt: r.cycles[0].estimatedCloseAt,
+              opensAt: r.cycles[0].opensAt,
+              closesAt: r.cycles[0].closesAt,
+            }
+          : null,
         // Admin-editable enrichment (KPB scholarships module) — bilingual, not
         // localized here, so the moderation UI can edit both languages.
         applicationRequirement: r.applicationRequirement,

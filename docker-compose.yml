@@ -26,6 +26,8 @@ services:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
       - CORS_ORIGINS=${CORS_ORIGINS}
+      # One Nginx proxy is trusted to provide the real client IP for throttling.
+      - KPB_TRUST_PROXY_HOPS=${KPB_TRUST_PROXY_HOPS:-1}
       # Needed so account deletion also removes the Supabase Auth identity
       # (GDPR + Apple/Google account-deletion requirement). Without it, the
       # Postgres data is purged but the login survives.
@@ -76,6 +78,12 @@ services:
         # minutes downloading signatures; uploads simply 503 (fail-closed)
         # until clamd is ready, and the rest of the API must not wait on it.
         condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health/live').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   # Antivirus daemon for uploaded case documents. The API streams every upload
   # to clamd (INSTREAM, port 3310) before persisting it — files never leave the

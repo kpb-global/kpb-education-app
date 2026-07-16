@@ -14,6 +14,22 @@ export class PrismaService implements OnModuleDestroy {
     return this.client !== null;
   }
 
+  /** Lightweight readiness probe used by /health/ready. */
+  async isReady(): Promise<boolean> {
+    if (!this.client) return false;
+    try {
+      await this.client.$queryRawUnsafe('SELECT 1');
+      return true;
+    } catch (error) {
+      this.logger.warn(
+        `Prisma readiness check failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
+      return false;
+    }
+  }
+
   async execute<T>(operation: (client: PrismaClient) => Promise<T>): Promise<T | null> {
     if (!this.client) {
       return null;

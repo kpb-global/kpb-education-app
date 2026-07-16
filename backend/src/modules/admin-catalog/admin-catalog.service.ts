@@ -582,6 +582,9 @@ export class AdminCatalogService {
       applicationUrl: this.str(input.applicationUrl) ?? null,
       sourceUrl: this.str(input.sourceUrl) ?? null,
       isActive: this.bool(input.isActive) ?? true,
+      // Every manual entry passes through the same completeness gate as an
+      // imported candidate. Approval is an explicit, audited admin action.
+      moderationStatus: 'pending',
       tags: this.strArr(input.tags) ?? [],
       // sourceKey intentionally left null → flags this as a manual entry.
     };

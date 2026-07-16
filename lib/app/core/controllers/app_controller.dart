@@ -1691,6 +1691,8 @@ abstract class _AppControllerBase extends GetxController {
       'fieldIds': profile.fieldIds,
       'targetCountryIds': profile.targetCountryIds,
       'gradeRange': profile.bacSeries ?? profile.gradeRange,
+      'annualTuitionBudgetEur': profile.annualTuitionBudgetEur,
+      'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
       if (profile.monthlyBudgetEur != null)

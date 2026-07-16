@@ -72,5 +72,66 @@ void main() {
       expect(model.applicationSteps[0].estimatedDurationDays, 30);
       expect(model.applicationSteps[1].estimatedDurationDays, isNull);
     });
+
+    test('parses and orders optional scholarship YouTube videos', () {
+      final json = baseJson();
+      json['videos'] = <dynamic>[
+        <String, dynamic>{
+          'id': 'video-2',
+          'youtubeVideoId': 'abcdefghijk',
+          'title': 'Second video',
+          'displayOrder': 2,
+          'languageCode': 'en',
+        },
+        <String, dynamic>{
+          'id': 'video-1',
+          'watchUrl': 'https://youtu.be/l_0UPSeH5sU',
+          'title': 'Featured video',
+          'displayOrder': 9,
+          'isFeatured': true,
+        },
+        <String, dynamic>{
+          'id': 'invalid',
+          'youtubeVideoId': 'invalid',
+        },
+      ];
+
+      final model = LiveScholarshipModel.fromJson(json);
+
+      expect(model.videos, hasLength(2));
+      expect(model.videos.first.id, 'video-1');
+      expect(model.videos.first.youtubeVideoId, 'l_0UPSeH5sU');
+      expect(model.videos.last.language, 'en');
+    });
+
+    test('parses Phase 1 list and detail alert/video requirement keys', () {
+      final listJson = baseJson();
+      listJson
+        ..['isAlertEnabled'] = true
+        ..['keyRequirements'] = <String>['Two references']
+        ..['featuredVideo'] = <String, dynamic>{
+          'id': 'featured-1',
+          'youtubeVideoId': 'dQw4w9WgXcQ',
+          'title': 'How to apply',
+          'isFeatured': true,
+          'displayOrder': 0,
+        };
+
+      final listModel = LiveScholarshipModel.fromJson(listJson);
+
+      expect(listModel.isAlertEnabled, isTrue);
+      expect(listModel.keyRequirements, ['Two references']);
+      expect(listModel.videos.single.id, 'featured-1');
+
+      final detailJson = baseJson();
+      detailJson['alert'] = <String, dynamic>{
+        'subscribed': false,
+        'pushEnabled': false,
+        'inAppEnabled': false,
+      };
+
+      final detailModel = LiveScholarshipModel.fromJson(detailJson);
+      expect(detailModel.isAlertEnabled, isFalse);
+    });
   });
 }

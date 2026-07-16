@@ -80,7 +80,10 @@ class ProgramDetailScreen extends StatelessWidget {
     final city =
         institution != null ? controller.resolve(institution.location) : '';
     final tuition = controller.resolve(program.tuition);
-    final fcfa = TuitionUtils.fcfaSuffixFromTuition(tuition);
+    final displayedTuition = TuitionUtils.displayFromTuition(
+      tuition,
+      controller.profile?.preferredCurrency,
+    );
     final language = controller.resolve(program.language);
 
     // No dedicated "deadline" field exists on the catalog → surface the real
@@ -133,10 +136,12 @@ class ProgramDetailScreen extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           label: 'school_fees_per_year'.tr,
-                          value: tuition.isNotEmpty
-                              ? tuition
-                              : 'school_intake_on_request'.tr,
-                          sub: fcfa,
+                          value: displayedTuition.isNotEmpty
+                              ? displayedTuition
+                              : tuition.isNotEmpty
+                                  ? tuition
+                                  : 'school_intake_on_request'.tr,
+                          sub: '',
                           subColor: _Palette.blue,
                         ),
                       ),

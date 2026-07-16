@@ -63,6 +63,14 @@ export class UpdateProfileDto {
   monthlyBudgetEur?: number;
 
   @IsOptional()
+  @IsInt()
+  annualTuitionBudgetEur?: number;
+
+  @IsOptional()
+  @IsString()
+  preferredCurrency?: string;
+
+  @IsOptional()
   @IsBoolean()
   wantsScholarshipSupport?: boolean;
 

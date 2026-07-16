@@ -7,6 +7,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/onesignal_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/currency_utils.dart';
 import '../legal/legal_pages.dart';
 import '../matches/aha_moment_screen.dart';
 import 'onboarding_m2_constants.dart';
@@ -88,14 +89,13 @@ const _langLevels = [
   ('Advanced', 'Avancé'),
 ];
 const _grades = ['10 - 12/20', '12 - 14/20', '15+/20'];
-// Monthly-budget ranges (EUR). Stored as a representative midpoint so it feeds
-// the eligibility engine + coach budget anchoring; the field label carries the
-// "per month" meaning bilingually, so the item labels stay language-neutral.
+// Annual tuition-budget ranges in EUR. The selected display currency only
+// changes the presentation; matching remains on this canonical EUR value.
 const _budgetRanges = <(int, String)>[
-  (400, '< 500 €'),
-  (750, '500 – 1 000 €'),
-  (1250, '1 000 – 1 500 €'),
-  (1800, '> 1 500 €'),
+  (4000, '< 5 000 €'),
+  (7500, '5 000 – 10 000 €'),
+  (15000, '10 000 – 20 000 €'),
+  (25000, '> 20 000 €'),
 ];
 const _documentKeys = [
   ('Passport', 'Passeport'),
@@ -184,7 +184,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _targetLevel = 'Bachelor';
   String _languageLevel = 'Intermediate';
   String _gradeRange = '12 - 14/20';
-  int? _monthlyBudgetEur;
+  int? _annualTuitionBudgetEur;
+  String _preferredCurrency = DisplayCurrency.xof.code;
   bool _wantsScholarship = true;
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
@@ -271,7 +272,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_grades.contains(profile.gradeRange)) {
       _gradeRange = profile.gradeRange!;
     }
-    _monthlyBudgetEur = _snapBudget(profile.monthlyBudgetEur);
+    _annualTuitionBudgetEur = _snapBudget(
+      profile.annualTuitionBudgetEur ??
+          ((profile.monthlyBudgetEur ?? 0) > 0
+              ? profile.monthlyBudgetEur! * 12
+              : null),
+    );
+    _preferredCurrency =
+        DisplayCurrency.fromCode(profile.preferredCurrency).code;
     _wantsScholarship = profile.wantsScholarshipSupport;
     if (profile.fieldIds.isNotEmpty) {
       _fieldIds
@@ -358,7 +366,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       fieldIds: isPartner ? const [] : _fieldIds.toList(),
       targetCountryIds: isPartner ? const [] : _countryIds.toList(),
       gradeRange: isPartner ? null : _gradeRange,
-      monthlyBudgetEur: isPartner ? null : _monthlyBudgetEur,
+      annualTuitionBudgetEur: isPartner ? null : _annualTuitionBudgetEur,
+      preferredCurrency: _preferredCurrency,
       wantsScholarshipSupport:
           _accountType == AccountType.student && _wantsScholarship,
       availableDocuments: isPartner ? const [] : _docs.toList(),
@@ -563,7 +572,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       targetLevel: _targetLevel,
                       languageLevel: _languageLevel,
                       gradeRange: _gradeRange,
-                      monthlyBudgetEur: _monthlyBudgetEur,
+                      annualTuitionBudgetEur: _annualTuitionBudgetEur,
+                      preferredCurrency: _preferredCurrency,
                       wantsScholarship: _wantsScholarship,
                       onCurrentLevel: (v) =>
                           setState(() => _currentLevel = v ?? _currentLevel),
@@ -573,8 +583,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           setState(() => _languageLevel = v ?? _languageLevel),
                       onGradeRange: (v) =>
                           setState(() => _gradeRange = v ?? _gradeRange),
-                      onMonthlyBudget: (v) =>
-                          setState(() => _monthlyBudgetEur = v),
+                      onAnnualTuitionBudget: (v) =>
+                          setState(() => _annualTuitionBudgetEur = v),
+                      onPreferredCurrency: (v) => setState(
+                        () => _preferredCurrency = v ?? _preferredCurrency,
+                      ),
                       onWantsScholarship: (v) =>
                           setState(() => _wantsScholarship = v),
                     ),
@@ -1214,24 +1227,28 @@ class _PageAcademic extends StatelessWidget {
     required this.targetLevel,
     required this.languageLevel,
     required this.gradeRange,
-    required this.monthlyBudgetEur,
+    required this.annualTuitionBudgetEur,
+    required this.preferredCurrency,
     required this.wantsScholarship,
     required this.onCurrentLevel,
     required this.onTargetLevel,
     required this.onLanguageLevel,
     required this.onGradeRange,
-    required this.onMonthlyBudget,
+    required this.onAnnualTuitionBudget,
+    required this.onPreferredCurrency,
     required this.onWantsScholarship,
   });
 
   final String currentLevel, targetLevel, languageLevel, gradeRange;
-  final int? monthlyBudgetEur;
+  final int? annualTuitionBudgetEur;
+  final String preferredCurrency;
   final bool wantsScholarship;
   final ValueChanged<String?> onCurrentLevel,
       onTargetLevel,
       onLanguageLevel,
       onGradeRange;
-  final ValueChanged<int?> onMonthlyBudget;
+  final ValueChanged<int?> onAnnualTuitionBudget;
+  final ValueChanged<String?> onPreferredCurrency;
   final ValueChanged<bool> onWantsScholarship;
 
   @override
@@ -1261,6 +1278,20 @@ class _PageAcademic extends StatelessWidget {
         ),
         const SizedBox(height: KpbSpacing.md),
         DropdownButtonFormField<String>(
+          initialValue: preferredCurrency,
+          decoration: InputDecoration(labelText: 'preferred_currency'.tr),
+          items: DisplayCurrency.values
+              .map(
+                (currency) => DropdownMenuItem(
+                  value: currency.code,
+                  child: Text('currency_${currency.code.toLowerCase()}'.tr),
+                ),
+              )
+              .toList(),
+          onChanged: onPreferredCurrency,
+        ),
+        const SizedBox(height: KpbSpacing.md),
+        DropdownButtonFormField<String>(
           initialValue: gradeRange,
           decoration: InputDecoration(labelText: 'grade_range'.tr),
           items: _grades
@@ -1270,12 +1301,23 @@ class _PageAcademic extends StatelessWidget {
         ),
         const SizedBox(height: KpbSpacing.md),
         DropdownButtonFormField<int>(
-          initialValue: monthlyBudgetEur,
-          decoration: InputDecoration(labelText: 'monthly_budget'.tr),
+          initialValue: annualTuitionBudgetEur,
+          decoration: InputDecoration(labelText: 'tuition_budget_annual'.tr),
           items: _budgetRanges
-              .map((r) => DropdownMenuItem(value: r.$1, child: Text(r.$2)))
+              .map(
+                (r) => DropdownMenuItem(
+                  value: r.$1,
+                  child: Text(
+                    CurrencyUtils.formatEur(
+                      r.$1,
+                      preferredCurrency,
+                      perYear: true,
+                    ),
+                  ),
+                ),
+              )
               .toList(),
-          onChanged: onMonthlyBudget,
+          onChanged: onAnnualTuitionBudget,
         ),
         const SizedBox(height: KpbSpacing.lg),
         KpbPressable(

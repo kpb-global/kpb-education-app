@@ -105,7 +105,18 @@ class OneSignalService {
     // Normalize the external payload and fall back to the home shell when it
     // resolves to nothing (e.g. an unknown or MVP-locked route) so a tap never
     // dies silently. `/scholarships` resolves to a graceful "coming soon".
-    final route = raw is String ? AppRoutes.normalizeExternalRoute(raw) : null;
+    var route = raw is String ? AppRoutes.normalizeExternalRoute(raw) : null;
+    final scholarshipId = data?['scholarshipId'];
+    // Older backend activations route to the generic list and carry the target
+    // id separately. Upgrade that payload client-side so the rollout remains
+    // backward compatible while new pushes can send the detail route directly.
+    if (route == AppRoutes.scholarships &&
+        scholarshipId is String &&
+        scholarshipId.trim().isNotEmpty) {
+      route = AppRoutes.normalizeExternalRoute(
+        AppRoutes.scholarshipDetailPath(scholarshipId.trim()),
+      );
+    }
     try {
       if (route == null) {
         Get.offAllNamed(AppRoutes.home);

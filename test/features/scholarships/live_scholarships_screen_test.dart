@@ -15,9 +15,9 @@ import '../../widget_test_helpers.dart';
 // Smoke tests for the App-engagement restyle (PR4): the live scholarships list
 // + detail sheet. Verify the restyled row binds to REAL model fields (name,
 // funding, a D-<days> countdown computed from deadlineAt), that the "Deadline
-// soon" chip fires for a near deadline, that no fake push-reminder bell is
-// rendered (there is no reminder mechanism to back one), and that opening the
-// detail surfaces the external "Official application form" CTA.
+// soon" chip fires for a near deadline, that the real per-scholarship alert
+// action is rendered, and that opening the detail surfaces the external
+// "Official application form" CTA.
 // ─────────────────────────────────────────────────────────────────────────────
 
 Map<String, dynamic> _scholarshipJson() => <String, dynamic>{
@@ -65,6 +65,7 @@ void _stubFetch(MockApiClient mock, List<dynamic> items) {
         fieldIds: any(named: 'fieldIds'),
         fundingType: any(named: 'fundingType'),
       )).thenAnswer((_) async => items);
+  when(() => mock.fetchScholarshipAlerts()).thenAnswer((_) async => <String>{});
 }
 
 Widget _wrap(Widget home) => GetMaterialApp(
@@ -83,7 +84,7 @@ void main() {
 
   testWidgets(
       'restyled list renders a real scholarship row (name, funding, D-days, '
-      'soon chip) and no fake reminder bell', (tester) async {
+      'soon chip) and the real alert action', (tester) async {
     final mock = MockApiClient();
     _stubFetch(mock, <dynamic>[_scholarshipJson()]);
     await _seed(mock);
@@ -98,10 +99,10 @@ void main() {
     expect(find.textContaining('D-'), findsWidgets);
     // Near deadline (<= 14 days) surfaces the amber "soon" chip.
     expect(find.text('Deadline imminente'), findsOneWidget);
-    // Trailing round toggle is the REAL save/bookmark, not a push-reminder bell.
-    expect(find.byIcon(Icons.bookmark_outline_rounded), findsWidgets);
+    // The trailing action is backed by the alert-subscription API.
+    expect(find.text('M\'avertir'), findsOneWidget);
     expect(find.byIcon(Icons.notifications), findsNothing);
-    expect(find.byIcon(Icons.notifications_none_rounded), findsNothing);
+    expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
     expect(find.byIcon(Icons.notifications_active_rounded), findsNothing);
 
     expect(tester.takeException(), isNull);
@@ -146,6 +147,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Aucune bourse trouvée'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('guide CTA opens the store-safe informational page',
+      (tester) async {
+    final mock = MockApiClient();
+    _stubFetch(mock, <dynamic>[]);
+    await _seed(mock);
+
+    await tester.pumpWidget(_wrap(LiveScholarshipsScreen(apiClient: mock)));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('En savoir plus'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ce que tu vas apprendre'), findsOneWidget);
+    expect(find.textContaining('20.000'), findsNothing);
+    expect(find.textContaining('10.000'), findsNothing);
+    expect(find.textContaining('Chariow'), findsNothing);
+    expect(find.text('Acheter'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

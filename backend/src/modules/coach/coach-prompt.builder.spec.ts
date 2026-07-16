@@ -68,12 +68,12 @@ describe('buildCoachSystemPrompt (RAG grounding)', () => {
   });
 
   it('buckets the budget into a coarse range, never the exact figure', () => {
-    const fr = buildCoachSystemPrompt({ monthlyBudgetEur: 1450 });
-    expect(fr).toContain('1000–2000');
-    expect(fr).not.toContain('1450');
-    expect(budgetBucket(300, 'en')).toBe('< 500 €/month (range)');
-    expect(budgetBucket(750, 'fr')).toBe('500–1000 €/mois (tranche)');
-    expect(budgetBucket(5000, 'en')).toBe('> 2000 €/month (range)');
+    const fr = buildCoachSystemPrompt({ annualTuitionBudgetEur: 14500 });
+    expect(fr).toContain('10 000–20 000');
+    expect(fr).not.toContain('14500');
+    expect(budgetBucket(300, 'en')).toBe('< 5 000 €/year tuition (range)');
+    expect(budgetBucket(7500, 'fr')).toBe('5 000–10 000 €/an de scolarité (tranche)');
+    expect(budgetBucket(25000, 'en')).toBe('> 20 000 €/year tuition (range)');
     expect(budgetBucket(undefined, 'fr')).toBe('non renseigné');
     expect(budgetBucket(0, 'en')).toBe('not specified');
   });

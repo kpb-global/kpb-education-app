@@ -35,6 +35,9 @@ SUPABASE_JWT_SECRET=            # seulement pour les projets HS256 legacy
 
 # Origines CORS autorisées (app admin web), séparées par des virgules
 CORS_ORIGINS=https://admin.kpb-education.com
+
+# L'API est derrière exactement un proxy Nginx ; nécessaire au rate limiting
+KPB_TRUST_PROXY_HOPS=1
 ```
 
 3. Lancez : `docker-compose up -d --build`
@@ -59,6 +62,27 @@ CORS_ORIGINS=https://admin.kpb-education.com
 >   }
 > }
 > ```
+
+> Les documents étudiants ne sont plus servis par un chemin public `/uploads`.
+> N'ajoutez donc pas de bloc Nginx qui pointe ce chemin vers le volume : le
+> téléchargement passe uniquement par l'API authentifiée. Nginx doit être le
+> seul proxy de l'API exposé à Internet ; c'est ce qui rend fiable
+> `KPB_TRUST_PROXY_HOPS=1` et le rate limiting par adresse client.
+
+### Vérification de santé après déploiement
+
+L'API expose deux contrôles distincts :
+
+- `GET /api/health/live` vérifie que le processus répond ; Docker l'utilise pour son healthcheck.
+- `GET /api/health/ready` vérifie aussi la connexion PostgreSQL. Un répartiteur ou une sonde externe doit exiger un `200` avant de router du trafic vers une nouvelle version.
+
+Après `docker-compose up -d --build`, vérifiez les deux :
+
+```bash
+curl -fsS https://api.kpb-education.com/api/health/live
+curl -fsS https://api.kpb-education.com/api/health/ready
+docker-compose ps
+```
 
 ### Database Migrations & seed :
 
@@ -110,10 +134,14 @@ Testez une restauration complète sur un environnement jetable avant le lancemen
 ## 2. Frontend (Flutter CI/CD)
 
 Les pipelines CI/CD sont configurées via GitHub Actions (voir `.github/workflows/flutter-ci.yml`).
-À chaque push sur `main`, GitHub va tester et compiler automatiquement :
+À chaque push sur `main`, GitHub teste l'application, construit un APK de
+validation et compile iOS sans signature. Lorsqu'un tag `v*` est créé, GitHub
+produit un AAB Android signé avec la clé d'upload ; le workflow échoue si l'une
+des quatre variables de signature manque.
 
-- L'APK Android.
+- L'APK Android de validation (debug).
 - Le `.app` iOS (sans signature).
+- L'AAB Android signé sur tag `v*`.
 
 ### Connexion Google / magic-link (deep link Supabase) :
 

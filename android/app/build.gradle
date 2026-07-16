@@ -34,6 +34,19 @@ def keystoreStoreFile = keystoreProperties['storeFile'] != null
         ? file(keystoreProperties['storeFile'])
         : null
 def hasReleaseKeystore = keystoreStoreFile != null && keystoreStoreFile.exists()
+def requestedReleaseTask = gradle.startParameter.taskNames.any { taskName ->
+    def normalized = taskName.toLowerCase()
+    normalized.contains('release') || normalized in ['assemble', 'bundle', 'build']
+}
+
+// A production artifact must never silently fall back to the debug key. Keep
+// debug tasks usable without an upload key, but fail as soon as a release task
+// is requested (locally or in CI).
+if (requestedReleaseTask && !hasReleaseKeystore) {
+    throw new GradleException(
+        'Release signing configuration is missing. Provide android/key.properties and its upload keystore.'
+    )
+}
 
 android {
     namespace "com.karatou.android"
@@ -79,8 +92,8 @@ android {
 
     buildTypes {
         release {
-            // Production: key.properties + release keystore. Otherwise fall back to debug keystore
-            // so `flutter build apk --release` and CI still produce a signed APK.
+            // The guard above rejects all release tasks unless this key exists.
+            // The debug reference only keeps IDE sync/debug configuration valid.
             signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             shrinkResources true
             minifyEnabled true

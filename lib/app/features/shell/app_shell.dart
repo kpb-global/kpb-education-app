@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,15 +9,16 @@ import '../../core/ui/components/kpb_offline_banner.dart';
 import '../../core/ui/components/kpb_sample_data_banner.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../cases/cases_screen.dart';
-import '../destinations/destinations_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
+import '../scholarships/live_scholarships_screen.dart';
 import '../universities/universities_screen.dart';
 import '../ai_advisor/coach_fab.dart';
 import 'kpb_tools_drawer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppShell — 5-tab navigation (Accueil · Destinations · Universités · Demandes · Moi)
+// AppShell — 5-tab navigation. The order mirrors the approved engagement
+// design, with Scholarships occupying the high-intent centre slot.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class AppShell extends StatelessWidget {
@@ -35,7 +35,7 @@ class AppShell extends StatelessWidget {
 
         final pages = <Widget>[
           const HomeScreen(),
-          const DestinationsScreen(),
+          LiveScholarshipsScreen(apiClient: controller.apiClient),
           UniversitiesScreen(
             key: ValueKey(fieldFilter ?? 'all'),
             initialFieldId: fieldFilter,
@@ -113,77 +113,65 @@ class _KpbFloatingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: KpbSpacing.pagePad,
-        right: KpbSpacing.pagePad,
-        bottom: 24,
-      ),
-      child: SafeArea(
-        bottom: true,
-        child: ClipRRect(
-          borderRadius: KpbRadius.pillBr,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(
-              key: const ValueKey('kpb_shell_nav_bar'),
-              height: 68,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? KpbColors.glassBg
-                    : Colors.white.withValues(alpha: 0.85),
-                borderRadius: KpbRadius.pillBr,
-                border: Border.all(
-                  color: isDark
-                      ? KpbColors.glassBorder
-                      : Colors.white.withValues(alpha: 0.5),
-                  width: 1.5,
-                ),
-                boxShadow: isDark ? null : KpbShadow.float,
-              ),
-              child: Row(
-                children: [
-                  _NavItem(
-                    icon: Icons.home_outlined,
-                    selectedIcon: Icons.home_rounded,
-                    label: 'nav_home'.tr,
-                    isSelected: currentIndex == StudentShellTab.home,
-                    onTap: () => onTap(StudentShellTab.home),
-                  ),
-                  _NavItem(
-                    icon: Icons.public_outlined,
-                    selectedIcon: Icons.public_rounded,
-                    label: 'nav_destinations'.tr,
-                    isSelected: currentIndex == StudentShellTab.destinations,
-                    onTap: () => onTap(StudentShellTab.destinations),
-                  ),
-                  _NavItem(
-                    icon: Icons.school_outlined,
-                    selectedIcon: Icons.school_rounded,
-                    label: 'nav_universities'.tr,
-                    isSelected: currentIndex == StudentShellTab.universities,
-                    onTap: () => onTap(StudentShellTab.universities),
-                  ),
-                  _NavItem(
-                    icon: Icons.folder_copy_outlined,
-                    selectedIcon: Icons.folder_copy_rounded,
-                    label: 'nav_cases'.tr,
-                    isSelected: currentIndex == StudentShellTab.cases,
-                    onTap: () => onTap(StudentShellTab.cases),
-                    badgeCount:
-                        Get.find<AppController>().totalUnreadCaseMessages,
-                  ),
-                  _NavItem(
-                    icon: Icons.person_outline_rounded,
-                    selectedIcon: Icons.person_rounded,
-                    label: 'nav_profile'.tr,
-                    isSelected: currentIndex == StudentShellTab.profile,
-                    onTap: () => onTap(StudentShellTab.profile),
-                  ),
-                ],
-              ),
+    return SafeArea(
+      top: false,
+      child: Container(
+        key: const ValueKey('kpb_shell_nav_bar'),
+        height: 62,
+        decoration: BoxDecoration(
+          color: isDark ? KpbColors.bgDarkCard : Colors.white,
+          border: Border(
+            top: BorderSide(
+              color:
+                  isDark ? KpbColors.glassBorder : KpbColors.engagementBorder,
             ),
           ),
+        ),
+        child: Row(
+          children: [
+            _NavItem(
+              key: const ValueKey('kpb_nav_home'),
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home_rounded,
+              label: 'nav_home'.tr,
+              isSelected: currentIndex == StudentShellTab.home,
+              onTap: () => onTap(StudentShellTab.home),
+            ),
+            // The source design gives the university search the second slot.
+            _NavItem(
+              key: const ValueKey('kpb_nav_universities'),
+              icon: Icons.school_outlined,
+              selectedIcon: Icons.school_rounded,
+              label: 'nav_universities'.tr,
+              isSelected: currentIndex == StudentShellTab.universities,
+              onTap: () => onTap(StudentShellTab.universities),
+            ),
+            _NavItem(
+              key: const ValueKey('kpb_nav_scholarships'),
+              icon: Icons.notifications_none_rounded,
+              selectedIcon: Icons.notifications_active_rounded,
+              label: 'nav_scholarships'.tr,
+              isSelected: currentIndex == StudentShellTab.scholarships,
+              onTap: () => onTap(StudentShellTab.scholarships),
+            ),
+            _NavItem(
+              key: const ValueKey('kpb_nav_cases'),
+              icon: Icons.folder_copy_outlined,
+              selectedIcon: Icons.folder_copy_rounded,
+              label: 'nav_cases'.tr,
+              isSelected: currentIndex == StudentShellTab.cases,
+              onTap: () => onTap(StudentShellTab.cases),
+              badgeCount: Get.find<AppController>().totalUnreadCaseMessages,
+            ),
+            _NavItem(
+              key: const ValueKey('kpb_nav_profile'),
+              icon: Icons.person_outline_rounded,
+              selectedIcon: Icons.person_rounded,
+              label: 'nav_profile'.tr,
+              isSelected: currentIndex == StudentShellTab.profile,
+              onTap: () => onTap(StudentShellTab.profile),
+            ),
+          ],
         ),
       ),
     );
@@ -192,6 +180,7 @@ class _KpbFloatingNavBar extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   const _NavItem({
+    super.key,
     required this.icon,
     required this.selectedIcon,
     required this.label,
@@ -210,90 +199,108 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = KpbColors.blue;
-    final inactiveColor =
-        isDark ? KpbColors.textDarkSecondary : KpbColors.gray400;
+    const activeColor = KpbColors.engagementBlue;
+    const inactiveColor = KpbColors.textDarkSecondary;
 
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (!isSelected) HapticFeedback.selectionClick();
-          onTap();
-        },
-        behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutQuint,
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (isDark
-                      ? KpbColors.blue.withValues(alpha: 0.15)
-                      : KpbColors.skyLight)
-                  : Colors.transparent,
-              borderRadius: KpbRadius.pillBr,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      transitionBuilder: (child, animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: Icon(
-                        isSelected ? selectedIcon : icon,
-                        key: ValueKey<bool>(isSelected),
-                        color: isSelected ? activeColor : inactiveColor,
-                        size: 22,
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (!isSelected) HapticFeedback.selectionClick();
+              onTap();
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 6, bottom: 2),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 52,
+                    height: 28,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOut,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? (isDark
+                                ? KpbColors.engagementBlue
+                                    .withValues(alpha: 0.2)
+                                : const Color(0xFFDBEAFE))
+                            : Colors.transparent,
+                        borderRadius: KpbRadius.pillBr,
                       ),
-                    ),
-                    if (badgeCount > 0)
-                      Positioned(
-                        right: -8,
-                        top: -4,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: KpbColors.error,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            badgeCount > 9 ? '9+' : '$badgeCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
+                      alignment: Alignment.center,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 180),
+                            child: Icon(
+                              isSelected ? selectedIcon : icon,
+                              key: ValueKey<bool>(isSelected),
+                              color: isSelected ? activeColor : inactiveColor,
+                              size: 20,
                             ),
                           ),
-                        ),
+                          if (badgeCount > 0)
+                            Positioned(
+                              right: -12,
+                              top: -7,
+                              child: _NavBadge(count: badgeCount),
+                            ),
+                        ],
                       ),
-                  ],
-                ),
-                if (isSelected) ...[
-                  const SizedBox(height: 2),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
                   Text(
                     label,
                     style: TextStyle(
-                      color: activeColor,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 9,
+                      color: isSelected ? activeColor : inactiveColor,
+                      fontWeight:
+                          isSelected ? FontWeight.w800 : FontWeight.w600,
+                      fontSize: 9.5,
+                      height: 1,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                   ),
                 ],
-              ],
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBadge extends StatelessWidget {
+  const _NavBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: KpbColors.error,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        count > 9 ? '9+' : '$count',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 8,
+          height: 1.1,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

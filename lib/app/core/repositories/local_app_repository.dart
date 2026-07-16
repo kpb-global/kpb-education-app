@@ -142,7 +142,9 @@ class LocalAppRepository implements AppRepository {
       'targetCountryIds': profile.targetCountryIds,
       'gradeRange': profile.gradeRange,
       'bacSeries': profile.bacSeries,
+      'annualTuitionBudgetEur': profile.annualTuitionBudgetEur,
       'monthlyBudgetEur': profile.monthlyBudgetEur,
+      'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'availableDocuments': profile.availableDocuments,
       // Consent timestamps + age gate must survive a cold start so we don't
@@ -175,7 +177,12 @@ class LocalAppRepository implements AppRepository {
       targetCountryIds: _stringList(json['targetCountryIds']),
       gradeRange: json['gradeRange'] as String?,
       bacSeries: json['bacSeries'] as String? ?? json['gradeRange'] as String?,
+      annualTuitionBudgetEur: json['annualTuitionBudgetEur'] as int? ??
+          ((json['monthlyBudgetEur'] as int?) != null
+              ? (json['monthlyBudgetEur'] as int) * 12
+              : null),
       monthlyBudgetEur: json['monthlyBudgetEur'] as int?,
+      preferredCurrency: json['preferredCurrency'] as String? ?? 'XOF',
       wantsScholarshipSupport:
           json['wantsScholarshipSupport'] as bool? ?? false,
       availableDocuments: _stringList(json['availableDocuments']),

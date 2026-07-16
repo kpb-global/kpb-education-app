@@ -15,6 +15,9 @@ import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AdminSessionUser } from '../auth/auth.service';
+import { CreateScholarshipVideoDto } from '../scholarships-index/dto/create-scholarship-video.dto';
+import { UpdateScholarshipVideoDto } from '../scholarships-index/dto/update-scholarship-video.dto';
+import { ScholarshipVideosService } from '../scholarships-index/scholarship-videos.service';
 import { AdminCatalogService } from './admin-catalog.service';
 
 type AdminRequest = { adminUser?: AdminSessionUser };
@@ -25,7 +28,10 @@ type AdminRequest = { adminUser?: AdminSessionUser };
 @UseGuards(AdminAuthGuard, RolesGuard)
 @Roles(InternalRole.Admin, InternalRole.SuperAdmin, InternalRole.ContentManager)
 export class AdminCatalogController {
-  constructor(private readonly service: AdminCatalogService) {}
+  constructor(
+    private readonly service: AdminCatalogService,
+    private readonly scholarshipVideos: ScholarshipVideosService,
+  ) {}
 
   private verifier(req: AdminRequest): AdminSessionUser {
     return (
@@ -143,6 +149,37 @@ export class AdminCatalogController {
     @Param('stepId') stepId: string,
   ) {
     return this.service.deleteApplicationStep(id, stepId);
+  }
+
+  // ── Scholarship YouTube explainers ──────────────────────────────────────
+  @Get('scholarships/:id/videos')
+  listScholarshipVideos(@Param('id') id: string) {
+    return this.scholarshipVideos.list(id);
+  }
+
+  @Post('scholarships/:id/videos')
+  createScholarshipVideo(
+    @Param('id') id: string,
+    @Body() input: CreateScholarshipVideoDto,
+  ) {
+    return this.scholarshipVideos.create(id, input);
+  }
+
+  @Patch('scholarships/:id/videos/:videoId')
+  updateScholarshipVideo(
+    @Param('id') id: string,
+    @Param('videoId') videoId: string,
+    @Body() input: UpdateScholarshipVideoDto,
+  ) {
+    return this.scholarshipVideos.update(id, videoId, input);
+  }
+
+  @Delete('scholarships/:id/videos/:videoId')
+  deleteScholarshipVideo(
+    @Param('id') id: string,
+    @Param('videoId') videoId: string,
+  ) {
+    return this.scholarshipVideos.delete(id, videoId);
   }
 
   // ── Countries (pays) ──────────────────────────────────────────────────────

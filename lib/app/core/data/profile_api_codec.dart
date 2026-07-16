@@ -33,7 +33,12 @@ abstract final class ProfileApiCodec {
       targetCountryIds: stringListFromJson(json['targetCountryIds']),
       gradeRange: json['gradeRange'] as String?,
       bacSeries: json['bacSeries'] as String?,
+      annualTuitionBudgetEur: json['annualTuitionBudgetEur'] as int? ??
+          ((json['monthlyBudgetEur'] as int?) != null
+              ? (json['monthlyBudgetEur'] as int) * 12
+              : null),
       monthlyBudgetEur: json['monthlyBudgetEur'] as int?,
+      preferredCurrency: json['preferredCurrency'] as String? ?? 'XOF',
       wantsScholarshipSupport: json['wantsScholarshipSupport'] as bool? ??
           json['wantsScholarship'] as bool? ??
           false,
