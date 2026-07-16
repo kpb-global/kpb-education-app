@@ -9,13 +9,15 @@ class MatchBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tiers lisibles en texte (architecture §9.2) : gold (2,15:1) et sky
+    // (2,14:1) échouaient au contraste AA sur fond clair.
     final Color color;
     if (score >= 80) {
       color = KpbColors.success;
     } else if (score >= 60) {
-      color = KpbColors.gold;
+      color = KpbColors.warning;
     } else {
-      color = KpbColors.sky;
+      color = KpbColors.actionPrimary;
     }
 
     return Container(

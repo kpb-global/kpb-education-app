@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'kpb_theme_ext.dart';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Skeleton / shimmer loading components — no extra package needed.
 // Each skeleton widget manages its own AnimationController for a smooth pulse.
@@ -68,11 +70,11 @@ class _SkeletonPulseState extends State<_SkeletonPulse>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor =
-        isDark ? const Color(0xFF1E2535) : const Color(0xFFE5E7EB);
-    final shimmerColor =
-        isDark ? const Color(0xFF2D3748) : const Color(0xFFF3F4F6);
+    // Tokens sémantiques (base = bordure, reflet = surface muted) : le
+    // skeleton suit le thème sans hexadécimaux locaux.
+    final c = context.kpb;
+    final baseColor = context.isDark ? c.surfaceBg : c.gray200;
+    final shimmerColor = context.isDark ? c.borderLight : c.gray100;
     final colorAnim =
         ColorTween(begin: baseColor, end: shimmerColor).animate(_ctrl);
 

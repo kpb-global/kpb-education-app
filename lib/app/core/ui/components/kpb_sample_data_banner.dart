@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../app_tokens.dart';
+import '../kpb_theme_ext.dart';
 
 /// Slim, honest "sample data" banner for the app shell.
 ///
@@ -18,7 +19,7 @@ class KpbSampleDataBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: KpbColors.warningLight,
+      color: context.kpb.warningLight,
       child: SafeArea(
         bottom: false,
         child: Padding(

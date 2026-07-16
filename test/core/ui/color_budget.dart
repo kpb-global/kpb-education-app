@@ -1,15 +1,13 @@
 // GÉNÉRÉ puis maintenu à la main : budget d'hexadécimaux par fichier
 // (ratchet — voir color_audit_test.dart). Chaque lot de migration ABAISSE
 // les budgets des fichiers qu'il traite ; on n'augmente JAMAIS un budget.
-// Baseline : lot 1 (16/07/2026), après re-pointage des tokens.
+// Baseline : lot 1 (16/07/2026) ; lot 2 : composants core/ui à zéro.
 
 const Map<String, int> colorBudget = {
   'lib/app/core/data/mock_catalog/fields_data.dart': 12,
   'lib/app/core/models/catalog.dart': 2,
   'lib/app/core/repositories/app_api_client.dart': 2,
   'lib/app/core/ui/app_tokens.dart': 76,
-  'lib/app/core/ui/components/verified_advisor_sheet.dart': 5,
-  'lib/app/core/ui/skeleton.dart': 4,
   'lib/app/features/ai_advisor/ai_chat_screen.dart': 15,
   'lib/app/features/auth/auth_welcome_screen.dart': 3,
   'lib/app/features/budget/budget_calculator_screen.dart': 12,

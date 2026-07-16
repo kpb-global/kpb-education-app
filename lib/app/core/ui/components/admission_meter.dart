@@ -42,9 +42,11 @@ class AdmissionMeter extends StatelessWidget {
               CircularProgressIndicator(
                 value: 1.0,
                 strokeWidth: strokeWidth,
+                // Piste translucide : lisible sur cartes claires ET sur les
+                // rails hero sombres où la jauge est embarquée.
                 color: Theme.of(context).brightness == Brightness.dark
                     ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.06),
+                    : KpbColors.textFaint.withValues(alpha: 0.2),
               ),
               CircularProgressIndicator(
                 value: value / 100,

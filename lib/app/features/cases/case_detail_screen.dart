@@ -10,8 +10,6 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/components/anti_fraud_notice.dart';
-import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/services/document_upload_service.dart';
 import '../services/service_packages_screen.dart';
 import '../tools/interview_simulator_screen.dart';

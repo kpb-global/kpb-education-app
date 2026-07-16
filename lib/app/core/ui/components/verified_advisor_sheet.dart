@@ -197,9 +197,10 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFDCFCE7),
+                color: context.kpb.successLight,
                 borderRadius: KpbRadius.smBr,
-                border: Border.all(color: const Color(0xFFBBF7D0)),
+                border: Border.all(
+                    color: KpbColors.success.withValues(alpha: 0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +211,7 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.6,
-                      color: Color(0xFF16A34A),
+                      color: KpbColors.success,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -219,7 +220,7 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12.5,
                       height: 1.5,
-                      color: Color(0xFF14532D),
+                      color: KpbColors.textPrimary,
                     ),
                   ),
                 ],
@@ -232,8 +233,9 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => Get.back(result: true),
               style: FilledButton.styleFrom(
-                // WhatsApp brand green, per the handoff CTA.
-                backgroundColor: const Color(0xFF25D366),
+                // WhatsApp brand green, per the handoff CTA (token marque
+                // externe — allowlist §10.4).
+                backgroundColor: KpbColors.whatsapp,
                 foregroundColor: Colors.white,
               ),
               icon: const Icon(Icons.chat_rounded, size: 18),

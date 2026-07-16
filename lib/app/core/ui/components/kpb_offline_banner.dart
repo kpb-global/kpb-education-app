@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../services/catalog_cache_service.dart';
 import '../../services/connectivity_service.dart';
 import '../app_tokens.dart';
+import '../kpb_theme_ext.dart';
 
 /// Localized relative label describing how fresh the cached catalog is.
 ///
@@ -49,7 +50,7 @@ class KpbOfflineBanner extends StatelessWidget {
             : null;
 
         return Material(
-          color: KpbColors.warningLight,
+          color: context.kpb.warningLight,
           child: SafeArea(
             bottom: false,
             child: Padding(

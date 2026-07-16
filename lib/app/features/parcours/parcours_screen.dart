@@ -12,7 +12,6 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/mock_catalog.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/ui/kpb_components.dart';
 import 'parcours_story_screen.dart';
 
