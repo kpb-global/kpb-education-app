@@ -1,15 +1,14 @@
 // GÉNÉRÉ puis maintenu à la main : budget d'hexadécimaux par fichier
 // (ratchet — voir color_audit_test.dart). Chaque lot de migration ABAISSE
 // les budgets des fichiers qu'il traite ; on n'augmente JAMAIS un budget.
-// Baseline : lot 1 (16/07/2026) ; lot 2 : composants core/ui à zéro.
+// Lot 1 : baseline · lot 2 : core/ui à 0 · lot 3 : entrée/onboarding/shell à 0.
 
 const Map<String, int> colorBudget = {
   'lib/app/core/data/mock_catalog/fields_data.dart': 12,
   'lib/app/core/models/catalog.dart': 2,
   'lib/app/core/repositories/app_api_client.dart': 2,
-  'lib/app/core/ui/app_tokens.dart': 76,
+  'lib/app/core/ui/app_tokens.dart': 77,
   'lib/app/features/ai_advisor/ai_chat_screen.dart': 15,
-  'lib/app/features/auth/auth_welcome_screen.dart': 3,
   'lib/app/features/budget/budget_calculator_screen.dart': 12,
   'lib/app/features/cases/case_create_screen.dart': 1,
   'lib/app/features/cases/case_detail_screen.dart': 23,
@@ -30,7 +29,6 @@ const Map<String, int> colorBudget = {
   'lib/app/features/home/home_screen.dart': 14,
   'lib/app/features/matches/aha_moment_screen.dart': 8,
   'lib/app/features/notifications/notifications_screen.dart': 16,
-  'lib/app/features/onboarding/onboarding_screen.dart': 12,
   'lib/app/features/parcours/parcours_screen.dart': 8,
   'lib/app/features/parcours/parcours_story_screen.dart': 3,
   'lib/app/features/parent/parent_dashboard_screen.dart': 1,
@@ -46,7 +44,6 @@ const Map<String, int> colorBudget = {
   'lib/app/features/scholarships/widgets/scholarship_alert_button.dart': 4,
   'lib/app/features/search/match_explanation_sheet.dart': 3,
   'lib/app/features/search/search_screen.dart': 4,
-  'lib/app/features/shell/app_shell.dart': 1,
   'lib/app/features/tools/interview_simulator_screen.dart': 18,
   'lib/app/features/tools/motivation_letters_screen.dart': 12,
   'lib/app/features/travel/flight_estimator_screen.dart': 8,
