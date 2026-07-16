@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../models/app_models.dart';
 import '../../features/alumni/alumni_directory_screen.dart';
 import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
@@ -9,6 +10,7 @@ import '../../features/profile/profile_screen.dart';
 import '../../features/salon/salon_screen.dart';
 import '../../features/saved/saved_screen.dart';
 import '../../features/scholarships/live_scholarships_screen.dart';
+import '../../features/scholarships/scholarship_detail_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/services/service_packages_screen.dart';
 import '../../features/shell/app_shell.dart';
@@ -22,6 +24,11 @@ class AppRoutes {
   static const String home = '/';
   static const String search = '/search';
   static const String scholarships = '/scholarships';
+  static const String scholarshipDetail = '/scholarships/:id';
+  static const String _scholarshipPrefix = '/scholarships/';
+
+  static String scholarshipDetailPath(String id) =>
+      '$_scholarshipPrefix${Uri.encodeComponent(id)}';
   // High-intent re-engagement targets (KPB-63): named so push/deep-links can
   // land on the right screen instead of dumping the user on Home.
   static const String orientation = '/orientation';
@@ -59,6 +66,12 @@ class AppRoutes {
       return '/cases/$caseId';
     }
 
+    if (route.startsWith(_scholarshipPrefix)) {
+      final scholarshipId = route.substring(_scholarshipPrefix.length);
+      if (scholarshipId.isEmpty || scholarshipId.contains('/')) return null;
+      return '$_scholarshipPrefix$scholarshipId';
+    }
+
     final known = <String>{
       home,
       search,
@@ -71,9 +84,7 @@ class AppRoutes {
       salon,
       services,
       profile,
-      // `/scholarships` always resolves: the live aggregator is a V1.1+ module,
-      // but under the MVP lock the route renders a graceful "coming soon" (see
-      // pages) so a push to it never dies silently.
+      // Scholarship-opening push notifications land on this acquisition screen.
       scholarships,
     };
     if (known.contains(route)) return route;
@@ -95,6 +106,20 @@ class AppRoutes {
     GetPage(
       name: scholarships,
       page: () => const LiveScholarshipsScreen(),
+    ),
+    GetPage(
+      name: scholarshipDetail,
+      page: () {
+        final scholarshipId = Get.parameters['id'];
+        if (scholarshipId == null || scholarshipId.isEmpty) {
+          return const LiveScholarshipsScreen();
+        }
+        final initial = Get.arguments;
+        return ScholarshipDetailScreen(
+          scholarshipId: scholarshipId,
+          initialScholarship: initial is LiveScholarshipModel ? initial : null,
+        );
+      },
     ),
     // High-intent re-engagement destinations (KPB-63). Each is a standalone,
     // pushable screen with its own app bar.

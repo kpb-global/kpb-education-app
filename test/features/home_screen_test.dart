@@ -34,7 +34,7 @@ void main() {
       );
 
       expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.byIcon(Icons.search_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.smart_toy_rounded), findsOneWidget);
       expect(find.byIcon(Icons.person_outline_rounded), findsOneWidget);
 
       await tester.binding.setSurfaceSize(null);

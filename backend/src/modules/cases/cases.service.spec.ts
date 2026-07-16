@@ -1,4 +1,5 @@
 import { ModuleRef } from '@nestjs/core';
+import { NotFoundException } from '@nestjs/common';
 
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -84,5 +85,76 @@ describe('CasesService — referral crediting is fire-and-forget (KPB-77)', () =
       'user-1',
     );
     expect(result.id).toBe('case-1');
+  });
+});
+
+describe('CasesService — private document ownership', () => {
+  it('queries a document through both the case id and its student owner', async () => {
+    let receivedWhere: any;
+    const prisma = {
+      isEnabled: true,
+      execute: async (operation: (client: any) => Promise<any>) =>
+        operation({
+          caseDocument: {
+            findFirst: async ({ where }: { where: any }) => {
+              receivedWhere = where;
+              return {
+                id: 'doc-1',
+                title: 'Passport',
+                fileUrl: 'storage://2026-07-11/123e4567-e89b-12d3-a456-426614174000.pdf',
+              };
+            },
+          },
+        }),
+    } as unknown as PrismaService;
+    const service = new CasesService(
+      prisma,
+      { get: () => null } as unknown as ModuleRef,
+      { sendToUser: async () => {} } as unknown as OneSignalSenderService,
+    );
+
+    await expect(
+      service.getOwnedDocument('case-1', 'doc-1', 'student-1'),
+    ).resolves.toMatchObject({ id: 'doc-1' });
+    expect(receivedWhere).toEqual({
+      id: 'doc-1',
+      caseId: 'case-1',
+      case: { userId: 'student-1' },
+    });
+  });
+
+  it('allows only an assigned counsellor or administrator to read document bytes', async () => {
+    const prisma = {
+      isEnabled: true,
+      execute: async (operation: (client: any) => Promise<any>) =>
+        operation({
+          caseDocument: {
+            findFirst: async () => ({
+              id: 'doc-1',
+              title: 'Passport',
+              fileUrl: 'storage://2026-07-11/123e4567-e89b-12d3-a456-426614174000.pdf',
+              case: { assignedAdvisorName: 'Awa KPB' },
+            }),
+          },
+        }),
+    } as unknown as PrismaService;
+    const service = new CasesService(
+      prisma,
+      { get: () => null } as unknown as ModuleRef,
+      { sendToUser: async () => {} } as unknown as OneSignalSenderService,
+    );
+
+    await expect(
+      service.getInternalDocument('case-1', 'doc-1', {
+        role: 'counselor',
+        fullName: 'awa kpb',
+      }),
+    ).resolves.toMatchObject({ id: 'doc-1' });
+    await expect(
+      service.getInternalDocument('case-1', 'doc-1', {
+        role: 'counselor',
+        fullName: 'Other advisor',
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

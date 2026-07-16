@@ -40,13 +40,13 @@ flutter build appbundle --release
 
 ### Android (Google Play)
 
-- **Upload key:** keystore + `android/key.properties` locally (gitignored). CI optional secrets: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS` — see comments in [`.github/workflows/flutter-ci.yml`](../.github/workflows/flutter-ci.yml).
+- **Upload key:** keystore + `android/key.properties` locally (gitignored). The four CI secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS` are **required** before creating a `v*` tag. The tag pipeline fails instead of producing a debug-signed release and uploads a signed AAB.
 - **Play App Signing:** recommended; keep upload key in password manager + offline backup.
 - **Store listing:** short/long description, screenshots (phone + 7" tablet if required), feature graphic, privacy policy URL, data safety form aligned with [`security-compliance.md`](security-compliance.md) and in-app legal copy.
 
 ### iOS (App Store)
 
-- **Distribution signing:** Apple Development / Distribution certificates, provisioning profiles, **Release** `aps-environment` for push (not `development`).
+- **Distribution signing:** Apple Development / Distribution certificates, provisioning profiles, and **Release** `aps-environment=production` for push (configured in `RunnerRelease.entitlements`).
 - **ASC metadata:** privacy policy URL, export compliance, age rating, screenshots per device class.
 - **CI today:** `flutter build ios --no-codesign` validates compile only; produce IPA via Xcode archive / Fastlane for upload.
 
@@ -73,5 +73,7 @@ flutter build appbundle --release
 
 - [ ] Version bump in `pubspec.yaml` (`version: x.y.z+build`).  
 - [ ] `flutter analyze` + `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` green.  
+- [ ] Android CI secrets verified; the `v*` tag produces and verifies a signed AAB (never debug-signed).
+- [ ] iOS archive uses an Apple Distribution certificate, provisioning profile and `RunnerRelease.entitlements`.
 - [ ] Profile build smoke on **physical** Android + iOS (Phase 1 smoke + Phase 6 perf spot-check).  
 - [ ] Store consoles updated; privacy / data safety answers match shipping build.

@@ -51,6 +51,16 @@ class KpbColors {
   static const bgMuted = Color(0xFFF3F4F6);
   static const sand = Color(0xFFFFF4E5);
 
+  // ── KPB Intelligence onboarding ─────────────────────────────────────────
+  // These values mirror the approved acquisition/onboarding design. Keeping
+  // them named here lets the remaining app surfaces migrate without recreating
+  // near-identical local palettes screen by screen.
+  static const engagementNavy = Color(0xFF0F172A);
+  static const engagementBlue = Color(0xFF2563EB);
+  static const engagementCanvas = Color(0xFFF8FAFC);
+  static const engagementBorder = Color(0xFFE2E8F0);
+  static const engagementMuted = Color(0xFF64748B);
+
   // ── Dark UI surfaces (glass nav, immersive screens) ──────────────────────
   static const bgDarkMidnight = Color(0xFF060D1A);
   static const bgDarkCard = Color(0xFF131A2A);

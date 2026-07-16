@@ -14,6 +14,7 @@ import {
 
 import { mockAdminData } from '../src/common/data/mock-admin';
 import { mockCatalog } from '../src/common/data/mock-catalog';
+import { assessLegacyScholarshipSeed } from '../src/modules/scholarships-index/data/legacy-scholarship-seed-safety';
 import { PARCOURS_SEED } from '../src/modules/parcours/data/parcours.seed';
 import * as bcrypt from 'bcrypt';
 
@@ -179,8 +180,37 @@ async function main() {
     });
   }
 
-  for (const scholarship of mockCatalog.scholarships as any[]) {
-    const data = {
+  // Legacy scholarships are demo/research inputs, not verified production
+  // facts. Create missing rows only: `skipDuplicates` guarantees that a later
+  // seed can never overwrite copy, moderation or dates edited in the admin.
+  // Every newly-created legacy row stays inactive + pending until a human has
+  // verified official sources and explicitly publishes it.
+  const incompleteLegacyScholarships: Array<{
+    id: string;
+    missing: string[];
+  }> = [];
+  const legacyScholarshipRows: Prisma.ScholarshipCreateManyInput[] = (
+    mockCatalog.scholarships as any[]
+  ).map((scholarship) => {
+    const assessment = assessLegacyScholarshipSeed(scholarship);
+    if (!assessment.complete) {
+      incompleteLegacyScholarships.push({
+        id: scholarship.id,
+        missing: assessment.missing,
+      });
+    }
+    const rawDeadline = scholarship.deadlineAt
+      ? new Date(scholarship.deadlineAt)
+      : null;
+    const deadlineAt =
+      rawDeadline && !Number.isNaN(rawDeadline.getTime()) ? rawDeadline : null;
+    const fundingType =
+      scholarship.fundingType === 'fully_funded' ||
+      scholarship.fundingType === 'partially_funded'
+        ? scholarship.fundingType
+        : 'unknown';
+    return {
+      id: scholarship.id,
       nameFr: scholarship.name?.fr ?? '',
       nameEn: scholarship.name?.en ?? '',
       countryId: scholarship.countryId,
@@ -190,7 +220,11 @@ async function main() {
       levelEligibleEn: scholarship.levelEligible?.en ?? '',
       typeOfFundingFr: scholarship.typeOfFunding?.fr ?? '',
       typeOfFundingEn: scholarship.typeOfFunding?.en ?? '',
-      fundingType: scholarship.fundingType ?? 'unknown',
+      fundingType,
+      applicationRequirement:
+        scholarship.applicationRequirement === 'automatic'
+          ? 'automatic'
+          : 'separate_application',
       deadlineLabelFr: scholarship.deadlineLabel?.fr ?? '',
       deadlineLabelEn: scholarship.deadlineLabel?.en ?? '',
       descriptionFr: scholarship.description?.fr ?? '',
@@ -199,21 +233,39 @@ async function main() {
       advantagesEn: scholarship.advantages?.map((a: any) => a.en) ?? [],
       eligibilityFr: scholarship.eligibility?.map((e: any) => e.fr) ?? [],
       eligibilityEn: scholarship.eligibility?.map((e: any) => e.en) ?? [],
-      keyRequirementsFr: scholarship.keyRequirements?.map((k: any) => k.fr) ?? [],
-      keyRequirementsEn: scholarship.keyRequirements?.map((k: any) => k.en) ?? [],
+      keyRequirementsFr:
+        scholarship.keyRequirements?.map((k: any) => k.fr) ?? [],
+      keyRequirementsEn:
+        scholarship.keyRequirements?.map((k: any) => k.en) ?? [],
       relatedFieldIds: scholarship.relatedFieldIds ?? [],
       baseMatch: scholarship.baseMatch ?? 30,
       applicationUrl: scholarship.applicationUrl ?? null,
       sourceUrl: scholarship.sourceUrl ?? null,
-      deadlineAt: scholarship.deadlineAt ? new Date(scholarship.deadlineAt) : null,
-      tags: scholarship.tags ?? [],
-      isActive: scholarship.isActive ?? true,
+      deadlineAt,
+      tags: [
+        ...new Set([
+          ...(scholarship.tags ?? []),
+          'legacy-seed',
+          'needs-official-verification',
+        ]),
+      ],
+      isActive: false,
+      moderationStatus: 'pending',
     };
-    await prisma.scholarship.upsert({
-      where: { id: scholarship.id },
-      update: data,
-      create: { id: scholarship.id, ...data },
-    });
+  });
+  const scholarshipSeedResult = await prisma.scholarship.createMany({
+    data: legacyScholarshipRows,
+    skipDuplicates: true,
+  });
+  console.log(
+    `Legacy scholarships: ${scholarshipSeedResult.count} created, ` +
+      `${legacyScholarshipRows.length - scholarshipSeedResult.count} existing rows left untouched.`,
+  );
+  if (incompleteLegacyScholarships.length > 0) {
+    console.warn(
+      'Incomplete legacy scholarships remain inactive/pending:',
+      JSON.stringify(incompleteLegacyScholarships),
+    );
   }
 
   // Seed internal operators. New accounts get a per-user random temporary

@@ -5,7 +5,7 @@
 //  - field match is binary (no adjacency table yet);
 //  - language uses the single UserProfile.languageLevel (no per-language
 //    FR/EN granularity yet);
-//  - budget compares EUR to EUR directly (monthlyBudgetEur is already EUR,
+//  - tuition budget compares annual EUR to annual EUR directly,
 //    no ExchangeRate needed).
 // Pure functions, no I/O — MatchesService feeds them and persists results.
 
@@ -26,7 +26,10 @@ export interface ScoringProfile {
   gradeRange: string | null;
   languageLevel: string | null;
   targetLevel: string | null;
-  monthlyBudgetEur: number | null;
+  annualTuitionBudgetEur?: number | null;
+  /// Temporary compatibility for match records/tests created before the annual
+  /// tuition-budget migration. New API reads always provide the annual field.
+  monthlyBudgetEur?: number | null;
   fieldIds: string[];
   targetCountryIds: string[];
 }
@@ -181,15 +184,18 @@ function budgetFactor(
   program: ScoringProgram,
 ): MatchFactor {
   const weight = WEIGHTS.budget;
+  const annualBudget =
+    profile.annualTuitionBudgetEur ??
+    (profile.monthlyBudgetEur != null ? profile.monthlyBudgetEur * 12 : null);
   if (
-    profile.monthlyBudgetEur === null ||
-    profile.monthlyBudgetEur <= 0 ||
+    annualBudget === null ||
+    annualBudget <= 0 ||
     program.tuitionMinEur === null ||
     program.tuitionMinEur <= 0
   ) {
     return { name: 'budget', weight, score: NEUTRAL, isEstimate: true };
   }
-  const ratio = (profile.monthlyBudgetEur * 12) / program.tuitionMinEur;
+  const ratio = annualBudget / program.tuitionMinEur;
   let score: number;
   if (ratio >= 1.5) score = 1;
   else if (ratio >= 1) score = 0.7;

@@ -101,6 +101,9 @@ jobs:
       - name: Verify catalog country-ref integrity
         run: npm run verify:catalog
 
+      - name: Validate versioned scholarship catalog structure
+        run: npm run scholarships:validate:structure
+
       - name: Boot smoke — API serves /api/health against the DB
         run: |
           node dist/main.js &

@@ -6,6 +6,7 @@ import '../../core/models/app_models.dart';
 import '../../core/services/program_filter_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/currency_utils.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
@@ -38,6 +39,10 @@ class _Palette {
   static const body = Color(0xFF475569);
 }
 
+/// The five compact filters in the approved university-list design. The
+/// advanced catalog filters remain available from the trailing `Filtres` chip.
+enum _QuickFilter { matches, france, canada, saved, budget }
+
 /// Zone background + foreground for an admission-probability badge.
 (Color, Color) _zoneColors(int score) {
   if (score >= 85) return (_Palette.greenBg, _Palette.green);
@@ -62,6 +67,7 @@ class UniversitiesScreen extends StatefulWidget {
 class _UniversitiesScreenState extends State<UniversitiesScreen> {
   late ProgramFilterState _filters;
   bool _filtersExpanded = false;
+  _QuickFilter _quickFilter = _QuickFilter.matches;
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -98,6 +104,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
       _visibleCount = _pageSize;
       _searchController.clear();
       _filters = ProgramFilterState(partnerOnly: _filters.partnerOnly);
+      _quickFilter = _QuickFilter.matches;
     });
   }
 
@@ -105,7 +112,56 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
     if (_filters.partnerOnly == value) return;
     setState(() {
       _filters = _filters.copyWith(partnerOnly: value);
+      _quickFilter = _QuickFilter.matches;
       _visibleCount = _pageSize;
+    });
+  }
+
+  void _selectQuickFilter(_QuickFilter filter, AppController controller) {
+    String? countryIdFor(String isoCode) {
+      for (final country in controller.countries) {
+        final id = country.id.toLowerCase();
+        if (id == isoCode ||
+            id == (isoCode == 'fr' ? 'fra' : 'can') ||
+            controller.resolve(country.name).toLowerCase() ==
+                (isoCode == 'fr' ? 'france' : 'canada')) {
+          return country.id;
+        }
+      }
+      return null;
+    }
+
+    setState(() {
+      _quickFilter = filter;
+      _visibleCount = _pageSize;
+      switch (filter) {
+        case _QuickFilter.matches:
+          _filters = _filters.copyWith(
+            clearCountryId: true,
+            budgetMaxEur: 30000,
+          );
+          break;
+        case _QuickFilter.france:
+          final franceId = countryIdFor('fr');
+          if (franceId != null) {
+            _filters = _filters.copyWith(countryId: franceId);
+          }
+          break;
+        case _QuickFilter.canada:
+          final canadaId = countryIdFor('ca');
+          if (canadaId != null) {
+            _filters = _filters.copyWith(countryId: canadaId);
+          }
+          break;
+        case _QuickFilter.saved:
+          break;
+        case _QuickFilter.budget:
+          _filters = _filters.copyWith(
+            clearCountryId: true,
+            budgetMaxEur: 3000000 / TuitionUtils.fcfaPerEur,
+          );
+          break;
+      }
     });
   }
 
@@ -124,11 +180,31 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<AppController>(
       builder: (controller) {
-        final programs = ProgramFilterService.apply(
+        var programs = ProgramFilterService.apply(
           controller.programs,
           _filters,
           controller,
         );
+        if (_quickFilter == _QuickFilter.saved) {
+          programs = programs
+              .where(
+                (program) => controller.isSaved(
+                  SavedItemType.program,
+                  program.id,
+                ),
+              )
+              .toList();
+        }
+        programs.sort((left, right) {
+          final matchOrder = controller
+              .programMatch(right)
+              .compareTo(controller.programMatch(left));
+          if (matchOrder != 0) return matchOrder;
+          return controller
+              .resolve(left.name)
+              .toLowerCase()
+              .compareTo(controller.resolve(right.name).toLowerCase());
+        });
         final destinations = controller.countries.take(8).toList();
 
         return Scaffold(
@@ -157,6 +233,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                               programs: programs,
                               destinations: destinations,
                               filters: _filters,
+                              quickFilter: _quickFilter,
                               filtersExpanded: _filtersExpanded,
                               searchController: _searchController,
                               scrollController: _scrollController,
@@ -164,10 +241,16 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                               onPartnerOnly: _setPartnerOnly,
                               onToggleExpanded: () => setState(
                                   () => _filtersExpanded = !_filtersExpanded),
-                              onQueryChanged: (value) => setState(() =>
-                                  _filters = _filters.copyWith(query: value)),
-                              onFiltersChanged: (next) =>
-                                  setState(() => _filters = next),
+                              onQuickFilter: (filter) =>
+                                  _selectQuickFilter(filter, controller),
+                              onQueryChanged: (value) => setState(() {
+                                _filters = _filters.copyWith(query: value);
+                                _quickFilter = _QuickFilter.matches;
+                              }),
+                              onFiltersChanged: (next) => setState(() {
+                                _filters = next;
+                                _quickFilter = _QuickFilter.matches;
+                              }),
                               onReset: _resetFilters,
                             ),
                 ),
@@ -267,12 +350,14 @@ class _Body extends StatelessWidget {
     required this.programs,
     required this.destinations,
     required this.filters,
+    required this.quickFilter,
     required this.filtersExpanded,
     required this.searchController,
     required this.scrollController,
     required this.visibleCount,
     required this.onPartnerOnly,
     required this.onToggleExpanded,
+    required this.onQuickFilter,
     required this.onQueryChanged,
     required this.onFiltersChanged,
     required this.onReset,
@@ -282,12 +367,14 @@ class _Body extends StatelessWidget {
   final List<ProgramModel> programs;
   final List<CountryModel> destinations;
   final ProgramFilterState filters;
+  final _QuickFilter quickFilter;
   final bool filtersExpanded;
   final TextEditingController searchController;
   final ScrollController scrollController;
   final int visibleCount;
   final ValueChanged<bool> onPartnerOnly;
   final VoidCallback onToggleExpanded;
+  final ValueChanged<_QuickFilter> onQuickFilter;
   final ValueChanged<String> onQueryChanged;
   final ValueChanged<ProgramFilterState> onFiltersChanged;
   final VoidCallback onReset;
@@ -314,11 +401,13 @@ class _Body extends StatelessWidget {
           return _FilterBlock(
             controller: controller,
             filters: filters,
+            quickFilter: quickFilter,
             expanded: filtersExpanded,
             searchController: searchController,
             resultCount: programs.length,
             onPartnerOnly: onPartnerOnly,
             onToggleExpanded: onToggleExpanded,
+            onQuickFilter: onQuickFilter,
             onQueryChanged: onQueryChanged,
             onFiltersChanged: onFiltersChanged,
             onReset: onReset,
@@ -353,7 +442,10 @@ class _Body extends StatelessWidget {
         final city =
             institution != null ? controller.resolve(institution.location) : '';
         final tuition = controller.resolve(program.tuition);
-        final fcfa = TuitionUtils.fcfaSuffixFromTuition(tuition);
+        final displayedTuition = TuitionUtils.displayFromTuition(
+          tuition,
+          controller.profile?.preferredCurrency,
+        );
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -361,7 +453,7 @@ class _Body extends StatelessWidget {
             flag: countryFlag(program.countryId),
             name: controller.resolve(program.name),
             subtitle: city.isNotEmpty ? '$level · $city' : level,
-            feesLabel: fcfa.isNotEmpty ? fcfa : tuition,
+            feesLabel: displayedTuition.isNotEmpty ? displayedTuition : tuition,
             score: controller.programMatch(program),
             saved: controller.isSaved(SavedItemType.program, program.id),
             onSave: () =>
@@ -506,11 +598,13 @@ class _FilterBlock extends StatelessWidget {
   const _FilterBlock({
     required this.controller,
     required this.filters,
+    required this.quickFilter,
     required this.expanded,
     required this.searchController,
     required this.resultCount,
     required this.onPartnerOnly,
     required this.onToggleExpanded,
+    required this.onQuickFilter,
     required this.onQueryChanged,
     required this.onFiltersChanged,
     required this.onReset,
@@ -518,11 +612,13 @@ class _FilterBlock extends StatelessWidget {
 
   final AppController controller;
   final ProgramFilterState filters;
+  final _QuickFilter quickFilter;
   final bool expanded;
   final TextEditingController searchController;
   final int resultCount;
   final ValueChanged<bool> onPartnerOnly;
   final VoidCallback onToggleExpanded;
+  final ValueChanged<_QuickFilter> onQuickFilter;
   final ValueChanged<String> onQueryChanged;
   final ValueChanged<ProgramFilterState> onFiltersChanged;
   final VoidCallback onReset;
@@ -534,41 +630,39 @@ class _FilterBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            controller: searchController,
-            decoration: KpbInputDecoration.build(
-              context,
-              label: 'm6_search_program'.tr,
-              prefixIcon: Icons.search_rounded,
-            ),
-            onChanged: onQueryChanged,
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _FilterPill(
-                label: 'm6_tab_partners'.tr,
-                selected: filters.partnerOnly,
-                onTap: () => onPartnerOnly(true),
-              ),
-              const SizedBox(width: 8),
-              _FilterPill(
-                label: 'm6_tab_all'.tr,
-                selected: !filters.partnerOnly,
-                onTap: () => onPartnerOnly(false),
-              ),
-              const Spacer(),
-              _FilterPill(
-                label: filters.hasActiveFilters
-                    ? 'm6_filters_active'.tr
-                    : 'm6_filters_title'.tr,
-                selected: expanded || filters.hasActiveFilters,
-                icon: expanded ? Icons.expand_less_rounded : Icons.tune_rounded,
-                onTap: onToggleExpanded,
-              ),
-            ],
+          _QuickFilterRow(
+            selected: quickFilter,
+            advancedSelected: expanded || filters.hasActiveFilters,
+            onSelected: onQuickFilter,
+            onOpenAdvanced: onToggleExpanded,
           ),
           if (expanded) ...[
+            const SizedBox(height: 12),
+            TextField(
+              controller: searchController,
+              decoration: KpbInputDecoration.build(
+                context,
+                label: 'm6_search_program'.tr,
+                prefixIcon: Icons.search_rounded,
+              ),
+              onChanged: onQueryChanged,
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                _FilterPill(
+                  label: 'm6_tab_partners'.tr,
+                  selected: filters.partnerOnly,
+                  onTap: () => onPartnerOnly(true),
+                ),
+                const SizedBox(width: 8),
+                _FilterPill(
+                  label: 'm6_tab_all'.tr,
+                  selected: !filters.partnerOnly,
+                  onTap: () => onPartnerOnly(false),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             _CountryFilter(
               countries: controller.countries,
@@ -642,6 +736,69 @@ class _FilterBlock extends StatelessWidget {
             style: KpbTextStyles.caption.copyWith(color: _Palette.slate),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Horizontal filter row from the handoff. It intentionally keeps the more
+/// detailed existing catalog controls behind one extra chip rather than
+/// dropping search, partner selection, or the full accessibility path.
+class _QuickFilterRow extends StatelessWidget {
+  const _QuickFilterRow({
+    required this.selected,
+    required this.advancedSelected,
+    required this.onSelected,
+    required this.onOpenAdvanced,
+  });
+
+  final _QuickFilter selected;
+  final bool advancedSelected;
+  final ValueChanged<_QuickFilter> onSelected;
+  final VoidCallback onOpenAdvanced;
+
+  @override
+  Widget build(BuildContext context) {
+    final budgetLimit = CurrencyUtils.compactEur(
+      3000000 / TuitionUtils.fcfaPerEur,
+      Get.find<AppController>().profile?.preferredCurrency,
+    );
+    final filters = <({String label, _QuickFilter value})>[
+      (label: 'uni_filter_matches'.tr, value: _QuickFilter.matches),
+      (label: 'uni_filter_france'.tr, value: _QuickFilter.france),
+      (label: 'uni_filter_canada'.tr, value: _QuickFilter.canada),
+      (label: 'uni_filter_saved'.tr, value: _QuickFilter.saved),
+      (label: '< $budgetLimit', value: _QuickFilter.budget),
+    ];
+
+    return SizedBox(
+      key: const ValueKey('university_quick_filters'),
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        itemCount: filters.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          if (index == filters.length) {
+            return _FilterPill(
+              label: advancedSelected
+                  ? 'm6_filters_active'.tr
+                  : 'm6_filters_title'.tr,
+              selected: advancedSelected,
+              icon: advancedSelected
+                  ? Icons.expand_less_rounded
+                  : Icons.tune_rounded,
+              onTap: onOpenAdvanced,
+            );
+          }
+          final filter = filters[index];
+          return _FilterPill(
+            label: filter.label,
+            selected: selected == filter.value,
+            onTap: () => onSelected(filter.value),
+          );
+        },
       ),
     );
   }

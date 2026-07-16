@@ -8,6 +8,7 @@ import { ModuleRef } from '@nestjs/core';
 import { randomUUID } from 'node:crypto';
 
 import { CaseStatus } from '../../common/enums/case-status.enum';
+import { InternalRole } from '../../common/enums/internal-role.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReferralCreditsService } from '../referrals/referral-credits.service';
@@ -369,6 +370,7 @@ export class CasesService {
     id: string,
     input: UploadCaseDocumentDto,
     ownerUserId?: string,
+    fileUrl?: string,
   ) {
     this.assertDb();
     await this.requireDbCase(id, ownerUserId);
@@ -380,7 +382,7 @@ export class CasesService {
             caseId: id,
             title: input.title,
             isProvided: true,
-            fileUrl: input.fileUrl ?? null,
+            fileUrl: fileUrl ?? null,
             uploadedAt: new Date(),
           },
         });
@@ -410,9 +412,79 @@ export class CasesService {
       id: created.id,
       title: created.title,
       isProvided: created.isProvided,
-      fileUrl: created.fileUrl,
+      hasFile: Boolean(created.fileUrl),
+      downloadPath: created.fileUrl
+        ? `/cases/${id}/documents/${created.id}/file`
+        : null,
       uploadedAt: created.uploadedAt?.toISOString(),
     };
+  }
+
+  /**
+   * Resolve a document for its student owner. A missing document and a document
+   * belonging to another student both return 404 to avoid IDOR disclosure.
+   */
+  async getOwnedDocument(id: string, documentId: string, ownerUserId: string) {
+    this.assertDb();
+    const document = await this.prismaService.execute((prisma) =>
+      prisma.caseDocument.findFirst({
+        where: {
+          id: documentId,
+          caseId: id,
+          case: { userId: ownerUserId },
+        },
+        select: {
+          id: true,
+          title: true,
+          fileUrl: true,
+        },
+      }),
+    );
+    if (!document || !document.fileUrl) {
+      throw new NotFoundException('Document not found.');
+    }
+    return document;
+  }
+
+  /**
+   * Internal access is intentionally narrower than the broad admin case list:
+   * only an assigned counsellor or an administrator may retrieve file bytes.
+   */
+  async getInternalDocument(
+    id: string,
+    documentId: string,
+    internalUser: { role: string; fullName: string },
+  ) {
+    this.assertDb();
+    const document = await this.prismaService.execute((prisma) =>
+      prisma.caseDocument.findFirst({
+        where: { id: documentId, caseId: id },
+        select: {
+          id: true,
+          title: true,
+          fileUrl: true,
+          case: { select: { assignedAdvisorName: true } },
+        },
+      }),
+    );
+    if (!document || !document.fileUrl) {
+      throw new NotFoundException('Document not found.');
+    }
+
+    const isAdministrator = [InternalRole.Admin, InternalRole.SuperAdmin].includes(
+      internalUser.role as InternalRole,
+    );
+    const isAssignedCounsellor =
+      internalUser.role === InternalRole.Counselor &&
+      !!document.case.assignedAdvisorName &&
+      document.case.assignedAdvisorName.trim().toLowerCase() ===
+        internalUser.fullName.trim().toLowerCase();
+    if (!isAdministrator && !isAssignedCounsellor) {
+      // Return 404 rather than 403 so an internal user cannot enumerate
+      // sensitive documents outside their assignment.
+      throw new NotFoundException('Document not found.');
+    }
+    return document;
   }
 
   async assignCase(id: string, input: AssignCaseDto) {
@@ -649,7 +721,10 @@ export class CasesService {
         id: d.id,
         title: d.title,
         isProvided: d.isProvided,
-        fileUrl: d.fileUrl,
+        hasFile: Boolean(d.fileUrl),
+        downloadPath: d.fileUrl
+          ? `/cases/${c.id}/documents/${d.id}/file`
+          : null,
         uploadedAt: d.uploadedAt?.toISOString(),
       })),
       tasks: (c.tasks ?? []).map((t: any) => ({

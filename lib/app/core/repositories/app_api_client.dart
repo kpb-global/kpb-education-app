@@ -415,6 +415,111 @@ class AppApiClient {
     return (data['items'] as List<dynamic>? ?? <dynamic>[]);
   }
 
+  /// Fetch one full scholarship when the detail endpoint is available, with a
+  /// bounded list-scan fallback for deployments that still expose only
+  /// `GET /scholarships`.
+  ///
+  /// [initial] is returned when a refresh fails after the student already
+  /// opened the item from a populated list, so staged backend rollouts do not
+  /// turn a useful cached detail into an error screen.
+  Future<LiveScholarshipModel?> fetchLiveScholarshipDetailWithFallback({
+    required String scholarshipId,
+    required String lang,
+    LiveScholarshipModel? initial,
+  }) async {
+    DioException? detailError;
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/scholarships/${Uri.encodeComponent(scholarshipId)}',
+        queryParameters: {'lang': lang},
+      );
+      final data = response.data ?? <String, dynamic>{};
+      final raw = data['item'] is Map
+          ? Map<String, dynamic>.from(data['item'] as Map)
+          : data;
+      if ((raw['id'] as String? ?? '').isNotEmpty) {
+        return LiveScholarshipModel.fromJson(raw);
+      }
+    } on DioException catch (error) {
+      detailError = error;
+      final status = error.response?.statusCode;
+      // Only an unavailable/not-yet-deployed endpoint should trigger the list
+      // scan. Connectivity and authentication errors retain any initial item.
+      if (status != 404 && status != 405 && status != 501) {
+        if (initial != null) return initial;
+        rethrow;
+      }
+    }
+
+    const pageSize = 100;
+    const maxPages = 5;
+    try {
+      for (var page = 0; page < maxPages; page++) {
+        final raw = await fetchLiveScholarships(
+          lang: lang,
+          limit: pageSize,
+          offset: page * pageSize,
+        );
+        for (final entry in raw.whereType<Map>()) {
+          final json = Map<String, dynamic>.from(entry);
+          if (json['id'] == scholarshipId) {
+            return LiveScholarshipModel.fromJson(json);
+          }
+        }
+        if (raw.length < pageSize) break;
+      }
+    } catch (_) {
+      if (initial != null) return initial;
+      if (detailError != null) throw detailError;
+      rethrow;
+    }
+    return initial;
+  }
+
+  /// Scholarships for which the current student explicitly requested alerts.
+  Future<Set<String>> fetchScholarshipAlerts() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/me/scholarship-alerts',
+    );
+    final items = response.data?['items'] as List<dynamic>? ?? <dynamic>[];
+    return items
+        .whereType<Map<String, dynamic>>()
+        .map((item) => item['scholarshipId'] as String? ?? '')
+        .where((id) => id.isNotEmpty)
+        .toSet();
+  }
+
+  Future<void> subscribeScholarshipAlert(String scholarshipId) async {
+    await _dio.post<void>(
+      '/me/scholarship-alerts/${Uri.encodeComponent(scholarshipId)}',
+    );
+  }
+
+  Future<void> unsubscribeScholarshipAlert(String scholarshipId) async {
+    await _dio.delete<void>(
+      '/me/scholarship-alerts/${Uri.encodeComponent(scholarshipId)}',
+    );
+  }
+
+  /// Durable in-app notifications created by scholarship activation events.
+  Future<Map<String, dynamic>> fetchUserNotifications(String lang) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/me/notifications',
+      queryParameters: {'lang': lang},
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  Future<void> markUserNotificationRead(String id) async {
+    await _dio.patch<void>(
+      '/me/notifications/${Uri.encodeComponent(id)}/read',
+    );
+  }
+
+  Future<void> markAllUserNotificationsRead() async {
+    await _dio.post<void>('/me/notifications/read-all');
+  }
+
   /// Cheapest flight price for a route/date, proxied from Kayak Price-Insights.
   /// Returns the flat contract map `{configured, cached, currency, results:[]}`.
   Future<Map<String, dynamic>> flightRoutes({

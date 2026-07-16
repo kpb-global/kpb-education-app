@@ -52,6 +52,19 @@ void main() {
       );
     });
 
+    test('normalizes a valid scholarship detail route', () {
+      expect(
+        AppRoutes.normalizeExternalRoute('/scholarships/sch-123'),
+        '/scholarships/sch-123',
+      );
+      expect(
+        AppRoutes.scholarshipDetailPath('sch-123'),
+        '/scholarships/sch-123',
+      );
+      expect(AppRoutes.normalizeExternalRoute('/scholarships/'), isNull);
+      expect(AppRoutes.normalizeExternalRoute('/scholarships/a/b'), isNull);
+    });
+
     test('maps legacy create route to current route', () {
       expect(
         AppRoutes.normalizeExternalRoute('/cases/create'),
@@ -87,6 +100,7 @@ void main() {
       // `/scholarships` is always registered (renders a "coming soon" under the
       // MVP lock) so deep-links to it resolve gracefully.
       expect(names, contains(AppRoutes.scholarships));
+      expect(names, contains(AppRoutes.scholarshipDetail));
       // High-intent re-engagement targets (KPB-63).
       for (final route in [
         AppRoutes.orientation,
@@ -100,7 +114,7 @@ void main() {
       ]) {
         expect(names, contains(route));
       }
-      expect(names.length, equals(13));
+      expect(names.length, equals(14));
     });
   });
 }

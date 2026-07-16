@@ -101,6 +101,20 @@ enum ScholarshipModeration {
   rejected
 }
 
+// One scholarship can have a new application window every academic year.
+// Forecast dates are explicitly separated from dates confirmed by an admin.
+enum ScholarshipCycleStatus {
+  forecast
+  open
+  closed
+  suspended
+}
+
+enum ScholarshipDateConfidence {
+  estimated
+  confirmed
+}
+
 enum CoachMessageRole {
   user
   assistant
@@ -174,9 +188,12 @@ model UserProfile {
   targetLevel          String?
   languageLevel        String?
   gradeRange           String?
-  // Indicative monthly budget in EUR. Powers eligibility scoring + coach budget
-  // anchoring, and is the field that lets profile completion reach 100%.
+  // Legacy monthly living budget. Read only for backward compatibility.
   monthlyBudgetEur     Int?
+  // Annual tuition budget is the canonical financial input for matching.
+  annualTuitionBudgetEur Int?
+  // EUR is the canonical stored unit; this is only the user's display choice.
+  preferredCurrency    String                   @default("XOF")
   wantsScholarship     Boolean                  @default(false)
   // Per-user interest selections (previously held in a shared in-memory
   // singleton, which leaked across users). Now persisted per profile.
@@ -239,6 +256,8 @@ model UserProfile {
   referralReceived     Referral?                @relation("referral_referee")
   creditTransactions   CreditTransaction[]
   matches              Match[]
+  scholarshipAlerts    ScholarshipAlertSubscription[]
+  userNotifications    UserNotification[]
 
   @@index([accountType])
   @@index([createdAt])
@@ -726,7 +745,9 @@ model CountryEligibilityQuiz {
   questions Json
   verdicts  Json
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // The original M5 migration created a database-side CURRENT_TIMESTAMP
+  // default; keep the Prisma model aligned with that canonical history.
+  updatedAt DateTime @default(now()) @updatedAt
   country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
 }
 
@@ -899,6 +920,10 @@ model Scholarship {
   updatedAt              DateTime                     @updatedAt
   academyCourse          AcademyCourse?               @relation(fields: [academyCourseId], references: [id])
   applicationSteps       ScholarshipApplicationStep[]
+  videos                 ScholarshipVideo[]
+  cycles                 ScholarshipCycle[]
+  alertSubscriptions     ScholarshipAlertSubscription[]
+  userNotifications      UserNotification[]
 
   @@index([countryId])
   @@index([deadlineAt])
@@ -906,6 +931,74 @@ model Scholarship {
   @@index([isActive])
   @@index([fundingType])
   @@index([moderationStatus])
+}
+
+// Annual application window. Estimated dates may be seeded from the previous
+// cycle; `opensAt`/`closesAt` are the dates confirmed by an admin at launch.
+model ScholarshipCycle {
+  id               String                    @id @default(cuid())
+  scholarshipId    String
+  academicYear     String
+  status           ScholarshipCycleStatus    @default(forecast)
+  dateConfidence   ScholarshipDateConfidence @default(estimated)
+  estimatedOpenAt  DateTime?
+  estimatedCloseAt DateTime?
+  opensAt          DateTime?
+  closesAt         DateTime?
+  sourceUrl        String?
+  verifiedAt       DateTime?
+  activatedAt      DateTime?
+  activationKey    String?                   @unique
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  scholarship      Scholarship               @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@unique([scholarshipId, academicYear])
+  @@index([scholarshipId, status])
+  @@index([estimatedOpenAt])
+  @@index([opensAt])
+  @@index([closesAt])
+}
+
+// Explicit opt-in behind the mobile "M'avertir" action.
+model ScholarshipAlertSubscription {
+  id            String      @id @default(cuid())
+  userId        String
+  scholarshipId String
+  pushEnabled   Boolean     @default(true)
+  inAppEnabled  Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scholarshipId])
+  @@index([userId])
+  @@index([scholarshipId])
+}
+
+// Durable, per-user in-app feed. Scholarship activations use `dedupeKey` so an
+// admin retry cannot create duplicate rows or duplicate push notifications.
+model UserNotification {
+  id            String       @id @default(cuid())
+  userId        String
+  scholarshipId String?
+  kind          String
+  dedupeKey     String       @unique
+  titleFr       String
+  titleEn       String
+  bodyFr        String
+  bodyEn        String
+  route         String
+  data          Json?
+  readAt        DateTime?
+  createdAt     DateTime     @default(now())
+  user          UserProfile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship   Scholarship? @relation(fields: [scholarshipId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([scholarshipId])
 }
 
 // Ordered, admin-authored "how to apply" steps for a specific scholarship
@@ -927,6 +1020,32 @@ model ScholarshipApplicationStep {
 
   @@unique([scholarshipId, stepNumber])
   @@index([scholarshipId])
+}
+
+// Curated YouTube explainers attached from the admin scholarship editor.
+// Store the stable video id instead of raw iframe HTML; clients build the
+// canonical watch/share URLs and use their native YouTube player.
+model ScholarshipVideo {
+  id                 String            @id @default(cuid())
+  scholarshipId      String
+  youtubeVideoId     String
+  titleFr            String
+  titleEn            String
+  descriptionFr      String            @default("")
+  descriptionEn      String            @default("")
+  thumbnailUrl       String?
+  durationSeconds    Int?
+  languageCode       String            @default("fr")
+  youtubePublishedAt DateTime?
+  status             PublicationStatus @default(draft)
+  isFeatured         Boolean           @default(false)
+  displayOrder       Int               @default(0)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  scholarship        Scholarship       @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@unique([scholarshipId, youtubeVideoId])
+  @@index([scholarshipId, status, displayOrder])
 }
 
 model AcademyCourse {

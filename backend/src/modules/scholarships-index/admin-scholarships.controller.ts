@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -6,15 +7,19 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
-import { MvpGuard } from '../../common/guards/mvp.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { ActivateScholarshipDto } from './dto/activate-scholarship.dto';
+import { ForecastScholarshipDto } from './dto/forecast-scholarship.dto';
+import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
+import { ScholarshipLifecycleService } from './scholarship-lifecycle.service';
 import { ScholarshipsIndexService } from './scholarships-index.service';
 
 /**
@@ -27,6 +32,8 @@ import { ScholarshipsIndexService } from './scholarships-index.service';
 export class AdminScholarshipsController {
   constructor(
     private readonly scholarshipsIndexService: ScholarshipsIndexService,
+    private readonly scholarshipLifecycle: ScholarshipLifecycleService,
+    private readonly scholarshipQuality: ScholarshipContentQualityService,
   ) {}
 
   @Post('refresh')
@@ -55,12 +62,41 @@ export class AdminScholarshipsController {
   reject(@Param('id') id: string) {
     return this.scholarshipsIndexService.setModeration(id, 'rejected');
   }
+
+  @Get(':id/readiness')
+  readiness(@Param('id') id: string) {
+    return this.scholarshipQuality.getReadiness(id);
+  }
+
+  @Post(':id/validate')
+  @HttpCode(HttpStatus.OK)
+  validate(@Param('id') id: string) {
+    return this.scholarshipQuality.getReadiness(id);
+  }
+
+  @Post(':id/activate')
+  @HttpCode(HttpStatus.OK)
+  activate(
+    @Param('id') id: string,
+    @Body() input: ActivateScholarshipDto,
+  ) {
+    return this.scholarshipLifecycle.activate(id, input);
+  }
+
+  @Post(':id/forecast')
+  @HttpCode(HttpStatus.OK)
+  forecast(
+    @Param('id') id: string,
+    @Body() input: ForecastScholarshipDto,
+  ) {
+    return this.scholarshipLifecycle.saveForecast(id, input);
+  }
 }
 
 /**
  * Public endpoint — consumed by the mobile app. The live-scholarships index
- * is hidden in the MVP app (AppConfig.mvpOnly renders ComingSoon) — gated to
- * match (P0-C); the curated `/catalog/scholarships` stays open.
+ * is now a launch acquisition surface and remains authenticated so matching
+ * and alert subscriptions are always scoped to the current student.
  */
 @Controller('scholarships')
 export class ScholarshipsController {
@@ -69,8 +105,9 @@ export class ScholarshipsController {
   ) {}
 
   @Get()
-  @UseGuards(MvpGuard, StudentAuthGuard)
+  @UseGuards(StudentAuthGuard)
   list(
+    @Req() req: { studentUser: { id: string } },
     @Query('lang') lang: string = 'fr',
     @Query('level') level?: string,
     @Query('fields') fields?: string,
@@ -81,12 +118,26 @@ export class ScholarshipsController {
   ) {
     return this.scholarshipsIndexService.listForProfile({
       lang: lang === 'en' ? 'en' : 'fr',
+      userId: req.studentUser.id,
       level,
       fieldIds: fields ? fields.split(',') : undefined,
       countryId,
       fundingType,
       limit: limit ? parseInt(limit, 10) : 20,
       offset: offset ? parseInt(offset, 10) : 0,
+    });
+  }
+
+  @Get(':id')
+  @UseGuards(StudentAuthGuard)
+  detail(
+    @Param('id') id: string,
+    @Req() req: { studentUser: { id: string } },
+    @Query('lang') lang: string = 'fr',
+  ) {
+    return this.scholarshipsIndexService.getForProfile(id, {
+      lang: lang === 'en' ? 'en' : 'fr',
+      userId: req.studentUser.id,
     });
   }
 }

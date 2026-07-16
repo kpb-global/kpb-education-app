@@ -235,9 +235,11 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
   // ── Argent & échéances (KPB-58): coût FCFA + prochaine échéance ─────────────
   Widget _moneyAndDeadlines() {
     final locale = Get.find<AppController>().localeCode;
-    final fcfa = _fcfaEstimate(locale);
+    final displayedTuition = _tuitionEstimate(locale);
     final deadline = _nextDeadline();
-    if (fcfa == null && deadline == null) return const SizedBox.shrink();
+    if (displayedTuition == null && deadline == null) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.only(top: KpbSpacing.md),
@@ -250,21 +252,22 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (fcfa != null) ...[
+            if (displayedTuition != null) ...[
               Row(
                 children: [
                   const Icon(Icons.savings_outlined,
                       size: 18, color: KpbColors.gold),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: Text('${'parent_tuition_estimate'.tr} : $fcfa',
+                    child: Text(
+                        '${'parent_tuition_estimate'.tr} : $displayedTuition',
                         style: KpbTextStyles.bodySm),
                   ),
                 ],
               ),
             ],
             if (deadline != null) ...[
-              if (fcfa != null) const SizedBox(height: 6),
+              if (displayedTuition != null) const SizedBox(height: 6),
               Row(
                 children: [
                   const Icon(Icons.event_outlined,
@@ -294,13 +297,15 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         : pair.$1;
   }
 
-  String? _fcfaEstimate(String locale) {
+  String? _tuitionEstimate(String locale) {
     final countryId = (_case['requestedCountryId'] as String?) ?? '';
     if (countryId.isEmpty) return null;
     final country = Get.find<AppController>().countryByIdOrNull(countryId);
     if (country == null) return null;
-    final suffix = TuitionUtils.fcfaSuffixFromTuition(
-        country.tuitionRange.resolve(locale));
+    final suffix = TuitionUtils.displayFromTuition(
+      country.tuitionRange.resolve(locale),
+      Get.find<AppController>().profile?.preferredCurrency,
+    );
     return suffix.isEmpty ? null : suffix;
   }
 

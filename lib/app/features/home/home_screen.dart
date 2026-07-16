@@ -13,9 +13,8 @@ import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
+import '../destinations/destinations_screen.dart';
 import '../orientation/orientation_screen.dart';
-import '../saved/saved_screen.dart';
-import '../search/search_screen.dart';
 import '../ai_advisor/ai_chat_screen.dart';
 import '../explore/country_detail_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -111,58 +110,28 @@ class HomeScreen extends StatelessWidget {
                   floating: true,
                   snap: true,
                   pinned: false,
-                  toolbarHeight: 64,
+                  toolbarHeight: 72,
                   backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          firstName.isNotEmpty
-                              ? 'home_greeting_named'
-                                  .trParams({'name': firstName})
-                              : 'home_greeting'.tr,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: _Palette.navy,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        Text(
-                          controller.isStudent
-                              ? 'home_subtitle_student'.tr
-                              : controller.isParent
-                                  ? 'home_subtitle_parent'.tr
-                                  : 'home_subtitle_partner'.tr,
-                          style: KpbTextStyles.caption
-                              .copyWith(color: _Palette.slate),
-                        ),
-                      ],
-                    ),
+                  titleSpacing: 60,
+                  title: _HomeGreetingHeader(
+                    firstName: firstName,
+                    controller: controller,
                   ),
                   actions: [
-                    _AppBarChip(
-                      icon: Icons.search_rounded,
-                      onTap: () => Get.to(() => const SearchScreen()),
-                    ),
-                    _AppBarChip(
-                      icon: Icons.bookmark_border_rounded,
-                      onTap: () => Get.to(() => const SavedScreen()),
-                    ),
-                    _KpbIntelligenceChip(
-                      onTap: () => Get.to(() => const AiChatScreen()),
-                    ),
                     _NotifBellChip(
                       hasUnread: hasDerivedNotifications(controller),
                       onTap: () => Get.to(() => const NotificationsScreen()),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: _AppBarChip(
-                        icon: Icons.person_outline_rounded,
+                      child: _HomeCopilotButton(
+                        onTap: () => Get.to(() => const AiChatScreen()),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _HomeProfileButton(
                         onTap: () =>
                             controller.goToTab(StudentShellTab.profile),
                       ),
@@ -440,67 +409,123 @@ class HomeScreen extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // App bar chip — light, soft-elevated icon button
 // ─────────────────────────────────────────────────────────────────────────────
-class _AppBarChip extends StatelessWidget {
-  const _AppBarChip({required this.icon, required this.onTap});
-  final IconData icon;
+class _HomeGreetingHeader extends StatelessWidget {
+  const _HomeGreetingHeader({
+    required this.firstName,
+    required this.controller,
+  });
+
+  final String firstName;
+  final AppController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final countryFlags =
+        controller.profile?.targetCountryIds.take(2).map(_flag).join(' ') ??
+            '🌍';
+
+    return Row(
+      children: [
+        Image.asset(
+          'assets/images/logo/kpb-education-logo-mark.png',
+          width: 36,
+          height: 36,
+          semanticLabel: 'KPB Education',
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                firstName.isNotEmpty
+                    ? 'home_design_greeting_named'.trParams({'name': firstName})
+                    : 'home_design_greeting'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.4,
+                  color: _Palette.navy,
+                ),
+              ),
+              Text(
+                'home_design_header_subtitle'
+                    .trParams({'countries': countryFlags}),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _Palette.slate,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeCopilotButton extends StatelessWidget {
+  const _HomeCopilotButton({required this.onTap});
+
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.kpb;
-    return Padding(
-      padding: const EdgeInsets.only(right: 4),
+    return Semantics(
+      button: true,
+      label: 'home_ai_advisor_title'.tr,
       child: KpbPressable(
         onTap: onTap,
         child: Container(
-          width: 40,
-          height: 40,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _Palette.blue,
             shape: BoxShape.circle,
-            boxShadow: c.softShadow,
-            border: Border.all(color: _Palette.border),
+            boxShadow: [
+              BoxShadow(
+                color: _Palette.blue.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(icon, size: 20, color: _Palette.slate),
+          child: const Icon(Icons.smart_toy_rounded,
+              color: Colors.white, size: 19),
         ),
       ),
     );
   }
 }
 
-/// Prominent KPB Intelligence entry button (App-engagement handoff): a filled
-/// blue circle with a white smart_toy icon, so it reads as the primary action
-/// in the header rather than a neutral chip like search/bookmark.
-class _KpbIntelligenceChip extends StatelessWidget {
-  const _KpbIntelligenceChip({required this.onTap});
+class _HomeProfileButton extends StatelessWidget {
+  const _HomeProfileButton({required this.onTap});
+
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 4),
-      child: Semantics(
-        button: true,
-        label: 'coach_ai_title'.tr,
-        child: KpbPressable(
-          onTap: onTap,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _Palette.blue,
-              shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x332563EB),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Icon(Icons.smart_toy_rounded,
-                size: 20, color: Colors.white),
+    return Semantics(
+      button: true,
+      label: 'nav_profile'.tr,
+      child: KpbPressable(
+        onTap: onTap,
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: _Palette.border),
           ),
+          child: const Icon(Icons.person_outline_rounded,
+              color: _Palette.navy, size: 20),
         ),
       ),
     );
@@ -602,7 +627,10 @@ List<(String, double)> _gaugeBars(UserProfile? profile) {
     ),
     (
       'home_gauge_bar_budget'.tr,
-      frac([profile.monthlyBudgetEur != null && profile.monthlyBudgetEur! > 0]),
+      frac([
+        profile.annualTuitionBudgetEur != null &&
+            profile.annualTuitionBudgetEur! > 0
+      ]),
     ),
   ];
 }
@@ -626,16 +654,23 @@ class _HeroCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: _Palette.navy,
-        borderRadius: KpbRadius.xlBr,
+        borderRadius: KpbRadius.mdBr,
         boxShadow: KpbShadow.blue,
       ),
-      padding: const EdgeInsets.all(KpbSpacing.lg),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              if (showRing) ...[
+                KpbPressable(
+                  onTap: () => controller.goToTab(StudentShellTab.profile),
+                  child: _AnimatedRing(value: progress),
+                ),
+                const SizedBox(width: KpbSpacing.md),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -677,39 +712,26 @@ class _HeroCard extends StatelessWidget {
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _HeroCta(
-                      label: controller.isStudent
-                          ? 'nav_orientation'.tr
-                          : controller.isParent
-                              ? 'home_hero_cta_consultation'.tr
-                              : 'home_hero_cta_become_partner'.tr,
-                      onTap: () {
-                        if (controller.isStudent) {
-                          Get.to(() => const OrientationScreen());
-                        } else {
-                          showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (_) => CaseComposerSheet(
-                              caseType: CaseType.consultation,
-                              title: 'home_case_title_book_appointment'.tr,
-                              contextLabel: 'KPB Education',
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                    if (!controller.isStudent) ...[
+                      const SizedBox(height: 16),
+                      _HeroCta(
+                        label: controller.isParent
+                            ? 'home_hero_cta_consultation'.tr
+                            : 'home_hero_cta_become_partner'.tr,
+                        onTap: () => showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => CaseComposerSheet(
+                            caseType: CaseType.consultation,
+                            title: 'home_case_title_book_appointment'.tr,
+                            contextLabel: 'KPB Education',
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              if (showRing) ...[
-                const SizedBox(width: KpbSpacing.md),
-                KpbPressable(
-                  onTap: () => controller.goToTab(StudentShellTab.profile),
-                  child: _AnimatedRing(value: progress),
-                ),
-              ],
             ],
           ),
           if (bars.isNotEmpty) ...[
@@ -865,7 +887,12 @@ class _NextStepCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('next_step'.tr, style: KpbTextStyles.title),
+        Text('home_design_discovery_title'.tr, style: KpbTextStyles.title),
+        const SizedBox(height: 2),
+        Text(
+          'home_design_discovery_subtitle'.tr,
+          style: const TextStyle(fontSize: 11, color: _Palette.slate),
+        ),
         const SizedBox(height: 12),
         KpbPressable(
           onTap: step.onTap,
@@ -1033,7 +1060,7 @@ class _NextStepCard extends StatelessWidget {
       subtitle: 'home_next_step_subtitle_explore'.tr,
       icon: Icons.explore_rounded,
       iconColor: _Palette.sky,
-      onTap: () => controller.goToTab(StudentShellTab.destinations),
+      onTap: () => Get.to(() => const DestinationsScreen()),
     );
   }
 }
@@ -1094,7 +1121,7 @@ class _QuickActions extends StatelessWidget {
         Icons.explore_rounded,
         'home_next_step_label_explore'.tr,
         _Palette.sky,
-        () => controller.goToTab(StudentShellTab.destinations),
+        () => Get.to(() => const DestinationsScreen()),
       ),
       (
         Icons.workspace_premium_rounded,
@@ -1110,20 +1137,27 @@ class _QuickActions extends StatelessWidget {
       ),
     ];
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final a in actions)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: a == actions.last ? 0 : 8),
-              child: QuickActionTile(
-                icon: a.$1,
-                label: a.$2,
-                color: a.$3,
-                onTap: a.$4,
+        Text('home_design_tools_title'.tr, style: KpbTextStyles.title),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            for (final a in actions)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: a == actions.last ? 0 : 8),
+                  child: QuickActionTile(
+                    icon: a.$1,
+                    label: a.$2,
+                    color: a.$3,
+                    onTap: a.$4,
+                  ),
+                ),
               ),
-            ),
-          ),
+          ],
+        ),
       ],
     );
   }
@@ -1234,16 +1268,20 @@ class _AiAdvisorBanner extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'home_ai_advisor_cta'.tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: _Palette.blue,
+                      Flexible(
+                        child: Text(
+                          'home_ai_advisor_cta'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: _Palette.blue,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 4),
-                      Icon(
+                      const SizedBox(width: 4),
+                      const Icon(
                         Icons.arrow_forward_rounded,
                         size: 14,
                         color: _Palette.blue,
@@ -1877,30 +1915,41 @@ class _AbroadEnrollmentCard extends StatelessWidget {
             const SizedBox(height: 12),
             // Footer with dynamic flag list & CTA
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Horizontal Row of Flags
-                Row(
-                  children: const ['canada', 'usa', 'uk', 'germany', 'morocco']
-                      .map((id) => Container(
-                            margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              borderRadius: KpbRadius.xsBr,
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                width: 0.5,
-                              ),
-                            ),
-                            child: Text(
-                              _flag(id),
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ))
-                      .toList(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: const [
+                        'canada',
+                        'usa',
+                        'uk',
+                        'germany',
+                        'morocco'
+                      ]
+                          .map((id) => Container(
+                                margin: const EdgeInsets.only(right: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  borderRadius: KpbRadius.xsBr,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  _flag(id),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 // CTA text & arrow
                 Row(
                   mainAxisSize: MainAxisSize.min,

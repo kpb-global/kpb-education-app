@@ -141,6 +141,45 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('UniversitiesScreen applies the handoff quick filters',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await _seedController();
+    await tester.pumpWidget(_wrap(const UniversitiesScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Meilleurs matchs'), findsOneWidget);
+    expect(find.text('🇫🇷 France'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const ValueKey('university_quick_filters')),
+      const Offset(-500, 0),
+    );
+    await tester.pumpAndSettle();
+    for (final label in const [
+      '🇨🇦 Canada',
+      '♥ Mes cibles',
+      '< 3 M FCFA',
+    ]) {
+      expect(find.text(label), findsOneWidget);
+    }
+
+    await tester.tap(find.text('< 3 M FCFA'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bachelor Informatique'), findsNothing);
+
+    await tester.drag(
+      find.byKey(const ValueKey('university_quick_filters')),
+      const Offset(500, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Meilleurs matchs'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bachelor Informatique'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
       'ProgramDetailScreen renders the fiche with real tuition and the '
       'application CTA', (tester) async {
@@ -151,7 +190,7 @@ void main() {
 
     expect(find.text('Bachelor Informatique'), findsWidgets);
     expect(find.text('Créer un dossier'), findsOneWidget); // create_application
-    expect(find.textContaining('8 850'), findsWidgets); // real tuition
+    expect(find.textContaining('5 805 219'), findsWidgets); // XOF tuition
     expect(tester.takeException(), isNull);
   });
 

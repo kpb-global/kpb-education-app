@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/repositories/app_api_client.dart';
 import '../../core/services/onesignal_service.dart';
 import '../cases/case_detail_screen.dart';
 import '../cases/case_timeline_definition.dart';
@@ -11,13 +13,12 @@ import '../cases/post_decision_screen.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Notifications center (App-engagement handoff · net-new).
 //
-// HONEST by construction — there is NO stored per-user notification feed in
-// this app (the mobile side only has OneSignal device push; the backend
-// notifications module is admin-facing campaign/template/delivery). So nothing
-// here is fabricated:
+// Combines the durable per-user scholarship feed with notifications derived
+// from real dossier state. No placeholder rows are fabricated:
 //
-//   • The list is DERIVED live from the real [StudentCase] list on every build,
-//     never stored. Only two real sources feed it:
+//   • Scholarship-opening rows are stored server-side, deep-link to the real
+//     Bourses surface, and have durable read state.
+//   • Dossier rows are DERIVED live from the real [StudentCase] list:
 //       – a case in a student-action status (documentsNeeded / awaitingStudent /
 //         awaitingPayment, via the shared `isCaseStudentActionStatus`) →
 //         "Action needed", opening the real CaseDetailScreen;
@@ -82,6 +83,56 @@ class _DerivedNotification {
       '$caseId|${kind.name}|${updatedAt.millisecondsSinceEpoch}';
 }
 
+class _StoredNotification {
+  const _StoredNotification({
+    required this.id,
+    required this.kind,
+    required this.title,
+    required this.body,
+    required this.route,
+    required this.scholarshipId,
+    required this.createdAt,
+    required this.read,
+  });
+
+  final String id;
+  final String kind;
+  final String title;
+  final String body;
+  final String route;
+  final String? scholarshipId;
+  final DateTime createdAt;
+  final bool read;
+
+  factory _StoredNotification.fromJson(Map<String, dynamic> json) {
+    return _StoredNotification(
+      id: json['id'] as String? ?? '',
+      kind: json['kind'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
+      route: json['route'] as String? ?? '',
+      scholarshipId: json['scholarshipId'] as String? ??
+          ((json['data'] is Map)
+              ? (json['data'] as Map)['scholarshipId'] as String?
+              : null),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      read: json['readAt'] != null,
+    );
+  }
+
+  _StoredNotification markRead() => _StoredNotification(
+        id: id,
+        kind: kind,
+        title: title,
+        body: body,
+        route: route,
+        scholarshipId: scholarshipId,
+        createdAt: createdAt,
+        read: true,
+      );
+}
+
 /// Whether the current case list yields at least one derived notification.
 /// Drives the home bell's unread dot HONESTLY — there is no stored feed, so the
 /// dot only shows when real case activity would produce a row here.
@@ -106,6 +157,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   /// Signatures dismissed via "mark all read" for THIS session only. No
   /// persistence — items are live-derived, so we never fake a stored read flag.
   final Set<String> _dismissed = <String>{};
+  late final AppApiClient _apiClient;
+  List<_StoredNotification> _stored = <_StoredNotification>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _apiClient = Get.find<AppController>().apiClient;
+    _loadStored();
+  }
+
+  Future<void> _loadStored() async {
+    try {
+      final profile = Get.find<AppController>().profile;
+      final response = await _apiClient.fetchUserNotifications(
+        profile?.preferredLanguage == 'en' ? 'en' : 'fr',
+      );
+      final items = (response['items'] as List<dynamic>? ?? <dynamic>[])
+          .whereType<Map<String, dynamic>>()
+          .map(_StoredNotification.fromJson)
+          .where((item) => item.id.isNotEmpty)
+          .toList();
+      if (mounted) setState(() => _stored = items);
+    } catch (_) {
+      // Dossier-derived rows stay available offline.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,14 +195,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: GetBuilder<AppController>(
           builder: (_) {
             final items = _derive(ctrl);
+            final hasItems = items.isNotEmpty || _stored.isNotEmpty;
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
               children: [
                 _header(items),
                 const SizedBox(height: 13),
-                if (items.isEmpty)
+                if (!hasItems)
                   _emptyState()
                 else ...[
+                  for (var i = 0; i < _stored.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 8),
+                    _storedNotifCard(_stored[i]),
+                  ],
+                  if (_stored.isNotEmpty && items.isNotEmpty)
+                    const SizedBox(height: 8),
                   for (var i = 0; i < items.length; i++) ...[
                     if (i > 0) const SizedBox(height: 8),
                     _notifCard(ctrl, items[i]),
@@ -167,12 +251,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return items;
   }
 
-  void _markAllRead(List<_DerivedNotification> items) {
+  Future<void> _markAllRead(List<_DerivedNotification> items) async {
     setState(() {
       for (final item in items) {
         _dismissed.add(item.signature);
       }
+      _stored = _stored.map((item) => item.markRead()).toList();
     });
+    try {
+      await _apiClient.markAllUserNotificationsRead();
+    } catch (_) {
+      // Optimistic read state keeps the interaction responsive; the server
+      // state will be reconciled on the next successful load.
+    }
   }
 
   // ── Header ───────────────────────────────────────────────────────────────
@@ -206,7 +297,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
         ),
-        if (items.isNotEmpty)
+        if (items.isNotEmpty || _stored.any((item) => !item.read))
           Semantics(
             button: true,
             child: GestureDetector(
@@ -376,6 +467,103 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _storedNotifCard(_StoredNotification item) {
+    return Semantics(
+      button: true,
+      label: item.title,
+      child: GestureDetector(
+        onTap: () => _openStored(item),
+        child: Container(
+          decoration: BoxDecoration(
+            color: _Palette.card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: item.read ? _Palette.border : _Palette.borderUnread,
+            ),
+            boxShadow: _cardShadow,
+          ),
+          padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _Palette.chipBg,
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  size: 18,
+                  color: _Palette.blue,
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: _Palette.navy,
+                      ),
+                    ),
+                    if (item.body.trim().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        item.body,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          height: 1.5,
+                          color: _Palette.slate,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                _relativeTime(item.createdAt),
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: _Palette.slate400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openStored(_StoredNotification item) async {
+    if (!item.read) {
+      setState(() {
+        _stored = _stored
+            .map((stored) => stored.id == item.id ? stored.markRead() : stored)
+            .toList();
+      });
+      try {
+        await _apiClient.markUserNotificationRead(item.id);
+      } catch (_) {
+        // Navigation remains useful even if read-state persistence is offline.
+      }
+    }
+    var rawRoute = item.route;
+    if (rawRoute == AppRoutes.scholarships &&
+        (item.scholarshipId?.trim().isNotEmpty ?? false)) {
+      rawRoute = AppRoutes.scholarshipDetailPath(item.scholarshipId!.trim());
+    }
+    final route = AppRoutes.normalizeExternalRoute(rawRoute);
+    if (route != null) await Get.toNamed(route);
   }
 
   /// The concrete step for an "action needed" row: the case's real

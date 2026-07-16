@@ -1,5 +1,4 @@
 import { loadEnvFile } from 'node:process';
-import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
@@ -17,18 +16,28 @@ async function bootstrap() {
     loadEnvFile('.env');
   }
   const app = await NestFactory.create(AppModule);
-  // Express 5 / path-to-regexp v8: wildcards must be named ('(.*)' is invalid).
-  app.setGlobalPrefix('api', { exclude: ['uploads/{*path}'] });
+  app.setGlobalPrefix('api');
+
+  // The API is deployed behind exactly one Nginx proxy. Without this setting,
+  // Express sees the proxy address for every request and rate limiting groups
+  // all users into the same bucket. Keep the hop count explicit so a spoofed
+  // X-Forwarded-For header from an untrusted network is not accepted.
+  const trustProxyHops = Number(
+    process.env.KPB_TRUST_PROXY_HOPS ??
+      (process.env.NODE_ENV === 'production' ? 1 : 0),
+  );
+  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 3) {
+    throw new Error('KPB_TRUST_PROXY_HOPS must be an integer between 0 and 3.');
+  }
+  (app.getHttpAdapter().getInstance() as express.Application).set(
+    'trust proxy',
+    trustProxyHops,
+  );
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-
-  const uploadsDir = process.env.KPB_UPLOADS_DIR
-    ? resolve(process.env.KPB_UPLOADS_DIR)
-    : resolve(process.cwd(), 'uploads');
-  app.use('/uploads', express.static(uploadsDir, { maxAge: '1d' }));
 
   // ── Validation ─────────────────────────────────────────────────────────────
   app.useGlobalPipes(

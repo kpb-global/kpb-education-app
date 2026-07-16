@@ -4,6 +4,8 @@ type CoachProfileContext = {
   fullName?: string;
   currentLevel?: string;
   targetCountryIds?: string[];
+  annualTuitionBudgetEur?: number;
+  /// Legacy compatibility during the profile-budget migration.
   monthlyBudgetEur?: number;
   openCases?: string[];
   /// Verified catalog facts retrieved for this question (RAG). When present,
@@ -20,7 +22,7 @@ export function resolveCoachLanguage(raw?: string | null): CoachLanguage {
   return String(raw ?? '').trim().toLowerCase().startsWith('en') ? 'en' : 'fr';
 }
 
-/// Pseudonymize the monthly budget into a coarse range before it leaves the
+/// Pseudonymize the annual tuition budget into a coarse range before it leaves the
 /// server for the LLM. We never send the exact euro figure (a re-identifying
 /// data point); a bucket is enough for budget-aware guidance.
 export function budgetBucket(
@@ -29,11 +31,13 @@ export function budgetBucket(
 ): string {
   if (!eur || eur <= 0) return lang === 'en' ? 'not specified' : 'non renseigné';
   let range: string;
-  if (eur < 500) range = '< 500';
-  else if (eur < 1000) range = '500–1000';
-  else if (eur < 2000) range = '1000–2000';
-  else range = '> 2000';
-  return lang === 'en' ? `${range} €/month (range)` : `${range} €/mois (tranche)`;
+  if (eur < 5000) range = '< 5 000';
+  else if (eur < 10000) range = '5 000–10 000';
+  else if (eur < 20000) range = '10 000–20 000';
+  else range = '> 20 000';
+  return lang === 'en'
+    ? `${range} €/year tuition (range)`
+    : `${range} €/an de scolarité (tranche)`;
 }
 
 /// Verification freshness annotation for a RAG fact, with time decay. A fact
@@ -87,7 +91,13 @@ export function buildCoachSystemPrompt(profile: CoachProfileContext): string {
   if (lang === 'en') {
     const countries =
       (profile.targetCountryIds ?? []).join(', ') || 'not specified';
-    const budget = budgetBucket(profile.monthlyBudgetEur, 'en');
+    const budget = budgetBucket(
+      profile.annualTuitionBudgetEur ??
+        (profile.monthlyBudgetEur != null
+          ? profile.monthlyBudgetEur * 12
+          : undefined),
+      'en',
+    );
     const cases = (profile.openCases ?? []).join(', ') || 'none';
 
     // PII minimization: the student's name is deliberately NOT sent to the LLM.
@@ -114,7 +124,13 @@ Rules:
 
   const countries =
     (profile.targetCountryIds ?? []).join(', ') || 'non renseignés';
-  const budget = budgetBucket(profile.monthlyBudgetEur, 'fr');
+  const budget = budgetBucket(
+    profile.annualTuitionBudgetEur ??
+      (profile.monthlyBudgetEur != null
+        ? profile.monthlyBudgetEur * 12
+        : undefined),
+    'fr',
+  );
   const cases = (profile.openCases ?? []).join(', ') || 'aucune';
 
   // Minimisation : le nom de l'étudiant n'est volontairement PAS envoyé au LLM.

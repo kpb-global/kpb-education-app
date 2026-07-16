@@ -17,44 +17,59 @@ import {
   Field,
   Input,
   Select,
+  Textarea,
 } from '../../components/ui';
 import type { BadgeVariant } from '../../components/ui';
-
-type ModerationStatus = 'pending' | 'approved' | 'rejected';
-type ApplicationRequirement = 'automatic' | 'separate_application';
-
-interface ScholarshipStepEntry {
-  id: string;
-  stepNumber: number;
-  titleFr: string;
-  titleEn: string;
-  descriptionFr: string;
-  descriptionEn: string;
-  estimatedDurationDays: number | null;
-}
-
-interface ScholarshipEntry {
-  id: string;
-  nameFr: string;
-  nameEn: string;
-  countryId: string;
-  sourceUrl: string;
-  applicationUrl: string;
-  deadlineAt: string | null;
-  moderationStatus: ModerationStatus;
-  lastVerifiedAt: string | null;
-  tags: string[];
-  applicationRequirement: ApplicationRequirement;
-  applicationSteps: ScholarshipStepEntry[];
-}
+import { ScholarshipContentEditor } from '../../components/scholarships/ScholarshipContentEditor';
+import { ScholarshipVideosEditor } from '../../components/scholarships/ScholarshipVideosEditor';
+import type {
+  ApplicationRequirement,
+  ModerationStatus,
+  ScholarshipEntry,
+  ScholarshipStepEntry,
+} from '../../components/scholarships/types';
 
 interface StepDraft {
   stepNumber: string;
   titleFr: string;
   titleEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  estimatedDurationDays: string;
 }
 
-const EMPTY_STEP_DRAFT: StepDraft = { stepNumber: '', titleFr: '', titleEn: '' };
+const EMPTY_STEP_DRAFT: StepDraft = {
+  stepNumber: '',
+  titleFr: '',
+  titleEn: '',
+  descriptionFr: '',
+  descriptionEn: '',
+  estimatedDurationDays: '',
+};
+
+interface ActivationDraft {
+  academicYear: string;
+  estimatedOpenAt: string;
+  estimatedCloseAt: string;
+  opensAt: string;
+  closesAt: string;
+  sourceUrl: string;
+}
+
+function defaultActivationDraft(entry: ScholarshipEntry): ActivationDraft {
+  const year = new Date().getFullYear();
+  return {
+    academicYear: entry.currentCycle?.academicYear ?? `${year}-${year + 1}`,
+    estimatedOpenAt: entry.currentCycle?.estimatedOpenAt?.slice(0, 10) ?? '',
+    estimatedCloseAt: entry.currentCycle?.estimatedCloseAt?.slice(0, 10) ?? '',
+    opensAt: entry.currentCycle?.opensAt?.slice(0, 10) ?? '',
+    closesAt:
+      entry.currentCycle?.closesAt?.slice(0, 10) ??
+      entry.deadlineAt?.slice(0, 10) ??
+      '',
+    sourceUrl: entry.sourceUrl ?? '',
+  };
+}
 
 interface ModerationResponse {
   items: ScholarshipEntry[];
@@ -124,6 +139,15 @@ export default function ScholarshipsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stepDrafts, setStepDrafts] = useState<Record<string, StepDraft>>({});
   const [stepPendingId, setStepPendingId] = useState<string | null>(null);
+  const [activationDrafts, setActivationDrafts] = useState<
+    Record<string, ActivationDraft>
+  >({});
+  const [activationPendingId, setActivationPendingId] = useState<string | null>(
+    null,
+  );
+  const [forecastPendingId, setForecastPendingId] = useState<string | null>(
+    null,
+  );
 
   const selected = useMemo(
     () => items.find((item) => item.id === selectedId) ?? null,
@@ -208,7 +232,10 @@ export default function ScholarshipsPage() {
     }
   }
 
-  async function moderate(entry: ScholarshipEntry, action: 'approve' | 'reject') {
+  async function moderate(
+    entry: ScholarshipEntry,
+    action: 'approve' | 'reject',
+  ) {
     setPendingId(entry.id);
     setStatusMessage(null);
     setErrorMessage(null);
@@ -233,14 +260,19 @@ export default function ScholarshipsPage() {
     }
   }
 
-  async function updateRequirement(entry: ScholarshipEntry, value: ApplicationRequirement) {
+  async function updateRequirement(
+    entry: ScholarshipEntry,
+    value: ApplicationRequirement,
+  ) {
     if (value === entry.applicationRequirement) {
       return;
     }
     const previous = entry.applicationRequirement;
     setItems((current) =>
       current.map((item) =>
-        item.id === entry.id ? { ...item, applicationRequirement: value } : item,
+        item.id === entry.id
+          ? { ...item, applicationRequirement: value }
+          : item,
       ),
     );
     try {
@@ -251,7 +283,9 @@ export default function ScholarshipsPage() {
     } catch (error) {
       setItems((current) =>
         current.map((item) =>
-          item.id === entry.id ? { ...item, applicationRequirement: previous } : item,
+          item.id === entry.id
+            ? { ...item, applicationRequirement: previous }
+            : item,
         ),
       );
       setErrorMessage(
@@ -267,6 +301,14 @@ export default function ScholarshipsPage() {
       ...current,
       [entryId]: { ...EMPTY_STEP_DRAFT, ...current[entryId], ...patch },
     }));
+  }
+
+  function patchEntry(entryId: string, patch: Partial<ScholarshipEntry>) {
+    setItems((current) =>
+      current.map((item) =>
+        item.id === entryId ? { ...item, ...patch } : item,
+      ),
+    );
   }
 
   async function addStep(entry: ScholarshipEntry) {
@@ -287,6 +329,11 @@ export default function ScholarshipsPage() {
             stepNumber,
             titleFr: draft.titleFr.trim(),
             titleEn: draft.titleEn.trim() || undefined,
+            descriptionFr: draft.descriptionFr.trim(),
+            descriptionEn: draft.descriptionEn.trim(),
+            estimatedDurationDays: draft.estimatedDurationDays.trim()
+              ? Number(draft.estimatedDurationDays)
+              : undefined,
           },
         },
       );
@@ -302,7 +349,10 @@ export default function ScholarshipsPage() {
             : item,
         ),
       );
-      setStepDrafts((current) => ({ ...current, [entry.id]: EMPTY_STEP_DRAFT }));
+      setStepDrafts((current) => ({
+        ...current,
+        [entry.id]: EMPTY_STEP_DRAFT,
+      }));
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : t('scholarships.stepAddError'),
@@ -312,30 +362,312 @@ export default function ScholarshipsPage() {
     }
   }
 
-  async function removeStep(entry: ScholarshipEntry, step: ScholarshipStepEntry) {
+  async function removeStep(
+    entry: ScholarshipEntry,
+    step: ScholarshipStepEntry,
+  ) {
     setStepPendingId(entry.id);
     setErrorMessage(null);
     try {
-      await apiFetch(`/admin/catalog/scholarships/${entry.id}/steps/${step.id}`, {
-        method: 'DELETE',
-      });
+      await apiFetch(
+        `/admin/catalog/scholarships/${entry.id}/steps/${step.id}`,
+        {
+          method: 'DELETE',
+        },
+      );
       setItems((current) =>
         current.map((item) =>
           item.id === entry.id
             ? {
                 ...item,
-                applicationSteps: item.applicationSteps.filter((s) => s.id !== step.id),
+                applicationSteps: item.applicationSteps.filter(
+                  (s) => s.id !== step.id,
+                ),
               }
             : item,
         ),
       );
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : t('scholarships.stepRemoveError'),
+        error instanceof Error
+          ? error.message
+          : t('scholarships.stepRemoveError'),
       );
     } finally {
       setStepPendingId(null);
     }
+  }
+
+  function updateActivationDraft(
+    entry: ScholarshipEntry,
+    patch: Partial<ActivationDraft>,
+  ) {
+    setActivationDrafts((current) => ({
+      ...current,
+      [entry.id]: {
+        ...defaultActivationDraft(entry),
+        ...current[entry.id],
+        ...patch,
+      },
+    }));
+  }
+
+  async function activateScholarship(entry: ScholarshipEntry) {
+    const draft = activationDrafts[entry.id] ?? defaultActivationDraft(entry);
+    if (!draft.academicYear || !draft.opensAt || !draft.closesAt) {
+      setErrorMessage(t('scholarships.activationValidationError'));
+      return;
+    }
+    if (new Date(draft.closesAt) <= new Date(draft.opensAt)) {
+      setErrorMessage(t('scholarships.activationDateError'));
+      return;
+    }
+
+    setActivationPendingId(entry.id);
+    setStatusMessage(null);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/scholarships/${entry.id}/activate`, {
+        method: 'POST',
+        body: {
+          academicYear: draft.academicYear,
+          opensAt: `${draft.opensAt}T00:00:00.000Z`,
+          closesAt: `${draft.closesAt}T23:59:59.999Z`,
+          dateConfidence: 'confirmed',
+          sourceUrl: draft.sourceUrl || undefined,
+        },
+      });
+      setItems((current) =>
+        current.map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                deadlineAt: `${draft.closesAt}T23:59:59.999Z`,
+                currentCycle: {
+                  id: item.currentCycle?.id ?? '',
+                  academicYear: draft.academicYear,
+                  status: 'open',
+                  dateConfidence: 'confirmed',
+                  estimatedOpenAt: item.currentCycle?.estimatedOpenAt ?? null,
+                  estimatedCloseAt: item.currentCycle?.estimatedCloseAt ?? null,
+                  opensAt: `${draft.opensAt}T00:00:00.000Z`,
+                  closesAt: `${draft.closesAt}T23:59:59.999Z`,
+                },
+              }
+            : item,
+        ),
+      );
+      setStatusMessage(t('scholarships.activationSuccess'));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : t('scholarships.activationError'),
+      );
+    } finally {
+      setActivationPendingId(null);
+    }
+  }
+
+  async function saveForecast(entry: ScholarshipEntry) {
+    const draft = activationDrafts[entry.id] ?? defaultActivationDraft(entry);
+    if (
+      !draft.academicYear ||
+      !draft.estimatedOpenAt ||
+      !draft.estimatedCloseAt
+    ) {
+      setErrorMessage(t('scholarships.forecastValidationError'));
+      return;
+    }
+    if (new Date(draft.estimatedCloseAt) <= new Date(draft.estimatedOpenAt)) {
+      setErrorMessage(t('scholarships.activationDateError'));
+      return;
+    }
+
+    setForecastPendingId(entry.id);
+    setStatusMessage(null);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/scholarships/${entry.id}/forecast`, {
+        method: 'POST',
+        body: {
+          academicYear: draft.academicYear,
+          estimatedOpenAt: `${draft.estimatedOpenAt}T00:00:00.000Z`,
+          estimatedCloseAt: `${draft.estimatedCloseAt}T23:59:59.999Z`,
+          sourceUrl: draft.sourceUrl || undefined,
+        },
+      });
+      setItems((current) =>
+        current.map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                currentCycle: {
+                  id: item.currentCycle?.id ?? '',
+                  academicYear: draft.academicYear,
+                  status:
+                    item.currentCycle?.status === 'open' ? 'open' : 'forecast',
+                  dateConfidence:
+                    item.currentCycle?.status === 'open'
+                      ? 'confirmed'
+                      : 'estimated',
+                  estimatedOpenAt: `${draft.estimatedOpenAt}T00:00:00.000Z`,
+                  estimatedCloseAt: `${draft.estimatedCloseAt}T23:59:59.999Z`,
+                  opensAt: item.currentCycle?.opensAt ?? null,
+                  closesAt: item.currentCycle?.closesAt ?? null,
+                },
+              }
+            : item,
+        ),
+      );
+      setStatusMessage(t('scholarships.forecastSuccess'));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : t('scholarships.forecastError'),
+      );
+    } finally {
+      setForecastPendingId(null);
+    }
+  }
+
+  function renderActivationEditor(entry: ScholarshipEntry) {
+    if (entry.moderationStatus !== 'approved') {
+      return (
+        <Alert variant="warning">
+          {t('scholarships.activationApprovalHint')}
+        </Alert>
+      );
+    }
+    const draft = activationDrafts[entry.id] ?? defaultActivationDraft(entry);
+    const busy = activationPendingId === entry.id;
+    const forecastBusy = forecastPendingId === entry.id;
+    return (
+      <div
+        style={{
+          display: 'grid',
+          gap: 10,
+          padding: 14,
+          borderRadius: 14,
+          border: '1px solid var(--border)',
+          background: 'var(--bg)',
+        }}
+      >
+        <span style={metaLabelStyle}>{t('scholarships.activationTitle')}</span>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}
+        >
+          <Field label={t('scholarships.academicYearLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                value={draft.academicYear}
+                onChange={(event) =>
+                  updateActivationDraft(entry, {
+                    academicYear: event.target.value,
+                  })
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('scholarships.sourceLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="url"
+                value={draft.sourceUrl}
+                onChange={(event) =>
+                  updateActivationDraft(entry, {
+                    sourceUrl: event.target.value,
+                  })
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('scholarships.estimatedOpenAtLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="date"
+                value={draft.estimatedOpenAt}
+                onChange={(event) =>
+                  updateActivationDraft(entry, {
+                    estimatedOpenAt: event.target.value,
+                  })
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('scholarships.estimatedCloseAtLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="date"
+                value={draft.estimatedCloseAt}
+                onChange={(event) =>
+                  updateActivationDraft(entry, {
+                    estimatedCloseAt: event.target.value,
+                  })
+                }
+              />
+            )}
+          </Field>
+        </div>
+        <Button
+          variant="secondary"
+          loading={forecastBusy}
+          onClick={() => saveForecast(entry)}
+        >
+          {t('scholarships.saveForecastCta')}
+        </Button>
+        <span
+          style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}
+        >
+          {t('scholarships.forecastHint')}
+        </span>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}
+        >
+          <Field label={t('scholarships.opensAtLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="date"
+                value={draft.opensAt}
+                onChange={(event) =>
+                  updateActivationDraft(entry, { opensAt: event.target.value })
+                }
+              />
+            )}
+          </Field>
+          <Field label={t('scholarships.closesAtLabel')}>
+            {({ id }) => (
+              <Input
+                id={id}
+                type="date"
+                value={draft.closesAt}
+                onChange={(event) =>
+                  updateActivationDraft(entry, { closesAt: event.target.value })
+                }
+              />
+            )}
+          </Field>
+        </div>
+        <Button
+          variant="success"
+          loading={busy}
+          onClick={() => activateScholarship(entry)}
+        >
+          {t('scholarships.activateCta')}
+        </Button>
+        <span
+          style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}
+        >
+          {t('scholarships.activationHint')}
+        </span>
+      </div>
+    );
   }
 
   function renderStepsEditor(entry: ScholarshipEntry) {
@@ -374,7 +706,14 @@ export default function ScholarshipsPage() {
             </Button>
           </div>
         ))}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+            alignItems: 'flex-end',
+          }}
+        >
           <div style={{ width: 72 }}>
             <Field label={t('scholarships.stepNumberLabel')}>
               {({ id }) => (
@@ -382,7 +721,9 @@ export default function ScholarshipsPage() {
                   id={id}
                   type="number"
                   value={draft.stepNumber}
-                  onChange={(e) => updateDraft(entry.id, { stepNumber: e.target.value })}
+                  onChange={(e) =>
+                    updateDraft(entry.id, { stepNumber: e.target.value })
+                  }
                 />
               )}
             </Field>
@@ -393,7 +734,9 @@ export default function ScholarshipsPage() {
                 <Input
                   id={id}
                   value={draft.titleFr}
-                  onChange={(e) => updateDraft(entry.id, { titleFr: e.target.value })}
+                  onChange={(e) =>
+                    updateDraft(entry.id, { titleFr: e.target.value })
+                  }
                 />
               )}
             </Field>
@@ -404,12 +747,65 @@ export default function ScholarshipsPage() {
                 <Input
                   id={id}
                   value={draft.titleEn}
-                  onChange={(e) => updateDraft(entry.id, { titleEn: e.target.value })}
+                  onChange={(e) =>
+                    updateDraft(entry.id, { titleEn: e.target.value })
+                  }
                 />
               )}
             </Field>
           </div>
-          <Button size="sm" variant="secondary" loading={busy} onClick={() => addStep(entry)}>
+          <div style={{ flexBasis: '100%' }} />
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <Field label={t('scholarships.stepDescriptionFrLabel')}>
+              {({ id }) => (
+                <Textarea
+                  id={id}
+                  rows={3}
+                  value={draft.descriptionFr}
+                  onChange={(e) =>
+                    updateDraft(entry.id, { descriptionFr: e.target.value })
+                  }
+                />
+              )}
+            </Field>
+          </div>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <Field label={t('scholarships.stepDescriptionEnLabel')}>
+              {({ id }) => (
+                <Textarea
+                  id={id}
+                  rows={3}
+                  value={draft.descriptionEn}
+                  onChange={(e) =>
+                    updateDraft(entry.id, { descriptionEn: e.target.value })
+                  }
+                />
+              )}
+            </Field>
+          </div>
+          <div style={{ width: 150 }}>
+            <Field label={t('scholarships.stepDurationLabel')}>
+              {({ id }) => (
+                <Input
+                  id={id}
+                  type="number"
+                  min={0}
+                  value={draft.estimatedDurationDays}
+                  onChange={(e) =>
+                    updateDraft(entry.id, {
+                      estimatedDurationDays: e.target.value,
+                    })
+                  }
+                />
+              )}
+            </Field>
+          </div>
+          <Button
+            size="sm"
+            variant="secondary"
+            loading={busy}
+            onClick={() => addStep(entry)}
+          >
             {t('scholarships.addStepCta')}
           </Button>
         </div>
@@ -444,7 +840,9 @@ export default function ScholarshipsPage() {
             </span>
           </div>
           <div style={{ display: 'grid', gap: 2 }}>
-            <span style={metaLabelStyle}>{t('scholarships.deadlineLabel')}</span>
+            <span style={metaLabelStyle}>
+              {t('scholarships.deadlineLabel')}
+            </span>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700 }}>
               {formatDeadline(entry.deadlineAt)}
             </span>
@@ -467,7 +865,9 @@ export default function ScholarshipsPage() {
               {entry.sourceUrl}
             </a>
           ) : (
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+            <span
+              style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}
+            >
               {t('scholarships.noSource')}
             </span>
           )}
@@ -483,13 +883,21 @@ export default function ScholarshipsPage() {
           </div>
         ) : null}
 
+        <ScholarshipContentEditor
+          entry={entry}
+          onSaved={(patch) => patchEntry(entry.id, patch)}
+        />
+
         <Field label={t('scholarships.requirementLabel')}>
           {({ id }) => (
             <Select
               id={id}
               value={entry.applicationRequirement}
               onChange={(e) =>
-                updateRequirement(entry, e.target.value as ApplicationRequirement)
+                updateRequirement(
+                  entry,
+                  e.target.value as ApplicationRequirement,
+                )
               }
             >
               <option value="automatic">{requirementLabel('automatic')}</option>
@@ -501,6 +909,13 @@ export default function ScholarshipsPage() {
         </Field>
 
         {renderStepsEditor(entry)}
+
+        <ScholarshipVideosEditor
+          entry={entry}
+          onChanged={(videos) => patchEntry(entry.id, { videos })}
+        />
+
+        {renderActivationEditor(entry)}
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {entry.moderationStatus === 'pending' ||
@@ -531,7 +946,9 @@ export default function ScholarshipsPage() {
   return (
     <DashboardShell title={t('scholarships.title')} subtitle={t('scholarships.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
-        {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
+        {statusMessage ? (
+          <Alert variant="success">{statusMessage}</Alert>
+        ) : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
         <div
@@ -597,7 +1014,10 @@ export default function ScholarshipsPage() {
                     sub={entry.countryId || undefined}
                   />
                   <CellText primary={formatDeadline(entry.deadlineAt)} muted />
-                  <CellText primary={String(entry.applicationSteps.length)} muted />
+                  <CellText
+                    primary={String(entry.applicationSteps.length)}
+                    muted
+                  />
                   <div>
                     <Badge variant={STATUS_VARIANT[entry.moderationStatus]}>
                       {statusLabel(entry.moderationStatus)}

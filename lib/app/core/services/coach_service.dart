@@ -179,7 +179,7 @@ class CoachService {
       'fullName': profile.fullName,
       'currentLevel': profile.currentLevel,
       'targetCountryIds': profile.targetCountryIds,
-      'monthlyBudgetEur': profile.monthlyBudgetEur,
+      'annualTuitionBudgetEur': profile.annualTuitionBudgetEur,
       // So the coach answers in the student's language (FR or EN) rather than
       // always French.
       'preferredLanguage': profile.preferredLanguage,

@@ -93,6 +93,7 @@ describe('AdminCatalogService — scholarship application requirement & steps', 
       expect(scholarshipCreates[0].applicationRequirement).toBe(
         'separate_application',
       );
+      expect(scholarshipCreates[0].moderationStatus).toBe('pending');
     });
 
     it('createScholarship accepts an explicit automatic value', async () => {

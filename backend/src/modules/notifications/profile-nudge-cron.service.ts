@@ -49,7 +49,7 @@ export class ProfileNudgeCronService {
               OR: [
                 { currentLevel: null },
                 { targetLevel: null },
-                { monthlyBudgetEur: null },
+                { annualTuitionBudgetEur: null },
                 { fieldIds: { isEmpty: true } },
                 { targetCountryIds: { isEmpty: true } },
               ],

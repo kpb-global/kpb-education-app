@@ -1,7 +1,7 @@
 /// Bottom navigation indices — student shell (spec §4.1).
 abstract final class StudentShellTab {
   static const int home = 0;
-  static const int destinations = 1;
+  static const int scholarships = 1;
   static const int universities = 2;
   static const int cases = 3;
   static const int profile = 4;

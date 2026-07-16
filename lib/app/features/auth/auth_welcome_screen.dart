@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,12 +9,11 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/ui/app_tokens.dart';
-import '../../core/ui/kpb_theme_ext.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../shell/app_root_shell.dart';
 import 'magic_link_email_screen.dart';
 
-/// Entry point after intro — Google sign-in, email magic link, or guest browse.
+/// KPB Intelligence's acquisition entry point for Google or email sign-in.
 class AuthWelcomeScreen extends StatefulWidget {
   const AuthWelcomeScreen({super.key});
 
@@ -65,86 +65,177 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
     final authService = _authService;
 
     return Scaffold(
-      backgroundColor: context.kpb.pageBg,
+      backgroundColor: KpbColors.engagementCanvas,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(KpbSpacing.pagePad),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              Center(
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: const BoxDecoration(
-                    gradient: KpbColors.heroGradient,
-                    borderRadius: KpbRadius.xlBr,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact = constraints.maxHeight < 720;
+            final titleSize = isCompact ? 30.0 : 34.0;
+            final sidePadding = constraints.maxWidth < 380 ? 28.0 : 40.0;
+
+            return Padding(
+              padding: EdgeInsets.fromLTRB(sidePadding, 24, sidePadding, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      'assets/images/logo/kpb-education-logo-full.png',
+                      width: 150,
+                      fit: BoxFit.contain,
+                      semanticLabel: 'KPB Education',
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.school_rounded,
-                    size: 36,
-                    color: Colors.white,
+                  Spacer(flex: isCompact ? 2 : 3),
+                  Text(
+                    'auth_intelligence_title'.tr,
+                    style: TextStyle(
+                      color: KpbColors.engagementNavy,
+                      fontSize: titleSize,
+                      fontWeight: FontWeight.w800,
+                      height: 1.04,
+                      letterSpacing: -1.25,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 28),
+                  Text(
+                    'auth_intelligence_body'.tr,
+                    style: const TextStyle(
+                      color: KpbColors.engagementMuted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      height: 1.42,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  _BenefitRow(
+                    icon: Icons.percent_rounded,
+                    label: 'auth_intelligence_benefit_probability'.tr,
+                  ),
+                  const SizedBox(height: 17),
+                  _BenefitRow(
+                    icon: Icons.smart_toy_outlined,
+                    label: 'auth_intelligence_benefit_ai'.tr,
+                  ),
+                  const SizedBox(height: 17),
+                  _BenefitRow(
+                    icon: Icons.support_agent_rounded,
+                    label: 'auth_intelligence_benefit_support'.tr,
+                  ),
+                  Spacer(flex: isCompact ? 1 : 2),
+                  SizedBox(
+                    height: 58,
+                    child: OutlinedButton.icon(
+                      onPressed: _googleLoading ? null : _signInWithGoogle,
+                      icon: _googleLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: KpbColors.engagementBlue,
+                              ),
+                            )
+                          : const FaIcon(
+                              FontAwesomeIcons.google,
+                              size: 19,
+                              color: Color(0xFF4285F4),
+                            ),
+                      label: Text('auth_continue_google'.tr),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: KpbColors.engagementNavy,
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(
+                          color: KpbColors.engagementBorder,
+                          width: 1.5,
+                        ),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 58,
+                    child: FilledButton.icon(
+                      onPressed: () => Get.to(
+                        () => MagicLinkEmailScreen(authService: authService),
+                      ),
+                      icon: const Icon(Icons.mail_outline_rounded, size: 23),
+                      label: Text('auth_receive_email_link'.tr),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: KpbColors.engagementBlue,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'auth_intelligence_note'.tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: KpbSpacing.lg),
-              Text(
-                'auth_welcome_title'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: context.kpb.textPrimary,
-                ),
-              ),
-              const SizedBox(height: KpbSpacing.sm),
-              Text(
-                'auth_welcome_subtitle'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                  color: context.kpb.textMuted,
-                ),
-              ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: _googleLoading ? null : _signInWithGoogle,
-                icon: _googleLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.g_mobiledata_rounded, size: 28),
-                label: Text('auth_continue_google'.tr),
-              ),
-              const SizedBox(height: KpbSpacing.sm),
-              OutlinedButton(
-                onPressed: () => Get.to(
-                  () => MagicLinkEmailScreen(authService: authService),
-                ),
-                child: Text('auth_continue_email'.tr),
-              ),
-              const SizedBox(height: KpbSpacing.sm),
-              TextButton(
-                onPressed: () {
-                  final controller = Get.find<AppController>();
-                  controller.enterGuestMode();
-                  Get.offAll(() => const AppRootShell());
-                },
-                child: Text('auth_continue_guest'.tr),
-              ),
-              const SizedBox(height: KpbSpacing.md),
-              Text(
-                'auth_guest_hint'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: context.kpb.textMuted),
-              ),
-            ],
-          ),
+            );
+          },
         ),
+      ),
+    );
+  }
+}
+
+class _BenefitRow extends StatelessWidget {
+  const _BenefitRow({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 28,
+            child: Icon(icon, size: 24, color: KpbColors.engagementBlue),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF334155),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                height: 1.24,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

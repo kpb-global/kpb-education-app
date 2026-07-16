@@ -5,6 +5,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/components/anti_fraud_notice.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../../core/utils/currency_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// "Dossier prêt" + scholarship / visa prep kits catalog (Phase 3).
@@ -194,7 +195,11 @@ class _PackageCard extends StatelessWidget {
             Text(summary, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 12),
             Text(
-              '${_formatFcfa(price)} FCFA',
+              CurrencyUtils.formatXof(
+                price,
+                Get.find<AppController>().profile?.preferredCurrency,
+                approximate: true,
+              ),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -247,16 +252,5 @@ class _PackageCard extends StatelessWidget {
       default:
         return 'service_packages_category_default'.tr;
     }
-  }
-
-  static String _formatFcfa(int value) {
-    // Group thousands with a non-breaking space — matches local convention.
-    final s = value.toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buf.write('\u00A0');
-      buf.write(s[i]);
-    }
-    return buf.toString();
   }
 }

@@ -1,10 +1,23 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { CasesService } from './cases.service';
+import { StorageService } from '../storage/storage.service';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
 import { CreateCaseTaskDto } from './dto/create-case-task.dto';
@@ -20,11 +33,45 @@ import { UpdateCaseDto } from './dto/update-case.dto';
   InternalRole.SuperAdmin,
 )
 export class AdminCasesController {
-  constructor(private readonly casesService: CasesService) {}
+  constructor(
+    private readonly casesService: CasesService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Get()
   findAll() {
     return this.casesService.findAllForAdmin();
+  }
+
+  @Get(':id/documents/:documentId/file')
+  async downloadDocument(
+    @Param('id') id: string,
+    @Param('documentId') documentId: string,
+    @Req() req: any,
+    @Res() response: Response,
+  ): Promise<void> {
+    const document = await this.casesService.getInternalDocument(
+      id,
+      documentId,
+      req.adminUser,
+    );
+    const key = this.storageService.keyFromUrl(document.fileUrl);
+    if (!key) throw new NotFoundException('Document not found.');
+    const object = await this.storageService.getObject(key);
+    if (!object) throw new NotFoundException('Document not found.');
+
+    response.setHeader('Content-Type', object.mimeType);
+    response.setHeader('Content-Disposition', 'attachment');
+    response.setHeader('Cache-Control', 'private, no-store');
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    if (object.sizeBytes !== undefined) {
+      response.setHeader('Content-Length', object.sizeBytes.toString());
+    }
+    object.stream.on('error', () => {
+      if (!response.headersSent) response.status(503).end();
+      else response.destroy();
+    });
+    object.stream.pipe(response);
   }
 
   @Patch(':id')
