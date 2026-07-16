@@ -59,7 +59,59 @@ le thème depuis `main` à jour.
       text scale 1.0 et 1.3. À prendre sur l'état **post-fusion** (c'est lui la
       référence avant le big-bang du lot 1). Nécessite simulateur/appareil.
 
-## Lot 1 — Tokens + ThemeData + extension + ratchet — ⬜ non démarré
+## Lot 1 — Tokens + ThemeData + extension + ratchet — ✅ terminé le 16/07/2026
+
+Branche : `claude/theme-lot1-foundations` (depuis `main` post-#146). Zéro écran
+touché : le re-skin global passe par le re-pointage des tokens.
+
+### Fichiers
+
+- `lib/app/core/ui/app_tokens.dart` — rôles sémantiques canoniques
+  (`brandNavy`, `actionPrimary[Pressed|Soft]`, `canvas`, `surface[Muted]`,
+  `border[Strong]`, `text*`, `decorSky`, `whatsapp`, `actionOnDark`…) ;
+  **re-pointage** des noms historiques (`blue → #2563EB`, `navy → #0F172A`,
+  neutres gray → échelle slate, `bgPage → #F8FAFC`…) ; `brandBlueLegacy`
+  conserve #004AAD pour la marque héritée ; aliases `engagement*`/`primary`
+  maintenus ; `KpbColorsDark` (valeurs sombres regroupées, non conçues) ;
+  `KpbMotion` ; `KpbTypography` (typedef) + `bodyFamily` + styles titres
+  complémentaires (`displayXs`, `headlineLg`, `headlineSm`, `titleSm`).
+- `lib/app/core/ui/app_theme.dart` — `ColorScheme` explicite (plus de
+  `fromSeed` en light), `surfaceTint` transparent, `InkRipple`, extension
+  enregistrée, sous-thèmes complets : AppBar, Card (bordure), Chips, Inputs,
+  Filled/Elevated/Outlined/Text buttons (52 px), NavigationBar, Divider,
+  ListTile, IconTheme, BottomSheet, **Dialog, SnackBar (navy), TabBar,
+  Tooltip, PopupMenu, Drawer, FAB, Radio, SegmentedButton, Badge** (nouveaux),
+  Switch/Checkbox, Progress, TextTheme 15 slots. Zéro hexadécimal.
+- `lib/app/core/ui/kpb_theme_ext.dart` — `KpbThemeColors` devient une
+  **`ThemeExtension`** (instances const `light`/`dark` lues depuis les
+  tokens) ; API des 370 call-sites inchangée (`context.kpb`, `.of()`) ;
+  les styles `ts*` retrouvent leurs familles de polices. Zéro hexadécimal.
+- Tests : `test/core/ui/app_tokens_test.dart` (valeurs, re-pointages, aliases,
+  familles, **contrastes WCAG calculés**), `app_theme_test.dart` (palette,
+  typo, extension, composants, cible tactile ≥ 48 dp),
+  `color_audit_test.dart` + `color_budget.dart` — **ratchet** : budget par
+  fichier (49 fichiers, 623 hex à date), interdiction de toute nouvelle
+  couleur en dur, budgets décroissants only, L1/L2 verrouillés à 0 hex.
+- `docs/theme-color-allowlist.md` créée (aucune exception permanente à date).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` : **328 tests
+  verts** (293 existants — aucun cassé par le re-pointage — + 35 nouveaux).
+
+### Écarts vs architecture (documentés)
+
+- `iconTheme` global : couleur `textSecondary` appliquée, mais **pas** la
+  taille 22 (§7.2) — éviter un décalage de layout global au lot 1.
+- `context.kpb.textMuted` passe de `#9CA3AF` (2,5:1, échec AA) à `#64748B`
+  (4,76:1) : les textes atténués foncent légèrement partout — voulu,
+  aligné sur le précédent du repo (« WCAG AA tuned »).
+
+### Reste (repris au lot 3/9)
+
+- Captures avant/après sur simulateur (baseline post-#146 → lot 1).
+- Revue visuelle humaine des 5 onglets (gate du plan §8).
 
 ## Lot 2 — Primitives KPB — ⬜ non démarré
 

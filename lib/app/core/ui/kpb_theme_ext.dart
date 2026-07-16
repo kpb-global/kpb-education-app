@@ -1,135 +1,242 @@
 import 'package:flutter/material.dart';
 
+import 'app_tokens.dart';
+
 // ─────────────────────────────────────────────────────────────────────────────
-// KPB Theme Extension — context-aware color resolution
+// KPB Theme Extension — rôles sémantiques résolus via le ThemeData
 // ─────────────────────────────────────────────────────────────────────────────
-// Usage:
+// L2 de l'architecture de thème (docs/fable-global-theme-architecture.md §8) :
+// ce fichier ne stocke AUCUNE valeur de couleur — les deux instances lisent
+// les tokens de app_tokens.dart. L'API des écrans est inchangée :
 //   final c = context.kpb;
-//   Container(color: c.cardBg, child: Text('Hi', style: TextStyle(color: c.textPrimary)));
+//   Container(color: c.cardBg, child: Text('Hi', style: c.tsBody));
 // ─────────────────────────────────────────────────────────────────────────────
 
 extension KpbThemeContext on BuildContext {
-  KpbThemeColors get kpb => KpbThemeColors.of(this);
+  KpbThemeColors get kpb =>
+      Theme.of(this).extension<KpbThemeColors>() ??
+      (isDark ? KpbThemeColors.dark : KpbThemeColors.light);
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 }
 
-class KpbThemeColors {
-  KpbThemeColors._(this._isDark);
+class KpbThemeColors extends ThemeExtension<KpbThemeColors> {
+  const KpbThemeColors({
+    required this.pageBg,
+    required this.cardBg,
+    required this.mutedBg,
+    required this.inputBg,
+    required this.surfaceBg,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textMuted,
+    required this.divider,
+    required this.border,
+    required this.borderLight,
+    required this.gray50,
+    required this.gray100,
+    required this.gray200,
+    required this.gray300,
+    required this.gray400,
+    required this.gray500,
+    required this.successLight,
+    required this.warningLight,
+    required this.errorLight,
+    required this.goldLight,
+    required this.skyLight,
+    required this.cardShadow,
+    required this.softShadow,
+  });
 
-  factory KpbThemeColors.of(BuildContext context) {
-    return KpbThemeColors._(Theme.of(context).brightness == Brightness.dark);
-  }
-
-  final bool _isDark;
+  /// Compat historique : `KpbThemeColors.of(context)` ≡ `context.kpb`.
+  static KpbThemeColors of(BuildContext context) => context.kpb;
 
   // ── Backgrounds ──────────────────────────────────────────────────────────
-  Color get pageBg =>
-      _isDark ? const Color(0xFF111827) : const Color(0xFFF4F6FB);
-  Color get cardBg => _isDark ? const Color(0xFF1E2535) : Colors.white;
-  Color get mutedBg =>
-      _isDark ? const Color(0xFF1A2332) : const Color(0xFFF9FAFB);
-  Color get inputBg => _isDark ? const Color(0xFF1E2535) : Colors.white;
-  Color get surfaceBg =>
-      _isDark ? const Color(0xFF1E2535) : const Color(0xFFF3F4F6);
+  final Color pageBg;
+  final Color cardBg;
+  final Color mutedBg;
+  final Color inputBg;
+  final Color surfaceBg;
 
   // ── Text ─────────────────────────────────────────────────────────────────
-  Color get textPrimary => _isDark ? Colors.white : const Color(0xFF0F1729);
-  Color get textSecondary =>
-      _isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-  Color get textMuted =>
-      _isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF);
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textMuted;
 
   // ── Borders & Dividers ───────────────────────────────────────────────────
-  Color get divider =>
-      _isDark ? const Color(0xFF2D3748) : const Color(0xFFF3F4F6);
-  Color get border =>
-      _isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
-  Color get borderLight =>
-      _isDark ? const Color(0xFF2D3748) : const Color(0xFFF3F4F6);
+  final Color divider;
+  final Color border;
+  final Color borderLight;
 
-  // ── Neutral fills (for icon backgrounds, chips, etc.) ────────────────────
-  Color get gray50 =>
-      _isDark ? const Color(0xFF1A2332) : const Color(0xFFF9FAFB);
-  Color get gray100 =>
-      _isDark ? const Color(0xFF1E2840) : const Color(0xFFF3F4F6);
-  Color get gray200 =>
-      _isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
-  Color get gray300 =>
-      _isDark ? const Color(0xFF4B5563) : const Color(0xFFD1D5DB);
-  Color get gray400 =>
-      _isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF);
-  Color get gray500 =>
-      _isDark ? const Color(0xFF4B5563) : const Color(0xFF6B7280);
+  // ── Neutral fills (icon backgrounds, chips, etc.) ────────────────────────
+  final Color gray50;
+  final Color gray100;
+  final Color gray200;
+  final Color gray300;
+  final Color gray400;
+  final Color gray500;
 
-  // ── Semantic light fills (for success/error/warning backgrounds) ─────────
-  Color get successLight =>
-      _isDark ? const Color(0xFF0D3D2E) : const Color(0xFFECFDF5);
-  Color get warningLight =>
-      _isDark ? const Color(0xFF3D2F0D) : const Color(0xFFFFFBEB);
-  Color get errorLight =>
-      _isDark ? const Color(0xFF3D1515) : const Color(0xFFFEF2F2);
-  Color get goldLight =>
-      _isDark ? const Color(0xFF3D2F0D) : const Color(0xFFFFF8E7);
-  Color get skyLight =>
-      _isDark ? const Color(0xFF0D2940) : const Color(0xFFE8F5FD);
+  // ── Semantic light fills ─────────────────────────────────────────────────
+  final Color successLight;
+  final Color warningLight;
+  final Color errorLight;
+  final Color goldLight;
+  final Color skyLight;
 
   // ── Shadows ──────────────────────────────────────────────────────────────
-  List<BoxShadow> get cardShadow => _isDark
-      ? const [
-          BoxShadow(
-              color: Color(0x40000000), blurRadius: 12, offset: Offset(0, 3))
-        ]
-      : const [
-          BoxShadow(
-              color: Color(0x09000000), blurRadius: 12, offset: Offset(0, 3))
-        ];
+  final List<BoxShadow> cardShadow;
+  final List<BoxShadow> softShadow;
 
-  List<BoxShadow> get softShadow => _isDark
-      ? const []
-      : const [
-          BoxShadow(
-              color: Color(0x06000000), blurRadius: 6, offset: Offset(0, 2))
-        ];
+  static const light = KpbThemeColors(
+    pageBg: KpbColors.canvas,
+    cardBg: KpbColors.surface,
+    mutedBg: KpbColors.gray50,
+    inputBg: KpbColors.surface,
+    surfaceBg: KpbColors.surfaceMuted,
+    textPrimary: KpbColors.textPrimary,
+    textSecondary: KpbColors.textSecondary,
+    textMuted: KpbColors.textMuted,
+    divider: KpbColors.surfaceMuted,
+    border: KpbColors.border,
+    borderLight: KpbColors.surfaceMuted,
+    gray50: KpbColors.gray50,
+    gray100: KpbColors.gray100,
+    gray200: KpbColors.gray200,
+    gray300: KpbColors.gray300,
+    gray400: KpbColors.gray400,
+    gray500: KpbColors.gray500,
+    successLight: KpbColors.successLight,
+    warningLight: KpbColors.warningLight,
+    errorLight: KpbColors.errorLight,
+    goldLight: KpbColors.goldLight,
+    skyLight: KpbColors.skyLight,
+    cardShadow: KpbShadow.card,
+    softShadow: KpbShadow.soft,
+  );
+
+  /// Mode sombre : compilable, non conçu pour cette livraison (light-only).
+  static const dark = KpbThemeColors(
+    pageBg: KpbColorsDark.pageBg,
+    cardBg: KpbColorsDark.cardBg,
+    mutedBg: KpbColorsDark.mutedBg,
+    inputBg: KpbColorsDark.inputBg,
+    surfaceBg: KpbColorsDark.surfaceBg,
+    textPrimary: KpbColorsDark.textPrimary,
+    textSecondary: KpbColorsDark.textSecondary,
+    textMuted: KpbColorsDark.textMuted,
+    divider: KpbColorsDark.divider,
+    border: KpbColorsDark.border,
+    borderLight: KpbColorsDark.borderLight,
+    gray50: KpbColorsDark.gray50,
+    gray100: KpbColorsDark.gray100,
+    gray200: KpbColorsDark.gray200,
+    gray300: KpbColorsDark.gray300,
+    gray400: KpbColorsDark.gray400,
+    gray500: KpbColorsDark.gray500,
+    successLight: KpbColorsDark.successLight,
+    warningLight: KpbColorsDark.warningLight,
+    errorLight: KpbColorsDark.errorLight,
+    goldLight: KpbColorsDark.goldLight,
+    skyLight: KpbColorsDark.skyLight,
+    cardShadow: KpbColorsDark.cardShadow,
+    softShadow: <BoxShadow>[],
+  );
 
   // ── Theme-aware text styles ──────────────────────────────────────────────
-  // Use these instead of KpbTextStyles.* when you need the text to adapt.
-  TextStyle get tsDisplay => TextStyle(
-      fontSize: 32,
-      fontWeight: FontWeight.w800,
-      color: textPrimary,
-      height: 1.2,
-      letterSpacing: -0.5);
-  TextStyle get tsHeadline => TextStyle(
-      fontSize: 24,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
-      height: 1.25,
-      letterSpacing: -0.3);
-  TextStyle get tsTitle => TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
-      height: 1.3);
-  TextStyle get tsTitleMd => TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-      height: 1.3);
-  TextStyle get tsBody => TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w400,
-      color: textPrimary,
-      height: 1.5);
-  TextStyle get tsBodySm => TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w400,
-      color: textSecondary,
-      height: 1.4);
-  TextStyle get tsLabel => TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w600,
-      color: textSecondary,
-      letterSpacing: 0.4);
-  TextStyle get tsCaption => TextStyle(
-      fontSize: 12, fontWeight: FontWeight.w400, color: textMuted, height: 1.4);
+  // Dérivés de KpbTextStyles : les familles (Inter/Plus Jakarta Sans) suivent
+  // automatiquement — l'ancienne implémentation les perdait.
+  TextStyle get tsDisplay => KpbTextStyles.display.copyWith(color: textPrimary);
+  TextStyle get tsHeadline =>
+      KpbTextStyles.headline.copyWith(color: textPrimary);
+  TextStyle get tsTitle => KpbTextStyles.title.copyWith(color: textPrimary);
+  TextStyle get tsTitleMd => KpbTextStyles.titleMd.copyWith(color: textPrimary);
+  TextStyle get tsBody => KpbTextStyles.body.copyWith(color: textPrimary);
+  TextStyle get tsBodySm => KpbTextStyles.bodySm.copyWith(color: textSecondary);
+  TextStyle get tsLabel => KpbTextStyles.label.copyWith(color: textSecondary);
+  TextStyle get tsCaption => KpbTextStyles.caption.copyWith(color: textMuted);
+
+  @override
+  KpbThemeColors copyWith({
+    Color? pageBg,
+    Color? cardBg,
+    Color? mutedBg,
+    Color? inputBg,
+    Color? surfaceBg,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textMuted,
+    Color? divider,
+    Color? border,
+    Color? borderLight,
+    Color? gray50,
+    Color? gray100,
+    Color? gray200,
+    Color? gray300,
+    Color? gray400,
+    Color? gray500,
+    Color? successLight,
+    Color? warningLight,
+    Color? errorLight,
+    Color? goldLight,
+    Color? skyLight,
+    List<BoxShadow>? cardShadow,
+    List<BoxShadow>? softShadow,
+  }) {
+    return KpbThemeColors(
+      pageBg: pageBg ?? this.pageBg,
+      cardBg: cardBg ?? this.cardBg,
+      mutedBg: mutedBg ?? this.mutedBg,
+      inputBg: inputBg ?? this.inputBg,
+      surfaceBg: surfaceBg ?? this.surfaceBg,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      textMuted: textMuted ?? this.textMuted,
+      divider: divider ?? this.divider,
+      border: border ?? this.border,
+      borderLight: borderLight ?? this.borderLight,
+      gray50: gray50 ?? this.gray50,
+      gray100: gray100 ?? this.gray100,
+      gray200: gray200 ?? this.gray200,
+      gray300: gray300 ?? this.gray300,
+      gray400: gray400 ?? this.gray400,
+      gray500: gray500 ?? this.gray500,
+      successLight: successLight ?? this.successLight,
+      warningLight: warningLight ?? this.warningLight,
+      errorLight: errorLight ?? this.errorLight,
+      goldLight: goldLight ?? this.goldLight,
+      skyLight: skyLight ?? this.skyLight,
+      cardShadow: cardShadow ?? this.cardShadow,
+      softShadow: softShadow ?? this.softShadow,
+    );
+  }
+
+  @override
+  KpbThemeColors lerp(KpbThemeColors? other, double t) {
+    if (other == null) return this;
+    return KpbThemeColors(
+      pageBg: Color.lerp(pageBg, other.pageBg, t)!,
+      cardBg: Color.lerp(cardBg, other.cardBg, t)!,
+      mutedBg: Color.lerp(mutedBg, other.mutedBg, t)!,
+      inputBg: Color.lerp(inputBg, other.inputBg, t)!,
+      surfaceBg: Color.lerp(surfaceBg, other.surfaceBg, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      border: Color.lerp(border, other.border, t)!,
+      borderLight: Color.lerp(borderLight, other.borderLight, t)!,
+      gray50: Color.lerp(gray50, other.gray50, t)!,
+      gray100: Color.lerp(gray100, other.gray100, t)!,
+      gray200: Color.lerp(gray200, other.gray200, t)!,
+      gray300: Color.lerp(gray300, other.gray300, t)!,
+      gray400: Color.lerp(gray400, other.gray400, t)!,
+      gray500: Color.lerp(gray500, other.gray500, t)!,
+      successLight: Color.lerp(successLight, other.successLight, t)!,
+      warningLight: Color.lerp(warningLight, other.warningLight, t)!,
+      errorLight: Color.lerp(errorLight, other.errorLight, t)!,
+      goldLight: Color.lerp(goldLight, other.goldLight, t)!,
+      skyLight: Color.lerp(skyLight, other.skyLight, t)!,
+      cardShadow: t < 0.5 ? cardShadow : other.cardShadow,
+      softShadow: t < 0.5 ? softShadow : other.softShadow,
+    );
+  }
 }
