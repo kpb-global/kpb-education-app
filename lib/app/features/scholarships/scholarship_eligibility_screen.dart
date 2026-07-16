@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/ui/components/scholarship_status_badge.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// Three-state answer for one eligibility criterion.

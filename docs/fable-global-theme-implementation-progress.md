@@ -113,7 +113,68 @@ touché : le re-skin global passe par le re-pointage des tokens.
 - Captures avant/après sur simulateur (baseline post-#146 → lot 1).
 - Revue visuelle humaine des 5 onglets (gate du plan §8).
 
-## Lot 2 — Primitives KPB — ⬜ non démarré
+## Lot 2 — Primitives KPB — ✅ terminé le 16/07/2026
+
+Branche : `claude/theme-lot2-primitives` (depuis `main` post-#147).
+
+### Composants mis à niveau (architecture §9)
+
+- **`KpbButton`** : refondu en façade sur FilledButton/OutlinedButton/TextButton
+  — enum `KpbButtonVariant {primary, secondary, tertiary, destructive}`,
+  états pressed/disabled/focus et hauteurs (52/48 px) hérités du thème, plus
+  aucune couleur locale. Compat totale : `secondary:` mappe sur la variante,
+  `bgColor/backgroundColor/textColor` restent fonctionnels (dette listée),
+  `label/text` et `onTap/onPressed` conservés. Hors `fullWidth`, le bouton
+  épouse son contenu (le thème impose sinon une min-width infinie).
+- **`KpbCard`** : variantes `standard / interactive` (press-scale + haptique via
+  KpbPressable) `/ highlighted` (bordure action + fond soft) ; défauts
+  sentinelles conservés.
+- **`KpbStatusChip`** *(nouveau)* : `KpbStatus {success, warning, error, info,
+  neutral}` → fg/bg/bordure/icône ; icône + libellé toujours présents (jamais
+  la couleur seule).
+- **`MatchBadge`** : tiers accessibles — ≥80 `success`, ≥60 `warning`
+  (gold 2,15:1 échouait), sinon `actionPrimary` (sky 2,14:1 échouait).
+- **`SectionHeader`** : ternaire mort corrigé — action `actionPrimary`, et
+  `actionOnDark` sur hero sombre (9,9:1 sur navy).
+- **Bannières** offline / sample-data : fond via `context.kpb.warningLight`
+  (theme-aware) ; sync-error : cible tactile du « réessayer » élargie (+8 px).
+- **Skeletons** : `skeleton.dart` (4 hex → tokens ext), `skeleton_loader.dart`
+  (fill blanc → `cardBg`).
+- **`KpbInputDecoration`** : délègue au `inputDecorationTheme` global
+  (signature conservée).
+- **`VerifiedAdvisorSheet`** : 4 verts inline → `successLight`/`success`/
+  `textPrimary` (normalisation AA §10.2) ; CTA WhatsApp → token
+  `KpbColors.whatsapp`.
+- **`AdmissionMeter`** : piste claire → `textFaint` α 0,2 (au lieu de noir 6 %).
+- **Barrel `kpb_components.dart`** : 8 exports manquants ajoutés (status chip,
+  bannières, badges vérifiés, advisor sheet, anti-fraude, coming soon,
+  source link) ; 4 imports directs devenus redondants retirés des écrans.
+- Auto-repointés sans modification : KpbBadge, KpbBadgeLight, KpbRefresh,
+  KpbEmptyState/ErrorState, QuickActionTile, CountryCard, drawer, CoachFab.
+  Mini-cards hero (institution/scholarship) déjà sur tokens dark — allowlist
+  « surface immersive ».
+
+### Ratchet
+
+`color_budget.dart` régénéré : **47 fichiers / 614 hex** (−9 : advisor sheet
+5→0, skeleton 4→0). `core/ui` entier = 0 hex hors `app_tokens.dart` (76).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` : **352 tests
+  verts** (328 précédents + 24 nouveaux : variantes/états KpbButton, variantes
+  KpbCard, statuts KpbStatusChip, tiers MatchBadge, bannière).
+
+### Écarts documentés
+
+- Pas d'annotations `@Deprecated` sur les params de compat (elles créeraient
+  des infos analyzer à chaque call-site hérité → CI rouge) ; compat documentée
+  en commentaire, dette suivie par l'allowlist.
+- Bouton secondaire : rendu passe de « fond gris » à « blanc + bordure »
+  (spec §7.2) — 1 seul call-site `secondary:` concerné.
+- `KpbPageScaffold`/`KpbPageHeader`/`KpbSectionCard` : différés jusqu'à
+  démonstration de répétition au lot 4 (règle du plan §9).
 
 ## Lot 3 — Entrée + onboarding + shell — ⬜ non démarré
 

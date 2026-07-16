@@ -39,13 +39,18 @@ class KpbSyncErrorBanner extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onRetry,
-            child: Text(
-              'retry'.tr,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: KpbColors.warning,
-                decoration: TextDecoration.underline,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              // Élargit la cible tactile sans changer le rendu de la ligne.
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                'retry'.tr,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: KpbColors.warning,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),

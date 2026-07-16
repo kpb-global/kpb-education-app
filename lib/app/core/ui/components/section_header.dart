@@ -40,9 +40,11 @@ class SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
+                  // Sur un hero sombre (titre blanc), le bleu action est
+                  // illisible : on passe à l'action claire (9,9:1 sur navy).
                   color: textColor == Colors.white
-                      ? KpbColors.blue
-                      : KpbColors.blue,
+                      ? KpbColors.actionOnDark
+                      : KpbColors.actionPrimary,
                 ),
               ),
             ),
