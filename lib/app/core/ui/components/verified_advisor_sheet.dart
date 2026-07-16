@@ -19,7 +19,11 @@ Future<void> showVerifiedAdvisorThenWhatsApp({
   String contextType = 'unknown',
 }) async {
   final confirmed = await Get.bottomSheet<bool>(
-    KpbVerifiedAdvisorSheet(advisorName: advisorName, expectedNumber: phone),
+    KpbVerifiedAdvisorSheet(
+      advisorName: advisorName,
+      expectedNumber: phone,
+      prefill: prefill,
+    ),
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
   );
@@ -38,6 +42,7 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
     super.key,
     this.advisorName,
     this.expectedNumber,
+    this.prefill,
   });
 
   /// The assigned counsellor's name, when the hand-off is for a specific case.
@@ -47,6 +52,11 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
   /// The exact WhatsApp number the user should expect. Falls back to the
   /// official KPB number.
   final String? expectedNumber;
+
+  /// The message that will be prefilled in WhatsApp. Shown to the user before
+  /// the hand-off (App-engagement handoff: "Vérifie le message avant l'envoi")
+  /// so nothing leaves the app unseen.
+  final String? prefill;
 
   String get _name => (advisorName?.trim().isNotEmpty ?? false)
       ? advisorName!.trim()
@@ -178,11 +188,54 @@ class KpbVerifiedAdvisorSheet extends StatelessWidget {
               ],
             ),
           ),
+          if (prefill?.trim().isNotEmpty ?? false) ...[
+            const SizedBox(height: 12),
+            // Prefilled-message preview (App-engagement handoff, "Lead
+            // WhatsApp KPB" screen): the exact text about to be handed to
+            // WhatsApp, in the handoff's green card.
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFDCFCE7),
+                borderRadius: KpbRadius.smBr,
+                border: Border.all(color: const Color(0xFFBBF7D0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'verified_advisor_prefill_label'.tr,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.6,
+                      color: Color(0xFF16A34A),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    prefill!.trim(),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      height: 1.5,
+                      color: Color(0xFF14532D),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: () => Get.back(result: true),
+              style: FilledButton.styleFrom(
+                // WhatsApp brand green, per the handoff CTA.
+                backgroundColor: const Color(0xFF25D366),
+                foregroundColor: Colors.white,
+              ),
               icon: const Icon(Icons.chat_rounded, size: 18),
               label: Text('continue_to_whatsapp'.tr),
             ),

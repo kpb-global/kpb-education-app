@@ -106,6 +106,8 @@ class AppTranslations extends Translations {
               'Le départ et l\'arrivée doivent être différents.',
           'flight_searching': 'Recherche des meilleurs prix…',
           'flight_results_title': 'Meilleurs prix trouvés',
+          'flight_visa_advice':
+              'N\'achète ton billet qu\'après l\'obtention du visa — ou choisis un tarif remboursable.',
           'flight_cached_note': 'Prix vus récemment',
           'flight_cheapest_badge': 'Le moins cher',
           'flight_direct': 'Direct',
@@ -226,63 +228,24 @@ class AppTranslations extends Translations {
           'parent_no_updates':
               'Les actualités partagées par le conseiller apparaîtront ici.',
           'parent_appbar': 'Espace parent',
-          'parent_enter_code': 'Entrez le code d\'invitation',
           'parent_linked_ok': 'Compte lié ✓',
           'parent_link_error': 'Code invalide ou expiré. Réessayez.',
           'parent_greeting_generic': 'Bonjour',
           'parent_hello': 'Bonjour, @name',
           'parent_linked_readonly':
               'Compte parent — lié à @child (lecture seule)',
-          'parent_jauge_label': 'JAUGE DE PRÉPARATION',
-          'parent_jauge_state': 'Préparation en bonne voie',
-          'parent_jauge_sub':
-              'Profil, documents, lettres, dossiers — toujours visible pour vous.',
-          'parent_weekly_label': 'RAPPORT HEBDOMADAIRE',
-          'parent_weekly_when': 'reçu dimanche 20h',
-          'parent_weekly_title': 'Le dossier a progressé cette semaine',
-          'parent_weekly_body':
-              'Lettre de motivation terminée ✓. Il reste le CV et les lettres de recommandation. Prochaine échéance à surveiller.',
-          'parent_dossier_label': 'Dossier',
-          'parent_steps': 'étapes',
-          'parent_deadline_label': 'Prochaine deadline',
           'parent_advisor_title': 'Parler au conseiller KPB',
           'parent_advisor_sub': 'WhatsApp · réponse en ~2 h',
           'parent_privacy_note':
-              'C\'est votre enfant qui contrôle ce que vous voyez, champ par champ, depuis son app. La jauge et la progression restent toujours visibles.',
+              'C\'est votre enfant qui contrôle ce que vous voyez, champ par champ, depuis son app. L\'avancement du dossier et les échéances restent toujours visibles.',
           'parent_case_title': 'Dossier partagé',
-          'parent_docs_label': 'Documents du dossier',
-          'parent_docs_readonly':
-              'Lecture seule — les documents sont téléversés par votre enfant ou validés par son conseiller.',
-          'parent_doc_ok': 'Validé',
-          'parent_doc_review': 'En revue',
-          'parent_doc_required': 'Requis',
           'parent_docs_locked_title': 'Documents non partagés',
           'parent_docs_locked_body':
               '@child n\'a pas encore partagé de dossier avec vous.',
           'parent_financing_label': 'Financement',
-          'parent_fin_statement': 'Relevé bancaire (3 mois)',
-          'parent_fin_sent': 'Envoyé ✓',
-          'parent_fin_employer': 'Attestation employeur',
-          'parent_fin_required': 'Requis',
           'parent_fin_upload': 'Envoyer une preuve de financement',
-          'parent_fin_note':
-              'Stockage sécurisé dédié aux documents financiers. Visible uniquement par votre enfant, vous et le conseiller.',
           'parent_updates_title': 'Actualités',
           'parent_updates_sub': 'Avancement partagé par le conseiller',
-          'parent_upd_letter_t': 'Lettre de motivation relue ✓',
-          'parent_upd_letter_s':
-              'Générée avec le copilote puis relue — prête pour le dossier.',
-          'parent_upd_eiffel_t': 'Bourse Eiffel — échéance proche',
-          'parent_upd_eiffel_s':
-              'Le dossier est éligible. CV et recommandations restants.',
-          'parent_upd_bulletins_t': 'Bulletins validés par le conseiller',
-          'parent_upd_bulletins_s':
-              'Aucune traduction supplémentaire nécessaire pour la France.',
-          'parent_upd_live_t': 'Live : « Réussir Campus France »',
-          'parent_upd_live_s': 'Animé par une alumni placée à l\'étranger.',
-          'parent_msg_from': 'Conseiller → votre enfant',
-          'parent_msg_body':
-              '« Très bonne lettre ! Envoie ton CV cette semaine pour rester dans les temps. »',
           'parent_msg_locked_title': 'Messages non partagés',
           'parent_msg_locked_body':
               'Les messages privés entre votre enfant et son conseiller ne sont pas partagés.',
@@ -318,7 +281,7 @@ class AppTranslations extends Translations {
           'premium_hero_sub':
               'Premium arrive bientôt. En attendant, un conseiller KPB peut vous accompagner — sans aucun paiement dans l\'application.',
           'premium_value_ai_coach':
-              'Coach IA illimité — l\'offre gratuite inclut @count messages par semaine.',
+              'KPB Intelligence illimité — l\'offre gratuite inclut @count messages par semaine.',
           'premium_value_advisors':
               'Accompagnement prioritaire par un conseiller KPB vérifié.',
           'premium_value_more_soon':
@@ -327,7 +290,7 @@ class AppTranslations extends Translations {
           'premium_compare_feature': 'Ce que vous obtenez',
           'premium_compare_free': 'Gratuit',
           'premium_compare_premium': 'Premium',
-          'premium_row_ai_coach': 'Messages Coach IA',
+          'premium_row_ai_coach': 'Messages KPB Intelligence',
           'premium_free_ai_coach': '@count / sem.',
           'premium_unlimited_soon': 'Illimité (bientôt)',
           'premium_how_title': 'Comment activer Premium',
@@ -345,11 +308,11 @@ class AppTranslations extends Translations {
           'parent_pack_full_desc':
               '3 sessions conseiller + suivi Campus France jusqu\'au dépôt',
           'parent_pay_cta': 'Réserver',
+          'parent_pay_history_label': 'Historique',
+          'parent_pay_history_empty': 'Vos reçus apparaîtront ici',
           'parent_pay_note':
               'Paiement organisé avec votre conseiller KPB sur WhatsApp — reçu par message. Aucun paiement à des « agents » hors du circuit KPB.',
           'parent_ask_access': 'Demander l\'accès',
-          'parent_sample_banner':
-              'Aperçu — l\'écran se remplit dès que votre enfant partage son dossier.',
           'parent_nav_overview': 'Vue d\'ensemble',
           'parent_nav_case': 'Dossier',
           'parent_nav_updates': 'Actualités',
@@ -359,12 +322,11 @@ class AppTranslations extends Translations {
               'Générez un code d\'invitation et partagez-le avec votre enfant. Il l\'entre dans son app pour lier vos comptes.',
           'parent_invite_code_label': 'Code d\'invitation',
           'parent_onboarding_b1':
-              'Toujours visible : jauge de préparation, progression, échéances',
+              'Toujours visible : avancement du dossier et échéances',
           'parent_onboarding_b2':
               'Contrôlé par votre enfant : documents, messages, finances',
           'parent_onboarding_b3':
               'Contact direct avec le conseiller KPB sur WhatsApp',
-          'parent_link_cta': 'Lier le compte',
           'parent_wa_advisor':
               'Bonjour, je suis le parent d\'un étudiant suivi par KPB. J\'aimerais échanger avec le conseiller.',
           'parent_wa_ask_access':
@@ -422,7 +384,7 @@ class AppTranslations extends Translations {
           'sync_data_stale_offline':
               'Données potentiellement obsolètes — hors ligne',
           'coach_requires_connection':
-              'Le coach IA nécessite une connexion au serveur KPB. ',
+              'KPB Intelligence nécessite une connexion au serveur KPB. ',
           'academy_hd_videos': 'Vidéos pas-à-pas en HD',
           'academy_letter_templates': 'Modèles de lettres de motivation',
           'housing_view_offers_in': 'Voir les offres à @city',
@@ -465,7 +427,7 @@ class AppTranslations extends Translations {
           'alumni_programme_label': 'Programme : @programme',
           'alumni_country_label': 'Pays : @country',
           'coach_welcome_message':
-              'Bonjour @name ! Je suis ton Coach KPB. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.',
+              'Bonjour @name ! Je suis KPB Intelligence. 🤖\n\nPose-moi tes questions sur les écoles, le budget ou les filières partenaires.',
           'coach_quota_reached_body':
               'Tu as atteint la limite de @quota messages cette semaine. Reviens la semaine prochaine ou contacte un conseiller humain.',
           'coach_online_status':
@@ -533,6 +495,12 @@ class AppTranslations extends Translations {
           'parcours_empty_error_subtitle':
               'Impossible de charger les parcours pour le moment.',
           'parcours_intro_title': 'Ils l\'ont fait avant toi',
+          'parcours_free_badge': 'GRATUIT',
+          'parcours_convert_title': 'Tu veux suivre un parcours similaire ?',
+          'parcours_convert_subtitle':
+              'Discute avec un conseiller KPB de ton projet.',
+          'parcours_whatsapp_prefill':
+              'Bonjour KPB, un parcours dans l\'app m\'a inspiré et j\'aimerais discuter de mon projet d\'études.',
           'parcours_search_hint': 'Rechercher un métier, une école, un nom…',
           'parcours_filter_all': 'Tous',
           'parcours_kind_written': 'Témoignage écrit',
@@ -614,7 +582,7 @@ class AppTranslations extends Translations {
           'deadlines_kind_document': 'Document',
           'deadlines_status_past': 'Passée',
           'deadlines_status_today_tomorrow': 'Aujourd’hui / demain',
-          'compare_title': 'Comparaison',
+          'compare_title': 'Comparer',
           'compare_row_match': 'Compatibilité',
           'compare_row_location': 'Localisation',
           'compare_row_tuition': 'Frais',
@@ -666,6 +634,13 @@ class AppTranslations extends Translations {
           'match_card_share_error': 'Impossible de générer la carte. Réessaie.',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
+          'forum_filter_by_topic': 'Filtrer par sujet',
+          'forum_filter_all': 'Tous',
+          'forum_related_articles': 'Articles liés',
+          'forum_join_conversation_title': 'Rejoins la conversation',
+          'forum_join_conversation_body':
+              'Le forum in-app arrive bientôt. Rejoins WhatsApp pour discuter avec d\'autres étudiants et les conseillers KPB dès maintenant.',
+          'forum_open_whatsapp_group': 'Ouvrir le groupe WhatsApp',
           'alumni_load_error':
               'Impossible de charger les mentors. Vérifie ta connexion.',
           'alumni_directory_title': 'Mentors KPB — Alumni',
@@ -692,15 +667,15 @@ class AppTranslations extends Translations {
               'Tu es vérifié comme alumni. Ton badge est visible.',
           'alumni_status_rejected':
               'Ta dernière candidature a été refusée. Tu peux la renvoyer.',
-          'coach_quota_reached_title': 'Quota Coach IA atteint',
-          'coach_unavailable': 'Coach indisponible.',
+          'coach_quota_reached_title': 'Quota KPB Intelligence atteint',
+          'coach_unavailable': 'KPB Intelligence indisponible.',
           'coach_unreachable':
-              'Impossible de joindre le coach IA pour le moment.',
-          'coach_ai_title': 'Coach IA',
+              'Impossible de joindre KPB Intelligence pour le moment.',
+          'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Posez votre question sur les écoles, budgets...',
           // ── App-engagement handoff : outils coaching + post-décision ──
           'coach_status_tagline': 'Connaît ton profil · répond aussitôt',
-          'coach_quota_info_title': 'Messages Coach IA',
+          'coach_quota_info_title': 'Messages KPB Intelligence',
           'coach_quota_info_body':
               'Il te reste @rem message(s) sur @total cette semaine.',
           'coach_generate_letter': 'Générer une lettre',
@@ -766,22 +741,22 @@ class AppTranslations extends Translations {
           // --- KPB-89 batch ---
           'cv_default_languages': 'Francais, Anglais',
           'tools_ai_error_check_connection':
-              'Erreur IA — verifiez votre connexion',
-          'cv_generator_title': 'Generateur de CV',
+              'Erreur IA — vérifiez votre connexion',
+          'cv_generator_title': 'Générateur de CV',
           'cv_generator_intro':
-              'Remplissez les champs et laissez l\'IA rediger votre profil professionnel.',
+              'Remplissez les champs et laissez l\'IA rédiger votre profil professionnel.',
           'cv_field_full_name': 'Nom complet',
-          'cv_field_phone': 'Telephone',
-          'cv_field_study_level': 'Niveau d\'etudes',
-          'cv_field_field_of_study': 'Domaine d\'etudes',
+          'cv_field_phone': 'Téléphone',
+          'cv_field_study_level': 'Niveau d\'études',
+          'cv_field_field_of_study': 'Domaine d\'études',
           'cv_field_target_country': 'Pays cible',
-          'cv_field_skills': 'Competences (separees par des virgules)',
+          'cv_field_skills': 'Compétences (séparées par des virgules)',
           'cv_field_languages': 'Langues',
-          'cv_field_experience': 'Experience / Stages',
+          'cv_field_experience': 'Expérience / Stages',
           'cv_field_objective': 'Objectif professionnel',
-          'cv_generating': 'Generation en cours...',
-          'cv_enhance_with_ai': 'Ameliorer avec l\'IA',
-          'cv_ai_summary_heading': 'Resume genere par l\'IA',
+          'cv_generating': 'Génération en cours...',
+          'cv_enhance_with_ai': 'Améliorer avec l\'IA',
+          'cv_ai_summary_heading': 'Résumé généré par l\'IA',
           'cv_export_pdf': 'Exporter en PDF',
           'scanner_doc_passport': 'Passeport',
           'scanner_doc_passport_hint': 'Page d\'identité, valide 6 mois min.',
@@ -813,7 +788,7 @@ class AppTranslations extends Translations {
           'impact_satisfaction_rate': 'Taux de satisfaction',
           'interview_title': 'Simulateur d\'entretien',
           'interview_picker_intro':
-              'Entraine-toi avec un examinateur IA. Choisis un type d\'entretien :',
+              'Entraîne-toi avec un examinateur IA. Choisis un type d\'entretien :',
           'interview_type_visa_title': 'Entretien de visa étudiant',
           'interview_type_visa_subtitle':
               'Questions consulaires : financement, retour, projet d\'études.',
@@ -831,38 +806,42 @@ class AppTranslations extends Translations {
           'interview_next_question': 'Question suivante',
           'interview_finish': 'Terminer',
           'letter_tpl_admission_general_title':
-              'Admission universitaire (general)',
+              'Admission universitaire (général)',
           'letter_tpl_admission_master_title':
-              'Admission en Master / Programme specialise',
-          'letter_tpl_scholarship_kpb_title': 'Bourse d\'etudes KPB Education',
+              'Admission en Master / Programme spécialisé',
+          'letter_tpl_scholarship_kpb_title': 'Bourse d\'études KPB Education',
           'letter_tpl_scholarship_international_title':
               'Bourse d\'excellence internationale',
-          'letter_tpl_visa_student_title': 'Lettre de motivation visa etudiant',
+          'letter_tpl_visa_student_title': 'Lettre de motivation visa étudiant',
           'letter_tpl_internship_title':
-              'Stage ou alternance a l\'international',
+              'Stage ou alternance à l\'international',
           'letter_category_admission': 'Admissions',
           'letter_category_scholarship': 'Bourses',
           'letter_category_internship': 'Stage / Alternance',
           'letters_title': 'Lettres de motivation',
           'letters_filter_all': 'Tous',
-          'letters_personalized_badge': 'Personnalisee',
+          'letters_personalized_badge': 'Personnalisée',
           'letters_personalizing': 'Personnalisation...',
-          'letters_adapt_to_profile': 'Adapter a mon profil',
+          'letters_field_strengths': '3 points forts à mettre en avant',
+          'letters_field_strengths_hint': 'Leadership, rigueur, bénévolat…',
+          'letters_field_event': 'Un événement marquant (optionnel)',
+          'letters_field_event_hint': 'Un projet, un défi surmonté…',
+          'letters_adapt_to_profile': 'Adapter à mon profil',
           'letters_copy_tooltip': 'Copier',
-          'letters_copied_snackbar': 'Copie dans le presse-papier',
+          'letters_copied_snackbar': 'Copié dans le presse-papier',
           'letters_share_tooltip': 'Partager',
           'student_tools_intro':
-              'Des outils pratiques pour preparer ta candidature.',
+              'Des outils pratiques pour préparer ta candidature.',
           'student_tools_cv_subtitle':
-              'Cree un CV professionnel pre-rempli depuis ton profil, ameliore par l\'IA.',
+              'Crée un CV professionnel pré-rempli depuis ton profil, amélioré par l\'IA.',
           'student_tools_letters_subtitle':
-              '6 modeles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
+              '6 modèles (admissions, bourses, visa, stage) personnalisables avec l\'IA en FR et EN.',
           'student_tools_interview_subtitle':
-              'Entraine-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
+              'Entraîne-toi aux entretiens visa, admission et bourse avec un examinateur IA qui te note.',
           'student_tools_scanner_subtitle':
-              'Scanne et organise les pieces de ton dossier (passeport, diplomes...) en PDF.',
+              'Scanne et organise les pièces de ton dossier (passeport, diplômes...) en PDF.',
           'student_tools_impact_subtitle':
-              'Decouvre l\'impact de KPB Education : etudiants accompagnes, admissions, bourses.',
+              'Découvre l\'impact de KPB Education : étudiants accompagnés, admissions, bourses.',
           'search_field_not_found_title': 'Filière introuvable',
           'search_field_not_found_body':
               'Cette filière n\'est plus disponible.',
@@ -934,6 +913,7 @@ class AppTranslations extends Translations {
           'live_scholarships_official_form': 'Formulaire officiel',
           'live_scholarships_deadline_soon': 'Deadline imminente',
           'live_scholarships_deadline_closed': 'Clôturée',
+          'live_scholarships_deadline_days': 'J-@count',
           'live_scholarships_no_deadline': 'Pas de date limite',
           'live_scholarships_funding_tile': 'Financement',
           'live_scholarships_alert': 'M\'avertir',
@@ -1052,7 +1032,7 @@ class AppTranslations extends Translations {
           'case_not_found_title': 'Dossier introuvable',
           'case_not_found_body_title': 'Ce dossier n\'est plus disponible',
           'case_not_found_subtitle':
-              'Retourne a la liste des dossiers pour continuer.',
+              'Retourne à la liste des dossiers pour continuer.',
           'case_not_found_action': 'Ouvrir mes dossiers',
           'case_advisor_role': 'Conseiller KPB Education',
           'case_section_documents': 'Documents',
@@ -1359,7 +1339,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Espace partenaire',
           'home_active_cases_title': 'Dossiers actifs',
           'see_all': 'Voir tout',
-          'home_recommended_universities_title': 'Universités recommandées',
+          'home_recommended_universities_title': 'Tes meilleures chances',
           'home_hero_title_partner': 'Développons\nvotre réseau',
           'home_hero_title_parent': 'Accompagnez\nvotre enfant',
           'home_hero_title_student': 'Votre parcours\nvers l\'étranger',
@@ -1413,7 +1393,7 @@ class AppTranslations extends Translations {
           'home_deadline_near_label': '⏰ DEADLINE PROCHE',
           'home_deadline_see_button': 'Voir →',
           'home_badge_guidance': "Accompagnement",
-          'home_student_tools_title': 'Outils etudiants',
+          'home_student_tools_title': 'Outils étudiants',
           'home_student_tools_subtitle': 'CV, lettres de motivation, et plus',
           // ── Diambar Gauge card (App-engagement handoff) ──
           'home_gauge_eyebrow': 'JAUGE DIAMBAR',
@@ -1696,7 +1676,7 @@ class AppTranslations extends Translations {
           'continue_orientation': 'Continuer mon orientation',
           'explore_fields': 'Explorer les filières',
           'explore_countries': 'Explorer les pays',
-          'scholarships_for_you': 'Écoles pour vous',
+          'scholarships_for_you': 'Bourses pour toi',
           'profile_completion': 'Complétude du profil',
           'orientation_intro':
               'Répondez à quelques questions. KPB vous propose des pistes de filières, des pays et des grandes écoles cohérents.',
@@ -1826,7 +1806,9 @@ class AppTranslations extends Translations {
           'verified_advisor_expected': 'Numéro WhatsApp officiel à attendre :',
           'verified_advisor_check':
               'Vérifie que le numéro correspond exactement avant d\'écrire. KPB ne demande JAMAIS de paiement sur un numéro Mobile Money personnel.',
-          'continue_to_whatsapp': 'Continuer vers WhatsApp',
+          'verified_advisor_prefill_label':
+              'MESSAGE PRÉREMPLI — MODIFIABLE DANS WHATSAPP',
+          'continue_to_whatsapp': 'Ouvrir WhatsApp',
           // Case status labels
           'status_submitted': 'Envoyé',
           'status_under_review': 'En revue',
@@ -1947,6 +1929,76 @@ class AppTranslations extends Translations {
           'commercial_nav_leads': 'Leads',
           'commercial_nav_cases': 'Dossiers',
           'commercial_nav_perf': 'Performance',
+          // ── Revue des documents par pièce (Feature D) ──
+          'commercial_docs_title': 'Documents du dossier',
+          'commercial_docs_sub': '@n document(s)',
+          'commercial_docs_to_review': '@n à réviser',
+          'commercial_docs_empty':
+              'Aucun document sur ce dossier pour le moment.',
+          'commercial_doc_provided': 'Fourni',
+          'commercial_doc_pending': 'En attente de dépôt',
+          'commercial_doc_validate': 'Valider',
+          'commercial_doc_redo': 'À refaire',
+          'commercial_doc_doubtful': 'Douteux',
+          'commercial_doc_status_validated': 'Validé',
+          'commercial_doc_status_redo': 'À refaire',
+          'commercial_doc_status_doubtful': 'Douteux',
+          'commercial_doc_reviewed_by': 'Révisé par @name',
+          'commercial_doc_reviewed_meta': 'Révisé par @name · @age',
+          'commercial_doc_review_error':
+              'Impossible d\'enregistrer la revue pour le moment.',
+          // ── Ambassadeur (App-engagement · US-032→035) ──
+          'referral_become_ambassador': 'Espace ambassadeur',
+          'referral_become_ambassador_sub':
+              'Gagne des FCFA en parrainant · retraits Wave',
+          'amb_appbar': 'Espace ambassadeur',
+          'amb_load_error': 'Impossible de charger ton espace ambassadeur.',
+          'amb_sample_banner':
+              'Aperçu — active ton espace pour gagner des FCFA.',
+          'amb_nav_dashboard': 'Tableau de bord',
+          'amb_nav_referrals': 'Filleuls',
+          'amb_nav_payout': 'Retraits',
+          'amb_code_label': 'TON CODE DE PARRAINAGE',
+          'amb_share': 'Partager',
+          'amb_share_message':
+              'Rejoins KPB Éducation avec mon code @code et lance ton projet d\'études à l\'étranger 🎓',
+          'amb_stat_active': 'Filleuls actifs',
+          'amb_stat_placed': 'Placés 🎉',
+          'amb_stat_earned': 'FCFA gagnés',
+          'amb_objective_title': 'Objectif — @n filleuls',
+          'amb_objective_hint':
+              'Plus que @n — bonus de @bonus à @target filleuls inscrits.',
+          'amb_how_title': 'Comment tu gagnes',
+          'amb_reward_signup': 'Inscription avec ton code + quiz complété',
+          'amb_reward_placed': 'Filleul placé dans une école via KPB',
+          'amb_leaderboard_title': 'Classement @city',
+          'amb_leaderboard_title_generic': 'Classement ambassadeurs',
+          'amb_referrals_count': '@n filleuls',
+          'amb_referrals_title': 'Mes filleuls',
+          'amb_referrals_sub': '@n actifs · suivis en temps réel',
+          'amb_referrals_tip':
+              'Relance tes filleuls : un quiz complété = +1 000 FCFA chacun.',
+          'amb_status_placed': 'Placé',
+          'amb_status_application': 'Dossier en cours',
+          'amb_status_quiz': 'Quiz ✓',
+          'amb_status_premium': 'Premium',
+          'amb_status_churned': 'Abandonné',
+          'amb_status_relance': 'À relancer',
+          'amb_payout_title': 'Retraits',
+          'amb_payout_sub': 'Paiement Wave · sous 48 h',
+          'amb_balance_label': 'SOLDE DISPONIBLE',
+          'amb_wave_account': 'Compte Wave : @account',
+          'amb_withdraw': 'Retirer @amount',
+          'amb_withdraw_pending': 'Retrait en cours — sous 48 h ✓',
+          'amb_withdraw_min': 'Retrait minimum @amount',
+          'amb_withdraw_error': 'Retrait indisponible pour le moment.',
+          'amb_history': 'HISTORIQUE',
+          'amb_toast_share':
+              'WhatsApp s\'ouvre — code + lien d\'invitation prêts 📤',
+          'amb_toast_withdraw': 'Retrait Wave demandé — @amount sous 48 h ✓',
+          'amb_referrals_empty':
+              'Aucun filleul pour l\'instant. Partage ton code pour commencer !',
+          'amb_history_empty': 'Aucun mouvement pour l\'instant.',
           'referral_intro':
               'Invite tes amis sur KPB. Quand ils s\'inscrivent et lancent un dossier avec ton code, on suit ton impact.',
           'referral_your_code': 'Ton code de parrainage',
@@ -1981,11 +2033,11 @@ class AppTranslations extends Translations {
               'Bonjour KPB Education, je souhaite utiliser mon bon parrainage @code pour une relecture approfondie de mon dossier.',
           'referral_voucher_error': 'Échec de l\'échange. Réessaie plus tard.',
           // ── Consentement IA (Coach) ──
-          'coach_ai': 'Coach IA',
-          'ai_consent_title': 'Activer le Coach IA',
+          'coach_ai': 'KPB Intelligence',
+          'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
-              'Pour te répondre, le Coach KPB envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
-          'ai_consent_accept': 'J\'active le Coach IA',
+              'Pour te répondre, KPB Intelligence envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
+          'ai_consent_accept': 'J\'active KPB Intelligence',
           'ai_consent_decline': 'Plus tard',
           // ── Mes données / RGPD ──
           'data_rights_section': 'Mes données',
@@ -2009,7 +2061,7 @@ class AppTranslations extends Translations {
               'Indique ta date de naissance pour continuer.',
           'minor_guardian_title': 'Accord d\'un parent / tuteur',
           'minor_guardian_intro':
-              'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et Coach IA).',
+              'Tu as moins de 18 ans. Un parent ou tuteur doit donner son accord et ses coordonnées pour que tu utilises KPB (synchronisation des données et KPB Intelligence).',
           'guardian_name': 'Nom du parent / tuteur',
           'guardian_contact': 'Contact du parent / tuteur (WhatsApp ou email)',
           'guardian_consent_checkbox':
@@ -2075,6 +2127,7 @@ class AppTranslations extends Translations {
                   'logement… Contacte l\'équipe KPB pour une estimation '
                   'personnalisée et à jour, lors de ta consultation gratuite.',
           'get_supported': 'Être accompagné',
+          'dest_countries_heading': 'Pays',
           'dest_list_subtitle':
               'Guides complets : visa, coûts, universités, accompagnement',
           'dest_more_coming_tip':
@@ -2195,6 +2248,8 @@ class AppTranslations extends Translations {
           'flight_same_airports': 'Departure and arrival must be different.',
           'flight_searching': 'Finding the best prices…',
           'flight_results_title': 'Best prices found',
+          'flight_visa_advice':
+              'Only buy your ticket once your visa is granted — or pick a refundable fare.',
           'flight_cached_note': 'Recently seen prices',
           'flight_cheapest_badge': 'Cheapest',
           'flight_direct': 'Direct',
@@ -2315,62 +2370,24 @@ class AppTranslations extends Translations {
           'parent_no_updates':
               'Updates shared by the advisor will appear here.',
           'parent_appbar': 'Parent space',
-          'parent_enter_code': 'Enter the invite code',
           'parent_linked_ok': 'Account linked ✓',
           'parent_link_error': 'Invalid or expired code. Try again.',
           'parent_greeting_generic': 'Hello',
           'parent_hello': 'Hello, @name',
           'parent_linked_readonly':
               'Parent account — linked to @child (read-only)',
-          'parent_jauge_label': 'READINESS GAUGE',
-          'parent_jauge_state': 'Preparation on track',
-          'parent_jauge_sub':
-              'Profile, documents, letters, cases — always visible to you.',
-          'parent_weekly_label': 'WEEKLY REPORT',
-          'parent_weekly_when': 'received Sunday 8pm',
-          'parent_weekly_title': 'The application progressed this week',
-          'parent_weekly_body':
-              'Motivation letter done ✓. CV and recommendation letters remain. Next deadline coming up.',
-          'parent_dossier_label': 'Application',
-          'parent_steps': 'steps',
-          'parent_deadline_label': 'Next deadline',
           'parent_advisor_title': 'Talk to the KPB advisor',
           'parent_advisor_sub': 'WhatsApp · replies in ~2h',
           'parent_privacy_note':
-              'Your child controls what you see, field by field, from their app. The gauge and progress always stay visible.',
+              'Your child controls what you see, field by field, from their app. Case progress and deadlines always stay visible.',
           'parent_case_title': 'Shared application',
-          'parent_docs_label': 'Application documents',
-          'parent_docs_readonly':
-              'Read-only — documents are uploaded by your child or validated by their advisor.',
-          'parent_doc_ok': 'Validated',
-          'parent_doc_review': 'In review',
-          'parent_doc_required': 'Required',
           'parent_docs_locked_title': 'Documents not shared',
           'parent_docs_locked_body':
               '@child hasn\'t shared an application with you yet.',
           'parent_financing_label': 'Financing',
-          'parent_fin_statement': 'Bank statement (3 months)',
-          'parent_fin_sent': 'Sent ✓',
-          'parent_fin_employer': 'Employer attestation',
-          'parent_fin_required': 'Required',
           'parent_fin_upload': 'Send a proof of funds',
-          'parent_fin_note':
-              'Secure storage for financial documents. Visible only to your child, you and the advisor.',
           'parent_updates_title': 'Updates',
           'parent_updates_sub': 'Progress shared by the advisor',
-          'parent_upd_letter_t': 'Motivation letter reviewed ✓',
-          'parent_upd_letter_s':
-              'Generated with the copilot then reviewed — ready for the application.',
-          'parent_upd_eiffel_t': 'Eiffel scholarship — deadline near',
-          'parent_upd_eiffel_s':
-              'The application is eligible. CV and recommendations remain.',
-          'parent_upd_bulletins_t': 'Transcripts validated by the advisor',
-          'parent_upd_bulletins_s': 'No extra translation needed for France.',
-          'parent_upd_live_t': 'Live: “Ace Campus France”',
-          'parent_upd_live_s': 'Hosted by an alumna placed abroad.',
-          'parent_msg_from': 'Advisor → your child',
-          'parent_msg_body':
-              '“Great letter! Send your CV this week to stay on schedule.”',
           'parent_msg_locked_title': 'Messages not shared',
           'parent_msg_locked_body':
               'Private messages between your child and their advisor aren\'t shared.',
@@ -2405,7 +2422,7 @@ class AppTranslations extends Translations {
           'premium_hero_sub':
               'Premium is coming soon. In the meantime, a KPB advisor can help you — with no in-app payment.',
           'premium_value_ai_coach':
-              'Unlimited AI Coach — the free plan includes @count messages per week.',
+              'Unlimited KPB Intelligence — the free plan includes @count messages per week.',
           'premium_value_advisors':
               'Priority guidance from a verified KPB advisor.',
           'premium_value_more_soon': 'More Premium benefits are coming soon.',
@@ -2413,7 +2430,7 @@ class AppTranslations extends Translations {
           'premium_compare_feature': 'What you get',
           'premium_compare_free': 'Free',
           'premium_compare_premium': 'Premium',
-          'premium_row_ai_coach': 'AI Coach messages',
+          'premium_row_ai_coach': 'KPB Intelligence messages',
           'premium_free_ai_coach': '@count / week',
           'premium_unlimited_soon': 'Unlimited (coming soon)',
           'premium_how_title': 'How to activate Premium',
@@ -2430,11 +2447,11 @@ class AppTranslations extends Translations {
           'parent_pack_full_desc':
               '3 advisor sessions + Campus France follow-up to submission',
           'parent_pay_cta': 'Book',
+          'parent_pay_history_label': 'History',
+          'parent_pay_history_empty': 'Your receipts will appear here',
           'parent_pay_note':
               'Payment arranged with your KPB advisor on WhatsApp — receipt by message. Never pay “agents” outside the KPB channel.',
           'parent_ask_access': 'Request access',
-          'parent_sample_banner':
-              'Preview — the screen fills in as soon as your child shares their application.',
           'parent_nav_overview': 'Overview',
           'parent_nav_case': 'Application',
           'parent_nav_updates': 'Updates',
@@ -2443,13 +2460,11 @@ class AppTranslations extends Translations {
           'parent_onboarding_sub':
               'Generate an invite code and share it with your child. They enter it in their app to link your accounts.',
           'parent_invite_code_label': 'Invite code',
-          'parent_onboarding_b1':
-              'Always visible: readiness gauge, progress, deadlines',
+          'parent_onboarding_b1': 'Always visible: case progress and deadlines',
           'parent_onboarding_b2':
               'Controlled by your child: documents, messages, finances',
           'parent_onboarding_b3':
               'Direct contact with the KPB advisor on WhatsApp',
-          'parent_link_cta': 'Link the account',
           'parent_wa_advisor':
               'Hello, I\'m the parent of a student supported by KPB. I\'d like to talk to the advisor.',
           'parent_wa_ask_access':
@@ -2504,7 +2519,7 @@ class AppTranslations extends Translations {
           // --- KPB-89 lock-in ---
           'sync_data_stale_offline': 'Data may be out of date — offline',
           'coach_requires_connection':
-              'The AI coach needs a connection to the KPB server. ',
+              'KPB Intelligence needs a connection to the KPB server. ',
           'academy_hd_videos': 'Step-by-step HD videos',
           'academy_letter_templates': 'Motivation letter templates',
           'housing_view_offers_in': 'View offers in @city',
@@ -2546,7 +2561,7 @@ class AppTranslations extends Translations {
           'alumni_programme_label': 'Program: @programme',
           'alumni_country_label': 'Country: @country',
           'coach_welcome_message':
-              'Hi @name! I\'m your KPB Coach. 🤖\n\nAsk me anything about schools, budget, or partner programs.',
+              'Hi @name! I\'m KPB Intelligence. 🤖\n\nAsk me anything about schools, budget, or partner programs.',
           'coach_quota_reached_body':
               'You\'ve reached the limit of @quota messages this week. Come back next week or contact a human advisor.',
           'coach_online_status': 'Online • @rem/@total left this week',
@@ -2612,6 +2627,12 @@ class AppTranslations extends Translations {
           'parcours_empty_error_subtitle':
               'Unable to load the journeys right now.',
           'parcours_intro_title': 'They did it before you',
+          'parcours_free_badge': 'FREE',
+          'parcours_convert_title': 'Want to follow a similar path?',
+          'parcours_convert_subtitle':
+              'Chat with a KPB advisor about your plan.',
+          'parcours_whatsapp_prefill':
+              'Hello KPB, a journey in the app inspired me and I\'d like to discuss my study plan.',
           'parcours_search_hint': 'Search a career, a school, a name…',
           'parcours_filter_all': 'All',
           'parcours_kind_written': 'Written story',
@@ -2691,7 +2712,7 @@ class AppTranslations extends Translations {
           'deadlines_kind_document': 'Document',
           'deadlines_status_past': 'Past',
           'deadlines_status_today_tomorrow': 'Today / tomorrow',
-          'compare_title': 'Comparison',
+          'compare_title': 'Compare',
           'compare_row_match': 'Match',
           'compare_row_location': 'Location',
           'compare_row_tuition': 'Tuition',
@@ -2743,6 +2764,13 @@ class AppTranslations extends Translations {
           'match_card_share_error': 'Could not generate the card. Try again.',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',
+          'forum_filter_by_topic': 'Filter by topic',
+          'forum_filter_all': 'All',
+          'forum_related_articles': 'Related articles',
+          'forum_join_conversation_title': 'Join the conversation',
+          'forum_join_conversation_body':
+              'The in-app forum is launching soon. Connect on WhatsApp to discuss with other students and KPB counselors now.',
+          'forum_open_whatsapp_group': 'Open WhatsApp group',
           'alumni_load_error': 'Could not load mentors. Check your connection.',
           'alumni_directory_title': 'KPB Mentors — Alumni',
           'alumni_search_hint': 'Search by university…',
@@ -2767,14 +2795,14 @@ class AppTranslations extends Translations {
               'You are verified as an alumnus. Your badge is visible.',
           'alumni_status_rejected':
               'Your last application was rejected. You can resubmit it.',
-          'coach_quota_reached_title': 'AI Coach quota reached',
-          'coach_unavailable': 'Coach unavailable.',
-          'coach_unreachable': 'Unable to reach the AI coach right now.',
-          'coach_ai_title': 'AI Coach',
+          'coach_quota_reached_title': 'KPB Intelligence quota reached',
+          'coach_unavailable': 'KPB Intelligence unavailable.',
+          'coach_unreachable': 'Unable to reach KPB Intelligence right now.',
+          'coach_ai_title': 'KPB Intelligence',
           'coach_input_hint': 'Ask your question about schools, budgets...',
           // ── App-engagement handoff: coaching tools + post-decision ──
           'coach_status_tagline': 'Knows your profile · replies instantly',
-          'coach_quota_info_title': 'AI Coach messages',
+          'coach_quota_info_title': 'KPB Intelligence messages',
           'coach_quota_info_body':
               'You have @rem of @total messages left this week.',
           'coach_generate_letter': 'Generate a letter',
@@ -2920,6 +2948,10 @@ class AppTranslations extends Translations {
           'letters_filter_all': 'All',
           'letters_personalized_badge': 'Personalized',
           'letters_personalizing': 'Personalizing...',
+          'letters_field_strengths': '3 strengths to highlight',
+          'letters_field_strengths_hint': 'Leadership, rigour, volunteering…',
+          'letters_field_event': 'A defining event (optional)',
+          'letters_field_event_hint': 'A project, a challenge you overcame…',
           'letters_adapt_to_profile': 'Adapt to my profile',
           'letters_copy_tooltip': 'Copy',
           'letters_copied_snackbar': 'Copied to clipboard',
@@ -3004,6 +3036,7 @@ class AppTranslations extends Translations {
           'live_scholarships_official_form': 'Official application form',
           'live_scholarships_deadline_soon': 'Deadline soon',
           'live_scholarships_deadline_closed': 'Closed',
+          'live_scholarships_deadline_days': 'D-@count',
           'live_scholarships_no_deadline': 'No fixed deadline',
           'live_scholarships_funding_tile': 'Funding',
           'live_scholarships_alert': 'Notify me',
@@ -3424,7 +3457,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Partner space',
           'home_active_cases_title': 'Active cases',
           'see_all': 'See all',
-          'home_recommended_universities_title': 'Recommended universities',
+          'home_recommended_universities_title': 'Your best chances',
           'home_hero_title_partner': 'Let\'s grow\\nyour network',
           'home_hero_title_parent': 'Support\\nyour child',
           'home_hero_title_student': 'Your journey\\nto study abroad',
@@ -3755,7 +3788,7 @@ class AppTranslations extends Translations {
           'continue_orientation': 'Continue orientation',
           'explore_fields': 'Explore fields',
           'explore_countries': 'Explore countries',
-          'scholarships_for_you': 'Schools for you',
+          'scholarships_for_you': 'Scholarships for you',
           'profile_completion': 'Profile completion',
           'orientation_intro':
               'Answer a few questions. KPB will suggest fields, countries, and top schools that fit your profile.',
@@ -3885,7 +3918,9 @@ class AppTranslations extends Translations {
           'verified_advisor_expected': 'Official WhatsApp number to expect:',
           'verified_advisor_check':
               'Check the number matches exactly before messaging. KPB NEVER asks for payment on a personal Mobile Money number.',
-          'continue_to_whatsapp': 'Continue to WhatsApp',
+          'verified_advisor_prefill_label':
+              'PREFILLED MESSAGE — EDITABLE IN WHATSAPP',
+          'continue_to_whatsapp': 'Open WhatsApp',
           // Case status labels
           'status_submitted': 'Submitted',
           'status_under_review': 'Under review',
@@ -4002,6 +4037,73 @@ class AppTranslations extends Translations {
           'commercial_nav_leads': 'Leads',
           'commercial_nav_cases': 'Cases',
           'commercial_nav_perf': 'Performance',
+          // ── Per-document review (Feature D) ──
+          'commercial_docs_title': 'Case documents',
+          'commercial_docs_sub': '@n document(s)',
+          'commercial_docs_to_review': '@n to review',
+          'commercial_docs_empty': 'No document on this case yet.',
+          'commercial_doc_provided': 'Provided',
+          'commercial_doc_pending': 'Awaiting upload',
+          'commercial_doc_validate': 'Validate',
+          'commercial_doc_redo': 'Redo',
+          'commercial_doc_doubtful': 'Doubtful',
+          'commercial_doc_status_validated': 'Validated',
+          'commercial_doc_status_redo': 'To redo',
+          'commercial_doc_status_doubtful': 'Doubtful',
+          'commercial_doc_reviewed_by': 'Reviewed by @name',
+          'commercial_doc_reviewed_meta': 'Reviewed by @name · @age',
+          'commercial_doc_review_error': 'Could not save the review right now.',
+          // ── Ambassador (App-engagement · US-032→035) ──
+          'referral_become_ambassador': 'Ambassador space',
+          'referral_become_ambassador_sub':
+              'Earn FCFA by referring · Wave payouts',
+          'amb_appbar': 'Ambassador space',
+          'amb_load_error': 'Could not load your ambassador space.',
+          'amb_sample_banner': 'Preview — activate your space to earn FCFA.',
+          'amb_nav_dashboard': 'Dashboard',
+          'amb_nav_referrals': 'Referrals',
+          'amb_nav_payout': 'Withdrawals',
+          'amb_code_label': 'YOUR REFERRAL CODE',
+          'amb_share': 'Share',
+          'amb_share_message':
+              'Join KPB Education with my code @code and kick off your study-abroad plan 🎓',
+          'amb_stat_active': 'Active referrals',
+          'amb_stat_placed': 'Placed 🎉',
+          'amb_stat_earned': 'FCFA earned',
+          'amb_objective_title': 'Goal — @n referrals',
+          'amb_objective_hint':
+              '@n to go — @bonus bonus at @target signed-up referrals.',
+          'amb_how_title': 'How you earn',
+          'amb_reward_signup': 'Sign-up with your code + quiz completed',
+          'amb_reward_placed': 'Referral placed in a school via KPB',
+          'amb_leaderboard_title': '@city leaderboard',
+          'amb_leaderboard_title_generic': 'Ambassador leaderboard',
+          'amb_referrals_count': '@n referrals',
+          'amb_referrals_title': 'My referrals',
+          'amb_referrals_sub': '@n active · tracked in real time',
+          'amb_referrals_tip':
+              'Nudge your referrals: a completed quiz = +1,000 FCFA each.',
+          'amb_status_placed': 'Placed',
+          'amb_status_application': 'Application open',
+          'amb_status_quiz': 'Quiz ✓',
+          'amb_status_premium': 'Premium',
+          'amb_status_churned': 'Churned',
+          'amb_status_relance': 'Follow up',
+          'amb_payout_title': 'Withdrawals',
+          'amb_payout_sub': 'Wave payout · within 48h',
+          'amb_balance_label': 'AVAILABLE BALANCE',
+          'amb_wave_account': 'Wave account: @account',
+          'amb_withdraw': 'Withdraw @amount',
+          'amb_withdraw_pending': 'Withdrawal in progress — within 48h ✓',
+          'amb_withdraw_min': 'Minimum withdrawal @amount',
+          'amb_withdraw_error': 'Withdrawal unavailable right now.',
+          'amb_history': 'HISTORY',
+          'amb_toast_share': 'WhatsApp opens — code + invite link ready 📤',
+          'amb_toast_withdraw':
+              'Wave withdrawal requested — @amount within 48h ✓',
+          'amb_referrals_empty':
+              'No referrals yet. Share your code to get started!',
+          'amb_history_empty': 'No activity yet.',
           'referral_intro':
               'Invite your friends to KPB. When they sign up and start a case with your code, we track your impact.',
           'referral_your_code': 'Your referral code',
@@ -4034,11 +4136,11 @@ class AppTranslations extends Translations {
               'Hello KPB Education, I would like to use my referral voucher @code for an in-depth review of my application.',
           'referral_voucher_error': 'Redemption failed. Try again later.',
           // ── AI consent (Coach) ──
-          'coach_ai': 'AI Coach',
-          'ai_consent_title': 'Enable the AI Coach',
+          'coach_ai': 'KPB Intelligence',
+          'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
-              'To answer you, the KPB Coach sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
-          'ai_consent_accept': 'Enable AI Coach',
+              'To answer you, KPB Intelligence sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
+          'ai_consent_accept': 'Enable KPB Intelligence',
           'ai_consent_decline': 'Not now',
           // ── My data / GDPR ──
           'data_rights_section': 'My data',
@@ -4061,7 +4163,7 @@ class AppTranslations extends Translations {
               'Enter your date of birth to continue.',
           'minor_guardian_title': 'Parent / guardian consent',
           'minor_guardian_intro':
-              'You are under 18. A parent or guardian must consent and provide their details for you to use KPB (data sync and AI Coach).',
+              'You are under 18. A parent or guardian must consent and provide their details for you to use KPB (data sync and KPB Intelligence).',
           'guardian_name': 'Parent / guardian name',
           'guardian_contact': 'Parent / guardian contact (WhatsApp or email)',
           'guardian_consent_checkbox':
@@ -4128,6 +4230,7 @@ class AppTranslations extends Translations {
                   'housing… Contact the KPB team for a personalized, up-to-date '
                   'estimate during your free consultation.',
           'get_supported': 'Get supported',
+          'dest_countries_heading': 'Countries',
           'dest_list_subtitle':
               'Full guides: visa, costs, universities, support',
           'dest_more_coming_tip':

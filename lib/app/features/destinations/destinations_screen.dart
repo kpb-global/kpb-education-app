@@ -8,16 +8,41 @@ import '../explore/explore_screen.dart';
 class DestinationsScreen extends StatelessWidget {
   const DestinationsScreen({super.key});
 
+  /// Navy heading colour (App-engagement handoff palette).
+  static const _navy = Color(0xFF0F172A);
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
 
+    // Single "Pays"/"Countries" screen title (App-engagement handoff): the spec
+    // uses one inline heading, not an app-bar "Destinations" title stacked above
+    // it — so the heading IS the title (no redundant AppBar chrome).
     return Scaffold(
-      appBar: AppBar(
-        title: Text('nav_destinations'.tr),
-      ),
-      body: GetBuilder<AppController>(
-        builder: (_) => CountriesCatalogGrid(controller: controller),
+      body: SafeArea(
+        bottom: false,
+        child: GetBuilder<AppController>(
+          builder: (_) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Text(
+                  'dest_countries_heading'.tr,
+                  style: const TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    color: _navy,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CountriesCatalogGrid(controller: controller),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
+import 'package:karatou/app/core/ui/app_theme.dart';
 import 'package:karatou/app/core/ui/kpb_components.dart';
 import 'package:karatou/app/core/ui/skeleton.dart';
 import 'package:karatou/app/features/cases/cases_screen.dart';
@@ -71,6 +72,54 @@ void main() {
       expect(find.byType(CasesScreenSkeleton), findsNothing);
     });
 
+    testWidgets('shows empty state when not syncing, no error and no cases',
+        (tester) async {
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(),
+      );
+
+      await _pumpCasesScreen(
+        tester,
+        snapshot,
+        afterHydrate: (c) => c
+          ..isSyncing = false
+          ..syncError = null,
+      );
+
+      expect(find.byType(CasesScreenSkeleton), findsNothing);
+      expect(find.byType(KpbErrorState), findsNothing);
+      expect(find.byType(KpbEmptyState), findsOneWidget);
+      expect(find.text('no_cases'.tr), findsOneWidget);
+    });
+
+    testWidgets(
+        'shows empty state (not a blank screen) when offline sync failed '
+        'and no cases are cached', (tester) async {
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(),
+      );
+
+      await _pumpCasesScreen(
+        tester,
+        snapshot,
+        afterHydrate: (c) => c
+          ..isSyncing = false
+          ..syncError = 'network unreachable',
+      );
+
+      // With zero cases and a sync error we must render SOMETHING actionable:
+      // either the retry error state or the empty state — never a blank body.
+      expect(find.byType(CasesScreenSkeleton), findsNothing);
+      final hasErrorState = find.byType(KpbErrorState).evaluate().isNotEmpty;
+      final hasEmptyState = find.byType(KpbEmptyState).evaluate().isNotEmpty;
+      expect(hasErrorState || hasEmptyState, isTrue,
+          reason: 'Dossiers tab must never render blank offline');
+    });
+
     testWidgets(
         'keeps rendered case list when syncError exists but data is present',
         (tester) async {
@@ -115,9 +164,13 @@ Future<void> _pumpCasesScreen(
   afterHydrate?.call(controller);
   Get.put<AppController>(controller, permanent: true);
 
+  // Use the real app theme: its FilledButtonThemeData (infinite-min-width
+  // buttons) is exactly what blanked the Dossiers tab offline — the default
+  // Material theme would mask that regression.
   await tester.pumpWidget(
-    const GetMaterialApp(
-      home: Scaffold(body: CasesScreen()),
+    GetMaterialApp(
+      theme: AppTheme.buildTheme(),
+      home: const Scaffold(body: CasesScreen()),
       debugShowCheckedModeBanner: false,
     ),
   );

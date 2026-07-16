@@ -384,7 +384,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <DashboardShell title={t('community.title')}>
+    <DashboardShell title={t('community.title')} subtitle={t('community.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

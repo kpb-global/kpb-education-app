@@ -944,7 +944,7 @@ export default function ScholarshipsPage() {
   }
 
   return (
-    <DashboardShell title={t('scholarships.title')}>
+    <DashboardShell title={t('scholarships.title')} subtitle={t('scholarships.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? (
           <Alert variant="success">{statusMessage}</Alert>

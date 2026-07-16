@@ -6,6 +6,9 @@ class AppTheme {
   static ThemeData buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
+      // App-engagement handoff: Inter for body/UI text (headings use
+      // PlusJakartaSans via KpbTextStyles).
+      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: KpbColors.blue,
         primary: KpbColors.sky,
@@ -26,6 +29,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: TextStyle(
+          fontFamily: KpbTextStyles.headingFamily,
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: Colors.white,
@@ -208,6 +212,9 @@ class AppTheme {
   static ThemeData buildTheme() {
     return ThemeData(
       useMaterial3: true,
+      // App-engagement handoff: Inter for body/UI text (headings use
+      // PlusJakartaSans via KpbTextStyles).
+      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: KpbColors.blue,
         primary: KpbColors.blue,
@@ -230,6 +237,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: TextStyle(
+          fontFamily: KpbTextStyles.headingFamily,
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: KpbColors.textPrimary,

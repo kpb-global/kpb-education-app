@@ -181,7 +181,12 @@ class KpbShadow {
 class KpbTextStyles {
   KpbTextStyles._();
 
+  /// Heading family from the App-engagement handoff (body text is Inter via
+  /// the global theme `fontFamily`).
+  static const headingFamily = 'PlusJakartaSans';
+
   static const display = TextStyle(
+    fontFamily: headingFamily,
     fontSize: 32,
     fontWeight: FontWeight.w800,
     color: KpbColors.textPrimary,
@@ -190,6 +195,7 @@ class KpbTextStyles {
   );
 
   static const displaySm = TextStyle(
+    fontFamily: headingFamily,
     fontSize: 28,
     fontWeight: FontWeight.w800,
     color: KpbColors.textPrimary,
@@ -198,6 +204,7 @@ class KpbTextStyles {
   );
 
   static const headline = TextStyle(
+    fontFamily: headingFamily,
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: KpbColors.textPrimary,
@@ -206,6 +213,7 @@ class KpbTextStyles {
   );
 
   static const titleLg = TextStyle(
+    fontFamily: headingFamily,
     fontSize: 22,
     fontWeight: FontWeight.w700,
     color: KpbColors.textPrimary,
@@ -213,6 +221,7 @@ class KpbTextStyles {
   );
 
   static const title = TextStyle(
+    fontFamily: headingFamily,
     fontSize: 18,
     fontWeight: FontWeight.w700,
     color: KpbColors.textPrimary,

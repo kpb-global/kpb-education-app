@@ -155,7 +155,7 @@ _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
     return _DeadlineBadge(
         'live_scholarships_deadline_closed'.tr, _Palette.line, _Palette.slate);
   }
-  final text = 'D-$days';
+  final text = 'live_scholarships_deadline_days'.trParams({'count': '$days'});
   if (days <= 7) {
     return _DeadlineBadge(text, _Palette.redBg, _Palette.red, soon: true);
   }

@@ -1,6 +1,7 @@
 'use client';
 
 import { CSSProperties, useEffect, useState } from 'react';
+import Link from 'next/link';
 
 import { useAdminAuth } from '../components/admin-auth-provider';
 import { DashboardShell } from '../components/dashboard-shell';
@@ -14,6 +15,29 @@ interface OverviewMetrics {
   paidServicePurchases: number;
   counselorResponseSlaHours: number | null;
 }
+
+interface DashboardActivation {
+  weeklyQualifiedLeads: Array<{ weekStart: string; count: number }>;
+  urgent: {
+    awaitingDocuments: number;
+    verificationDue: number;
+    moderationQueue: number;
+  };
+}
+
+interface FunnelResponse {
+  items: Array<{ key: string; value: number }>;
+}
+
+// WhatsApp brand green — the handoff's North-Star chart color.
+const WA_GREEN = '#25D366';
+
+const FUNNEL_COLORS = [
+  'var(--brand)',
+  'var(--sky)',
+  'var(--success-fg)',
+  'var(--warning-fg)',
+];
 
 const KPI_ICON_PATHS: Record<string, string> = {
   folder:
@@ -51,8 +75,12 @@ const cardStyle: CSSProperties = {
 
 export default function OverviewPage() {
   const { session } = useAdminAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [overview, setOverview] = useState<OverviewMetrics | null>(null);
+  const [activation, setActivation] = useState<DashboardActivation | null>(
+    null,
+  );
+  const [funnel, setFunnel] = useState<FunnelResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,10 +88,16 @@ export default function OverviewPage() {
       return;
     }
     let cancelled = false;
-    void apiFetch<OverviewMetrics>('/admin/reports/overview')
-      .then((response) => {
+    void Promise.all([
+      apiFetch<OverviewMetrics>('/admin/reports/overview'),
+      apiFetch<DashboardActivation>('/admin/reports/dashboard-activation'),
+      apiFetch<FunnelResponse>('/admin/reports/funnel'),
+    ])
+      .then(([overviewResponse, activationResponse, funnelResponse]) => {
         if (cancelled) return;
-        setOverview(response);
+        setOverview(overviewResponse);
+        setActivation(activationResponse);
+        setFunnel(funnelResponse);
         setErrorMessage(null);
       })
       .catch((error) => {
@@ -76,6 +110,44 @@ export default function OverviewPage() {
       cancelled = true;
     };
   }, [session, t]);
+
+  const weeks = activation?.weeklyQualifiedLeads ?? [];
+  const maxWeekly = Math.max(1, ...weeks.map((week) => week.count));
+  const funnelItems = funnel?.items ?? [];
+  const funnelBase = Math.max(1, funnelItems[0]?.value ?? 0);
+  const urgent = activation?.urgent;
+  const urgentRows = urgent
+    ? [
+        {
+          key: 'awaitingDocs',
+          count: urgent.awaitingDocuments,
+          href: '/cases',
+          color: 'var(--warning-fg)',
+          icon: 'doc',
+        },
+        {
+          key: 'verificationDue',
+          count: urgent.verificationDue,
+          href: '/verification',
+          color: 'var(--info-fg)',
+          icon: 'timer',
+        },
+        {
+          key: 'moderationQueue',
+          count: urgent.moderationQueue,
+          href: '/community',
+          color: 'var(--danger-fg)',
+          icon: 'star',
+        },
+      ].filter((row) => row.count > 0)
+    : [];
+
+  function weekLabel(weekStart: string) {
+    return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+    }).format(new Date(`${weekStart}T00:00:00Z`));
+  }
 
   let slaValue = '…';
   if (overview) {
@@ -130,7 +202,7 @@ export default function OverviewPage() {
   ];
 
   return (
-    <DashboardShell title={t('overview.title')}>
+    <DashboardShell title={t('overview.title')} subtitle={t('overview.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {errorMessage ? (
           <div
@@ -223,56 +295,272 @@ export default function OverviewPage() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           }}
         >
-          <div style={cardStyle}>
-            <h3
+          {/* North-Star weekly bar chart (handoff, US-041). */}
+          <div style={{ ...cardStyle, display: 'grid', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3
+                style={{
+                  margin: 0,
+                  flex: 1,
+                  fontSize: 13.5,
+                  fontWeight: 800,
+                  color: 'var(--ink)',
+                }}
+              >
+                {t('overview.northStarTitle')}
+              </h3>
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: 3,
+                  background: WA_GREEN,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: 'var(--text-muted)',
+                }}
+              >
+                {t('overview.northStarLegend')}
+              </span>
+            </div>
+            <div
               style={{
-                marginTop: 0,
-                marginBottom: 10,
-                fontSize: 'var(--text-base)',
-                fontWeight: 800,
-                color: 'var(--ink)',
+                display: 'flex',
+                alignItems: 'flex-end',
+                gap: 10,
+                height: 150,
               }}
             >
-              {t('overview.focusTitle')}
-            </h3>
-            <ul
-              style={{
-                margin: 0,
-                paddingLeft: 18,
-                lineHeight: 1.9,
-                fontSize: 'var(--text-sm)',
-                color: 'var(--text-muted)',
-              }}
-            >
-              <li>{t('overview.focusItem1')}</li>
-              <li>{t('overview.focusItem2')}</li>
-              <li>{t('overview.focusItem3')}</li>
-              <li>{t('overview.focusItem4')}</li>
-            </ul>
-          </div>
-          <div style={cardStyle}>
-            <h3
-              style={{
-                marginTop: 0,
-                marginBottom: 10,
-                fontSize: 'var(--text-base)',
-                fontWeight: 800,
-                color: 'var(--ink)',
-              }}
-            >
-              {t('overview.permTitle')}
-            </h3>
+              {weeks.map((week) => (
+                <div
+                  key={week.weekStart}
+                  style={{
+                    flex: 1,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: 5,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color:
+                        week.count > 0 ? 'var(--ink)' : 'var(--text-faint)',
+                    }}
+                  >
+                    {week.count}
+                  </span>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: 30,
+                      height: `${Math.max(
+                        3,
+                        Math.round((week.count / maxWeekly) * 100),
+                      )}%`,
+                      borderRadius: '7px 7px 3px 3px',
+                      background: week.count > 0 ? WA_GREEN : 'var(--border)',
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      color: 'var(--text-faint)',
+                    }}
+                  >
+                    {weekLabel(week.weekStart)}
+                  </span>
+                </div>
+              ))}
+              {weeks.length === 0 ? (
+                <p
+                  style={{
+                    margin: 'auto',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--text-faint)',
+                  }}
+                >
+                  …
+                </p>
+              ) : null}
+            </div>
             <p
               style={{
                 margin: 0,
-                lineHeight: 1.7,
+                fontSize: 10,
+                lineHeight: 1.4,
+                color: 'var(--text-faint)',
+              }}
+            >
+              {t('overview.northStarHint')}
+            </p>
+          </div>
+
+          {/* Activation funnel as labeled progress bars (handoff). */}
+          <div style={{ ...cardStyle, display: 'grid', gap: 11 }}>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: 13.5,
+                fontWeight: 800,
+                color: 'var(--ink)',
+              }}
+            >
+              {t('overview.funnelTitle')}
+            </h3>
+            {funnelItems.map((item, index) => (
+              <div key={item.key} style={{ display: 'grid', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                  <span
+                    style={{
+                      flex: 1,
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      color: 'var(--ink)',
+                    }}
+                  >
+                    {t(`reports.funnelStage_${item.key}`)}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10.5,
+                      fontWeight: 800,
+                      color: 'var(--text-muted)',
+                    }}
+                  >
+                    {item.value}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    height: 6,
+                    borderRadius: 100,
+                    background: 'var(--border-soft)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.round((item.value / funnelBase) * 100),
+                      )}%`,
+                      height: '100%',
+                      borderRadius: 100,
+                      background: FUNNEL_COLORS[index % FUNNEL_COLORS.length],
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+            {funnelItems.length === 0 ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--text-faint)',
+                }}
+              >
+                …
+              </p>
+            ) : null}
+            <p
+              style={{
+                margin: 0,
+                fontSize: 10,
+                lineHeight: 1.4,
+                color: 'var(--text-faint)',
+              }}
+            >
+              {t('overview.funnelHint')}
+            </p>
+          </div>
+        </div>
+
+        {/* "Action immédiate requise" — real urgent counters with CTAs. */}
+        <div style={{ ...cardStyle, display: 'grid', gap: 12 }}>
+          <h3
+            style={{
+              margin: 0,
+              fontSize: 13.5,
+              fontWeight: 800,
+              color: 'var(--ink)',
+            }}
+          >
+            {t('overview.urgentTitle')}
+          </h3>
+          {urgentRows.map((row) => (
+            <div
+              key={row.key}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                background: 'var(--bg)',
+                border: '1px solid var(--border-soft)',
+                borderRadius: 12,
+                padding: '11px 14px',
+              }}
+            >
+              <KpiIcon name={row.icon} color={row.color} />
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: 'var(--ink)',
+                }}
+              >
+                {row.count} {t(`overview.urgent_${row.key}`)}
+              </span>
+              <Link
+                href={row.href}
+                style={{
+                  padding: '7px 13px',
+                  borderRadius: 100,
+                  background: 'var(--brand)',
+                  color: '#fff',
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                }}
+              >
+                {t('overview.urgentCta')}
+              </Link>
+            </div>
+          ))}
+          {urgent && urgentRows.length === 0 ? (
+            <p
+              style={{
+                margin: 0,
                 fontSize: 'var(--text-sm)',
                 color: 'var(--text-muted)',
               }}
             >
-              {t('overview.permBody')}
+              {t('overview.urgentEmpty')}
             </p>
-          </div>
+          ) : null}
+          {!urgent ? (
+            <p
+              style={{
+                margin: 0,
+                fontSize: 'var(--text-sm)',
+                color: 'var(--text-faint)',
+              }}
+            >
+              …
+            </p>
+          ) : null}
         </div>
       </div>
     </DashboardShell>

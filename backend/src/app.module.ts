@@ -98,6 +98,8 @@ import { ReferralCreditsReconcileCronService } from './modules/referrals/referra
 import { ReferralCreditsService } from './modules/referrals/referral-credits.service';
 import { ReferralsController } from './modules/referrals/referrals.controller';
 import { ReferralsService } from './modules/referrals/referrals.service';
+import { AmbassadorController } from './modules/referrals/ambassador.controller';
+import { AmbassadorService } from './modules/referrals/ambassador.service';
 import { AdminScholarshipsController, ScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
 import { ScholarshipsIndexService } from './modules/scholarships-index/scholarships-index.service';
 import { ScholarshipAlertsController } from './modules/scholarships-index/scholarship-alerts.controller';
@@ -194,6 +196,7 @@ import { SalonService } from './modules/salon/salon.service';
     AdminCounsellorsController,
     ParentLinksController,
     ReferralsController,
+    AmbassadorController,
     AdminScholarshipsController,
     ScholarshipsController,
     ScholarshipAlertsController,
@@ -265,6 +268,7 @@ import { SalonService } from './modules/salon/salon.service';
     PaydunyaAdapter,
     ParentLinksService,
     ReferralsService,
+    AmbassadorService,
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,
     ScholarshipsIndexService,

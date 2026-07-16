@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../explore/explore_screen.dart' show openInstitutionDetail;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Post-decision / "plan B" screen (App-engagement handoff · net-new).
@@ -49,11 +50,16 @@ class _Alt {
     required this.name,
     required this.why,
     required this.pct,
+    required this.institution,
   });
   final String? flag;
   final String name;
   final String why;
   final int pct;
+
+  /// Backing catalog institution — tapping the row opens its real detail
+  /// sheet (handoff: plan B rows deep-link to the university).
+  final InstitutionModel institution;
 }
 
 class PostDecisionScreen extends StatelessWidget {
@@ -239,7 +245,7 @@ class PostDecisionScreen extends StatelessWidget {
             const SizedBox(height: 11),
             for (var i = 0; i < alts.length; i++) ...[
               if (i > 0) const SizedBox(height: 9),
-              _altRow(alts[i]),
+              _altRow(ctrl, alts[i]),
             ],
           ],
         ),
@@ -248,7 +254,20 @@ class PostDecisionScreen extends StatelessWidget {
     ];
   }
 
-  Widget _altRow(_Alt alt) {
+  Widget _altRow(AppController ctrl, _Alt alt) {
+    return Builder(
+      builder: (context) => Semantics(
+        button: true,
+        label: alt.name,
+        child: GestureDetector(
+          onTap: () => openInstitutionDetail(context, alt.institution, ctrl),
+          child: _altRowBody(alt),
+        ),
+      ),
+    );
+  }
+
+  Widget _altRowBody(_Alt alt) {
     return Container(
       decoration: BoxDecoration(
         color: _Palette.lineSoft,
@@ -318,6 +337,9 @@ class PostDecisionScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right_rounded,
+              size: 16, color: _Palette.slate),
         ],
       ),
     );
@@ -414,6 +436,7 @@ class PostDecisionScreen extends StatelessWidget {
                 ? location
                 : (country != null ? ctrl.resolve(country.name) : ''),
             pct: ctrl.institutionMatch(inst),
+            institution: inst,
           );
         })
         .toList();

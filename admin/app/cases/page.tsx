@@ -275,7 +275,7 @@ export default function CasesPage() {
   }
 
   return (
-    <DashboardShell title={t('cases.title')}>
+    <DashboardShell title={t('cases.title')} subtitle={t('cases.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

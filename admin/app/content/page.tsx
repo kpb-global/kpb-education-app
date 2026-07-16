@@ -634,7 +634,7 @@ export default function ContentPage() {
   }
 
   return (
-    <DashboardShell title={t('content.title')}>
+    <DashboardShell title={t('content.title')} subtitle={t('content.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

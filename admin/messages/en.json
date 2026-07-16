@@ -34,6 +34,7 @@
   },
   "overview": {
     "title": "Overview",
+    "subtitle": "Activity overview, the North Star metric and priority actions at a glance.",
     "loadError": "Unable to load overview.",
     "activeCases": "Active cases",
     "activeCasesHint": "Cases currently in progress",
@@ -45,13 +46,17 @@
     "paidServicesHint": "Service purchases with settled payment",
     "responseSla": "Counselor response SLA",
     "responseSlaHint": "Average first-response time",
-    "focusTitle": "Operational focus this week",
-    "focusItem1": "Unify all serious student requests under My Cases.",
-    "focusItem2": "Launch support offers and destination coverage by market.",
-    "focusItem3": "Segment reminder campaigns for missing documents.",
-    "focusItem4": "Track counselor response times and conversion to paid services.",
-    "permTitle": "Team permissions",
-    "permBody": "Admins manage platform operations, counselors move cases forward, commercials own follow-up, and content/moderation roles keep the student-facing surfaces fresh and safe."
+    "northStarTitle": "Qualified WhatsApp leads / week — North Star",
+    "northStarLegend": "qualified",
+    "northStarHint": "By lead creation week — converted leads count as qualified.",
+    "funnelTitle": "Activation funnel",
+    "funnelHint": "Signup → case → submission → purchase: the signup-to-case step is lever #1.",
+    "urgentTitle": "Immediate action required",
+    "urgent_awaitingDocs": "case(s) awaiting documents",
+    "urgent_verificationDue": "catalog record(s) due for re-verification",
+    "urgent_moderationQueue": "report(s) in the moderation queue",
+    "urgentCta": "Review",
+    "urgentEmpty": "Nothing urgent — all clear ✓"
   },
   "roles": {
     "counselor": "Counselor",
@@ -63,6 +68,7 @@
   },
   "cases": {
     "title": "Cases",
+    "subtitle": "Track student cases and their progress.",
     "loadError": "Unable to load cases.",
     "colReference": "Reference",
     "colStudent": "Student",
@@ -105,6 +111,7 @@
   },
   "users": {
     "title": "Users and roles",
+    "subtitle": "Manage team accounts and their roles.",
     "loadError": "Unable to load users.",
     "colName": "Operator",
     "colRole": "Role",
@@ -143,6 +150,7 @@
   },
   "reports": {
     "title": "Reports",
+    "subtitle": "Metrics and exports for operational monitoring.",
     "loadError": "Unable to load reports.",
     "funnelTitle": "Funnel",
     "funnelSubtitle": "Pipeline from student signups to paid services.",
@@ -175,6 +183,7 @@
   },
   "content": {
     "title": "Content",
+    "subtitle": "Manage mobile content: parcours, articles and media.",
     "loadError": "Unable to load content.",
     "statusLabel": "Status",
     "statusDraft": "Draft",
@@ -289,6 +298,7 @@
   },
   "verification": {
     "title": "Catalog verification",
+    "subtitle": "Catalog verification queue before publishing.",
     "loadError": "Unable to load the verification queue.",
     "updateError": "Unable to update the verification.",
     "verifiedSuccess": "Entry marked as verified.",
@@ -313,6 +323,7 @@
   },
   "scholarships": {
     "title": "Scholarship moderation",
+    "subtitle": "Moderate the scholarships offered to students.",
     "loadError": "Unable to load scholarships.",
     "refreshError": "Unable to refresh the feed.",
     "refreshSuccess": "Feed refreshed.",
@@ -424,6 +435,7 @@
   },
   "community": {
     "title": "Community",
+    "subtitle": "Moderate the community and forum discussions.",
     "loadError": "Unable to load community settings.",
     "categoryError": "Unable to save the forum category.",
     "tagError": "Unable to save the topic tag.",
@@ -466,6 +478,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "subtitle": "Notification campaigns and delivery tracking.",
     "loadError": "Unable to load notifications.",
     "deliveriesError": "Unable to load deliveries.",
     "templateError": "Unable to create the template.",
@@ -514,6 +527,7 @@
   },
   "serviceSales": {
     "title": "Service sales",
+    "subtitle": "Track service purchases and advisory follow-up.",
     "loadError": "Unable to load service purchases.",
     "updateError": "Unable to update the service purchase.",
     "updated": "Service purchase updated.",

@@ -121,6 +121,35 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  // ── Ambassadeur program (App-engagement · US-032→035) ─────────────────────
+
+  /// The ambassador dashboard (real data once activated, else a sample
+  /// preview). Shape parsed by [AmbassadorDashboard.fromApi].
+  Future<Map<String, dynamic>> getAmbassadorDashboard() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/referrals/dashboard');
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Activate ambassador mode for the caller (mints a referral code).
+  Future<Map<String, dynamic>> activateAmbassador(
+    Map<String, dynamic> input,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/referrals/ambassador/activate',
+      data: input,
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Request a Wave payout of the FULL available balance (recorded, paid ≤48h).
+  /// Returns `{id, amountFCFA, status, etaHours}`.
+  Future<Map<String, dynamic>> requestAmbassadorWithdrawal() async {
+    final response =
+        await _dio.post<Map<String, dynamic>>('/referrals/withdraw');
+    return response.data ?? <String, dynamic>{};
+  }
+
   /// Top published counsellor reviews for the Home social-proof carousel.
   /// Returns `{reviews: [{id, counsellorId, reviewerName, rating, body,
   /// createdAt}, ...], count}`. Public endpoint — no auth required.
@@ -290,6 +319,20 @@ class AppApiClient {
         if (leadTag != null) 'leadTag': leadTag,
         if (discussionMotive != null) 'discussionMotive': discussionMotive,
       },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Records a counsellor's verdict on an uploaded case document.
+  /// [status] must be 'validated', 'redo' or 'doubtful'. Returns the updated
+  /// document payload (id, reviewStatus, reviewedByName, reviewedAt, …).
+  Future<Map<String, dynamic>> reviewCommercialDocument(
+    String documentId, {
+    required String status,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/commercial/documents/$documentId/review',
+      data: {'status': status},
     );
     return response.data ?? <String, dynamic>{};
   }

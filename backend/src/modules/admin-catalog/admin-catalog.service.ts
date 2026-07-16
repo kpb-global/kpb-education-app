@@ -55,7 +55,9 @@ function normalizeDegreeLevel(raw: string): string {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const VERIFICATION_POLICIES = {
+// Exported so the reports dashboard can count due items with the SAME
+// cadences as the verification queue (single source of truth).
+export const VERIFICATION_POLICIES = {
   countryVisa: {
     key: 'country_visa',
     label: 'Pays: visa, couts et difficulte admission',

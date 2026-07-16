@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/navigation/shell_tabs.dart';
+import '../../core/services/connectivity_service.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/components/kpb_offline_banner.dart';
 import '../../core/ui/components/kpb_sample_data_banner.dart';
@@ -50,49 +51,69 @@ class AppShell extends StatelessWidget {
           // `KpbToolsDrawer.open(context)`.
           key: KpbToolsDrawer.shellKey,
           drawer: const KpbToolsDrawer(),
-          body: Stack(
-            children: [
-              // Offline banner above the body. KpbOfflineBanner collapses to a
-              // zero-height SizedBox when online, so this Column has no layout
-              // effect unless the user is actually offline.
-              Column(
+          // The banners live ABOVE the overlay Stack so they push everything
+          // (tab content AND the floating hamburger) down instead of colliding
+          // with the top-left drawer button. Both banners collapse to zero
+          // height when inactive, so this has no effect in the normal case.
+          body: StreamBuilder<bool>(
+            stream: ConnectivityService.instance.onConnectivityChanged,
+            initialData: ConnectivityService.instance.isOnline,
+            builder: (context, snapshot) {
+              final online = snapshot.data ?? true;
+              // When a banner is visible it already absorbs the status-bar
+              // inset (each banner wraps its content in SafeArea), so the
+              // subtree below must not re-apply the top padding — otherwise
+              // the hamburger would float a full status-bar height too low.
+              final bannerVisible = !online || controller.catalogIsSampleData;
+
+              return Column(
                 children: [
                   const KpbOfflineBanner(),
-                  // Honest signal when we're still on the bundled sample catalog
-                  // (backend unreachable/empty, no cache) rather than real data.
+                  // Honest signal when we're still on the bundled sample
+                  // catalog (backend unreachable/empty, no cache) rather than
+                  // real data.
                   if (controller.catalogIsSampleData)
                     const KpbSampleDataBanner(),
                   Expanded(
-                    child: IndexedStack(index: index, children: pages),
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeTop: bannerVisible,
+                      child: Stack(
+                        children: [
+                          IndexedStack(index: index, children: pages),
+                          // Top-left hamburger overlay. Tab screens have their
+                          // own Scaffolds without leading icons, so we surface
+                          // the drawer entry point from the AppShell level.
+                          // Sits clear of the dynamic-island / notch via
+                          // SafeArea (a no-op below a visible banner).
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            child: SafeArea(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: KpbSpacing.xs, top: KpbSpacing.xs),
+                                child: _KpbDrawerButton(),
+                              ),
+                            ),
+                          ),
+                          if (index != StudentShellTab.home) const CoachFab(),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: _KpbFloatingNavBar(
+                              currentIndex: index,
+                              onTap: controller.goToTab,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
-              ),
-              // Top-left hamburger overlay. Tab screens have their own
-              // Scaffolds without leading icons, so we surface the drawer entry
-              // point from the AppShell level. Sits clear of the dynamic-island
-              // / notch via SafeArea.
-              Positioned(
-                top: 0,
-                left: 0,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: KpbSpacing.xs, top: KpbSpacing.xs),
-                    child: _KpbDrawerButton(),
-                  ),
-                ),
-              ),
-              if (index != StudentShellTab.home) const CoachFab(),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _KpbFloatingNavBar(
-                  currentIndex: index,
-                  onTap: controller.goToTab,
-                ),
-              ),
-            ],
+              );
+            },
           ),
         );
       },
@@ -258,18 +279,24 @@ class _NavItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: isSelected ? activeColor : inactiveColor,
-                      fontWeight:
-                          isSelected ? FontWeight.w800 : FontWeight.w600,
-                      fontSize: 9.5,
-                      height: 1,
+                  // Scale the label down instead of truncating ("Destinatio…")
+                  // or wrapping: every tab's label always fits on one line.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: isSelected ? activeColor : inactiveColor,
+                        fontWeight:
+                            isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontSize: 9.5,
+                        height: 1,
+                      ),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                      textAlign: TextAlign.center,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

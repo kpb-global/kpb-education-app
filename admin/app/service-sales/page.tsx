@@ -328,7 +328,7 @@ export default function ServiceSalesPage() {
   }
 
   return (
-    <DashboardShell title={t('serviceSales.title')}>
+    <DashboardShell title={t('serviceSales.title')} subtitle={t('serviceSales.subtitle')}>
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}

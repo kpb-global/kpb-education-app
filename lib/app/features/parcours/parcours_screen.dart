@@ -12,8 +12,28 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/mock_catalog.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../../core/ui/kpb_components.dart';
 import 'parcours_story_screen.dart';
+
+// Palette (App-engagement handoff) — local to this file, same per-file pattern
+// as the other restyled Student surfaces. Replaces the legacy KpbColors
+// #004AAD/#1E3A6E accents flagged by the design-conformance audit.
+class _P {
+  static const navy = Color(0xFF0F172A);
+  static const heroEnd = Color(0xFF1E3A8A);
+  static const blue = Color(0xFF2563EB);
+  static const sky = Color(0xFF38BDF8);
+  static const chipBg = Color(0xFFEFF6FF);
+  static const chipBorder = Color(0xFFBFDBFE);
+  static const whatsapp = Color(0xFF25D366);
+
+  static const heroGradient = LinearGradient(
+    colors: [navy, heroEnd],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}
 
 /// Localized short label for a field domain id (d01..d12).
 String parcoursFieldLabel(String? fieldId, String localeCode) {
@@ -118,13 +138,13 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
                       subtitle: 'parcours_empty_filter_subtitle'.tr,
                     ),
                   )
-                else
+                else ...[
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(
                       KpbSpacing.pagePad,
                       KpbSpacing.sm,
                       KpbSpacing.pagePad,
-                      100, // clear the floating nav bar if shown
+                      0,
                     ),
                     sliver: SliverList.separated(
                       itemCount: stories.length,
@@ -140,6 +160,17 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
                       },
                     ),
                   ),
+                  const SliverPadding(
+                    // Bottom inset clears the floating nav bar if shown.
+                    padding: EdgeInsets.fromLTRB(
+                      KpbSpacing.pagePad,
+                      KpbSpacing.md,
+                      KpbSpacing.pagePad,
+                      100,
+                    ),
+                    sliver: SliverToBoxAdapter(child: _ConvertCard()),
+                  ),
+                ],
               ],
             ),
           );
@@ -177,6 +208,76 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
   }
 }
 
+/// Conversion card from the handoff ("Tu veux suivre un parcours similaire ?
+/// Discute avec KPB →") — the screen's only conversion point in the spec.
+/// Routes through the existing verified-advisor → WhatsApp hand-off.
+class _ConvertCard extends StatelessWidget {
+  const _ConvertCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'parcours_convert_title'.tr,
+      child: GestureDetector(
+        onTap: () => showVerifiedAdvisorThenWhatsApp(
+          prefill: 'parcours_whatsapp_prefill'.tr,
+          source: 'parcours',
+          contextType: 'parcours',
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _P.navy,
+            borderRadius: KpbRadius.lgBr,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: _P.whatsapp,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(Icons.forum_rounded,
+                    color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'parcours_convert_title'.tr,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      'parcours_convert_subtitle'.tr,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        height: 1.45,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.arrow_forward_rounded, color: _P.sky, size: 17),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ParcoursIntro extends StatelessWidget {
   const _ParcoursIntro();
 
@@ -190,13 +291,30 @@ class _ParcoursIntro extends StatelessWidget {
         0,
       ),
       padding: const EdgeInsets.all(KpbSpacing.md),
-      decoration: BoxDecoration(
-        gradient: KpbColors.heroGradient,
+      decoration: const BoxDecoration(
+        gradient: _P.heroGradient,
         borderRadius: KpbRadius.lgBr,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              'parcours_free_badge'.tr,
+              style: const TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.6,
+                color: _P.sky,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Text(
             'parcours_intro_title'.tr,
             style: const TextStyle(
@@ -257,7 +375,7 @@ class _ParcoursSearchField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: KpbRadius.mdBr,
-            borderSide: const BorderSide(color: KpbColors.blue, width: 2),
+            borderSide: const BorderSide(color: _P.blue, width: 2),
           ),
         ),
       ),
@@ -332,12 +450,12 @@ class _Chip extends StatelessWidget {
       labelStyle: TextStyle(
         fontSize: 13,
         fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-        color: selected ? Colors.white : context.kpb.textPrimary,
+        color: selected ? _P.blue : context.kpb.textPrimary,
       ),
-      selectedColor: KpbColors.blue,
+      selectedColor: _P.chipBg,
       backgroundColor: context.kpb.cardBg,
       side: BorderSide(
-        color: selected ? KpbColors.blue : context.kpb.gray200,
+        color: selected ? _P.chipBorder : context.kpb.gray200,
       ),
       shape: const StadiumBorder(),
     );
@@ -398,7 +516,7 @@ class _StoryCard extends StatelessWidget {
                               ? Icons.play_circle_outline_rounded
                               : Icons.menu_book_outlined,
                           size: 15,
-                          color: KpbColors.blue,
+                          color: _P.blue,
                         ),
                         const SizedBox(width: 5),
                         Flexible(
@@ -406,8 +524,8 @@ class _StoryCard extends StatelessWidget {
                             theme,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: KpbTextStyles.labelSm
-                                .copyWith(color: KpbColors.blue),
+                            style:
+                                KpbTextStyles.labelSm.copyWith(color: _P.blue),
                           ),
                         ),
                       ],
@@ -492,7 +610,7 @@ class _StoryMedia extends StatelessWidget {
       child: Container(
         height: 96,
         width: double.infinity,
-        decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
+        decoration: const BoxDecoration(gradient: _P.heroGradient),
         padding: const EdgeInsets.all(KpbSpacing.md),
         child: Row(
           children: [
@@ -707,7 +825,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
       player: YoutubePlayer(
         controller: controller,
         showVideoProgressIndicator: true,
-        progressIndicatorColor: KpbColors.blue,
+        progressIndicatorColor: _P.blue,
       ),
       builder: (context, player) {
         return Scaffold(
@@ -759,7 +877,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                       return ListTile(
                         onTap: () => _playAt(index),
                         tileColor: isCurrent
-                            ? KpbColors.blue.withValues(alpha: 0.06)
+                            ? _P.blue.withValues(alpha: 0.06)
                             : Colors.transparent,
                         leading: ClipRRect(
                           borderRadius: KpbRadius.smBr,
@@ -779,9 +897,8 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isCurrent
-                                ? KpbColors.blue
-                                : context.kpb.textPrimary,
+                            color:
+                                isCurrent ? _P.blue : context.kpb.textPrimary,
                             fontSize: 14,
                             fontWeight:
                                 isCurrent ? FontWeight.w700 : FontWeight.w500,
@@ -789,7 +906,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                         ),
                         trailing: isCurrent
                             ? const Icon(Icons.equalizer_rounded,
-                                color: KpbColors.blue)
+                                color: _P.blue)
                             : null,
                       );
                     }),
@@ -827,7 +944,7 @@ class _NowPlaying extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             [story.personName, role].where((s) => s.isNotEmpty).join(' · '),
-            style: KpbTextStyles.bodySm.copyWith(color: KpbColors.blue),
+            style: KpbTextStyles.bodySm.copyWith(color: _P.blue),
           ),
         ],
         if (summary.isNotEmpty) ...[

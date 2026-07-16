@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/onesignal_service.dart';
 import '../../core/ui/kpb_components.dart';
@@ -239,8 +240,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void initState() {
     super.initState();
     _restoreFromProfile();
+    // For a freshly-authenticated user with no persisted profile yet, seed the
+    // email (and name, when the OAuth provider supplied it) from the Supabase
+    // session so onboarding never re-asks for the identity just signed in with.
+    _prefillFromAuthSession();
     _page = _ctrl.onboardingStep.clamp(0, _totalPages - 1);
     _pageController = PageController(initialPage: _page);
+  }
+
+  /// Fills email/name from the current Supabase session, but only where the
+  /// form is still empty — never overrides a value restored from a profile.
+  void _prefillFromAuthSession() {
+    if (!Get.isRegistered<AuthService>()) return;
+    final auth = Get.find<AuthService>();
+
+    if (_emailCtrl.text.trim().isEmpty && auth.sessionEmail != null) {
+      _emailCtrl.text = auth.sessionEmail!;
+    }
+
+    final name = auth.sessionFullName;
+    if (name != null &&
+        _firstNameCtrl.text.trim().isEmpty &&
+        _lastNameCtrl.text.trim().isEmpty) {
+      final parts = name.split(RegExp(r'\s+'));
+      _firstNameCtrl.text = parts.first;
+      if (parts.length > 1) {
+        _lastNameCtrl.text = parts.sublist(1).join(' ');
+      }
+    }
   }
 
   /// Rehydrate the form from any persisted (partial) profile so a user who

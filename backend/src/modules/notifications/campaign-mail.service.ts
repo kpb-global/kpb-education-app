@@ -22,7 +22,7 @@ export class CampaignMailService {
     const from =
       process.env.KPB_CAMPAIGN_MAIL_FROM?.trim() ??
       process.env.KPB_MAGIC_LINK_FROM?.trim() ??
-      'KPB Education <noreply@kpb-education.com>';
+      'KPB Education <noreply@kpbeducation.cloud>';
 
     try {
       const response = await fetch('https://api.resend.com/emails', {

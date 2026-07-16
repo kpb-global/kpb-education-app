@@ -34,6 +34,7 @@
   },
   "overview": {
     "title": "Tableau de bord",
+    "subtitle": "Vue d'ensemble de l'activité, du North Star et des actions prioritaires.",
     "loadError": "Impossible de charger le tableau de bord.",
     "activeCases": "Dossiers actifs",
     "activeCasesHint": "Dossiers actuellement en cours",
@@ -45,13 +46,17 @@
     "paidServicesHint": "Achats de services avec paiement encaissé",
     "responseSla": "SLA réponse conseiller",
     "responseSlaHint": "Temps moyen de première réponse",
-    "focusTitle": "Priorités opérationnelles de la semaine",
-    "focusItem1": "Unifier toutes les demandes étudiantes sérieuses dans Mes dossiers.",
-    "focusItem2": "Lancer les offres d'accompagnement et la couverture des destinations par marché.",
-    "focusItem3": "Segmenter les campagnes de relance pour les documents manquants.",
-    "focusItem4": "Suivre les temps de réponse conseillers et la conversion vers les services payants.",
-    "permTitle": "Permissions de l'équipe",
-    "permBody": "Les admins gèrent les opérations de la plateforme, les conseillers font avancer les dossiers, les commerciaux assurent le suivi, et les rôles contenu/modération gardent les surfaces étudiantes à jour et sûres."
+    "northStarTitle": "Leads WhatsApp qualifiés / semaine — North Star",
+    "northStarLegend": "qualifiés",
+    "northStarHint": "Par semaine de création du lead — les leads convertis comptent comme qualifiés.",
+    "funnelTitle": "Funnel d'activation",
+    "funnelHint": "Inscription → dossier → soumission → achat : le passage au dossier est le levier n°1.",
+    "urgentTitle": "Action immédiate requise",
+    "urgent_awaitingDocs": "dossier(s) en attente de documents",
+    "urgent_verificationDue": "fiche(s) catalogue à re-vérifier",
+    "urgent_moderationQueue": "signalement(s) dans la file de modération",
+    "urgentCta": "Traiter",
+    "urgentEmpty": "Rien d’urgent — tout est traité ✓"
   },
   "roles": {
     "counselor": "Conseiller",
@@ -63,6 +68,7 @@
   },
   "cases": {
     "title": "Dossiers",
+    "subtitle": "Suivi des dossiers étudiants et de leur avancement.",
     "loadError": "Impossible de charger les dossiers.",
     "colReference": "Référence",
     "colStudent": "Étudiant",
@@ -105,6 +111,7 @@
   },
   "users": {
     "title": "Utilisateurs et rôles",
+    "subtitle": "Gestion des comptes de l'équipe et de leurs rôles.",
     "loadError": "Impossible de charger les utilisateurs.",
     "colName": "Opérateur",
     "colRole": "Rôle",
@@ -143,6 +150,7 @@
   },
   "reports": {
     "title": "Rapports",
+    "subtitle": "Indicateurs et exports pour le suivi opérationnel.",
     "loadError": "Impossible de charger les rapports.",
     "funnelTitle": "Entonnoir",
     "funnelSubtitle": "Pipeline des inscriptions étudiantes aux services payants.",
@@ -175,6 +183,7 @@
   },
   "content": {
     "title": "Contenu",
+    "subtitle": "Gestion des contenus mobiles : parcours, articles et médias.",
     "loadError": "Impossible de charger le contenu.",
     "statusLabel": "Statut",
     "statusDraft": "Brouillon",
@@ -289,6 +298,7 @@
   },
   "verification": {
     "title": "Vérification catalogue",
+    "subtitle": "File de vérification du catalogue avant publication.",
     "loadError": "Impossible de charger la file de vérification.",
     "updateError": "Impossible de mettre à jour la vérification.",
     "verifiedSuccess": "Entrée marquée comme vérifiée.",
@@ -313,6 +323,7 @@
   },
   "scholarships": {
     "title": "Modération des bourses",
+    "subtitle": "Modération des bourses proposées aux étudiants.",
     "loadError": "Impossible de charger les bourses.",
     "refreshError": "Impossible de rafraîchir le flux.",
     "refreshSuccess": "Flux rafraîchi.",
@@ -424,6 +435,7 @@
   },
   "community": {
     "title": "Communauté",
+    "subtitle": "Modération de la communauté et des échanges du forum.",
     "loadError": "Impossible de charger la communauté.",
     "categoryError": "Impossible d'enregistrer la catégorie du forum.",
     "tagError": "Impossible d'enregistrer le tag de sujet.",
@@ -466,6 +478,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "subtitle": "Campagnes de notifications et suivi de la diffusion.",
     "loadError": "Impossible de charger les notifications.",
     "deliveriesError": "Impossible de charger les envois.",
     "templateError": "Impossible de créer le modèle.",
@@ -514,6 +527,7 @@
   },
   "serviceSales": {
     "title": "Ventes de services",
+    "subtitle": "Suivi des achats de services et de l'accompagnement.",
     "loadError": "Impossible de charger les achats de services.",
     "updateError": "Impossible de mettre à jour l'achat de service.",
     "updated": "Achat de service mis à jour.",

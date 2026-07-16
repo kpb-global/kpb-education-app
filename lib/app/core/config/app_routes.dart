@@ -100,6 +100,9 @@ class AppRoutes {
       name: search,
       page: () => const SearchScreen(),
     ),
+    // Live-scholarships aggregator (unlocked for launch): serves the real
+    // scraped /scholarships feed, with an honest empty state when the feed is
+    // empty. Community stays MVP-gated (no real forum content yet).
     GetPage(
       name: scholarships,
       page: () => const LiveScholarshipsScreen(),
