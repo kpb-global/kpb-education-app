@@ -30,6 +30,23 @@ class AuthService {
   String? get userId => _session?.user.id;
   bool get isLoggedIn => accessToken != null && accessToken!.isNotEmpty;
 
+  /// Email of the signed-in user (from the Google OAuth identity or the OTP
+  /// address). Used to pre-fill onboarding so a freshly-authenticated user is
+  /// never asked for the email they just signed in with.
+  String? get sessionEmail {
+    final email = _session?.user.email?.trim();
+    return (email != null && email.isNotEmpty) ? email : null;
+  }
+
+  /// Best-effort full name from the OAuth provider metadata (Google returns
+  /// `full_name` / `name`). Null when the provider gave none (e.g. email OTP).
+  String? get sessionFullName {
+    final md = _session?.user.userMetadata;
+    final raw = (md?['full_name'] ?? md?['name']);
+    final name = raw is String ? raw.trim() : '';
+    return name.isNotEmpty ? name : null;
+  }
+
   /// Streams Supabase auth state changes (login/logout/token refresh).
   Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 
