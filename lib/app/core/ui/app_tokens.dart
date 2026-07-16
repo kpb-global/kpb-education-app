@@ -1,19 +1,50 @@
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// KPB Education — Design Tokens
+// KPB Education — Design Tokens (palette « KPB Intelligence »)
+// ─────────────────────────────────────────────────────────────────────────────
+// L0 de l'architecture de thème (docs/fable-global-theme-architecture.md §6) :
+// SEUL fichier autorisé à définir des valeurs hexadécimales. Tout le reste
+// (ThemeData, context.kpb, primitives, écrans) consomme ces rôles.
+// Le test ratchet (test/core/ui/color_audit_test.dart) fait respecter cette
+// règle : toute nouvelle couleur en dur ailleurs casse la CI.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class KpbColors {
   KpbColors._();
 
-  // ── Brand ────────────────────────────────────────────────────────────────
-  static const navy = Color(0xFF1E3A6E);
-  static const blue = Color(0xFF004AAD);
-  static const blueMid = Color(0xFF2D5FBA);
-  static const sky = Color(0xFF4EADEA);
-  static const skyLight = Color(0xFFE8F5FD);
-  static const gold = Color(0xFFF59E0B);
+  // ── Rôles sémantiques canoniques ─────────────────────────────────────────
+  // Réfléchis pour le WCAG AA (ratios vérifiés par app_tokens_test) : lisible
+  // en plein soleil équatorial sur des écrans d'entrée de gamme.
+  static const brandNavy = Color(0xFF0F172A); // marque, textes forts, heros
+  static const brandBlueLegacy = Color(0xFF004AAD); // héritage (logo, PDF) —
+  // ne plus utiliser comme couleur d'action.
+  static const actionPrimary = Color(0xFF2563EB); // CTA, liens, sélection
+  static const actionPrimaryPressed = Color(0xFF1D4ED8); // état pressed/hover
+  static const actionPrimarySoft = Color(0xFFEFF6FF); // fonds soft d'action
+  static const actionOnDark = Color(0xFF93C5FD); // action sur fond navy
+  static const canvas = Color(0xFFF8FAFC); // fond de page
+  static const surface = Colors.white; // cartes, sheets, inputs
+  static const surfaceMuted = Color(0xFFF1F5F9); // fonds atténués, tracks
+  static const border = Color(0xFFE2E8F0); // bordure par défaut
+  static const borderStrong = Color(0xFFCBD5E1); // bordure appuyée
+  static const textFaint = Color(0xFF94A3B8); // placeholders/décor —
+  // 2,56:1 sur blanc : JAMAIS pour un texte porteur de sens.
+  static const textOnDark = Colors.white;
+  static const textOnDarkMuted = Color(0xFF94A3B8); // secondaire sur navy
+  static const decorSky = Color(0xFF38BDF8); // accent décoratif — jamais texte
+  static const whatsapp = Color(0xFF25D366); // marque externe WhatsApp
+
+  // ── Brand (noms historiques re-pointés sur la palette KPB Intelligence) ──
+  // On garde les noms consommés partout dans l'app ; seules les valeurs
+  // changent. L'ancien bleu #004AAD reste disponible via brandBlueLegacy.
+  static const navy = brandNavy; // était #1E3A6E
+  static const blue = actionPrimary; // était #004AAD
+  static const blueMid = actionPrimaryPressed; // était #2D5FBA
+  static const sky = decorSky; // était #4EADEA
+  static const skyLight = actionPrimarySoft; // était #E8F5FD
+  static const gold = Color(0xFFF59E0B); // accent premium/bourses —
+  // jamais en texte sur fond clair (2,15:1) : le texte ambre = `warning`.
   static const goldLight = Color(0xFFFFF8E7);
 
   // ── Semantic ─────────────────────────────────────────────────────────────
@@ -27,39 +58,38 @@ class KpbColors {
   static const error = Color(0xFFB91C1C); // red-700
   static const errorLight = Color(0xFFFEF2F2);
 
-  // ── Neutrals ─────────────────────────────────────────────────────────────
-  static const gray50 = Color(0xFFF9FAFB);
-  static const gray100 = Color(0xFFF3F4F6);
-  static const gray200 = Color(0xFFE5E7EB);
-  static const gray300 = Color(0xFFD1D5DB);
-  static const gray400 = Color(0xFF9CA3AF);
-  static const gray500 = Color(0xFF6B7280);
-  static const gray600 = Color(0xFF4B5563);
-  static const gray700 = Color(0xFF374151);
-  static const gray900 = Color(0xFF111827);
+  // ── Neutrals (échelle slate de la palette KPB Intelligence) ──────────────
+  static const gray50 = Color(0xFFF8FAFC); // était #F9FAFB
+  static const gray100 = Color(0xFFF1F5F9); // était #F3F4F6
+  static const gray200 = Color(0xFFE2E8F0); // était #E5E7EB
+  static const gray300 = Color(0xFFCBD5E1); // était #D1D5DB
+  static const gray400 = Color(0xFF94A3B8); // était #9CA3AF
+  static const gray500 = Color(0xFF64748B); // était #6B7280
+  static const gray600 = Color(0xFF475569); // était #4B5563
+  static const gray700 = Color(0xFF334155); // était #374151
+  static const gray900 = Color(0xFF0F172A); // était #111827
 
   // ── Text ─────────────────────────────────────────────────────────────────
-  // textMuted was #9CA3AF (2.5:1 on white — failed WCAG AA). Bumped to a
-  // slate that still reads as "muted" but passes 4.5:1 on both card and page.
-  static const textPrimary = Color(0xFF0F1729);
-  static const textSecondary = Color(0xFF6B7280);
-  static const textMuted = Color(0xFF6B7280);
+  static const textPrimary = Color(0xFF0F172A); // 17,85:1 sur blanc
+  static const textSecondary = Color(0xFF475569); // 7,58:1 sur blanc
+  static const textMuted = Color(0xFF64748B); // 4,76:1 — limite basse AA,
+  // ne pas éclaircir ; pour du texte ≥ 18 px sur surfaceMuted seulement.
 
   // ── Backgrounds ──────────────────────────────────────────────────────────
-  static const bgPage = Color(0xFFF4F6FB);
-  static const bgCard = Colors.white;
-  static const bgMuted = Color(0xFFF3F4F6);
+  static const bgPage = canvas; // était #F4F6FB
+  static const bgCard = surface;
+  static const bgMuted = surfaceMuted; // était #F3F4F6
   static const sand = Color(0xFFFFF4E5);
 
-  // ── KPB Intelligence onboarding ─────────────────────────────────────────
-  // These values mirror the approved acquisition/onboarding design. Keeping
-  // them named here lets the remaining app surfaces migrate without recreating
-  // near-identical local palettes screen by screen.
-  static const engagementNavy = Color(0xFF0F172A);
-  static const engagementBlue = Color(0xFF2563EB);
-  static const engagementCanvas = Color(0xFFF8FAFC);
-  static const engagementBorder = Color(0xFFE2E8F0);
-  static const engagementMuted = Color(0xFF64748B);
+  // ── Aliases de compatibilité (retrait prévu au lot 9 si zéro référence) ──
+  // `engagement*` : noms provisoires de l'écran d'entrée validé (design-qa.md).
+  static const engagementNavy = brandNavy;
+  static const engagementBlue = actionPrimary;
+  static const engagementCanvas = canvas;
+  static const engagementBorder = border;
+  static const engagementMuted = textMuted;
+  static const primary = actionPrimary;
+  static const primaryLight = actionPrimarySoft;
 
   // ── Dark UI surfaces (glass nav, immersive screens) ──────────────────────
   static const bgDarkMidnight = Color(0xFF060D1A);
@@ -68,10 +98,6 @@ class KpbColors {
   static const textDarkSecondary = Color(0xFF94A3B8);
   static const glassBorder = Color(0x33FFFFFF);
   static const glassBg = Color(0x19FFFFFF);
-
-  // ── Aliases ──────────────────────────────────────────────────────────────
-  static const primary = blue;
-  static const primaryLight = skyLight;
 
   // ── Field accent colors ───────────────────────────────────────────────────
   static const csBlue = Color(0xFF233F84);
@@ -84,14 +110,16 @@ class KpbColors {
   static const marketingPink = Color(0xFFEC4899);
 
   // ── Gradients ────────────────────────────────────────────────────────────
+  // Hero navy → indigo, aligné sur le hero validé de parcours_story.
+  // À confirmer visuellement au lot 4 (Home).
   static const heroGradient = LinearGradient(
-    colors: [navy, blue, sky],
+    colors: [brandNavy, Color(0xFF1E3A8A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const heroGradientDark = LinearGradient(
-    colors: [Color(0xFF0F1E3D), navy],
+    colors: [Color(0xFF0B1120), brandNavy],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -101,6 +129,44 @@ class KpbColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Valeurs du mode sombre — NON conçues pour cette livraison (light-only).
+// Regroupées ici pour que buildDarkTheme() et KpbThemeColors.dark restent
+// compilables sans hexadécimaux hors de ce fichier.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class KpbColorsDark {
+  KpbColorsDark._();
+
+  static const pageBg = Color(0xFF111827);
+  static const cardBg = Color(0xFF1E2535);
+  static const mutedBg = Color(0xFF1A2332);
+  static const inputBg = cardBg;
+  static const surfaceBg = cardBg;
+  static const textPrimary = Colors.white;
+  static const textSecondary = Color(0xFF9CA3AF);
+  static const textMuted = Color(0xFF6B7280);
+  static const divider = Color(0xFF2D3748);
+  static const border = Color(0xFF374151);
+  static const borderLight = divider;
+  static const gray50 = Color(0xFF1A2332);
+  static const gray100 = Color(0xFF1E2840);
+  static const gray200 = Color(0xFF374151);
+  static const gray300 = Color(0xFF4B5563);
+  static const gray400 = Color(0xFF6B7280);
+  static const gray500 = Color(0xFF4B5563);
+  static const successLight = Color(0xFF0D3D2E);
+  static const warningLight = Color(0xFF3D2F0D);
+  static const errorLight = Color(0xFF3D1515);
+  static const goldLight = Color(0xFF3D2F0D);
+  static const skyLight = Color(0xFF0D2940);
+  static const scrim = Color(0x40000000);
+
+  static const cardShadow = [
+    BoxShadow(color: scrim, blurRadius: 12, offset: Offset(0, 3)),
+  ];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -169,17 +235,40 @@ class KpbShadow {
 
   static const blue = [
     BoxShadow(
-      color: Color(0x26004AAD),
+      color: Color(0x262563EB),
       blurRadius: 20,
       offset: Offset(0, 8),
     ),
   ];
+
+  /// Ombre portée légère (noir 8 %) pour les barres/surfaces flottantes.
+  static const scrimLight = Color(0x14000000);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mouvement : durées et courbe communes. Pas de durées ad hoc dans les écrans.
+
+class KpbMotion {
+  KpbMotion._();
+
+  static const fast = Duration(milliseconds: 120);
+  static const base = Duration(milliseconds: 200);
+  static const page = Duration(milliseconds: 280); // = transition GetX
+  static const curve = Curves.easeOutCubic;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Nom canonique de la typographie (le plan parle de `KpbTypography`) ; la
+/// classe historique `KpbTextStyles` reste le nom concret pour ne pas churner
+/// les centaines de call-sites.
+typedef KpbTypography = KpbTextStyles;
+
 class KpbTextStyles {
   KpbTextStyles._();
+
+  /// Corps/UI (appliquée globalement via `ThemeData.fontFamily`).
+  static const bodyFamily = 'Inter';
 
   /// Heading family from the App-engagement handoff (body text is Inter via
   /// the global theme `fontFamily`).
@@ -203,6 +292,24 @@ class KpbTextStyles {
     letterSpacing: -0.4,
   );
 
+  static const displayXs = TextStyle(
+    fontFamily: headingFamily,
+    fontSize: 26,
+    fontWeight: FontWeight.w800,
+    color: KpbColors.textPrimary,
+    height: 1.25,
+    letterSpacing: -0.35,
+  );
+
+  static const headlineLg = TextStyle(
+    fontFamily: headingFamily,
+    fontSize: 26,
+    fontWeight: FontWeight.w700,
+    color: KpbColors.textPrimary,
+    height: 1.25,
+    letterSpacing: -0.3,
+  );
+
   static const headline = TextStyle(
     fontFamily: headingFamily,
     fontSize: 24,
@@ -210,6 +317,14 @@ class KpbTextStyles {
     color: KpbColors.textPrimary,
     height: 1.25,
     letterSpacing: -0.3,
+  );
+
+  static const headlineSm = TextStyle(
+    fontFamily: headingFamily,
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: KpbColors.textPrimary,
+    height: 1.3,
   );
 
   static const titleLg = TextStyle(
@@ -230,6 +345,13 @@ class KpbTextStyles {
 
   static const titleMd = TextStyle(
     fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: KpbColors.textPrimary,
+    height: 1.3,
+  );
+
+  static const titleSm = TextStyle(
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     color: KpbColors.textPrimary,
     height: 1.3,
