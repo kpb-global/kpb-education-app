@@ -223,4 +223,56 @@ auth_welcome 3→0, app_shell 1→0).
   repos plus foncé (2,56:1 → 4,76:1).
 - Onboarding : 4 normalisations sémantiques AA listées ci-dessus.
 
-## Lots 4–9 — ⬜ non démarrés
+## Lot 4 — Parcours de découverte (browse) — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot4-browse` (depuis `main` post-#149).
+**311 substitutions** sur 10 écrans ; 6 classes `_Palette` supprimées.
+
+### Fichiers migrés (mapping §10.2)
+
+- **Home** (13 hex) : `_Palette` → tokens ; divider ambre `#FDE68A` →
+  `warning` α 0,3.
+- **Recherche** : accents par type de résultat → field accents **exacts**
+  (`financeGreen`, `lawPurple`, `businessSky`, `gold` — zéro changement) ;
+  `match_explanation_sheet` : couleurs de score normalisées
+  (≥85 `success`, ≥50 `warning` — cohérent avec MatchBadge).
+- **Universités** (18 hex) : `_Palette` → tokens ; ombre `0x0A0F172A` →
+  `KpbShadow.softNavy` (nouveau token) ; `chipBorder #BFDBFE` →
+  `actionPrimary` α 0,3.
+- **Explore / Pays / Programme** (45 hex) : `gradientEnd #1E3A8A` →
+  `KpbColors.heroIndigo` (nouveau token, partagé avec `heroGradient`) ;
+  `heading #1E40AF` → `actionPrimaryPressed` ; `cloud` → `borderStrong` ;
+  `heartPink #FCA5A5` conservé (`kpb-allow-color`, allowlist) ;
+  verts/ambres normalisés AA.
+- **Comparaison** (17 hex) : `sheetShadow 0x400F172A` → `KpbShadow.scrimNavy`
+  (nouveau token) ; `lineSoft` → `canvas`.
+- **Destinations** (1 hex) : `_navy` → `brandNavy`. **Enregistrés** : 0 hex,
+  vérifié.
+- Ratchet durci : ne scanne plus que les fichiers **suivis par git** (les
+  brouillons non commités d'une session concurrente ne cassent plus les runs
+  locaux).
+
+### Ratchet
+
+`color_budget.dart` : **35 fichiers / 499 hex** (−100).
+
+### Validation
+
+- `flutter analyze` : 0 issue sur mes fichiers (2 infos restantes =
+  fichiers Success Lab non trackés d'une session concurrente) ;
+- `flutter test` : suite verte **hors 3 échecs préexistants causés par les
+  modifications non commitées de la session concurrente**
+  (`app_routes_test` : 16 routes vs 14 attendues — routes Success Lab ;
+  2 tests logout de `app_controller_test`) — aucun de ces fichiers n'est
+  dans le lot ; la CI de la PR (arbre committé) fait foi ;
+- `dart format` : conforme.
+
+### Écarts visuels volontaires
+
+- Normalisations sémantiques AA habituelles (`green→success`, `red→error`,
+  `amberBg→warningLight`, `redBg→errorLight`) ;
+- `heading` pays : `#1E40AF` → `#1D4ED8` (léger éclaircissement) ;
+- bordures de chips bleues : `#BFDBFE`/`#DBEAFE` → `actionPrimary` α 0,3/0,2 ;
+- scores match : ≥50 passe de `gold` à `warning` (lisibilité icône/texte).
+
+## Lots 5–9 — ⬜ non démarrés

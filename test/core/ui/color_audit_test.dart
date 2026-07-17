@@ -19,14 +19,34 @@ import 'color_budget.dart';
 
 final _colorHex = RegExp(r'Color\(0x');
 
-Map<String, int> _scanLib() {
-  final counts = <String, int>{};
-  final files = Directory('lib')
+/// Fichiers dart de lib/ SUIVIS par git : le ratchet mesure le dépôt, pas les
+/// brouillons locaux non commités d'une autre session de travail. Repli sur le
+/// scan filesystem si git est indisponible.
+List<String> _libDartFiles() {
+  try {
+    final result = Process.runSync('git', ['ls-files', '--', 'lib']);
+    if (result.exitCode == 0) {
+      return (result.stdout as String)
+          .split('\n')
+          .where((p) => p.endsWith('.dart'))
+          .toList();
+    }
+  } catch (_) {
+    // git absent : repli ci-dessous.
+  }
+  return Directory('lib')
       .listSync(recursive: true)
       .whereType<File>()
-      .where((f) => f.path.endsWith('.dart'));
-  for (final file in files) {
-    final rel = file.path.replaceAll('\\', '/');
+      .where((f) => f.path.endsWith('.dart'))
+      .map((f) => f.path.replaceAll('\\', '/'))
+      .toList();
+}
+
+Map<String, int> _scanLib() {
+  final counts = <String, int>{};
+  for (final rel in _libDartFiles()) {
+    final file = File(rel);
+    if (!file.existsSync()) continue;
     var count = 0;
     for (final line in file.readAsLinesSync()) {
       if (line.contains('kpb-allow-color')) continue;

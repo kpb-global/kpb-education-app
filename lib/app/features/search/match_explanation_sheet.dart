@@ -16,9 +16,9 @@ class MatchScoreBadge extends StatelessWidget {
   final double size;
 
   Color _color(BuildContext context) {
-    if (score >= 85) return const Color(0xFF059669);
+    if (score >= 85) return KpbColors.success;
     if (score >= 70) return KpbColors.blue;
-    if (score >= 50) return const Color(0xFFF59E0B);
+    if (score >= 50) return KpbColors.warning;
     return context.kpb.gray400;
   }
 
@@ -101,7 +101,7 @@ void showMatchExplanation(
                 child: Row(
                   children: [
                     const Icon(Icons.check_circle_rounded,
-                        size: 18, color: Color(0xFF059669)),
+                        size: 18, color: KpbColors.success),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(

@@ -111,10 +111,12 @@ class KpbColors {
   static const marketingPink = Color(0xFFEC4899);
 
   // ── Gradients ────────────────────────────────────────────────────────────
-  // Hero navy → indigo, aligné sur le hero validé de parcours_story.
-  // À confirmer visuellement au lot 4 (Home).
+  /// Fin de dégradé des heros navy (indigo-800) — partagée par Home, pays,
+  /// programme et parcours_story.
+  static const heroIndigo = Color(0xFF1E3A8A);
+
   static const heroGradient = LinearGradient(
-    colors: [brandNavy, Color(0xFF1E3A8A)],
+    colors: [brandNavy, heroIndigo],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -244,6 +246,12 @@ class KpbShadow {
 
   /// Ombre portée légère (noir 8 %) pour les barres/surfaces flottantes.
   static const scrimLight = Color(0x14000000);
+
+  /// Ombre très douce teintée navy (4 %) — cartes discrètes des listes.
+  static const softNavy = Color(0x0A0F172A);
+
+  /// Scrim navy appuyé (25 %) — bottom sheets et overlays.
+  static const scrimNavy = Color(0x400F172A);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

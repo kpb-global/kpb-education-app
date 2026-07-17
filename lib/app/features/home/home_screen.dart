@@ -31,25 +31,7 @@ import 'home_impact_proof.dart';
 String _flag(String id) => countryFlag(id);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · isHome). Local to
-// this file — see the Parent/Commercial/Ambassadeur/Onboarding surfaces for
-// the same pattern; there is no shared design-system file yet.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const page = Color(0xFFF8FAFC);
-  static const subtle = Color(0xFFF1F5F9);
-  static const red = Color(0xFFDC2626);
-  static const amber = Color(0xFFB45309);
-  static const amberSoft = Color(0xFFFEF3C7);
-  static const green = Color(0xFF16A34A);
-  static const whatsapp = Color(0xFF25D366);
-}
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HomeScreen — light premium, momentum-first
@@ -100,7 +82,7 @@ class HomeScreen extends StatelessWidget {
         final urgentScholarship = _findUrgentDeadline(scholarships);
 
         return Container(
-          color: _Palette.page,
+          color: KpbColors.canvas,
           child: KpbRefresh(
             onRefresh: controller.pullToRefresh,
             child: CustomScrollView(
@@ -448,7 +430,7 @@ class _HomeGreetingHeader extends StatelessWidget {
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.4,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               Text(
@@ -459,7 +441,7 @@ class _HomeGreetingHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: _Palette.slate,
+                  color: KpbColors.textMuted,
                 ),
               ),
             ],
@@ -486,11 +468,11 @@ class _HomeCopilotButton extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: _Palette.blue,
+            color: KpbColors.actionPrimary,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: _Palette.blue.withValues(alpha: 0.3),
+                color: KpbColors.actionPrimary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -522,10 +504,10 @@ class _HomeProfileButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
           ),
           child: const Icon(Icons.person_outline_rounded,
-              color: _Palette.navy, size: 20),
+              color: KpbColors.brandNavy, size: 20),
         ),
       ),
     );
@@ -561,10 +543,10 @@ class _NotifBellChip extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                   boxShadow: c.softShadow,
-                  border: Border.all(color: _Palette.border),
+                  border: Border.all(color: KpbColors.border),
                 ),
                 child: const Icon(Icons.notifications_none_rounded,
-                    size: 20, color: _Palette.slate),
+                    size: 20, color: KpbColors.textMuted),
               ),
               if (hasUnread)
                 Positioned(
@@ -574,7 +556,7 @@ class _NotifBellChip extends StatelessWidget {
                     width: 9,
                     height: 9,
                     decoration: BoxDecoration(
-                      color: _Palette.red,
+                      color: KpbColors.error,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 1.5),
                     ),
@@ -653,7 +635,7 @@ class _HeroCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.navy,
+        color: KpbColors.brandNavy,
         borderRadius: KpbRadius.mdBr,
         boxShadow: KpbShadow.blue,
       ),
@@ -679,7 +661,7 @@ class _HeroCard extends StatelessWidget {
                       Text(
                         'home_gauge_eyebrow'.tr,
                         style: const TextStyle(
-                          color: _Palette.sky,
+                          color: KpbColors.decorSky,
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
@@ -707,7 +689,7 @@ class _HeroCard extends StatelessWidget {
                           ? 'home_hero_subtitle_student'.tr
                           : 'home_hero_subtitle_other'.tr,
                       style: const TextStyle(
-                        color: _Palette.slate400,
+                        color: KpbColors.textFaint,
                         fontSize: 13,
                         height: 1.4,
                       ),
@@ -752,7 +734,7 @@ class _HeroCard extends StatelessWidget {
                               backgroundColor:
                                   Colors.white.withValues(alpha: 0.12),
                               valueColor: const AlwaysStoppedAnimation<Color>(
-                                  _Palette.sky),
+                                  KpbColors.decorSky),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -762,7 +744,7 @@ class _HeroCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              color: _Palette.slate400,
+                              color: KpbColors.textFaint,
                               fontSize: 8.5,
                               fontWeight: FontWeight.w700,
                             ),
@@ -802,7 +784,8 @@ class _AnimatedRing extends StatelessWidget {
               strokeWidth: 7,
               strokeCap: StrokeCap.round,
               backgroundColor: Colors.white.withValues(alpha: 0.12),
-              valueColor: const AlwaysStoppedAnimation<Color>(_Palette.sky),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(KpbColors.decorSky),
             ),
             Center(
               child: Column(
@@ -820,7 +803,7 @@ class _AnimatedRing extends StatelessWidget {
                   const Text(
                     '/100',
                     style: TextStyle(
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
                     ),
@@ -858,12 +841,12 @@ class _HeroCta extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
               ),
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_rounded,
-                size: 16, color: _Palette.blue),
+                size: 16, color: KpbColors.actionPrimary),
           ],
         ),
       ),
@@ -891,7 +874,7 @@ class _NextStepCard extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           'home_design_discovery_subtitle'.tr,
-          style: const TextStyle(fontSize: 11, color: _Palette.slate),
+          style: const TextStyle(fontSize: 11, color: KpbColors.textMuted),
         ),
         const SizedBox(height: 12),
         KpbPressable(
@@ -935,14 +918,14 @@ class _NextStepCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: _Palette.navy,
+                          color: KpbColors.brandNavy,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         step.subtitle,
                         style: KpbTextStyles.caption.copyWith(
-                          color: _Palette.slate,
+                          color: KpbColors.textMuted,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1001,7 +984,7 @@ class _NextStepCard extends StatelessWidget {
             : isDocs
                 ? Icons.upload_file_rounded
                 : Icons.reply_rounded,
-        iconColor: _Palette.red,
+        iconColor: KpbColors.error,
         onTap: () => Get.to(() => CaseDetailScreen(caseId: urgentCase.id)),
       );
     }
@@ -1016,7 +999,7 @@ class _NextStepCard extends StatelessWidget {
             ? 'home_next_step_subtitle_missing_info'.tr
             : 'home_profile_pct_notice'.trParams({'pct': '$pct'}),
         icon: Icons.tune_rounded,
-        iconColor: _Palette.blue,
+        iconColor: KpbColors.actionPrimary,
         onTap: () => Get.to(() => const OnboardingScreen()),
       );
     }
@@ -1028,7 +1011,7 @@ class _NextStepCard extends StatelessWidget {
         title: 'home_next_step_title_take_orientation'.tr,
         subtitle: 'home_next_step_subtitle_orientation'.tr,
         icon: Icons.psychology_rounded,
-        iconColor: _Palette.blue,
+        iconColor: KpbColors.actionPrimary,
         onTap: () => Get.to(() => const OrientationScreen()),
       );
     }
@@ -1040,7 +1023,7 @@ class _NextStepCard extends StatelessWidget {
         title: 'home_next_step_title_start_case'.tr,
         subtitle: 'home_next_step_subtitle_start_case'.tr,
         icon: Icons.rocket_launch_rounded,
-        iconColor: _Palette.green,
+        iconColor: KpbColors.success,
         onTap: () => showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
@@ -1059,7 +1042,7 @@ class _NextStepCard extends StatelessWidget {
       title: 'home_next_step_title_discover_opportunities'.tr,
       subtitle: 'home_next_step_subtitle_explore'.tr,
       icon: Icons.explore_rounded,
-      iconColor: _Palette.sky,
+      iconColor: KpbColors.decorSky,
       onTap: () => Get.to(() => const DestinationsScreen()),
     );
   }
@@ -1114,25 +1097,25 @@ class _QuickActions extends StatelessWidget {
       (
         Icons.psychology_rounded,
         'nav_orientation'.tr,
-        _Palette.blue,
+        KpbColors.actionPrimary,
         () => Get.to(() => const OrientationScreen()),
       ),
       (
         Icons.explore_rounded,
         'home_next_step_label_explore'.tr,
-        _Palette.sky,
+        KpbColors.decorSky,
         () => Get.to(() => const DestinationsScreen()),
       ),
       (
         Icons.workspace_premium_rounded,
         'home_quick_action_scholarships'.tr,
-        _Palette.amber,
+        KpbColors.warning,
         () => Get.toNamed(AppRoutes.scholarships),
       ),
       (
         Icons.folder_copy_rounded,
         'home_quick_action_cases'.tr,
-        _Palette.green,
+        KpbColors.success,
         () => controller.goToTab(StudentShellTab.cases),
       ),
     ];
@@ -1173,15 +1156,15 @@ class _AiAdvisorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.navy,
+        color: KpbColors.brandNavy,
         borderRadius: KpbRadius.lgBr,
         border: Border.all(
-          color: _Palette.blue.withValues(alpha: 0.3),
+          color: KpbColors.actionPrimary.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: _Palette.blue.withValues(alpha: 0.1),
+            color: KpbColors.actionPrimary.withValues(alpha: 0.1),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -1194,11 +1177,11 @@ class _AiAdvisorBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
               borderRadius: KpbRadius.mdBr,
               boxShadow: [
                 BoxShadow(
-                  color: _Palette.blue.withValues(alpha: 0.4),
+                  color: KpbColors.actionPrimary.withValues(alpha: 0.4),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -1235,10 +1218,10 @@ class _AiAdvisorBanner extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _Palette.blue.withValues(alpha: 0.2),
+                        color: KpbColors.actionPrimary.withValues(alpha: 0.2),
                         borderRadius: KpbRadius.xsBr,
                         border: Border.all(
-                          color: _Palette.blue.withValues(alpha: 0.5),
+                          color: KpbColors.actionPrimary.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),
@@ -1247,7 +1230,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: _Palette.blue,
+                          color: KpbColors.actionPrimary,
                         ),
                       ),
                     ),
@@ -1258,7 +1241,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                   'home_find_school_desc'.tr,
                   style: TextStyle(
                     fontSize: 12,
-                    color: _Palette.slate400,
+                    color: KpbColors.textFaint,
                     height: 1.35,
                   ),
                 ),
@@ -1276,7 +1259,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: _Palette.blue,
+                            color: KpbColors.actionPrimary,
                           ),
                         ),
                       ),
@@ -1284,7 +1267,7 @@ class _AiAdvisorBanner extends StatelessWidget {
                       const Icon(
                         Icons.arrow_forward_rounded,
                         size: 14,
-                        color: _Palette.blue,
+                        color: KpbColors.actionPrimary,
                       ),
                     ],
                   ),
@@ -1368,9 +1351,9 @@ class _ActiveCaseCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: docsPct,
                         minHeight: 6,
-                        backgroundColor: _Palette.subtle,
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(_Palette.blue),
+                        backgroundColor: KpbColors.surfaceMuted,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            KpbColors.actionPrimary),
                       ),
                     ),
                   ),
@@ -1381,7 +1364,7 @@ class _ActiveCaseCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.slate,
+                      color: KpbColors.textMuted,
                     ),
                   ),
                 ],
@@ -1397,38 +1380,50 @@ class _ActiveCaseCard extends StatelessWidget {
     switch (s) {
       case CaseStatus.documentsNeeded:
         return (
-          color: _Palette.amber,
+          color: KpbColors.warning,
           label: 'case_status_documents_needed'.tr
         );
       case CaseStatus.awaitingPayment:
-        return (color: _Palette.red, label: 'case_status_awaiting_payment'.tr);
+        return (
+          color: KpbColors.error,
+          label: 'case_status_awaiting_payment'.tr
+        );
       case CaseStatus.awaitingStudent:
-        return (color: _Palette.red, label: 'case_status_awaiting_student'.tr);
+        return (
+          color: KpbColors.error,
+          label: 'case_status_awaiting_student'.tr
+        );
       case CaseStatus.scheduled:
-        return (color: _Palette.green, label: 'case_status_scheduled'.tr);
+        return (color: KpbColors.success, label: 'case_status_scheduled'.tr);
       case CaseStatus.inProgress:
-        return (color: _Palette.blue, label: 'case_status_in_progress'.tr);
+        return (
+          color: KpbColors.actionPrimary,
+          label: 'case_status_in_progress'.tr
+        );
       case CaseStatus.underReview:
-        return (color: _Palette.amber, label: 'case_status_under_review'.tr);
+        return (color: KpbColors.warning, label: 'case_status_under_review'.tr);
       case CaseStatus.counselorAssigned:
         return (
-          color: _Palette.sky,
+          color: KpbColors.decorSky,
           label: 'case_status_counselor_assigned'.tr
         );
       case CaseStatus.submitted:
-        return (color: _Palette.sky, label: 'case_status_submitted'.tr);
+        return (color: KpbColors.decorSky, label: 'case_status_submitted'.tr);
       case CaseStatus.applicationSubmitted:
         return (
-          color: _Palette.blue,
+          color: KpbColors.actionPrimary,
           label: 'case_status_application_submitted'.tr
         );
       case CaseStatus.waitingDecision:
         return (
-          color: _Palette.amber,
+          color: KpbColors.warning,
           label: 'case_status_waiting_decision'.tr
         );
       default:
-        return (color: _Palette.slate400, label: 'case_status_in_progress'.tr);
+        return (
+          color: KpbColors.textFaint,
+          label: 'case_status_in_progress'.tr
+        );
     }
   }
 }
@@ -1485,7 +1480,7 @@ class _InstitutionCard extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: KpbBadge(
                         label: 'badge_partner'.tr,
-                        color: _Palette.amber,
+                        color: KpbColors.warning,
                         small: true,
                       ),
                     ),
@@ -1499,7 +1494,7 @@ class _InstitutionCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
                 height: 1.25,
               ),
               maxLines: 2,
@@ -1508,7 +1503,7 @@ class _InstitutionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               location,
-              style: KpbTextStyles.caption.copyWith(color: _Palette.slate400),
+              style: KpbTextStyles.caption.copyWith(color: KpbColors.textFaint),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1518,7 +1513,7 @@ class _InstitutionCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -1577,7 +1572,7 @@ class _ScholarshipCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
                 height: 1.25,
               ),
               maxLines: 2,
@@ -1587,7 +1582,7 @@ class _ScholarshipCard extends StatelessWidget {
             Row(
               children: [
                 const Icon(Icons.payments_rounded,
-                    size: 14, color: _Palette.green),
+                    size: 14, color: KpbColors.success),
                 const SizedBox(width: 5),
                 Expanded(
                   child: Text(
@@ -1595,7 +1590,7 @@ class _ScholarshipCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: _Palette.green,
+                      color: KpbColors.success,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1630,10 +1625,10 @@ class _UrgentDeadlineCard extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoutes.scholarships),
       child: Container(
         decoration: BoxDecoration(
-          color: _Palette.amberSoft,
+          color: KpbColors.warningLight,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-              color: _Palette.amber.withValues(alpha: 0.4), width: 1.5),
+              color: KpbColors.warning.withValues(alpha: 0.4), width: 1.5),
         ),
         padding: const EdgeInsets.all(KpbSpacing.md),
         child: Row(
@@ -1645,7 +1640,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: _Palette.amber,
+                    color: KpbColors.warning,
                     height: 1,
                   ),
                 ),
@@ -1654,14 +1649,16 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.amber,
+                    color: KpbColors.warning,
                   ),
                 ),
               ],
             ),
             const SizedBox(width: 14),
-            const VerticalDivider(
-                width: 1, thickness: 1, color: Color(0xFFFDE68A)),
+            VerticalDivider(
+                width: 1,
+                thickness: 1,
+                color: KpbColors.warning.withValues(alpha: 0.3)),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -1672,7 +1669,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.amber,
+                      color: KpbColors.warning,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -1686,8 +1683,8 @@ class _UrgentDeadlineCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${'closing_label'.tr} : $deadline',
-                    style:
-                        const TextStyle(fontSize: 12, color: _Palette.slate400),
+                    style: const TextStyle(
+                        fontSize: 12, color: KpbColors.textFaint),
                   ),
                 ],
               ),
@@ -1696,7 +1693,7 @@ class _UrgentDeadlineCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: const BoxDecoration(
-                color: _Palette.amber,
+                color: KpbColors.warning,
                 borderRadius: KpbRadius.mdBr,
               ),
               child: Text(
@@ -1759,7 +1756,7 @@ class _ArticleCard extends StatelessWidget {
               width: 4,
               height: 56,
               decoration: const BoxDecoration(
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
                 borderRadius: KpbRadius.pillBr,
               ),
             ),
@@ -1786,7 +1783,7 @@ class _ArticleCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
-                size: 18, color: _Palette.slate400),
+                size: 18, color: KpbColors.textFaint),
           ],
         ),
       ),
@@ -1809,15 +1806,15 @@ class _AbroadEnrollmentCard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: KpbRadius.lgBr,
           border: Border.all(
-            color: _Palette.amber.withValues(alpha: 0.3),
+            color: KpbColors.warning.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: _Palette.amber.withValues(alpha: 0.08),
+              color: KpbColors.warning.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -1833,11 +1830,11 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _Palette.amber,
+                    color: KpbColors.warning,
                     borderRadius: KpbRadius.mdBr,
                     boxShadow: [
                       BoxShadow(
-                        color: _Palette.amber.withValues(alpha: 0.4),
+                        color: KpbColors.warning.withValues(alpha: 0.4),
                         blurRadius: 10,
                         offset: Offset(0, 2),
                       ),
@@ -1874,10 +1871,10 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: _Palette.amber.withValues(alpha: 0.15),
+                              color: KpbColors.warning.withValues(alpha: 0.15),
                               borderRadius: KpbRadius.xsBr,
                               border: Border.all(
-                                color: _Palette.amber.withValues(alpha: 0.4),
+                                color: KpbColors.warning.withValues(alpha: 0.4),
                                 width: 0.5,
                               ),
                             ),
@@ -1886,7 +1883,7 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
-                                color: _Palette.amber,
+                                color: KpbColors.warning,
                               ),
                             ),
                           ),
@@ -1897,7 +1894,7 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                         'home_apply_world_desc'.tr,
                         style: TextStyle(
                           fontSize: 12,
-                          color: _Palette.slate400,
+                          color: KpbColors.textFaint,
                           height: 1.35,
                         ),
                       ),
@@ -1959,14 +1956,14 @@ class _AbroadEnrollmentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: _Palette.amber,
+                        color: KpbColors.warning,
                       ),
                     ),
                     SizedBox(width: 4),
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: 14,
-                      color: _Palette.amber,
+                      color: KpbColors.warning,
                     ),
                   ],
                 ),
@@ -1994,7 +1991,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
     builder: (context) {
       return Container(
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -2050,7 +2047,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
               'home_destinations_desc'.tr,
               style: TextStyle(
                 fontSize: 13,
-                color: _Palette.slate400,
+                color: KpbColors.textFaint,
                 height: 1.4,
               ),
             ),
@@ -2063,7 +2060,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                         borderRadius: KpbRadius.mdBr,
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.05),
@@ -2152,7 +2149,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                           controller.resolve(country.whyStudy),
                                           style: const TextStyle(
                                             fontSize: 12,
-                                            color: _Palette.slate400,
+                                            color: KpbColors.textFaint,
                                             height: 1.35,
                                           ),
                                         ),
@@ -2163,7 +2160,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                             const Icon(
                                               Icons.payments_outlined,
                                               size: 14,
-                                              color: _Palette.amber,
+                                              color: KpbColors.warning,
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
@@ -2181,7 +2178,7 @@ void _showAbroadCountriesSheet(BuildContext context, AppController controller) {
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
-                                                color: _Palette.amber,
+                                                color: KpbColors.warning,
                                               ),
                                             ),
                                           ],
@@ -2233,13 +2230,13 @@ class _StudentToolsBanner extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              _Palette.blue.withValues(alpha: 0.15),
-              _Palette.green.withValues(alpha: 0.10),
+              KpbColors.actionPrimary.withValues(alpha: 0.15),
+              KpbColors.success.withValues(alpha: 0.10),
             ],
           ),
           borderRadius: KpbRadius.xlBr,
           border: Border.all(
-            color: _Palette.blue.withValues(alpha: 0.25),
+            color: KpbColors.actionPrimary.withValues(alpha: 0.25),
           ),
         ),
         child: Row(
@@ -2248,12 +2245,12 @@ class _StudentToolsBanner extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: _Palette.blue.withValues(alpha: 0.15),
+                color: KpbColors.actionPrimary.withValues(alpha: 0.15),
                 borderRadius: KpbRadius.mdBr,
               ),
               child: const Icon(
                 Icons.build_circle_rounded,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
                 size: 26,
               ),
             ),
@@ -2267,7 +2264,7 @@ class _StudentToolsBanner extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -2275,7 +2272,7 @@ class _StudentToolsBanner extends StatelessWidget {
                     'home_student_tools_subtitle'.tr,
                     style: TextStyle(
                       fontSize: 12,
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                     ),
                   ),
                 ],
@@ -2284,7 +2281,7 @@ class _StudentToolsBanner extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 16,
-              color: _Palette.slate400,
+              color: KpbColors.textFaint,
             ),
           ],
         ),
@@ -2361,13 +2358,13 @@ class _ParcoursHomeCarouselState extends State<_ParcoursHomeCarousel> {
                         style: const TextStyle(
                           fontSize: 15.5,
                           fontWeight: FontWeight.w800,
-                          color: _Palette.navy,
+                          color: KpbColors.brandNavy,
                         ),
                       ),
                       Text(
                         'home_parcours_subtitle'.tr,
                         style: const TextStyle(
-                            fontSize: 10.5, color: _Palette.slate),
+                            fontSize: 10.5, color: KpbColors.textMuted),
                       ),
                     ],
                   ),
@@ -2379,7 +2376,7 @@ class _ParcoursHomeCarouselState extends State<_ParcoursHomeCarousel> {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.blue,
+                      color: KpbColors.actionPrimary,
                     ),
                   ),
                 ),
@@ -2435,7 +2432,7 @@ class _ParcoursHomeCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -2444,7 +2441,7 @@ class _ParcoursHomeCard extends StatelessWidget {
             Container(
               height: 96,
               width: double.infinity,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
               child: Stack(
                 children: [
                   Center(
@@ -2500,7 +2497,7 @@ class _ParcoursHomeCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                       height: 1.3,
                     ),
                   ),
@@ -2510,8 +2507,8 @@ class _ParcoursHomeCard extends StatelessWidget {
                       who,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(fontSize: 10, color: _Palette.slate),
+                      style: const TextStyle(
+                          fontSize: 10, color: KpbColors.textMuted),
                     ),
                   ],
                 ],
@@ -2547,7 +2544,7 @@ class _CounselorWhatsAppCard extends StatelessWidget {
       onTap: _open,
       child: Container(
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: KpbRadius.xlBr,
         ),
         padding: const EdgeInsets.all(KpbSpacing.md),
@@ -2557,7 +2554,7 @@ class _CounselorWhatsAppCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: _Palette.whatsapp,
+                color: KpbColors.whatsapp,
                 borderRadius: KpbRadius.mdBr,
               ),
               child:
@@ -2582,14 +2579,14 @@ class _CounselorWhatsAppCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11.5,
                       height: 1.4,
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                     ),
                   ),
                 ],
               ),
             ),
             const Icon(Icons.arrow_forward_rounded,
-                color: _Palette.sky, size: 17),
+                color: KpbColors.decorSky, size: 17),
           ],
         ),
       ),
