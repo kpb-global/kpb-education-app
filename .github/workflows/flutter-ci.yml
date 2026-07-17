@@ -54,7 +54,9 @@ jobs:
         run: flutter analyze
 
       - name: Test (no remote catalog sync)
-        run: flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
+        # Goldens exclues : générées/comparées en local macOS (le rendu de
+        # police Linux diffère) — voir docs/fable-global-theme-architecture.md §11.5.
+        run: flutter test --exclude-tags=golden --dart-define=KPB_ENABLE_REMOTE_SYNC=false
 
   build-android:
     name: Build Android APK (debug validation)

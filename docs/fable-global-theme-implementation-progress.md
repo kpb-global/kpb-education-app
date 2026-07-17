@@ -452,4 +452,58 @@ Normalisations AA habituelles ; `blueSoft #DBEAFE→actionPrimarySoft` (comme la
 nav) ; tags qualified on-dark `#BAE6FD→decorSky` ; statut premium
 `#6D28D9→lawPurple` ; verres blancs sur navy alignés sur les tokens glass.
 
-## Lot 9 — QA finale — ⬜ non démarré
+## Lot 9 — QA finale — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot9-final-qa` (depuis `main` post-#154).
+
+### Dette finale éteinte
+
+- **Aliases retirés** : `engagement*` (5), `primary`, `primaryLight` — les
+  5 dernières références migrées (guide bourses ×4, carrousel Home ×1).
+  `brandBlueLegacy` conservé (marque héritée documentée).
+- **Nav du shell** : branches `isDark` mortes inlinées (light-only).
+  Les branches `isDark` de flight/housing/deadlines/academy_course sont
+  **conservées à dessein** : elles traversent des signatures entières, ne
+  référencent que des tokens, et forment la couture du futur mode sombre —
+  refactor = risque sans gain visible (écart documenté vs plan §12/6A).
+- **Data** : fallback catalogue → `KpbColors.csBlue` (import via la
+  bibliothèque `app_models`) ; snackbar d'erreur de l'api_client →
+  `errorLight`/`error` ; les 12 accents de `fields_data` allowlistés
+  (données, miroir des seeds backend).
+
+### Ratchet — état final du chantier
+
+`color_budget.dart` : **1 fichier / 84 hex = `app_tokens.dart` uniquement.**
+Toute la dette visuelle mesurable est éteinte (623 → 84, tous dans le foyer
+légitime de la palette).
+
+### Harnais de QA ajouté
+
+- `test/flutter_test_config.dart` : Inter + Plus Jakarta Sans chargées dans
+  TOUS les tests widget (rendu réel, plus d'Ahem).
+- `test/goldens/theme_gallery_golden_test.dart` (tag `golden`) : galerie de
+  référence du système (boutons, cartes, statuts, formulaire) 390×844 —
+  `theme_gallery.png` committée ; runbook dans l'en-tête du fichier.
+  CI : `--exclude-tags=golden` (rendu Linux ≠ macOS).
+- `test/core/ui/a11y_scale_test.dart` : kit sans overflow à 360×800 en
+  text scale 1.0 **et 1.3** (clamp app).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- **406 tests verts** (goldens et audit d'échelle inclus) ;
+- APK **debug prod** (`--dart-define=KPB_APP_ENV=prod` + numéro WhatsApp)
+  buildé et horodaté (artefact d'installation du plan §17) ;
+- APK **release** : bloqué localement par le garde-fou volontaire du
+  production-launch — « Release signing configuration is missing » — le
+  keystore d'upload (`android/key.properties`) n'existe que côté humain et
+  dans les secrets CI (job « Produce signed Android App Bundle » sur main).
+  Non contourné, à dessein.
+
+### Reste côté humain (Definition of Done, plan §17–18)
+
+- [ ] Revue visuelle sur simulateur/appareil : entrée, 5 onglets, une fiche
+      bourse, un dossier (jamais faite depuis le lot 1 — dernière gate).
+- [ ] Installation de l'APK fraîchement buildé sur appareil : entrée non
+      connectée → connexion → shell → session persistante (plan §17).
+- [ ] Captures avant/après jointes à ce rapport.

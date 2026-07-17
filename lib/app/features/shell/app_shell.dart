@@ -132,18 +132,16 @@ class _KpbFloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return SafeArea(
       top: false,
       child: Container(
         key: const ValueKey('kpb_shell_nav_bar'),
         height: 62,
         decoration: BoxDecoration(
-          color: isDark ? KpbColors.bgDarkCard : Colors.white,
+          color: KpbColors.surface,
           border: Border(
             top: BorderSide(
-              color: isDark ? KpbColors.glassBorder : KpbColors.border,
+              color: KpbColors.border,
             ),
           ),
         ),
@@ -218,7 +216,6 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     const activeColor = KpbColors.actionPrimary;
     const inactiveColor = KpbColors.textMuted;
 
@@ -247,9 +244,7 @@ class _NavItem extends StatelessWidget {
                       curve: Curves.easeOut,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? (isDark
-                                ? KpbColors.actionPrimary.withValues(alpha: 0.2)
-                                : KpbColors.actionPrimarySoft)
+                            ? KpbColors.actionPrimarySoft
                             : Colors.transparent,
                         borderRadius: KpbRadius.pillBr,
                       ),

@@ -88,16 +88,6 @@ class KpbColors {
   static const bgMuted = surfaceMuted; // était #F3F4F6
   static const sand = Color(0xFFFFF4E5);
 
-  // ── Aliases de compatibilité (retrait prévu au lot 9 si zéro référence) ──
-  // `engagement*` : noms provisoires de l'écran d'entrée validé (design-qa.md).
-  static const engagementNavy = brandNavy;
-  static const engagementBlue = actionPrimary;
-  static const engagementCanvas = canvas;
-  static const engagementBorder = border;
-  static const engagementMuted = textMuted;
-  static const primary = actionPrimary;
-  static const primaryLight = actionPrimarySoft;
-
   // ── Dark UI surfaces (glass nav, immersive screens) ──────────────────────
   static const bgDarkMidnight = Color(0xFF060D1A);
   static const bgDarkCard = Color(0xFF131A2A);

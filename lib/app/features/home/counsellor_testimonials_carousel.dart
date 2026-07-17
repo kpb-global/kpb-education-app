@@ -141,7 +141,7 @@ class _TestimonialCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: KpbColors.primary,
+                color: KpbColors.actionPrimary,
               ),
             ),
           ],

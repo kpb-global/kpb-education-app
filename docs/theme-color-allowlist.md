@@ -10,10 +10,16 @@ dans le code, elles portent un commentaire `// kpb-allow-color: <raison>`.
 | Fichier | Valeur | Raison | Depuis |
 |---|---|---|---|
 | `lib/app/features/profile/profile_screen.dart` | `#FDE68A` | second stop du dégradé premium du handoff (`gold → amber-200`) — décoratif, aucune valeur sémantique, aucun token équivalent | lot 6 (17/07/2026) |
+| `lib/app/features/premium/premium_screen.dart` | `#FDE68A` | même dégradé premium que le profil | lot 7 (17/07/2026) |
+| `lib/app/core/data/mock_catalog/fields_data.dart` | 12 accents (`accentColor`) | **données** du catalogue (accents d01..d12), miroir des seeds backend — la vraie valeur vient de l'API (`FieldModel.accentColor` parse un hex serveur, fallback `KpbColors.csBlue`) | lot 9 (17/07/2026) |
 
-## Candidats identifiés (à confirmer lors des lots concernés)
+## Hors périmètre du scan (rappel)
 
-- `lib/app/features/*/…` CTA WhatsApp → utiliser le token `KpbColors.whatsapp` (lot 2/7).
-- `backend`/PDF : `eligibility_pdf.dart` utilise `PdfColor.fromInt(0xFF004AAD)` — marque héritée sur support imprimé, hors du scan (pas un `Color(0x…)` Flutter scanné ? si, même motif : à allowlister au lot 7 si conservé).
-- Zone vidéo `academy_player_screen.dart` : noirs volontaires (surface immersive, lot 7).
-- Rails hero sombres (`institution_mini_card`, `scholarship_mini_card`) : via tokens dark (lot 2).
+- `eligibility_pdf.dart` : `PdfColor.fromInt(0xFF004AAD)` — marque héritée sur
+  support imprimé (`brandBlueLegacy`), non scanné (pas un `Color(` Flutter).
+
+## Candidats traités
+
+Tous les candidats identifiés aux lots 1–8 ont été résolus : CTA WhatsApp →
+token `whatsapp` ; zones vidéo → `Colors.black`/tokens dark (surfaces
+immersives) ; rails hero sombres → tokens dark (lot 2).

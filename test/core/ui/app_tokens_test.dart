@@ -64,14 +64,9 @@ void main() {
       expect(KpbColors.gray900, const Color(0xFF0F172A));
     });
 
-    test('aliases de compatibilité (écran d’entrée + historiques)', () {
-      expect(KpbColors.engagementNavy, KpbColors.brandNavy);
-      expect(KpbColors.engagementBlue, KpbColors.actionPrimary);
-      expect(KpbColors.engagementCanvas, KpbColors.canvas);
-      expect(KpbColors.engagementBorder, KpbColors.border);
-      expect(KpbColors.engagementMuted, KpbColors.textMuted);
-      expect(KpbColors.primary, KpbColors.actionPrimary);
-      expect(KpbColors.primaryLight, KpbColors.actionPrimarySoft);
+    test('aliases retirés au lot 9 — brandBlueLegacy reste documenté', () {
+      // engagement*/primary/primaryLight supprimés (zéro référence).
+      expect(KpbColors.brandBlueLegacy, const Color(0xFF004AAD));
     });
   });
 
