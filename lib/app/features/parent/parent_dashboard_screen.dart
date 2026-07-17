@@ -151,7 +151,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                     icon: const Icon(Icons.chat),
                     label: Text('whatsapp'.tr),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF25D366),
+                      backgroundColor: KpbColors.whatsapp,
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () {

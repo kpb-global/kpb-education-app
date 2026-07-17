@@ -33,8 +33,12 @@ class KpbColors {
   static const textOnDark = Colors.white;
   static const successOnDark = Color(0xFF4ADE80); // succès sur navy — jamais
   // sur fond clair (green-400, 1,9:1 sur blanc).
+  static const errorOnDark = Color(0xFFFCA5A5); // erreur sur navy (red-300)
   static const textOnDarkMuted = Color(0xFF94A3B8); // secondaire sur navy
   static const decorSky = Color(0xFF38BDF8); // accent décoratif — jamais texte
+  static const decorIndigo = Color(0xFF6366F1); // accent catégoriel (avatars,
+  // leaderboard ambassadeur) ; version claire pour texte/icônes sur navy :
+  static const decorIndigoLight = Color(0xFFA5B4FC);
   static const whatsapp = Color(0xFF25D366); // marque externe WhatsApp
   static const googleBlue = Color(0xFF4285F4); // marque externe Google (CTA)
 

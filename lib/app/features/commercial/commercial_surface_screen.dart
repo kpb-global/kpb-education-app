@@ -20,43 +20,26 @@ import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../../core/ui/app_tokens.dart';
 
-class _C {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const blueSoft = Color(0xFFDBEAFE);
-  static const green = Color(0xFF16A34A);
-  static const greenSoft = Color(0xFFDCFCE7);
-  static const sky = Color(0xFF0EA5E9);
-  static const skySoft = Color(0xFFE0F2FE);
-  static const cyan = Color(0xFF38BDF8);
-  static const amber = Color(0xFFB45309);
-  static const amberSoft = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const redSoft = Color(0xFFFEE2E2);
-  static const whatsapp = Color(0xFF25D366);
-  static const page = Color(0xFFF8FAFC);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const ink = Color(0xFF0F172A);
-  static const border = Color(0xFFE2E8F0);
-  static const track = Color(0xFFF1F5F9);
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
+// Couleurs catégorielles des avatars (séries distinctes — exception §14 de
+// l'architecture), déterministes par hash du nom. Valeurs = tokens.
+const _avatarColors = [
+  KpbColors.actionPrimary,
+  KpbColors.success,
+  KpbColors.decorIndigo,
+  KpbColors.warning,
+  KpbColors.businessSky,
+  KpbColors.error,
+];
 
-  static const _avatars = [
-    Color(0xFF2563EB),
-    Color(0xFF16A34A),
-    Color(0xFF6366F1),
-    Color(0xFFB45309),
-    Color(0xFF0EA5E9),
-    Color(0xFFDC2626),
-  ];
-  static Color avatar(String seed) {
-    var h = 0;
-    for (final ch in seed.codeUnits) {
-      h = (h * 31 + ch) & 0x7fffffff;
-    }
-    return _avatars[h % _avatars.length];
+Color _avatarColor(String seed) {
+  var h = 0;
+  for (final ch in seed.codeUnits) {
+    h = (h * 31 + ch) & 0x7fffffff;
   }
+  return _avatarColors[h % _avatarColors.length];
 }
 
 String _initials(String name) {
@@ -93,14 +76,26 @@ class _TagStyle {
 _TagStyle _tagStyle(String? tag) {
   switch (tag) {
     case 'converted':
-      return const _TagStyle('commercial_tag_converted', _C.greenSoft, _C.green,
-          Color(0x4D16A34A), Color(0xFF4ADE80));
+      return _TagStyle(
+          'commercial_tag_converted',
+          KpbColors.successLight,
+          KpbColors.success,
+          KpbColors.success.withValues(alpha: 0.3),
+          KpbColors.successOnDark);
     case 'qualified':
-      return const _TagStyle('commercial_tag_qualified', _C.skySoft, _C.sky,
-          Color(0x380EA5E9), Color(0xFFBAE6FD));
+      return _TagStyle(
+          'commercial_tag_qualified',
+          KpbColors.businessSky.withValues(alpha: 0.15),
+          KpbColors.businessSky,
+          KpbColors.businessSky.withValues(alpha: 0.22),
+          KpbColors.decorSky);
     default: // 'new' / null → needs a first reply
-      return const _TagStyle('commercial_tag_new', _C.redSoft, _C.red,
-          Color(0x40DC2626), Color(0xFFFCA5A5));
+      return _TagStyle(
+          'commercial_tag_new',
+          KpbColors.errorLight,
+          KpbColors.error,
+          KpbColors.error.withValues(alpha: 0.25),
+          KpbColors.errorOnDark);
   }
 }
 
@@ -136,7 +131,7 @@ class _CommercialSurfaceScreenState extends State<CommercialSurfaceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.page,
+      backgroundColor: KpbColors.canvas,
       body: GetBuilder<AppController>(
         builder: (c) {
           final leads = c.commercialLeads;
@@ -234,29 +229,34 @@ class _LeadsTab extends StatelessWidget {
         children: [
           Text('commercial_leads_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _C.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('commercial_leads_sub'.trParams({'n': '$newCount'}),
-              style: const TextStyle(fontSize: 11.5, color: _C.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 12),
           // SLA banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
-              color: _C.amberSoft,
-              border: Border.all(color: const Color(0xFFFDE68A)),
+              color: KpbColors.warningLight,
+              border:
+                  Border.all(color: KpbColors.warning.withValues(alpha: 0.3)),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
-                const Icon(Icons.timer_outlined, size: 17, color: _C.amber),
+                const Icon(Icons.timer_outlined,
+                    size: 17, color: KpbColors.warning),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text('commercial_sla'.trParams({'n': '$newCount'}),
                       style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF92400E))),
+                          color: KpbColors.warning)),
                 ),
               ],
             ),
@@ -321,7 +321,7 @@ class _LeadCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: _C.border),
+          border: Border.all(color: KpbColors.border),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -332,7 +332,7 @@ class _LeadCard extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                      color: _C.avatar(lead.studentName),
+                      color: _avatarColor(lead.studentName),
                       shape: BoxShape.circle),
                   alignment: Alignment.center,
                   child: Text(_initials(lead.studentName),
@@ -349,7 +349,7 @@ class _LeadCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 5, vertical: 1),
                       decoration: BoxDecoration(
-                          color: _C.red,
+                          color: KpbColors.error,
                           borderRadius: BorderRadius.circular(9),
                           border: Border.all(color: Colors.white, width: 1.5)),
                       child: Text('${lead.unreadMessages}',
@@ -372,18 +372,19 @@ class _LeadCard extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w800,
-                          color: _C.ink)),
+                          color: KpbColors.textPrimary)),
                   if ((lead.studentLevel ?? lead.title).isNotEmpty)
                     Text(lead.studentLevel ?? lead.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, color: _C.slate)),
+                        style: const TextStyle(
+                            fontSize: 11, color: KpbColors.textMuted)),
                   const SizedBox(height: 3),
                   Text(_age(lead.updatedAt),
                       style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: hot ? _C.red : _C.slate400)),
+                          color: hot ? KpbColors.error : KpbColors.textFaint)),
                 ],
               ),
             ),
@@ -430,7 +431,7 @@ class _CommercialLeadDetailScreenState
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
         content: Text(msg),
-        backgroundColor: _C.navy,
+        backgroundColor: KpbColors.brandNavy,
         behavior: SnackBarBehavior.floating,
       ));
   }
@@ -497,13 +498,13 @@ class _CommercialLeadDetailScreenState
     ];
 
     return Scaffold(
-      backgroundColor: _C.page,
+      backgroundColor: KpbColors.canvas,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Navy header
           Container(
-            color: _C.navy,
+            color: KpbColors.brandNavy,
             padding: EdgeInsets.fromLTRB(
                 16, MediaQuery.of(context).padding.top + 10, 16, 18),
             child: Column(
@@ -544,7 +545,7 @@ class _CommercialLeadDetailScreenState
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                          color: _C.avatar(lead.studentName),
+                          color: _avatarColor(lead.studentName),
                           shape: BoxShape.circle),
                       alignment: Alignment.center,
                       child: Text(_initials(lead.studentName),
@@ -568,7 +569,8 @@ class _CommercialLeadDetailScreenState
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    color: _C.slate400, fontSize: 11.5)),
+                                    color: KpbColors.textFaint,
+                                    fontSize: 11.5)),
                         ],
                       ),
                     ),
@@ -584,7 +586,7 @@ class _CommercialLeadDetailScreenState
                         child: Container(
                           height: 42,
                           decoration: BoxDecoration(
-                              color: _C.whatsapp,
+                              color: KpbColors.whatsapp,
                               borderRadius: BorderRadius.circular(14)),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -631,7 +633,7 @@ class _CommercialLeadDetailScreenState
                                         ? Icons.check_circle
                                         : Icons.workspace_premium,
                                     size: 15,
-                                    color: const Color(0xFF4ADE80)),
+                                    color: KpbColors.successOnDark),
                                 const SizedBox(width: 6),
                                 Text(
                                     _tag == 'converted'
@@ -662,7 +664,7 @@ class _CommercialLeadDetailScreenState
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(color: _C.border),
+                        border: Border.all(color: KpbColors.border),
                         borderRadius: BorderRadius.circular(16)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -671,7 +673,7 @@ class _CommercialLeadDetailScreenState
                             style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: _C.ink)),
+                                color: KpbColors.textPrimary)),
                         const SizedBox(height: 10),
                         for (final p in profil)
                           Padding(
@@ -683,7 +685,7 @@ class _CommercialLeadDetailScreenState
                                     style: const TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.w700,
-                                        color: _C.slate400)),
+                                        color: KpbColors.textFaint)),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(p.v,
@@ -691,7 +693,7 @@ class _CommercialLeadDetailScreenState
                                       style: const TextStyle(
                                           fontSize: 11.5,
                                           fontWeight: FontWeight.w800,
-                                          color: _C.ink)),
+                                          color: KpbColors.textPrimary)),
                                 ),
                               ],
                             ),
@@ -705,13 +707,13 @@ class _CommercialLeadDetailScreenState
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                          color: _C.amberSoft,
+                          color: KpbColors.warningLight,
                           borderRadius: BorderRadius.circular(14)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Icon(Icons.flag_rounded,
-                              size: 15, color: _C.amber),
+                              size: 15, color: KpbColors.warning),
                           const SizedBox(width: 9),
                           Expanded(
                             child: Text(lead.discussionMotive!,
@@ -719,7 +721,7 @@ class _CommercialLeadDetailScreenState
                                     fontSize: 11,
                                     height: 1.5,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF92400E))),
+                                    color: KpbColors.warning)),
                           ),
                         ],
                       ),
@@ -756,13 +758,14 @@ class _RevStyle {
 _RevStyle? _revStyle(String? status) {
   switch (status) {
     case 'validated':
-      return const _RevStyle(
-          'commercial_doc_status_validated', _C.greenSoft, _C.green);
+      return const _RevStyle('commercial_doc_status_validated',
+          KpbColors.successLight, KpbColors.success);
     case 'redo':
-      return const _RevStyle('commercial_doc_status_redo', _C.redSoft, _C.red);
-    case 'doubtful':
       return const _RevStyle(
-          'commercial_doc_status_doubtful', _C.amberSoft, _C.amber);
+          'commercial_doc_status_redo', KpbColors.errorLight, KpbColors.error);
+    case 'doubtful':
+      return const _RevStyle('commercial_doc_status_doubtful',
+          KpbColors.warningLight, KpbColors.warning);
     default:
       return null;
   }
@@ -785,7 +788,7 @@ class _DocReviewCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: _C.border),
+          border: Border.all(color: KpbColors.border),
           borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -797,27 +800,27 @@ class _DocReviewCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: _C.ink)),
+                        color: KpbColors.textPrimary)),
               ),
               if (pending > 0)
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(
-                      color: _C.amberSoft,
+                      color: KpbColors.warningLight,
                       borderRadius: BorderRadius.circular(100)),
                   child: Text(
                       'commercial_docs_to_review'.trParams({'n': '$pending'}),
                       style: const TextStyle(
                           fontSize: 9.5,
                           fontWeight: FontWeight.w800,
-                          color: _C.amber)),
+                          color: KpbColors.warning)),
                 ),
             ],
           ),
           const SizedBox(height: 2),
           Text('commercial_docs_sub'.trParams({'n': '${docs.length}'}),
-              style: const TextStyle(fontSize: 11, color: _C.slate400)),
+              style: const TextStyle(fontSize: 11, color: KpbColors.textFaint)),
           const SizedBox(height: 12),
           if (docs.isEmpty)
             Padding(
@@ -825,14 +828,14 @@ class _DocReviewCard extends StatelessWidget {
               child: Row(
                 children: [
                   const Icon(Icons.description_outlined,
-                      size: 18, color: _C.slate400),
+                      size: 18, color: KpbColors.textFaint),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text('commercial_docs_empty'.tr,
                         style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: _C.slate)),
+                            color: KpbColors.textMuted)),
                   ),
                 ],
               ),
@@ -845,7 +848,8 @@ class _DocReviewCard extends StatelessWidget {
                 onReview: onReview,
               ),
               if (i != docs.length - 1)
-                const Divider(height: 22, thickness: 1, color: _C.track),
+                const Divider(
+                    height: 22, thickness: 1, color: KpbColors.surfaceMuted),
             ],
         ],
       ),
@@ -869,8 +873,8 @@ class _DocRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          color: _C.page,
-          border: Border.all(color: _C.track),
+          color: KpbColors.canvas,
+          border: Border.all(color: KpbColors.surfaceMuted),
           borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -882,7 +886,9 @@ class _DocRow extends StatelessWidget {
                       ? Icons.description_rounded
                       : Icons.upload_file_outlined,
                   size: 16,
-                  color: doc.isProvided ? _C.slate : _C.slate400),
+                  color: doc.isProvided
+                      ? KpbColors.textMuted
+                      : KpbColors.textFaint),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(doc.title,
@@ -891,7 +897,7 @@ class _DocRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: _C.ink)),
+                        color: KpbColors.textPrimary)),
               ),
               const SizedBox(width: 8),
               if (rev != null)
@@ -915,7 +921,9 @@ class _DocRow extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: doc.isProvided ? _C.green : _C.slate400)),
+                        color: doc.isProvided
+                            ? KpbColors.success
+                            : KpbColors.textFaint)),
             ],
           ),
           // Reviewer / timestamp line once a verdict exists.
@@ -929,7 +937,8 @@ class _DocRow extends StatelessWidget {
                       })
                     : 'commercial_doc_reviewed_by'
                         .trParams({'name': doc.reviewedByName!}),
-                style: const TextStyle(fontSize: 10, color: _C.slate400)),
+                style:
+                    const TextStyle(fontSize: 10, color: KpbColors.textFaint)),
           ],
           // Verdict buttons — only for an uploaded, not-yet-reviewed document.
           if (doc.isProvided && rev == null) ...[
@@ -950,7 +959,7 @@ class _DocRow extends StatelessWidget {
                   Expanded(
                     child: _VerdictButton(
                       labelKey: 'commercial_doc_validate',
-                      fillColor: _C.green,
+                      fillColor: KpbColors.success,
                       textColor: Colors.white,
                       onTap: () => onReview(doc, 'validated'),
                     ),
@@ -959,8 +968,8 @@ class _DocRow extends StatelessWidget {
                   Expanded(
                     child: _VerdictButton(
                       labelKey: 'commercial_doc_redo',
-                      borderColor: const Color(0xFFFECACA),
-                      textColor: _C.red,
+                      borderColor: KpbColors.error.withValues(alpha: 0.35),
+                      textColor: KpbColors.error,
                       onTap: () => onReview(doc, 'redo'),
                     ),
                   ),
@@ -968,8 +977,8 @@ class _DocRow extends StatelessWidget {
                   Expanded(
                     child: _VerdictButton(
                       labelKey: 'commercial_doc_doubtful',
-                      borderColor: const Color(0xFFFDE68A),
-                      textColor: _C.amber,
+                      borderColor: KpbColors.warning.withValues(alpha: 0.35),
+                      textColor: KpbColors.warning,
                       onTap: () => onReview(doc, 'doubtful'),
                     ),
                   ),
@@ -1041,10 +1050,13 @@ class _CasesTab extends StatelessWidget {
         children: [
           Text('commercial_cases_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _C.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('commercial_cases_sub'.trParams({'n': '${leads.length}'}),
-              style: const TextStyle(fontSize: 11.5, color: _C.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 14),
           if (loading && leads.isEmpty)
             const Padding(
@@ -1063,7 +1075,7 @@ class _CasesTab extends StatelessWidget {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(color: _C.border),
+                    border: Border.all(color: KpbColors.border),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -1072,7 +1084,7 @@ class _CasesTab extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                            color: _C.avatar(l.studentName),
+                            color: _avatarColor(l.studentName),
                             shape: BoxShape.circle),
                         alignment: Alignment.center,
                         child: Text(_initials(l.studentName),
@@ -1090,13 +1102,14 @@ class _CasesTab extends StatelessWidget {
                                 style: const TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w800,
-                                    color: _C.ink)),
+                                    color: KpbColors.textPrimary)),
                             if (l.title.isNotEmpty)
                               Text(l.title,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                      fontSize: 11, color: _C.slate)),
+                                      fontSize: 11,
+                                      color: KpbColors.textMuted)),
                             Builder(builder: (_) {
                               final pending = l.documents
                                   .where((d) => d.isProvided && !d.isReviewed)
@@ -1107,7 +1120,7 @@ class _CasesTab extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     const Icon(Icons.rate_review_outlined,
-                                        size: 11, color: _C.amber),
+                                        size: 11, color: KpbColors.warning),
                                     const SizedBox(width: 4),
                                     Text(
                                         'commercial_docs_to_review'
@@ -1115,7 +1128,7 @@ class _CasesTab extends StatelessWidget {
                                         style: const TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.w800,
-                                            color: _C.amber)),
+                                            color: KpbColors.warning)),
                                   ],
                                 ),
                               );
@@ -1128,13 +1141,13 @@ class _CasesTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                            color: _C.blueSoft,
+                            color: KpbColors.actionPrimarySoft,
                             borderRadius: BorderRadius.circular(100)),
                         child: Text(_caseStatusLabel(l.status),
                             style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: _C.blue)),
+                                color: KpbColors.actionPrimary)),
                       ),
                     ],
                   ),
@@ -1186,8 +1199,8 @@ class _PerformanceTab extends StatelessWidget {
               Container(
                 width: 48,
                 height: 48,
-                decoration:
-                    const BoxDecoration(color: _C.navy, shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                    color: KpbColors.brandNavy, shape: BoxShape.circle),
                 alignment: Alignment.center,
                 child: Text(_initials(advisorName),
                     style: const TextStyle(
@@ -1204,10 +1217,10 @@ class _PerformanceTab extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: _C.ink)),
+                            color: KpbColors.textPrimary)),
                     Text('commercial_perf_role'.tr,
-                        style:
-                            const TextStyle(fontSize: 11.5, color: _C.slate)),
+                        style: const TextStyle(
+                            fontSize: 11.5, color: KpbColors.textMuted)),
                   ],
                 ),
               ),
@@ -1220,19 +1233,19 @@ class _PerformanceTab extends StatelessWidget {
                   child: _StatCard(
                       value: '${stats.totalLeads}',
                       label: 'commercial_stat_total'.tr,
-                      color: _C.ink)),
+                      color: KpbColors.textPrimary)),
               const SizedBox(width: 8),
               Expanded(
                   child: _StatCard(
                       value: '${stats.convertedLast30Days}',
                       label: 'commercial_stat_converted'.tr,
-                      color: _C.green)),
+                      color: KpbColors.success)),
               const SizedBox(width: 8),
               Expanded(
                   child: _StatCard(
                       value: avg == null ? '—' : _fmtDuration(avg),
                       label: 'commercial_stat_response'.tr,
-                      color: _C.blue)),
+                      color: KpbColors.actionPrimary)),
             ],
           ),
           const SizedBox(height: 13),
@@ -1240,7 +1253,7 @@ class _PerformanceTab extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border.all(color: _C.border),
+                border: Border.all(color: KpbColors.border),
                 borderRadius: BorderRadius.circular(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1249,11 +1262,12 @@ class _PerformanceTab extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: _C.ink)),
+                        color: KpbColors.textPrimary)),
                 const SizedBox(height: 12),
                 if (order.isEmpty)
                   Text('commercial_perf_empty'.tr,
-                      style: const TextStyle(fontSize: 12, color: _C.slate))
+                      style: const TextStyle(
+                          fontSize: 12, color: KpbColors.textMuted))
                 else
                   for (final t in order) ...[
                     _BreakdownRow(
@@ -1266,7 +1280,9 @@ class _PerformanceTab extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text('commercial_perf_note'.tr,
                     style: const TextStyle(
-                        fontSize: 10.5, height: 1.5, color: _C.slate400)),
+                        fontSize: 10.5,
+                        height: 1.5,
+                        color: KpbColors.textFaint)),
               ],
             ),
           ),
@@ -1295,7 +1311,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: _C.border),
+          border: Border.all(color: KpbColors.border),
           borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
@@ -1309,7 +1325,7 @@ class _StatCard extends StatelessWidget {
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   height: 1.3,
-                  color: _C.slate400)),
+                  color: KpbColors.textFaint)),
         ],
       ),
     );
@@ -1335,13 +1351,13 @@ class _BreakdownRow extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: _C.ink)),
+                      color: KpbColors.textPrimary)),
             ),
             Text('$count',
                 style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: _C.slate)),
+                    color: KpbColors.textMuted)),
           ],
         ),
         const SizedBox(height: 5),
@@ -1350,8 +1366,8 @@ class _BreakdownRow extends StatelessWidget {
           child: LinearProgressIndicator(
             value: ratio.clamp(0.0, 1.0),
             minHeight: 7,
-            backgroundColor: _C.track,
-            valueColor: const AlwaysStoppedAnimation(_C.cyan),
+            backgroundColor: KpbColors.surfaceMuted,
+            valueColor: const AlwaysStoppedAnimation(KpbColors.decorSky),
           ),
         ),
       ],
@@ -1383,15 +1399,18 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFEFF6FF) : Colors.white,
+          color: selected ? KpbColors.actionPrimarySoft : KpbColors.surface,
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: selected ? _C.blue : _C.border, width: 1.5),
+          border: Border.all(
+              color: selected ? KpbColors.actionPrimary : KpbColors.border,
+              width: 1.5),
         ),
         child: Text(label,
             style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w800,
-                color: selected ? _C.blue : _C.slate)),
+                color:
+                    selected ? KpbColors.actionPrimary : KpbColors.textMuted)),
       ),
     );
   }
@@ -1408,14 +1427,14 @@ class _EmptyHint extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Column(
         children: [
-          Icon(icon, size: 34, color: _C.slate400),
+          Icon(icon, size: 34, color: KpbColors.textFaint),
           const SizedBox(height: 10),
           Text(textKey.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
-                  color: _C.slate)),
+                  color: KpbColors.textMuted)),
         ],
       ),
     );
@@ -1433,7 +1452,8 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Column(
         children: [
-          const Icon(Icons.wifi_off_rounded, size: 40, color: _C.slate400),
+          const Icon(Icons.wifi_off_rounded,
+              size: 40, color: KpbColors.textFaint),
           const SizedBox(height: 12),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 16),
@@ -1465,7 +1485,7 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: _C.border)),
+        border: Border(top: BorderSide(color: KpbColors.border)),
       ),
       padding: EdgeInsets.fromLTRB(
           4, 6, 4, 10 + MediaQuery.of(context).padding.bottom * 0.5),
@@ -1486,13 +1506,16 @@ class _BottomNav extends StatelessWidget {
                           width: 52,
                           height: 28,
                           decoration: BoxDecoration(
-                            color:
-                                current == i ? _C.blueSoft : Colors.transparent,
+                            color: current == i
+                                ? KpbColors.actionPrimarySoft
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Icon(items[i].icon,
                               size: 20,
-                              color: current == i ? _C.blue : _C.slate400),
+                              color: current == i
+                                  ? KpbColors.actionPrimary
+                                  : KpbColors.textFaint),
                         ),
                         if (items[i].badge > 0 && current != i)
                           Positioned(
@@ -1502,7 +1525,7 @@ class _BottomNav extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 1),
                               decoration: BoxDecoration(
-                                  color: _C.red,
+                                  color: KpbColors.error,
                                   borderRadius: BorderRadius.circular(9)),
                               child: Text('${items[i].badge}',
                                   style: const TextStyle(
@@ -1521,7 +1544,9 @@ class _BottomNav extends StatelessWidget {
                             fontWeight: current == i
                                 ? FontWeight.w800
                                 : FontWeight.w600,
-                            color: current == i ? _C.blue : _C.slate400)),
+                            color: current == i
+                                ? KpbColors.actionPrimary
+                                : KpbColors.textFaint)),
                   ],
                 ),
               ),

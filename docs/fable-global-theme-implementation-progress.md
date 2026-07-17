@@ -409,4 +409,47 @@ green-50 unifié, rose-50→red-50) ; hero sombre du vol `#0B1220→#0B1120`
 (imperceptible). Branches `isDark` locales conservées (dead code light-only,
 retrait au lot 9 pour limiter la surface de ce lot).
 
-## Lots 8–9 — ⬜ non démarrés
+## Lot 8 — Parent, commercial, ambassadeur — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot8-roles` (depuis `main` post-#153).
+
+### Fichiers migrés (94 hex → 0, 3 classes palette supprimées)
+
+- **`parent_surface_screen`** (21) + **`parent_dashboard`** (1) : classe `_P`
+  → tokens ; `ink→textPrimary`, `blueSoft→actionPrimarySoft`, carte info
+  `actionPrimarySoft`/`actionPrimaryPressed`.
+- **`commercial_surface_screen`** (35) : classe `_C` → tokens ; **statuts de
+  leads préservés** (converted/qualified/new → success/businessSky/error, tags
+  on-dark via `successOnDark`/`decorSky`/`errorOnDark`) ; verdicts de review
+  documentaire → bordures `error`/`warning` α ; helper `avatar()` catégoriel
+  restauré en tokens (hash déterministe identique).
+- **`ambassador_screen`** (37) : classe `_Amb` → tokens ; **sémantique cash
+  préservée** (statuts filleuls application/quiz/premium/churned →
+  actionPrimary/businessSky/lawPurple/error) ; identité indigo du leaderboard
+  → nouveaux tokens `decorIndigo`/`decorIndigoLight` ; verre du code de
+  parrainage → `glassBorder`/`glassBg` (normalisations 25→20 %/7→10 %) ;
+  fond récompense `#FFF7ED→goldLight`.
+
+Nouveaux tokens : `errorOnDark` (#FCA5A5), `decorIndigo` (#6366F1),
+`decorIndigoLight` (#A5B4FC).
+
+### Ratchet
+
+`color_budget.dart` : **4 fichiers / 100 hex** — plus AUCUN écran avec couleur
+en dur. Restent : `app_tokens.dart` (84, L0 légitime) + 3 fichiers data
+(`fields_data` 12 — accents domaines d01..d12 côté données, `catalog` 2,
+`app_api_client` 2) à trancher au lot 9 (tokens ou allowlist).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- périmètre (parent, commercial, referral, thème) : **61 tests verts** ;
+- contamination croisée : zéro fragment Success Lab.
+
+### Écarts visuels volontaires
+
+Normalisations AA habituelles ; `blueSoft #DBEAFE→actionPrimarySoft` (comme la
+nav) ; tags qualified on-dark `#BAE6FD→decorSky` ; statut premium
+`#6D28D9→lawPurple` ; verres blancs sur navy alignés sur les tokens glass.
+
+## Lot 9 — QA finale — ⬜ non démarré
