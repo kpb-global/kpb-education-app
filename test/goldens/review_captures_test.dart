@@ -70,8 +70,8 @@ Future<void> _settle(WidgetTester tester) async {
 
 Future<void> _capture(WidgetTester tester, String name) async {
   await _settle(tester);
-  final boundary = _captureKey.currentContext!.findRenderObject()!
-      as RenderRepaintBoundary;
+  final boundary =
+      _captureKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   await tester.runAsync(() async {
     final image = await boundary.toImage(pixelRatio: 2.0);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -121,12 +121,17 @@ Map<String, dynamic> _scholarshipJson(
       'fundingLabel': 'Financement complet',
       'applicationRequirement': 'separate_application',
       'description': 'Bourse complète du gouvernement japonais.',
-      'advantages': <String>['Frais de scolarité couverts', 'Allocation mensuelle'],
-      'eligibility': <String>['Moins de 35 ans', 'Excellent dossier académique'],
+      'advantages': <String>[
+        'Frais de scolarité couverts',
+        'Allocation mensuelle'
+      ],
+      'eligibility': <String>[
+        'Moins de 35 ans',
+        'Excellent dossier académique'
+      ],
       'level': 'Master',
       'deadlineLabel': 'Mai 2027',
-      'deadlineAt':
-          DateTime.now().add(Duration(days: days)).toIso8601String(),
+      'deadlineAt': DateTime.now().add(Duration(days: days)).toIso8601String(),
       'applicationUrl': 'https://example.org/apply',
       'sourceUrl': 'https://example.org',
       'tags': <String>['scholarship'],
@@ -183,8 +188,7 @@ void main() {
   testWidgets('capture — entrée (KPB Intelligence)', (tester) async {
     await setViewport(tester);
     final auth = _MockAuthService();
-    when(() => auth.onAuthStateChange)
-        .thenAnswer((_) => const Stream.empty());
+    when(() => auth.onAuthStateChange).thenAnswer((_) => const Stream.empty());
     when(() => auth.isLoggedIn).thenReturn(false);
     Get.put<AuthService>(auth, permanent: true);
 
@@ -220,8 +224,7 @@ void main() {
     when(() => mock.fetchScholarshipAlerts())
         .thenAnswer((_) async => <String>{'mext'});
     await _seedController(apiClient: mock);
-    await tester.pumpWidget(
-        _app(LiveScholarshipsScreen(apiClient: mock)));
+    await tester.pumpWidget(_app(LiveScholarshipsScreen(apiClient: mock)));
     await _capture(tester, '03-bourses');
   });
 
