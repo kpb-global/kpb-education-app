@@ -11,35 +11,11 @@ import 'scholarship_guide_info_screen.dart';
 import 'scholarships_controller.dart';
 import 'widgets/scholarship_alert_button.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "Scholarships" / "Fiche bourse").
-// Local to this file — same pattern as Home / Onboarding / Comparateur (#110–115).
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const amberSolid = Color(0xFFF59E0B);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture
+// §6/§10.2). L'ancienne _Palette locale du handoff a été absorbée au lot 5 ;
+// green/red/amberBg/redBg normalisés sur les rôles AA.
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 const _flagMap = <String, String>{
@@ -101,14 +77,14 @@ String _shortDate(DateTime date) {
     if (closing != null && closing.isBefore(DateTime.now())) {
       return (
         'live_scholarships_deadline_closed'.tr,
-        _Palette.line,
-        _Palette.slate,
+        KpbColors.surfaceMuted,
+        KpbColors.textMuted,
       );
     }
     return (
       'live_scholarships_open_now'.tr,
-      _Palette.greenBg,
-      _Palette.green,
+      KpbColors.successLight,
+      KpbColors.success,
     );
   }
   final estimatedOpen = cycle.estimatedOpenAt ?? cycle.opensAt;
@@ -119,16 +95,17 @@ String _shortDate(DateTime date) {
         'open': _shortDate(estimatedOpen),
         'close': _shortDate(estimatedClose),
       }),
-      _Palette.amberBg,
-      _Palette.amber,
+      KpbColors.warningLight,
+      KpbColors.warning,
     );
   }
   if (estimatedOpen != null) {
     return (
-      'live_scholarships_open_estimated'
-          .trParams({'date': _shortDate(estimatedOpen)}),
-      _Palette.amberBg,
-      _Palette.amber,
+      'live_scholarships_open_estimated'.trParams({
+        'date': _shortDate(estimatedOpen),
+      }),
+      KpbColors.warningLight,
+      KpbColors.warning,
     );
   }
   return null;
@@ -153,39 +130,55 @@ _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
   final days = at.difference(DateTime.now()).inDays;
   if (days < 0) {
     return _DeadlineBadge(
-        'live_scholarships_deadline_closed'.tr, _Palette.line, _Palette.slate);
+      'live_scholarships_deadline_closed'.tr,
+      KpbColors.surfaceMuted,
+      KpbColors.textMuted,
+    );
   }
   final text = 'live_scholarships_deadline_days'.trParams({'count': '$days'});
   if (days <= 7) {
-    return _DeadlineBadge(text, _Palette.redBg, _Palette.red, soon: true);
+    return _DeadlineBadge(
+      text,
+      KpbColors.errorLight,
+      KpbColors.error,
+      soon: true,
+    );
   }
   if (days <= 30) {
-    return _DeadlineBadge(text, _Palette.amberBg, _Palette.amber,
-        soon: days <= 14);
+    return _DeadlineBadge(
+      text,
+      KpbColors.warningLight,
+      KpbColors.warning,
+      soon: days <= 14,
+    );
   }
-  return _DeadlineBadge(text, _Palette.chipBg, _Palette.blue);
+  return _DeadlineBadge(
+    text,
+    KpbColors.actionPrimarySoft,
+    KpbColors.actionPrimary,
+  );
 }
 
 /// Color-coded funding chip — bound to the real [fundingType].
 (Color, Color, String) _fundingChip(LiveScholarshipModel s) {
   if (s.isFullyFunded) {
     return (
-      _Palette.greenBg,
-      _Palette.green,
-      'live_scholarships_fully_funded'.tr
+      KpbColors.successLight,
+      KpbColors.success,
+      'live_scholarships_fully_funded'.tr,
     );
   }
   if (s.isPartiallyFunded) {
     return (
-      _Palette.amberBg,
-      _Palette.amber,
-      'live_scholarships_partially_funded'.tr
+      KpbColors.warningLight,
+      KpbColors.warning,
+      'live_scholarships_partially_funded'.tr,
     );
   }
   return (
-    _Palette.line,
-    _Palette.slate,
-    'live_scholarships_funding_unknown'.tr
+    KpbColors.surfaceMuted,
+    KpbColors.textMuted,
+    'live_scholarships_funding_unknown'.tr,
   );
 }
 
@@ -254,7 +247,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: KpbRefresh(
           onRefresh: _load,
@@ -265,15 +258,18 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
               SliverAppBar(
                 floating: true,
                 snap: true,
-                backgroundColor: _Palette.page,
-                surfaceTintColor: _Palette.page,
+                backgroundColor: KpbColors.canvas,
+                surfaceTintColor: KpbColors.canvas,
                 elevation: 0,
                 automaticallyImplyLeading: false,
                 leading: Navigator.canPop(context)
                     ? IconButton(
                         tooltip: 'a11y_back'.tr,
-                        icon: const Icon(Icons.arrow_back_rounded,
-                            size: 20, color: _Palette.navy),
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          size: 20,
+                          color: KpbColors.brandNavy,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       )
                     : null,
@@ -283,14 +279,16 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 actions: [
                   IconButton(
                     tooltip: 'a11y_refresh'.tr,
-                    icon: const Icon(Icons.refresh_rounded,
-                        color: _Palette.slate),
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: KpbColors.textMuted,
+                    ),
                     onPressed: _load,
                   ),
                 ],
@@ -306,7 +304,10 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                       Text(
                         'scholarships_sorted_hint'.tr,
                         style: const TextStyle(
-                            fontSize: 11.5, color: _Palette.slate, height: 1.4),
+                          fontSize: 11.5,
+                          color: KpbColors.textMuted,
+                          height: 1.4,
+                        ),
                       ),
                       const SizedBox(height: 14),
                       SingleChildScrollView(
@@ -372,7 +373,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                       action: KpbButton(
                         text: 'retry'.tr,
                         onPressed: _load,
-                        bgColor: _Palette.blue,
+                        bgColor: KpbColors.actionPrimary,
                       ),
                     ),
                   ),
@@ -393,37 +394,36 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Text(
-                      'live_scholarships_result_count'
-                          .trParams({'count': '${_items.length}'}),
+                      'live_scholarships_result_count'.trParams({
+                        'count': '${_items.length}',
+                      }),
                       style: const TextStyle(
-                          fontSize: 11, color: _Palette.slate400),
+                        fontSize: 11,
+                        color: KpbColors.textFaint,
+                      ),
                     ),
                   ),
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final s = _items[index];
-                        return StaggeredSlide(
-                          index: index,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _LiveScholarshipCard(
-                              scholarship: s,
-                              alertEnabled:
-                                  _alertedScholarshipIds.contains(s.id),
-                              apiClient: widget.apiClient,
-                              onAlertChanged: (enabled) =>
-                                  _setAlertState(s.id, enabled),
-                              onTap: () => _openDetail(context, s),
-                            ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final s = _items[index];
+                      return StaggeredSlide(
+                        index: index,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _LiveScholarshipCard(
+                            scholarship: s,
+                            alertEnabled: _alertedScholarshipIds.contains(s.id),
+                            apiClient: widget.apiClient,
+                            onAlertChanged: (enabled) =>
+                                _setAlertState(s.id, enabled),
+                            onTap: () => _openDetail(context, s),
                           ),
-                        );
-                      },
-                      childCount: _items.length,
-                    ),
+                        ),
+                      );
+                    }, childCount: _items.length),
                   ),
                 ),
                 if (_scholarshipsController.loadingMore)
@@ -500,15 +500,15 @@ class _LiveScholarshipCard extends StatelessWidget {
         s.level.isEmpty ? s.countryName : '${s.countryName} · ${s.level}';
 
     return Material(
-      color: _Palette.card,
+      color: KpbColors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Ink(
           decoration: BoxDecoration(
-            color: _Palette.card,
-            border: Border.all(color: _Palette.border),
+            color: KpbColors.surface,
+            border: Border.all(color: KpbColors.border),
             borderRadius: BorderRadius.circular(16),
             boxShadow: _cardShadow,
           ),
@@ -527,7 +527,7 @@ class _LiveScholarshipCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -536,8 +536,10 @@ class _LiveScholarshipCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style:
-                          const TextStyle(fontSize: 11, color: _Palette.slate),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: KpbColors.textMuted,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -554,12 +556,15 @@ class _LiveScholarshipCard extends StatelessWidget {
                             s.deadlineLabel.isEmpty
                                 ? 'live_scholarships_no_deadline'.tr
                                 : s.deadlineLabel,
-                            _Palette.line,
-                            _Palette.slate,
+                            KpbColors.surfaceMuted,
+                            KpbColors.textMuted,
                           ),
                         if (deadline?.soon ?? false)
-                          _pill('live_scholarships_deadline_soon'.tr,
-                              _Palette.amberSolid, Colors.white),
+                          _pill(
+                            'live_scholarships_deadline_soon'.tr,
+                            KpbColors.gold,
+                            Colors.white,
+                          ),
                         _pill(fundLabel, fundBg, fundFg),
                         if (cycle != null) _pill(cycle.$1, cycle.$2, cycle.$3),
                       ],
@@ -588,10 +593,14 @@ class _LiveScholarshipCard extends StatelessWidget {
 
 Widget _pill(String text, Color bg, Color fg, {bool big = false}) {
   return Container(
-    padding:
-        EdgeInsets.symmetric(horizontal: big ? 10 : 8, vertical: big ? 3 : 2),
-    decoration:
-        BoxDecoration(color: bg, borderRadius: BorderRadius.circular(100)),
+    padding: EdgeInsets.symmetric(
+      horizontal: big ? 10 : 8,
+      vertical: big ? 3 : 2,
+    ),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(100),
+    ),
     child: Text(
       text,
       style: TextStyle(
@@ -621,16 +630,18 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? _Palette.blue : _Palette.card,
+          color: active ? KpbColors.actionPrimary : KpbColors.surface,
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: active ? _Palette.blue : _Palette.border),
+          border: Border.all(
+            color: active ? KpbColors.actionPrimary : KpbColors.border,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: active ? Colors.white : _Palette.slate,
+            color: active ? Colors.white : KpbColors.textMuted,
           ),
         ),
       ),
@@ -650,9 +661,11 @@ class _GuidePromoCard extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFEFF6FF), Color(0xFFFFFFFF)],
+          colors: [KpbColors.actionPrimarySoft, KpbColors.surface],
         ),
-        border: Border.all(color: _Palette.chipBorder),
+        border: Border.all(
+          color: KpbColors.actionPrimary.withValues(alpha: 0.3),
+        ),
         borderRadius: BorderRadius.circular(17),
       ),
       child: Row(
@@ -661,11 +674,14 @@ class _GuidePromoCard extends StatelessWidget {
             width: 44,
             height: 52,
             decoration: BoxDecoration(
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
               borderRadius: BorderRadius.circular(11),
             ),
-            child: const Icon(Icons.auto_stories_rounded,
-                color: Colors.white, size: 23),
+            child: const Icon(
+              Icons.auto_stories_rounded,
+              color: Colors.white,
+              size: 23,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -677,7 +693,7 @@ class _GuidePromoCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -688,7 +704,7 @@ class _GuidePromoCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 10.5,
                     height: 1.4,
-                    color: _Palette.slate,
+                    color: KpbColors.textMuted,
                   ),
                 ),
               ],
@@ -745,13 +761,16 @@ class _ShimmerCardState extends State<_ShimmerCard>
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) {
-        final block =
-            Color.lerp(_Palette.lineSoft, _Palette.border, _anim.value)!;
+        final block = Color.lerp(
+          KpbColors.canvas,
+          KpbColors.border,
+          _anim.value,
+        )!;
         return Container(
           height: 92,
           decoration: BoxDecoration(
-            color: _Palette.card,
-            border: Border.all(color: _Palette.border),
+            color: KpbColors.surface,
+            border: Border.all(color: KpbColors.border),
             borderRadius: BorderRadius.circular(16),
             boxShadow: _cardShadow,
           ),

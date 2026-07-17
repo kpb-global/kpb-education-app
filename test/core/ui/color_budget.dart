@@ -1,7 +1,7 @@
 // GÉNÉRÉ puis maintenu à la main : budget d'hexadécimaux par fichier
-// (ratchet — voir color_audit_test.dart, fichiers suivis par git uniquement).
-// Chaque lot ABAISSE les budgets des fichiers qu'il traite ; jamais de hausse.
-// Lot 1 : baseline · lot 2 : core/ui · lot 3 : entrée/shell · lot 4 : browse à 0.
+// (ratchet — voir color_audit_test.dart). Chaque lot de migration ABAISSE
+// les budgets des fichiers qu'il traite ; on n'augmente JAMAIS un budget.
+// Lots 1–4 : fondations, kit, entrée/shell, découverte · lot 5 : bourses à 0.
 
 const Map<String, int> colorBudget = {
   'lib/app/core/data/mock_catalog/fields_data.dart': 12,
@@ -31,11 +31,6 @@ const Map<String, int> colorBudget = {
   'lib/app/features/profile/profile_screen.dart': 21,
   'lib/app/features/referral/ambassador_screen.dart': 37,
   'lib/app/features/salon/salon_screen.dart': 2,
-  'lib/app/features/scholarships/live_scholarships_screen.dart': 21,
-  'lib/app/features/scholarships/scholarship_detail_screen.dart': 15,
-  'lib/app/features/scholarships/scholarship_guide_info_screen.dart': 9,
-  'lib/app/features/scholarships/widgets/how_to_apply_sheet.dart': 2,
-  'lib/app/features/scholarships/widgets/scholarship_alert_button.dart': 4,
   'lib/app/features/tools/interview_simulator_screen.dart': 18,
   'lib/app/features/tools/motivation_letters_screen.dart': 12,
   'lib/app/features/travel/flight_estimator_screen.dart': 8,
