@@ -34,6 +34,7 @@ class KpbColors {
   static const textOnDarkMuted = Color(0xFF94A3B8); // secondaire sur navy
   static const decorSky = Color(0xFF38BDF8); // accent décoratif — jamais texte
   static const whatsapp = Color(0xFF25D366); // marque externe WhatsApp
+  static const googleBlue = Color(0xFF4285F4); // marque externe Google (CTA)
 
   // ── Brand (noms historiques re-pointés sur la palette KPB Intelligence) ──
   // On garde les noms consommés partout dans l'app ; seules les valeurs

@@ -65,7 +65,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
     final authService = _authService;
 
     return Scaffold(
-      backgroundColor: KpbColors.engagementCanvas,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -91,7 +91,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                   Text(
                     'auth_intelligence_title'.tr,
                     style: TextStyle(
-                      color: KpbColors.engagementNavy,
+                      color: KpbColors.brandNavy,
                       fontSize: titleSize,
                       fontWeight: FontWeight.w800,
                       height: 1.04,
@@ -102,7 +102,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                   Text(
                     'auth_intelligence_body'.tr,
                     style: const TextStyle(
-                      color: KpbColors.engagementMuted,
+                      color: KpbColors.textMuted,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       height: 1.42,
@@ -134,20 +134,20 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: KpbColors.engagementBlue,
+                                color: KpbColors.actionPrimary,
                               ),
                             )
                           : const FaIcon(
                               FontAwesomeIcons.google,
                               size: 19,
-                              color: Color(0xFF4285F4),
+                              color: KpbColors.googleBlue,
                             ),
                       label: Text('auth_continue_google'.tr),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: KpbColors.engagementNavy,
+                        foregroundColor: KpbColors.brandNavy,
                         backgroundColor: Colors.white,
                         side: const BorderSide(
-                          color: KpbColors.engagementBorder,
+                          color: KpbColors.border,
                           width: 1.5,
                         ),
                         shape: const RoundedRectangleBorder(
@@ -170,7 +170,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                       icon: const Icon(Icons.mail_outline_rounded, size: 23),
                       label: Text('auth_receive_email_link'.tr),
                       style: FilledButton.styleFrom(
-                        backgroundColor: KpbColors.engagementBlue,
+                        backgroundColor: KpbColors.actionPrimary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: const RoundedRectangleBorder(
@@ -190,7 +190,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                       'auth_intelligence_note'.tr,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: KpbColors.textFaint,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -221,14 +221,14 @@ class _BenefitRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 28,
-            child: Icon(icon, size: 24, color: KpbColors.engagementBlue),
+            child: Icon(icon, size: 24, color: KpbColors.actionPrimary),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF334155),
+                color: KpbColors.gray700,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 height: 1.24,

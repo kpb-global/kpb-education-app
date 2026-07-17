@@ -143,8 +143,7 @@ class _KpbFloatingNavBar extends StatelessWidget {
           color: isDark ? KpbColors.bgDarkCard : Colors.white,
           border: Border(
             top: BorderSide(
-              color:
-                  isDark ? KpbColors.glassBorder : KpbColors.engagementBorder,
+              color: isDark ? KpbColors.glassBorder : KpbColors.border,
             ),
           ),
         ),
@@ -220,8 +219,8 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const activeColor = KpbColors.engagementBlue;
-    const inactiveColor = KpbColors.textDarkSecondary;
+    const activeColor = KpbColors.actionPrimary;
+    const inactiveColor = KpbColors.textMuted;
 
     return Expanded(
       child: Semantics(
@@ -249,9 +248,8 @@ class _NavItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? (isDark
-                                ? KpbColors.engagementBlue
-                                    .withValues(alpha: 0.2)
-                                : const Color(0xFFDBEAFE))
+                                ? KpbColors.actionPrimary.withValues(alpha: 0.2)
+                                : KpbColors.actionPrimarySoft)
                             : Colors.transparent,
                         borderRadius: KpbRadius.pillBr,
                       ),

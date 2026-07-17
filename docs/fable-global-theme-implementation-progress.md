@@ -176,6 +176,51 @@ Branche : `claude/theme-lot2-primitives` (depuis `main` post-#147).
 - `KpbPageScaffold`/`KpbPageHeader`/`KpbSectionCard` : différés jusqu'à
   démonstration de répétition au lot 4 (règle du plan §9).
 
-## Lot 3 — Entrée + onboarding + shell — ⬜ non démarré
+## Lot 3 — Entrée + onboarding + shell — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot3-shell-auth` (depuis `main` post-#148).
+
+### Fichiers migrés
+
+- **`auth_welcome_screen.dart`** (entrée validée) : les 8 refs `engagement*`
+  passent aux rôles canoniques (`canvas`, `brandNavy`, `textMuted`,
+  `actionPrimary`, `border`) — valeurs identiques, **rendu strictement
+  inchangé** ; 3 hex → tokens (`googleBlue` nouveau token marque externe,
+  `textFaint`, `gray700`). Actions Google/email intactes.
+- **`onboarding_screen.dart`** : classe `_Palette` locale (12 hex, 63 usages)
+  **supprimée** → tokens centraux (mapping §10.2). Normalisations AA :
+  `red #DC2626→error`, `green #16A34A→success`, `greenSoft→successLight`,
+  `amberSoft #FEF3C7→warningLight`.
+- **`app_shell.dart`** (nav flottante) : `engagement*` → rôles ; pill
+  sélectionnée `#DBEAFE → actionPrimarySoft` (spec §9.5) ; icônes/labels au
+  repos `textDarkSecondary #94A3B8 → textMuted #64748B` (icônes porteuses de
+  sens ⇒ ≥ 3:1). Clé de test `kpb_shell_nav_bar`, 5 onglets et ordre
+  inchangés ; aucun blur ajouté.
+- **`app_tokens.dart`** : + `googleBlue #4285F4` (marque externe, comme
+  `whatsapp`).
+
+### Vérifiés — aucun travail nécessaire
+
+`magic_link_email/verify`, `app_lock` (déjà `context.kpb`/tokens),
+`app_boot_screen`, `app_root_shell`, `commercial_shell` (aucune couleur),
+`kpb_tools_drawer` (accents auto-repointés, bg canvas),
+`connectivity_service` (déjà sémantique warning/success).
+
+### Ratchet
+
+`color_budget.dart` : **44 fichiers / 599 hex** (−15 : onboarding 12→0,
+auth_welcome 3→0, app_shell 1→0).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- **352 tests verts** (dont `onboarding_screen_test` et
+  `shell_navigation_test` inchangés).
+
+### Écarts visuels volontaires (documentés)
+
+- Nav : pill sélectionnée un cran plus claire (blue-100 → blue-50, spec §9.5) ;
+  repos plus foncé (2,56:1 → 4,76:1).
+- Onboarding : 4 normalisations sémantiques AA listées ci-dessus.
 
 ## Lots 4–9 — ⬜ non démarrés
