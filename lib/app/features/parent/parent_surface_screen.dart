@@ -21,25 +21,9 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../../core/ui/app_tokens.dart';
 
-class _P {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const blueSoft = Color(0xFFDBEAFE);
-  static const green = Color(0xFF16A34A);
-  static const greenSoft = Color(0xFFDCFCE7);
-  static const cyan = Color(0xFF38BDF8);
-  static const whatsapp = Color(0xFF25D366);
-  static const page = Color(0xFFF8FAFC);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const ink = Color(0xFF0F172A);
-  static const border = Color(0xFFE2E8F0);
-  static const infoBg = Color(0xFFEFF6FF);
-  static const infoBorder = Color(0xFFBFDBFE);
-  static const infoText = Color(0xFF1E40AF);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 /// A shared case, from `/parent-links/cases` — only fields the backend returns.
 class _CaseInfo {
   const _CaseInfo({
@@ -143,7 +127,7 @@ class _ParentSurfaceScreenState extends State<ParentSurfaceScreen> {
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
         content: Text(msg),
-        backgroundColor: _P.navy,
+        backgroundColor: KpbColors.brandNavy,
         behavior: SnackBarBehavior.floating,
       ));
   }
@@ -225,7 +209,7 @@ class _ParentSurfaceScreenState extends State<ParentSurfaceScreen> {
     }
 
     return Scaffold(
-      backgroundColor: _P.page,
+      backgroundColor: KpbColors.canvas,
       appBar: AppBar(
           title: Text('parent_appbar'.tr), backgroundColor: Colors.transparent),
       body: body,
@@ -272,18 +256,20 @@ class _OnboardingLink extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                             height: 1.2,
                             letterSpacing: -0.6,
-                            color: _P.ink)),
+                            color: KpbColors.textPrimary)),
                     const SizedBox(height: 14),
                     Text('parent_onboarding_sub'.tr,
                         style: const TextStyle(
-                            fontSize: 13.5, height: 1.6, color: _P.slate)),
+                            fontSize: 13.5,
+                            height: 1.6,
+                            color: KpbColors.textMuted)),
                     const SizedBox(height: 20),
                     if (code != null) ...[
                       Text('parent_invite_code_label'.tr,
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
-                              color: _P.slate)),
+                              color: KpbColors.textMuted)),
                       const SizedBox(height: 6),
                       Container(
                         width: double.infinity,
@@ -292,12 +278,13 @@ class _OnboardingLink extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: _P.blue, width: 1.5),
+                          border: Border.all(
+                              color: KpbColors.actionPrimary, width: 1.5),
                         ),
                         child: Row(
                           children: [
                             const Icon(Icons.key_rounded,
-                                size: 18, color: _P.blue),
+                                size: 18, color: KpbColors.actionPrimary),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(code!,
@@ -305,7 +292,7 @@ class _OnboardingLink extends StatelessWidget {
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: 1.0,
-                                      color: _P.ink)),
+                                      color: KpbColors.textPrimary)),
                             ),
                           ],
                         ),
@@ -313,23 +300,27 @@ class _OnboardingLink extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text('parent_code_share_note'.tr,
                           style: const TextStyle(
-                              fontSize: 12, height: 1.5, color: _P.slate)),
+                              fontSize: 12,
+                              height: 1.5,
+                              color: KpbColors.textMuted)),
                     ],
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(color: _P.border),
+                        border: Border.all(color: KpbColors.border),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         children: [
-                          _bullet(Icons.check_circle, _P.green,
+                          _bullet(Icons.check_circle, KpbColors.success,
                               'parent_onboarding_b1'.tr),
-                          _bullet(Icons.shield_outlined, _P.blue,
+                          _bullet(
+                              Icons.shield_outlined,
+                              KpbColors.actionPrimary,
                               'parent_onboarding_b2'.tr),
-                          _bullet(Icons.chat, _P.whatsapp,
+                          _bullet(Icons.chat, KpbColors.whatsapp,
                               'parent_onboarding_b3'.tr),
                         ],
                       ),
@@ -350,7 +341,7 @@ class _OnboardingLink extends StatelessWidget {
                 icon: Icons.chat,
                 label: 'parent_share_cta'.tr,
                 onTap: onShare,
-                color: _P.whatsapp,
+                color: KpbColors.whatsapp,
               ),
               const SizedBox(height: 10),
               TextButton(
@@ -369,7 +360,7 @@ class _OnboardingLink extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
     bool busy = false,
-    Color color = _P.blue,
+    Color color = KpbColors.actionPrimary,
   }) {
     return GestureDetector(
       onTap: busy ? null : onTap,
@@ -411,7 +402,7 @@ class _OnboardingLink extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF334155))),
+                      color: KpbColors.gray700)),
             ),
           ],
         ),
@@ -499,7 +490,7 @@ class _OverviewTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          color: _P.navy,
+          color: KpbColors.brandNavy,
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
           child: Row(
             children: [
@@ -529,7 +520,7 @@ class _OverviewTab extends StatelessWidget {
                     Text(
                         'parent_linked_readonly'.trParams({'child': childName}),
                         style: const TextStyle(
-                            color: _P.slate400, fontSize: 11.5)),
+                            color: KpbColors.textFaint, fontSize: 11.5)),
                   ],
                 ),
               ),
@@ -540,11 +531,12 @@ class _OverviewTab extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(100)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.shield_outlined, size: 12, color: _P.cyan),
+                  const Icon(Icons.shield_outlined,
+                      size: 12, color: KpbColors.decorSky),
                   const SizedBox(width: 4),
                   Text('parent_readonly_chip'.tr,
                       style: const TextStyle(
-                          color: _P.cyan,
+                          color: KpbColors.decorSky,
                           fontSize: 10,
                           fontWeight: FontWeight.w800)),
                 ]),
@@ -561,7 +553,7 @@ class _OverviewTab extends StatelessWidget {
                 _cardBox(children: [
                   Row(children: [
                     const Icon(Icons.hourglass_empty_rounded,
-                        size: 18, color: _P.slate400),
+                        size: 18, color: KpbColors.textFaint),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -569,13 +561,15 @@ class _OverviewTab extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 13.5,
                               fontWeight: FontWeight.w800,
-                              color: _P.ink)),
+                              color: KpbColors.textPrimary)),
                     ),
                   ]),
                   const SizedBox(height: 6),
                   Text('parent_waiting_body'.tr,
                       style: const TextStyle(
-                          fontSize: 12, height: 1.6, color: _P.slate)),
+                          fontSize: 12,
+                          height: 1.6,
+                          color: KpbColors.textMuted)),
                 ])
               else ...[
                 _cardBox(children: [
@@ -583,11 +577,12 @@ class _OverviewTab extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: _P.ink)),
+                          color: KpbColors.textPrimary)),
                   if (c.subtitle.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(c.subtitle,
-                        style: const TextStyle(fontSize: 12, color: _P.slate)),
+                        style: const TextStyle(
+                            fontSize: 12, color: KpbColors.textMuted)),
                   ],
                   if (c.status.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -602,7 +597,7 @@ class _OverviewTab extends StatelessWidget {
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.7,
-                            color: _P.blue)),
+                            color: KpbColors.actionPrimary)),
                     const SizedBox(height: 8),
                     if (c.nextStepTitle.isNotEmpty)
                       Text(c.nextStepTitle,
@@ -610,12 +605,14 @@ class _OverviewTab extends StatelessWidget {
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               height: 1.4,
-                              color: _P.ink)),
+                              color: KpbColors.textPrimary)),
                     if (c.nextStepDesc.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(c.nextStepDesc,
                           style: const TextStyle(
-                              fontSize: 12, height: 1.6, color: _P.slate)),
+                              fontSize: 12,
+                              height: 1.6,
+                              color: KpbColors.textMuted)),
                     ],
                   ]),
                 ],
@@ -649,9 +646,10 @@ class _AdvisorCta extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                    color: _P.greenSoft,
+                    color: KpbColors.successLight,
                     borderRadius: BorderRadius.circular(13)),
-                child: const Icon(Icons.chat, size: 20, color: _P.whatsapp),
+                child:
+                    const Icon(Icons.chat, size: 20, color: KpbColors.whatsapp),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -662,14 +660,15 @@ class _AdvisorCta extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w800,
-                            color: _P.ink)),
+                            color: KpbColors.textPrimary)),
                     Text('parent_advisor_sub'.tr,
-                        style: const TextStyle(fontSize: 11, color: _P.slate)),
+                        style: const TextStyle(
+                            fontSize: 11, color: KpbColors.textMuted)),
                   ],
                 ),
               ),
               const Icon(Icons.chevron_right,
-                  size: 18, color: Color(0xFFCBD5E1)),
+                  size: 18, color: KpbColors.borderStrong),
             ],
           ),
         ),
@@ -700,7 +699,9 @@ class _CaseTab extends StatelessWidget {
         children: [
           Text('parent_case_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _P.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 14),
           if (c == null)
             _LockedCard(
@@ -714,11 +715,12 @@ class _CaseTab extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: _P.ink)),
+                      color: KpbColors.textPrimary)),
               if (c.subtitle.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(c.subtitle,
-                    style: const TextStyle(fontSize: 12, color: _P.slate)),
+                    style: const TextStyle(
+                        fontSize: 12, color: KpbColors.textMuted)),
               ],
               if (c.status.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -729,14 +731,14 @@ class _CaseTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
               decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: KpbColors.warningLight,
                   borderRadius: BorderRadius.circular(12)),
               child: Text('parent_docs_managed_note'.tr,
                   style: const TextStyle(
                       fontSize: 11,
                       height: 1.5,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF92400E))),
+                      color: KpbColors.warning)),
             ),
           ],
           const SizedBox(height: 16),
@@ -745,14 +747,15 @@ class _CaseTab extends StatelessWidget {
           _cardBox(children: [
             Text('parent_financing_body'.tr,
                 style: const TextStyle(
-                    fontSize: 12, height: 1.55, color: _P.slate)),
+                    fontSize: 12, height: 1.55, color: KpbColors.textMuted)),
             const SizedBox(height: 12),
             GestureDetector(
               onTap: onUploadProof,
               child: Container(
                 height: 44,
                 decoration: BoxDecoration(
-                    color: _P.blue, borderRadius: BorderRadius.circular(14)),
+                    color: KpbColors.actionPrimary,
+                    borderRadius: BorderRadius.circular(14)),
                 alignment: Alignment.center,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -791,10 +794,13 @@ class _UpdatesTab extends StatelessWidget {
         children: [
           Text('parent_updates_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _P.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('parent_updates_sub'.tr,
-              style: const TextStyle(fontSize: 11.5, color: _P.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 14),
           if (c != null && c.hasNextStep)
             _cardBox(padded: false, children: [
@@ -807,10 +813,10 @@ class _UpdatesTab extends StatelessWidget {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                          color: _P.blueSoft,
+                          color: KpbColors.actionPrimarySoft,
                           borderRadius: BorderRadius.circular(12)),
                       child: const Icon(Icons.flag_rounded,
-                          size: 18, color: _P.blue),
+                          size: 18, color: KpbColors.actionPrimary),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -824,14 +830,14 @@ class _UpdatesTab extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
-                                  color: _P.ink)),
+                                  color: KpbColors.textPrimary)),
                           if (c.nextStepDesc.isNotEmpty) ...[
                             const SizedBox(height: 2),
                             Text(c.nextStepDesc,
                                 style: const TextStyle(
                                     fontSize: 11.5,
                                     height: 1.5,
-                                    color: _P.slate)),
+                                    color: KpbColors.textMuted)),
                           ],
                         ],
                       ),
@@ -844,7 +850,7 @@ class _UpdatesTab extends StatelessWidget {
             _cardBox(children: [
               Text('parent_no_updates'.tr,
                   style: const TextStyle(
-                      fontSize: 12, height: 1.55, color: _P.slate)),
+                      fontSize: 12, height: 1.55, color: KpbColors.textMuted)),
             ]),
           const SizedBox(height: 10),
           _LockedCard(
@@ -886,15 +892,19 @@ class _PaymentsTab extends StatelessWidget {
         children: [
           Text('parent_pay_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _P.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('parent_pay_sub'.tr,
-              style: const TextStyle(fontSize: 11.5, color: _P.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-                color: _P.navy, borderRadius: BorderRadius.circular(16)),
+                color: KpbColors.brandNavy,
+                borderRadius: BorderRadius.circular(16)),
             child: Column(
               children: [
                 Row(
@@ -903,10 +913,10 @@ class _PaymentsTab extends StatelessWidget {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                          color: const Color(0x2E38BDF8),
+                          color: KpbColors.decorSky.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(12)),
                       child: const Icon(Icons.workspace_premium,
-                          size: 19, color: _P.cyan),
+                          size: 19, color: KpbColors.decorSky),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -922,7 +932,7 @@ class _PaymentsTab extends StatelessWidget {
                                   fontWeight: FontWeight.w800)),
                           Text('parent_premium_sub'.tr,
                               style: const TextStyle(
-                                  color: _P.slate400, fontSize: 11)),
+                                  color: KpbColors.textFaint, fontSize: 11)),
                         ],
                       ),
                     ),
@@ -934,7 +944,7 @@ class _PaymentsTab extends StatelessWidget {
                   child: Container(
                     height: 46,
                     decoration: BoxDecoration(
-                        color: _P.blue,
+                        color: KpbColors.actionPrimary,
                         borderRadius: BorderRadius.circular(14)),
                     alignment: Alignment.center,
                     child: Text('parent_premium_cta'.tr,
@@ -965,17 +975,19 @@ class _PaymentsTab extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w800,
-                                  color: _P.ink)),
+                                  color: KpbColors.textPrimary)),
                           const SizedBox(height: 2),
                           Text(p.descKey.tr,
                               style: const TextStyle(
-                                  fontSize: 11, height: 1.45, color: _P.slate)),
+                                  fontSize: 11,
+                                  height: 1.45,
+                                  color: KpbColors.textMuted)),
                           const SizedBox(height: 3),
                           Text(p.price,
                               style: const TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w800,
-                                  color: _P.blue)),
+                                  color: KpbColors.actionPrimary)),
                         ],
                       ),
                     ),
@@ -986,7 +998,7 @@ class _PaymentsTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                            color: _P.blue,
+                            color: KpbColors.actionPrimary,
                             borderRadius: BorderRadius.circular(100)),
                         child: Text('parent_pay_cta'.tr,
                             style: const TextStyle(
@@ -1013,15 +1025,18 @@ class _PaymentsTab extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                      color: _P.page, borderRadius: BorderRadius.circular(11)),
+                      color: KpbColors.canvas,
+                      borderRadius: BorderRadius.circular(11)),
                   child: const Icon(Icons.receipt_long_outlined,
-                      size: 17, color: _P.slate400),
+                      size: 17, color: KpbColors.textFaint),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text('parent_pay_history_empty'.tr,
                       style: const TextStyle(
-                          fontSize: 12, height: 1.4, color: _P.slate)),
+                          fontSize: 12,
+                          height: 1.4,
+                          color: KpbColors.textMuted)),
                 ),
               ],
             ),
@@ -1045,7 +1060,7 @@ Widget _cardBox({required List<Widget> children, bool padded = true}) {
     padding: padded ? const EdgeInsets.all(16) : EdgeInsets.zero,
     decoration: BoxDecoration(
       color: Colors.white,
-      border: Border.all(color: _P.border),
+      border: Border.all(color: KpbColors.border),
       borderRadius: BorderRadius.circular(16),
     ),
     child: Column(
@@ -1058,7 +1073,7 @@ Widget _sectionLabel(String text) => Text(text.toUpperCase(),
         fontSize: 11,
         fontWeight: FontWeight.w800,
         letterSpacing: 0.5,
-        color: _P.slate400));
+        color: KpbColors.textFaint));
 
 class _StatusChip extends StatelessWidget {
   const _StatusChip({required this.status});
@@ -1073,10 +1088,13 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-          color: _P.blueSoft, borderRadius: BorderRadius.circular(100)),
+          color: KpbColors.actionPrimarySoft,
+          borderRadius: BorderRadius.circular(100)),
       child: Text(shown,
           style: const TextStyle(
-              fontSize: 10.5, fontWeight: FontWeight.w800, color: _P.blue)),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              color: KpbColors.actionPrimary)),
     );
   }
 }
@@ -1100,35 +1118,39 @@ class _LockedCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
+        border: Border.all(color: KpbColors.borderStrong, width: 1.5),
       ),
       child: compact
           ? Row(
               children: [
-                const Icon(Icons.lock, size: 20, color: _P.slate400),
+                const Icon(Icons.lock, size: 20, color: KpbColors.textFaint),
                 const SizedBox(width: 12),
                 Expanded(
                     child: Text(body,
                         style: const TextStyle(
-                            fontSize: 11.5, height: 1.5, color: _P.slate))),
+                            fontSize: 11.5,
+                            height: 1.5,
+                            color: KpbColors.textMuted))),
                 _askBtn(onAskAccess),
               ],
             )
           : Column(
               children: [
-                const Icon(Icons.lock, size: 26, color: _P.slate400),
+                const Icon(Icons.lock, size: 26, color: KpbColors.textFaint),
                 const SizedBox(height: 10),
                 Text(title,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: _P.ink)),
+                        color: KpbColors.textPrimary)),
                 const SizedBox(height: 6),
                 Text(body,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 12, height: 1.55, color: _P.slate)),
+                        fontSize: 12,
+                        height: 1.55,
+                        color: KpbColors.textMuted)),
                 const SizedBox(height: 12),
                 _askBtn(onAskAccess),
               ],
@@ -1142,10 +1164,12 @@ class _LockedCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: _P.blue, width: 1.5)),
+              border: Border.all(color: KpbColors.actionPrimary, width: 1.5)),
           child: Text('parent_ask_access'.tr,
               style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w800, color: _P.blue)),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.actionPrimary)),
         ),
       );
 }
@@ -1161,14 +1185,15 @@ class _PrivacyNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _P.infoBg,
-        border: Border.all(color: _P.infoBorder),
+        color: KpbColors.actionPrimarySoft,
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: _P.blue),
+          Icon(icon, size: 16, color: KpbColors.actionPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(textKey.tr,
@@ -1176,7 +1201,7 @@ class _PrivacyNote extends StatelessWidget {
                     fontSize: 11.5,
                     height: 1.5,
                     fontWeight: FontWeight.w600,
-                    color: _P.infoText)),
+                    color: KpbColors.actionPrimaryPressed)),
           ),
         ],
       ),
@@ -1201,7 +1226,7 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: _P.border)),
+        border: Border(top: BorderSide(color: KpbColors.border)),
       ),
       padding: EdgeInsets.fromLTRB(
           4, 6, 4, 10 + MediaQuery.of(context).padding.bottom * 0.5),
@@ -1219,12 +1244,16 @@ class _BottomNav extends StatelessWidget {
                       width: 52,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: current == i ? _P.blueSoft : Colors.transparent,
+                        color: current == i
+                            ? KpbColors.actionPrimarySoft
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Icon(_items[i].icon,
                           size: 20,
-                          color: current == i ? _P.blue : _P.slate400),
+                          color: current == i
+                              ? KpbColors.actionPrimary
+                              : KpbColors.textFaint),
                     ),
                     const SizedBox(height: 3),
                     Text(_items[i].key.tr,
@@ -1234,7 +1263,9 @@ class _BottomNav extends StatelessWidget {
                             fontWeight: current == i
                                 ? FontWeight.w800
                                 : FontWeight.w600,
-                            color: current == i ? _P.blue : _P.slate400)),
+                            color: current == i
+                                ? KpbColors.actionPrimary
+                                : KpbColors.textFaint)),
                   ],
                 ),
               ),
@@ -1258,7 +1289,8 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: _P.slate400),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: KpbColors.textFaint),
             const SizedBox(height: 14),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 18),

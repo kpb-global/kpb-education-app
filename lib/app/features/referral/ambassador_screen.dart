@@ -12,44 +12,26 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/app_tokens.dart';
 
-/// Design palette for the ambassador surface (handoff visual system).
-class _Amb {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const blueSoft = Color(0xFFDBEAFE);
-  static const green = Color(0xFF16A34A);
-  static const greenSoft = Color(0xFFDCFCE7);
-  static const sky = Color(0xFF0EA5E9);
-  static const skySoft = Color(0xFFE0F2FE);
-  static const cyan = Color(0xFF38BDF8);
-  static const amber = Color(0xFFB45309);
-  static const amberSoft = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const whatsapp = Color(0xFF25D366);
-  static const page = Color(0xFFF8FAFC);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const ink = Color(0xFF0F172A);
-  static const border = Color(0xFFE2E8F0);
-  static const track = Color(0xFFF1F5F9);
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
+// Couleurs catégorielles des avatars (séries distinctes — exception §14 de
+// l'architecture), déterministes par hash du nom. Valeurs = tokens.
+const _avatarColors = [
+  KpbColors.actionPrimary,
+  KpbColors.success,
+  KpbColors.decorIndigo,
+  KpbColors.warning,
+  KpbColors.businessSky,
+  KpbColors.error,
+];
 
-  // Deterministic avatar colors, cycled by name.
-  static const _avatarPalette = [
-    Color(0xFF2563EB),
-    Color(0xFF16A34A),
-    Color(0xFF6366F1),
-    Color(0xFFB45309),
-    Color(0xFF0EA5E9),
-    Color(0xFFDC2626),
-  ];
-  static Color avatar(String seed) {
-    var h = 0;
-    for (final c in seed.codeUnits) {
-      h = (h * 31 + c) & 0x7fffffff;
-    }
-    return _avatarPalette[h % _avatarPalette.length];
+Color _avatarColor(String seed) {
+  var h = 0;
+  for (final ch in seed.codeUnits) {
+    h = (h * 31 + ch) & 0x7fffffff;
   }
+  return _avatarColors[h % _avatarColors.length];
 }
 
 String _fmtFcfa(int n) {
@@ -152,7 +134,7 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(msg),
-          backgroundColor: _Amb.navy,
+          backgroundColor: KpbColors.brandNavy,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
@@ -163,7 +145,7 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
   Widget build(BuildContext context) {
     final d = _dash;
     return Scaffold(
-      backgroundColor: _Amb.page,
+      backgroundColor: KpbColors.canvas,
       appBar: AppBar(
         title: Text('amb_appbar'.tr),
         backgroundColor: Colors.transparent,
@@ -219,7 +201,7 @@ class _DashboardTab extends StatelessWidget {
       children: [
         // Navy header
         Container(
-          color: _Amb.navy,
+          color: KpbColors.brandNavy,
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -240,7 +222,7 @@ class _DashboardTab extends StatelessWidget {
                         if (a.campus.isNotEmpty)
                           Text(a.campus,
                               style: const TextStyle(
-                                  color: _Amb.slate400, fontSize: 11.5)),
+                                  color: KpbColors.textFaint, fontSize: 11.5)),
                       ],
                     ),
                   ),
@@ -249,16 +231,16 @@ class _DashboardTab extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: const Color(0x406366F1),
+                        color: KpbColors.decorIndigo.withValues(alpha: 0.25),
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         const Icon(Icons.workspace_premium,
-                            size: 13, color: Color(0xFFA5B4FC)),
+                            size: 13, color: KpbColors.decorIndigoLight),
                         const SizedBox(width: 4),
                         Text(a.rankLabel,
                             style: const TextStyle(
-                                color: Color(0xFFA5B4FC),
+                                color: KpbColors.decorIndigoLight,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800)),
                       ]),
@@ -276,7 +258,7 @@ class _DashboardTab extends StatelessWidget {
                         children: [
                           Text('amb_code_label'.tr,
                               style: const TextStyle(
-                                  color: _Amb.cyan,
+                                  color: KpbColors.decorSky,
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.7)),
@@ -296,7 +278,7 @@ class _DashboardTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: _Amb.whatsapp,
+                          color: KpbColors.whatsapp,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -328,19 +310,19 @@ class _DashboardTab extends StatelessWidget {
                       child: _StatCard(
                           value: '${d.activeReferrals}',
                           label: 'amb_stat_active'.tr,
-                          color: _Amb.ink)),
+                          color: KpbColors.textPrimary)),
                   const SizedBox(width: 8),
                   Expanded(
                       child: _StatCard(
                           value: '${d.placed}',
                           label: 'amb_stat_placed'.tr,
-                          color: _Amb.green)),
+                          color: KpbColors.success)),
                   const SizedBox(width: 8),
                   Expanded(
                       child: _StatCard(
                           value: _fmtCompact(d.earnedFCFA),
                           label: 'amb_stat_earned'.tr,
-                          color: _Amb.blue,
+                          color: KpbColors.actionPrimary,
                           valueSize: 17)),
                 ],
               ),
@@ -390,7 +372,7 @@ class _StatCard extends StatelessWidget {
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   height: 1.3,
-                  color: _Amb.slate400)),
+                  color: KpbColors.textFaint)),
         ],
       ),
     );
@@ -423,13 +405,13 @@ class _ObjectiveCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: _Amb.ink)),
+                        color: KpbColors.textPrimary)),
               ),
               Text('${d.objectiveCurrent} / ${d.objectiveTarget}',
                   style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: _Amb.blue)),
+                      color: KpbColors.actionPrimary)),
             ],
           ),
           const SizedBox(height: 10),
@@ -438,8 +420,8 @@ class _ObjectiveCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 8,
-              backgroundColor: _Amb.track,
-              valueColor: const AlwaysStoppedAnimation(_Amb.blue),
+              backgroundColor: KpbColors.surfaceMuted,
+              valueColor: const AlwaysStoppedAnimation(KpbColors.actionPrimary),
             ),
           ),
           const SizedBox(height: 10),
@@ -449,7 +431,7 @@ class _ObjectiveCard extends StatelessWidget {
               'bonus': _fmtFcfa(d.objectiveBonusFCFA),
               'target': '${d.objectiveTarget}',
             }),
-            style: const TextStyle(fontSize: 11, color: _Amb.slate),
+            style: const TextStyle(fontSize: 11, color: KpbColors.textMuted),
           ),
         ],
       ),
@@ -473,7 +455,7 @@ class _HowYouEarnCard extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w800,
-                  color: _Amb.ink)),
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 11),
           for (final r in rewards) ...[
             _RewardRow(reward: r),
@@ -493,8 +475,9 @@ class _RewardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final placed = reward.reason == 'referral_placed';
     final icon = placed ? Icons.school : Icons.person_add;
-    final iconBg = placed ? _Amb.greenSoft : _Amb.blueSoft;
-    final iconColor = placed ? _Amb.green : _Amb.blue;
+    final iconBg =
+        placed ? KpbColors.successLight : KpbColors.actionPrimarySoft;
+    final iconColor = placed ? KpbColors.success : KpbColors.actionPrimary;
     final label = placed ? 'amb_reward_placed'.tr : 'amb_reward_signup'.tr;
     return Row(
       children: [
@@ -511,7 +494,7 @@ class _RewardRow extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF334155))),
+                  color: KpbColors.gray700)),
         ),
         const SizedBox(width: 8),
         Text('+${_fmtFcfa(reward.amountFCFA)}',
@@ -542,7 +525,7 @@ class _LeaderboardCard extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w800,
-                  color: _Amb.ink)),
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 11),
           for (final e in entries) ...[
             Row(
@@ -554,8 +537,8 @@ class _LeaderboardCard extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: (e.rank == 1 || e.rank == 3)
-                              ? _Amb.amber
-                              : _Amb.slate)),
+                              ? KpbColors.warning
+                              : KpbColors.textMuted)),
                 ),
                 _Avatar(initials: e.initials, seed: e.name, size: 30),
                 const SizedBox(width: 11),
@@ -567,13 +550,13 @@ class _LeaderboardCard extends StatelessWidget {
                           fontSize: 12.5,
                           fontWeight:
                               e.isMe ? FontWeight.w800 : FontWeight.w600,
-                          color: _Amb.ink)),
+                          color: KpbColors.textPrimary)),
                 ),
                 Text('amb_referrals_count'.trParams({'n': '${e.referrals}'}),
                     style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
-                        color: _Amb.slate)),
+                        color: KpbColors.textMuted)),
               ],
             ),
             if (e != entries.last) const SizedBox(height: 11),
@@ -601,10 +584,13 @@ class _ReferralsTab extends StatelessWidget {
         children: [
           Text('amb_referrals_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _Amb.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('amb_referrals_sub'.trParams({'n': '${d.activeReferrals}'}),
-              style: const TextStyle(fontSize: 11.5, color: _Amb.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 13),
           if (d.referrals.isEmpty)
             const _EmptyHint(
@@ -644,13 +630,13 @@ class _ReferralCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: _Amb.ink)),
+                        color: KpbColors.textPrimary)),
                 if (entry.note.isNotEmpty)
                   Text(entry.note,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(fontSize: 10.5, color: _Amb.slate)),
+                      style: const TextStyle(
+                          fontSize: 10.5, color: KpbColors.textMuted)),
               ],
             ),
           ),
@@ -674,7 +660,9 @@ class _ReferralCard extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
-                    color: entry.gainFCFA > 0 ? _Amb.green : _Amb.slate400),
+                    color: entry.gainFCFA > 0
+                        ? KpbColors.success
+                        : KpbColors.textFaint),
               ),
             ],
           ),
@@ -709,22 +697,26 @@ class _PayoutTab extends StatelessWidget {
         children: [
           Text('amb_payout_title'.tr,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w800, color: _Amb.ink)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: KpbColors.textPrimary)),
           const SizedBox(height: 2),
           Text('amb_payout_sub'.tr,
-              style: const TextStyle(fontSize: 11.5, color: _Amb.slate)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted)),
           const SizedBox(height: 13),
           // Balance card
           Container(
             padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
             decoration: BoxDecoration(
-                color: _Amb.navy, borderRadius: BorderRadius.circular(16)),
+                color: KpbColors.brandNavy,
+                borderRadius: BorderRadius.circular(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text('amb_balance_label'.tr,
                     style: const TextStyle(
-                        color: _Amb.cyan,
+                        color: KpbColors.decorSky,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.8)),
@@ -740,14 +732,16 @@ class _PayoutTab extends StatelessWidget {
                       'amb_wave_account'.trParams(
                           {'account': d.ambassador.payoutAccountMasked}),
                       style: const TextStyle(
-                          color: _Amb.slate400, fontSize: 11.5)),
+                          color: KpbColors.textFaint, fontSize: 11.5)),
                 const SizedBox(height: 12),
                 GestureDetector(
                   onTap: onWithdraw,
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: withdrawn ? _Amb.green : _Amb.blue,
+                      color: withdrawn
+                          ? KpbColors.success
+                          : KpbColors.actionPrimary,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -788,7 +782,7 @@ class _PayoutTab extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.6,
-                  color: _Amb.slate400)),
+                  color: KpbColors.textFaint)),
           const SizedBox(height: 7),
           Container(
             decoration: _cardDecoration(),
@@ -805,7 +799,8 @@ class _PayoutTab extends StatelessWidget {
                       for (var i = 0; i < d.history.length; i++) ...[
                         _HistoryRow(item: d.history[i]),
                         if (i < d.history.length - 1)
-                          const Divider(height: 1, color: _Amb.track),
+                          const Divider(
+                              height: 1, color: KpbColors.surfaceMuted),
                       ],
                     ],
                   ),
@@ -844,13 +839,13 @@ class _HistoryRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        color: _Amb.ink)),
+                        color: KpbColors.textPrimary)),
                 if (item.date.isNotEmpty)
                   Text(item.date,
                       style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: _Amb.slate400)),
+                          color: KpbColors.textFaint)),
               ],
             ),
           ),
@@ -859,7 +854,7 @@ class _HistoryRow extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
-                color: positive ? _Amb.green : _Amb.red),
+                color: positive ? KpbColors.success : KpbColors.error),
           ),
         ],
       ),
@@ -873,7 +868,7 @@ class _HistoryRow extends StatelessWidget {
 
 BoxDecoration _cardDecoration() => BoxDecoration(
       color: Colors.white,
-      border: Border.all(color: _Amb.border),
+      border: Border.all(color: KpbColors.border),
       borderRadius: BorderRadius.circular(16),
     );
 
@@ -890,7 +885,7 @@ class _Avatar extends StatelessWidget {
       width: size,
       height: size,
       decoration:
-          BoxDecoration(color: _Amb.avatar(seed), shape: BoxShape.circle),
+          BoxDecoration(color: _avatarColor(seed), shape: BoxShape.circle),
       alignment: Alignment.center,
       child: Text(initials,
           style: TextStyle(
@@ -910,7 +905,7 @@ class DottedBorderBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: const _DashedRRectPainter(
-        color: Color(0x40FFFFFF), // rgba(255,255,255,0.25)
+        color: KpbColors.glassBorder,
         radius: 16,
         strokeWidth: 1.5,
         dashLength: 5,
@@ -919,7 +914,7 @@ class DottedBorderBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0x12FFFFFF),
+          color: KpbColors.glassBg,
           borderRadius: BorderRadius.circular(16),
         ),
         child: child,
@@ -991,14 +986,16 @@ class _TipBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        color: KpbColors.actionPrimarySoft,
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.tips_and_updates, size: 16, color: _Amb.blue),
+          const Icon(Icons.tips_and_updates,
+              size: 16, color: KpbColors.actionPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(text,
@@ -1006,7 +1003,7 @@ class _TipBanner extends StatelessWidget {
                     fontSize: 11.5,
                     height: 1.5,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E40AF))),
+                    color: KpbColors.actionPrimaryPressed)),
           ),
         ],
       ),
@@ -1025,14 +1022,14 @@ class _EmptyHint extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 18),
       child: Column(
         children: [
-          Icon(icon, size: 30, color: _Amb.slate400),
+          Icon(icon, size: 30, color: KpbColors.textFaint),
           const SizedBox(height: 8),
           Text(textKey.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: _Amb.slate)),
+                  color: KpbColors.textMuted)),
         ],
       ),
     );
@@ -1046,18 +1043,19 @@ class _SampleBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFFFF7ED),
+      color: KpbColors.goldLight,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          const Icon(Icons.visibility_outlined, size: 16, color: _Amb.amber),
+          const Icon(Icons.visibility_outlined,
+              size: 16, color: KpbColors.warning),
           const SizedBox(width: 8),
           Expanded(
             child: Text('amb_sample_banner'.tr,
                 style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
-                    color: _Amb.amber)),
+                    color: KpbColors.warning)),
           ),
         ],
       ),
@@ -1081,7 +1079,7 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: _Amb.border)),
+        border: Border(top: BorderSide(color: KpbColors.border)),
       ),
       padding: EdgeInsets.fromLTRB(
           4, 6, 4, 10 + MediaQuery.of(context).padding.bottom * 0.5),
@@ -1099,13 +1097,16 @@ class _BottomNav extends StatelessWidget {
                       width: 52,
                       height: 28,
                       decoration: BoxDecoration(
-                        color:
-                            current == i ? _Amb.blueSoft : Colors.transparent,
+                        color: current == i
+                            ? KpbColors.actionPrimarySoft
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Icon(_items[i].icon,
                           size: 20,
-                          color: current == i ? _Amb.blue : _Amb.slate400),
+                          color: current == i
+                              ? KpbColors.actionPrimary
+                              : KpbColors.textFaint),
                     ),
                     const SizedBox(height: 3),
                     Text(_items[i].key.tr,
@@ -1114,7 +1115,9 @@ class _BottomNav extends StatelessWidget {
                             fontWeight: current == i
                                 ? FontWeight.w800
                                 : FontWeight.w600,
-                            color: current == i ? _Amb.blue : _Amb.slate400)),
+                            color: current == i
+                                ? KpbColors.actionPrimary
+                                : KpbColors.textFaint)),
                   ],
                 ),
               ),
@@ -1138,7 +1141,8 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: _Amb.slate400),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: KpbColors.textFaint),
             const SizedBox(height: 14),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 18),
@@ -1166,20 +1170,23 @@ class _StatusStyle {
 _StatusStyle _statusStyle(ReferralMilestone s) {
   switch (s) {
     case ReferralMilestone.placed:
-      return _StatusStyle('amb_status_placed'.tr, _Amb.greenSoft, _Amb.green);
-    case ReferralMilestone.applicationCreated:
       return _StatusStyle(
-          'amb_status_application'.tr, _Amb.blueSoft, _Amb.blue);
+          'amb_status_placed'.tr, KpbColors.successLight, KpbColors.success);
+    case ReferralMilestone.applicationCreated:
+      return _StatusStyle('amb_status_application'.tr,
+          KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
     case ReferralMilestone.quizCompleted:
-      return _StatusStyle('amb_status_quiz'.tr, _Amb.skySoft, _Amb.sky);
+      return _StatusStyle('amb_status_quiz'.tr,
+          KpbColors.businessSky.withValues(alpha: 0.15), KpbColors.businessSky);
     case ReferralMilestone.premiumSubscribed:
-      return _StatusStyle('amb_status_premium'.tr, const Color(0xFFEDE9FE),
-          const Color(0xFF6D28D9));
+      return _StatusStyle('amb_status_premium'.tr,
+          KpbColors.lawPurple.withValues(alpha: 0.12), KpbColors.lawPurple);
     case ReferralMilestone.churned:
       return _StatusStyle(
-          'amb_status_churned'.tr, const Color(0xFFFEE2E2), _Amb.red);
+          'amb_status_churned'.tr, KpbColors.errorLight, KpbColors.error);
     case ReferralMilestone.signedUp:
-      return _StatusStyle('amb_status_relance'.tr, _Amb.amberSoft, _Amb.amber);
+      return _StatusStyle(
+          'amb_status_relance'.tr, KpbColors.warningLight, KpbColors.warning);
   }
 }
 
@@ -1193,16 +1200,19 @@ class _HistoryStyle {
 _HistoryStyle _historyStyle(String kind) {
   switch (kind) {
     case 'referral_placed':
-      return const _HistoryStyle(Icons.school, _Amb.greenSoft, _Amb.green);
+      return const _HistoryStyle(
+          Icons.school, KpbColors.successLight, KpbColors.success);
     case 'referral_signup':
-      return const _HistoryStyle(Icons.person_add, _Amb.blueSoft, _Amb.blue);
+      return const _HistoryStyle(Icons.person_add, KpbColors.actionPrimarySoft,
+          KpbColors.actionPrimary);
     case 'bonus_leaderboard':
       return const _HistoryStyle(
-          Icons.workspace_premium, _Amb.amberSoft, _Amb.amber);
+          Icons.workspace_premium, KpbColors.warningLight, KpbColors.warning);
     case 'withdrawal':
-      return const _HistoryStyle(
-          Icons.account_balance_wallet, _Amb.track, _Amb.slate);
+      return const _HistoryStyle(Icons.account_balance_wallet,
+          KpbColors.surfaceMuted, KpbColors.textMuted);
     default:
-      return const _HistoryStyle(Icons.payments, _Amb.blueSoft, _Amb.blue);
+      return const _HistoryStyle(
+          Icons.payments, KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
   }
 }
