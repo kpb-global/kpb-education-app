@@ -340,10 +340,10 @@ class _ResultSection extends StatelessWidget {
 
   static const _colors = {
     SearchResultType.field: KpbColors.blue,
-    SearchResultType.country: Color(0xFF059669),
-    SearchResultType.institution: Color(0xFF7C3AED),
-    SearchResultType.program: Color(0xFF0EA5E9),
-    SearchResultType.scholarship: Color(0xFFF59E0B),
+    SearchResultType.country: KpbColors.financeGreen,
+    SearchResultType.institution: KpbColors.lawPurple,
+    SearchResultType.program: KpbColors.businessSky,
+    SearchResultType.scholarship: KpbColors.gold,
   };
 
   @override

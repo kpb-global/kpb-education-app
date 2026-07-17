@@ -11,32 +11,10 @@ import '../cases/case_composer_sheet.dart';
 import '../france/france_private_admission_screen.dart';
 import 'eligibility_quiz_screen.dart';
 import 'program_detail_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · "Page destination").
-// Local to this file — same pattern as Home/Onboarding.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const gradientEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const heading = Color(0xFF1E40AF);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const page = Color(0xFFF8FAFC);
-  static const crumbBg = Color(0xFFEFF6FF);
-  static const crumbBorder = Color(0xFFDBEAFE);
-  static const green = Color(0xFF16A34A);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const whatsapp = Color(0xFF25D366);
-  static const body = Color(0xFF475569);
-  static const bodyStrong = Color(0xFF334155);
-  static const cloud = Color(0xFFCBD5E1);
-}
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 class CountryDetailScreen extends StatefulWidget {
   const CountryDetailScreen({super.key, required this.countryId});
@@ -104,7 +82,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        backgroundColor: _Palette.page,
+        backgroundColor: KpbColors.canvas,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -112,7 +90,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
     final country = _country ?? _controller.countryByIdOrNull(_countryKey);
     if (country == null) {
       return Scaffold(
-        backgroundColor: _Palette.page,
+        backgroundColor: KpbColors.canvas,
         body: Center(child: Text('country_not_found'.tr)),
       );
     }
@@ -151,7 +129,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.6,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
             ),
             const SizedBox(height: 14),
@@ -289,7 +267,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.emoji_events_outlined,
-                      size: 16, color: _Palette.amber),
+                      size: 16, color: KpbColors.warning),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -338,8 +316,8 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
         label: Text('take_eligibility_quiz'.tr),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size.fromHeight(48),
-          side: const BorderSide(color: _Palette.border, width: 1.5),
-          foregroundColor: _Palette.blue,
+          side: const BorderSide(color: KpbColors.border, width: 1.5),
+          foregroundColor: KpbColors.actionPrimary,
         ),
       ),
     ));
@@ -353,7 +331,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
     children.add(const SizedBox(height: 28));
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         bottom: false,
         child: ListView(padding: EdgeInsets.zero, children: children),
@@ -365,7 +343,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
 const _bodyStyle = TextStyle(
   fontSize: 12.5,
   height: 1.6,
-  color: _Palette.body,
+  color: KpbColors.textSecondary,
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -411,7 +389,7 @@ class _Breadcrumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _Palette.crumbBg,
+      color: KpbColors.actionPrimarySoft,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: Row(
         children: [
@@ -423,10 +401,11 @@ class _Breadcrumb extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
-                border: Border.all(color: _Palette.crumbBorder),
+                border: Border.all(
+                    color: KpbColors.actionPrimary.withValues(alpha: 0.2)),
               ),
               child: const Icon(Icons.arrow_back_rounded,
-                  size: 15, color: _Palette.blue),
+                  size: 15, color: KpbColors.actionPrimary),
             ),
           ),
           const SizedBox(width: 9),
@@ -435,7 +414,7 @@ class _Breadcrumb extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
             ),
           ),
         ],
@@ -456,7 +435,7 @@ class _Hero extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
-          colors: [_Palette.navy, _Palette.gradientEnd],
+          colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -468,11 +447,11 @@ class _Hero extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: _Palette.red,
+              color: KpbColors.error,
               borderRadius: BorderRadius.circular(6),
               boxShadow: [
                 BoxShadow(
-                  color: _Palette.red.withValues(alpha: 0.35),
+                  color: KpbColors.error.withValues(alpha: 0.35),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -510,7 +489,7 @@ class _Heading extends StatelessWidget {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w800,
-          color: _Palette.heading,
+          color: KpbColors.actionPrimaryPressed,
         ),
       ),
     );
@@ -531,7 +510,7 @@ class _GuideCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: child,
       ),
@@ -550,7 +529,7 @@ class _NoteBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: _Palette.crumbBg,
+          color: KpbColors.actionPrimarySoft,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
@@ -559,7 +538,7 @@ class _NoteBox extends StatelessWidget {
             fontSize: 11,
             height: 1.55,
             fontWeight: FontWeight.w600,
-            color: _Palette.heading,
+            color: KpbColors.actionPrimaryPressed,
           ),
         ),
       ),
@@ -582,7 +561,7 @@ class _FranceCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
           ),
           child: Row(
             children: [
@@ -590,10 +569,11 @@ class _FranceCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _Palette.crumbBg,
+                  color: KpbColors.actionPrimarySoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.school_outlined, color: _Palette.blue),
+                child: const Icon(Icons.school_outlined,
+                    color: KpbColors.actionPrimary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -605,19 +585,20 @@ class _FranceCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'dedicated_path_sept_2026'.tr,
                       style: const TextStyle(
-                          fontSize: 11.5, color: _Palette.slate),
+                          fontSize: 11.5, color: KpbColors.textMuted),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: _Palette.slate400),
+              const Icon(Icons.chevron_right_rounded,
+                  color: KpbColors.textFaint),
             ],
           ),
         ),
@@ -635,7 +616,8 @@ class _CheckBullet extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.check_circle_rounded, size: 16, color: _Palette.green),
+        const Icon(Icons.check_circle_rounded,
+            size: 16, color: KpbColors.success),
         const SizedBox(width: 10),
         Expanded(child: Text(text, style: _bodyStyle)),
       ],
@@ -658,7 +640,7 @@ class _NumberStep extends StatelessWidget {
           height: 22,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: _Palette.crumbBg,
+            color: KpbColors.actionPrimarySoft,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -666,7 +648,7 @@ class _NumberStep extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
             ),
           ),
         ),
@@ -691,7 +673,7 @@ class _VisaCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,12 +682,12 @@ class _VisaCard extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: _Palette.amberBg,
+                color: KpbColors.warningLight,
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
               child: const Icon(Icons.badge_outlined,
-                  size: 13, color: _Palette.amber),
+                  size: 13, color: KpbColors.warning),
             ),
             const SizedBox(width: 11),
             Expanded(child: Text(text, style: _bodyStyle)),
@@ -729,7 +711,7 @@ class _CostCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _Palette.navy,
+            color: KpbColors.brandNavy,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -739,11 +721,11 @@ class _CostCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: _Palette.sky.withValues(alpha: 0.16),
+                  color: KpbColors.decorSky.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: const Icon(Icons.calculate_rounded,
-                    size: 20, color: _Palette.sky),
+                    size: 20, color: KpbColors.decorSky),
               ),
               const SizedBox(width: 13),
               Expanded(
@@ -752,7 +734,7 @@ class _CostCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     height: 1.6,
-                    color: _Palette.cloud,
+                    color: KpbColors.borderStrong,
                   ),
                 ),
               ),
@@ -788,7 +770,7 @@ class _UniRow extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
           ),
           child: Row(
             children: [
@@ -802,7 +784,7 @@ class _UniRow extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -812,7 +794,7 @@ class _UniRow extends StatelessWidget {
                       Text(
                         location,
                         style: const TextStyle(
-                            fontSize: 10.5, color: _Palette.slate),
+                            fontSize: 10.5, color: KpbColors.textMuted),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -824,7 +806,7 @@ class _UniRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _Palette.crumbBg,
+                  color: KpbColors.actionPrimarySoft,
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Text(
@@ -832,7 +814,7 @@ class _UniRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.blue,
+                    color: KpbColors.actionPrimary,
                   ),
                 ),
               ),
@@ -840,7 +822,7 @@ class _UniRow extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(left: 4),
                   child: Icon(Icons.chevron_right_rounded,
-                      size: 18, color: _Palette.slate400),
+                      size: 18, color: KpbColors.textFaint),
                 ),
             ],
           ),
@@ -860,7 +842,7 @@ class _SupportBullet extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: _Palette.blue),
+        Icon(icon, size: 16, color: KpbColors.actionPrimary),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -869,7 +851,7 @@ class _SupportBullet extends StatelessWidget {
               fontSize: 12.5,
               height: 1.6,
               fontWeight: FontWeight.w700,
-              color: _Palette.bodyStrong,
+              color: KpbColors.gray700,
             ),
           ),
         ),
@@ -897,11 +879,11 @@ class _ConsultPill extends StatelessWidget {
             height: 42,
             padding: const EdgeInsets.symmetric(horizontal: 18),
             decoration: BoxDecoration(
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
               borderRadius: BorderRadius.circular(100),
               boxShadow: [
                 BoxShadow(
-                  color: _Palette.blue.withValues(alpha: 0.3),
+                  color: KpbColors.actionPrimary.withValues(alpha: 0.3),
                   blurRadius: 14,
                   offset: const Offset(0, 5),
                 ),
@@ -944,11 +926,11 @@ class _GetSupportedCta extends StatelessWidget {
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: _Palette.whatsapp,
+            color: KpbColors.whatsapp,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: _Palette.whatsapp.withValues(alpha: 0.3),
+                color: KpbColors.whatsapp.withValues(alpha: 0.3),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),

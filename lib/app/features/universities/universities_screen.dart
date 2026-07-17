@@ -15,29 +15,7 @@ import '../explore/country_detail_screen.dart';
 import '../explore/program_detail_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · "Écoles"). Local to
-// this file — same pattern as Home/Onboarding; there is no shared design-system
-// file yet.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const page = Color(0xFFF8FAFC);
-  static const subtle = Color(0xFFF1F5F9);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  static const body = Color(0xFF475569);
-}
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 /// The five compact filters in the approved university-list design. The
 /// advanced catalog filters remain available from the trailing `Filtres` chip.
@@ -45,10 +23,12 @@ enum _QuickFilter { matches, france, canada, saved, budget }
 
 /// Zone background + foreground for an admission-probability badge.
 (Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (_Palette.greenBg, _Palette.green);
-  if (score >= 70) return (_Palette.chipBg, _Palette.blue);
-  if (score >= 50) return (_Palette.amberBg, _Palette.amber);
-  return (_Palette.subtle, _Palette.slate);
+  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
+  if (score >= 70) {
+    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
+  }
+  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
+  return (KpbColors.surfaceMuted, KpbColors.textMuted);
 }
 
 /// M6 — Écoles list: destinations carousel, filters and a match-ranked list of
@@ -208,7 +188,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
         final destinations = controller.countries.take(8).toList();
 
         return Scaffold(
-          backgroundColor: _Palette.page,
+          backgroundColor: KpbColors.canvas,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -288,7 +268,7 @@ class _Header extends StatelessWidget {
                     fontSize: 21,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -296,7 +276,7 @@ class _Header extends StatelessWidget {
                   'uni_list_subtitle'.tr,
                   style: const TextStyle(
                     fontSize: 11.5,
-                    color: _Palette.slate,
+                    color: KpbColors.textMuted,
                   ),
                 ),
               ],
@@ -310,22 +290,24 @@ class _Header extends StatelessWidget {
                 height: 38,
                 padding: const EdgeInsets.symmetric(horizontal: 13),
                 decoration: BoxDecoration(
-                  color: _Palette.chipBg,
+                  color: KpbColors.actionPrimarySoft,
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: _Palette.chipBorder, width: 1.5),
+                  border: Border.all(
+                      color: KpbColors.actionPrimary.withValues(alpha: 0.3),
+                      width: 1.5),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.compare_arrows_rounded,
-                        size: 16, color: _Palette.blue),
+                        size: 16, color: KpbColors.actionPrimary),
                     const SizedBox(width: 6),
                     Text(
                       'compare'.tr,
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.blue,
+                        color: KpbColors.actionPrimary,
                       ),
                     ),
                   ],
@@ -529,7 +511,7 @@ class _DestinationCard extends StatelessWidget {
         width: 128,
         padding: const EdgeInsets.fromLTRB(12, 13, 12, 13),
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -555,7 +537,7 @@ class _DestinationCard extends StatelessWidget {
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   height: 1.4,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -574,13 +556,13 @@ class _DestinationCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.sky,
+                      color: KpbColors.decorSky,
                     ),
                   ),
                 ),
                 const SizedBox(width: 4),
                 const Icon(Icons.arrow_forward_rounded,
-                    size: 11, color: _Palette.sky),
+                    size: 11, color: KpbColors.decorSky),
               ],
             ),
           ],
@@ -733,7 +715,7 @@ class _FilterBlock extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'catalog_program_count'.trParams({'count': '$resultCount'}),
-            style: KpbTextStyles.caption.copyWith(color: _Palette.slate),
+            style: KpbTextStyles.caption.copyWith(color: KpbColors.textMuted),
           ),
         ],
       ),
@@ -819,16 +801,18 @@ class _FilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? _Palette.blue : _Palette.slate;
+    final fg = selected ? KpbColors.actionPrimary : KpbColors.textMuted;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _Palette.chipBg : Colors.white,
+          color: selected ? KpbColors.actionPrimarySoft : Colors.white,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? _Palette.chipBorder : _Palette.border,
+            color: selected
+                ? KpbColors.actionPrimary.withValues(alpha: 0.3)
+                : KpbColors.border,
             width: 1.5,
           ),
         ),
@@ -889,10 +873,10 @@ class _SchoolRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0A0F172A),
+              color: KpbShadow.softNavy,
               blurRadius: 2,
               offset: Offset(0, 1),
             ),
@@ -913,7 +897,7 @@ class _SchoolRow extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -923,7 +907,7 @@ class _SchoolRow extends StatelessWidget {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 11.5,
-                      color: _Palette.slate,
+                      color: KpbColors.textMuted,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -935,7 +919,7 @@ class _SchoolRow extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.blue,
+                        color: KpbColors.actionPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -975,14 +959,16 @@ class _SchoolRow extends StatelessWidget {
                       height: 28,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: saved ? _Palette.redBg : _Palette.subtle,
+                        color: saved
+                            ? KpbColors.errorLight
+                            : KpbColors.surfaceMuted,
                       ),
                       child: Icon(
                         saved
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         size: 15,
-                        color: saved ? _Palette.red : _Palette.slate400,
+                        color: saved ? KpbColors.error : KpbColors.textFaint,
                       ),
                     ),
                   ),
@@ -1088,10 +1074,12 @@ class _ChipRow extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: selected ? _Palette.blue : Colors.white,
+                      color: selected ? KpbColors.actionPrimary : Colors.white,
                       borderRadius: BorderRadius.circular(100),
                       border: Border.all(
-                        color: selected ? _Palette.blue : _Palette.border,
+                        color: selected
+                            ? KpbColors.actionPrimary
+                            : KpbColors.border,
                         width: 1.5,
                       ),
                     ),
@@ -1100,7 +1088,8 @@ class _ChipRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : _Palette.body,
+                        color:
+                            selected ? Colors.white : KpbColors.textSecondary,
                       ),
                     ),
                   ),

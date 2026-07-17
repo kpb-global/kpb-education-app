@@ -19,19 +19,7 @@ import 'program_detail_screen.dart';
 String _flag(String id) => countryFlag(id);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · "Onglet pays"). Local
-// to this file — same pattern as Home/Onboarding; no shared design-system file.
-// Only the Countries grid below is restyled to the handoff (PR2).
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const body = Color(0xFF475569);
-}
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -274,7 +262,7 @@ class CountriesCatalogGrid extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w500,
-              color: _Palette.slate,
+              color: KpbColors.textMuted,
             ),
           );
         }
@@ -332,7 +320,7 @@ class _CountryGuideCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(16),
@@ -363,7 +351,7 @@ class _CountryGuideCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: _Palette.slate400,
+                        color: KpbColors.textFaint,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -381,12 +369,12 @@ class _CountryGuideCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.sky,
+                    color: KpbColors.decorSky,
                   ),
                 ),
                 const SizedBox(width: 4),
                 const Icon(Icons.arrow_forward_rounded,
-                    size: 13, color: _Palette.sky),
+                    size: 13, color: KpbColors.decorSky),
               ],
             ),
           ],
@@ -407,14 +395,14 @@ class _MoreDestinationsTip extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.kpb.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.tips_and_updates_rounded,
-              size: 18, color: _Palette.blue),
+              size: 18, color: KpbColors.actionPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -423,7 +411,7 @@ class _MoreDestinationsTip extends StatelessWidget {
                 fontSize: 11.5,
                 height: 1.55,
                 fontWeight: FontWeight.w600,
-                color: _Palette.body,
+                color: KpbColors.textSecondary,
               ),
             ),
           ),

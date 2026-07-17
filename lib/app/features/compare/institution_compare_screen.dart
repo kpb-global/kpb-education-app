@@ -6,41 +6,22 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · "Comparateur").
-// Local to this file — same pattern as Home / Onboarding / Country guide.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const body = Color(0xFF334155);
-  // rgba(15,23,42,0.25) — bottom-sheet drop shadow.
-  static const sheetShadow = Color(0x400F172A);
-}
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 String _flag(String id) => countryFlag(id);
 
 /// Match-percentage zone colours (bg, fg) — shared by the table match chip and
 /// the picker badges.
 (Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (_Palette.greenBg, _Palette.green);
-  if (score >= 70) return (_Palette.chipBg, _Palette.blue);
-  if (score >= 50) return (_Palette.amberBg, _Palette.amber);
-  return (_Palette.line, _Palette.slate);
+  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
+  if (score >= 70) {
+    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
+  }
+  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
+  return (KpbColors.surfaceMuted, KpbColors.textMuted);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -76,7 +57,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
 
     if (inst1 == null || inst2 == null) {
       return Scaffold(
-        backgroundColor: _Palette.page,
+        backgroundColor: KpbColors.canvas,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -98,7 +79,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
     final verdict = _verdict(inst1, inst2, score1, score2);
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
@@ -145,13 +126,14 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.4,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 1),
               Text(
                 'compare_subtitle'.tr,
-                style: const TextStyle(fontSize: 11.5, color: _Palette.slate),
+                style:
+                    const TextStyle(fontSize: 11.5, color: KpbColors.textMuted),
               ),
             ],
           ),
@@ -174,15 +156,15 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: _Palette.card,
-        shape: const CircleBorder(side: BorderSide(color: _Palette.border)),
+        color: KpbColors.surface,
+        shape: const CircleBorder(side: BorderSide(color: KpbColors.border)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: SizedBox(
             width: 38,
             height: 38,
-            child: Icon(icon, size: 19, color: _Palette.navy),
+            child: Icon(icon, size: 19, color: KpbColors.brandNavy),
           ),
         ),
       ),
@@ -202,8 +184,8 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.card,
-        border: Border.all(color: _Palette.border),
+        color: KpbColors.surface,
+        border: Border.all(color: KpbColors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
@@ -268,7 +250,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   Widget _pickHeaderRow(InstitutionModel inst1, InstitutionModel inst2) {
     return Container(
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: _Palette.line)),
+        border: Border(bottom: BorderSide(color: KpbColors.surfaceMuted)),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -290,7 +272,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
         onTap: onTap,
         child: Container(
           decoration: const BoxDecoration(
-            border: Border(left: BorderSide(color: _Palette.line)),
+            border: Border(left: BorderSide(color: KpbColors.surfaceMuted)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
           child: Column(
@@ -307,7 +289,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
                 style: const TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                   height: 1.25,
                 ),
               ),
@@ -316,14 +298,14 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.search_rounded,
-                      size: 11, color: _Palette.blue),
+                      size: 11, color: KpbColors.actionPrimary),
                   const SizedBox(width: 3),
                   Text(
                     'compare_pick'.tr,
                     style: const TextStyle(
                       fontSize: 8.5,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.blue,
+                      color: KpbColors.actionPrimary,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -339,7 +321,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   Widget _attrRow(String label, Widget cell1, Widget cell2) {
     return Container(
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: _Palette.lineSoft)),
+        border: Border(bottom: BorderSide(color: KpbColors.canvas)),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -358,7 +340,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.4,
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                     ),
                   ),
                 ),
@@ -377,7 +359,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
       flex: 10,
       child: Container(
         decoration: const BoxDecoration(
-          border: Border(left: BorderSide(color: _Palette.lineSoft)),
+          border: Border(left: BorderSide(color: KpbColors.canvas)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
         alignment: Alignment.center,
@@ -393,7 +375,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
       style: const TextStyle(
         fontSize: 11.5,
         fontWeight: FontWeight.w700,
-        color: _Palette.body,
+        color: KpbColors.gray700,
         height: 1.4,
       ),
     );
@@ -414,17 +396,18 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   }
 
   Widget _partnerChip(bool value) => value
-      ? _chip('compare_yes'.tr, _Palette.greenBg, _Palette.green)
-      : _chip('compare_no'.tr, _Palette.line, _Palette.slate);
+      ? _chip('compare_yes'.tr, KpbColors.successLight, KpbColors.success)
+      : _chip('compare_no'.tr, KpbColors.surfaceMuted, KpbColors.textMuted);
 
   Widget _verdictRow(String verdict) {
     return Container(
-      color: _Palette.chipBg,
+      color: KpbColors.actionPrimarySoft,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.lightbulb_rounded, size: 15, color: _Palette.blue),
+          const Icon(Icons.lightbulb_rounded,
+              size: 15, color: KpbColors.actionPrimary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -433,7 +416,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
                 fontSize: 11.5,
                 height: 1.5,
                 fontWeight: FontWeight.w600,
-                color: _Palette.body,
+                color: KpbColors.gray700,
               ),
             ),
           ),
@@ -445,7 +428,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   // ── CTAs ────────────────────────────────────────────────────────────────────
   Widget _caseCta(InstitutionModel inst) {
     return Material(
-      color: _Palette.blue,
+      color: KpbColors.actionPrimary,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -482,7 +465,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
 
   Widget _helpButton(InstitutionModel inst1, InstitutionModel inst2) {
     return Material(
-      color: _Palette.card,
+      color: KpbColors.surface,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -492,20 +475,20 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.support_agent_rounded,
-                  size: 17, color: _Palette.blue),
+                  size: 17, color: KpbColors.actionPrimary),
               const SizedBox(width: 8),
               Text(
                 'compare_need_help_choosing'.tr,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                 ),
               ),
             ],
@@ -688,11 +671,11 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
         height: MediaQuery.of(context).size.height * 0.74,
         child: Container(
           decoration: const BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
             boxShadow: [
               BoxShadow(
-                color: _Palette.sheetShadow,
+                color: KpbShadow.scrimNavy,
                 blurRadius: 40,
                 offset: Offset(0, -12),
               ),
@@ -713,7 +696,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
-                              color: _Palette.navy,
+                              color: KpbColors.brandNavy,
                             ),
                           ),
                         ),
@@ -744,7 +727,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
 
   Widget _closeButton() {
     return Material(
-      color: _Palette.line,
+      color: KpbColors.surfaceMuted,
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -752,7 +735,8 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
         child: const SizedBox(
           width: 30,
           height: 30,
-          child: Icon(Icons.close_rounded, size: 15, color: _Palette.navy),
+          child:
+              Icon(Icons.close_rounded, size: 15, color: KpbColors.brandNavy),
         ),
       ),
     );
@@ -763,13 +747,14 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
-        color: _Palette.page,
-        border: Border.all(color: _Palette.border, width: 1.5),
+        color: KpbColors.canvas,
+        border: Border.all(color: KpbColors.border, width: 1.5),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, size: 18, color: _Palette.slate400),
+          const Icon(Icons.search_rounded,
+              size: 18, color: KpbColors.textFaint),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -779,7 +764,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
               decoration: InputDecoration(
                 isCollapsed: true,
@@ -788,7 +773,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
                 hintStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
               ),
             ),
@@ -803,7 +788,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
     final (bg, fg) = _zoneColors(score);
     final selected = inst.id == widget.currentId;
     return Material(
-      color: selected ? _Palette.chipBg : Colors.transparent,
+      color: selected ? KpbColors.actionPrimarySoft : Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -812,7 +797,10 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: selected ? Border.all(color: _Palette.chipBorder) : null,
+            border: selected
+                ? Border.all(
+                    color: KpbColors.actionPrimary.withValues(alpha: 0.3))
+                : null,
           ),
           child: Row(
             children: [
@@ -830,7 +818,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -840,7 +828,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10.5,
-                        color: _Palette.slate,
+                        color: KpbColors.textMuted,
                       ),
                     ),
                   ],
@@ -877,7 +865,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
         child: Text(
           'compare_picker_empty'.tr,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, color: _Palette.slate400),
+          style: const TextStyle(fontSize: 12, color: KpbColors.textFaint),
         ),
       ),
     );

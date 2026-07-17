@@ -3,13 +3,11 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../explore/explore_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
 /// Onglet Destinations — grille des pays (spec §4.1, M5).
 class DestinationsScreen extends StatelessWidget {
   const DestinationsScreen({super.key});
-
-  /// Navy heading colour (App-engagement handoff palette).
-  static const _navy = Color(0xFF0F172A);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +31,7 @@ class DestinationsScreen extends StatelessWidget {
                     fontSize: 21,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
-                    color: _navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
               ),

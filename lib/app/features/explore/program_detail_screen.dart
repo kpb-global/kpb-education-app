@@ -18,37 +18,25 @@ import '../../core/utils/tuition_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_tunnel_flow.dart';
 import '../search/match_explanation_sheet.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Palette (App-engagement handoff · Student App.dc.html · "Fiche université").
 // Local to this file — same pattern as Home/Onboarding.
 // ─────────────────────────────────────────────────────────────────────────────
 class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const navyGradientEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const page = Color(0xFFF8FAFC);
-  static const heartPink = Color(0xFFFCA5A5);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const greenBorder = Color(0xFFBBF7D0);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const whatsapp = Color(0xFF25D366);
-  static const body = Color(0xFF334155);
-  static const bodySoft = Color(0xFF475569);
+  // Accent décoratif du cœur « favori » (red-300 du handoff) —
+  // exception documentée dans docs/theme-color-allowlist.md.
+  static const heartPink = Color(0xFFFCA5A5); // kpb-allow-color: accent favori
 }
 
 (Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (_Palette.greenBg, _Palette.green);
-  if (score >= 70) return (_Palette.chipBg, _Palette.blue);
-  if (score >= 50) return (_Palette.amberBg, _Palette.amber);
-  return (const Color(0xFFF1F5F9), _Palette.slate);
+  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
+  if (score >= 70) {
+    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
+  }
+  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
+  return (KpbColors.surfaceMuted, KpbColors.textMuted);
 }
 
 String _zoneLabel(int score) {
@@ -68,7 +56,7 @@ class ProgramDetailScreen extends StatelessWidget {
     final program = controller.programByIdOrNull(programId);
     if (program == null) {
       return Scaffold(
-        backgroundColor: _Palette.page,
+        backgroundColor: KpbColors.canvas,
         body: Center(child: Text('program_not_found'.tr)),
       );
     }
@@ -109,7 +97,7 @@ class ProgramDetailScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -142,7 +130,7 @@ class ProgramDetailScreen extends StatelessWidget {
                                   ? tuition
                                   : 'school_intake_on_request'.tr,
                           sub: '',
-                          subColor: _Palette.blue,
+                          subColor: KpbColors.actionPrimary,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -153,7 +141,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           sub: language.isNotEmpty
                               ? '${'program_language'.tr}: $language'
                               : '',
-                          subColor: _Palette.slate,
+                          subColor: KpbColors.textMuted,
                         ),
                       ),
                     ],
@@ -170,7 +158,7 @@ class ProgramDetailScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12.5,
                             height: 1.65,
-                            color: _Palette.body,
+                            color: KpbColors.gray700,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -225,7 +213,7 @@ class ProgramDetailScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Icon(Icons.check_circle_rounded,
-                                      size: 16, color: _Palette.green),
+                                      size: 16, color: KpbColors.success),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -233,7 +221,7 @@ class ProgramDetailScreen extends StatelessWidget {
                                       style: const TextStyle(
                                         fontSize: 12.5,
                                         height: 1.55,
-                                        color: _Palette.bodySoft,
+                                        color: KpbColors.textSecondary,
                                       ),
                                     ),
                                   ),
@@ -338,7 +326,7 @@ class _Header extends StatelessWidget {
 
     showDialog<void>(
       context: context,
-      barrierColor: _Palette.navy.withValues(alpha: 0.65),
+      barrierColor: KpbColors.brandNavy.withValues(alpha: 0.65),
       builder: (_) => _ShareMatchCard(
         flag: flag,
         score: matchScore,
@@ -364,7 +352,7 @@ class _Header extends StatelessWidget {
     final (zoneBg, zoneFg) = _zoneColors(score);
 
     return Container(
-      color: _Palette.navy,
+      color: KpbColors.brandNavy,
       padding: EdgeInsets.fromLTRB(
         16,
         MediaQuery.of(context).padding.top + 10,
@@ -423,7 +411,7 @@ class _Header extends StatelessWidget {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 11.5,
-                        color: _Palette.slate400,
+                        color: KpbColors.textFaint,
                       ),
                     ),
                   ],
@@ -484,14 +472,14 @@ class _Header extends StatelessWidget {
                           'match_zone_tap_hint'.tr,
                           style: const TextStyle(
                             fontSize: 10.5,
-                            color: _Palette.slate400,
+                            color: KpbColors.textFaint,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const Icon(Icons.expand_less_rounded,
-                      size: 18, color: _Palette.sky),
+                      size: 18, color: KpbColors.decorSky),
                 ],
               ),
             ),
@@ -550,7 +538,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       child: child,
     );
@@ -576,7 +564,7 @@ class _Section extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: _Palette.blue),
+              Icon(icon, size: 18, color: KpbColors.actionPrimary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -584,7 +572,7 @@ class _Section extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
               ),
@@ -618,7 +606,7 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,7 +618,7 @@ class _StatTile extends StatelessWidget {
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
-              color: _Palette.slate400,
+              color: KpbColors.textFaint,
             ),
           ),
           const SizedBox(height: 3),
@@ -639,7 +627,7 @@ class _StatTile extends StatelessWidget {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
             ),
           ),
           if (sub.isNotEmpty) ...[
@@ -675,7 +663,7 @@ class _StepRow extends StatelessWidget {
           height: 22,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: _Palette.chipBg,
+            color: KpbColors.actionPrimarySoft,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -683,7 +671,7 @@ class _StepRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
             ),
           ),
         ),
@@ -694,7 +682,7 @@ class _StepRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.55,
-              color: _Palette.bodySoft,
+              color: KpbColors.textSecondary,
             ),
           ),
         ),
@@ -718,7 +706,8 @@ class _CampusOfferingRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.location_on_outlined, size: 18, color: _Palette.blue),
+        const Icon(Icons.location_on_outlined,
+            size: 18, color: KpbColors.actionPrimary),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -729,13 +718,14 @@ class _CampusOfferingRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               if (intake != null && intake.isNotEmpty)
                 Text(
                   '${'intake_label'.tr} $intake',
-                  style: const TextStyle(fontSize: 11, color: _Palette.slate),
+                  style:
+                      const TextStyle(fontSize: 11, color: KpbColors.textMuted),
                 ),
             ],
           ),
@@ -746,7 +736,7 @@ class _CampusOfferingRow extends StatelessWidget {
           style: const TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w800,
-            color: _Palette.blue,
+            color: KpbColors.actionPrimary,
           ),
         ),
       ],
@@ -775,11 +765,11 @@ class _PrimaryCta extends StatelessWidget {
       child: Container(
         height: 52,
         decoration: BoxDecoration(
-          color: _Palette.blue,
+          color: KpbColors.actionPrimary,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _Palette.blue.withValues(alpha: 0.3),
+              color: KpbColors.actionPrimary.withValues(alpha: 0.3),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
@@ -818,19 +808,20 @@ class _CounselorCta extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.greenBorder, width: 1.5),
+          border: Border.all(
+              color: KpbColors.success.withValues(alpha: 0.3), width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.chat_rounded, size: 17, color: _Palette.whatsapp),
+            const Icon(Icons.chat_rounded, size: 17, color: KpbColors.whatsapp),
             const SizedBox(width: 8),
             Text(
               'ask_kpb_counselor'.tr,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: _Palette.green,
+                color: KpbColors.success,
               ),
             ),
           ],
@@ -999,7 +990,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
                 Expanded(
                   flex: 14,
                   child: _ActionButton(
-                    bg: _Palette.whatsapp,
+                    bg: KpbColors.whatsapp,
                     fg: Colors.white,
                     icon: Icons.chat_rounded,
                     label: 'match_card_share_whatsapp'.tr,
@@ -1011,7 +1002,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
                   flex: 10,
                   child: _ActionButton(
                     bg: Colors.white,
-                    fg: _Palette.navy,
+                    fg: KpbColors.brandNavy,
                     icon: Icons.download_rounded,
                     label: 'match_card_download'.tr,
                     busy: _busy,
@@ -1033,12 +1024,12 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [_Palette.navy, _Palette.navyGradientEnd],
+          colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _Palette.navy.withValues(alpha: 0.5),
+            color: KpbColors.brandNavy.withValues(alpha: 0.5),
             blurRadius: 60,
             offset: const Offset(0, 24),
           ),
@@ -1054,7 +1045,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Icon(Icons.school_rounded,
@@ -1068,7 +1059,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.8,
-                    color: _Palette.sky,
+                    color: KpbColors.decorSky,
                   ),
                 ),
               ),
@@ -1122,7 +1113,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
           const SizedBox(height: 6),
           Text(
             widget.studentLine,
-            style: const TextStyle(fontSize: 11, color: _Palette.slate400),
+            style: const TextStyle(fontSize: 11, color: KpbColors.textFaint),
           ),
           const SizedBox(height: 12),
           Container(
@@ -1135,7 +1126,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
             style: const TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w700,
-              color: _Palette.sky,
+              color: KpbColors.decorSky,
             ),
           ),
         ],
