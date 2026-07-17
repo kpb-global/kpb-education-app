@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/ui/app_tokens.dart';
 import '../../../core/repositories/app_api_client.dart';
 import '../../../core/services/onesignal_service.dart';
 
@@ -71,10 +72,10 @@ class _ScholarshipAlertButtonState extends State<ScholarshipAlertButton> {
 
   @override
   Widget build(BuildContext context) {
-    const blue = Color(0xFF2563EB);
-    const blueBorder = Color(0xFFBFDBFE);
-    const green = Color(0xFF16A34A);
-    const greenBg = Color(0xFFDCFCE7);
+    const blue = KpbColors.actionPrimary;
+    final blueBorder = KpbColors.actionPrimary.withValues(alpha: 0.3);
+    const green = KpbColors.success;
+    const greenBg = KpbColors.successLight;
     final label = _enabled
         ? 'live_scholarships_alert_enabled'.tr
         : 'live_scholarships_alert'.tr;

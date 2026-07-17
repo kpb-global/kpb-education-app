@@ -26,7 +26,7 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF1D4ED8), Color(0xFF0F172A)],
+                colors: [KpbColors.actionPrimaryPressed, KpbColors.brandNavy],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -61,7 +61,7 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
                 Text(
                   'scholarship_guide_intro'.tr,
                   style: const TextStyle(
-                    color: Color(0xFFDBEAFE),
+                    color: KpbColors.actionOnDark,
                     fontSize: 13,
                     height: 1.55,
                   ),
@@ -87,8 +87,9 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              border: Border.all(color: const Color(0xFFBFDBFE)),
+              color: KpbColors.actionPrimarySoft,
+              border: Border.all(
+                  color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -96,7 +97,7 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.verified_rounded,
-                  color: Color(0xFF2563EB),
+                  color: KpbColors.actionPrimary,
                   size: 22,
                 ),
                 const SizedBox(width: 11),
@@ -104,7 +105,7 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
                   child: Text(
                     'scholarship_guide_author'.tr,
                     style: const TextStyle(
-                      color: Color(0xFF1E3A8A),
+                      color: KpbColors.heroIndigo,
                       fontSize: 12.5,
                       height: 1.5,
                       fontWeight: FontWeight.w700,
@@ -138,13 +139,13 @@ class _GuideItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF2563EB), size: 21),
+          Icon(icon, color: KpbColors.actionPrimary, size: 21),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF334155),
+                color: KpbColors.gray700,
                 fontSize: 12.5,
                 height: 1.45,
                 fontWeight: FontWeight.w600,

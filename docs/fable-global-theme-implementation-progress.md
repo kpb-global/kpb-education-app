@@ -275,4 +275,53 @@ Branche : `claude/theme-lot4-browse` (depuis `main` post-#149).
 - bordures de chips bleues : `#BFDBFE`/`#DBEAFE` → `actionPrimary` α 0,3/0,2 ;
 - scores match : ≥50 passe de `gold` à `warning` (lisibilité icône/texte).
 
-## Lots 5–9 — ⬜ non démarrés
+## Lot 5 — Bourses (V2 complète) — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot5-scholarships` (depuis `main` post-#150).
+
+### Fichiers migrés (49 hex → 0)
+
+- **`live_scholarships_screen.dart`** (20 hex) : classe `_Palette` supprimée →
+  tokens §10.2 ; `amberSolid → gold`, `cardShadow → KpbShadow.softNavy`,
+  gradient promo guide → `[actionPrimarySoft, surface]` ; normalisations AA
+  (`green→success`, `red→error`, fonds soft → rôles Light).
+- **`scholarship_detail_screen.dart`** (15 hex inline) : canvas/brandNavy/
+  border/textMuted/textFaint/gray700/success/actionPrimary/lawPurple ;
+  scrim du bouton play vidéo `#D9000000 → Colors.black87` (standard Flutter).
+- **`scholarship_guide_info_screen.dart`** (8 hex) : hero
+  `[actionPrimaryPressed, brandNavy]`, intro sur navy `#DBEAFE → actionOnDark`,
+  carte info `actionPrimarySoft` + bordure α 0,3, `heroIndigo`.
+- **`widgets/how_to_apply_sheet.dart`** (2 hex) et
+  **`widgets/scholarship_alert_button.dart`** (4 hex, états off/on/loading
+  préservés — locals repointés sur les tokens) : + imports `app_tokens`.
+- Vérifiés sans travail : `scholarship_eligibility_screen`,
+  `scholarship_video_player_screen` (fond sombre immersif conservé, chrome sur
+  tokens auto-repointés), `scholarships_controller`,
+  `widgets/application_*`, `widgets/roadmap_timeline_view` (KpbColors auto).
+
+### Statuts métier
+
+`windowStatus` open/closingSoon/closed → success/warning/error : sémantique
+intacte (tests `scholarship_eligibility_test` + badge verts).
+
+### Ratchet
+
+`color_budget.dart` : **30 fichiers / 448 hex** (−45). Feature bourses = 0 hex.
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- périmètre bourses + thème : **75 tests verts** (liste restylée avec action
+  d'alerte réelle, sheet détail, CTA guide, éligibilité, timeline, badges) ;
+- suite globale : 362 verts + 2 échecs **hors périmètre** (logout
+  d'`app_controller_test`, causés par les modifications non commitées de la
+  session concurrente Success Lab sur `app_controller.dart` — la CI de la PR,
+  qui ne contient que les fichiers du lot, fait foi).
+
+### Écarts visuels volontaires
+
+- `green #16A34A→success`, `red #DC2626→error`, fonds soft → rôles Light ;
+- intro du guide sur navy : `#DBEAFE → actionOnDark` (blue-200 → blue-300) ;
+- scrim play vidéo 85 % → `Colors.black87` (87 %, imperceptible).
+
+## Lots 6–9 — ⬜ non démarrés

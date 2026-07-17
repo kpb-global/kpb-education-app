@@ -50,7 +50,8 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
     _alertEnabled =
         widget.initialScholarship?.isAlertEnabled ?? widget.initialAlertEnabled;
     unawaited(
-        AnalyticsService.instance.logViewScholarship(widget.scholarshipId));
+      AnalyticsService.instance.logViewScholarship(widget.scholarshipId),
+    );
     unawaited(_load());
   }
 
@@ -122,7 +123,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
   Widget build(BuildContext context) {
     final scholarship = _scholarship;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: KpbColors.canvas,
       appBar: AppBar(
         title: Text('scholarship_detail_title'.tr),
         actions: [
@@ -179,7 +180,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                     _BulletSection(
                       title: 'live_scholarships_section_advantages'.tr,
                       items: scholarship.advantages,
-                      color: const Color(0xFF16A34A),
+                      color: KpbColors.success,
                     ),
                   ],
                   if (scholarship.eligibility.isNotEmpty) ...[
@@ -187,7 +188,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                     _BulletSection(
                       title: 'live_scholarships_section_eligibility'.tr,
                       items: scholarship.eligibility,
-                      color: const Color(0xFF2563EB),
+                      color: KpbColors.actionPrimary,
                     ),
                   ],
                   if (scholarship.keyRequirements.isNotEmpty) ...[
@@ -195,7 +196,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                     _BulletSection(
                       title: 'live_scholarships_section_key_requirements'.tr,
                       items: scholarship.keyRequirements,
-                      color: const Color(0xFF7C3AED),
+                      color: KpbColors.lawPurple,
                     ),
                   ],
                   if (scholarship.videos.isNotEmpty) ...[
@@ -276,7 +277,7 @@ class _HeaderCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: KpbColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +291,7 @@ class _HeaderCard extends StatelessWidget {
                   child: Text(
                     scholarship.title,
                     style: const TextStyle(
-                      color: Color(0xFF0F172A),
+                      color: KpbColors.brandNavy,
                       fontSize: 21,
                       height: 1.2,
                       fontWeight: FontWeight.w900,
@@ -323,10 +324,11 @@ class _HeaderCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            [scholarship.countryName, scholarship.level]
-                .where((value) => value.isNotEmpty)
-                .join(' · '),
-            style: const TextStyle(color: Color(0xFF64748B)),
+            [
+              scholarship.countryName,
+              scholarship.level,
+            ].where((value) => value.isNotEmpty).join(' · '),
+            style: const TextStyle(color: KpbColors.textMuted),
           ),
           const SizedBox(height: 16),
           Row(
@@ -372,7 +374,7 @@ class _MetaTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: KpbColors.canvas,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -382,7 +384,7 @@ class _MetaTile extends StatelessWidget {
               label.toUpperCase(),
               style: const TextStyle(
                 fontSize: 9.5,
-                color: Color(0xFF94A3B8),
+                color: KpbColors.textFaint,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -393,7 +395,7 @@ class _MetaTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 12,
-                color: Color(0xFF0F172A),
+                color: KpbColors.brandNavy,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -414,7 +416,7 @@ class _SectionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +426,7 @@ class _SectionCard extends StatelessWidget {
               child: Text(
                 title,
                 style: const TextStyle(
-                  color: Color(0xFF0F172A),
+                  color: KpbColors.brandNavy,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
@@ -449,7 +451,7 @@ class _TextSection extends StatelessWidget {
         child: Text(
           body,
           style: const TextStyle(
-            color: Color(0xFF334155),
+            color: KpbColors.gray700,
             fontSize: 13,
             height: 1.55,
           ),
@@ -481,14 +483,17 @@ class _BulletSection extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 1, right: 10),
-                      child: Icon(Icons.check_circle_rounded,
-                          size: 17, color: color),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        size: 17,
+                        color: color,
+                      ),
                     ),
                     Expanded(
                       child: Text(
                         item,
                         style: const TextStyle(
-                          color: Color(0xFF334155),
+                          color: KpbColors.gray700,
                           fontSize: 12.5,
                           height: 1.45,
                         ),
@@ -551,11 +556,14 @@ class _VideosSection extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: const BoxDecoration(
-                                  color: Color(0xD9000000),
+                                  color: Colors.black87,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.play_arrow_rounded,
-                                    color: Colors.white, size: 28),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
                               ),
                             ],
                           ),

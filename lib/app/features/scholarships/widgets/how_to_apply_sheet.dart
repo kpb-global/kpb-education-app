@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/ui/app_tokens.dart';
 import '../../../core/models/app_models.dart';
 import 'application_steps_timeline.dart';
 
@@ -37,7 +38,7 @@ Future<void> showHowToApplySheet(
             Text(
               scholarshipTitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF64748B),
+                    color: KpbColors.textMuted,
                   ),
             ),
             const SizedBox(height: 20),
@@ -46,7 +47,7 @@ Future<void> showHowToApplySheet(
             else
               ApplicationStepsTimeline(
                 steps: steps,
-                accent: const Color(0xFF2563EB),
+                accent: KpbColors.actionPrimary,
               ),
             if (onOpenOfficialForm != null) ...[
               const SizedBox(height: 20),
