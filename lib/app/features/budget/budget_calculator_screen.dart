@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/config/app_routes.dart';
 import '../../core/utils/country_utils.dart';
 import 'data/budget_data.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cost simulator — App-engagement handoff restyle (navy/blue).
@@ -31,20 +32,7 @@ import 'data/budget_data.dart';
 /// Lifestyle band selector — maps to the profile's min / typical / max amounts.
 enum Lifestyle { econome, standard, confort }
 
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const track = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const blueText = Color(0xFF1E40AF);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 class BudgetCalculatorScreen extends StatefulWidget {
   const BudgetCalculatorScreen({super.key});
 
@@ -82,7 +70,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
   Widget build(BuildContext context) {
     final p = _selectedProfile;
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: p == null
             ? const Center(child: CircularProgressIndicator())
@@ -128,7 +116,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.4,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 2),
@@ -136,7 +124,8 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 '${p.country} · ${'budget_subtitle_monthly'.tr}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 11.5, color: _Palette.slate),
+                style:
+                    const TextStyle(fontSize: 11.5, color: KpbColors.textMuted),
               ),
             ],
           ),
@@ -165,10 +154,12 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: selected ? _Palette.chipBg : Colors.white,
+                color: selected ? KpbColors.actionPrimarySoft : Colors.white,
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
-                  color: selected ? _Palette.chipBorder : _Palette.border,
+                  color: selected
+                      ? KpbColors.actionPrimary.withValues(alpha: 0.3)
+                      : KpbColors.border,
                 ),
               ),
               child: Text(
@@ -176,7 +167,9 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected ? _Palette.blueText : _Palette.slate,
+                  color: selected
+                      ? KpbColors.actionPrimaryPressed
+                      : KpbColors.textMuted,
                 ),
               ),
             ),
@@ -193,7 +186,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       child: Row(
         children: [
@@ -215,7 +208,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            color: selected ? _Palette.blue : Colors.transparent,
+            color: selected ? KpbColors.actionPrimary : Colors.transparent,
             borderRadius: BorderRadius.circular(100),
           ),
           child: Center(
@@ -224,7 +217,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                color: selected ? Colors.white : _Palette.slate,
+                color: selected ? Colors.white : KpbColors.textMuted,
               ),
             ),
           ),
@@ -239,7 +232,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
       decoration: BoxDecoration(
-        color: _Palette.navy,
+        color: KpbColors.brandNavy,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -251,7 +244,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.8,
-              color: _Palette.sky,
+              color: KpbColors.decorSky,
             ),
           ),
           const SizedBox(height: 6),
@@ -269,7 +262,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           Text(
             '${'budget_monthly_range'.tr}: '
             '${_money(p.monthlyMin)}–${_money(p.monthlyMax)} ${p.currency}',
-            style: const TextStyle(fontSize: 11.5, color: _Palette.slate400),
+            style: const TextStyle(fontSize: 11.5, color: KpbColors.textFaint),
           ),
         ],
       ),
@@ -284,10 +277,10 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A0F172A),
+            color: KpbShadow.softNavy,
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -306,7 +299,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
             style: const TextStyle(
               fontSize: 10.5,
               height: 1.5,
-              color: _Palette.slate400,
+              color: KpbColors.textFaint,
             ),
           ),
         ],
@@ -336,7 +329,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
             ),
@@ -346,7 +339,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
               ),
             ),
           ],
@@ -355,7 +348,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           const SizedBox(height: 2),
           Text(
             cat.note!,
-            style: const TextStyle(fontSize: 10.5, color: _Palette.slate400),
+            style: const TextStyle(fontSize: 10.5, color: KpbColors.textFaint),
           ),
         ],
         const SizedBox(height: 6),
@@ -363,13 +356,13 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
           borderRadius: BorderRadius.circular(100),
           child: Container(
             height: 7,
-            color: _Palette.track,
+            color: KpbColors.surfaceMuted,
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: pct,
               child: Container(
                 decoration: BoxDecoration(
-                  color: _Palette.sky,
+                  color: KpbColors.decorSky,
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -390,20 +383,20 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.blue, width: 1.5),
+          border: Border.all(color: KpbColors.actionPrimary, width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.workspace_premium_rounded,
-                size: 18, color: _Palette.blue),
+                size: 18, color: KpbColors.actionPrimary),
             const SizedBox(width: 8),
             Text(
               'budget_see_scholarships_cta'.tr,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
               ),
             ),
           ],
@@ -439,12 +432,12 @@ class _CircleBackButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Icon(
           Icons.arrow_back_rounded,
           size: 19,
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           semanticLabel: 'a11y_back'.tr,
         ),
       ),

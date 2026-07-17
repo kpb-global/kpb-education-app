@@ -12,6 +12,7 @@ import '../parcours/parcours_screen.dart';
 import '../salon/salon_screen.dart';
 import '../search/search_screen.dart';
 import 'forum_category_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Community Screen — App-engagement handoff restyle (navy/blue).
@@ -29,31 +30,11 @@ import 'forum_category_screen.dart';
 // fabricated moderation data).
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Local palette — same per-file pattern as the other App-engagement screens.
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const navyGradientEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const subtle = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const blueText = Color(0xFF1E40AF);
-  static const body = Color(0xFF334155);
-  static const green = Color(0xFF16A34A);
-  static const gold = Color(0xFFB45309);
-  static const sky = Color(0xFF0EA5E9);
-  static const red = Color(0xFFDC2626);
-  static const whatsapp = Color(0xFF25D366);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _heroGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_Palette.navy, _Palette.navyGradientEnd],
+  colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
 );
 
 class CommunityScreen extends StatefulWidget {
@@ -71,7 +52,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final controller = Get.find<AppController>();
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: GetBuilder<AppController>(
         builder: (_) {
           final allArticles = controller.publishedArticles;
@@ -93,12 +74,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 SliverAppBar(
                   floating: true,
                   snap: true,
-                  backgroundColor: _Palette.page,
+                  backgroundColor: KpbColors.canvas,
                   surfaceTintColor: Colors.transparent,
                   leading: IconButton(
                     tooltip: 'a11y_back'.tr,
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 20, color: _Palette.navy),
+                        size: 20, color: KpbColors.brandNavy),
                     onPressed: () => Navigator.canPop(context)
                         ? Navigator.pop(context)
                         : null,
@@ -109,13 +90,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.4,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.search_rounded,
-                          color: _Palette.navy),
+                          color: KpbColors.brandNavy),
                       onPressed: () => Get.to(() => const SearchScreen()),
                       tooltip: 'community_search_tooltip'.tr,
                     ),
@@ -163,7 +144,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           child: _HubTile(
                             icon: Icons.school_rounded,
                             label: 'community_hub_alumni'.tr,
-                            color: _Palette.green,
+                            color: KpbColors.success,
                             onTap: () =>
                                 Get.to(() => const AlumniDirectoryScreen()),
                           ),
@@ -173,7 +154,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           child: _HubTile(
                             icon: Icons.event_rounded,
                             label: 'community_hub_salon'.tr,
-                            color: _Palette.blue,
+                            color: KpbColors.actionPrimary,
                             onTap: () => Get.to(() => const SalonScreen()),
                           ),
                         ),
@@ -182,7 +163,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           child: _HubTile(
                             icon: Icons.route_rounded,
                             label: 'community_hub_parcours'.tr,
-                            color: _Palette.gold,
+                            color: KpbColors.warning,
                             onTap: () => Get.to(() => const ParcoursScreen()),
                           ),
                         ),
@@ -237,7 +218,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.3,
-                            color: _Palette.navy,
+                            color: KpbColors.brandNavy,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -245,7 +226,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _Palette.chipBg,
+                            color: KpbColors.actionPrimarySoft,
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
@@ -253,7 +234,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
-                              color: _Palette.blue,
+                              color: KpbColors.actionPrimary,
                             ),
                           ),
                         ),
@@ -319,7 +300,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.3,
-                          color: _Palette.navy,
+                          color: KpbColors.brandNavy,
                         ),
                       ),
                     ),
@@ -379,15 +360,31 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   ({Color bg, Color fg, IconData icon}) _categoryColors(int i) {
     const list = [
-      (bg: Color(0xFFEEF2FF), fg: _Palette.blue, icon: Icons.school_outlined),
       (
-        bg: Color(0xFFF0FDF4),
-        fg: _Palette.green,
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.actionPrimary,
+        icon: Icons.school_outlined
+      ),
+      (
+        bg: KpbColors.successLight,
+        fg: KpbColors.success,
         icon: Icons.workspace_premium_outlined
       ),
-      (bg: Color(0xFFFFFBEB), fg: _Palette.gold, icon: Icons.home_outlined),
-      (bg: Color(0xFFEFF6FF), fg: _Palette.sky, icon: Icons.language_outlined),
-      (bg: Color(0xFFFFF1F2), fg: _Palette.red, icon: Icons.forum_outlined),
+      (
+        bg: KpbColors.warningLight,
+        fg: KpbColors.warning,
+        icon: Icons.home_outlined
+      ),
+      (
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.businessSky,
+        icon: Icons.language_outlined
+      ),
+      (
+        bg: KpbColors.errorLight,
+        fg: KpbColors.error,
+        icon: Icons.forum_outlined
+      ),
     ];
     return list[i % list.length];
   }
@@ -426,10 +423,10 @@ class _TagChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _Palette.blue : Colors.white,
+          color: selected ? KpbColors.actionPrimary : Colors.white,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? _Palette.blue : _Palette.border,
+            color: selected ? KpbColors.actionPrimary : KpbColors.border,
           ),
         ),
         child: Text(
@@ -437,7 +434,7 @@ class _TagChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-            color: selected ? Colors.white : _Palette.slate,
+            color: selected ? Colors.white : KpbColors.textMuted,
           ),
         ),
       ),
@@ -462,7 +459,7 @@ class _FeaturedArticle extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -483,8 +480,8 @@ class _FeaturedArticle extends StatelessWidget {
                 children: [
                   _Pill(
                     label: 'community_featured_badge'.tr,
-                    bg: _Palette.chipBg,
-                    fg: _Palette.blue,
+                    bg: KpbColors.actionPrimarySoft,
+                    fg: KpbColors.actionPrimary,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -494,7 +491,7 @@ class _FeaturedArticle extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
                       height: 1.25,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -503,7 +500,7 @@ class _FeaturedArticle extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12.5,
                       height: 1.55,
-                      color: _Palette.body,
+                      color: KpbColors.gray700,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -517,8 +514,8 @@ class _FeaturedArticle extends StatelessWidget {
                           .take(3)
                           .map((tag) => _Pill(
                                 label: '#$tag',
-                                bg: _Palette.subtle,
-                                fg: _Palette.slate,
+                                bg: KpbColors.surfaceMuted,
+                                fg: KpbColors.textMuted,
                               ))
                           .toList(),
                     ),
@@ -551,7 +548,7 @@ class _ArticleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,11 +557,11 @@ class _ArticleCard extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: _Palette.subtle,
+                color: KpbColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.article_outlined,
-                  color: _Palette.slate400, size: 26),
+                  color: KpbColors.textFaint, size: 26),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -577,7 +574,7 @@ class _ArticleCard extends StatelessWidget {
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                       height: 1.25,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -588,7 +585,7 @@ class _ArticleCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11.5,
                       height: 1.45,
-                      color: _Palette.slate,
+                      color: KpbColors.textMuted,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -597,8 +594,8 @@ class _ArticleCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     _Pill(
                       label: '#${article.tags.first}',
-                      bg: _Palette.subtle,
-                      fg: _Palette.slate,
+                      bg: KpbColors.surfaceMuted,
+                      fg: KpbColors.textMuted,
                     ),
                   ],
                 ],
@@ -606,7 +603,7 @@ class _ArticleCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Icon(Icons.chevron_right_rounded,
-                color: _Palette.slate400, size: 22),
+                color: KpbColors.textFaint, size: 22),
           ],
         ),
       ),
@@ -643,7 +640,7 @@ class _ForumCategoryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Row(
           children: [
@@ -666,7 +663,7 @@ class _ForumCategoryCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -675,7 +672,7 @@ class _ForumCategoryCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11.5,
                       height: 1.4,
-                      color: _Palette.slate,
+                      color: KpbColors.textMuted,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -685,7 +682,7 @@ class _ForumCategoryCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Icon(Icons.chevron_right_rounded,
-                color: _Palette.slate400, size: 20),
+                color: KpbColors.textFaint, size: 20),
           ],
         ),
       ),
@@ -702,14 +699,16 @@ class _SafetyNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _Palette.chipBg,
+        color: KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.chipBorder),
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.shield_rounded, size: 16, color: _Palette.blue),
+          const Icon(Icons.shield_rounded,
+              size: 16, color: KpbColors.actionPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -718,7 +717,7 @@ class _SafetyNote extends StatelessWidget {
                 fontSize: 11,
                 height: 1.5,
                 fontWeight: FontWeight.w600,
-                color: _Palette.blueText,
+                color: KpbColors.actionPrimaryPressed,
               ),
             ),
           ),
@@ -746,7 +745,7 @@ class _WhatsAppCta extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _Palette.navy.withValues(alpha: 0.25),
+              color: KpbColors.brandNavy.withValues(alpha: 0.25),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -782,7 +781,7 @@ class _WhatsAppCta extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
               decoration: BoxDecoration(
-                color: _Palette.whatsapp,
+                color: KpbColors.whatsapp,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Row(
@@ -833,7 +832,7 @@ class _HubTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: Column(
           children: [
@@ -855,7 +854,7 @@ class _HubTile extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
             ),
           ],
@@ -943,8 +942,8 @@ void _openArticleSheet(
                           .take(3)
                           .map((tag) => _Pill(
                                 label: '#$tag',
-                                bg: _Palette.subtle,
-                                fg: _Palette.slate,
+                                bg: KpbColors.surfaceMuted,
+                                fg: KpbColors.textMuted,
                               ))
                           .toList(),
                     ),
@@ -956,7 +955,7 @@ void _openArticleSheet(
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
                       height: 1.2,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -965,7 +964,7 @@ void _openArticleSheet(
                     style: const TextStyle(
                       fontSize: 14.5,
                       height: 1.6,
-                      color: _Palette.body,
+                      color: KpbColors.gray700,
                     ),
                   ),
                   const SizedBox(height: 28),
@@ -974,7 +973,7 @@ void _openArticleSheet(
                       '${'published_on'.tr} '
                       '${_formatDate(article.publishedAt!)}',
                       style: const TextStyle(
-                          fontSize: 12.5, color: _Palette.slate400),
+                          fontSize: 12.5, color: KpbColors.textFaint),
                     ),
                 ],
               ),

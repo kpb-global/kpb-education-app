@@ -2,38 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "Simulateur d'entretien").
-// Local to this file — same per-file pattern as the other restyled Student
-// surfaces (#110–117). Visual only; the real question/answer/scoring flow
-// (backend `tools/interview/*`) is preserved. The completion score is the mean
-// of the REAL per-answer scores — nothing is fabricated. The design's "pick
-// your answer" chips are OMITTED: the sim takes a free-text answer, there are
-// no backed multiple-choice options.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 /// One question turn: the prompt plus the student's real answer and the real
@@ -200,7 +173,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: Column(
           children: [
@@ -231,8 +204,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: const BoxDecoration(
-        color: _Palette.card,
-        border: Border(bottom: BorderSide(color: _Palette.border)),
+        color: KpbColors.surface,
+        border: Border(bottom: BorderSide(color: KpbColors.border)),
       ),
       child: Row(
         children: [
@@ -245,11 +218,11 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                 width: 36,
                 height: 36,
                 decoration: const BoxDecoration(
-                  color: _Palette.line,
+                  color: KpbColors.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_back_rounded,
-                    color: _Palette.navy, size: 18),
+                    color: KpbColors.brandNavy, size: 18),
               ),
             ),
           ),
@@ -258,10 +231,10 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: _Palette.amberBg,
+              color: KpbColors.warningLight,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.mic_rounded, color: _Palette.amber),
+            child: const Icon(Icons.mic_rounded, color: KpbColors.warning),
           ),
           const SizedBox(width: 11),
           Expanded(
@@ -273,7 +246,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 Text(
@@ -283,7 +256,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: _Palette.slate,
+                    color: KpbColors.textMuted,
                   ),
                 ),
               ],
@@ -301,15 +274,15 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       children: [
         Text(
           'interview_picker_intro'.tr,
-          style:
-              const TextStyle(fontSize: 13, height: 1.5, color: _Palette.slate),
+          style: const TextStyle(
+              fontSize: 13, height: 1.5, color: KpbColors.textMuted),
         ),
         const SizedBox(height: 16),
         _typeCard(
           'visa',
           Icons.flight_takeoff_rounded,
-          _Palette.blue,
-          _Palette.chipBg,
+          KpbColors.actionPrimary,
+          KpbColors.actionPrimarySoft,
           'interview_type_visa_title'.tr,
           'interview_type_visa_subtitle'.tr,
         ),
@@ -317,8 +290,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         _typeCard(
           'admission',
           Icons.school_rounded,
-          _Palette.green,
-          _Palette.greenBg,
+          KpbColors.success,
+          KpbColors.successLight,
           'interview_type_admission_title'.tr,
           'interview_type_admission_subtitle'.tr,
         ),
@@ -326,8 +299,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         _typeCard(
           'scholarship',
           Icons.emoji_events_rounded,
-          _Palette.amber,
-          _Palette.amberBg,
+          KpbColors.warning,
+          KpbColors.warningLight,
           'interview_type_scholarship_title'.tr,
           'interview_type_scholarship_subtitle'.tr,
         ),
@@ -344,9 +317,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
             boxShadow: _cardShadow,
           ),
           padding: const EdgeInsets.all(14),
@@ -370,17 +343,18 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                         style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: _Palette.navy)),
+                            color: KpbColors.brandNavy)),
                     const SizedBox(height: 2),
                     Text(subtitle,
                         style: const TextStyle(
                             fontSize: 11.5,
                             height: 1.4,
-                            color: _Palette.slate)),
+                            color: KpbColors.textMuted)),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+              const Icon(Icons.chevron_right_rounded,
+                  color: KpbColors.borderStrong),
             ],
           ),
         ),
@@ -413,7 +387,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
             fontSize: 9,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.7,
-            color: _Palette.slate400,
+            color: KpbColors.textFaint,
           ),
         ),
       ),
@@ -425,7 +399,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
           decoration: const BoxDecoration(
-            color: _Palette.navy,
+            color: KpbColors.brandNavy,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
@@ -453,7 +427,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: const BoxDecoration(
-              color: _Palette.blue,
+              color: KpbColors.actionPrimary,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -504,19 +478,19 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         ),
       ),
       for (final s in strengths)
-        _feedbackRow(
-            Icons.check_circle_rounded, _Palette.green, _Palette.greenBg, s),
+        _feedbackRow(Icons.check_circle_rounded, KpbColors.success,
+            KpbColors.successLight, s),
       for (final s in improvements)
-        _feedbackRow(
-            Icons.lightbulb_rounded, _Palette.amber, _Palette.amberBg, s),
+        _feedbackRow(Icons.lightbulb_rounded, KpbColors.warning,
+            KpbColors.warningLight, s),
       if (modelAnswer.isNotEmpty)
         Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(13),
           decoration: BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
             boxShadow: _cardShadow,
           ),
           child: Column(
@@ -525,19 +499,19 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               Row(
                 children: [
                   const Icon(Icons.star_rounded,
-                      color: _Palette.blue, size: 17),
+                      color: KpbColors.actionPrimary, size: 17),
                   const SizedBox(width: 6),
                   Text('model_answer'.tr,
                       style: const TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
-                          color: _Palette.navy)),
+                          color: KpbColors.brandNavy)),
                 ],
               ),
               const SizedBox(height: 6),
               Text(modelAnswer,
                   style: const TextStyle(
-                      fontSize: 12.5, height: 1.55, color: _Palette.body)),
+                      fontSize: 12.5, height: 1.55, color: KpbColors.gray700)),
             ],
           ),
         ),
@@ -571,9 +545,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
   }
 
   ({Color fg, Color bg}) _scoreTone(int score) {
-    if (score >= 75) return (fg: _Palette.green, bg: _Palette.greenBg);
-    if (score >= 50) return (fg: _Palette.amber, bg: _Palette.amberBg);
-    return (fg: _Palette.red, bg: _Palette.redBg);
+    if (score >= 75) return (fg: KpbColors.success, bg: KpbColors.successLight);
+    if (score >= 50) return (fg: KpbColors.warning, bg: KpbColors.warningLight);
+    return (fg: KpbColors.error, bg: KpbColors.errorLight);
   }
 
   Widget _completionCard() {
@@ -587,9 +561,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       margin: const EdgeInsets.only(top: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
-        color: _Palette.card,
+        color: KpbColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: _cardShadow,
       ),
       child: Column(
@@ -600,20 +574,20 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy)),
+                  color: KpbColors.brandNavy)),
           const SizedBox(height: 4),
           Text(
             'interview_score_line'.trParams({'score': '$avg'}),
             style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: _Palette.blue),
+                color: KpbColors.actionPrimary),
           ),
           const SizedBox(height: 4),
           Text(verdict,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  fontSize: 12, height: 1.5, color: _Palette.slate)),
+                  fontSize: 12, height: 1.5, color: KpbColors.textMuted)),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -625,14 +599,14 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                     height: 44,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _Palette.border, width: 1.5),
+                      border: Border.all(color: KpbColors.border, width: 1.5),
                     ),
                     alignment: Alignment.center,
                     child: Text('interview_replay'.tr,
                         style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: _Palette.slate)),
+                            color: KpbColors.textMuted)),
                   ),
                 ),
               ),
@@ -644,7 +618,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
                   child: Container(
                     height: 44,
                     decoration: BoxDecoration(
-                      color: _Palette.blue,
+                      color: KpbColors.actionPrimary,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     alignment: Alignment.center,
@@ -668,8 +642,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: const BoxDecoration(
-        color: _Palette.page,
-        border: Border(top: BorderSide(color: _Palette.border, width: 0.5)),
+        color: KpbColors.canvas,
+        border: Border(top: BorderSide(color: KpbColors.border, width: 0.5)),
       ),
       child: _currentAnswered ? _nextButton() : _answerInput(),
     );
@@ -683,9 +657,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           child: Container(
             constraints: const BoxConstraints(minHeight: 46),
             decoration: BoxDecoration(
-              color: _Palette.card,
+              color: KpbColors.surface,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: _Palette.border, width: 1.5),
+              border: Border.all(color: KpbColors.border, width: 1.5),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
@@ -693,13 +667,13 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               minLines: 1,
               maxLines: 5,
               style: const TextStyle(
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                   fontSize: 13,
                   fontWeight: FontWeight.w600),
               decoration: InputDecoration(
                 hintText: 'interview_answer_hint'.tr,
                 hintStyle:
-                    const TextStyle(color: _Palette.slate400, fontSize: 13),
+                    const TextStyle(color: KpbColors.textFaint, fontSize: 13),
                 border: InputBorder.none,
                 isCollapsed: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 11),
@@ -718,8 +692,8 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               height: 46,
               decoration: BoxDecoration(
                 color: _evaluating
-                    ? _Palette.blue.withValues(alpha: 0.6)
-                    : _Palette.blue,
+                    ? KpbColors.actionPrimary.withValues(alpha: 0.6)
+                    : KpbColors.actionPrimary,
                 shape: BoxShape.circle,
               ),
               child: _evaluating
@@ -743,7 +717,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: _Palette.blue,
+          color: KpbColors.actionPrimary,
           borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.center,

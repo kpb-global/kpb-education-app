@@ -15,25 +15,7 @@ import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import 'parcours_story_screen.dart';
 
-// Palette (App-engagement handoff) — local to this file, same per-file pattern
-// as the other restyled Student surfaces. Replaces the legacy KpbColors
-// #004AAD/#1E3A6E accents flagged by the design-conformance audit.
-class _P {
-  static const navy = Color(0xFF0F172A);
-  static const heroEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const whatsapp = Color(0xFF25D366);
-
-  static const heroGradient = LinearGradient(
-    colors: [navy, heroEnd],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 /// Localized short label for a field domain id (d01..d12).
 String parcoursFieldLabel(String? fieldId, String localeCode) {
   if (fieldId == null) return '';
@@ -227,7 +209,7 @@ class _ConvertCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _P.navy,
+            color: KpbColors.brandNavy,
             borderRadius: KpbRadius.lgBr,
           ),
           child: Row(
@@ -236,7 +218,7 @@ class _ConvertCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: _P.whatsapp,
+                  color: KpbColors.whatsapp,
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: const Icon(Icons.forum_rounded,
@@ -261,14 +243,15 @@ class _ConvertCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         height: 1.45,
-                        color: Color(0xFF94A3B8),
+                        color: KpbColors.textFaint,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: _P.sky, size: 17),
+              const Icon(Icons.arrow_forward_rounded,
+                  color: KpbColors.decorSky, size: 17),
             ],
           ),
         ),
@@ -291,7 +274,7 @@ class _ParcoursIntro extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(KpbSpacing.md),
       decoration: const BoxDecoration(
-        gradient: _P.heroGradient,
+        gradient: KpbColors.heroGradient,
         borderRadius: KpbRadius.lgBr,
       ),
       child: Column(
@@ -309,7 +292,7 @@ class _ParcoursIntro extends StatelessWidget {
                 fontSize: 9.5,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.6,
-                color: _P.sky,
+                color: KpbColors.decorSky,
               ),
             ),
           ),
@@ -374,7 +357,8 @@ class _ParcoursSearchField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: KpbRadius.mdBr,
-            borderSide: const BorderSide(color: _P.blue, width: 2),
+            borderSide:
+                const BorderSide(color: KpbColors.actionPrimary, width: 2),
           ),
         ),
       ),
@@ -449,12 +433,14 @@ class _Chip extends StatelessWidget {
       labelStyle: TextStyle(
         fontSize: 13,
         fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-        color: selected ? _P.blue : context.kpb.textPrimary,
+        color: selected ? KpbColors.actionPrimary : context.kpb.textPrimary,
       ),
-      selectedColor: _P.chipBg,
+      selectedColor: KpbColors.actionPrimarySoft,
       backgroundColor: context.kpb.cardBg,
       side: BorderSide(
-        color: selected ? _P.chipBorder : context.kpb.gray200,
+        color: selected
+            ? KpbColors.actionPrimary.withValues(alpha: 0.3)
+            : context.kpb.gray200,
       ),
       shape: const StadiumBorder(),
     );
@@ -515,7 +501,7 @@ class _StoryCard extends StatelessWidget {
                               ? Icons.play_circle_outline_rounded
                               : Icons.menu_book_outlined,
                           size: 15,
-                          color: _P.blue,
+                          color: KpbColors.actionPrimary,
                         ),
                         const SizedBox(width: 5),
                         Flexible(
@@ -523,8 +509,8 @@ class _StoryCard extends StatelessWidget {
                             theme,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style:
-                                KpbTextStyles.labelSm.copyWith(color: _P.blue),
+                            style: KpbTextStyles.labelSm
+                                .copyWith(color: KpbColors.actionPrimary),
                           ),
                         ),
                       ],
@@ -609,7 +595,7 @@ class _StoryMedia extends StatelessWidget {
       child: Container(
         height: 96,
         width: double.infinity,
-        decoration: const BoxDecoration(gradient: _P.heroGradient),
+        decoration: const BoxDecoration(gradient: KpbColors.heroGradient),
         padding: const EdgeInsets.all(KpbSpacing.md),
         child: Row(
           children: [
@@ -824,7 +810,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
       player: YoutubePlayer(
         controller: controller,
         showVideoProgressIndicator: true,
-        progressIndicatorColor: _P.blue,
+        progressIndicatorColor: KpbColors.actionPrimary,
       ),
       builder: (context, player) {
         return Scaffold(
@@ -876,7 +862,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                       return ListTile(
                         onTap: () => _playAt(index),
                         tileColor: isCurrent
-                            ? _P.blue.withValues(alpha: 0.06)
+                            ? KpbColors.actionPrimary.withValues(alpha: 0.06)
                             : Colors.transparent,
                         leading: ClipRRect(
                           borderRadius: KpbRadius.smBr,
@@ -896,8 +882,9 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color:
-                                isCurrent ? _P.blue : context.kpb.textPrimary,
+                            color: isCurrent
+                                ? KpbColors.actionPrimary
+                                : context.kpb.textPrimary,
                             fontSize: 14,
                             fontWeight:
                                 isCurrent ? FontWeight.w700 : FontWeight.w500,
@@ -905,7 +892,7 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
                         ),
                         trailing: isCurrent
                             ? const Icon(Icons.equalizer_rounded,
-                                color: _P.blue)
+                                color: KpbColors.actionPrimary)
                             : null,
                       );
                     }),
@@ -943,7 +930,8 @@ class _NowPlaying extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             [story.personName, role].where((s) => s.isNotEmpty).join(' · '),
-            style: KpbTextStyles.bodySm.copyWith(color: _P.blue),
+            style:
+                KpbTextStyles.bodySm.copyWith(color: KpbColors.actionPrimary),
           ),
         ],
         if (summary.isNotEmpty) ...[

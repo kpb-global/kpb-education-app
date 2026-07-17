@@ -177,7 +177,7 @@ class _EventCard extends StatelessWidget {
                   if (status == 'live')
                     Chip(
                       label: Text('salon_live_now'.tr),
-                      backgroundColor: Color(0xFFE53935),
+                      backgroundColor: KpbColors.error,
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                 ],
@@ -439,7 +439,7 @@ class _SessionCard extends StatelessWidget {
                 if (isLive)
                   Chip(
                     label: Text('salon_session_live'.tr),
-                    backgroundColor: Color(0xFFE53935),
+                    backgroundColor: KpbColors.error,
                     labelStyle: TextStyle(color: Colors.white),
                   ),
               ],

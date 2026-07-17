@@ -7,19 +7,9 @@ import '../../core/data/match_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/ui/components/match_badge.dart';
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · Student App.dc.html · obAha). Local to
-// this file — see the Parent/Commercial/Ambassadeur/Onboarding surfaces for
-// the same pattern; there is no shared design-system file yet.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate400 = Color(0xFF94A3B8);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 /// Post-onboarding AHA moment (Phase 0 / P0-D — kit US-003): the first thing
 /// a student sees after completing their profile is where their chances are
 /// best, with an explainable admission probability per school.
@@ -100,7 +90,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.navy,
+      backgroundColor: KpbColors.brandNavy,
       body: SafeArea(
         child: _loading
             ? Center(
@@ -108,14 +98,15 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(_Palette.sky),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(KpbColors.decorSky),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       'aha_loading'.tr,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: _Palette.slate400,
+                        color: KpbColors.textFaint,
                       ),
                     ),
                   ],
@@ -151,7 +142,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             height: 1.5,
-                            color: _Palette.slate400,
+                            color: KpbColors.textFaint,
                           ),
                         ),
                       ],
@@ -178,7 +169,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
                         'aha_estimate_note'.tr,
                         style: const TextStyle(
                           fontSize: 11.5,
-                          color: _Palette.slate400,
+                          color: KpbColors.textFaint,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -194,7 +185,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
                           child: FilledButton(
                             onPressed: _seeAllUniversities,
                             style: FilledButton.styleFrom(
-                              backgroundColor: _Palette.blue,
+                              backgroundColor: KpbColors.actionPrimary,
                               foregroundColor: Colors.white,
                               minimumSize: const Size.fromHeight(52),
                               shape: RoundedRectangleBorder(
@@ -220,7 +211,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
                         TextButton(
                           onPressed: _goHome,
                           style: TextButton.styleFrom(
-                            foregroundColor: _Palette.slate400,
+                            foregroundColor: KpbColors.textFaint,
                             minimumSize: const Size.fromHeight(44),
                           ),
                           child: Text(
@@ -304,7 +295,7 @@ class _MatchCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                     height: 1.25,
                   ),
                   maxLines: 2,
@@ -319,7 +310,8 @@ class _MatchCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               location,
-              style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+              style:
+                  const TextStyle(fontSize: 11.5, color: KpbColors.textMuted),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -331,14 +323,14 @@ class _MatchCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: KpbColors.textMuted,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
           Text(_zoneKey.tr,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+              style: const TextStyle(fontSize: 11, color: KpbColors.textFaint)),
           if (narrative.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
@@ -346,7 +338,7 @@ class _MatchCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12.5,
                 height: 1.4,
-                color: Color(0xFF334155),
+                color: KpbColors.gray700,
               ),
             ),
           ],
@@ -357,7 +349,7 @@ class _MatchCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w800,
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
               ),
             ),
           ],
