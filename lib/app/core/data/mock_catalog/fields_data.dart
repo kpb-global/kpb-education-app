@@ -53,7 +53,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['france', 'germany', 'spain', 'usa', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF233F84),
+    accentColor: Color(0xFF233F84), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd02',
@@ -102,7 +102,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['france', 'germany', 'spain', 'usa', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF0EA5E9),
+    accentColor: Color(0xFF0EA5E9), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd03',
@@ -150,7 +150,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['spain', 'france', 'germany', 'usa', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF059669),
+    accentColor: Color(0xFF059669), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd04',
@@ -195,7 +195,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['turkey', 'uae'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFFDB516A),
+    accentColor: Color(0xFFDB516A), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd05',
@@ -243,7 +243,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['france'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF0F766E),
+    accentColor: Color(0xFF0F766E), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd06',
@@ -299,7 +299,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['spain', 'france', 'germany', 'usa', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFFEC4899),
+    accentColor: Color(0xFFEC4899), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd07',
@@ -346,7 +346,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['spain', 'france', 'germany', 'usa'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF7C3AED),
+    accentColor: Color(0xFF7C3AED), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd08',
@@ -403,7 +403,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['spain', 'france', 'germany', 'usa', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF16A34A),
+    accentColor: Color(0xFF16A34A), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd09',
@@ -449,7 +449,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['france'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF2D5FBA),
+    accentColor: Color(0xFF2D5FBA), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd10',
@@ -499,7 +499,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['france', 'germany', 'morocco'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF84CC16),
+    accentColor: Color(0xFF84CC16), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd11',
@@ -547,7 +547,7 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['turkey', 'uae', 'france'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFF1E3A6E),
+    accentColor: Color(0xFF1E3A6E), // kpb-allow-color: accent catalogue (data)
   ),
   FieldModel(
     id: 'd12',
@@ -577,6 +577,6 @@ const kFields = <FieldModel>[
     ],
     relatedCountryIds: ['spain', 'france', 'germany', 'usa'],
     relatedScholarshipIds: ['brs_001', 'brs_002', 'brs_003', 'brs_004'],
-    accentColor: Color(0xFFF59E0B),
+    accentColor: Color(0xFFF59E0B), // kpb-allow-color: accent catalogue (data)
   ),
 ];

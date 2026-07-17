@@ -13,11 +13,11 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KpbColors.engagementCanvas,
+      backgroundColor: KpbColors.canvas,
       appBar: AppBar(
         title: Text('scholarship_guide_short_title'.tr),
-        backgroundColor: KpbColors.engagementCanvas,
-        surfaceTintColor: KpbColors.engagementCanvas,
+        backgroundColor: KpbColors.canvas,
+        surfaceTintColor: KpbColors.canvas,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 12, 18, 32),
@@ -134,7 +134,7 @@ class _GuideItem extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: KpbColors.engagementBorder),
+        border: Border.all(color: KpbColors.border),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(

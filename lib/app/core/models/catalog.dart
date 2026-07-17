@@ -63,11 +63,11 @@ class FieldModel {
     }
 
     Color parseColor(String? hex) {
-      if (hex == null || hex.isEmpty) return const Color(0xFF233F84);
+      if (hex == null || hex.isEmpty) return KpbColors.csBlue;
       try {
         return Color(int.parse(hex.replaceFirst('#', '0xff')));
       } catch (e) {
-        return const Color(0xFF233F84);
+        return KpbColors.csBlue;
       }
     }
 

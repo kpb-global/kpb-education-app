@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart' show Color, EdgeInsets;
+import 'package:flutter/material.dart' show EdgeInsets;
+
+import '../ui/app_tokens.dart';
 import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:supabase_flutter/supabase_flutter.dart' hide MultipartFile;
 
@@ -1101,8 +1103,8 @@ class _AuthInterceptor extends Interceptor {
             'api_client_session_expired_message'.tr,
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
-            backgroundColor: const Color(0xFFFEE2E2), // soft red
-            colorText: const Color(0xFF991B1B), // dark red
+            backgroundColor: KpbColors.errorLight,
+            colorText: KpbColors.error,
             duration: const Duration(seconds: 4),
           );
         }

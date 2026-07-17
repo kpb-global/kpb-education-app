@@ -1,6 +1,8 @@
 // Model library — split into domain part files.
 import 'package:flutter/material.dart';
 
+import '../ui/app_tokens.dart';
+
 part 'user.dart';
 part 'search.dart';
 part 'cases.dart';

@@ -1,0 +1,4 @@
+tags:
+  # Goldens : générées et comparées en local (macOS) — exclues en CI Linux
+  # (rendu de police différent). Voir architecture §11.5.
+  golden:
