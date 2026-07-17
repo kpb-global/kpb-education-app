@@ -5,42 +5,11 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../explore/explore_screen.dart' show openInstitutionDetail;
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Post-decision / "plan B" screen (App-engagement handoff · net-new).
-// Keyed off a REAL rejected case. HONEST by construction:
-//   • The case model has NO rejection-reason and NO success-rate stat, so the
-//     design's "insufficient proof of funding" reason and the "1 in 3
-//     applications succeeds" line are DROPPED — replaced by a generic, non-
-//     numeric encouragement.
-//   • "Plan B" is the top real alternative institutions ranked by the shared
-//     controller.institutionMatch score (the refused one excluded best-effort
-//     by name), not a hand-picked fiction.
-//   • The counselor CTA routes through the existing verified-advisor → WhatsApp
-//     hand-off. No in-app payment, no fake notification entry.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const body = Color(0xFF475569);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  static const whatsapp = Color(0xFF25D366);
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 /// One computed alternative institution for the plan B list.
@@ -72,7 +41,7 @@ class PostDecisionScreen extends StatelessWidget {
     final c = ctrl.cases.firstWhereOrNull((e) => e.id == caseId);
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         bottom: false,
         child: c == null
@@ -103,7 +72,7 @@ class PostDecisionScreen extends StatelessWidget {
           Center(
             child: Text(
               'case_not_found_subtitle'.tr,
-              style: const TextStyle(color: _Palette.slate),
+              style: const TextStyle(color: KpbColors.textMuted),
             ),
           ),
         ],
@@ -120,12 +89,12 @@ class PostDecisionScreen extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: _Palette.card,
+              color: KpbColors.surface,
               shape: BoxShape.circle,
-              border: Border.all(color: _Palette.border),
+              border: Border.all(color: KpbColors.border),
             ),
             child: const Icon(Icons.arrow_back_rounded,
-                size: 19, color: _Palette.navy),
+                size: 19, color: KpbColors.brandNavy),
           ),
         ),
         const SizedBox(width: 10),
@@ -135,7 +104,7 @@ class PostDecisionScreen extends StatelessWidget {
             fontSize: 19,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.4,
-            color: _Palette.navy,
+            color: KpbColors.brandNavy,
           ),
         ),
       ],
@@ -147,9 +116,9 @@ class PostDecisionScreen extends StatelessWidget {
     final flag = _caseFlag(ctrl, c);
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.card,
+        color: KpbColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: _cardShadow,
       ),
       padding: const EdgeInsets.all(16),
@@ -169,11 +138,11 @@ class PostDecisionScreen extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: _Palette.chipBg,
+                    color: KpbColors.actionPrimarySoft,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.folder_copy_rounded,
-                      size: 18, color: _Palette.blue),
+                      size: 18, color: KpbColors.actionPrimary),
                 ),
               Expanded(
                 child: Text(
@@ -181,7 +150,7 @@ class PostDecisionScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
               ),
@@ -189,7 +158,7 @@ class PostDecisionScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _Palette.redBg,
+                  color: KpbColors.errorLight,
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Text(
@@ -197,7 +166,7 @@ class PostDecisionScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.red,
+                    color: KpbColors.error,
                   ),
                 ),
               ),
@@ -211,7 +180,7 @@ class PostDecisionScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.65,
-              color: _Palette.body,
+              color: KpbColors.textSecondary,
             ),
           ),
         ],
@@ -225,9 +194,9 @@ class PostDecisionScreen extends StatelessWidget {
     return [
       Container(
         decoration: BoxDecoration(
-          color: _Palette.card,
+          color: KpbColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
           boxShadow: _cardShadow,
         ),
         padding: const EdgeInsets.all(16),
@@ -239,7 +208,7 @@ class PostDecisionScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14.5,
                 fontWeight: FontWeight.w800,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
             ),
             const SizedBox(height: 11),
@@ -270,9 +239,9 @@ class PostDecisionScreen extends StatelessWidget {
   Widget _altRowBody(_Alt alt) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.lineSoft,
+        color: KpbColors.canvas,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _Palette.line),
+        border: Border.all(color: KpbColors.surfaceMuted),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
       child: Row(
@@ -288,11 +257,11 @@ class PostDecisionScreen extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: _Palette.chipBg,
+                color: KpbColors.actionPrimarySoft,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.school_rounded,
-                  size: 15, color: _Palette.blue),
+                  size: 15, color: KpbColors.actionPrimary),
             ),
           Expanded(
             child: Column(
@@ -305,7 +274,7 @@ class PostDecisionScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 if (alt.why.isNotEmpty) ...[
@@ -314,8 +283,8 @@ class PostDecisionScreen extends StatelessWidget {
                     alt.why,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:
-                        const TextStyle(fontSize: 10.5, color: _Palette.slate),
+                    style: const TextStyle(
+                        fontSize: 10.5, color: KpbColors.textMuted),
                   ),
                 ],
               ],
@@ -325,7 +294,7 @@ class PostDecisionScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
             decoration: BoxDecoration(
-              color: _Palette.greenBg,
+              color: KpbColors.successLight,
               borderRadius: BorderRadius.circular(100),
             ),
             child: Text(
@@ -333,13 +302,13 @@ class PostDecisionScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: _Palette.green,
+                color: KpbColors.success,
               ),
             ),
           ),
           const SizedBox(width: 4),
           const Icon(Icons.chevron_right_rounded,
-              size: 16, color: _Palette.slate),
+              size: 16, color: KpbColors.textMuted),
         ],
       ),
     );
@@ -359,7 +328,7 @@ class PostDecisionScreen extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: _Palette.navy,
+            color: KpbColors.brandNavy,
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -369,7 +338,7 @@ class PostDecisionScreen extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: _Palette.whatsapp,
+                  color: KpbColors.whatsapp,
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: const Icon(Icons.redeem_rounded,
@@ -394,7 +363,7 @@ class PostDecisionScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         height: 1.45,
-                        color: Color(0xFF94A3B8),
+                        color: KpbColors.textFaint,
                       ),
                     ),
                   ],
@@ -402,7 +371,7 @@ class PostDecisionScreen extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               const Icon(Icons.arrow_forward_rounded,
-                  color: _Palette.sky, size: 17),
+                  color: KpbColors.decorSky, size: 17),
             ],
           ),
         ),

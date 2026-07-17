@@ -9,7 +9,7 @@ dans le code, elles portent un commentaire `// kpb-allow-color: <raison>`.
 
 | Fichier | Valeur | Raison | Depuis |
 |---|---|---|---|
-| — | — | *(aucune exception permanente enregistrée pour l'instant : les budgets du ratchet couvrent la dette héritée, à éteindre lot par lot)* | — |
+| `lib/app/features/profile/profile_screen.dart` | `#FDE68A` | second stop du dégradé premium du handoff (`gold → amber-200`) — décoratif, aucune valeur sémantique, aucun token équivalent | lot 6 (17/07/2026) |
 
 ## Candidats identifiés (à confirmer lors des lots concernés)
 

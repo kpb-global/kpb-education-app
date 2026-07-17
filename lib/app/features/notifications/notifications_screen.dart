@@ -9,6 +9,7 @@ import '../../core/services/onesignal_service.dart';
 import '../cases/case_detail_screen.dart';
 import '../cases/case_timeline_definition.dart';
 import '../cases/post_decision_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Notifications center (App-engagement handoff · net-new).
@@ -38,27 +39,9 @@ import '../cases/post_decision_screen.dart';
 //     per-type toggles are DROPPED — they would persist nowhere.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const borderUnread = Color(0xFFBFDBFE);
-  static const line = Color(0xFFF1F5F9);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 /// The two real kinds of derived notification.
@@ -189,7 +172,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final ctrl = Get.find<AppController>();
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         bottom: false,
         child: GetBuilder<AppController>(
@@ -277,12 +260,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: _Palette.card,
+              color: KpbColors.surface,
               shape: BoxShape.circle,
-              border: Border.all(color: _Palette.border),
+              border: Border.all(color: KpbColors.border),
             ),
             child: const Icon(Icons.arrow_back_rounded,
-                size: 19, color: _Palette.navy),
+                size: 19, color: KpbColors.brandNavy),
           ),
         ),
         const SizedBox(width: 10),
@@ -293,7 +276,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               fontSize: 19,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
             ),
           ),
         ),
@@ -309,7 +292,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.blue,
+                    color: KpbColors.actionPrimary,
                   ),
                 ),
               ),
@@ -324,9 +307,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _emptyState() {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.card,
+        color: KpbColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: _cardShadow,
       ),
       padding: const EdgeInsets.fromLTRB(20, 32, 20, 34),
@@ -336,11 +319,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: _Palette.chipBg,
+              color: KpbColors.actionPrimarySoft,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.notifications_none_rounded,
-                size: 28, color: _Palette.blue),
+                size: 28, color: KpbColors.actionPrimary),
           ),
           const SizedBox(height: 16),
           Text(
@@ -349,7 +332,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
             ),
           ),
           const SizedBox(height: 6),
@@ -359,7 +342,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.55,
-              color: _Palette.slate,
+              color: KpbColors.textMuted,
             ),
           ),
         ],
@@ -383,8 +366,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     switch (item.kind) {
       case _NotifKind.decisionReceived:
         icon = Icons.mark_email_unread_rounded;
-        iconColor = _Palette.red;
-        iconBg = _Palette.redBg;
+        iconColor = KpbColors.error;
+        iconBg = KpbColors.errorLight;
         title = 'notif_decision_received_title'.tr;
         description = 'notif_decision_received_body'
             .trParams({'title': ctrl.resolve(c.title)});
@@ -392,8 +375,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         break;
       case _NotifKind.actionNeeded:
         icon = Icons.pending_actions_rounded;
-        iconColor = _Palette.amber;
-        iconBg = _Palette.amberBg;
+        iconColor = KpbColors.warning;
+        iconBg = KpbColors.warningLight;
         title = 'notif_action_needed_title'
             .trParams({'step': _actionStep(ctrl, c)});
         description = ctrl.resolve(c.nextStepDescription);
@@ -408,9 +391,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _Palette.borderUnread),
+            border: Border.all(
+                color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
             boxShadow: _cardShadow,
           ),
           padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
@@ -436,7 +420,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     if (description.trim().isNotEmpty) ...[
@@ -446,7 +430,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           height: 1.5,
-                          color: _Palette.slate,
+                          color: KpbColors.textMuted,
                         ),
                       ),
                     ],
@@ -459,7 +443,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: const TextStyle(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
               ),
             ],
@@ -477,10 +461,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         onTap: () => _openStored(item),
         child: Container(
           decoration: BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: item.read ? _Palette.border : _Palette.borderUnread,
+              color: item.read
+                  ? KpbColors.border
+                  : KpbColors.actionPrimary.withValues(alpha: 0.3),
             ),
             boxShadow: _cardShadow,
           ),
@@ -492,13 +478,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _Palette.chipBg,
+                  color: KpbColors.actionPrimarySoft,
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: const Icon(
                   Icons.workspace_premium_rounded,
                   size: 18,
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                 ),
               ),
               const SizedBox(width: 11),
@@ -511,7 +497,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     if (item.body.trim().isNotEmpty) ...[
@@ -521,7 +507,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           height: 1.5,
-                          color: _Palette.slate,
+                          color: KpbColors.textMuted,
                         ),
                       ),
                     ],
@@ -534,7 +520,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: const TextStyle(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
               ),
             ],
@@ -591,15 +577,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.05 * 12,
-              color: _Palette.slate400,
+              color: KpbColors.textFaint,
             ),
           ),
         ),
         Container(
           decoration: BoxDecoration(
-            color: _Palette.card,
+            color: KpbColors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _Palette.border),
+            border: Border.all(color: KpbColors.border),
             boxShadow: _cardShadow,
           ),
           padding: const EdgeInsets.all(14),
@@ -609,9 +595,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
-                  color: _Palette.lineSoft,
+                  color: KpbColors.canvas,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _Palette.line),
+                  border: Border.all(color: KpbColors.surfaceMuted),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
@@ -619,7 +605,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.info_outline_rounded,
-                        size: 15, color: _Palette.slate),
+                        size: 15, color: KpbColors.textMuted),
                     const SizedBox(width: 9),
                     Expanded(
                       child: Text(
@@ -627,7 +613,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         style: const TextStyle(
                           fontSize: 10.5,
                           height: 1.5,
-                          color: _Palette.slate,
+                          color: KpbColors.textMuted,
                         ),
                       ),
                     ),
@@ -653,11 +639,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: _Palette.chipBg,
+                color: KpbColors.actionPrimarySoft,
                 borderRadius: BorderRadius.circular(11),
               ),
               child: const Icon(Icons.notifications_active_rounded,
-                  size: 18, color: _Palette.blue),
+                  size: 18, color: KpbColors.actionPrimary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -669,7 +655,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 1),
@@ -678,7 +664,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     style: const TextStyle(
                       fontSize: 10,
                       height: 1.45,
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                     ),
                   ),
                 ],
@@ -688,7 +674,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
               decoration: BoxDecoration(
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
@@ -718,7 +704,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(12),
       borderRadius: 12,
-      backgroundColor: _Palette.navy,
+      backgroundColor: KpbColors.brandNavy,
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );

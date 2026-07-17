@@ -2,29 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'case_timeline_definition.dart';
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "Dossier" step checklist).
-// Local to this file — same pattern as the restyled Student surfaces (#110–116).
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
-  static const border = Color(0xFFE2E8F0);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const outline = Color(0xFFCBD5E1);
-  static const green = Color(0xFF16A34A);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 /// M14 per-status timeline rendered as the handoff's Dossier "step checklist":
@@ -45,9 +27,9 @@ class CaseStatusTimeline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.card,
+        color: KpbColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: _cardShadow,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,7 +71,7 @@ class _StepRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : const Border(bottom: BorderSide(color: _Palette.lineSoft)),
+            : const Border(bottom: BorderSide(color: KpbColors.canvas)),
       ),
       child: Row(
         children: [
@@ -110,14 +92,14 @@ class _StepRow extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: done ? FontWeight.w600 : FontWeight.w700,
                     color: done
-                        ? _Palette.slate400
+                        ? KpbColors.textFaint
                         : isError
-                            ? _Palette.red
+                            ? KpbColors.error
                             : isCurrent
-                                ? _Palette.navy
-                                : _Palette.body,
+                                ? KpbColors.brandNavy
+                                : KpbColors.gray700,
                     decoration: done ? TextDecoration.lineThrough : null,
-                    decorationColor: _Palette.slate400,
+                    decorationColor: KpbColors.textFaint,
                   ),
                 ),
                 if ((step.subtitle ?? '').isNotEmpty) ...[
@@ -126,7 +108,7 @@ class _StepRow extends StatelessWidget {
                     step.subtitle!,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: _Palette.slate400,
+                      color: KpbColors.textFaint,
                     ),
                   ),
                 ],
@@ -138,7 +120,7 @@ class _StepRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: _Palette.redBg,
+                color: KpbColors.errorLight,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
@@ -146,7 +128,7 @@ class _StepRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.red,
+                  color: KpbColors.error,
                 ),
               ),
             ),
@@ -177,7 +159,7 @@ class _Marker extends StatelessWidget {
         width: 24,
         height: 24,
         decoration: const BoxDecoration(
-          color: _Palette.green,
+          color: KpbColors.success,
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.check_rounded, size: 15, color: Colors.white),
@@ -188,14 +170,14 @@ class _Marker extends StatelessWidget {
         width: 24,
         height: 24,
         decoration: const BoxDecoration(
-          color: _Palette.red,
+          color: KpbColors.error,
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.close_rounded, size: 15, color: Colors.white),
       );
     }
-    final accent = isCurrent ? _Palette.blue : _Palette.outline;
-    final numColor = isCurrent ? _Palette.blue : _Palette.slate400;
+    final accent = isCurrent ? KpbColors.actionPrimary : KpbColors.borderStrong;
+    final numColor = isCurrent ? KpbColors.actionPrimary : KpbColors.textFaint;
     return Container(
       width: 24,
       height: 24,

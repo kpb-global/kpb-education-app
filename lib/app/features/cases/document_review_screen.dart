@@ -4,15 +4,7 @@ import 'package:get/get.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
 
-// Palette (App-engagement handoff). Local to this file — palette-only pass so
-// the AI review tool's accents match the restyled Dossier screens.
-class _Palette {
-  static const blue = Color(0xFF2563EB);
-  static const red = Color(0xFFDC2626);
-  static const green = Color(0xFF16A34A);
-  static const amber = Color(0xFFB45309);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 /// What kind of document the student is submitting for AI review.
 enum _DocumentKind { motivation, cv }
 
@@ -211,7 +203,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
             icon: Icons.auto_awesome_rounded,
             fullWidth: true,
             loading: _loading,
-            bgColor: _canSubmit ? _Palette.blue : context.kpb.gray300,
+            bgColor: _canSubmit ? KpbColors.actionPrimary : context.kpb.gray300,
             onPressed: _canSubmit ? _analyze : () {},
           ),
 
@@ -246,10 +238,10 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? _Palette.blue : context.kpb.surfaceBg,
+            color: selected ? KpbColors.actionPrimary : context.kpb.surfaceBg,
             borderRadius: KpbRadius.mdBr,
             border: Border.all(
-              color: selected ? _Palette.blue : context.kpb.gray200,
+              color: selected ? KpbColors.actionPrimary : context.kpb.gray200,
               width: 1,
             ),
           ),
@@ -273,17 +265,17 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
       decoration: BoxDecoration(
         color: context.kpb.errorLight,
         borderRadius: KpbRadius.mdBr,
-        border: Border.all(color: _Palette.red.withValues(alpha: 0.3)),
+        border: Border.all(color: KpbColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           const Icon(Icons.error_outline_rounded,
-              color: _Palette.red, size: 20),
+              color: KpbColors.error, size: 20),
           const SizedBox(width: KpbSpacing.sm),
           Expanded(
             child: Text(
               message,
-              style: KpbTextStyles.bodySm.copyWith(color: _Palette.red),
+              style: KpbTextStyles.bodySm.copyWith(color: KpbColors.error),
             ),
           ),
         ],
@@ -307,7 +299,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           _bulletSection(
             title: 'doc_review_strengths'.tr,
             icon: Icons.check_circle_rounded,
-            color: _Palette.green,
+            color: KpbColors.success,
             bullets: review.strengths,
           ),
         ],
@@ -320,7 +312,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
           _bulletSection(
             title: 'doc_review_missing'.tr,
             icon: Icons.report_problem_rounded,
-            color: _Palette.amber,
+            color: KpbColors.warning,
             bullets: review.missing,
           ),
         ],
@@ -336,10 +328,10 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
   Widget _scoreCard(_DocumentReview review) {
     final score = review.score.clamp(0, 100);
     final color = score >= 75
-        ? _Palette.green
+        ? KpbColors.success
         : score >= 50
-            ? _Palette.amber
-            : _Palette.red;
+            ? KpbColors.warning
+            : KpbColors.error;
 
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),
@@ -439,7 +431,7 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle('doc_review_improvements'.tr,
-            Icons.tips_and_updates_rounded, _Palette.blue),
+            Icons.tips_and_updates_rounded, KpbColors.actionPrimary),
         const SizedBox(height: KpbSpacing.sm),
         KpbCard(
           child: Column(
