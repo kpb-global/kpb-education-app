@@ -324,4 +324,43 @@ intacte (tests `scholarship_eligibility_test` + badge verts).
 - intro du guide sur navy : `#DBEAFE → actionOnDark` (blue-200 → blue-300) ;
 - scrim play vidéo 85 % → `Colors.black87` (87 %, imperceptible).
 
-## Lots 6–9 — ⬜ non démarrés
+## Lot 6 — Dossiers + notifications + profil — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot6-cases` (depuis `main` post-#151).
+
+### Fichiers migrés (117 hex → 0, 421 substitutions + 5 inline)
+
+10 fichiers, 10 classes `_Palette` supprimées : `cases_screen` (16),
+`case_detail_screen` (23 — dont bordure ambre → `warning` α 0,3, inline
+`borderStrong`), `case_status_timeline` (12 — statuts d'étapes
+acceptée/refusée → `success`/`error`, sémantique intacte), `case_tunnel_flow`
+(5), `case_create_screen` (1), `document_review_screen` (4 — verdicts métier
+approuvé/rejeté/en attente → `success`/`error`/`warning`),
+`document_viewer_screen` (1), `post_decision_screen` (18),
+`notifications_screen` (16 — bordure non-lu → `actionPrimary` α 0,3),
+`profile_screen` (21 — `rose→medRed`, `blueText→actionPrimaryPressed`,
+ombres → `KpbShadow.softNavy`).
+
+**Première entrée d'allowlist permanente** : `#FDE68A` (second stop du dégradé
+premium du profil, décoratif) — `// kpb-allow-color` + `theme-color-allowlist.md`.
+
+### Ratchet
+
+`color_budget.dart` : **20 fichiers / 331 hex** (−117).
+
+### Validation
+
+- `flutter analyze` : 0 issue ; `dart format` : conforme ;
+- contamination croisée : `git diff origin/main` sur les cibles = zéro
+  fragment Success Lab (garde-fou post-incident lot 5) ;
+- périmètre (cases, notifications, parent, thème) : **65 tests verts** —
+  les échecs transitoires observés pendant les sauvegardes de la session
+  concurrente disparaissent en re-run isolé/complet ; CI de la PR fait foi.
+
+### Écarts visuels volontaires
+
+Normalisations AA habituelles : `green #16A34A→success`, `red #DC2626→error`,
+fonds soft → rôles Light ; `bodyBlue/blueText #1E40AF→#1D4ED8` ;
+bordures bleu-clair (`#BFDBFE`) → `actionPrimary` α 0,3.
+
+## Lots 7–9 — ⬜ non démarrés

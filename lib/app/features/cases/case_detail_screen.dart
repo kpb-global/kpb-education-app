@@ -18,38 +18,9 @@ import 'post_decision_screen.dart';
 import 'case_timeline_definition.dart';
 import 'document_review_screen.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "Dossier" / Application screen).
-// Local to this file — same per-file pattern as the other restyled Student
-// surfaces (#110–116). Visual only; all case logic is preserved.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
-  static const bodyBlue = Color(0xFF1E40AF);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const lineSoft = Color(0xFFF8FAFC);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const green = Color(0xFF16A34A);
-  static const greenBg = Color(0xFFDCFCE7);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const red = Color(0xFFDC2626);
-  static const redBg = Color(0xFFFEE2E2);
-  static const whatsapp = Color(0xFF25D366);
-  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 // Best-effort flag: the case model has no country field, so we only show a flag
@@ -318,10 +289,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
         final c = _ctrl.cases.firstWhereOrNull((e) => e.id == widget.caseId);
         if (c == null) {
           return Scaffold(
-            backgroundColor: _Palette.page,
+            backgroundColor: KpbColors.canvas,
             appBar: AppBar(
-              backgroundColor: _Palette.page,
-              surfaceTintColor: _Palette.page,
+              backgroundColor: KpbColors.canvas,
+              surfaceTintColor: KpbColors.canvas,
               elevation: 0,
               title: Text('case_not_found_title'.tr),
               leading: IconButton(
@@ -356,7 +327,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
         final docsDone = docs.where((d) => d.isProvided).length;
 
         return Scaffold(
-          backgroundColor: _Palette.page,
+          backgroundColor: KpbColors.canvas,
           body: SafeArea(
             bottom: false,
             child: ListView(
@@ -377,8 +348,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                 if (c.status == CaseStatus.rejected) ...[
                   _NavCard(
                     icon: Icons.flag_rounded,
-                    iconColor: _Palette.red,
-                    iconBg: _Palette.redBg,
+                    iconColor: KpbColors.error,
+                    iconBg: KpbColors.errorLight,
                     title: 'post_decision_entry_title'.tr,
                     subtitle: 'post_decision_entry_subtitle'.tr,
                     onTap: () => Get.to(() => PostDecisionScreen(caseId: c.id)),
@@ -427,8 +398,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                 // ── Interview simulator (existing tool) ──────────────────────
                 _NavCard(
                   icon: Icons.mic_rounded,
-                  iconColor: _Palette.amber,
-                  iconBg: _Palette.amberBg,
+                  iconColor: KpbColors.warning,
+                  iconBg: KpbColors.warningLight,
                   title: 'case_interview_sim_title'.tr,
                   subtitle: 'case_interview_sim_subtitle'.tr,
                   onTap: () => Get.to(() => const InterviewSimulatorScreen()),
@@ -448,7 +419,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w800,
-                          color: _Palette.slate,
+                          color: KpbColors.textMuted,
                         ),
                       ),
                     ],
@@ -465,8 +436,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                 // ── AI document review (existing tool) ───────────────────────
                 _NavCard(
                   icon: Icons.auto_awesome_rounded,
-                  iconColor: _Palette.blue,
-                  iconBg: _Palette.chipBg,
+                  iconColor: KpbColors.actionPrimary,
+                  iconBg: KpbColors.actionPrimarySoft,
                   title: 'case_ai_review_cta'.tr,
                   subtitle: 'case_ai_review_subtitle'.tr,
                   onTap: () => Get.to(() => const DocumentReviewScreen()),
@@ -507,8 +478,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                 // ── Prepare application package ──────────────────────────────
                 _NavCard(
                   icon: Icons.assignment_turned_in_rounded,
-                  iconColor: _Palette.blue,
-                  iconBg: _Palette.chipBg,
+                  iconColor: KpbColors.actionPrimary,
+                  iconBg: KpbColors.actionPrimarySoft,
                   title: 'case_prepare_package_title'.tr,
                   subtitle: 'case_prepare_package_subtitle'.tr,
                   onTap: () => Get.to(
@@ -582,14 +553,14 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
-                              color: _Palette.card,
+                              color: KpbColors.surface,
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(16),
                                 topRight: Radius.circular(16),
                                 bottomRight: Radius.circular(16),
                                 bottomLeft: Radius.circular(4),
                               ),
-                              border: Border.all(color: _Palette.border),
+                              border: Border.all(color: KpbColors.border),
                               boxShadow: _cardShadow,
                             ),
                             child: Row(
@@ -612,9 +583,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _Palette.card,
+                    color: KpbColors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _Palette.border),
+                    border: Border.all(color: KpbColors.border),
                     boxShadow: _cardShadow,
                   ),
                   child: Row(
@@ -627,7 +598,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                           decoration: InputDecoration(
                             hintText: 'message_input_hint'.tr,
                             hintStyle:
-                                const TextStyle(color: _Palette.slate400),
+                                const TextStyle(color: KpbColors.textFaint),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 4, vertical: 8),
@@ -652,7 +623,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                             width: 40,
                             height: 40,
                             decoration: const BoxDecoration(
-                              color: _Palette.blue,
+                              color: KpbColors.actionPrimary,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.send_rounded,
@@ -673,9 +644,9 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
 }
 
 BoxDecoration _cardDecoration() => BoxDecoration(
-      color: _Palette.card,
+      color: KpbColors.surface,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: _Palette.border),
+      border: Border.all(color: KpbColors.border),
       boxShadow: _cardShadow,
     );
 
@@ -684,83 +655,87 @@ BoxDecoration _cardDecoration() => BoxDecoration(
     case CaseStatus.submitted:
       return (
         label: 'status_submitted'.tr,
-        bg: _Palette.chipBg,
-        fg: _Palette.blue
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.actionPrimary
       );
     case CaseStatus.underReview:
       return (
         label: 'status_under_review'.tr,
-        bg: _Palette.amberBg,
-        fg: _Palette.amber
+        bg: KpbColors.warningLight,
+        fg: KpbColors.warning
       );
     case CaseStatus.documentsNeeded:
       return (
         label: 'status_documents_needed'.tr,
-        bg: _Palette.amberBg,
-        fg: _Palette.amber
+        bg: KpbColors.warningLight,
+        fg: KpbColors.warning
       );
     case CaseStatus.counselorAssigned:
       return (
         label: 'status_counselor_assigned'.tr,
-        bg: _Palette.chipBg,
-        fg: _Palette.blue
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.actionPrimary
       );
     case CaseStatus.awaitingStudent:
       return (
         label: 'status_awaiting_student'.tr,
-        bg: _Palette.redBg,
-        fg: _Palette.red
+        bg: KpbColors.errorLight,
+        fg: KpbColors.error
       );
     case CaseStatus.scheduled:
       return (
         label: 'status_scheduled'.tr,
-        bg: _Palette.greenBg,
-        fg: _Palette.green
+        bg: KpbColors.successLight,
+        fg: KpbColors.success
       );
     case CaseStatus.inProgress:
       return (
         label: 'status_in_progress'.tr,
-        bg: _Palette.chipBg,
-        fg: _Palette.blue
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.actionPrimary
       );
     case CaseStatus.applicationSubmitted:
       return (
         label: 'status_application_submitted'.tr,
-        bg: _Palette.chipBg,
-        fg: _Palette.blue
+        bg: KpbColors.actionPrimarySoft,
+        fg: KpbColors.actionPrimary
       );
     case CaseStatus.waitingDecision:
       return (
         label: 'status_waiting_decision'.tr,
-        bg: _Palette.amberBg,
-        fg: _Palette.amber
+        bg: KpbColors.warningLight,
+        fg: KpbColors.warning
       );
     case CaseStatus.awaitingPayment:
       return (
         label: 'status_awaiting_payment'.tr,
-        bg: _Palette.redBg,
-        fg: _Palette.red
+        bg: KpbColors.errorLight,
+        fg: KpbColors.error
       );
     case CaseStatus.completed:
       return (
         label: 'status_completed'.tr,
-        bg: _Palette.greenBg,
-        fg: _Palette.green
+        bg: KpbColors.successLight,
+        fg: KpbColors.success
       );
     case CaseStatus.rejected:
       return (
         label: 'status_rejected'.tr,
-        bg: _Palette.redBg,
-        fg: _Palette.red
+        bg: KpbColors.errorLight,
+        fg: KpbColors.error
       );
     case CaseStatus.cancelled:
       return (
         label: 'status_cancelled'.tr,
-        bg: _Palette.line,
-        fg: _Palette.slate
+        bg: KpbColors.surfaceMuted,
+        fg: KpbColors.textMuted
       );
     case CaseStatus.draft:
-      return (label: 'status_draft'.tr, bg: _Palette.line, fg: _Palette.slate);
+      return (
+        label: 'status_draft'.tr,
+        bg: KpbColors.surfaceMuted,
+        fg: KpbColors.textMuted
+      );
   }
 }
 
@@ -798,12 +773,12 @@ class _DossierHeader extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: _Palette.card,
+                  color: KpbColors.surface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: _Palette.border),
+                  border: Border.all(color: KpbColors.border),
                 ),
                 child: const Icon(Icons.arrow_back_rounded,
-                    size: 19, color: _Palette.navy),
+                    size: 19, color: KpbColors.brandNavy),
               ),
             ),
             const SizedBox(width: 10),
@@ -818,11 +793,11 @@ class _DossierHeader extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: _Palette.chipBg,
+                  color: KpbColors.actionPrimarySoft,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child:
-                    Icon(_caseTypeIcon(c.type), size: 18, color: _Palette.blue),
+                child: Icon(_caseTypeIcon(c.type),
+                    size: 18, color: KpbColors.actionPrimary),
               ),
             Expanded(
               child: Column(
@@ -836,7 +811,7 @@ class _DossierHeader extends StatelessWidget {
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                       height: 1.2,
                     ),
                   ),
@@ -846,8 +821,8 @@ class _DossierHeader extends StatelessWidget {
                       contextLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(fontSize: 11, color: _Palette.slate),
+                      style: const TextStyle(
+                          fontSize: 11, color: KpbColors.textMuted),
                     ),
                   ],
                 ],
@@ -883,7 +858,7 @@ class _DossierHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
               ),
             ),
@@ -892,7 +867,7 @@ class _DossierHeader extends StatelessWidget {
               Text(
                 'case_reference_provisional'.tr,
                 style:
-                    const TextStyle(fontSize: 10.5, color: _Palette.slate400),
+                    const TextStyle(fontSize: 10.5, color: KpbColors.textFaint),
               ),
             ],
           ],
@@ -920,7 +895,7 @@ class _ProgressRing extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
             ),
           ),
         ),
@@ -939,13 +914,13 @@ class _RingPainter extends CustomPainter {
     final rect = Offset(stroke / 2, stroke / 2) &
         Size(size.width - stroke, size.height - stroke);
     final track = Paint()
-      ..color = _Palette.line
+      ..color = KpbColors.surfaceMuted
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke;
     canvas.drawArc(rect, 0, 2 * math.pi, false, track);
     if (value > 0) {
       final prog = Paint()
-        ..color = _Palette.blue
+        ..color = KpbColors.actionPrimary
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
         ..strokeCap = StrokeCap.round;
@@ -976,9 +951,10 @@ class _NextStepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.chipBg,
+        color: KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.chipBorder),
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -988,11 +964,11 @@ class _NextStepCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _Palette.blue.withValues(alpha: 0.12),
+              color: KpbColors.actionPrimary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.arrow_right_alt_rounded,
-                color: _Palette.blue, size: 22),
+                color: KpbColors.actionPrimary, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1004,7 +980,7 @@ class _NextStepCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.blue,
+                    color: KpbColors.actionPrimary,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -1014,7 +990,7 @@ class _NextStepCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 if (description.isNotEmpty) ...[
@@ -1024,7 +1000,7 @@ class _NextStepCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12.5,
                       height: 1.45,
-                      color: _Palette.body,
+                      color: KpbColors.gray700,
                     ),
                   ),
                 ],
@@ -1049,15 +1025,16 @@ class _InfoTip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.chipBg,
+        color: KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.chipBorder),
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 17, color: _Palette.blue),
+          Icon(icon, size: 17, color: KpbColors.actionPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1066,7 +1043,7 @@ class _InfoTip extends StatelessWidget {
                 fontSize: 11.5,
                 height: 1.55,
                 fontWeight: FontWeight.w600,
-                color: _Palette.bodyBlue,
+                color: KpbColors.actionPrimaryPressed,
               ),
             ),
           ),
@@ -1091,7 +1068,7 @@ class _SectionLabel extends StatelessWidget {
         fontSize: 15,
         fontWeight: FontWeight.w800,
         letterSpacing: -0.3,
-        color: _Palette.navy,
+        color: KpbColors.brandNavy,
       ),
     );
   }
@@ -1148,20 +1125,20 @@ class _NavCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     const SizedBox(height: 1),
                     Text(
                       subtitle,
-                      style:
-                          const TextStyle(fontSize: 11, color: _Palette.slate),
+                      style: const TextStyle(
+                          fontSize: 11, color: KpbColors.textMuted),
                     ),
                   ],
                 ),
               ),
               const Icon(Icons.chevron_right_rounded,
-                  size: 18, color: Color(0xFFCBD5E1)),
+                  size: 18, color: KpbColors.borderStrong),
             ],
           ),
         ),
@@ -1190,13 +1167,13 @@ class _AdvisorCard extends StatelessWidget {
             height: 46,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: _Palette.chipBg,
+              color: KpbColors.actionPrimarySoft,
               shape: BoxShape.circle,
             ),
             child: Text(
               (name.isNotEmpty ? name[0] : 'K').toUpperCase(),
               style: const TextStyle(
-                color: _Palette.blue,
+                color: KpbColors.actionPrimary,
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
               ),
@@ -1212,13 +1189,14 @@ class _AdvisorCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   'case_advisor_role'.tr,
-                  style: const TextStyle(fontSize: 11.5, color: _Palette.slate),
+                  style: const TextStyle(
+                      fontSize: 11.5, color: KpbColors.textMuted),
                 ),
               ],
             ),
@@ -1232,11 +1210,11 @@ class _AdvisorCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _Palette.whatsapp.withValues(alpha: 0.12),
+                  color: KpbColors.whatsapp.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.chat_rounded,
-                    color: _Palette.whatsapp, size: 19),
+                    color: KpbColors.whatsapp, size: 19),
               ),
             ),
           ),
@@ -1273,8 +1251,7 @@ class _DocumentsCard extends StatelessWidget {
               decoration: BoxDecoration(
                 border: i == docs.length - 1
                     ? null
-                    : const Border(
-                        bottom: BorderSide(color: _Palette.lineSoft)),
+                    : const Border(bottom: BorderSide(color: KpbColors.canvas)),
               ),
               child: Row(
                 children: [
@@ -1283,8 +1260,8 @@ class _DocumentsCard extends StatelessWidget {
                     height: 36,
                     decoration: BoxDecoration(
                       color: docs[i].isProvided
-                          ? _Palette.greenBg
-                          : _Palette.amberBg,
+                          ? KpbColors.successLight
+                          : KpbColors.warningLight,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -1292,8 +1269,9 @@ class _DocumentsCard extends StatelessWidget {
                           ? Icons.check_circle_rounded
                           : Icons.upload_file_rounded,
                       size: 18,
-                      color:
-                          docs[i].isProvided ? _Palette.green : _Palette.amber,
+                      color: docs[i].isProvided
+                          ? KpbColors.success
+                          : KpbColors.warning,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1303,7 +1281,7 @@ class _DocumentsCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                   ),
@@ -1314,7 +1292,7 @@ class _DocumentsCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _Palette.chipBg,
+                          color: KpbColors.actionPrimarySoft,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
@@ -1322,7 +1300,7 @@ class _DocumentsCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: _Palette.blue,
+                            color: KpbColors.actionPrimary,
                           ),
                         ),
                       ),
@@ -1332,7 +1310,7 @@ class _DocumentsCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: _Palette.greenBg,
+                        color: KpbColors.successLight,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
@@ -1340,7 +1318,7 @@ class _DocumentsCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: _Palette.green,
+                          color: KpbColors.success,
                         ),
                       ),
                     ),
@@ -1372,11 +1350,11 @@ class _ParentShareCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: _Palette.amberBg,
+              color: KpbColors.warningLight,
               borderRadius: BorderRadius.circular(13),
             ),
             child: const Icon(Icons.family_restroom_rounded,
-                size: 20, color: _Palette.amber),
+                size: 20, color: KpbColors.warning),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1388,13 +1366,14 @@ class _ParentShareCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   'parent_share_case_subtitle'.tr,
-                  style: const TextStyle(fontSize: 11, color: _Palette.slate),
+                  style:
+                      const TextStyle(fontSize: 11, color: KpbColors.textMuted),
                 ),
               ],
             ),
@@ -1435,7 +1414,7 @@ class _ReviewPromptCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
               ),
@@ -1444,7 +1423,7 @@ class _ReviewPromptCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text('review_prompt_body'.tr,
               style: const TextStyle(
-                  fontSize: 12.5, height: 1.45, color: _Palette.body)),
+                  fontSize: 12.5, height: 1.45, color: KpbColors.gray700)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -1457,7 +1436,8 @@ class _ReviewPromptCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: _Palette.blue),
+                  style: FilledButton.styleFrom(
+                      backgroundColor: KpbColors.actionPrimary),
                   onPressed: onReview,
                   child: Text('review_prompt_cta'.tr),
                 ),
@@ -1482,20 +1462,21 @@ class _OfflineBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: BoxDecoration(
-        color: _Palette.amberBg,
+        color: KpbColors.warningLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(color: KpbColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.wifi_off_rounded, color: _Palette.amber, size: 16),
+          const Icon(Icons.wifi_off_rounded,
+              color: KpbColors.warning, size: 16),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               'offline_cache_notice'.tr,
               style: const TextStyle(
-                color: _Palette.amber,
+                color: KpbColors.warning,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -1528,13 +1509,13 @@ class _MessageBubble extends StatelessWidget {
           if (!isStudent) ...[
             CircleAvatar(
               radius: 14,
-              backgroundColor: _Palette.chipBg,
+              backgroundColor: KpbColors.actionPrimarySoft,
               child: Text(
                 msg.senderName.isNotEmpty
                     ? msg.senderName[0].toUpperCase()
                     : 'K',
                 style: const TextStyle(
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                   fontWeight: FontWeight.w800,
                   fontSize: 11,
                 ),
@@ -1546,14 +1527,14 @@ class _MessageBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isStudent ? _Palette.blue : _Palette.card,
+                color: isStudent ? KpbColors.actionPrimary : KpbColors.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(isStudent ? 16 : 4),
                   bottomRight: Radius.circular(isStudent ? 4 : 16),
                 ),
-                border: isStudent ? null : Border.all(color: _Palette.border),
+                border: isStudent ? null : Border.all(color: KpbColors.border),
                 boxShadow: _cardShadow,
               ),
               child: Column(
@@ -1563,7 +1544,7 @@ class _MessageBubble extends StatelessWidget {
                     ctrl.resolve(msg.body),
                     style: TextStyle(
                       fontSize: 14,
-                      color: isStudent ? Colors.white : _Palette.navy,
+                      color: isStudent ? Colors.white : KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1571,7 +1552,7 @@ class _MessageBubble extends StatelessWidget {
                     DateFormat('HH:mm', ctrl.localeCode).format(msg.createdAt),
                     style: TextStyle(
                       fontSize: 10,
-                      color: isStudent ? Colors.white54 : _Palette.slate400,
+                      color: isStudent ? Colors.white54 : KpbColors.textFaint,
                     ),
                   ),
                 ],
@@ -1627,7 +1608,7 @@ class _TimelineItem extends StatelessWidget {
                 ),
               ),
               if (!isLast)
-                Container(width: 2, height: 40, color: _Palette.line),
+                Container(width: 2, height: 40, color: KpbColors.surfaceMuted),
             ],
           ),
         ),
@@ -1643,13 +1624,13 @@ class _TimelineItem extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(date,
-                    style:
-                        const TextStyle(fontSize: 11.5, color: _Palette.slate)),
+                    style: const TextStyle(
+                        fontSize: 11.5, color: KpbColors.textMuted)),
               ],
             ),
           ),
@@ -1665,20 +1646,20 @@ class _TimelineItem extends StatelessWidget {
       case CaseStatus.scheduled:
       case CaseStatus.inProgress:
       case CaseStatus.applicationSubmitted:
-        return _Palette.blue;
+        return KpbColors.actionPrimary;
       case CaseStatus.underReview:
       case CaseStatus.waitingDecision:
       case CaseStatus.documentsNeeded:
       case CaseStatus.awaitingPayment:
-        return _Palette.amber;
+        return KpbColors.warning;
       case CaseStatus.awaitingStudent:
       case CaseStatus.rejected:
-        return _Palette.red;
+        return KpbColors.error;
       case CaseStatus.completed:
-        return _Palette.green;
+        return KpbColors.success;
       case CaseStatus.cancelled:
       case CaseStatus.draft:
-        return _Palette.slate400;
+        return KpbColors.textFaint;
     }
   }
 }
@@ -1700,11 +1681,11 @@ class _GreenWhatsAppCta extends StatelessWidget {
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            color: _Palette.whatsapp,
+            color: KpbColors.whatsapp,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: _Palette.whatsapp.withValues(alpha: 0.3),
+                color: KpbColors.whatsapp.withValues(alpha: 0.3),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
@@ -1776,7 +1757,7 @@ class _TypingDotState extends State<_TypingDot>
           width: 7,
           height: 7,
           decoration: const BoxDecoration(
-            color: _Palette.slate400,
+            color: KpbColors.textFaint,
             shape: BoxShape.circle,
           ),
         ),

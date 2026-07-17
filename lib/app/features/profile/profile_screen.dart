@@ -31,6 +31,7 @@ import '../services/service_packages_screen.dart';
 import '../alumni/alumni_directory_screen.dart';
 import '../alumni/alumni_apply_screen.dart';
 import '../salon/salon_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Student Profile — App-engagement handoff restyle (navy/blue).
@@ -49,33 +50,14 @@ import '../salon/salon_screen.dart';
 // Everything rendered below is bound to REAL profile/controller data.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const amber = Color(0xFFF59E0B);
-  static const amberSoft = Color(0xFFFDE68A);
-  static const gold = Color(0xFFB45309);
-  static const green = Color(0xFF16A34A);
-  static const rose = Color(0xFFDB516A);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const slate300 = Color(0xFFCBD5E1);
-  static const border = Color(0xFFE2E8F0);
-  static const subtle = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const blueText = Color(0xFF1E40AF);
-  static const successBg = Color(0xFFDCFCE7);
-  static const success = Color(0xFF16A34A);
-  static const red = Color(0xFFDC2626);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _premiumIconGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_Palette.amber, _Palette.amberSoft],
+  colors: [
+    KpbColors.gold,
+    Color(0xFFFDE68A), // kpb-allow-color: dégradé premium (gold → amber-200)
+  ],
 );
 
 class ProfileScreen extends StatelessWidget {
@@ -95,13 +77,13 @@ class ProfileScreen extends StatelessWidget {
         final completion = (profile.completionScore * 100).round();
 
         return Scaffold(
-          backgroundColor: _Palette.page,
+          backgroundColor: KpbColors.canvas,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
                 floating: true,
                 snap: true,
-                backgroundColor: _Palette.page,
+                backgroundColor: KpbColors.canvas,
                 surfaceTintColor: Colors.transparent,
                 title: Text(
                   'profile'.tr,
@@ -109,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
                     fontSize: 19,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 actions: [
@@ -118,7 +100,7 @@ class ProfileScreen extends StatelessWidget {
                     child: TextButton.icon(
                       onPressed: () => _openEditSheet(context, controller),
                       style: TextButton.styleFrom(
-                        foregroundColor: _Palette.blue,
+                        foregroundColor: KpbColors.actionPrimary,
                       ),
                       icon: const Icon(Icons.edit_outlined, size: 16),
                       label: Text(
@@ -181,8 +163,8 @@ class ProfileScreen extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () => _confirmLogout(context, controller),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: _Palette.red,
-                            side: const BorderSide(color: _Palette.red),
+                            foregroundColor: KpbColors.error,
+                            side: const BorderSide(color: KpbColors.error),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -224,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
               await controller.logout();
               Get.offAll(() => const AppBootScreen());
             },
-            style: FilledButton.styleFrom(backgroundColor: _Palette.red),
+            style: FilledButton.styleFrom(backgroundColor: KpbColors.error),
             child: Text('logout'.tr),
           ),
         ],
@@ -305,7 +287,7 @@ class ProfileScreen extends StatelessWidget {
                 );
               }
             },
-            style: FilledButton.styleFrom(backgroundColor: _Palette.red),
+            style: FilledButton.styleFrom(backgroundColor: KpbColors.error),
             child: Text('delete_account_cta'.tr),
           ),
         ],
@@ -364,10 +346,10 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A0F172A),
+            color: KpbShadow.softNavy,
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -390,7 +372,7 @@ class _SectionTitle extends StatelessWidget {
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
         letterSpacing: -0.2,
-        color: _Palette.navy,
+        color: KpbColors.brandNavy,
       ),
     );
   }
@@ -421,7 +403,7 @@ class _RowDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(left: 48),
-      child: Divider(height: 1, thickness: 1, color: _Palette.subtle),
+      child: Divider(height: 1, thickness: 1, color: KpbColors.surfaceMuted),
     );
   }
 }
@@ -449,7 +431,7 @@ class _HeaderCard extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: const BoxDecoration(
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -473,7 +455,7 @@ class _HeaderCard extends StatelessWidget {
                     fontSize: 16.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.3,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -481,7 +463,7 @@ class _HeaderCard extends StatelessWidget {
                   profile.email,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: _Palette.slate,
+                    color: KpbColors.textMuted,
                   ),
                 ),
                 if (meta.isNotEmpty) ...[
@@ -491,7 +473,7 @@ class _HeaderCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: _Palette.slate,
+                      color: KpbColors.textMuted,
                     ),
                   ),
                 ],
@@ -500,16 +482,17 @@ class _HeaderCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _Palette.chipBg,
+                    color: KpbColors.actionPrimarySoft,
                     borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: _Palette.chipBorder),
+                    border: Border.all(
+                        color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     _accountTypeLabel(profile.accountType),
                     style: const TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.blueText,
+                      color: KpbColors.actionPrimaryPressed,
                     ),
                   ),
                 ),
@@ -534,7 +517,7 @@ class _CompletionPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: done ? _Palette.successBg : _Palette.chipBg,
+        color: done ? KpbColors.successLight : KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
@@ -542,7 +525,7 @@ class _CompletionPill extends StatelessWidget {
         children: [
           if (done) ...[
             const Icon(Icons.check_circle_rounded,
-                size: 12, color: _Palette.success),
+                size: 12, color: KpbColors.success),
             const SizedBox(width: 4),
           ],
           Text(
@@ -550,7 +533,7 @@ class _CompletionPill extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: done ? _Palette.success : _Palette.blue,
+              color: done ? KpbColors.success : KpbColors.actionPrimary,
             ),
           ),
         ],
@@ -591,7 +574,7 @@ class _TargetUniversitiesCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.blue,
+                      color: KpbColors.actionPrimary,
                     ),
                   ),
                 ),
@@ -601,7 +584,8 @@ class _TargetUniversitiesCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'profile_universities_empty'.tr,
-              style: const TextStyle(fontSize: 12.5, color: _Palette.slate),
+              style:
+                  const TextStyle(fontSize: 12.5, color: KpbColors.textMuted),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -609,8 +593,9 @@ class _TargetUniversitiesCard extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => Get.to(() => const SearchScreen()),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.blue,
-                  side: const BorderSide(color: _Palette.chipBorder),
+                  foregroundColor: KpbColors.actionPrimary,
+                  side: BorderSide(
+                      color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(vertical: 11),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -673,7 +658,7 @@ class _UniversityRow extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
             ),
           ),
@@ -695,7 +680,7 @@ class _MatchPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(
-        color: strong ? _Palette.successBg : _Palette.chipBg,
+        color: strong ? KpbColors.successLight : KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
@@ -703,7 +688,7 @@ class _MatchPill extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
-          color: strong ? _Palette.success : _Palette.blue,
+          color: strong ? KpbColors.success : KpbColors.actionPrimary,
         ),
       ),
     );
@@ -733,38 +718,38 @@ class _PreferencesCard extends StatelessWidget {
           ),
           _NavRow(
             icon: Icons.school_outlined,
-            color: _Palette.blue,
+            color: KpbColors.actionPrimary,
             label: 'profile_replay_onboarding'.tr,
             onTap: onReplay,
           ),
           const _RowDivider(),
           _SettingRow(
             icon: Icons.data_saver_on_rounded,
-            color: _Palette.green,
+            color: KpbColors.success,
             title: 'profile_data_saver'.tr,
             subtitle: 'profile_data_saver_desc'.tr,
             trailing: Switch.adaptive(
               value: controller.dataSaverEnabled,
-              activeTrackColor: _Palette.green,
+              activeTrackColor: KpbColors.success,
               onChanged: controller.toggleDataSaver,
             ),
           ),
           const _RowDivider(),
           _SettingRow(
             icon: Icons.fingerprint_rounded,
-            color: _Palette.blue,
+            color: KpbColors.actionPrimary,
             title: 'profile_biometric'.tr,
             subtitle: 'protect_app_access'.tr,
             trailing: Switch.adaptive(
               value: controller.isAppLockEnabled,
-              activeTrackColor: _Palette.blue,
+              activeTrackColor: KpbColors.actionPrimary,
               onChanged: controller.toggleAppLock,
             ),
           ),
           const _RowDivider(),
           _SettingRow(
             icon: Icons.translate_rounded,
-            color: _Palette.sky,
+            color: KpbColors.decorSky,
             title: 'app_language'.tr,
             subtitle:
                 controller.localeCode.startsWith('en') ? 'English' : 'Français',
@@ -810,13 +795,14 @@ class _SettingRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 11, color: _Palette.slate),
+                  style:
+                      const TextStyle(fontSize: 11, color: KpbColors.textMuted),
                 ),
               ],
             ),
@@ -857,12 +843,12 @@ class _NavRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
             ),
             const Icon(Icons.chevron_right_rounded,
-                size: 20, color: _Palette.slate300),
+                size: 20, color: KpbColors.borderStrong),
           ],
         ),
       ),
@@ -883,7 +869,7 @@ class _ParentAccessCard extends StatelessWidget {
           Row(
             children: [
               const _IconChip(
-                  icon: Icons.family_restroom_rounded, color: _Palette.amber),
+                  icon: Icons.family_restroom_rounded, color: KpbColors.gold),
               const SizedBox(width: 12),
               Expanded(
                 child: _SectionTitle('profile_parent_access'.tr),
@@ -894,7 +880,7 @@ class _ParentAccessCard extends StatelessWidget {
           Text(
             'profile_parent_access_desc'.tr,
             style: const TextStyle(
-                fontSize: 12, height: 1.45, color: _Palette.slate),
+                fontSize: 12, height: 1.45, color: KpbColors.textMuted),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -902,7 +888,7 @@ class _ParentAccessCard extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => Get.to(() => const ParentDashboardScreen()),
               style: FilledButton.styleFrom(
-                backgroundColor: _Palette.blue,
+                backgroundColor: KpbColors.actionPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -937,7 +923,7 @@ class _PremiumCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: _Palette.navy,
+          color: KpbColors.brandNavy,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -950,7 +936,7 @@ class _PremiumCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(13),
               ),
               child: const Icon(Icons.workspace_premium_rounded,
-                  color: _Palette.navy, size: 21),
+                  color: KpbColors.brandNavy, size: 21),
             ),
             const SizedBox(width: 13),
             Expanded(
@@ -968,15 +954,15 @@ class _PremiumCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     'profile_premium_card_sub'.tr,
-                    style:
-                        const TextStyle(fontSize: 11, color: _Palette.slate400),
+                    style: const TextStyle(
+                        fontSize: 11, color: KpbColors.textFaint),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_rounded,
-                size: 18, color: _Palette.amber),
+                size: 18, color: KpbColors.gold),
           ],
         ),
       ),
@@ -998,35 +984,35 @@ class _AcademicInfoCard extends StatelessWidget {
         icon: Icons.public_outlined,
         label: 'country'.tr,
         value: profile.countryOfResidence,
-        iconColor: _Palette.blue,
+        iconColor: KpbColors.actionPrimary,
       ),
       if (profile.currentLevel != null)
         _InfoTile(
           icon: Icons.school_outlined,
           label: 'current_level'.tr,
           value: studentLevelLabel(profile.currentLevel),
-          iconColor: _Palette.sky,
+          iconColor: KpbColors.decorSky,
         ),
       if (profile.targetLevel != null)
         _InfoTile(
           icon: Icons.trending_up_rounded,
           label: 'target_level'.tr,
           value: profile.targetLevel!,
-          iconColor: _Palette.green,
+          iconColor: KpbColors.success,
         ),
       if (profile.languageLevel != null)
         _InfoTile(
           icon: Icons.translate_outlined,
           label: 'language_level'.tr,
           value: profile.languageLevel!,
-          iconColor: _Palette.amber,
+          iconColor: KpbColors.gold,
         ),
       if ((profile.gradeRange ?? '').isNotEmpty)
         _InfoTile(
           icon: Icons.grade_outlined,
           label: 'grade_range'.tr,
           value: profile.gradeRange!,
-          iconColor: _Palette.rose,
+          iconColor: KpbColors.medRed,
         ),
     ];
 
@@ -1055,14 +1041,14 @@ class _ContactCard extends StatelessWidget {
         icon: Icons.phone_outlined,
         label: 'phone'.tr,
         value: profile.phone,
-        iconColor: _Palette.green,
+        iconColor: KpbColors.success,
       ),
       if (profile.whatsApp.isNotEmpty && profile.whatsApp != profile.phone)
         _InfoTile(
           icon: Icons.chat_outlined,
           label: 'WhatsApp',
           value: profile.whatsApp,
-          iconColor: _Palette.green,
+          iconColor: KpbColors.success,
         ),
     ];
 
@@ -1101,21 +1087,21 @@ class _DocumentsCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _Palette.successBg,
+                      color: KpbColors.successLight,
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.check_circle_outline_rounded,
-                            size: 13, color: _Palette.success),
+                            size: 13, color: KpbColors.success),
                         const SizedBox(width: 5),
                         Text(
                           _docLabel(doc),
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
-                            color: _Palette.success,
+                            color: KpbColors.success,
                           ),
                         ),
                       ],
@@ -1175,7 +1161,8 @@ class _InfoTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, color: _Palette.slate),
+                  style:
+                      const TextStyle(fontSize: 11, color: KpbColors.textMuted),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1183,7 +1170,7 @@ class _InfoTile extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
               ],
@@ -1212,49 +1199,49 @@ class _QuickAccessCard extends StatelessWidget {
     }
 
     if (controller.isStudent) {
-      add(Icons.card_giftcard_outlined, _Palette.amber, 'referral_title'.tr,
+      add(Icons.card_giftcard_outlined, KpbColors.gold, 'referral_title'.tr,
           () => Get.to(() => const ReferralScreen()));
       add(
           Icons.diversity_3_outlined,
-          _Palette.blue,
+          KpbColors.actionPrimary,
           'referral_become_ambassador'.tr,
           () => Get.to(() => const AmbassadorScreen()));
       add(
           Icons.psychology_outlined,
-          _Palette.blue,
+          KpbColors.actionPrimary,
           'profile_quick_orientation_test'.tr,
           () => Get.to(() => const OrientationScreen()));
       add(
           Icons.fact_check_outlined,
-          _Palette.gold,
+          KpbColors.warning,
           'profile_quick_eligibility_simulator'.tr,
           () => Get.to(() => const EligibilitySimulatorScreen()));
       add(
           Icons.play_circle_outline_rounded,
-          _Palette.red,
+          KpbColors.error,
           'profile_quick_journeys_testimonials'.tr,
           () => Get.to(() => const ParcoursScreen()));
       add(
           Icons.bookmark_outline_rounded,
-          _Palette.sky,
+          KpbColors.decorSky,
           'profile_quick_saved_items'.tr,
           () => Get.to(() => const SavedScreen()));
       add(
           Icons.account_balance_wallet_outlined,
-          _Palette.green,
+          KpbColors.success,
           'profile_quick_budget_calculator'.tr,
           () => Get.to(() => const BudgetCalculatorScreen()));
       // Flight search (Kayak-backed) ships in the MVP.
       add(
           Icons.flight_takeoff_rounded,
-          _Palette.sky,
+          KpbColors.decorSky,
           'profile_quick_flight_simulator'.tr,
           () => Get.to(() => const FlightEstimatorScreen()));
       // Housing estimator is a V1.1+ module.
       if (!AppConfig.mvpOnly) {
         add(
             Icons.holiday_village_rounded,
-            _Palette.blue,
+            KpbColors.actionPrimary,
             'profile_quick_student_housing'.tr,
             () => Get.to(() => const HousingEstimatorScreen()));
       }
@@ -1263,7 +1250,7 @@ class _QuickAccessCard extends StatelessWidget {
     if (!AppConfig.mvpOnly) {
       add(
           Icons.forum_outlined,
-          _Palette.sky,
+          KpbColors.decorSky,
           'profile_quick_community_articles'.tr,
           () => Get.to(() => const CommunityScreen()));
     }
@@ -1271,29 +1258,32 @@ class _QuickAccessCard extends StatelessWidget {
     if (controller.isParent) {
       add(
           Icons.family_restroom,
-          _Palette.amber,
+          KpbColors.gold,
           'profile_quick_parent_space'.tr,
           () => Get.to(() => const ParentSurfaceScreen()));
     }
     // Phase 3 — Monetized bundles: "Dossier prêt", scholarship & visa kits.
     add(
         Icons.workspace_premium_outlined,
-        _Palette.navy,
+        KpbColors.brandNavy,
         'profile_quick_kpb_services'.tr,
         () => Get.to(() => const ServicePackagesScreen()));
     // Alumni mentors & virtual salon are V1.1+ modules.
     if (!AppConfig.mvpOnly) {
       add(
           Icons.school_outlined,
-          _Palette.blue,
+          KpbColors.actionPrimary,
           'profile_quick_verified_alumni_mentors'.tr,
           () => Get.to(() => const AlumniDirectoryScreen()));
       add(
           Icons.verified_outlined,
-          _Palette.blue,
+          KpbColors.actionPrimary,
           'profile_quick_become_alumni_mentor'.tr,
           () => Get.to(() => const AlumniApplyScreen()));
-      add(Icons.event, _Palette.blue, 'profile_quick_virtual_salon'.tr,
+      add(
+          Icons.event,
+          KpbColors.actionPrimary,
+          'profile_quick_virtual_salon'.tr,
           () => Get.to(() => const SalonScreen()));
     }
 
@@ -1325,13 +1315,13 @@ class _LegalCard extends StatelessWidget {
             children: _withDividers([
               _QuickAccessTile(
                 icon: Icons.privacy_tip_outlined,
-                color: _Palette.slate,
+                color: KpbColors.textMuted,
                 label: 'profile_privacy_policy'.tr,
                 onTap: () => Get.to(() => const PrivacyPolicyScreen()),
               ),
               _QuickAccessTile(
                 icon: Icons.description_outlined,
-                color: _Palette.slate,
+                color: KpbColors.textMuted,
                 label: 'profile_terms_of_service'.tr,
                 onTap: () => Get.to(() => const TermsOfServiceScreen()),
               ),
@@ -1361,13 +1351,13 @@ class _DataRightsCard extends StatelessWidget {
             children: _withDividers([
               _QuickAccessTile(
                 icon: Icons.download_outlined,
-                color: _Palette.slate,
+                color: KpbColors.textMuted,
                 label: 'export_data'.tr,
                 onTap: onExport,
               ),
               _QuickAccessTile(
                 icon: Icons.delete_outline_rounded,
-                color: _Palette.red,
+                color: KpbColors.error,
                 label: 'delete_account'.tr,
                 onTap: onDelete,
               ),
@@ -1407,12 +1397,12 @@ class _QuickAccessTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
             ),
             const Icon(Icons.chevron_right_rounded,
-                size: 20, color: _Palette.slate300),
+                size: 20, color: KpbColors.borderStrong),
           ],
         ),
       ),
@@ -1450,7 +1440,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                 ),
               ),
             ],
@@ -1461,9 +1451,9 @@ class _ProfileCompletionGuide extends StatelessWidget {
             child: LinearProgressIndicator(
               value: profile.completionScore,
               minHeight: 8,
-              backgroundColor: _Palette.subtle,
+              backgroundColor: KpbColors.surfaceMuted,
               valueColor: AlwaysStoppedAnimation(
-                completion >= 80 ? _Palette.success : _Palette.blue,
+                completion >= 80 ? KpbColors.success : KpbColors.actionPrimary,
               ),
             ),
           ),
@@ -1472,14 +1462,14 @@ class _ProfileCompletionGuide extends StatelessWidget {
             Row(
               children: [
                 const Icon(Icons.check_circle_rounded,
-                    color: _Palette.success, size: 16),
+                    color: KpbColors.success, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   'profile_complete_optimized'.tr,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: _Palette.success,
+                    color: KpbColors.success,
                   ),
                 ),
               ],
@@ -1493,7 +1483,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.radio_button_unchecked,
-                        size: 16, color: _Palette.slate300),
+                        size: 16, color: KpbColors.borderStrong),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -1504,13 +1494,13 @@ class _ProfileCompletionGuide extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: _Palette.navy,
+                              color: KpbColors.brandNavy,
                             ),
                           ),
                           Text(
                             m.impact,
                             style: const TextStyle(
-                                fontSize: 12, color: _Palette.slate),
+                                fontSize: 12, color: KpbColors.textMuted),
                           ),
                         ],
                       ),
@@ -1525,8 +1515,9 @@ class _ProfileCompletionGuide extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onEdit,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.blue,
-                  side: const BorderSide(color: _Palette.chipBorder),
+                  foregroundColor: KpbColors.actionPrimary,
+                  side: BorderSide(
+                      color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   textStyle: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700),
@@ -1589,13 +1580,13 @@ class _GuestProfilePrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             floating: true,
             snap: true,
-            backgroundColor: _Palette.page,
+            backgroundColor: KpbColors.canvas,
             surfaceTintColor: Colors.transparent,
             title: Text(
               'profile'.tr,
@@ -1603,7 +1594,7 @@ class _GuestProfilePrompt extends StatelessWidget {
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
-                color: _Palette.navy,
+                color: KpbColors.brandNavy,
               ),
             ),
           ),
@@ -1615,7 +1606,7 @@ class _GuestProfilePrompt extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.person_outline_rounded,
-                      size: 64, color: _Palette.slate300),
+                      size: 64, color: KpbColors.borderStrong),
                   const SizedBox(height: 24),
                   Text(
                     'auth_guest_profile_title'.tr,
@@ -1623,14 +1614,15 @@ class _GuestProfilePrompt extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'auth_guest_profile_body'.tr,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: _Palette.slate, height: 1.4),
+                    style: const TextStyle(
+                        color: KpbColors.textMuted, height: 1.4),
                   ),
                   const SizedBox(height: 32),
                   FilledButton(
@@ -1641,7 +1633,7 @@ class _GuestProfilePrompt extends StatelessWidget {
                       Get.offAll(() => const AppBootScreen());
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: _Palette.blue,
+                      backgroundColor: KpbColors.actionPrimary,
                     ),
                     child: Text('auth_continue_email'.tr),
                   ),
@@ -1682,10 +1674,10 @@ class _LanguageToggle extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? _Palette.blue : Colors.transparent,
+          color: selected ? KpbColors.actionPrimary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? _Palette.blue : _Palette.slate300,
+            color: selected ? KpbColors.actionPrimary : KpbColors.borderStrong,
           ),
         ),
         child: Text(
@@ -1693,7 +1685,7 @@ class _LanguageToggle extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 12.5,
-            color: selected ? Colors.white : _Palette.slate,
+            color: selected ? Colors.white : KpbColors.textMuted,
           ),
         ),
       ),
@@ -1784,7 +1776,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: _Palette.slate300,
+                    color: KpbColors.borderStrong,
                     borderRadius: BorderRadius.circular(100),
                   ),
                 ),
@@ -1794,7 +1786,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 24),
@@ -1831,7 +1823,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1874,7 +1866,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 8),
@@ -1902,7 +1894,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                 ),
               ),
               const SizedBox(height: 8),
@@ -1927,7 +1919,8 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
               const SizedBox(height: 32),
               FilledButton(
                 onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(backgroundColor: _Palette.blue),
+                style: FilledButton.styleFrom(
+                    backgroundColor: KpbColors.actionPrimary),
                 child: _saving
                     ? const SizedBox(
                         width: 20,
@@ -1968,8 +1961,8 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       'profile_updated_body'.tr,
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
-      backgroundColor: _Palette.successBg,
-      colorText: _Palette.success,
+      backgroundColor: KpbColors.successLight,
+      colorText: KpbColors.success,
       duration: const Duration(seconds: 2),
     );
   }
@@ -1980,18 +1973,18 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       prefixIcon: Icon(icon, size: 20),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _Palette.border),
+        borderSide: const BorderSide(color: KpbColors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _Palette.border),
+        borderSide: const BorderSide(color: KpbColors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _Palette.blue, width: 2),
+        borderSide: const BorderSide(color: KpbColors.actionPrimary, width: 2),
       ),
       filled: true,
-      fillColor: _Palette.page,
+      fillColor: KpbColors.canvas,
     );
   }
 }
@@ -2022,18 +2015,19 @@ class _EditField extends StatelessWidget {
         prefixIcon: Icon(icon, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _Palette.border),
+          borderSide: const BorderSide(color: KpbColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _Palette.border),
+          borderSide: const BorderSide(color: KpbColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _Palette.blue, width: 2),
+          borderSide:
+              const BorderSide(color: KpbColors.actionPrimary, width: 2),
         ),
         filled: true,
-        fillColor: _Palette.page,
+        fillColor: KpbColors.canvas,
       ),
     );
   }
