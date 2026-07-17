@@ -11,20 +11,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 
-// Palette (App-engagement handoff) — mirrors parcours_screen.dart's local
-// palette, replacing the legacy KpbColors #004AAD accents.
-class _P {
-  static const navy = Color(0xFF0F172A);
-  static const heroEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-
-  static const heroGradient = LinearGradient(
-    colors: [navy, heroEnd],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 class ParcoursStoryScreen extends StatelessWidget {
   const ParcoursStoryScreen({super.key, required this.story});
 
@@ -109,7 +96,7 @@ class _Header extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(KpbSpacing.lg),
       decoration: BoxDecoration(
-        gradient: _P.heroGradient,
+        gradient: KpbColors.heroGradient,
         borderRadius: KpbRadius.lgBr,
       ),
       child: Row(
@@ -189,7 +176,8 @@ class _QaBlock extends StatelessWidget {
           if (question.isNotEmpty)
             Text(
               question,
-              style: KpbTextStyles.titleMd.copyWith(color: _P.blue),
+              style: KpbTextStyles.titleMd
+                  .copyWith(color: KpbColors.actionPrimary),
             ),
           if (question.isNotEmpty && answer.isNotEmpty)
             const SizedBox(height: KpbSpacing.sm),

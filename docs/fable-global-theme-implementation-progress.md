@@ -363,4 +363,50 @@ Normalisations AA habituelles : `green #16A34A→success`, `red #DC2626→error`
 fonds soft → rôles Light ; `bodyBlue/blueText #1E40AF→#1D4ED8` ;
 bordures bleu-clair (`#BFDBFE`) → `actionPrimary` α 0,3.
 
-## Lots 7–9 — ⬜ non démarrés
+## Lot 7 — Simulateurs, outils et contenu — ✅ terminé le 17/07/2026
+
+Branche : `claude/theme-lot7-tools-content` (depuis `main` post-#152).
+
+### Fichiers migrés (139 hex → 0, ~310 substitutions, 12 classes palette supprimées)
+
+budget_calculator (12), flight_estimator (8 — gradients hero clair/sombre →
+`KpbColors.heroGradient[Dark]`, quasi identiques), aha_moment (8),
+community_screen (22 — fonds de catégories normalisés sur les rôles Light,
+`sky #0EA5E9→businessSky`), forum_category (12), parcours_screen (8) et
+parcours_story (3 — classes `_P`), premium_screen (19 — dégradé premium →
+même allowlist `#FDE68A` que le profil, `cardTextOnNavy→gray200`,
+`#4ADE80→successOnDark` nouveau token, ombre 12 % → `KpbShadow.mediumNavy`
+nouveau token), salon (2 — badge LIVE `#E53935→error`, contraste blanc
+3,7:1 → 6,5:1), ai_chat (15 — hero `[actionPrimary, decorSky]` reconstruit
+en tokens), interview_simulator (18), motivation_letters (12).
+
+Nouveaux tokens : `KpbColors.successOnDark` (#4ADE80, succès sur navy),
+`KpbShadow.mediumNavy` (0x1F0F172A).
+
+### Vérifiés sans travail (0 hex, auto-repointés)
+
+housing, eligibility, deadlines, orientation ×2, france, academy ×2,
+referral_screen, services, student_tools, cv_generator, document_scanner,
+impact_dashboard, coach_fab.
+
+### Ratchet
+
+`color_budget.dart` : **8 fichiers / 194 hex** (−137). Restent : app_tokens
+(~80) + lot 8 (commercial 38, ambassador 37, parent ~22) + divers ≤ 5.
+
+### Validation
+
+- `flutter analyze` : propre sur les fichiers trackés (1 warning résiduel dans
+  un brouillon non tracké de la session concurrente, hors branche) ;
+- périmètre (thème, parcours, home, aha, salon, communauté) : **70 tests verts** ;
+- contamination croisée : zéro fragment Success Lab (diff origin/main vérifié).
+
+### Écarts visuels volontaires
+
+Normalisations AA habituelles + badge LIVE assombri (contraste amélioré) ;
+fonds de catégories communauté sur les rôles Light (indigo-50→blue-50,
+green-50 unifié, rose-50→red-50) ; hero sombre du vol `#0B1220→#0B1120`
+(imperceptible). Branches `isDark` locales conservées (dead code light-only,
+retrait au lot 9 pour limiter la surface de ce lot).
+
+## Lots 8–9 — ⬜ non démarrés

@@ -28,31 +28,7 @@ Airport? _airportForToken(String? token) {
   return null;
 }
 
-// Palette (App-engagement handoff) — replaces the legacy KpbColors
-// #004AAD/#4EADEA accents flagged by the design-conformance audit. Semantic
-// colors (success/error) and dark surfaces keep the shared tokens.
-class _P {
-  static const navy = Color(0xFF0F172A);
-  static const heroEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  static const amberBorder = Color(0xFFFDE68A);
-
-  static const heroGradient = LinearGradient(
-    colors: [navy, heroEnd],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const heroGradientDark = LinearGradient(
-    colors: [Color(0xFF0B1220), navy],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 class FlightEstimatorScreen extends StatefulWidget {
   const FlightEstimatorScreen({super.key});
 
@@ -249,7 +225,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           data: isDark
               ? ThemeData.dark().copyWith(
                   colorScheme: const ColorScheme.dark(
-                    primary: _P.sky,
+                    primary: KpbColors.decorSky,
                     onPrimary: Colors.white,
                     surface: KpbColors.bgDarkCard,
                     onSurface: Colors.white,
@@ -257,7 +233,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                 )
               : ThemeData.light().copyWith(
                   colorScheme: const ColorScheme.light(
-                    primary: _P.blue,
+                    primary: KpbColors.actionPrimary,
                     onPrimary: Colors.white,
                     surface: Colors.white,
                     onSurface: KpbColors.textPrimary,
@@ -379,7 +355,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                                       airport.code,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? _P.sky : _P.blue,
+                                        color: isDark
+                                            ? KpbColors.decorSky
+                                            : KpbColors.actionPrimary,
                                       ),
                                     ),
                                   ),
@@ -450,7 +428,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               text: 'flight_search_prices'.tr,
               onPressed: _loading ? () {} : _search,
               icon: Icons.travel_explore_rounded,
-              bgColor: _P.sky,
+              bgColor: KpbColors.decorSky,
             ),
             const SizedBox(height: 24),
             _buildResultsSection(isDark),
@@ -470,7 +448,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
   Widget _buildHeroCard(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        gradient: isDark ? _P.heroGradientDark : _P.heroGradient,
+        gradient: isDark ? KpbColors.heroGradientDark : KpbColors.heroGradient,
         borderRadius: KpbRadius.xlBr,
         boxShadow: KpbShadow.blue,
       ),
@@ -575,7 +553,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
   }
 
   Widget _buildTripTypeToggle(bool isDark) {
-    final activeColor = isDark ? _P.sky : _P.blue;
+    final activeColor = isDark ? KpbColors.decorSky : KpbColors.actionPrimary;
     Widget option(String label, bool selected, VoidCallback onTap) {
       return Expanded(
         child: InkWell(
@@ -696,14 +674,14 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _P.amberBg,
+        color: KpbColors.warningLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _P.amberBorder),
+        border: Border.all(color: KpbColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_rounded, size: 16, color: _P.amber),
+          const Icon(Icons.info_rounded, size: 16, color: KpbColors.warning),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -712,7 +690,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                 fontSize: 11.5,
                 height: 1.5,
                 fontWeight: FontWeight.w600,
-                color: _P.amber,
+                color: KpbColors.warning,
               ),
             ),
           ),
@@ -733,8 +711,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
         color: context.kpb.cardBg,
         borderRadius: KpbRadius.lgBr,
         border: Border.all(
-            color:
-                highlight ? (isDark ? _P.sky : _P.blue) : context.kpb.gray100,
+            color: highlight
+                ? (isDark ? KpbColors.decorSky : KpbColors.actionPrimary)
+                : context.kpb.gray100,
             width: highlight ? 1.5 : 1),
         boxShadow: KpbShadow.soft,
       ),
@@ -772,7 +751,9 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
                   Text(
                     _formatPrice(r.price, currency),
                     style: KpbTextStyles.titleMd.copyWith(
-                        color: isDark ? _P.sky : _P.blue,
+                        color: isDark
+                            ? KpbColors.decorSky
+                            : KpbColors.actionPrimary,
                         fontWeight: FontWeight.w800),
                   ),
                   if (r.roundTrip)
@@ -811,7 +792,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
               text: 'flight_book_on_kayak'.tr,
               onPressed: () => _open(r.deeplinkUrl),
               icon: Icons.airplane_ticket_rounded,
-              bgColor: _P.sky,
+              bgColor: KpbColors.decorSky,
             ),
           ),
         ],
@@ -921,7 +902,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           text: 'flight_view_on_kayak'.tr,
           onPressed: _launchKayakFallback,
           icon: Icons.open_in_new_rounded,
-          bgColor: _P.sky,
+          bgColor: KpbColors.decorSky,
         ),
       ],
     );
@@ -941,7 +922,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
           text: 'flight_view_on_kayak'.tr,
           onPressed: _launchKayakFallback,
           icon: Icons.open_in_new_rounded,
-          bgColor: _P.sky,
+          bgColor: KpbColors.decorSky,
         ),
       ],
     );
@@ -983,10 +964,13 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isDark ? _P.sky : _P.blue).withValues(alpha: 0.1),
+                color: (isDark ? KpbColors.decorSky : KpbColors.actionPrimary)
+                    .withValues(alpha: 0.1),
                 borderRadius: KpbRadius.mdBr,
               ),
-              child: Icon(icon, color: isDark ? _P.sky : _P.blue, size: 20),
+              child: Icon(icon,
+                  color: isDark ? KpbColors.decorSky : KpbColors.actionPrimary,
+                  size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(

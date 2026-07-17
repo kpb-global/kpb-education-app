@@ -5,36 +5,11 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
 import 'motivation_letter_templates.dart';
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "Lettre de motivation" form + editor).
-// Local to this file — same per-file pattern as the other restyled Student
-// surfaces (#110–117). Visual only; the real template + AI-personalize flow is
-// preserved.
-//
-// DROPPED design chrome (see PR notes): the "7 days Premium free" trial banner,
-// the "humanize / anti-AI mandatory pass" button and its "universities detect
-// GPT" caption, and the edit-instruction chips — none have any backend behind
-// them. The design's dark "Export" pill is bound to the REAL share control, and
-// copy stays a real clipboard action.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const cardShadow = Color(0x0A0F172A);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 /// Motivation Letters — browse templates, personalise with AI (FR + EN).
@@ -56,7 +31,7 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -73,12 +48,12 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        color: _Palette.card,
+                        color: KpbColors.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(color: _Palette.border),
+                        border: Border.all(color: KpbColors.border),
                       ),
                       child: const Icon(Icons.arrow_back_rounded,
-                          size: 19, color: _Palette.navy),
+                          size: 19, color: KpbColors.brandNavy),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -92,13 +67,13 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
                             fontSize: 19,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.4,
-                            color: _Palette.navy,
+                            color: KpbColors.brandNavy,
                           ),
                         ),
                         Text(
                           'letters_header_subtitle'.tr,
                           style: const TextStyle(
-                              fontSize: 11.5, color: _Palette.slate),
+                              fontSize: 11.5, color: KpbColors.textMuted),
                         ),
                       ],
                     ),
@@ -145,10 +120,12 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
-            color: selected ? _Palette.chipBg : _Palette.card,
+            color: selected ? KpbColors.actionPrimarySoft : KpbColors.surface,
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: selected ? _Palette.chipBorder : _Palette.border,
+              color: selected
+                  ? KpbColors.actionPrimary.withValues(alpha: 0.3)
+                  : KpbColors.border,
               width: 1.5,
             ),
           ),
@@ -157,7 +134,7 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: selected ? _Palette.blue : _Palette.slate,
+              color: selected ? KpbColors.actionPrimary : KpbColors.textMuted,
             ),
           ),
         ),
@@ -279,9 +256,9 @@ class _LetterCardState extends State<_LetterCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.card,
+        color: KpbColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
         boxShadow: _cardShadow,
       ),
       padding: const EdgeInsets.all(14),
@@ -298,10 +275,11 @@ class _LetterCardState extends State<_LetterCard> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _Palette.chipBg,
+                    color: KpbColors.actionPrimarySoft,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(_categoryIcon, color: _Palette.blue, size: 21),
+                  child: Icon(_categoryIcon,
+                      color: KpbColors.actionPrimary, size: 21),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -313,13 +291,13 @@ class _LetterCardState extends State<_LetterCard> {
                         style: const TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w800,
-                          color: _Palette.navy,
+                          color: KpbColors.brandNavy,
                         ),
                       ),
                       Text(
                         titleSecondary,
                         style: const TextStyle(
-                            fontSize: 11.5, color: _Palette.slate),
+                            fontSize: 11.5, color: KpbColors.textMuted),
                       ),
                     ],
                   ),
@@ -328,7 +306,7 @@ class _LetterCardState extends State<_LetterCard> {
                   _expanded
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
-                  color: _Palette.slate400,
+                  color: KpbColors.textFaint,
                 ),
               ],
             ),
@@ -352,7 +330,7 @@ class _LetterCardState extends State<_LetterCard> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _Palette.chipBg,
+                      color: KpbColors.actionPrimarySoft,
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(
@@ -360,7 +338,7 @@ class _LetterCardState extends State<_LetterCard> {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: _Palette.blue,
+                        color: KpbColors.actionPrimary,
                       ),
                     ),
                   ),
@@ -374,16 +352,16 @@ class _LetterCardState extends State<_LetterCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _Palette.card,
+                color: KpbColors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _Palette.border),
+                border: Border.all(color: KpbColors.border),
               ),
               child: SelectableText(
                 _displayText,
                 style: const TextStyle(
                   fontSize: 12.5,
                   height: 1.7,
-                  color: _Palette.body,
+                  color: KpbColors.gray700,
                 ),
               ),
             ),
@@ -415,8 +393,8 @@ class _LetterCardState extends State<_LetterCard> {
                       height: 46,
                       decoration: BoxDecoration(
                         color: _isPersonalizing
-                            ? _Palette.blue.withValues(alpha: 0.6)
-                            : _Palette.blue,
+                            ? KpbColors.actionPrimary.withValues(alpha: 0.6)
+                            : KpbColors.actionPrimary,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
@@ -469,7 +447,7 @@ class _LetterCardState extends State<_LetterCard> {
                       height: 46,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
@@ -511,33 +489,34 @@ class _LetterCardState extends State<_LetterCard> {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: _Palette.slate,
+            color: KpbColors.textMuted,
           ),
         ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
-          style: const TextStyle(fontSize: 12.5, color: _Palette.body),
+          style: const TextStyle(fontSize: 12.5, color: KpbColors.gray700),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(fontSize: 12.5, color: _Palette.slate400),
+                const TextStyle(fontSize: 12.5, color: KpbColors.textFaint),
             filled: true,
-            fillColor: _Palette.card,
+            fillColor: KpbColors.surface,
             isDense: true,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _Palette.border, width: 1.5),
+              borderSide: const BorderSide(color: KpbColors.border, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _Palette.border, width: 1.5),
+              borderSide: const BorderSide(color: KpbColors.border, width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _Palette.blue, width: 1.5),
+              borderSide:
+                  const BorderSide(color: KpbColors.actionPrimary, width: 1.5),
             ),
           ),
         ),
@@ -551,10 +530,10 @@ class _LetterCardState extends State<_LetterCard> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? _Palette.blue : _Palette.card,
+          color: selected ? KpbColors.actionPrimary : KpbColors.surface,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? _Palette.blue : _Palette.border,
+            color: selected ? KpbColors.actionPrimary : KpbColors.border,
             width: 1.5,
           ),
         ),
@@ -563,7 +542,7 @@ class _LetterCardState extends State<_LetterCard> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: selected ? Colors.white : _Palette.slate,
+            color: selected ? Colors.white : KpbColors.textMuted,
           ),
         ),
       ),
@@ -583,10 +562,10 @@ class _LetterCardState extends State<_LetterCard> {
           width: 46,
           height: 46,
           decoration: BoxDecoration(
-            color: _Palette.line,
+            color: KpbColors.surfaceMuted,
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, color: _Palette.slate, size: 19),
+          child: Icon(icon, color: KpbColors.textMuted, size: 19),
         ),
       ),
     );

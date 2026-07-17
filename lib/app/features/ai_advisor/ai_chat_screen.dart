@@ -5,40 +5,11 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
 import '../tools/motivation_letters_screen.dart';
+import '../../core/ui/app_tokens.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Palette (App-engagement handoff · "KPB Intelligence" / Copilote screen).
-// Local to this file — same per-file pattern as the other restyled Student
-// surfaces (#110–117). Visual only; all coach/quota/streaming logic is real and
-// preserved.
-// ─────────────────────────────────────────────────────────────────────────────
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const blue = Color(0xFF2563EB);
-  static const sky = Color(0xFF38BDF8);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const cbd5e1 = Color(0xFFCBD5E1);
-  static const border = Color(0xFFE2E8F0);
-  static const line = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const card = Color(0xFFFFFFFF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const green = Color(0xFF16A34A);
-  static const amber = Color(0xFFB45309);
-  static const amberBg = Color(0xFFFEF3C7);
-  // rgba(15,23,42,0.04) — soft card shadow from the handoff.
-  static const cardShadow = Color(0x0A0F172A);
-
-  static const heroGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [blue, sky],
-  );
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
-  BoxShadow(color: _Palette.cardShadow, blurRadius: 2, offset: Offset(0, 1)),
+  BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
 
 class AiMessage {
@@ -251,7 +222,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: Column(
           children: [
@@ -259,7 +230,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
             if (_remainingMessages <= 0)
               Container(
                 width: double.infinity,
-                color: _Palette.amberBg,
+                color: KpbColors.warningLight,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -267,7 +238,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 child: Text(
                   'coach_quota_exhausted'.tr,
                   style: const TextStyle(
-                    color: _Palette.amber,
+                    color: KpbColors.warning,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -301,8 +272,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: const BoxDecoration(
-        color: _Palette.card,
-        border: Border(bottom: BorderSide(color: _Palette.border)),
+        color: KpbColors.surface,
+        border: Border(bottom: BorderSide(color: KpbColors.border)),
       ),
       child: Row(
         children: [
@@ -315,7 +286,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 width: 36,
                 height: 36,
                 child: Icon(Icons.arrow_back_rounded,
-                    color: _Palette.navy, size: 20),
+                    color: KpbColors.brandNavy, size: 20),
               ),
             ),
           ),
@@ -323,7 +294,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              gradient: _Palette.heroGradient,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [KpbColors.actionPrimary, KpbColors.decorSky],
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.smart_toy_rounded,
@@ -339,7 +314,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                 ),
                 Text(
@@ -347,7 +322,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: _Palette.green,
+                    color: KpbColors.success,
                   ),
                 ),
               ],
@@ -361,7 +336,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: _Palette.line,
+                color: KpbColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
@@ -369,7 +344,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: _Palette.slate,
+                  color: KpbColors.textMuted,
                 ),
               ),
             ),
@@ -390,14 +365,14 @@ class _AiChatScreenState extends State<AiChatScreen> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: isUser ? _Palette.blue : _Palette.card,
+          color: isUser ? KpbColors.actionPrimary : KpbColors.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(isUser ? 16 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 16),
           ),
-          border: isUser ? null : Border.all(color: _Palette.border),
+          border: isUser ? null : Border.all(color: KpbColors.border),
           boxShadow: isUser ? null : _cardShadow,
         ),
         child: Column(
@@ -411,7 +386,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 "${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}",
                 style: TextStyle(
                   fontSize: 9.5,
-                  color: isUser ? Colors.white70 : _Palette.slate400,
+                  color: isUser ? Colors.white70 : KpbColors.textFaint,
                 ),
               ),
             ),
@@ -424,8 +399,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
   /// Renders **bold** markdown. On the user's blue bubble everything is white;
   /// on the assistant's white bubble body is navy and bold is accented blue.
   Widget _parseAndRichText(String text, bool isUser) {
-    final baseColor = isUser ? Colors.white : _Palette.navy;
-    final boldColor = isUser ? Colors.white : _Palette.blue;
+    final baseColor = isUser ? Colors.white : KpbColors.brandNavy;
+    final boldColor = isUser ? Colors.white : KpbColors.actionPrimary;
     final baseStyle = TextStyle(color: baseColor, fontSize: 13, height: 1.5);
 
     final spans = <InlineSpan>[];
@@ -463,9 +438,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: _Palette.card,
+          color: KpbColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
           boxShadow: _cardShadow,
         ),
         child: const SizedBox(
@@ -497,16 +472,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: _Palette.card,
+                  color: KpbColors.surface,
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: _Palette.chipBorder, width: 1.5),
+                  border: Border.all(
+                      color: KpbColors.actionPrimary.withValues(alpha: 0.3),
+                      width: 1.5),
                 ),
                 child: Text(
                   sug,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.blue,
+                    color: KpbColors.actionPrimary,
                   ),
                 ),
               ),
@@ -521,8 +498,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: const BoxDecoration(
-        color: _Palette.page,
-        border: Border(top: BorderSide(color: _Palette.border, width: 0.5)),
+        color: KpbColors.canvas,
+        border: Border(top: BorderSide(color: KpbColors.border, width: 0.5)),
       ),
       child: Row(
         children: [
@@ -536,11 +513,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 width: 46,
                 height: 46,
                 decoration: const BoxDecoration(
-                  color: _Palette.line,
+                  color: KpbColors.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.edit_note_rounded,
-                    color: _Palette.slate, size: 22),
+                    color: KpbColors.textMuted, size: 22),
               ),
             ),
           ),
@@ -549,22 +526,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: _Palette.card,
+                color: KpbColors.surface,
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: _Palette.border, width: 1.5),
+                border: Border.all(color: KpbColors.border, width: 1.5),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _textController,
                 style: const TextStyle(
-                  color: _Palette.navy,
+                  color: KpbColors.brandNavy,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
                   hintText: 'coach_input_hint'.tr,
                   hintStyle:
-                      const TextStyle(color: _Palette.slate400, fontSize: 13),
+                      const TextStyle(color: KpbColors.textFaint, fontSize: 13),
                   border: InputBorder.none,
                   isCollapsed: true,
                 ),
@@ -582,7 +559,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 height: 46,
                 width: 46,
                 decoration: const BoxDecoration(
-                  color: _Palette.blue,
+                  color: KpbColors.actionPrimary,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.send_rounded,
@@ -609,7 +586,11 @@ class _TypingDotState extends State<_TypingDot>
   late AnimationController _animController;
   late Animation<double> _anim;
 
-  static const _colors = [_Palette.slate400, _Palette.cbd5e1, _Palette.border];
+  static const _colors = [
+    KpbColors.textFaint,
+    KpbColors.borderStrong,
+    KpbColors.border
+  ];
 
   @override
   void initState() {

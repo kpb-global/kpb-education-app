@@ -5,6 +5,7 @@ import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Karatou Premium — App-engagement handoff (navy/blue).
@@ -21,34 +22,20 @@ import '../../core/utils/whatsapp_utils.dart';
 // from CoachService, default 5). The lone CTA hands off to the WhatsApp advisor.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const navyGradientEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const amber = Color(0xFFF59E0B);
-  static const amberSoft = Color(0xFFFDE68A);
-  static const slate400 = Color(0xFF94A3B8);
-  static const body = Color(0xFF334155);
-  static const border = Color(0xFFE2E8F0);
-  static const subtle = Color(0xFFF1F5F9);
-  static const page = Color(0xFFF8FAFC);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const blueText = Color(0xFF1E40AF);
-  static const cardTextOnNavy = Color(0xFFE2E8F0);
-  static const whatsapp = Color(0xFF25D366);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _heroGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_Palette.navy, _Palette.navyGradientEnd],
+  colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
 );
 
 const _amberGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [_Palette.amber, _Palette.amberSoft],
+  colors: [
+    KpbColors.gold,
+    Color(0xFFFDE68A), // kpb-allow-color: dégradé premium (gold → amber-200)
+  ],
 );
 
 class PremiumScreen extends StatefulWidget {
@@ -95,7 +82,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     final count = '$_freeWeeklyLimit';
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: SafeArea(
         child: Column(
           children: [
@@ -113,7 +100,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.4,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                   ),
@@ -151,7 +138,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1F0F172A),
+            color: KpbShadow.mediumNavy,
             blurRadius: 20,
             offset: Offset(0, 8),
           ),
@@ -170,7 +157,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(Icons.workspace_premium_rounded,
-                    color: _Palette.navy, size: 24),
+                    color: KpbColors.brandNavy, size: 24),
               ),
               const SizedBox(width: 12),
               _SoonPill(label: 'premium_badge_soon'.tr),
@@ -192,7 +179,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.5,
-              color: _Palette.slate400,
+              color: KpbColors.textFaint,
             ),
           ),
           const SizedBox(height: 14),
@@ -212,7 +199,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -228,7 +215,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   flex: 9, header: true, leftBorder: true, highlight: true),
             ],
           ),
-          Container(height: 1, color: _Palette.subtle),
+          Container(height: 1, color: KpbColors.surfaceMuted),
           // The single honest row.
           Row(
             children: [
@@ -259,9 +246,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: highlight ? _Palette.chipBg : Colors.transparent,
+          color: highlight ? KpbColors.actionPrimarySoft : Colors.transparent,
           border: leftBorder
-              ? const Border(left: BorderSide(color: _Palette.subtle))
+              ? const Border(left: BorderSide(color: KpbColors.surfaceMuted))
               : null,
         ),
         child: Text(
@@ -275,8 +262,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ? FontWeight.w800
                 : (strong ? FontWeight.w800 : FontWeight.w600),
             color: header
-                ? (highlight ? _Palette.blue : _Palette.slate400)
-                : (highlight ? _Palette.blue : _Palette.body),
+                ? (highlight ? KpbColors.actionPrimary : KpbColors.textFaint)
+                : (highlight ? KpbColors.actionPrimary : KpbColors.gray700),
           ),
         ),
       ),
@@ -290,7 +277,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +287,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             style: const TextStyle(
               fontSize: 15.5,
               fontWeight: FontWeight.w800,
-              color: _Palette.navy,
+              color: KpbColors.brandNavy,
             ),
           ),
           const SizedBox(height: 6),
@@ -309,21 +296,22 @@ class _PremiumScreenState extends State<PremiumScreen> {
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.5,
-              color: _Palette.body,
+              color: KpbColors.gray700,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: _Palette.chipBg,
+              color: KpbColors.actionPrimarySoft,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _Palette.chipBorder),
+              border: Border.all(
+                  color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
                 const Icon(Icons.shield_outlined,
-                    size: 16, color: _Palette.blue),
+                    size: 16, color: KpbColors.actionPrimary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -332,7 +320,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       fontSize: 11.5,
                       height: 1.4,
                       fontWeight: FontWeight.w700,
-                      color: _Palette.blueText,
+                      color: KpbColors.actionPrimaryPressed,
                     ),
                   ),
                 ),
@@ -350,7 +338,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: _Palette.border)),
+        border: Border(top: BorderSide(color: KpbColors.border)),
       ),
       child: SizedBox(
         height: 52,
@@ -358,7 +346,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
         child: FilledButton.icon(
           onPressed: _contactAdvisor,
           style: FilledButton.styleFrom(
-            backgroundColor: _Palette.whatsapp,
+            backgroundColor: KpbColors.whatsapp,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -390,10 +378,10 @@ class _CircleBackButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(color: _Palette.border),
+          border: Border.all(color: KpbColors.border),
         ),
         child: const Icon(Icons.arrow_back_rounded,
-            size: 19, color: _Palette.navy),
+            size: 19, color: KpbColors.brandNavy),
       ),
     );
   }
@@ -408,7 +396,7 @@ class _SoonPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0x2E38BDF8),
+        color: KpbColors.decorSky.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
@@ -417,7 +405,7 @@ class _SoonPill extends StatelessWidget {
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
-          color: Color(0xFF38BDF8),
+          color: KpbColors.decorSky,
         ),
       ),
     );
@@ -436,7 +424,7 @@ class _ValueRow extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.only(top: 1),
           child: Icon(Icons.check_circle_rounded,
-              size: 16, color: Color(0xFF4ADE80)),
+              size: 16, color: KpbColors.successOnDark),
         ),
         const SizedBox(width: 9),
         Expanded(
@@ -446,7 +434,7 @@ class _ValueRow extends StatelessWidget {
               fontSize: 12.5,
               height: 1.45,
               fontWeight: FontWeight.w600,
-              color: _Palette.cardTextOnNavy,
+              color: KpbColors.gray200,
             ),
           ),
         ),

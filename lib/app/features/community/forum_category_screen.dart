@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Forum Category — App-engagement handoff restyle (navy/blue).
@@ -15,22 +16,7 @@ import '../../core/utils/whatsapp_utils.dart';
 // forum is launching soon → talk on WhatsApp now" call to action.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Local palette — same per-file pattern as the other App-engagement screens.
-class _Palette {
-  static const navy = Color(0xFF0F172A);
-  static const navyGradientEnd = Color(0xFF1E3A8A);
-  static const blue = Color(0xFF2563EB);
-  static const slate = Color(0xFF64748B);
-  static const slate400 = Color(0xFF94A3B8);
-  static const border = Color(0xFFE2E8F0);
-  static const page = Color(0xFFF8FAFC);
-  static const chipBg = Color(0xFFEFF6FF);
-  static const chipBorder = Color(0xFFBFDBFE);
-  static const blueText = Color(0xFF1E40AF);
-  static const body = Color(0xFF334155);
-  static const whatsapp = Color(0xFF25D366);
-}
-
+// Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 class ForumCategoryScreen extends StatefulWidget {
   const ForumCategoryScreen({
     super.key,
@@ -57,7 +43,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
     final controller = Get.find<AppController>();
 
     return Scaffold(
-      backgroundColor: _Palette.page,
+      backgroundColor: KpbColors.canvas,
       body: GetBuilder<AppController>(
         builder: (_) {
           final tags = controller.visibleForumTopicTags;
@@ -69,7 +55,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
               SliverAppBar(
                 pinned: true,
                 expandedHeight: 184,
-                backgroundColor: _Palette.navy,
+                backgroundColor: KpbColors.brandNavy,
                 surfaceTintColor: Colors.transparent,
                 foregroundColor: Colors.white,
                 leading: IconButton(
@@ -93,7 +79,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [_Palette.navy, _Palette.navyGradientEnd],
+                        colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
                       ),
                     ),
                     child: Align(
@@ -123,7 +109,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                         style: const TextStyle(
                           fontSize: 13.5,
                           height: 1.55,
-                          color: _Palette.body,
+                          color: KpbColors.gray700,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -143,7 +129,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                   ),
@@ -186,7 +172,7 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: _Palette.navy,
+                      color: KpbColors.brandNavy,
                     ),
                   ),
                 ),
@@ -200,19 +186,19 @@ class _ForumCategoryScreenState extends State<ForumCategoryScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: _Palette.border),
+                        border: Border.all(color: KpbColors.border),
                       ),
                       child: Column(
                         children: [
                           const Icon(Icons.article_outlined,
-                              size: 44, color: _Palette.slate400),
+                              size: 44, color: KpbColors.textFaint),
                           const SizedBox(height: 12),
                           Text(
                             'forum_no_articles_tagged'.tr,
                             style: const TextStyle(
                               fontSize: 12.5,
                               height: 1.45,
-                              color: _Palette.slate,
+                              color: KpbColors.textMuted,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -277,9 +263,10 @@ class _JoinCtaCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _Palette.chipBg,
+        color: KpbColors.actionPrimarySoft,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.chipBorder),
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,10 +277,11 @@ class _JoinCtaCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _Palette.blue.withValues(alpha: 0.14),
+                  color: KpbColors.actionPrimary.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.forum_rounded, color: _Palette.blue),
+                child: const Icon(Icons.forum_rounded,
+                    color: KpbColors.actionPrimary),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -305,7 +293,7 @@ class _JoinCtaCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.navy,
+                        color: KpbColors.brandNavy,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -314,7 +302,7 @@ class _JoinCtaCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12.5,
                         height: 1.45,
-                        color: _Palette.blueText,
+                        color: KpbColors.actionPrimaryPressed,
                       ),
                     ),
                   ],
@@ -328,7 +316,7 @@ class _JoinCtaCard extends StatelessWidget {
             child: Container(
               height: 48,
               decoration: BoxDecoration(
-                color: _Palette.whatsapp,
+                color: KpbColors.whatsapp,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -376,10 +364,10 @@ class _TagChip extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _Palette.blue : Colors.white,
+          color: selected ? KpbColors.actionPrimary : Colors.white,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? _Palette.blue : _Palette.border,
+            color: selected ? KpbColors.actionPrimary : KpbColors.border,
           ),
         ),
         child: Text(
@@ -387,7 +375,7 @@ class _TagChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13.5,
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-            color: selected ? Colors.white : _Palette.slate,
+            color: selected ? Colors.white : KpbColors.textMuted,
           ),
         ),
       ),
@@ -415,7 +403,7 @@ class _ArticleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _Palette.border),
+        border: Border.all(color: KpbColors.border),
       ),
       child: Row(
         children: [
@@ -439,7 +427,7 @@ class _ArticleRow extends StatelessWidget {
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                     height: 1.25,
-                    color: _Palette.navy,
+                    color: KpbColors.brandNavy,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -450,7 +438,7 @@ class _ArticleRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 11.5,
                     height: 1.4,
-                    color: _Palette.slate,
+                    color: KpbColors.textMuted,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

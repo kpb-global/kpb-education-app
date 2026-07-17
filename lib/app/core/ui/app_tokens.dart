@@ -31,6 +31,8 @@ class KpbColors {
   static const textFaint = Color(0xFF94A3B8); // placeholders/décor —
   // 2,56:1 sur blanc : JAMAIS pour un texte porteur de sens.
   static const textOnDark = Colors.white;
+  static const successOnDark = Color(0xFF4ADE80); // succès sur navy — jamais
+  // sur fond clair (green-400, 1,9:1 sur blanc).
   static const textOnDarkMuted = Color(0xFF94A3B8); // secondaire sur navy
   static const decorSky = Color(0xFF38BDF8); // accent décoratif — jamais texte
   static const whatsapp = Color(0xFF25D366); // marque externe WhatsApp
@@ -249,6 +251,9 @@ class KpbShadow {
 
   /// Ombre très douce teintée navy (4 %) — cartes discrètes des listes.
   static const softNavy = Color(0x0A0F172A);
+
+  /// Ombre navy moyenne (12 %) — heros et cartes mises en avant.
+  static const mediumNavy = Color(0x1F0F172A);
 
   /// Scrim navy appuyé (25 %) — bottom sheets et overlays.
   static const scrimNavy = Color(0x400F172A);
