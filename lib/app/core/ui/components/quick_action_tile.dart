@@ -39,16 +39,21 @@ class QuickActionTile extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textPrimary,
-                height: 1.3,
+            // Réduit le libellé au lieu de le couper en plein mot
+            // (« Orientatio / n ») : même patron anti-troncature que la nav.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: c.textPrimary,
+                  height: 1.3,
+                ),
               ),
             ),
           ],
