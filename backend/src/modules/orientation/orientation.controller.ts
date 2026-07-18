@@ -42,8 +42,8 @@ export class OrientationController {
 
   @Get('results/:id')
   @UseGuards(StudentAuthGuard)
-  getResults(@Param('id') id: string) {
-    return this.orientationService.getResults(id);
+  getResults(@Param('id') id: string, @Req() req: any) {
+    return this.orientationService.getResults(id, req.studentUser.id);
   }
 
   /// Overrides any client-supplied userId / profile.id with the authenticated

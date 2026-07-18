@@ -1,5 +1,10 @@
 # KPB Education - Deployment Guide
 
+Pour l'activation et les incidents du Success Lab, appliquer également le
+runbook `docs/kpb-competition-readiness-operations-runbook.md`. Un déploiement
+réussi ne vaut pas autorisation de pilote tant que sa checklist terrain n'est
+pas signée.
+
 ## 0. Production actuelle — VPS Hostinger derrière le Traefik existant
 
 C'est la procédure **de référence** pour le lancement. Le VPS Hostinger
@@ -25,20 +30,47 @@ git clone <repo> /docker/kpb && cd /docker/kpb   # ou git pull si déjà cloné
 #    POSTGRES_* , KPB_JWT_* , KPB_ADMIN_REFRESH_SECRET , SUPABASE_URL ,
 #    CORS_ORIGINS=https://admin.kpbeducation.cloud , GROQ/RESEND/ONESIGNAL…
 
-# 3. Le réseau Traefik existe déjà (créé par le stack marketing). Sinon :
+# 3. Utiliser un tag d'image immuable (SHA Git ou version de release).
+export KPB_IMAGE_TAG="$(git rev-parse --short=12 HEAD)"
+export KPB_BUILD_SHA="$(git rev-parse HEAD)"
+
+# 4. Le réseau Traefik existe déjà (créé par le stack marketing). Sinon :
 docker network create traefik
 
-# 4. Build + up (rejoint le Traefik existant, ne touche pas n8n/Mautic)
-docker compose up -d --build
+# 5. Construire les images SANS remplacer les conteneurs en cours.
+docker compose build api admin
 
-# 5. Migrations + seed (première fois)
-docker compose exec api npx prisma migrate deploy
-docker compose exec api npm run prisma:seed        # pays actifs + catalogue
+# 6. Vérifier puis copier la dernière sauvegarde hors du VPS.
+docker compose exec -T db pg_dump -U "$POSTGRES_USER" -d "${POSTGRES_DB:-kpb}" \
+  --format=custom > "backups/predeploy-${KPB_IMAGE_TAG}.dump"
 
-# 6. Vérifs
-curl -fsS https://api.kpbeducation.cloud/api/health        # 200 attendu
+# 7. Appliquer les migrations une seule fois avec la nouvelle image. Les
+#    conteneurs en ligne restent sur l'ancienne image si cette étape échoue.
+docker compose run --rm --no-deps api npx prisma migrate deploy
+
+# 8. Remplacer uniquement l'API et l'admin, puis vérifier leur santé.
+docker compose up -d --no-deps api admin
+
+# 9. Première installation seulement : seed après migrations.
+docker compose exec api npm run prisma:seed
+
+# 10. Vérifs
+curl -fsS https://api.kpbeducation.cloud/api/health/live   # 200 attendu
+curl -fsS https://api.kpbeducation.cloud/api/health/ready  # 200 attendu
+curl -fsS https://api.kpbeducation.cloud/api/config/app
 #    admin.kpbeducation.cloud doit répondre en HTTPS (cert Let's Encrypt auto)
 ```
+
+Le démarrage de l'API n'applique volontairement aucune migration. Cette étape
+explicite garantit que la sauvegarde est terminée avant toute évolution du
+schéma et qu'un échec de migration ne remplace pas les conteneurs sains.
+
+Pour un rollback applicatif, remettre tous les flags Competition Readiness à
+`false`, le kill switch IA à `true`, `KPB_SUCCESS_LAB_ROLLOUT_PERCENT=0`, puis
+revenir au `KPB_IMAGE_TAG` précédent et relancer uniquement `api` et `admin`.
+Les migrations de ce lot sont additives : ne restaurer la base qu'en cas de
+corruption avérée, après décision opérationnelle et sauvegarde des données
+post-déploiement.
 
 Traefik gère le TLS + l'upgrade WebSocket (chat des dossiers) automatiquement —
 aucune config nginx à écrire. Les limites `mem_limit` du `docker-compose.yml`
@@ -96,7 +128,10 @@ CORS_ORIGINS=https://admin.kpbeducation.cloud
 KPB_TRUST_PROXY_HOPS=1
 ```
 
-3. Lancez : `docker-compose up -d --build`
+3. Construisez les images, sauvegardez la base, exécutez explicitement
+   `npx prisma migrate deploy` avec la nouvelle image, puis remplacez les
+   services comme décrit dans la procédure de référence §0. N'utilisez pas un
+   simple `up -d --build` pour une livraison de production.
 4. Configurez NGINX pour pointer le domaine de production `api.kpbeducation.cloud` vers `http://127.0.0.1:3000` (le conteneur écoute sur le port `3000` via `PORT=3000` dans `docker-compose.yml`), avec HTTPS/Certbot.
 
 > ⚠️ **Le chat temps réel (WebSocket) exige l'upgrade côté nginx** — sans les
@@ -135,9 +170,9 @@ L'API expose deux contrôles distincts :
 Après `docker-compose up -d --build`, vérifiez les deux :
 
 ```bash
-curl -fsS https://api.kpb-education.com/api/health/live
-curl -fsS https://api.kpb-education.com/api/health/ready
-docker-compose ps
+curl -fsS https://api.kpbeducation.cloud/api/health/live
+curl -fsS https://api.kpbeducation.cloud/api/health/ready
+docker compose ps
 ```
 
 ### Database Migrations & seed :
@@ -151,11 +186,12 @@ docker exec -it kpb_api npm run prisma:seed    # comptes admin (mots de passe te
 docker exec -it kpb_api npm run verify:catalog # confirme 0 référence pays orpheline
 ```
 
-> ℹ️ Depuis la correction KPB-95, le conteneur exécute `prisma migrate deploy`
-> **automatiquement au démarrage** (voir `backend/Dockerfile`). Un
-> `docker-compose up -d --build` applique donc les migrations en attente tout
-> seul ; la commande manuelle ci-dessus reste utile pour un premier provisioning
-> ou un débogage. Les seeds ne sont à relancer que pour rafraîchir le catalogue.
+> ℹ️ Le conteneur API **n'exécute volontairement aucune migration au
+> démarrage**. Appliquez `prisma migrate deploy` une seule fois, après la
+> sauvegarde et avant le remplacement des conteneurs, conformément à la §0.
+> Cette séparation évite qu'un redémarrage automatique modifie le schéma sans
+> fenêtre contrôlée. Les seeds ne sont à relancer que pour un premier
+> provisioning ou un rafraîchissement explicitement validé du catalogue.
 
 ### Sauvegardes de la base de données
 

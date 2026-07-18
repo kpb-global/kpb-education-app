@@ -1,4 +1,8 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -35,6 +39,20 @@ export class AppointmentsService {
 
   async create(input: CreateAppointmentDto, userId: string) {
     this.assertDb();
+
+    if (input.caseId) {
+      const ownedCase = await this.prismaService.execute((prisma) =>
+        prisma.case.findFirst({
+          where: { id: input.caseId, userId },
+          select: { id: true },
+        }),
+      );
+      if (!ownedCase) {
+        // Deliberately hide whether the case exists for another user.
+        throw new NotFoundException(`Case ${input.caseId} not found.`);
+      }
+    }
+
     const created = await this.prismaService.execute((prisma) =>
       prisma.appointment.create({
         data: {

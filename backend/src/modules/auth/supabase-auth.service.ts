@@ -13,7 +13,9 @@ import type { AccountType } from '@prisma/client';
 export interface SupabaseTokenUser {
   id: string;
   email: string;
+  fullName: string;
   role: 'student';
+  accountType: AccountType;
 }
 
 interface Jwk {
@@ -86,9 +88,15 @@ export class SupabaseAuthService {
     }
 
     const role = this.extractRole(payload);
-    const profileId = await this.resolveProfileId({ sub, email, role });
+    const profile = await this.resolveProfile({ sub, email, role });
 
-    return { id: profileId, email, role: 'student' };
+    return {
+      id: profile.id,
+      email,
+      fullName: profile.fullName,
+      role: 'student',
+      accountType: profile.accountType,
+    };
   }
 
   // ── Signature verification ──────────────────────────────────────────────
@@ -188,27 +196,32 @@ export class SupabaseAuthService {
     return SUPABASE_ROLE_TO_ACCOUNT[raw] ?? 'student';
   }
 
-  private async resolveProfileId(input: {
+  private async resolveProfile(input: {
     sub: string;
     email: string;
     role: AccountType;
-  }): Promise<string> {
+  }): Promise<{ id: string; accountType: AccountType; fullName: string }> {
     const { sub, email, role } = input;
 
     const byId = await this.prismaService.execute((prisma) =>
       prisma.userProfile.findUnique({
         where: { supabaseUserId: sub },
-        select: { id: true },
+        select: { id: true, accountType: true, fullName: true },
       }),
     );
-    if (byId) return byId.id;
+    if (byId) return byId;
 
     // Link an existing (legacy) profile that shares the email, then stamp it
     // with the Supabase id so future lookups hit the fast path above.
     const byEmail = await this.prismaService.execute((prisma) =>
       prisma.userProfile.findUnique({
         where: { email },
-        select: { id: true, supabaseUserId: true },
+        select: {
+          id: true,
+          supabaseUserId: true,
+          accountType: true,
+          fullName: true,
+        },
       }),
     );
     if (byEmail) {
@@ -220,7 +233,11 @@ export class SupabaseAuthService {
           }),
         );
       }
-      return byEmail.id;
+      return {
+        id: byEmail.id,
+        accountType: byEmail.accountType,
+        fullName: byEmail.fullName,
+      };
     }
 
     const displayName =
@@ -236,12 +253,12 @@ export class SupabaseAuthService {
           countryOfResidence: '',
           preferredLanguage: 'fr',
         },
-        select: { id: true },
+        select: { id: true, accountType: true, fullName: true },
       }),
     );
     if (!created) {
       throw new UnauthorizedException('Database unavailable.');
     }
-    return created.id;
+    return created;
   }
 }

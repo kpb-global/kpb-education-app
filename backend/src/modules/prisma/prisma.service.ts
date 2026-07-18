@@ -21,11 +21,7 @@ export class PrismaService implements OnModuleDestroy {
       await this.client.$queryRawUnsafe('SELECT 1');
       return true;
     } catch (error) {
-      this.logger.warn(
-        `Prisma readiness check failed: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-      );
+      this.logger.warn(`Prisma readiness check failed (${safeErrorCode(error)}).`);
       return false;
     }
   }
@@ -38,12 +34,9 @@ export class PrismaService implements OnModuleDestroy {
     try {
       return await operation(this.client);
     } catch (error) {
-      this.logger.error(
-        `Prisma operation failed: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-        error instanceof Error ? error.stack : undefined,
-      );
+      // Prisma messages/stacks can interpolate query input, connection data or
+      // user text. Keep logs correlation-safe and expose only a bounded code.
+      this.logger.error(`Prisma operation failed (${safeErrorCode(error)}).`);
       throw error;
     }
   }
@@ -61,9 +54,7 @@ export class PrismaService implements OnModuleDestroy {
       return await operation(this.client);
     } catch (error) {
       this.logger.warn(
-        `Prisma operation failed, falling back to in-memory data: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
+        `Prisma operation failed, falling back to in-memory data (${safeErrorCode(error)}).`,
       );
       return null;
     }
@@ -72,4 +63,22 @@ export class PrismaService implements OnModuleDestroy {
   async onModuleDestroy() {
     await this.client?.$disconnect();
   }
+}
+
+function safeErrorCode(error: unknown): string {
+  if (!error || typeof error !== 'object' || !('code' in error)) {
+    return 'UNKNOWN';
+  }
+  const code = (error as { code?: unknown }).code;
+  if (typeof code !== 'string') return 'UNKNOWN';
+  if (/^P\d{4}$/.test(code)) return code;
+  return [
+    'ECONNREFUSED',
+    'ECONNRESET',
+    'ENETUNREACH',
+    'ENOTFOUND',
+    'ETIMEDOUT',
+  ].includes(code)
+    ? code
+    : 'UNKNOWN';
 }

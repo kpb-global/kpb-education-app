@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "workspace_fixture_1",
+  "userId": "user_fixture_1",
+  "scholarshipId": "scholarship_fixture_1",
+  "scholarshipCycleId": "cycle_fixture_1",
+  "status": "preparing",
+  "version": 3,
+  "readinessPercent": 45,
+  "startedAt": "2026-07-16T08:00:00.000Z",
+  "lastActivityAt": "2026-07-16T09:00:00.000Z",
+  "steps": [
+    {
+      "id": "step_fixture_1",
+      "code": "profile-eligibility",
+      "titleFr": "Vérifier mon éligibilité",
+      "titleEn": "Check my eligibility",
+      "category": "profile_eligibility",
+      "weight": 20,
+      "isRequired": true,
+      "templateVersion": "v1",
+      "status": "completed"
+    },
+    {
+      "id": "step_fixture_2",
+      "code": "prepare-cv",
+      "titleFr": "Préparer mon CV",
+      "titleEn": "Prepare my CV",
+      "category": "documents",
+      "weight": 40,
+      "isRequired": true,
+      "templateVersion": "v1",
+      "status": "in_progress"
+    }
+  ]
+}

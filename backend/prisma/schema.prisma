@@ -171,93 +171,258 @@ enum SalonSessionStatus {
   cancelled
 }
 
+enum ConsentPurpose {
+  product_analytics
+  ai_third_party
+  advisor_document_share
+  outcome_evidence
+  pilot_research
+  aggregate_impact
+  public_testimonial
+  guardian_authorization
+  marketing
+}
+
+enum PartnershipAgreementStatus {
+  draft
+  prospect
+  pending_signature
+  signed
+  active
+  expired
+  terminated
+}
+
+enum PartnershipAgreementType {
+  letter_of_intent
+  memorandum_of_understanding
+  pilot
+  data_sharing
+  referral
+  sponsorship
+  other
+}
+
+enum PilotStatus {
+  draft
+  recruiting
+  active
+  analysis
+  completed
+  archived
+}
+
+enum ScholarshipWorkspaceStatus {
+  started
+  preparing
+  ready_for_review
+  review_requested
+  submitted
+  decision_received
+  archived
+}
+
+enum WorkspaceStepStatus {
+  not_started
+  in_progress
+  completed
+  not_applicable
+}
+
+enum WorkspaceStepCategory {
+  profile_eligibility
+  documents
+  form_and_essays
+  review_and_submission
+}
+
+enum ApplicationArtifactKind {
+  cv
+  motivation_letter
+  essay
+  recommendation_letter
+  transcript
+  diploma
+  language_test
+  passport
+  portfolio
+  other
+}
+
+enum ArtifactProcessingStatus {
+  pending_upload
+  uploaded
+  scanning
+  clean
+  rejected
+  extraction_failed
+  deleted
+}
+
+enum EvidenceVerificationStatus {
+  self_reported
+  pending
+  verified
+  needs_information
+  rejected
+}
+
+enum AdmissionDecision {
+  admitted
+  rejected
+  waitlisted
+  deferred
+  withdrawn
+}
+
+enum FundingDecision {
+  full
+  partial
+  none
+  pending
+  not_applicable
+}
+
+enum OutcomeEvidenceKind {
+  submission_confirmation
+  admission_decision
+  rejection_decision
+  waitlist_decision
+  funding_award
+  funding_rejection
+  enrollment_confirmation
+  other
+}
+
+enum AiDiagnosticStatus {
+  pending
+  running
+  succeeded
+  deterministic_fallback
+  failed
+  blocked
+}
+
+enum StudyReviewStatus {
+  draft
+  submitted
+  triaged
+  more_information_needed
+  call_offered
+  scheduled
+  converted_to_case
+  autonomy_recommended
+  declined
+  closed
+}
+
+enum AvailabilitySlotStatus {
+  available
+  blocked
+  exhausted
+  cancelled
+}
+
+enum SlotOfferStatus {
+  offered
+  selected
+  expired
+  withdrawn
+}
+
 model UserProfile {
-  id                   String                   @id @default(cuid())
-  accountType          AccountType
+  id                      String                         @id @default(cuid())
+  accountType             AccountType
   // Supabase Auth user id (JWT `sub`). Null for legacy/home-grown accounts
   // not yet migrated. Used by SupabaseAuthGuard to map a verified token to a
   // local profile.
-  supabaseUserId       String?                  @unique
-  preferredLanguage    String
-  fullName             String
-  email                String                   @unique
-  phone                String
-  whatsApp             String?
-  countryOfResidence   String
-  currentLevel         String?
-  targetLevel          String?
-  languageLevel        String?
-  gradeRange           String?
+  supabaseUserId          String?                        @unique
+  preferredLanguage       String
+  fullName                String
+  email                   String                         @unique
+  phone                   String
+  whatsApp                String?
+  countryOfResidence      String
+  currentLevel            String?
+  targetLevel             String?
+  languageLevel           String?
+  gradeRange              String?
   // Legacy monthly living budget. Read only for backward compatibility.
-  monthlyBudgetEur     Int?
+  monthlyBudgetEur        Int?
   // Annual tuition budget is the canonical financial input for matching.
-  annualTuitionBudgetEur Int?
+  annualTuitionBudgetEur  Int?
   // EUR is the canonical stored unit; this is only the user's display choice.
-  preferredCurrency    String                   @default("XOF")
-  wantsScholarship     Boolean                  @default(false)
+  preferredCurrency       String                         @default("XOF")
+  wantsScholarship        Boolean                        @default(false)
   // Per-user interest selections (previously held in a shared in-memory
   // singleton, which leaked across users). Now persisted per profile.
-  fieldIds             String[]                 @default([])
-  targetCountryIds     String[]                 @default([])
-  availableDocuments   String[]                 @default([])
-  consentedAt          DateTime?
+  fieldIds                String[]                       @default([])
+  targetCountryIds        String[]                       @default([])
+  availableDocuments      String[]                       @default([])
+  consentedAt             DateTime?
   // Separate, explicit consent for third-party AI processing (Groq). Gates the
   // AI coach independently of the general onboarding consent above.
-  aiConsentedAt        DateTime?
+  aiConsentedAt           DateTime?
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.
-  birthDate            DateTime?
-  guardianName         String?
-  guardianContact      String?
-  guardianConsentedAt  DateTime?
+  birthDate               DateTime?
+  guardianName            String?
+  guardianContact         String?
+  guardianConsentedAt     DateTime?
   // Last time the profile-completion nudge (KPB-76) was sent — throttles the
   // re-engagement push so an incomplete profile is reminded at most monthly.
-  profileNudgedAt      DateTime?
+  profileNudgedAt         DateTime?
   // Stable per-student referral code (KPB-69) — generated on first read, shared
   // via WhatsApp. Friends who redeem it are attributed back to this profile.
-  referralCode         String?                  @unique
+  referralCode            String?                        @unique
   // No-cash referral rewards (KPB-77). Denormalized credit balance: +1 when a
   // referee reaches the first-case milestone, spent into a WhatsApp advisor
   // voucher. The signed CreditTransaction log is the audit trail and reconciles
   // this counter via SUM(amount); both are always written in one $transaction.
-  reviewCredits        Int                      @default(0)
-  createdAt            DateTime                 @default(now())
-  updatedAt            DateTime                 @updatedAt
-  cases                Case[]
-  appointments         Appointment[]
-  savedItems           SavedItem[]
-  partnerLead          PartnerLead?
-  credential           StudentCredential?
-  deviceTokens         DeviceToken[]
-  purchases            AcademyPurchase[]
-  parentLinksAsParent  ParentChildLink[]        @relation("parentLink_parent")
-  parentLinksAsChild   ParentChildLink[]        @relation("parentLink_child")
-  paymentIntents       PaymentIntent[]
+  reviewCredits           Int                            @default(0)
+  createdAt               DateTime                       @default(now())
+  updatedAt               DateTime                       @updatedAt
+  cases                   Case[]
+  appointments            Appointment[]
+  savedItems              SavedItem[]
+  partnerLead             PartnerLead?
+  credential              StudentCredential?
+  deviceTokens            DeviceToken[]
+  purchases               AcademyPurchase[]
+  parentLinksAsParent     ParentChildLink[]              @relation("parentLink_parent")
+  parentLinksAsChild      ParentChildLink[]              @relation("parentLink_child")
+  paymentIntents          PaymentIntent[]
   // ── Phase 3 — Alumni mentor layer ─────────────────────────────────────────
   // Students who got admitted become verified mentors with a badge in the
   // community. We keep the fields flat on UserProfile (rather than a separate
   // Mentor model) because the identity is the same — it's a status, not a new
   // account type. Admin flips `alumniStatus` to `approved` after reviewing the
   // acceptance letter uploaded via `alumniProofUrl`.
-  alumniStatus         AlumniVerificationStatus @default(none)
-  alumniUniversity     String?
-  alumniProgramme      String?
-  alumniGraduationYear Int?
-  alumniCountryCode    String? // ISO 3166-1 alpha-2
-  alumniBioFr          String?
-  alumniBioEn          String?
-  alumniProofUrl       String? // Admission letter / degree — admin-only
-  alumniVerifiedAt     DateTime?
-  alumniVerifiedById   String? // AdminUser.id (no FK — keep decoupled)
-  alumniBadgeVisible   Boolean                  @default(true)
-  servicePurchases     ServicePurchase[]
-  salonRegistrations   SalonRegistration[]
-  referralsMade        Referral[]               @relation("referral_referrer")
-  referralReceived     Referral?                @relation("referral_referee")
-  creditTransactions   CreditTransaction[]
-  matches              Match[]
-  scholarshipAlerts    ScholarshipAlertSubscription[]
-  userNotifications    UserNotification[]
+  alumniStatus            AlumniVerificationStatus       @default(none)
+  alumniUniversity        String?
+  alumniProgramme         String?
+  alumniGraduationYear    Int?
+  alumniCountryCode       String? // ISO 3166-1 alpha-2
+  alumniBioFr             String?
+  alumniBioEn             String?
+  alumniProofUrl          String? // Admission letter / degree — admin-only
+  alumniVerifiedAt        DateTime?
+  alumniVerifiedById      String? // AdminUser.id (no FK — keep decoupled)
+  alumniBadgeVisible      Boolean                        @default(true)
+  servicePurchases        ServicePurchase[]
+  salonRegistrations      SalonRegistration[]
+  referralsMade           Referral[]                     @relation("referral_referrer")
+  referralReceived        Referral?                      @relation("referral_referee")
+  creditTransactions      CreditTransaction[]
+  matches                 Match[]
+  scholarshipAlerts       ScholarshipAlertSubscription[]
+  userNotifications       UserNotification[]
+  consentReceipts         ConsentReceipt[]
+  scholarshipWorkspaces   ScholarshipWorkspace[]
+  aiQuotaBuckets          AiQuotaBucket[]
+  outcomeEvidenceAssets   OutcomeEvidenceAsset[]
+  outcomeEvidenceLinks    OutcomeEvidenceLink[]
+  impactCohortMemberships ImpactCohortMembership[]
 
   @@index([accountType])
   @@index([createdAt])
@@ -386,6 +551,7 @@ model Case {
   notificationDeliveries      NotificationDelivery[]
   paymentIntents              PaymentIntent[]
   servicePurchases            ServicePurchase[]
+  studyReviewRequest          StudyReviewRequest?
 
   @@index([userId])
   @@index([status])
@@ -436,21 +602,21 @@ model CaseTask {
 }
 
 model CaseDocument {
-  id         String    @id @default(cuid())
-  caseId     String
-  title      String
-  fileUrl    String?
-  uploadedAt DateTime?
-  isProvided Boolean   @default(false)
+  id             String    @id @default(cuid())
+  caseId         String
+  title          String
+  fileUrl        String?
+  uploadedAt     DateTime?
+  isProvided     Boolean   @default(false)
   // ── Commercial per-document review (Feature D) ──────────────────────────
   // Counsellor verdict on an uploaded document. Allowed values:
   // 'validated' | 'redo' | 'doubtful'. null = pending review.
   reviewStatus   String?
   reviewedByName String?
   reviewedAt     DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  case       Case      @relation(fields: [caseId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  case           Case      @relation(fields: [caseId], references: [id])
 
   @@index([caseId])
 }
@@ -468,22 +634,36 @@ model CaseInternalNote {
 }
 
 model Appointment {
-  id            String      @id @default(cuid())
-  userId        String
-  caseId        String?
-  title         String
-  goal          String
-  startsAt      DateTime
-  status        String
-  contactMethod String      @default("in_app")
-  notes         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  user          UserProfile @relation(fields: [userId], references: [id])
-  case          Case?       @relation(fields: [caseId], references: [id])
+  id              String                      @id @default(cuid())
+  userId          String
+  caseId          String?
+  title           String
+  goal            String
+  startsAt        DateTime
+  status          String
+  contactMethod   String                      @default("in_app")
+  notes           String?
+  counsellorId    String?
+  reviewRequestId String?
+  slotId          String?
+  slotOfferId     String?                     @unique
+  endsAt          DateTime?
+  timezone        String?
+  bookingKey      String?                     @unique
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  user            UserProfile                 @relation(fields: [userId], references: [id])
+  case            Case?                       @relation(fields: [caseId], references: [id])
+  counsellor      Counsellor?                 @relation(fields: [counsellorId], references: [id], onDelete: SetNull)
+  reviewRequest   StudyReviewRequest?         @relation(fields: [reviewRequestId], references: [id], onDelete: SetNull)
+  slot            CounsellorAvailabilitySlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  slotOffer       StudyReviewSlotOffer?       @relation(fields: [slotOfferId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([caseId])
+  @@index([counsellorId, startsAt])
+  @@index([reviewRequestId, status])
+  @@index([slotId, status])
 }
 
 model SavedItem {
@@ -513,17 +693,23 @@ model PartnerLead {
 }
 
 model AdminUser {
-  id            String       @id @default(cuid())
-  fullName      String
-  email         String       @unique
-  passwordHash  String?
-  refreshToken  String?
-  role          InternalRole
-  isActive      Boolean      @default(true)
-  languageScope String[]
-  workload      Int          @default(0)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                        String                      @id @default(cuid())
+  fullName                  String
+  email                     String                      @unique
+  passwordHash              String?
+  refreshToken              String?
+  role                      InternalRole
+  isActive                  Boolean                     @default(true)
+  languageScope             String[]
+  workload                  Int                         @default(0)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  scopeGrants               AdminScopeGrant[]
+  counsellorProfile         Counsellor?
+  verifiedSubmissions       ApplicationSubmission[]     @relation("SubmissionVerifiedBy")
+  verifiedAdmissions        ApplicationDecisionRecord[] @relation("AdmissionVerifiedBy")
+  verifiedFundingDecisions  FundingDecisionRecord[]     @relation("FundingVerifiedBy")
+  outcomeVerificationEvents OutcomeVerificationEvent[]
 }
 
 model ServiceOffer {
@@ -752,7 +938,7 @@ model CountryEligibilityQuiz {
 }
 
 model Institution {
-  id                     String    @id @default(cuid())
+  id                     String             @id @default(cuid())
   nameFr                 String
   nameEn                 String
   countryId              String
@@ -767,13 +953,14 @@ model Institution {
   languageRequirementsEn String
   intakePeriods          String[]
   programIds             String[]
-  isPartner              Boolean   @default(false)
+  isPartner              Boolean            @default(false)
   lastVerifiedAt         DateTime?
   sourceUrl              String?
   verifiedById           String?
   verifiedByName         String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  partnerAgreements      PartnerAgreement[]
 
   @@index([countryId])
   @@index([lastVerifiedAt])
@@ -878,52 +1065,53 @@ model MatchExplanation {
 }
 
 model Scholarship {
-  id                     String                       @id @default(cuid())
+  id                     String                         @id @default(cuid())
   nameFr                 String
   nameEn                 String
   countryId              String
-  countryNameFr          String                       @default("")
-  countryNameEn          String                       @default("")
+  countryNameFr          String                         @default("")
+  countryNameEn          String                         @default("")
   levelEligibleFr        String
   levelEligibleEn        String
   typeOfFundingFr        String
   typeOfFundingEn        String
-  fundingType            FundingType                  @default(unknown)
-  applicationRequirement ApplicationRequirement       @default(separate_application)
+  fundingType            FundingType                    @default(unknown)
+  applicationRequirement ApplicationRequirement         @default(separate_application)
   deadlineLabelFr        String
   deadlineLabelEn        String
-  descriptionFr          String                       @default("")
-  descriptionEn          String                       @default("")
-  advantagesFr           String[]                     @default([])
-  advantagesEn           String[]                     @default([])
-  eligibilityFr          String[]                     @default([])
-  eligibilityEn          String[]                     @default([])
+  descriptionFr          String                         @default("")
+  descriptionEn          String                         @default("")
+  advantagesFr           String[]                       @default([])
+  advantagesEn           String[]                       @default([])
+  eligibilityFr          String[]                       @default([])
+  eligibilityEn          String[]                       @default([])
   keyRequirementsFr      String[]
   keyRequirementsEn      String[]
   relatedFieldIds        String[]
-  baseMatch              Int                          @default(30)
+  baseMatch              Int                            @default(30)
   academyCourseId        String?
   // ── Live-index fields (Track A1) ────────────────────────────────────────
   // Populated by the 48h refresh job; null for legacy seed data.
-  sourceKey              String?                      @unique // e.g. "greatyop-ajinomoto-2026"
+  sourceKey              String?                        @unique // e.g. "greatyop-ajinomoto-2026"
   sourceUrl              String?
   applicationUrl         String?
   deadlineAt             DateTime?
   lastVerifiedAt         DateTime?
   verifiedById           String?
   verifiedByName         String?
-  isActive               Boolean                      @default(true)
+  isActive               Boolean                        @default(true)
   // Approved for curated/seeded rows; scraper inserts land as pending.
-  moderationStatus       ScholarshipModeration        @default(approved)
-  tags                   String[]                     @default([])
-  createdAt              DateTime                     @default(now())
-  updatedAt              DateTime                     @updatedAt
-  academyCourse          AcademyCourse?               @relation(fields: [academyCourseId], references: [id])
+  moderationStatus       ScholarshipModeration          @default(approved)
+  tags                   String[]                       @default([])
+  createdAt              DateTime                       @default(now())
+  updatedAt              DateTime                       @updatedAt
+  academyCourse          AcademyCourse?                 @relation(fields: [academyCourseId], references: [id])
   applicationSteps       ScholarshipApplicationStep[]
   videos                 ScholarshipVideo[]
   cycles                 ScholarshipCycle[]
   alertSubscriptions     ScholarshipAlertSubscription[]
   userNotifications      UserNotification[]
+  workspaces             ScholarshipWorkspace[]
 
   @@index([countryId])
   @@index([deadlineAt])
@@ -952,6 +1140,7 @@ model ScholarshipCycle {
   createdAt        DateTime                  @default(now())
   updatedAt        DateTime                  @updatedAt
   scholarship      Scholarship               @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  workspaces       ScholarshipWorkspace[]
 
   @@unique([scholarshipId, academicYear])
   @@index([scholarshipId, status])
@@ -1006,17 +1195,18 @@ model UserNotification {
 // from the generic deadline countdown (RoadmapEngine) — these are curated
 // per scholarship, never scraped.
 model ScholarshipApplicationStep {
-  id                    String      @id @default(cuid())
-  scholarshipId         String
-  stepNumber            Int
-  titleFr               String
-  titleEn               String
-  descriptionFr         String      @default("")
-  descriptionEn         String      @default("")
-  estimatedDurationDays Int?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
-  scholarship           Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  id                     String                     @id @default(cuid())
+  scholarshipId          String
+  stepNumber             Int
+  titleFr                String
+  titleEn                String
+  descriptionFr          String                     @default("")
+  descriptionEn          String                     @default("")
+  estimatedDurationDays  Int?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  scholarship            Scholarship                @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  workspaceStepSnapshots ScholarshipWorkspaceStep[]
 
   @@unique([scholarshipId, stepNumber])
   @@index([scholarshipId])
@@ -1103,33 +1293,38 @@ enum CounsellorKycStatus {
 }
 
 model Counsellor {
-  id                 String              @id @default(cuid())
-  fullName           String
-  email              String              @unique
-  phone              String
-  whatsApp           String?
-  countryOfResidence String
+  id                  String                       @id @default(cuid())
+  fullName            String
+  email               String                       @unique
+  phone               String
+  whatsApp            String?
+  countryOfResidence  String
   // Freeform slug like "cs-bj", "med-ci" — used for filtering in admin/mobile.
-  specialties        String[]            @default([])
+  specialties         String[]                     @default([])
   // ISO 639-1 codes (e.g. ["fr","en","bm","wo"]).
-  languagesSpoken    String[]            @default([])
-  bioFr              String
-  bioEn              String
-  yearsExperience    Int                 @default(0)
+  languagesSpoken     String[]                     @default([])
+  bioFr               String
+  bioEn               String
+  yearsExperience     Int                          @default(0)
   // Hourly rate in XOF. Admin can override per-case in PaymentIntent.
-  hourlyRateXOF      Int                 @default(0)
+  hourlyRateXOF       Int                          @default(0)
   // KPB take (basis points, 1000 = 10%). Default 15%.
-  commissionBps      Int                 @default(1500)
-  kycStatus          CounsellorKycStatus @default(pending)
-  kycNotes           String?
-  kycVerifiedAt      DateTime?
-  isActive           Boolean             @default(false)
-  avgRating          Float               @default(0)
-  reviewCount        Int                 @default(0)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  cases              Case[]
-  reviews            CounsellorReview[]
+  commissionBps       Int                          @default(1500)
+  kycStatus           CounsellorKycStatus          @default(pending)
+  kycNotes            String?
+  kycVerifiedAt       DateTime?
+  isActive            Boolean                      @default(false)
+  avgRating           Float                        @default(0)
+  reviewCount         Int                          @default(0)
+  adminUserId         String?                      @unique
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+  adminUser           AdminUser?                   @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+  cases               Case[]
+  reviews             CounsellorReview[]
+  studyReviewRequests StudyReviewRequest[]
+  availabilitySlots   CounsellorAvailabilitySlot[]
+  appointments        Appointment[]
 
   @@index([kycStatus])
   @@index([isActive])
@@ -1310,27 +1505,28 @@ model ServicePackage {
 }
 
 model ServicePurchase {
-  id              String                @id @default(cuid())
-  packageId       String
-  userId          String
+  id                 String                @id @default(cuid())
+  packageId          String
+  userId             String
   // Optional — a purchase may be linked to an existing case for document flow.
-  caseId          String?
+  caseId             String?
   // Origin of the sale request: checkout, service_packages, case_detail, etc.
-  source          String                @default("checkout")
+  source             String                @default("checkout")
   // Exactly one PaymentIntent per purchase. Null while we're still setting up.
-  paymentIntentId String?               @unique
-  status          ServicePurchaseStatus @default(pending_payment)
+  paymentIntentId    String?               @unique
+  status             ServicePurchaseStatus @default(pending_payment)
   // Price snapshot at purchase time — protects against later SKU edits.
-  amountXOF       Int
+  amountXOF          Int
   // Freeform handoff notes from KPB back-office (not shown to student).
-  internalNotes   String?
-  deliveredAt     DateTime?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  package         ServicePackage        @relation(fields: [packageId], references: [id])
-  user            UserProfile           @relation(fields: [userId], references: [id])
-  case            Case?                 @relation(fields: [caseId], references: [id])
-  paymentIntent   PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
+  internalNotes      String?
+  deliveredAt        DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  package            ServicePackage        @relation(fields: [packageId], references: [id])
+  user               UserProfile           @relation(fields: [userId], references: [id])
+  case               Case?                 @relation(fields: [caseId], references: [id])
+  paymentIntent      PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
+  studyReviewRequest StudyReviewRequest?
 
   @@index([packageId])
   @@index([userId])
@@ -1349,9 +1545,9 @@ model ServicePurchase {
 // the "Ils nous font confiance" strip.
 
 model Partner {
-  id            String          @id @default(cuid())
+  id            String             @id @default(cuid())
   // Stable slug like "campus-france-abidjan" — used in deep-links.
-  slug          String          @unique
+  slug          String             @unique
   nameFr        String
   nameEn        String
   category      PartnerCategory
@@ -1367,11 +1563,12 @@ model Partner {
   // For bank loans / agency referrals — a deep-link the student opens.
   referralUrl   String?
   // Featured partners pin to the top of the homepage strip.
-  isFeatured    Boolean         @default(false)
-  displayOrder  Int             @default(0)
-  isActive      Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  isFeatured    Boolean            @default(false)
+  displayOrder  Int                @default(0)
+  isActive      Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  agreements    PartnerAgreement[]
 
   @@index([category])
   @@index([isActive])
@@ -1690,4 +1887,941 @@ model Withdrawal {
 
   @@index([ambassadorId])
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Competition Readiness — foundation (CR-002)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ConsentNotice {
+  id                String           @id @default(cuid())
+  purpose           ConsentPurpose
+  version           String
+  languageCode      String
+  contentHash       String
+  contentStorageKey String?
+  effectiveAt       DateTime
+  retiredAt         DateTime?
+  createdAt         DateTime         @default(now())
+  receipts          ConsentReceipt[]
+
+  @@unique([purpose, version, languageCode])
+  @@index([purpose, effectiveAt, retiredAt])
+}
+
+model GuardianAuthorization {
+  id                 String           @id @default(cuid())
+  minorUserId        String
+  guardianUserId     String?
+  relationshipCode   String
+  verificationMethod String
+  evidenceStorageKey String?
+  status             String           @default("pending")
+  verifiedAt         DateTime?
+  expiresAt          DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  receipts           ConsentReceipt[]
+
+  @@index([minorUserId, status])
+  @@index([guardianUserId, status])
+}
+
+model ConsentReceipt {
+  id                      String                     @id @default(cuid())
+  userId                  String
+  purpose                 ConsentPurpose
+  noticeId                String
+  languageCode            String
+  channel                 String
+  grantedAt               DateTime
+  revokedAt               DateTime?
+  guardianAuthorizationId String?
+  ipHash                  String?
+  userAgentClass          String?
+  createdAt               DateTime                   @default(now())
+  user                    UserProfile                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notice                  ConsentNotice              @relation(fields: [noticeId], references: [id], onDelete: Restrict)
+  guardianAuthorization   GuardianAuthorization?     @relation(fields: [guardianAuthorizationId], references: [id], onDelete: Restrict)
+  studyReviewShares       StudyReviewArtifactShare[]
+  outcomeEvidenceAssets   OutcomeEvidenceAsset[]
+  impactCohortMemberships ImpactCohortMembership[]
+
+  @@index([userId, purpose, grantedAt])
+  @@index([purpose, revokedAt])
+}
+
+model IdempotencyRecord {
+  id               String    @id @default(cuid())
+  actorType        String
+  actorId          String
+  operation        String
+  idempotencyKey   String
+  payloadHash      String
+  status           String    @default("in_progress")
+  resourceType     String?
+  resourceId       String?
+  resultingVersion Int?
+  responseCode     Int?
+  responseSnapshot Json?
+  createdAt        DateTime  @default(now())
+  completedAt      DateTime?
+  expiresAt        DateTime
+
+  @@unique([actorType, actorId, operation, idempotencyKey])
+  @@index([resourceType, resourceId, createdAt])
+  @@index([status, expiresAt])
+}
+
+model DomainEventOutbox {
+  id             String    @id @default(cuid())
+  eventId        String    @unique
+  eventName      String
+  schemaVersion  Int
+  aggregateType  String
+  aggregateId    String
+  payload        Json
+  occurredAt     DateTime
+  status         String    @default("pending")
+  attemptCount   Int       @default(0)
+  nextAttemptAt  DateTime  @default(now())
+  lockedAt       DateTime?
+  lockedBy       String?
+  leaseExpiresAt DateTime?
+  lastErrorCode  String?
+  processedAt    DateTime?
+  deadLetteredAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([status, nextAttemptAt])
+  @@index([aggregateType, aggregateId, occurredAt])
+}
+
+model AnalyticsEvent {
+  id                String   @id @default(cuid())
+  eventId           String   @unique
+  idempotencyKey    String   @unique
+  eventName         String
+  schemaVersion     Int
+  occurredAt        DateTime
+  receivedAt        DateTime @default(now())
+  source            String
+  actorKey          String?
+  actorKeyVersion   String?
+  pilotId           String?
+  cohortId          String?
+  countryCodeLocked String?
+  scholarshipId     String?
+  cycleId           String?
+  workspaceId       String?
+  properties        Json
+  traceId           String?
+  isTest            Boolean  @default(false)
+
+  @@index([eventName, occurredAt])
+  @@index([pilotId, cohortId, occurredAt])
+  @@index([workspaceId, occurredAt])
+}
+
+model MetricDefinition {
+  id                    String    @id @default(cuid())
+  metricKey             String
+  version               Int
+  nameFr                String
+  definition            String
+  grain                 String
+  numeratorDefinition   String
+  denominatorDefinition String
+  numeratorQueryPath    String?
+  denominatorQueryPath  String?
+  numeratorSqlHash      String?
+  denominatorSqlHash    String?
+  definitionCommitSha   String
+  exclusions            Json
+  dimensions            String[]  @default([])
+  sourceWatermarkField  String
+  lateArrivalHours      Int       @default(72)
+  correctionPolicy      String
+  ownerAdminId          String
+  effectiveAt           DateTime
+  retiredAt             DateTime?
+
+  @@unique([metricKey, version])
+  @@index([effectiveAt, retiredAt])
+}
+
+model AdminScopeGrant {
+  id               String    @id @default(cuid())
+  adminUserId      String
+  capability       String
+  countryCodes     String[]  @default([])
+  cohortIds        String[]  @default([])
+  resourceScope    Json?
+  grantedByAdminId String
+  startsAt         DateTime  @default(now())
+  expiresAt        DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  adminUser        AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId, capability, revokedAt])
+  @@index([expiresAt])
+}
+
+model AdminAuditEvent {
+  id            String   @id @default(cuid())
+  actorAdminId  String?
+  action        String
+  purposeCode   String?
+  entityType    String
+  entityId      String
+  requestId     String
+  correlationId String?
+  reasonCode    String?
+  result        String
+  changes       Json?
+  occurredAt    DateTime @default(now())
+
+  @@index([entityType, entityId, occurredAt])
+  @@index([actorAdminId, occurredAt])
+  @@index([action, occurredAt])
+}
+
+// A versioned, user-owned preparation space for one scholarship cycle.
+model ScholarshipWorkspace {
+  id                      String                      @id @default(cuid())
+  userId                  String
+  scholarshipId           String
+  scholarshipCycleId      String
+  status                  ScholarshipWorkspaceStatus  @default(started)
+  version                 Int                         @default(1)
+  readinessPercent        Int                         @default(0)
+  startedAt               DateTime                    @default(now())
+  lastActivityAt          DateTime                    @default(now())
+  submittedAt             DateTime?
+  decisionReceivedAt      DateTime?
+  archivedAt              DateTime?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  user                    UserProfile                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship             Scholarship                 @relation(fields: [scholarshipId], references: [id], onDelete: Restrict)
+  scholarshipCycle        ScholarshipCycle            @relation(fields: [scholarshipCycleId], references: [id], onDelete: Restrict)
+  steps                   ScholarshipWorkspaceStep[]
+  artifacts               ApplicationArtifact[]
+  diagnostics             AiDiagnostic[]
+  reviewRequests          StudyReviewRequest[]
+  outcomeEvidence         OutcomeEvidenceAsset[]
+  submissions             ApplicationSubmission[]
+  admissionDecisions      ApplicationDecisionRecord[]
+  fundingDecisions        FundingDecisionRecord[]
+  impactCohortMemberships ImpactCohortMembership[]
+
+  @@unique([userId, scholarshipId, scholarshipCycleId])
+  @@index([userId, status, lastActivityAt])
+  @@index([scholarshipCycleId, status])
+}
+
+model ScholarshipWorkspaceStep {
+  id                  String                      @id @default(cuid())
+  workspaceId         String
+  sourceStepId        String?
+  code                String
+  titleFr             String
+  titleEn             String
+  category            WorkspaceStepCategory
+  weight              Int
+  isRequired          Boolean                     @default(true)
+  templateVersion     String
+  status              WorkspaceStepStatus         @default(not_started)
+  notApplicableReason String?
+  completedAt         DateTime?
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
+  workspace           ScholarshipWorkspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sourceStep          ScholarshipApplicationStep? @relation(fields: [sourceStepId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId, status])
+}
+
+// Private, user-owned application documents. The current version pointer is
+// updated only after a version has passed type validation and antivirus scan.
+model ApplicationArtifact {
+  id               String                       @id @default(cuid())
+  workspaceId      String
+  kind             ApplicationArtifactKind
+  title            String
+  currentVersionId String?                      @unique
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+  workspace        ScholarshipWorkspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  versions         ApplicationArtifactVersion[] @relation("ArtifactVersions")
+  currentVersion   ApplicationArtifactVersion?  @relation("CurrentArtifactVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, kind, title])
+  @@index([workspaceId, kind])
+}
+
+model ApplicationArtifactVersion {
+  id                 String                     @id @default(cuid())
+  artifactId         String
+  versionNumber      Int
+  // Nullable only while a multipart upload intent is pending or rejected.
+  // Clean versions always have a validated private StorageService key.
+  storageKey         String?                    @unique
+  originalFileName   String
+  mimeType           String
+  sizeBytes          Int
+  sha256             String
+  processingStatus   ArtifactProcessingStatus   @default(pending_upload)
+  extractedText      String?
+  rejectionCode      String?
+  uploadedAt         DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime                   @default(now())
+  artifact           ApplicationArtifact        @relation("ArtifactVersions", fields: [artifactId], references: [id], onDelete: Cascade)
+  currentForArtifact ApplicationArtifact?       @relation("CurrentArtifactVersion")
+  diagnostics        AiDiagnostic[]
+  studyReviewShares  StudyReviewArtifactShare[]
+
+  @@unique([artifactId, versionNumber])
+  @@index([artifactId, createdAt])
+  @@index([processingStatus])
+}
+
+// Private evidence for a declared application outcome. Files remain in
+// quarantine until StorageService validates type, size, hash and antivirus.
+// Direct deletion is never exposed once an outcome references the asset.
+model OutcomeEvidenceAsset {
+  id                    String                      @id @default(cuid())
+  workspaceId           String
+  ownerUserId           String
+  consentReceiptId      String
+  kind                  OutcomeEvidenceKind
+  storageKey            String?                     @unique
+  originalFileName      String
+  mimeType              String
+  sizeBytes             Int
+  sha256                String
+  processingStatus      ArtifactProcessingStatus    @default(pending_upload)
+  version               Int                         @default(1)
+  rejectionCode         String?
+  retentionClass        String                      @default("outcome_evidence_private")
+  uploadedAt            DateTime?
+  deletedAt             DateTime?
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+  workspace             ScholarshipWorkspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner                 UserProfile                 @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  consentReceipt        ConsentReceipt              @relation(fields: [consentReceiptId], references: [id], onDelete: Restrict)
+  primaryForSubmissions ApplicationSubmission[]     @relation("SubmissionPrimaryEvidence")
+  primaryForAdmissions  ApplicationDecisionRecord[] @relation("AdmissionPrimaryEvidence")
+  primaryForFunding     FundingDecisionRecord[]     @relation("FundingPrimaryEvidence")
+  links                 OutcomeEvidenceLink[]
+
+  @@index([workspaceId, kind])
+  @@index([ownerUserId, createdAt])
+  @@index([processingStatus, createdAt])
+  @@index([consentReceiptId])
+}
+
+// Every student report is append-only. `version` is the immutable sequence in
+// the workspace; `lockVersion` changes only for verification/evidence CAS.
+model ApplicationSubmission {
+  id                 String                     @id @default(cuid())
+  workspaceId        String
+  version            Int
+  lockVersion        Int                        @default(1)
+  submittedAt        DateTime
+  submissionChannel  String?
+  applicationRefHash String?
+  evidenceId         String
+  verificationStatus EvidenceVerificationStatus @default(self_reported)
+  verificationNotes  String?
+  verifiedAt         DateTime?
+  verifiedById       String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  workspace          ScholarshipWorkspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  evidence           OutcomeEvidenceAsset       @relation("SubmissionPrimaryEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
+  verifiedBy         AdminUser?                 @relation("SubmissionVerifiedBy", fields: [verifiedById], references: [id], onDelete: Restrict)
+
+  @@unique([workspaceId, version])
+  @@index([workspaceId, submittedAt])
+  @@index([verificationStatus, createdAt])
+}
+
+// Admission and funding are separate revision chains. A partial unique index
+// in SQL enforces exactly zero-or-one current row per workspace.
+model ApplicationDecisionRecord {
+  id                 String                     @id @default(cuid())
+  workspaceId        String
+  supersedesId       String?                    @unique
+  version            Int
+  lockVersion        Int                        @default(1)
+  isCurrent          Boolean                    @default(true)
+  issuedByName       String
+  admissionDecision  AdmissionDecision
+  issuedAt           DateTime?
+  receivedAt         DateTime
+  evidenceId         String
+  verificationStatus EvidenceVerificationStatus @default(self_reported)
+  verificationNotes  String?
+  verifiedAt         DateTime?
+  verifiedById       String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  workspace          ScholarshipWorkspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  supersedes         ApplicationDecisionRecord? @relation("AdmissionDecisionHistory", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy       ApplicationDecisionRecord? @relation("AdmissionDecisionHistory")
+  evidence           OutcomeEvidenceAsset       @relation("AdmissionPrimaryEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
+  verifiedBy         AdminUser?                 @relation("AdmissionVerifiedBy", fields: [verifiedById], references: [id], onDelete: Restrict)
+  fundingDecisions   FundingDecisionRecord[]
+
+  @@unique([workspaceId, version])
+  @@index([workspaceId, isCurrent])
+  @@index([verificationStatus, createdAt])
+  @@index([admissionDecision, verificationStatus])
+}
+
+model FundingDecisionRecord {
+  id                  String                     @id @default(cuid())
+  workspaceId         String
+  admissionDecisionId String?
+  supersedesId        String?                    @unique
+  version             Int
+  lockVersion         Int                        @default(1)
+  isCurrent           Boolean                    @default(true)
+  issuedByName        String
+  fundingDecision     FundingDecision
+  fundingAmountMinor  BigInt?
+  fundingCurrency     String?
+  issuedAt            DateTime?
+  receivedAt          DateTime
+  evidenceId          String
+  verificationStatus  EvidenceVerificationStatus @default(self_reported)
+  verificationNotes   String?
+  verifiedAt          DateTime?
+  verifiedById        String?
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  workspace           ScholarshipWorkspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  admissionDecision   ApplicationDecisionRecord? @relation(fields: [admissionDecisionId], references: [id], onDelete: Restrict)
+  supersedes          FundingDecisionRecord?     @relation("FundingDecisionHistory", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy        FundingDecisionRecord?     @relation("FundingDecisionHistory")
+  evidence            OutcomeEvidenceAsset       @relation("FundingPrimaryEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
+  verifiedBy          AdminUser?                 @relation("FundingVerifiedBy", fields: [verifiedById], references: [id], onDelete: Restrict)
+
+  @@unique([workspaceId, version])
+  @@index([workspaceId, isCurrent])
+  @@index([admissionDecisionId])
+  @@index([verificationStatus, createdAt])
+  @@index([fundingDecision, verificationStatus])
+}
+
+// Supplemental proof is polymorphic by a strict SQL CHECK. Direct primary
+// evidence remains on each outcome for fast reads and legacy-safe contracts.
+model OutcomeEvidenceLink {
+  id             String               @id @default(cuid())
+  evidenceId     String
+  entityType     String
+  entityId       String
+  isPrimary      Boolean              @default(false)
+  linkedByUserId String
+  linkedAt       DateTime             @default(now())
+  evidence       OutcomeEvidenceAsset @relation(fields: [evidenceId], references: [id], onDelete: Restrict)
+  linkedBy       UserProfile          @relation(fields: [linkedByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([entityType, entityId, evidenceId])
+  @@index([entityType, entityId, linkedAt])
+  @@index([evidenceId])
+}
+
+// Append-only verification audit. Free-form notes stay on the private outcome
+// row; this event stores only transition metadata safe for operational audit.
+model OutcomeVerificationEvent {
+  id           String                     @id @default(cuid())
+  entityType   String
+  entityId     String
+  fromStatus   EvidenceVerificationStatus
+  toStatus     EvidenceVerificationStatus
+  actorAdminId String
+  reasonCode   String?
+  createdAt    DateTime                   @default(now())
+  actor        AdminUser                  @relation(fields: [actorAdminId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorAdminId, createdAt])
+}
+
+// One bounded, cached diagnostic entitlement per scholarship workspace.
+model AiDiagnostic {
+  id                  String                      @id @default(cuid())
+  workspaceId         String
+  artifactVersionId   String?
+  entitlementKey      String                      @unique
+  status              AiDiagnosticStatus          @default(pending)
+  documentKind        ApplicationArtifactKind?
+  generatedLanguage   String?
+  strength            String?
+  priorityImprovement String?
+  rationale           String?
+  nextAction          String?
+  criterionReferences Json?
+  inputFingerprint    String?
+  workspaceVersion    Int?
+  criteriaVersion     String?
+  artifactSha256      String?
+  provider            String?
+  model               String?
+  promptVersion       String
+  fallbackReason      String?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
+  workspace           ScholarshipWorkspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  artifactVersion     ApplicationArtifactVersion? @relation(fields: [artifactVersionId], references: [id], onDelete: SetNull)
+  usageAttempts       AiUsageAttempt[]
+
+  @@index([workspaceId, createdAt])
+  @@index([status, createdAt])
+}
+
+// Append-only provider attempt ledger. It stores usage metadata, never prompts
+// or raw student document content.
+model AiUsageAttempt {
+  id                     String        @id @default(cuid())
+  diagnosticId           String?
+  actorKey               String?
+  attemptKey             String        @unique
+  attemptNumber          Int
+  feature                String
+  provider               String
+  model                  String
+  promptVersion          String
+  priceVersion           String?
+  usageSource            String?
+  inputTokens            Int?
+  cachedInputTokens      Int?
+  outputTokens           Int?
+  totalTokens            Int?
+  latencyMs              Int?
+  estimatedCostMicrosUsd BigInt?
+  providerRequestId      String?
+  outcome                String
+  errorCode              String?
+  lockedBy               String?
+  leaseExpiresAt         DateTime?
+  startedAt              DateTime?
+  completedAt            DateTime?
+  nextAttemptAt          DateTime?
+  createdAt              DateTime      @default(now())
+  diagnostic             AiDiagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: SetNull)
+
+  @@unique([diagnosticId, attemptNumber])
+  @@index([feature, createdAt])
+  @@index([provider, model, createdAt])
+  @@index([outcome, createdAt])
+  @@index([outcome, nextAttemptAt])
+}
+
+model AiQuotaBucket {
+  id         String      @id @default(cuid())
+  userId     String
+  feature    String
+  periodKey  String
+  quotaLimit Int
+  used       Int         @default(0)
+  resetsAt   DateTime
+  version    Int         @default(1)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  user       UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, feature, periodKey])
+  @@index([feature, resetsAt])
+}
+
+model AiBudgetPeriod {
+  id                String                @id @default(cuid())
+  feature           String
+  periodKey         String
+  budgetMicrosUsd   BigInt
+  reservedMicrosUsd BigInt                @default(0)
+  spentMicrosUsd    BigInt                @default(0)
+  version           Int                   @default(1)
+  startsAt          DateTime
+  endsAt            DateTime
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  transactions      AiBudgetTransaction[]
+
+  @@unique([feature, periodKey])
+  @@index([feature, endsAt])
+}
+
+model AiBudgetTransaction {
+  id                     String         @id @default(cuid())
+  budgetPeriodId         String
+  diagnosticId           String?
+  dedupeKey              String         @unique
+  reason                 String
+  reservedDeltaMicrosUsd BigInt         @default(0)
+  spentDeltaMicrosUsd    BigInt         @default(0)
+  createdAt              DateTime       @default(now())
+  budgetPeriod           AiBudgetPeriod @relation(fields: [budgetPeriodId], references: [id], onDelete: Restrict)
+
+  @@index([budgetPeriodId, createdAt])
+  @@index([diagnosticId])
+}
+
+model AiModelPrice {
+  id                       String    @id @default(cuid())
+  priceVersion             String    @unique
+  provider                 String
+  model                    String
+  inputMicrosUsdPerM       BigInt
+  cachedInputMicrosUsdPerM BigInt?
+  outputMicrosUsdPerM      BigInt
+  effectiveAt              DateTime
+  retiredAt                DateTime?
+  sourceUrl                String?
+  createdAt                DateTime  @default(now())
+
+  @@index([provider, model, effectiveAt])
+}
+
+model AiInvoiceReconciliation {
+  id                  String    @id @default(cuid())
+  provider            String
+  periodKey           String
+  calculatedMicrosUsd BigInt
+  invoicedMicrosUsd   BigInt
+  varianceBps         Int
+  invoiceReference    String?
+  reconciledByAdminId String?
+  reconciledAt        DateTime?
+  createdAt           DateTime  @default(now())
+
+  @@unique([provider, periodKey])
+}
+
+// A student request captures an immutable list of the exact clean document
+// versions that were explicitly shared at submission time.
+model StudyReviewRequest {
+  id                   String                     @id @default(cuid())
+  workspaceId          String
+  requestNumber        Int
+  version              Int                        @default(1)
+  status               StudyReviewStatus          @default(draft)
+  assignedCounsellorId String?
+  studentMessage       String?
+  preferredContact     String?
+  timezone             String                     @default("UTC")
+  availability         Json?
+  triageSummary        String?
+  missingItems         Json?
+  submittedAt          DateTime?
+  triagedAt            DateTime?
+  closedAt             DateTime?
+  resultingCaseId      String?                    @unique
+  resultingPurchaseId  String?                    @unique
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+  workspace            ScholarshipWorkspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignedCounsellor   Counsellor?                @relation(fields: [assignedCounsellorId], references: [id], onDelete: SetNull)
+  resultingCase        Case?                      @relation(fields: [resultingCaseId], references: [id], onDelete: SetNull)
+  resultingPurchase    ServicePurchase?           @relation(fields: [resultingPurchaseId], references: [id], onDelete: SetNull)
+  artifactShares       StudyReviewArtifactShare[]
+  slotOffers           StudyReviewSlotOffer[]
+  appointments         Appointment[]
+
+  @@unique([workspaceId, requestNumber])
+  @@index([status, submittedAt])
+  @@index([assignedCounsellorId, status])
+}
+
+model StudyReviewArtifactShare {
+  id                String                     @id @default(cuid())
+  reviewRequestId   String
+  artifactVersionId String
+  consentReceiptId  String
+  grantedByUserId   String
+  grantedAt         DateTime                   @default(now())
+  revokedAt         DateTime?
+  reviewRequest     StudyReviewRequest         @relation(fields: [reviewRequestId], references: [id], onDelete: Cascade)
+  artifactVersion   ApplicationArtifactVersion @relation(fields: [artifactVersionId], references: [id], onDelete: Restrict)
+  consentReceipt    ConsentReceipt             @relation(fields: [consentReceiptId], references: [id], onDelete: Restrict)
+
+  @@unique([reviewRequestId, artifactVersionId])
+  @@index([artifactVersionId, revokedAt])
+}
+
+model CounsellorAvailabilitySlot {
+  id           String                 @id @default(cuid())
+  counsellorId String
+  startsAt     DateTime
+  endsAt       DateTime
+  timezone     String
+  capacity     Int                    @default(1)
+  bookedCount  Int                    @default(0)
+  status       AvailabilitySlotStatus @default(available)
+  version      Int                    @default(1)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  counsellor   Counsellor             @relation(fields: [counsellorId], references: [id], onDelete: Cascade)
+  offers       StudyReviewSlotOffer[]
+  appointments Appointment[]
+
+  @@unique([counsellorId, startsAt, endsAt])
+  @@index([counsellorId, status, startsAt])
+}
+
+model StudyReviewSlotOffer {
+  id              String                     @id @default(cuid())
+  reviewRequestId String
+  slotId          String
+  offeredAt       DateTime                   @default(now())
+  expiresAt       DateTime
+  status          SlotOfferStatus            @default(offered)
+  selectedAt      DateTime?
+  createdAt       DateTime                   @default(now())
+  reviewRequest   StudyReviewRequest         @relation(fields: [reviewRequestId], references: [id], onDelete: Cascade)
+  slot            CounsellorAvailabilitySlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  appointment     Appointment?
+
+  @@unique([reviewRequestId, slotId])
+  @@index([reviewRequestId, status, expiresAt])
+  @@index([slotId, expiresAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Competition Readiness — partners, pilots and immutable impact snapshots
+// (CR-023 to CR-025)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PartnerAgreement {
+  id                     String                        @id @default(cuid())
+  agreementKey           String
+  revisionNumber         Int
+  supersedesId           String?                       @unique
+  isCurrent              Boolean                       @default(true)
+  lockVersion            Int                           @default(1)
+  partnerId              String
+  institutionId          String?
+  status                 PartnershipAgreementStatus    @default(draft)
+  agreementType          PartnershipAgreementType
+  purposeCodes           String[]                      @default([])
+  countryCodes           String[]                      @default([])
+  canRecruitPilot        Boolean                       @default(false)
+  canVerifySubmission    Boolean                       @default(false)
+  canVerifyDecision      Boolean                       @default(false)
+  canShareAggregateData  Boolean                       @default(false)
+  canPubliclyNamePartner Boolean                       @default(false)
+  canUsePartnerLogo      Boolean                       @default(false)
+  dataProtectionScope    Json?
+  safeguardingScope      Json?
+  agreementStorageKey    String?                       @unique
+  signedAt               DateTime?
+  startsAt               DateTime?
+  endsAt                 DateTime?
+  ownerAdminId           String?
+  lastVerifiedAt         DateTime?
+  createdAt              DateTime                      @default(now())
+  updatedAt              DateTime                      @updatedAt
+  partner                Partner                       @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+  institution            Institution?                  @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  supersedes             PartnerAgreement?             @relation("AgreementHistory", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy           PartnerAgreement?             @relation("AgreementHistory")
+  evidence               PartnerAgreementEvidence[]
+  pilotLinks             ImpactPilotPartnerAgreement[]
+
+  @@unique([agreementKey, revisionNumber])
+  @@index([partnerId, status])
+  @@index([institutionId])
+  @@index([status, endsAt])
+}
+
+model PartnerAgreementEvidence {
+  id           String           @id @default(cuid())
+  agreementId  String
+  kind         String
+  storageKey   String?          @unique
+  externalUrl  String?
+  note         String?
+  verifiedById String?
+  verifiedAt   DateTime?
+  createdAt    DateTime         @default(now())
+  agreement    PartnerAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@index([agreementId, kind])
+}
+
+model ImpactPilot {
+  id                  String                        @id @default(cuid())
+  code                String                        @unique
+  version             Int                           @default(1)
+  name                String
+  hypothesis          String
+  countryCodes        String[]                      @default([])
+  targetPopulation    Json
+  primaryMetrics      Json
+  guardrailMetrics    Json
+  status              PilotStatus                   @default(draft)
+  recruitmentStartsAt DateTime?
+  startsAt            DateTime?
+  endsAt              DateTime?
+  analysisLockedAt    DateTime?
+  protocolVersion     String
+  ownerAdminId        String
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @updatedAt
+  cohorts             ImpactCohort[]
+  snapshots           ImpactSnapshot[]
+  partnerAgreements   ImpactPilotPartnerAgreement[]
+  dataRoomExports     ImpactDataRoomExport[]
+
+  @@index([status, startsAt])
+}
+
+model ImpactPilotPartnerAgreement {
+  id           String           @id @default(cuid())
+  pilotId      String
+  agreementId  String
+  roleCodes    String[]         @default([])
+  countryCodes String[]         @default([])
+  startsAt     DateTime?
+  endsAt       DateTime?
+  createdAt    DateTime         @default(now())
+  pilot        ImpactPilot      @relation(fields: [pilotId], references: [id], onDelete: Cascade)
+  agreement    PartnerAgreement @relation(fields: [agreementId], references: [id], onDelete: Restrict)
+
+  @@unique([pilotId, agreementId])
+  @@index([agreementId])
+}
+
+model ImpactCohort {
+  id             String                   @id @default(cuid())
+  pilotId        String
+  code           String
+  version        Int                      @default(1)
+  label          String
+  cohortType     String
+  inclusionRules Json
+  exclusionRules Json
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  pilot          ImpactPilot              @relation(fields: [pilotId], references: [id], onDelete: Cascade)
+  memberships    ImpactCohortMembership[]
+
+  @@unique([pilotId, code])
+  @@index([pilotId, cohortType])
+}
+
+model ImpactCohortMembership {
+  id                       String                @id @default(cuid())
+  cohortId                 String
+  userId                   String
+  workspaceId              String?
+  consentReceiptId         String
+  version                  Int                   @default(1)
+  status                   String                @default("enrolled")
+  enrolledAt               DateTime              @default(now())
+  withdrawnAt              DateTime?
+  exitReason               String?
+  countryCodeLocked        String
+  studyLevelLocked         String?
+  genderCodeLocked         String?
+  deviceClassLocked        String?
+  connectivityLocked       String?
+  profileRubricVersion     String
+  matchingAlgorithmVersion String?
+  baselineSnapshot         Json
+  cohort                   ImpactCohort          @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  user                     UserProfile           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace                ScholarshipWorkspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  consentReceipt           ConsentReceipt        @relation(fields: [consentReceiptId], references: [id], onDelete: Restrict)
+  assessments              PilotAssessment[]
+  experimentAssignment     ExperimentAssignment?
+
+  @@unique([cohortId, userId])
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([consentReceiptId])
+  @@index([cohortId, status, enrolledAt])
+}
+
+model ExperimentAssignment {
+  id                 String                 @id @default(cuid())
+  membershipId       String                 @unique
+  experimentKey      String
+  experimentVersion  String
+  armCode            String
+  assignmentSeedHash String
+  assignedAt         DateTime               @default(now())
+  membership         ImpactCohortMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@index([experimentKey, experimentVersion, armCode])
+}
+
+model PilotAssessment {
+  id                String                 @id @default(cuid())
+  membershipId      String
+  assessmentType    String
+  instrumentVersion String
+  answers           Json
+  score             Decimal?
+  administeredAt    DateTime               @default(now())
+  membership        ImpactCohortMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@unique([membershipId, assessmentType, instrumentVersion])
+  @@index([membershipId, assessmentType, administeredAt])
+}
+
+model ImpactSnapshot {
+  id                 String                 @id @default(cuid())
+  pilotId            String
+  snapshotVersion    Int
+  correctionOfId     String?
+  periodStart        DateTime
+  periodEnd          DateTime
+  metricDefinitions  Json
+  metrics            Json
+  sourceWatermark    DateTime
+  methodologyVersion String
+  methodologyHash    String
+  dataHash           String
+  generatedByVersion String
+  generatedByAdminId String
+  isPublicSafe       Boolean                @default(false)
+  generatedAt        DateTime               @default(now())
+  pilot              ImpactPilot            @relation(fields: [pilotId], references: [id], onDelete: Restrict)
+  correctionOf       ImpactSnapshot?        @relation("SnapshotCorrections", fields: [correctionOfId], references: [id], onDelete: Restrict)
+  corrections        ImpactSnapshot[]       @relation("SnapshotCorrections")
+  dataRoomExports    ImpactDataRoomExport[]
+
+  @@unique([pilotId, snapshotVersion])
+  @@index([pilotId, periodEnd])
+  @@index([correctionOfId])
+}
+
+model ImpactDataRoomExport {
+  id                 String         @id @default(cuid())
+  pilotId            String
+  snapshotId         String
+  requestedByAdminId String
+  purposeCode        String
+  format             String         @default("json")
+  manifest           Json
+  sha256             String
+  storageKey         String?        @unique
+  expiresAt          DateTime?
+  createdAt          DateTime       @default(now())
+  pilot              ImpactPilot    @relation(fields: [pilotId], references: [id], onDelete: Restrict)
+  snapshot           ImpactSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
+
+  @@index([pilotId, createdAt])
+  @@index([snapshotId])
 }

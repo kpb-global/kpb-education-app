@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/success_lab_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
@@ -101,9 +104,8 @@ String _shortDate(DateTime date) {
   }
   if (estimatedOpen != null) {
     return (
-      'live_scholarships_open_estimated'.trParams({
-        'date': _shortDate(estimatedOpen),
-      }),
+      'live_scholarships_open_estimated'
+          .trParams({'date': _shortDate(estimatedOpen)}),
       KpbColors.warningLight,
       KpbColors.warning,
     );
@@ -129,34 +131,20 @@ _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
   if (at == null) return null;
   final days = at.difference(DateTime.now()).inDays;
   if (days < 0) {
-    return _DeadlineBadge(
-      'live_scholarships_deadline_closed'.tr,
-      KpbColors.surfaceMuted,
-      KpbColors.textMuted,
-    );
+    return _DeadlineBadge('live_scholarships_deadline_closed'.tr,
+        KpbColors.surfaceMuted, KpbColors.textMuted);
   }
   final text = 'live_scholarships_deadline_days'.trParams({'count': '$days'});
   if (days <= 7) {
-    return _DeadlineBadge(
-      text,
-      KpbColors.errorLight,
-      KpbColors.error,
-      soon: true,
-    );
+    return _DeadlineBadge(text, KpbColors.errorLight, KpbColors.error,
+        soon: true);
   }
   if (days <= 30) {
-    return _DeadlineBadge(
-      text,
-      KpbColors.warningLight,
-      KpbColors.warning,
-      soon: days <= 14,
-    );
+    return _DeadlineBadge(text, KpbColors.warningLight, KpbColors.warning,
+        soon: days <= 14);
   }
   return _DeadlineBadge(
-    text,
-    KpbColors.actionPrimarySoft,
-    KpbColors.actionPrimary,
-  );
+      text, KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
 }
 
 /// Color-coded funding chip — bound to the real [fundingType].
@@ -165,20 +153,20 @@ _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
     return (
       KpbColors.successLight,
       KpbColors.success,
-      'live_scholarships_fully_funded'.tr,
+      'live_scholarships_fully_funded'.tr
     );
   }
   if (s.isPartiallyFunded) {
     return (
       KpbColors.warningLight,
       KpbColors.warning,
-      'live_scholarships_partially_funded'.tr,
+      'live_scholarships_partially_funded'.tr
     );
   }
   return (
     KpbColors.surfaceMuted,
     KpbColors.textMuted,
-    'live_scholarships_funding_unknown'.tr,
+    'live_scholarships_funding_unknown'.tr
   );
 }
 
@@ -195,8 +183,10 @@ class LiveScholarshipsScreen extends StatefulWidget {
 }
 
 class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
+  late final AppApiClient _apiClient;
   late final ScholarshipsController _scholarshipsController;
   final ScrollController _paginationController = ScrollController();
+  bool _successLabEnabled = false;
 
   List<LiveScholarshipModel> get _items => _scholarshipsController.items;
   bool get _loading => _scholarshipsController.loading;
@@ -210,14 +200,16 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
     super.initState();
     final appController = Get.find<AppController>();
     final profile = appController.profile;
+    _apiClient = widget.apiClient ?? appController.apiClient;
     _scholarshipsController = ScholarshipsController(
-      apiClient: widget.apiClient ?? appController.apiClient,
+      apiClient: _apiClient,
       lang: profile?.preferredLanguage == 'en' ? 'en' : 'fr',
       level: profile?.targetLevel,
       fieldIds: profile?.fieldIds,
     )..addListener(_onScholarshipsChanged);
     _paginationController.addListener(_onScroll);
     _scholarshipsController.loadInitial();
+    unawaited(_refreshSuccessLabAccess());
   }
 
   void _onScholarshipsChanged() {
@@ -231,7 +223,34 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
     }
   }
 
-  Future<void> _load() => _scholarshipsController.loadInitial();
+  Future<void> _load() async {
+    await Future.wait<void>(<Future<void>>[
+      _scholarshipsController.loadInitial(),
+      _refreshSuccessLabAccess(),
+    ]);
+  }
+
+  Future<bool> _refreshSuccessLabAccess() async {
+    var enabled = false;
+    try {
+      final raw = await _apiClient.getSuccessLabAccess();
+      enabled = SuccessLabApiCodec.accessFromApi(raw).enabled;
+    } catch (_) {
+      // Fail closed when auth, configuration, rollout, country resolution, or
+      // the network cannot produce an authoritative access decision.
+    }
+    if (mounted && enabled != _successLabEnabled) {
+      setState(() => _successLabEnabled = enabled);
+    }
+    return enabled;
+  }
+
+  Future<void> _openSuccessLab() async {
+    if (!_successLabEnabled) return;
+    final stillEnabled = await _refreshSuccessLabAccess();
+    if (!mounted || !stillEnabled) return;
+    await Get.toNamed(AppRoutes.successLab);
+  }
 
   @override
   void dispose() {
@@ -265,11 +284,8 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                 leading: Navigator.canPop(context)
                     ? IconButton(
                         tooltip: 'a11y_back'.tr,
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          size: 20,
-                          color: KpbColors.brandNavy,
-                        ),
+                        icon: const Icon(Icons.arrow_back_rounded,
+                            size: 20, color: KpbColors.brandNavy),
                         onPressed: () => Navigator.pop(context),
                       )
                     : null,
@@ -283,12 +299,22 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   ),
                 ),
                 actions: [
+                  if (_successLabEnabled)
+                    IconButton(
+                      key: const ValueKey<String>(
+                        'scholarships-success-lab-entry',
+                      ),
+                      tooltip: 'success_lab_title'.tr,
+                      icon: const Icon(
+                        Icons.auto_awesome_outlined,
+                        color: KpbColors.textMuted,
+                      ),
+                      onPressed: _openSuccessLab,
+                    ),
                   IconButton(
                     tooltip: 'a11y_refresh'.tr,
-                    icon: const Icon(
-                      Icons.refresh_rounded,
-                      color: KpbColors.textMuted,
-                    ),
+                    icon: const Icon(Icons.refresh_rounded,
+                        color: KpbColors.textMuted),
                     onPressed: _load,
                   ),
                 ],
@@ -304,10 +330,9 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                       Text(
                         'scholarships_sorted_hint'.tr,
                         style: const TextStyle(
-                          fontSize: 11.5,
-                          color: KpbColors.textMuted,
-                          height: 1.4,
-                        ),
+                            fontSize: 11.5,
+                            color: KpbColors.textMuted,
+                            height: 1.4),
                       ),
                       const SizedBox(height: 14),
                       SingleChildScrollView(
@@ -394,36 +419,37 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Text(
-                      'live_scholarships_result_count'.trParams({
-                        'count': '${_items.length}',
-                      }),
+                      'live_scholarships_result_count'
+                          .trParams({'count': '${_items.length}'}),
                       style: const TextStyle(
-                        fontSize: 11,
-                        color: KpbColors.textFaint,
-                      ),
+                          fontSize: 11, color: KpbColors.textFaint),
                     ),
                   ),
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final s = _items[index];
-                      return StaggeredSlide(
-                        index: index,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: _LiveScholarshipCard(
-                            scholarship: s,
-                            alertEnabled: _alertedScholarshipIds.contains(s.id),
-                            apiClient: widget.apiClient,
-                            onAlertChanged: (enabled) =>
-                                _setAlertState(s.id, enabled),
-                            onTap: () => _openDetail(context, s),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final s = _items[index];
+                        return StaggeredSlide(
+                          index: index,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: _LiveScholarshipCard(
+                              scholarship: s,
+                              alertEnabled:
+                                  _alertedScholarshipIds.contains(s.id),
+                              apiClient: widget.apiClient,
+                              onAlertChanged: (enabled) =>
+                                  _setAlertState(s.id, enabled),
+                              onTap: () => _openDetail(context, s),
+                            ),
                           ),
-                        ),
-                      );
-                    }, childCount: _items.length),
+                        );
+                      },
+                      childCount: _items.length,
+                    ),
                   ),
                 ),
                 if (_scholarshipsController.loadingMore)
@@ -460,7 +486,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
         scholarshipId: s.id,
         initialScholarship: s,
         initialAlertEnabled: _alertedScholarshipIds.contains(s.id),
-        apiClient: widget.apiClient,
+        apiClient: _apiClient,
         onAlertChanged: (enabled) => _setAlertState(s.id, enabled),
       ),
       routeName: AppRoutes.scholarshipDetailPath(s.id),
@@ -537,9 +563,7 @@ class _LiveScholarshipCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 11,
-                        color: KpbColors.textMuted,
-                      ),
+                          fontSize: 11, color: KpbColors.textMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -560,11 +584,8 @@ class _LiveScholarshipCard extends StatelessWidget {
                             KpbColors.textMuted,
                           ),
                         if (deadline?.soon ?? false)
-                          _pill(
-                            'live_scholarships_deadline_soon'.tr,
-                            KpbColors.gold,
-                            Colors.white,
-                          ),
+                          _pill('live_scholarships_deadline_soon'.tr,
+                              KpbColors.gold, Colors.white),
                         _pill(fundLabel, fundBg, fundFg),
                         if (cycle != null) _pill(cycle.$1, cycle.$2, cycle.$3),
                       ],
@@ -593,14 +614,10 @@ class _LiveScholarshipCard extends StatelessWidget {
 
 Widget _pill(String text, Color bg, Color fg, {bool big = false}) {
   return Container(
-    padding: EdgeInsets.symmetric(
-      horizontal: big ? 10 : 8,
-      vertical: big ? 3 : 2,
-    ),
-    decoration: BoxDecoration(
-      color: bg,
-      borderRadius: BorderRadius.circular(100),
-    ),
+    padding:
+        EdgeInsets.symmetric(horizontal: big ? 10 : 8, vertical: big ? 3 : 2),
+    decoration:
+        BoxDecoration(color: bg, borderRadius: BorderRadius.circular(100)),
     child: Text(
       text,
       style: TextStyle(
@@ -633,8 +650,7 @@ class _FilterChip extends StatelessWidget {
           color: active ? KpbColors.actionPrimary : KpbColors.surface,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: active ? KpbColors.actionPrimary : KpbColors.border,
-          ),
+              color: active ? KpbColors.actionPrimary : KpbColors.border),
         ),
         child: Text(
           label,
@@ -663,9 +679,8 @@ class _GuidePromoCard extends StatelessWidget {
         gradient: const LinearGradient(
           colors: [KpbColors.actionPrimarySoft, KpbColors.surface],
         ),
-        border: Border.all(
-          color: KpbColors.actionPrimary.withValues(alpha: 0.3),
-        ),
+        border:
+            Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(17),
       ),
       child: Row(
@@ -677,11 +692,8 @@ class _GuidePromoCard extends StatelessWidget {
               color: KpbColors.actionPrimary,
               borderRadius: BorderRadius.circular(11),
             ),
-            child: const Icon(
-              Icons.auto_stories_rounded,
-              color: Colors.white,
-              size: 23,
-            ),
+            child: const Icon(Icons.auto_stories_rounded,
+                color: Colors.white, size: 23),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -761,11 +773,8 @@ class _ShimmerCardState extends State<_ShimmerCard>
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) {
-        final block = Color.lerp(
-          KpbColors.canvas,
-          KpbColors.border,
-          _anim.value,
-        )!;
+        final block =
+            Color.lerp(KpbColors.canvas, KpbColors.border, _anim.value)!;
         return Container(
           height: 92,
           decoration: BoxDecoration(

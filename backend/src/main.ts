@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import * as express from 'express';
 
 import { AppModule } from './app.module';
+import { validateCompetitionReadinessEnvironment } from './common/competition-readiness-env';
 import { resolveCorsOrigins } from './common/cors-origins';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
@@ -15,6 +16,7 @@ async function bootstrap() {
   if (existsSync('.env')) {
     loadEnvFile('.env');
   }
+  validateCompetitionReadinessEnvironment();
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
@@ -56,7 +58,14 @@ async function bootstrap() {
     origin: resolveCorsOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Idempotency-Key',
+      'If-Match',
+      'X-Request-Id',
+    ],
     maxAge: 86400, // 24h preflight cache
   });
 

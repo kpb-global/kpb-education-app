@@ -7,7 +7,23 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import type { Response } from 'express';
+import { randomUUID } from 'node:crypto';
+import type { Request, Response } from 'express';
+
+type ExceptionBody = {
+  message?: string | string[];
+  errors?: unknown;
+  code?: string;
+  details?: unknown;
+};
+
+function resolveRequestId(request: Request): string {
+  const candidate = request.header('X-Request-Id')?.trim();
+  if (candidate && /^[A-Za-z0-9._:-]{1,128}$/.test(candidate)) {
+    return candidate;
+  }
+  return randomUUID();
+}
 
 // Maps Prisma known-request error codes to sensible HTTP statuses so that
 // normal business conditions (unique conflict, missing row, bad FK) surface as
@@ -35,10 +51,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+    const requestId = resolveRequestId(request);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let errors: any = undefined;
+    let message: string | string[] = 'Internal server error';
+    let errors: unknown;
+    let code: string | undefined;
+    let details: unknown;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -46,8 +66,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       if (typeof exResponse === 'string') {
         message = exResponse;
       } else if (typeof exResponse === 'object') {
-        message = (exResponse as any).message ?? message;
-        errors = (exResponse as any).errors;
+        const body = exResponse as ExceptionBody;
+        message = body.message ?? message;
+        errors = body.errors;
+        code = body.code;
+        details = body.details;
       }
     } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
       const mapped = mapPrismaError(exception.code);
@@ -55,20 +78,46 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status = mapped.status;
         message = mapped.message;
       } else {
-        this.logger.error(`Prisma ${exception.code}: ${exception.message}`);
+        this.logUnexpected(`Prisma ${exception.code}`, requestId);
       }
     } else if (exception instanceof Error) {
-      this.logger.error(exception.message, exception.stack);
+      this.logUnexpected(safeErrorClass(exception), requestId);
     } else {
-      // Non-Error throw (e.g. a thrown string/object) — still record it.
-      this.logger.error(`Non-error exception: ${JSON.stringify(exception)}`);
+      // Never serialize arbitrary thrown values. They can contain request
+      // bodies, document text, access tokens or other private fields.
+      this.logUnexpected('NonErrorThrow', requestId);
     }
 
+    response.setHeader('X-Request-Id', requestId);
     response.status(status).json({
       statusCode: status,
       message,
-      ...(errors && { errors }),
+      requestId,
+      ...(code && { code }),
+      ...(details !== undefined && { details }),
+      ...(errors !== undefined && { errors }),
       timestamp: new Date().toISOString(),
     });
   }
+
+  private logUnexpected(errorClass: string, requestId: string): void {
+    // Unexpected exception messages and stacks frequently embed Prisma input,
+    // provider payloads or user-entered text. Log only a correlation-safe
+    // classification; the response already exposes the request id to support.
+    this.logger.error(`Unhandled ${errorClass}; requestId=${requestId}`);
+  }
+}
+
+function safeErrorClass(error: Error): string {
+  return [
+    'Error',
+    'TypeError',
+    'RangeError',
+    'ReferenceError',
+    'SyntaxError',
+    'URIError',
+    'EvalError',
+  ].includes(error.name)
+    ? error.name
+    : 'Error';
 }

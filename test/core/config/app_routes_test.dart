@@ -65,6 +65,73 @@ void main() {
       expect(AppRoutes.normalizeExternalRoute('/scholarships/a/b'), isNull);
     });
 
+    test('normalizes Success Lab list and workspace routes', () {
+      expect(
+        AppRoutes.normalizeExternalRoute(AppRoutes.successLab),
+        AppRoutes.successLab,
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute('/success-lab/workspace-1'),
+        '/success-lab/workspace-1',
+      );
+      expect(
+        AppRoutes.successLabWorkspacePath('workspace 1'),
+        '/success-lab/workspace%201',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute(
+          '/success-lab/workspace-1/diagnostic',
+        ),
+        '/success-lab/workspace-1/diagnostic',
+      );
+      expect(
+        AppRoutes.successLabDiagnosticPath('workspace 1'),
+        '/success-lab/workspace%201/diagnostic',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute(
+          '/success-lab/workspace-1/study-review',
+        ),
+        '/success-lab/workspace-1/study-review',
+      );
+      expect(
+        AppRoutes.successLabStudyReviewPath('workspace 1'),
+        '/success-lab/workspace%201/study-review',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute(
+          '/success-lab/workspace-1/schedule',
+        ),
+        '/success-lab/workspace-1/schedule',
+      );
+      expect(
+        AppRoutes.successLabSchedulePath('workspace 1'),
+        '/success-lab/workspace%201/schedule',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute(
+          '/success-lab/workspace-1/submission',
+        ),
+        '/success-lab/workspace-1/submission',
+      );
+      expect(
+        AppRoutes.successLabSubmissionPath('workspace 1'),
+        '/success-lab/workspace%201/submission',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute(
+          '/success-lab/workspace-1/outcome',
+        ),
+        '/success-lab/workspace-1/outcome',
+      );
+      expect(
+        AppRoutes.successLabOutcomePath('workspace 1'),
+        '/success-lab/workspace%201/outcome',
+      );
+      expect(AppRoutes.normalizeExternalRoute('/success-lab/'), isNull);
+      expect(AppRoutes.normalizeExternalRoute('/success-lab/a/other'), isNull);
+    });
+
     test('maps legacy create route to current route', () {
       expect(
         AppRoutes.normalizeExternalRoute('/cases/create'),
@@ -101,6 +168,13 @@ void main() {
       // MVP lock) so deep-links to it resolve gracefully.
       expect(names, contains(AppRoutes.scholarships));
       expect(names, contains(AppRoutes.scholarshipDetail));
+      expect(names, contains(AppRoutes.successLab));
+      expect(names, contains(AppRoutes.successLabWorkspace));
+      expect(names, contains(AppRoutes.successLabDiagnostic));
+      expect(names, contains(AppRoutes.successLabStudyReview));
+      expect(names, contains(AppRoutes.successLabSchedule));
+      expect(names, contains(AppRoutes.successLabSubmission));
+      expect(names, contains(AppRoutes.successLabOutcome));
       // High-intent re-engagement targets (KPB-63).
       for (final route in [
         AppRoutes.orientation,
@@ -114,7 +188,7 @@ void main() {
       ]) {
         expect(names, contains(route));
       }
-      expect(names.length, equals(14));
+      expect(names.length, equals(21));
     });
   });
 }

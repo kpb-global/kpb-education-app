@@ -776,6 +776,9 @@ class AppTranslations extends Translations {
           'scanner_scan': 'Scanner',
           'scanner_reset_tooltip': 'Réinitialiser',
           'impact_title': 'Notre impact',
+          'impact_unavailable_title': 'Statistiques indisponibles',
+          'impact_unavailable_subtitle':
+              'Les données d’impact ne peuvent pas être vérifiées pour le moment. Réessaie plus tard.',
           'impact_hero_title': 'L\'éducation sans frontières',
           'impact_hero_subtitle':
               'KPB Education accompagne les talents africains vers les meilleures destinations d\'études.',
@@ -2133,6 +2136,393 @@ class AppTranslations extends Translations {
           'dest_more_coming_tip':
               'D\'autres destinations (Émirats, Chine, Corée du Sud…) arrivent '
                   'bientôt — dis-nous laquelle t\'intéresse.',
+          // ── Success Lab ───────────────────────────────────────────────
+          'success_lab_title': 'Atelier de réussite',
+          'success_lab_subtitle':
+              'Prépare chaque candidature étape par étape et retrouve ta progression, même hors connexion.',
+          'success_lab_empty_title': 'Aucun atelier pour le moment',
+          'success_lab_empty_body':
+              'Choisis une bourse avec un cycle disponible pour commencer ta préparation.',
+          'success_lab_empty_action': 'Voir les bourses',
+          'success_lab_offline_title': 'Tu es hors connexion',
+          'success_lab_offline_empty_body':
+              'Aucun atelier enregistré sur cet appareil. Reconnecte-toi pour les charger.',
+          'success_lab_offline_cached_body':
+              'Version enregistrée affichée. Tes changements seront synchronisés au retour du réseau.',
+          'success_lab_forbidden_title': 'Accès non autorisé',
+          'success_lab_forbidden_body':
+              'Connecte-toi avec un compte étudiant autorisé pour utiliser cet atelier.',
+          'success_lab_disabled_title': 'Atelier indisponible',
+          'success_lab_disabled_body':
+              'Cette fonctionnalité n’est pas encore activée pour ton compte.',
+          'success_lab_error_title': 'Impossible de charger l’atelier',
+          'success_lab_error_body':
+              'Une erreur est survenue. Réessaie dans quelques instants.',
+          'success_lab_missing_identity':
+              'Une session étudiante active est nécessaire.',
+          'success_lab_cached_label':
+              'Version enregistrée affichée pendant la mise à jour.',
+          'success_lab_workspace_fallback': 'Candidature bourse',
+          'success_lab_workspace_title': 'Mon atelier',
+          'success_lab_progress_label': 'Progression de préparation',
+          'success_lab_progress_disclaimer':
+              'Cette progression mesure les étapes préparées, pas tes chances d’admission.',
+          'success_lab_next_action': 'Prochaine action',
+          'success_lab_deadline_confirmed': 'Date limite confirmée',
+          'success_lab_deadline_estimated': 'Date limite estimée',
+          'success_lab_status_started': 'Commencé',
+          'success_lab_status_preparing': 'En préparation',
+          'success_lab_status_ready_for_review': 'Prêt pour relecture',
+          'success_lab_status_review_requested': 'Relecture demandée',
+          'success_lab_status_submitted': 'Candidature envoyée',
+          'success_lab_status_decision_received': 'Décision reçue',
+          'success_lab_status_archived': 'Archivé',
+          'success_lab_status_unknown': 'Statut à vérifier',
+          'success_lab_steps_title': 'Étapes de préparation',
+          'success_lab_steps_empty':
+              'Les étapes de cet atelier ne sont pas encore disponibles.',
+          'success_lab_category_profile': 'Profil et éligibilité',
+          'success_lab_category_documents': 'Documents',
+          'success_lab_category_form_essays': 'Formulaire et essais',
+          'success_lab_category_review_submission': 'Relecture et envoi',
+          'success_lab_category_unknown': 'Autre étape',
+          'success_lab_step_not_started': 'À commencer',
+          'success_lab_step_in_progress': 'En cours',
+          'success_lab_step_completed': 'Terminée',
+          'success_lab_step_not_applicable': 'Non applicable',
+          'success_lab_step_status_unknown': 'Statut à vérifier',
+          'success_lab_step_required': 'Obligatoire',
+          'success_lab_step_complete': 'Marquer comme terminée',
+          'success_lab_step_reopen': 'Rouvrir cette étape',
+          'success_lab_step_queued': 'En attente de réseau',
+          'success_lab_step_sending': 'Synchronisation',
+          'success_lab_step_conflict': 'Conflit à résoudre',
+          'success_lab_step_failed': 'Échec de synchronisation',
+          'success_lab_retry': 'Réessayer la synchronisation',
+          'success_lab_pending_changes_body':
+              'Des changements locaux attendent d’être synchronisés.',
+          'success_lab_diagnostic_title': 'Diagnostic de candidature',
+          'success_lab_diagnostic_body':
+              'Analyse structurée de la préparation, avec consentement explicite avant tout traitement IA.',
+          'success_lab_diagnostic_action': 'Lancer le diagnostic',
+          'success_lab_diagnostic_unavailable':
+              'Le diagnostic est fermé pour ce compte ou ce pilote.',
+          'success_lab_diagnostic_unavailable_title': 'Diagnostic indisponible',
+          'success_lab_diagnostic_promise':
+              'Une seule amélioration prioritaire, maintenant',
+          'success_lab_diagnostic_disclaimer':
+              'Ce diagnostic ne calcule pas tes chances d’admission, ne garantit aucun résultat et ne remplace pas un conseiller KPB.',
+          'success_lab_diagnostic_loading': 'Vérification de ton diagnostic…',
+          'success_lab_diagnostic_running':
+              'Analyse en cours. Nous gardons la réponse courte pour limiter le coût et rester utile.',
+          'success_lab_diagnostic_online_required':
+              'Reconnecte-toi pour lancer ou consulter le diagnostic sécurisé.',
+          'success_lab_ai_consent_checkbox':
+              'J’ai lu cette notice et j’accepte ce traitement IA limité.',
+          'success_lab_ai_consent_required':
+              'Tu dois accepter la notice actuelle avant de lancer le diagnostic.',
+          'success_lab_guardian_authorization_required':
+              'Une autorisation vérifiée du responsable légal est nécessaire pour ce compte.',
+          'success_lab_excerpt_title': 'Extrait facultatif',
+          'success_lab_excerpt_body':
+              'Tu peux coller un court extrait de CV ou de lettre. Retire les noms et coordonnées si possible.',
+          'success_lab_excerpt_hint':
+              'Exemple : une expérience de leadership ou un paragraphe à améliorer…',
+          'success_lab_diagnostic_error_title': 'Diagnostic non terminé',
+          'success_lab_diagnostic_error_body':
+              'Le diagnostic n’a pas pu être chargé. Aucun nouvel appel payant ne sera lancé sans contrôle du backend.',
+          'success_lab_diagnostic_strength': 'Ton point fort',
+          'success_lab_diagnostic_priority': 'Ta priorité',
+          'success_lab_diagnostic_rationale': 'Pourquoi maintenant',
+          'success_lab_diagnostic_next_action': 'Prochaine action',
+          'success_lab_diagnostic_stale_title': 'Ta candidature a évolué',
+          'success_lab_diagnostic_stale_body':
+              'Ce diagnostic correspond à une version antérieure de ton atelier. Il reste visible, sans relancer automatiquement un appel IA.',
+          'success_lab_study_title': 'Étude par un conseiller',
+          'success_lab_study_body':
+              'Demande une étude humaine de ta préparation avant l’envoi.',
+          'success_lab_study_action': 'Demander une étude',
+          'success_lab_study_unavailable':
+              'Cette option n’est pas activée pour ton compte.',
+          'success_lab_study_unavailable_title': 'Étude indisponible',
+          'success_lab_study_free_title': 'Première étude gratuite du dossier',
+          'success_lab_study_decision_disclaimer':
+              'Le conseiller KPB formule un avis et des prochaines étapes. La décision finale appartient toujours à l’établissement.',
+          'success_lab_study_consent_checkbox':
+              'J’ai lu cette notice et j’accepte de partager uniquement les versions sélectionnées avec un conseiller KPB.',
+          'success_lab_study_documents_title': 'Documents à partager',
+          'success_lab_study_document_kind': 'Type de document',
+          'success_lab_study_document_title': 'Titre du document',
+          'success_lab_study_add_document': 'Ajouter un document sécurisé',
+          'success_lab_study_version_label': 'Version @number · @file · @size',
+          'success_lab_study_delete_action': 'Supprimer cette version',
+          'success_lab_study_deleting': 'Suppression en cours',
+          'success_lab_study_delete_confirm_title': 'Supprimer cette version ?',
+          'success_lab_study_delete_confirm_body':
+              'Tu vas supprimer définitivement « @title » (@file) de KPB. Cette action ne sera jamais automatique et ne peut pas être annulée.',
+          'success_lab_study_delete_confirm_action': 'Supprimer définitivement',
+          'success_lab_study_delete_shared':
+              'Cette version est déjà partagée avec une étude en cours. Elle ne peut pas être supprimée tant que cette étude reste ouverte.',
+          'success_lab_study_message_label':
+              'Message au conseiller (facultatif)',
+          'success_lab_study_message_hint':
+              'Précise la bourse ciblée ou la question prioritaire à examiner.',
+          'success_lab_study_submit_action': 'Envoyer pour étude',
+          'success_lab_study_uploading': 'Téléversement sécurisé en cours…',
+          'success_lab_study_submitting': 'Envoi de la demande…',
+          'success_lab_study_submitted_title': 'Demande transmise',
+          'success_lab_study_submitted_body':
+              'Ta demande n°@number est enregistrée. Un conseiller KPB examinera uniquement les versions partagées.',
+          'success_lab_study_online_required':
+              'Reconnecte-toi pour partager les documents et envoyer la demande de façon sécurisée.',
+          'success_lab_study_error_title': 'Demande non envoyée',
+          'success_lab_study_error_body':
+              'La demande n’a pas pu être terminée. Vérifie tes documents puis réessaie.',
+          'success_lab_study_file_too_large':
+              'Ce fichier dépasse la taille maximale autorisée de 10 Mo.',
+          'success_lab_study_file_not_allowed':
+              'Seuls les fichiers PDF, JPG et PNG sont acceptés.',
+          'success_lab_study_document_required':
+              'Ajoute et sélectionne au moins un document valide.',
+          'success_lab_study_already_open':
+              'Une demande d’étude est déjà ouverte pour cet atelier.',
+          'success_lab_study_consent_required':
+              'Tu dois accepter la notice actuelle avant de partager des documents.',
+          'success_lab_study_complementing': 'Envoi sécurisé des compléments…',
+          'success_lab_study_request_number': 'Demande d’étude n°@number',
+          'success_lab_study_submitted_on':
+              'Envoyée le @date (heure de ton appareil : @deviceZone). Fuseau du dossier : @zone.',
+          'success_lab_study_missing_title': 'Éléments demandés',
+          'success_lab_study_shared_title': 'Documents déjà partagés',
+          'success_lab_study_complement_title': 'Compléter ma demande',
+          'success_lab_study_complement_body':
+              'Réponds précisément aux éléments demandés. Tu peux envoyer un message seul ou ajouter de nouvelles versions avec ton accord explicite.',
+          'success_lab_study_complement_message': 'Réponse au conseiller',
+          'success_lab_study_complement_message_hint':
+              'Explique ce que tu as corrigé ou apporte l’information demandée.',
+          'success_lab_study_complement_action': 'Envoyer les compléments',
+          'success_lab_study_complement_not_allowed':
+              'Les compléments ne peuvent être envoyés que lorsque le conseiller les demande.',
+          'success_lab_study_complement_changed':
+              'La demande a changé. Actualise avant de renvoyer tes compléments.',
+          'success_lab_study_complement_required':
+              'Ajoute une réponse ou sélectionne au moins un nouveau document.',
+          'success_lab_study_choose_slot_action': 'Choisir un créneau',
+          'success_lab_study_refresh_action': 'Actualiser le suivi',
+          'success_lab_study_status_draft': 'Demande en préparation',
+          'success_lab_study_status_submitted': 'Demande envoyée au conseiller',
+          'success_lab_study_status_triaged': 'Demande examinée',
+          'success_lab_study_status_more_information_needed':
+              'Informations complémentaires nécessaires',
+          'success_lab_study_status_call_offered': 'Créneaux proposés',
+          'success_lab_study_status_scheduled': 'Rendez-vous planifié',
+          'success_lab_study_status_converted_to_case':
+              'Accompagnement KPB créé',
+          'success_lab_study_status_autonomy_recommended':
+              'Poursuite autonome recommandée',
+          'success_lab_study_status_declined': 'Demande non retenue',
+          'success_lab_study_status_closed': 'Étude terminée',
+          'success_lab_study_status_unknown':
+              'État mis à jour — actualise l’application',
+          'success_lab_study_next_complete_request':
+              'Termine puis envoie ta demande.',
+          'success_lab_study_next_wait_for_triage':
+              'Aucune action : un conseiller va examiner ta demande.',
+          'success_lab_study_next_provide_more_information':
+              'Réponds aux éléments demandés ci-dessous.',
+          'success_lab_study_next_wait_for_slot_offer':
+              'Aucune action : des créneaux vont bientôt être proposés.',
+          'success_lab_study_next_choose_slot':
+              'Choisis l’un des créneaux disponibles.',
+          'success_lab_study_next_appointment_scheduled':
+              'Ton rendez-vous est confirmé.',
+          'success_lab_study_next_case_created':
+              'Poursuis ton accompagnement dans ton dossier KPB.',
+          'success_lab_study_next_continue_autonomously':
+              'Continue ta préparation avec les recommandations reçues.',
+          'success_lab_study_next_none':
+              'Aucune action supplémentaire pour le moment.',
+          'success_lab_study_next_unknown':
+              'Actualise pour recevoir la prochaine action.',
+          'success_lab_schedule_title': 'Choisir un rendez-vous',
+          'success_lab_schedule_choose_title': 'Créneaux disponibles',
+          'success_lab_schedule_choose_body':
+              'Sélectionne un seul créneau, vérifie les heures et confirme. La réservation nécessite une connexion.',
+          'success_lab_schedule_offer_details':
+              '@name · Heure affichée : ton appareil (@deviceZone) · Fuseau d’origine : @zone',
+          'success_lab_schedule_confirm_action': 'Confirmer le créneau',
+          'success_lab_schedule_confirm_title': 'Confirmer ce rendez-vous ?',
+          'success_lab_schedule_confirm_body':
+              '@date avec @name. Heure affichée sur ton appareil (@deviceZone) ; fuseau d’origine : @zone.',
+          'success_lab_schedule_booking':
+              'Confirmation du rendez-vous auprès du serveur…',
+          'success_lab_schedule_booked_title': 'Rendez-vous confirmé',
+          'success_lab_schedule_booked_body':
+              '@date (heure de ton appareil : @deviceZone). Fuseau de réservation : @zone.',
+          'success_lab_schedule_booked_recovered_body':
+              'Le serveur confirme qu’un rendez-vous est planifié. Consulte tes notifications KPB pour les détails.',
+          'success_lab_schedule_empty_title':
+              'Aucun créneau disponible actuellement',
+          'success_lab_schedule_empty_body':
+              'Les créneaux expirés ne sont jamais affichés. Actualise plus tard pour voir les nouvelles propositions.',
+          'success_lab_schedule_waiting_title': 'Créneaux pas encore ouverts',
+          'success_lab_schedule_waiting_body':
+              'Ta demande est suivie, mais tu ne peux réserver qu’après la proposition d’un conseiller.',
+          'success_lab_schedule_no_request_title':
+              'Aucune demande d’étude active',
+          'success_lab_schedule_no_request_body':
+              'Envoie d’abord une demande d’étude depuis ton atelier Success Lab.',
+          'success_lab_schedule_online_required':
+              'Reconnecte-toi pour consulter et réserver un créneau.',
+          'success_lab_schedule_error_title':
+              'Créneaux momentanément indisponibles',
+          'success_lab_schedule_error_body':
+              'La réservation n’a pas été confirmée par le serveur. Réessaie avec le même choix.',
+          'success_lab_schedule_expired':
+              'Ce créneau a expiré. Sélectionne une autre proposition.',
+          'success_lab_schedule_taken':
+              'Ce créneau vient d’être pris. Sélectionne une autre proposition.',
+          'success_lab_schedule_changed':
+              'La demande a changé. Actualise les créneaux avant de réserver.',
+          'success_lab_schedule_no_offer': 'Ce créneau n’est plus proposé.',
+          'success_lab_schedule_retry':
+              'La confirmation est encore en cours. Réessaie dans un instant.',
+          'success_lab_submission_title': 'Déclarer ma soumission',
+          'success_lab_submission_workspace_body':
+              'Indique que ta candidature a réellement été envoyée et joins une preuve privée.',
+          'success_lab_submission_open': 'Ouvrir mes soumissions',
+          'success_lab_submission_intro_title':
+              'Une déclaration factuelle, avec preuve',
+          'success_lab_submission_intro_body':
+              'KPB enregistre ce que tu déclares. La vérification de la preuve est affichée séparément et ne garantit aucun résultat.',
+          'success_lab_submission_channel': 'Canal de soumission (facultatif)',
+          'success_lab_submission_channel_hint': 'Ex. portail officiel, e-mail',
+          'success_lab_submission_reference':
+              'Référence de candidature (facultatif)',
+          'success_lab_submission_reference_private':
+              'Transmise de façon chiffrée ; le serveur ne conserve qu’une empreinte HMAC.',
+          'success_lab_submission_date': 'Date de soumission',
+          'success_lab_submission_action': 'Déclarer la soumission',
+          'success_lab_submission_sending': 'Enregistrement auprès du serveur…',
+          'success_lab_submission_confirmed_body':
+              'La déclaration a été enregistrée par le serveur. Son statut de vérification reste visible ci-dessous.',
+          'success_lab_submission_history': 'Historique des soumissions',
+          'success_lab_submission_history_empty': 'Aucune soumission déclarée.',
+          'success_lab_submission_declared_label': 'Soumission déclarée',
+          'success_lab_outcome_title': 'Admission et financement',
+          'success_lab_outcome_workspace_body':
+              'Déclare séparément la décision d’admission et le financement reçu.',
+          'success_lab_outcome_open': 'Ouvrir mes décisions',
+          'success_lab_outcome_intro_title':
+              'Décisions déclarées, sans promesse ni inférence',
+          'success_lab_outcome_intro_body':
+              'L’établissement émet la décision. KPB vérifie uniquement la preuve ; admission et financement restent deux informations séparées.',
+          'success_lab_outcome_current_admission': 'Admission actuelle',
+          'success_lab_outcome_current_funding': 'Financement actuel',
+          'success_lab_outcome_no_admission':
+              'Aucune décision d’admission déclarée.',
+          'success_lab_outcome_no_funding':
+              'Aucune décision de financement déclarée.',
+          'success_lab_outcome_declare_admission':
+              'Déclarer une décision d’admission',
+          'success_lab_outcome_update_admission':
+              'Déclarer une nouvelle décision d’admission',
+          'success_lab_outcome_declare_funding':
+              'Déclarer une décision de financement',
+          'success_lab_outcome_update_funding':
+              'Déclarer une nouvelle décision de financement',
+          'success_lab_outcome_issuer': 'Établissement émetteur',
+          'success_lab_outcome_issuer_helper':
+              'KPB n’est pas l’émetteur de la décision.',
+          'success_lab_outcome_admission_decision': 'Décision d’admission',
+          'success_lab_outcome_funding_decision': 'Décision de financement',
+          'success_lab_outcome_received_date': 'Date de réception',
+          'success_lab_outcome_choose_date': 'Choisir la date',
+          'success_lab_outcome_device_timezone':
+              'Date saisie dans le fuseau de ton appareil : @zone',
+          'success_lab_outcome_save_admission':
+              'Enregistrer la décision d’admission',
+          'success_lab_outcome_save_funding': 'Enregistrer le financement',
+          'success_lab_outcome_amount_minor':
+              'Montant en unité monétaire mineure',
+          'success_lab_outcome_amount_optional':
+              'Facultatif. À renseigner avec la devise, uniquement pour un financement total ou partiel.',
+          'success_lab_outcome_currency': 'Devise ISO à 3 lettres',
+          'success_lab_outcome_history': 'Historique des décisions',
+          'success_lab_outcome_history_empty':
+              'Aucune ancienne décision enregistrée.',
+          'success_lab_outcome_evidence_title': 'Preuve privée obligatoire',
+          'success_lab_outcome_evidence_body':
+              'PDF, JPG ou PNG, 10 Mo maximum. Le fichier est analysé avant utilisation.',
+          'success_lab_outcome_evidence_choose': 'Choisir une preuve',
+          'success_lab_outcome_evidence_change': 'Changer la preuve',
+          'success_lab_outcome_consent_loading':
+              'Chargement de la notice de confidentialité…',
+          'success_lab_outcome_consent_private':
+              'Ce consentement couvre le stockage privé et la vérification KPB. Il n’autorise ni publication de témoignage ni statistique publique.',
+          'success_lab_outcome_add_complement': 'Ajouter le complément demandé',
+          'success_lab_outcome_granting_consent':
+              'Enregistrement de ton consentement…',
+          'success_lab_outcome_uploading': 'Envoi et analyse de la preuve…',
+          'success_lab_outcome_attaching': 'Ajout du complément…',
+          'success_lab_outcome_saving_admission':
+              'Enregistrement de la décision d’admission…',
+          'success_lab_outcome_saving_funding':
+              'Enregistrement de la décision de financement…',
+          'success_lab_outcome_online_required':
+              'Reconnecte-toi : les preuves et décisions ne sont jamais mises en attente sur cet appareil.',
+          'success_lab_outcome_unavailable_title': 'Déclarations indisponibles',
+          'success_lab_outcome_guardian_required':
+              'Une autorisation du responsable légal est requise.',
+          'success_lab_outcome_evidence_required':
+              'Accepte la notice et joins une preuve avant de continuer.',
+          'success_lab_outcome_scan_pending':
+              'La preuve est encore en cours d’analyse. Réessaie dans un instant.',
+          'success_lab_outcome_evidence_rejected':
+              'Cette preuve a été refusée. Choisis un autre fichier propre et lisible.',
+          'success_lab_outcome_superseded':
+              'Cette décision a déjà été remplacée. Actualise l’historique.',
+          'success_lab_outcome_changed':
+              'Le dossier a changé. Les données ont été actualisées ; vérifie-les avant de réessayer.',
+          'success_lab_outcome_invalid_amount':
+              'Indique un montant entier positif et une devise ISO à trois lettres, ou laisse les deux champs vides.',
+          'success_lab_outcome_file_too_large':
+              'Le fichier dépasse la limite de 10 Mo.',
+          'success_lab_outcome_file_not_allowed':
+              'Choisis un fichier PDF, JPG ou PNG.',
+          'success_lab_outcome_error_body':
+              'Le serveur n’a pas confirmé cette opération. Vérifie les données puis réessaie.',
+          'success_lab_verification_declared': 'Déclarée par l’étudiant',
+          'success_lab_verification_pending': 'Vérification en cours',
+          'success_lab_verification_verified': 'Preuve vérifiée par KPB',
+          'success_lab_verification_needs_information':
+              'Complément demandé par KPB',
+          'success_lab_verification_rejected': 'Preuve rejetée par KPB',
+          'success_lab_verification_unknown': 'Statut de vérification inconnu',
+          'success_lab_admission_admitted': 'Admis(e)',
+          'success_lab_admission_rejected': 'Non admis(e)',
+          'success_lab_admission_waitlisted': 'Liste d’attente',
+          'success_lab_admission_deferred': 'Décision reportée',
+          'success_lab_admission_withdrawn': 'Candidature retirée',
+          'success_lab_funding_full': 'Financement total',
+          'success_lab_funding_partial': 'Financement partiel',
+          'success_lab_funding_none': 'Aucun financement',
+          'success_lab_funding_pending': 'Financement en attente',
+          'success_lab_funding_not_applicable': 'Non applicable',
+          'success_lab_outcome_unknown': 'Valeur inconnue',
+          'success_lab_document_cv': 'CV',
+          'success_lab_document_motivation': 'Lettre de motivation',
+          'success_lab_document_essay': 'Essai',
+          'success_lab_document_transcript': 'Relevé de notes',
+          'success_lab_document_diploma': 'Diplôme',
+          'success_lab_start_action': 'Préparer ma candidature',
+          'success_lab_start_error_title': 'Atelier non créé',
+          'success_lab_start_offline':
+              'Reconnecte-toi pour créer un nouvel atelier.',
+          'success_lab_start_conflict':
+              'Un atelier existe peut-être déjà. Actualise puis réessaie.',
+          'success_lab_start_error_body':
+              'Impossible de créer cet atelier pour le moment.',
           // ── Dossier / Application (App-engagement handoff) ─────────────
           'case_steps_heading': 'Étapes de ta demande',
           'case_step_your_turn': 'À toi',
@@ -2902,6 +3292,9 @@ class AppTranslations extends Translations {
           'scanner_scan': 'Scan',
           'scanner_reset_tooltip': 'Reset',
           'impact_title': 'Our impact',
+          'impact_unavailable_title': 'Statistics unavailable',
+          'impact_unavailable_subtitle':
+              'Impact data cannot be verified right now. Please try again later.',
           'impact_hero_title': 'Education without borders',
           'impact_hero_subtitle':
               'KPB Education guides African talents toward the best study destinations.',
@@ -4236,6 +4629,389 @@ class AppTranslations extends Translations {
           'dest_more_coming_tip':
               'More destinations (UAE, China, South Korea…) are coming soon — '
                   'tell us which one you want.',
+          // ── Success Lab ───────────────────────────────────────────────
+          'success_lab_title': 'Success Lab',
+          'success_lab_subtitle':
+              'Prepare every application step by step and keep your progress available offline.',
+          'success_lab_empty_title': 'No workspace yet',
+          'success_lab_empty_body':
+              'Choose a scholarship with an available cycle to start preparing.',
+          'success_lab_empty_action': 'Browse scholarships',
+          'success_lab_offline_title': 'You are offline',
+          'success_lab_offline_empty_body':
+              'No workspace is saved on this device. Reconnect to load them.',
+          'success_lab_offline_cached_body':
+              'Showing a saved version. Your changes will sync when the network returns.',
+          'success_lab_forbidden_title': 'Access not allowed',
+          'success_lab_forbidden_body':
+              'Sign in with an eligible student account to use this workspace.',
+          'success_lab_disabled_title': 'Workspace unavailable',
+          'success_lab_disabled_body':
+              'This feature is not enabled for your account yet.',
+          'success_lab_error_title': 'Unable to load the workspace',
+          'success_lab_error_body':
+              'Something went wrong. Please try again in a moment.',
+          'success_lab_missing_identity':
+              'An active student session is required.',
+          'success_lab_cached_label':
+              'Showing a saved version while it is updated.',
+          'success_lab_workspace_fallback': 'Scholarship application',
+          'success_lab_workspace_title': 'My workspace',
+          'success_lab_progress_label': 'Preparation progress',
+          'success_lab_progress_disclaimer':
+              'This progress tracks prepared steps, not your admission odds.',
+          'success_lab_next_action': 'Next action',
+          'success_lab_deadline_confirmed': 'Confirmed deadline',
+          'success_lab_deadline_estimated': 'Estimated deadline',
+          'success_lab_status_started': 'Started',
+          'success_lab_status_preparing': 'Preparing',
+          'success_lab_status_ready_for_review': 'Ready for review',
+          'success_lab_status_review_requested': 'Review requested',
+          'success_lab_status_submitted': 'Application submitted',
+          'success_lab_status_decision_received': 'Decision received',
+          'success_lab_status_archived': 'Archived',
+          'success_lab_status_unknown': 'Status needs review',
+          'success_lab_steps_title': 'Preparation steps',
+          'success_lab_steps_empty':
+              'The steps for this workspace are not available yet.',
+          'success_lab_category_profile': 'Profile and eligibility',
+          'success_lab_category_documents': 'Documents',
+          'success_lab_category_form_essays': 'Form and essays',
+          'success_lab_category_review_submission': 'Review and submission',
+          'success_lab_category_unknown': 'Other step',
+          'success_lab_step_not_started': 'Not started',
+          'success_lab_step_in_progress': 'In progress',
+          'success_lab_step_completed': 'Completed',
+          'success_lab_step_not_applicable': 'Not applicable',
+          'success_lab_step_status_unknown': 'Status needs review',
+          'success_lab_step_required': 'Required',
+          'success_lab_step_complete': 'Mark as completed',
+          'success_lab_step_reopen': 'Reopen this step',
+          'success_lab_step_queued': 'Waiting for network',
+          'success_lab_step_sending': 'Syncing',
+          'success_lab_step_conflict': 'Conflict to resolve',
+          'success_lab_step_failed': 'Sync failed',
+          'success_lab_retry': 'Retry sync',
+          'success_lab_pending_changes_body':
+              'Local changes are waiting to be synchronized.',
+          'success_lab_diagnostic_title': 'Application diagnostic',
+          'success_lab_diagnostic_body':
+              'A structured preparation review, with explicit consent before any AI processing.',
+          'success_lab_diagnostic_action': 'Start diagnostic',
+          'success_lab_diagnostic_unavailable':
+              'The diagnostic is closed for this account or pilot.',
+          'success_lab_diagnostic_unavailable_title': 'Diagnostic unavailable',
+          'success_lab_diagnostic_promise':
+              'One priority improvement you can make now',
+          'success_lab_diagnostic_disclaimer':
+              'This diagnostic does not calculate admission chances, guarantee any result, or replace a KPB counsellor.',
+          'success_lab_diagnostic_loading': 'Checking your diagnostic…',
+          'success_lab_diagnostic_running':
+              'Analysis in progress. We keep the response short to control cost and stay useful.',
+          'success_lab_diagnostic_online_required':
+              'Reconnect to start or view the secure diagnostic.',
+          'success_lab_ai_consent_checkbox':
+              'I have read this notice and accept this limited AI processing.',
+          'success_lab_ai_consent_required':
+              'You must accept the current notice before starting the diagnostic.',
+          'success_lab_guardian_authorization_required':
+              'Verified guardian authorization is required for this account.',
+          'success_lab_excerpt_title': 'Optional excerpt',
+          'success_lab_excerpt_body':
+              'You may paste a short CV or motivation-letter excerpt. Remove names and contact details when possible.',
+          'success_lab_excerpt_hint':
+              'Example: a leadership experience or a paragraph to improve…',
+          'success_lab_diagnostic_error_title': 'Diagnostic not completed',
+          'success_lab_diagnostic_error_body':
+              'The diagnostic could not be loaded. No new paid call will start without backend control.',
+          'success_lab_diagnostic_strength': 'Your strength',
+          'success_lab_diagnostic_priority': 'Your priority',
+          'success_lab_diagnostic_rationale': 'Why this matters now',
+          'success_lab_diagnostic_next_action': 'Next action',
+          'success_lab_diagnostic_stale_title': 'Your application has changed',
+          'success_lab_diagnostic_stale_body':
+              'This diagnostic matches an earlier workspace version. It remains visible without automatically starting another AI call.',
+          'success_lab_study_title': 'Counsellor study',
+          'success_lab_study_body':
+              'Request a human review of your preparation before submitting.',
+          'success_lab_study_action': 'Request a study',
+          'success_lab_study_unavailable':
+              'This option is not enabled for your account.',
+          'success_lab_study_unavailable_title': 'Study unavailable',
+          'success_lab_study_free_title': 'First application study is free',
+          'success_lab_study_decision_disclaimer':
+              'The KPB counsellor provides guidance and next steps. The institution always makes the final decision.',
+          'success_lab_study_consent_checkbox':
+              'I have read this notice and agree to share only the selected versions with a KPB counsellor.',
+          'success_lab_study_documents_title': 'Documents to share',
+          'success_lab_study_document_kind': 'Document type',
+          'success_lab_study_document_title': 'Document title',
+          'success_lab_study_add_document': 'Add a secure document',
+          'success_lab_study_version_label': 'Version @number · @file · @size',
+          'success_lab_study_delete_action': 'Delete this version',
+          'success_lab_study_deleting': 'Deletion in progress',
+          'success_lab_study_delete_confirm_title': 'Delete this version?',
+          'success_lab_study_delete_confirm_body':
+              'You are about to permanently delete “@title” (@file) from KPB. This action is never automatic and cannot be undone.',
+          'success_lab_study_delete_confirm_action': 'Delete permanently',
+          'success_lab_study_delete_shared':
+              'This version is already shared with an open study. It cannot be deleted until that study is closed.',
+          'success_lab_study_message_label': 'Message to counsellor (optional)',
+          'success_lab_study_message_hint':
+              'State the scholarship you are targeting or the priority question to review.',
+          'success_lab_study_submit_action': 'Send for study',
+          'success_lab_study_uploading': 'Secure upload in progress…',
+          'success_lab_study_submitting': 'Sending your request…',
+          'success_lab_study_submitted_title': 'Request submitted',
+          'success_lab_study_submitted_body':
+              'Your request #@number is recorded. A KPB counsellor will review only the shared versions.',
+          'success_lab_study_online_required':
+              'Reconnect to share documents and submit the request securely.',
+          'success_lab_study_error_title': 'Request not submitted',
+          'success_lab_study_error_body':
+              'The request could not be completed. Check your documents and try again.',
+          'success_lab_study_file_too_large':
+              'This file exceeds the 10 MB maximum size.',
+          'success_lab_study_file_not_allowed':
+              'Only PDF, JPG, and PNG files are accepted.',
+          'success_lab_study_document_required':
+              'Add and select at least one valid document.',
+          'success_lab_study_already_open':
+              'A study request is already open for this workspace.',
+          'success_lab_study_consent_required':
+              'You must accept the current notice before sharing documents.',
+          'success_lab_study_complementing':
+              'Securely sending the additional information…',
+          'success_lab_study_request_number': 'Study request #@number',
+          'success_lab_study_submitted_on':
+              'Submitted on @date (your device time: @deviceZone). Request timezone: @zone.',
+          'success_lab_study_missing_title': 'Requested items',
+          'success_lab_study_shared_title': 'Documents already shared',
+          'success_lab_study_complement_title': 'Complete my request',
+          'success_lab_study_complement_body':
+              'Answer the requested items precisely. You may send only a message or add new versions with explicit consent.',
+          'success_lab_study_complement_message': 'Reply to the counsellor',
+          'success_lab_study_complement_message_hint':
+              'Explain what you corrected or provide the requested information.',
+          'success_lab_study_complement_action': 'Send additional information',
+          'success_lab_study_complement_not_allowed':
+              'Additional information can be sent only when the counsellor requests it.',
+          'success_lab_study_complement_changed':
+              'The request changed. Refresh before sending your update again.',
+          'success_lab_study_complement_required':
+              'Add a reply or select at least one new document.',
+          'success_lab_study_choose_slot_action': 'Choose a time slot',
+          'success_lab_study_refresh_action': 'Refresh tracking',
+          'success_lab_study_status_draft': 'Request in preparation',
+          'success_lab_study_status_submitted':
+              'Request sent to the counsellor',
+          'success_lab_study_status_triaged': 'Request reviewed',
+          'success_lab_study_status_more_information_needed':
+              'Additional information required',
+          'success_lab_study_status_call_offered': 'Time slots offered',
+          'success_lab_study_status_scheduled': 'Appointment scheduled',
+          'success_lab_study_status_converted_to_case':
+              'KPB support case created',
+          'success_lab_study_status_autonomy_recommended':
+              'Independent continuation recommended',
+          'success_lab_study_status_declined': 'Request declined',
+          'success_lab_study_status_closed': 'Study completed',
+          'success_lab_study_status_unknown':
+              'Updated state — refresh the application',
+          'success_lab_study_next_complete_request':
+              'Complete and submit your request.',
+          'success_lab_study_next_wait_for_triage':
+              'No action: a counsellor will review your request.',
+          'success_lab_study_next_provide_more_information':
+              'Answer the requested items below.',
+          'success_lab_study_next_wait_for_slot_offer':
+              'No action: time slots will be offered soon.',
+          'success_lab_study_next_choose_slot':
+              'Choose one of the available time slots.',
+          'success_lab_study_next_appointment_scheduled':
+              'Your appointment is confirmed.',
+          'success_lab_study_next_case_created':
+              'Continue your support journey in your KPB case.',
+          'success_lab_study_next_continue_autonomously':
+              'Continue preparing with the guidance you received.',
+          'success_lab_study_next_none':
+              'No further action is needed right now.',
+          'success_lab_study_next_unknown':
+              'Refresh to receive the next action.',
+          'success_lab_schedule_title': 'Choose an appointment',
+          'success_lab_schedule_choose_title': 'Available time slots',
+          'success_lab_schedule_choose_body':
+              'Select one slot, check the displayed times, and confirm. Booking requires an internet connection.',
+          'success_lab_schedule_offer_details':
+              '@name · Displayed time: your device (@deviceZone) · Source timezone: @zone',
+          'success_lab_schedule_confirm_action': 'Confirm time slot',
+          'success_lab_schedule_confirm_title': 'Confirm this appointment?',
+          'success_lab_schedule_confirm_body':
+              '@date with @name. Displayed in your device time (@deviceZone); source timezone: @zone.',
+          'success_lab_schedule_booking':
+              'Confirming the appointment with the server…',
+          'success_lab_schedule_booked_title': 'Appointment confirmed',
+          'success_lab_schedule_booked_body':
+              '@date (your device time: @deviceZone). Booking timezone: @zone.',
+          'success_lab_schedule_booked_recovered_body':
+              'The server confirms that an appointment is scheduled. Check your KPB notifications for details.',
+          'success_lab_schedule_empty_title':
+              'No time slots are available right now',
+          'success_lab_schedule_empty_body':
+              'Expired slots are never shown. Refresh later to see new offers.',
+          'success_lab_schedule_waiting_title':
+              'Time-slot booking is not open yet',
+          'success_lab_schedule_waiting_body':
+              'Your request is being tracked, but booking opens only after a counsellor offers time slots.',
+          'success_lab_schedule_no_request_title': 'No active study request',
+          'success_lab_schedule_no_request_body':
+              'First submit a study request from your Success Lab workspace.',
+          'success_lab_schedule_online_required':
+              'Reconnect to view and book a time slot.',
+          'success_lab_schedule_error_title':
+              'Time slots temporarily unavailable',
+          'success_lab_schedule_error_body':
+              'The server did not confirm the booking. Retry with the same selection.',
+          'success_lab_schedule_expired':
+              'This offer has expired. Select another time slot.',
+          'success_lab_schedule_taken':
+              'This time slot was just taken. Select another offer.',
+          'success_lab_schedule_changed':
+              'The request changed. Refresh the offers before booking.',
+          'success_lab_schedule_no_offer':
+              'This time slot is no longer offered.',
+          'success_lab_schedule_retry':
+              'Confirmation is still in progress. Try again shortly.',
+          'success_lab_submission_title': 'Declare my submission',
+          'success_lab_submission_workspace_body':
+              'Confirm that your application was actually sent and attach private evidence.',
+          'success_lab_submission_open': 'Open my submissions',
+          'success_lab_submission_intro_title':
+              'A factual declaration, supported by evidence',
+          'success_lab_submission_intro_body':
+              'KPB records what you declare. Evidence verification is shown separately and does not guarantee any outcome.',
+          'success_lab_submission_channel': 'Submission channel (optional)',
+          'success_lab_submission_channel_hint': 'E.g. official portal, email',
+          'success_lab_submission_reference':
+              'Application reference (optional)',
+          'success_lab_submission_reference_private':
+              'Sent over encrypted transport; the server stores only an HMAC fingerprint.',
+          'success_lab_submission_date': 'Submission date',
+          'success_lab_submission_action': 'Declare submission',
+          'success_lab_submission_sending': 'Saving on the server…',
+          'success_lab_submission_confirmed_body':
+              'The server recorded the declaration. Its verification status remains visible below.',
+          'success_lab_submission_history': 'Submission history',
+          'success_lab_submission_history_empty':
+              'No submission has been declared.',
+          'success_lab_submission_declared_label': 'Submission declared',
+          'success_lab_outcome_title': 'Admission and funding',
+          'success_lab_outcome_workspace_body':
+              'Declare the admission decision and funding received separately.',
+          'success_lab_outcome_open': 'Open my decisions',
+          'success_lab_outcome_intro_title':
+              'Declared decisions, without promises or inference',
+          'success_lab_outcome_intro_body':
+              'The institution issues the decision. KPB only verifies evidence; admission and funding remain separate facts.',
+          'success_lab_outcome_current_admission': 'Current admission',
+          'success_lab_outcome_current_funding': 'Current funding',
+          'success_lab_outcome_no_admission':
+              'No admission decision has been declared.',
+          'success_lab_outcome_no_funding':
+              'No funding decision has been declared.',
+          'success_lab_outcome_declare_admission':
+              'Declare an admission decision',
+          'success_lab_outcome_update_admission':
+              'Declare a new admission decision',
+          'success_lab_outcome_declare_funding': 'Declare a funding decision',
+          'success_lab_outcome_update_funding':
+              'Declare a new funding decision',
+          'success_lab_outcome_issuer': 'Issuing institution',
+          'success_lab_outcome_issuer_helper':
+              'KPB is not the issuer of this decision.',
+          'success_lab_outcome_admission_decision': 'Admission decision',
+          'success_lab_outcome_funding_decision': 'Funding decision',
+          'success_lab_outcome_received_date': 'Date received',
+          'success_lab_outcome_choose_date': 'Choose date',
+          'success_lab_outcome_device_timezone':
+              'Date entered in your device timezone: @zone',
+          'success_lab_outcome_save_admission': 'Save admission decision',
+          'success_lab_outcome_save_funding': 'Save funding decision',
+          'success_lab_outcome_amount_minor': 'Amount in minor currency units',
+          'success_lab_outcome_amount_optional':
+              'Optional. Provide it with currency, only for full or partial funding.',
+          'success_lab_outcome_currency': '3-letter ISO currency',
+          'success_lab_outcome_history': 'Decision history',
+          'success_lab_outcome_history_empty':
+              'No previous decision has been recorded.',
+          'success_lab_outcome_evidence_title': 'Private evidence is required',
+          'success_lab_outcome_evidence_body':
+              'PDF, JPG or PNG, up to 10 MB. The file is scanned before use.',
+          'success_lab_outcome_evidence_choose': 'Choose evidence',
+          'success_lab_outcome_evidence_change': 'Change evidence',
+          'success_lab_outcome_consent_loading': 'Loading the privacy notice…',
+          'success_lab_outcome_consent_private':
+              'This consent covers private storage and KPB verification. It does not allow a public testimonial or public statistics.',
+          'success_lab_outcome_add_complement': 'Add the requested information',
+          'success_lab_outcome_granting_consent': 'Recording your consent…',
+          'success_lab_outcome_uploading': 'Uploading and scanning evidence…',
+          'success_lab_outcome_attaching': 'Adding information…',
+          'success_lab_outcome_saving_admission':
+              'Saving the admission decision…',
+          'success_lab_outcome_saving_funding': 'Saving the funding decision…',
+          'success_lab_outcome_online_required':
+              'Reconnect: evidence and decisions are never queued on this device.',
+          'success_lab_outcome_unavailable_title': 'Declarations unavailable',
+          'success_lab_outcome_guardian_required':
+              'Guardian authorization is required.',
+          'success_lab_outcome_evidence_required':
+              'Accept the notice and attach evidence before continuing.',
+          'success_lab_outcome_scan_pending':
+              'The evidence is still being scanned. Try again shortly.',
+          'success_lab_outcome_evidence_rejected':
+              'This evidence was rejected. Choose another clean, readable file.',
+          'success_lab_outcome_superseded':
+              'This decision has already been superseded. Refresh the history.',
+          'success_lab_outcome_changed':
+              'The workspace changed. Data was refreshed; review it before retrying.',
+          'success_lab_outcome_invalid_amount':
+              'Enter a positive integer amount and a three-letter ISO currency, or leave both fields empty.',
+          'success_lab_outcome_file_too_large':
+              'The file is larger than 10 MB.',
+          'success_lab_outcome_file_not_allowed':
+              'Choose a PDF, JPG or PNG file.',
+          'success_lab_outcome_error_body':
+              'The server did not confirm this operation. Check the data and retry.',
+          'success_lab_verification_declared': 'Student-declared',
+          'success_lab_verification_pending': 'Verification pending',
+          'success_lab_verification_verified': 'Evidence verified by KPB',
+          'success_lab_verification_needs_information':
+              'More information requested by KPB',
+          'success_lab_verification_rejected': 'Evidence rejected by KPB',
+          'success_lab_verification_unknown': 'Unknown verification status',
+          'success_lab_admission_admitted': 'Admitted',
+          'success_lab_admission_rejected': 'Not admitted',
+          'success_lab_admission_waitlisted': 'Waitlisted',
+          'success_lab_admission_deferred': 'Deferred',
+          'success_lab_admission_withdrawn': 'Application withdrawn',
+          'success_lab_funding_full': 'Full funding',
+          'success_lab_funding_partial': 'Partial funding',
+          'success_lab_funding_none': 'No funding',
+          'success_lab_funding_pending': 'Funding pending',
+          'success_lab_funding_not_applicable': 'Not applicable',
+          'success_lab_outcome_unknown': 'Unknown value',
+          'success_lab_document_cv': 'CV',
+          'success_lab_document_motivation': 'Motivation letter',
+          'success_lab_document_essay': 'Essay',
+          'success_lab_document_transcript': 'Transcript',
+          'success_lab_document_diploma': 'Diploma',
+          'success_lab_start_action': 'Prepare my application',
+          'success_lab_start_error_title': 'Workspace not created',
+          'success_lab_start_offline': 'Reconnect to create a new workspace.',
+          'success_lab_start_conflict':
+              'A workspace may already exist. Refresh and try again.',
+          'success_lab_start_error_body':
+              'This workspace cannot be created right now.',
           // ── Dossier / Application (App-engagement handoff) ─────────────
           'case_steps_heading': 'Steps of your application',
           'case_step_your_turn': 'Your turn',

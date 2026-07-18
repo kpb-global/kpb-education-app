@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import '../models/app_models.dart';
 import '../../features/alumni/alumni_directory_screen.dart';
 import '../../features/cases/case_create_screen.dart';
@@ -14,6 +15,13 @@ import '../../features/scholarships/scholarship_detail_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/services/service_packages_screen.dart';
 import '../../features/shell/app_shell.dart';
+import '../../features/success_lab/success_lab_list_screen.dart';
+import '../../features/success_lab/success_lab_schedule_screen.dart';
+import '../../features/success_lab/success_lab_submission_screen.dart';
+import '../../features/success_lab/success_lab_outcome_screen.dart';
+import '../../features/success_lab/success_lab_diagnostic_screen.dart';
+import '../../features/success_lab/success_lab_study_review_screen.dart';
+import '../../features/success_lab/success_lab_workspace_screen.dart';
 
 /// Define named routes specifically for handling deep links and push notifications.
 ///
@@ -26,9 +34,38 @@ class AppRoutes {
   static const String scholarships = '/scholarships';
   static const String scholarshipDetail = '/scholarships/:id';
   static const String _scholarshipPrefix = '/scholarships/';
+  static const String successLab = '/success-lab';
+  static const String successLabWorkspace = '/success-lab/:workspaceId';
+  static const String successLabDiagnostic =
+      '/success-lab/:workspaceId/diagnostic';
+  static const String successLabStudyReview =
+      '/success-lab/:workspaceId/study-review';
+  static const String successLabSchedule = '/success-lab/:workspaceId/schedule';
+  static const String successLabSubmission =
+      '/success-lab/:workspaceId/submission';
+  static const String successLabOutcome = '/success-lab/:workspaceId/outcome';
+  static const String _successLabPrefix = '/success-lab/';
 
   static String scholarshipDetailPath(String id) =>
       '$_scholarshipPrefix${Uri.encodeComponent(id)}';
+
+  static String successLabWorkspacePath(String workspaceId) =>
+      '$_successLabPrefix${Uri.encodeComponent(workspaceId)}';
+
+  static String successLabDiagnosticPath(String workspaceId) =>
+      '${successLabWorkspacePath(workspaceId)}/diagnostic';
+
+  static String successLabStudyReviewPath(String workspaceId) =>
+      '${successLabWorkspacePath(workspaceId)}/study-review';
+
+  static String successLabSchedulePath(String workspaceId) =>
+      '${successLabWorkspacePath(workspaceId)}/schedule';
+
+  static String successLabSubmissionPath(String workspaceId) =>
+      '${successLabWorkspacePath(workspaceId)}/submission';
+
+  static String successLabOutcomePath(String workspaceId) =>
+      '${successLabWorkspacePath(workspaceId)}/outcome';
   // High-intent re-engagement targets (KPB-63): named so push/deep-links can
   // land on the right screen instead of dumping the user on Home.
   static const String orientation = '/orientation';
@@ -72,6 +109,23 @@ class AppRoutes {
       return '$_scholarshipPrefix$scholarshipId';
     }
 
+    if (route.startsWith(_successLabPrefix)) {
+      final tail = route.substring(_successLabPrefix.length);
+      final segments = tail.split('/');
+      if (segments.length == 2 && segments.first.isNotEmpty) {
+        if (segments.last == 'diagnostic' ||
+            segments.last == 'study-review' ||
+            segments.last == 'schedule' ||
+            segments.last == 'submission' ||
+            segments.last == 'outcome') {
+          return '$_successLabPrefix${segments.first}/${segments.last}';
+        }
+        return null;
+      }
+      if (segments.length != 1 || segments.first.isEmpty) return null;
+      return '$_successLabPrefix${segments.first}';
+    }
+
     final known = <String>{
       home,
       search,
@@ -86,6 +140,7 @@ class AppRoutes {
       profile,
       // Scholarship-opening push notifications land on this acquisition screen.
       scholarships,
+      successLab,
     };
     if (known.contains(route)) return route;
     return null;
@@ -119,6 +174,72 @@ class AppRoutes {
           scholarshipId: scholarshipId,
           initialScholarship: initial is LiveScholarshipModel ? initial : null,
         );
+      },
+    ),
+    // Success Lab stays a pushed, deep-linkable workflow. It deliberately does
+    // not add a sixth shell tab to the five-tab student navigation.
+    GetPage(
+      name: successLab,
+      page: () => const SuccessLabListScreen(),
+    ),
+    GetPage(
+      name: successLabWorkspace,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabWorkspaceScreen(workspaceId: workspaceId);
+      },
+    ),
+    GetPage(
+      name: successLabDiagnostic,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabDiagnosticScreen(workspaceId: workspaceId);
+      },
+    ),
+    GetPage(
+      name: successLabStudyReview,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabStudyReviewScreen(workspaceId: workspaceId);
+      },
+    ),
+    GetPage(
+      name: successLabSchedule,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabScheduleScreen(workspaceId: workspaceId);
+      },
+    ),
+    GetPage(
+      name: successLabSubmission,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabSubmissionScreen(workspaceId: workspaceId);
+      },
+    ),
+    GetPage(
+      name: successLabOutcome,
+      page: () {
+        final workspaceId = Get.parameters['workspaceId'];
+        if (workspaceId == null || workspaceId.isEmpty) {
+          return const SuccessLabListScreen();
+        }
+        return SuccessLabOutcomeScreen(workspaceId: workspaceId);
       },
     ),
     // High-intent re-engagement destinations (KPB-63). Each is a standalone,

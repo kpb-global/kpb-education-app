@@ -50,8 +50,8 @@ export class CaseMessagingGateway
   ) {}
 
   async handleConnection(client: Socket) {
-    const token = client.handshake.query.token as string;
-    if (!token) {
+    const token = client.handshake.auth?.token;
+    if (typeof token !== 'string' || !token) {
       client.disconnect();
       return;
     }
@@ -59,23 +59,20 @@ export class CaseMessagingGateway
     try {
       const user = await this.supabaseAuthService.verifyAndResolve(token);
       client.data.userId = user.id;
-      client.data.email = user.email;
       // Role is resolved from the verified token, never from client-supplied
       // query params (which a client could spoof).
       client.data.role = user.role;
-      // Store the display name so messages show a friendly sender name.
-      client.data.fullName =
-        (client.handshake.query.fullName as string | undefined) ?? user.email;
-      this.logger.log(`Client connected: ${user.id} (${client.data.role})`);
+      // A client-provided display name could impersonate a KPB adviser. Always
+      // use the canonical profile name resolved by the authenticated server.
+      client.data.fullName = user.fullName;
+      this.logger.log(`Authenticated case socket connected (${client.data.role}).`);
     } catch {
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(
-      `Client disconnected: ${client.data?.email ?? 'unknown'}`,
-    );
+    this.logger.log('Case socket disconnected.');
   }
 
   @SubscribeMessage('joinCase')
@@ -94,9 +91,7 @@ export class CaseMessagingGateway
     }
     const room = `case:${data.caseId}`;
     await client.join(room);
-    this.logger.log(
-      `${client.data.email} joined room ${room}`,
-    );
+    this.logger.log('Authenticated student joined an owned case room.');
     return { event: 'joinedCase', data: { caseId: data.caseId } };
   }
 
@@ -120,9 +115,9 @@ export class CaseMessagingGateway
       role == 'commercial' || role == 'counselor' || role == 'advisor'
         ? role
         : 'student';
-    // Prefer the display name stored on connect; fall back to email.
+    // The display name was loaded from the server-owned profile on connect.
     const senderName =
-      (client.data.fullName as string | undefined) ?? client.data.email;
+      (client.data.fullName as string | undefined) ?? 'Étudiant';
     const message = await this.casesService.createMessage(
       data.caseId,
       {

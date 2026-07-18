@@ -213,9 +213,7 @@ export class StorageService {
       // Android and iOS upload clients can report application/octet-stream for
       // an otherwise valid PDF/photo. The byte signature is the authority, so
       // record the mismatch but never promote the client-declared type.
-      this.logger.debug(
-        `Upload MIME metadata differs from verified content (${declaredMimeType} -> ${detectedMimeType}).`,
-      );
+      this.logger.debug('Upload MIME metadata differs from verified content.');
     }
 
     // Antivirus gate BEFORE anything is persisted: an infected file must never
@@ -243,7 +241,9 @@ export class StorageService {
     const target = this.getLocalPath(key);
     await fs.mkdir(resolve(target, '..'), { recursive: true });
     await fs.writeFile(target, fileBuffer, { flag: 'wx' });
-    this.logger.log(`Stored (local) ${key} (${fileBuffer.byteLength} bytes)`);
+    this.logger.log(
+      `Stored private object locally (${fileBuffer.byteLength} bytes).`,
+    );
     return {
       key,
       url: `${STORAGE_URL_PREFIX}${key}`,
@@ -270,11 +270,13 @@ export class StorageService {
           CacheControl: 'private, no-store',
         }),
       );
-    } catch (err) {
-      this.logger.error(`S3 put failed for ${key}`, err as Error);
+    } catch {
+      this.logger.error('S3 private-object write failed.');
       throw new ServiceUnavailableException('Upload failed. Please retry.');
     }
-    this.logger.log(`Stored (s3) ${key} (${fileBuffer.byteLength} bytes)`);
+    this.logger.log(
+      `Stored private object in S3 (${fileBuffer.byteLength} bytes).`,
+    );
     return {
       key,
       url: `${STORAGE_URL_PREFIX}${key}`,
@@ -323,7 +325,7 @@ export class StorageService {
         };
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
-        this.logger.error(`Local read failed for ${key}`, error as Error);
+        this.logger.error('Local private-object read failed.');
         throw new ServiceUnavailableException('File storage unavailable.');
       }
     }
@@ -352,7 +354,7 @@ export class StorageService {
       if ((error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 404) {
         return null;
       }
-      this.logger.error(`S3 get failed for ${key}`, error as Error);
+      this.logger.error('S3 private-object read failed.');
       throw new ServiceUnavailableException('File storage unavailable.');
     }
   }
@@ -373,9 +375,9 @@ export class StorageService {
       } else {
         await fs.unlink(this.getLocalPath(key)).catch(() => undefined);
       }
-      this.logger.log(`Deleted (${this.driver}) ${key}`);
-    } catch (err) {
-      this.logger.error(`Delete failed for ${key}`, err as Error);
+      this.logger.log(`Deleted private object (${this.driver}).`);
+    } catch {
+      this.logger.error(`Private-object deletion failed (${this.driver}).`);
     }
   }
 }
