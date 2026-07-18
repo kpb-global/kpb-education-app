@@ -1,3 +1,5 @@
+import { createHmac } from 'node:crypto';
+
 import { Injectable, Logger } from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
 
@@ -134,6 +136,7 @@ export class ProfilesService {
     userId?: string,
   ): Promise<{ deleted: boolean; authIdentityRemoved: boolean }> {
     const id = userId ?? 'demo-user';
+    const actorKey = this.analyticsActorKey(id);
 
     const purged = await this.prismaService.execute(async (prisma) => {
       const profile = await prisma.userProfile.findUnique({
@@ -147,6 +150,90 @@ export class ProfilesService {
         select: { id: true },
       });
       const caseIds = cases.map((c) => c.id);
+      const workspaces = await prisma.scholarshipWorkspace.findMany({
+        where: { userId: id },
+        select: { id: true },
+      });
+      const workspaceIds = workspaces.map((workspace) => workspace.id);
+      const artifactVersions = await prisma.applicationArtifactVersion.findMany({
+        where: { artifact: { workspaceId: { in: workspaceIds } } },
+        select: { id: true, storageKey: true },
+      });
+      const reviewRequests = await prisma.studyReviewRequest.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        select: { id: true },
+      });
+      const outcomeEvidence = await prisma.outcomeEvidenceAsset.findMany({
+        where: { ownerUserId: id },
+        select: { id: true, storageKey: true },
+      });
+      const submissions = await prisma.applicationSubmission.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        select: { id: true },
+      });
+      const admissionDecisions =
+        await prisma.applicationDecisionRecord.findMany({
+          where: { workspaceId: { in: workspaceIds } },
+          select: { id: true },
+        });
+      const fundingDecisions = await prisma.fundingDecisionRecord.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        select: { id: true },
+      });
+      const diagnostics = await prisma.aiDiagnostic.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        select: { id: true },
+      });
+      const guardianAuthorizations =
+        await prisma.guardianAuthorization.findMany({
+          where: { OR: [{ minorUserId: id }, { guardianUserId: id }] },
+          select: { evidenceStorageKey: true },
+        });
+      // Pilot enrolment/assessment mutations are initiated by an admin, so
+      // their idempotency rows are owned by that admin rather than by the
+      // participant. Collect the created resource ids before the membership
+      // cascade so account deletion also erases response snapshots containing
+      // the participant id, workspace id or research answers.
+      const impactMemberships =
+        await prisma.impactCohortMembership.findMany({
+          where: { userId: id },
+          select: {
+            id: true,
+            assessments: { select: { id: true } },
+            experimentAssignment: { select: { id: true } },
+          },
+        });
+      const artifactVersionIds = artifactVersions.map((version) => version.id);
+      const reviewRequestIds = reviewRequests.map((request) => request.id);
+      const evidenceIds = outcomeEvidence.map((evidence) => evidence.id);
+      const submissionIds = submissions.map((submission) => submission.id);
+      const admissionDecisionIds = admissionDecisions.map(
+        (decision) => decision.id,
+      );
+      const fundingDecisionIds = fundingDecisions.map(
+        (decision) => decision.id,
+      );
+      const diagnosticIds = diagnostics.map((diagnostic) => diagnostic.id);
+      const impactMembershipIds = impactMemberships.map(
+        (membership) => membership.id,
+      );
+      const impactMembershipChildIds = impactMemberships.flatMap(
+        (membership) => [
+          ...membership.assessments.map((assessment) => assessment.id),
+          ...(membership.experimentAssignment
+            ? [membership.experimentAssignment.id]
+            : []),
+        ],
+      );
+      const artifactStorageKeys = artifactVersions
+        .map((version) => version.storageKey)
+        .filter((key): key is string => Boolean(key));
+      const outcomeStorageKeys = outcomeEvidence
+        .map((evidence) => evidence.storageKey)
+        .filter((key): key is string => Boolean(key));
+      const guardianEvidenceStorageKeys = guardianAuthorizations
+        .map((authorization) => authorization.evidenceStorageKey)
+        .filter((key): key is string => Boolean(key));
 
       // Collect uploaded document URLs before deleting the rows, so we can also
       // remove the underlying files from object storage (GDPR right to erasure).
@@ -193,6 +280,153 @@ export class ProfilesService {
         }),
         // Referral-reward ledger (KPB-77) — FK is ON DELETE RESTRICT.
         prisma.creditTransaction.deleteMany({ where: { profileId: id } }),
+        // Competition Readiness technical records do not all have an FK to the
+        // profile. Purge them explicitly before the workspace/profile cascade.
+        prisma.analyticsEvent.deleteMany({
+          where: {
+            OR: [
+              { workspaceId: { in: workspaceIds } },
+              ...(actorKey ? [{ actorKey }] : []),
+            ],
+          },
+        }),
+        prisma.domainEventOutbox.deleteMany({
+          where: {
+            OR: [
+              {
+                aggregateType: 'ScholarshipWorkspace',
+                aggregateId: { in: workspaceIds },
+              },
+              {
+                aggregateType: 'ApplicationArtifactVersion',
+                aggregateId: { in: artifactVersionIds },
+              },
+              {
+                aggregateType: 'StudyReviewRequest',
+                aggregateId: { in: reviewRequestIds },
+              },
+              {
+                aggregateType: 'OutcomeEvidenceAsset',
+                aggregateId: { in: evidenceIds },
+              },
+              {
+                aggregateType: 'ApplicationSubmission',
+                aggregateId: { in: submissionIds },
+              },
+              {
+                aggregateType: 'ApplicationDecisionRecord',
+                aggregateId: { in: admissionDecisionIds },
+              },
+              {
+                aggregateType: 'FundingDecisionRecord',
+                aggregateId: { in: fundingDecisionIds },
+              },
+              {
+                aggregateType: 'AiDiagnostic',
+                aggregateId: { in: diagnosticIds },
+              },
+            ],
+          },
+        }),
+        prisma.idempotencyRecord.deleteMany({
+          where: {
+            OR: [
+              // Student-owned operations.
+              { actorId: id },
+              // Admin-owned pilot operations whose replay snapshot contains
+              // this student's research or membership data.
+              ...(impactMembershipIds.length > 0
+                ? [
+                    {
+                      resourceType: 'ImpactCohortMembership',
+                      resourceId: { in: impactMembershipIds },
+                    },
+                  ]
+                : []),
+              ...(impactMembershipChildIds.length > 0
+                ? [
+                    {
+                      resourceType: 'PilotRecord',
+                      resourceId: { in: impactMembershipChildIds },
+                    },
+                  ]
+                : []),
+            ],
+          },
+        }),
+        // Shares restrict deletion of both consent receipts and artifact
+        // versions, so they must be removed before the workspace cascade.
+        prisma.studyReviewArtifactShare.deleteMany({
+          where: { reviewRequestId: { in: reviewRequestIds } },
+        }),
+        // Outcome records use RESTRICT for immutable evidence and revision
+        // chains. Break optional history links, then remove children before the
+        // evidence and consent receipts they reference.
+        prisma.outcomeVerificationEvent.deleteMany({
+          where: {
+            OR: [
+              { entityType: 'submission', entityId: { in: submissionIds } },
+              {
+                entityType: 'admission',
+                entityId: { in: admissionDecisionIds },
+              },
+              {
+                entityType: 'funding',
+                entityId: { in: fundingDecisionIds },
+              },
+            ],
+          },
+        }),
+        prisma.outcomeEvidenceLink.deleteMany({
+          where: {
+            OR: [
+              { evidenceId: { in: evidenceIds } },
+              { linkedByUserId: id },
+            ],
+          },
+        }),
+        prisma.fundingDecisionRecord.updateMany({
+          where: { workspaceId: { in: workspaceIds } },
+          data: { supersedesId: null, admissionDecisionId: null },
+        }),
+        prisma.fundingDecisionRecord.deleteMany({
+          where: { workspaceId: { in: workspaceIds } },
+        }),
+        prisma.applicationDecisionRecord.updateMany({
+          where: { workspaceId: { in: workspaceIds } },
+          data: { supersedesId: null },
+        }),
+        prisma.applicationDecisionRecord.deleteMany({
+          where: { workspaceId: { in: workspaceIds } },
+        }),
+        prisma.applicationSubmission.deleteMany({
+          where: { workspaceId: { in: workspaceIds } },
+        }),
+        // Preserve aggregate AI accounting while severing every user link.
+        prisma.aiUsageAttempt.updateMany({
+          where: { diagnosticId: { in: diagnosticIds } },
+          data: {
+            diagnosticId: null,
+            actorKey: null,
+            providerRequestId: null,
+          },
+        }),
+        prisma.aiBudgetTransaction.updateMany({
+          where: { diagnosticId: { in: diagnosticIds } },
+          data: { diagnosticId: null },
+        }),
+        prisma.outcomeEvidenceAsset.deleteMany({
+          where: { id: { in: evidenceIds } },
+        }),
+        // Pilot memberships also RESTRICT their explicit research receipt.
+        // Assessments and assignments cascade from the membership.
+        prisma.impactCohortMembership.deleteMany({ where: { userId: id } }),
+        // Receipts must precede GuardianAuthorization because that relation is
+        // RESTRICT; workspaces themselves cascade from UserProfile.
+        prisma.consentReceipt.deleteMany({ where: { userId: id } }),
+        prisma.guardianAuthorization.deleteMany({
+          where: { OR: [{ minorUserId: id }, { guardianUserId: id }] },
+        }),
         prisma.deviceToken.deleteMany({ where: { userProfileId: id } }),
         prisma.partnerLead.deleteMany({ where: { userId: id } }),
         prisma.studentCredential.deleteMany({ where: { userProfileId: id } }),
@@ -200,7 +434,13 @@ export class ProfilesService {
         prisma.userProfile.delete({ where: { id } }),
       ]);
 
-      return { supabaseUserId: profile.supabaseUserId, fileUrls };
+      return {
+        supabaseUserId: profile.supabaseUserId,
+        fileUrls,
+        artifactStorageKeys,
+        outcomeStorageKeys,
+        guardianEvidenceStorageKeys,
+      };
     });
 
     if (!purged) {
@@ -214,6 +454,15 @@ export class ProfilesService {
     for (const url of purged.fileUrls) {
       const key = this.storageService.keyFromUrl(url);
       if (key) await this.storageService.delete(key);
+    }
+    for (const key of purged.artifactStorageKeys) {
+      await this.storageService.delete(key);
+    }
+    for (const key of purged.outcomeStorageKeys) {
+      await this.storageService.delete(key);
+    }
+    for (const key of purged.guardianEvidenceStorageKeys) {
+      await this.storageService.delete(key);
     }
 
     const authIdentityRemoved = await this.deleteSupabaseAuthUser(
@@ -251,13 +500,14 @@ export class ProfilesService {
       );
       if (!res.ok) {
         this.logger.error(
-          `Supabase admin deleteUser failed ${res.status}: ${(await res.text()).slice(0, 200)}`,
+          `Supabase admin deleteUser failed with status ${res.status}.`,
         );
         return false;
       }
       return true;
-    } catch (error) {
-      this.logger.error(`Supabase admin deleteUser error: ${String(error)}`);
+    } catch {
+      // Provider error bodies and URLs can contain tokens or user identifiers.
+      this.logger.error('Supabase admin deleteUser request failed.');
       return false;
     }
   }
@@ -266,6 +516,7 @@ export class ProfilesService {
   /// JSON document. Uploaded document files are referenced by URL, not embedded.
   async exportMe(userId?: string) {
     const id = userId ?? 'demo-user';
+    const actorKey = this.analyticsActorKey(id);
 
     const data = await this.prismaService.execute(async (prisma) => {
       const profile = await prisma.userProfile.findUnique({ where: { id } });
@@ -282,6 +533,10 @@ export class ProfilesService {
         orientationSessions,
         parentLinksAsParent,
         parentLinksAsChild,
+        scholarshipWorkspaces,
+        consentReceipts,
+        aiQuotaBuckets,
+        impactCohortMemberships,
       ] = await Promise.all([
         prisma.case.findMany({
           where: { userId: id },
@@ -299,7 +554,345 @@ export class ProfilesService {
         prisma.orientationSession.findMany({ where: { userId: id } }),
         prisma.parentChildLink.findMany({ where: { parentId: id } }),
         prisma.parentChildLink.findMany({ where: { childId: id } }),
+        prisma.scholarshipWorkspace.findMany({
+          where: { userId: id },
+          include: {
+            steps: true,
+            artifacts: {
+              orderBy: [{ kind: 'asc' }, { createdAt: 'asc' }],
+              select: {
+                id: true,
+                workspaceId: true,
+                kind: true,
+                title: true,
+                currentVersionId: true,
+                createdAt: true,
+                updatedAt: true,
+                versions: {
+                  orderBy: { versionNumber: 'asc' },
+                  select: {
+                    id: true,
+                    artifactId: true,
+                    versionNumber: true,
+                    originalFileName: true,
+                    mimeType: true,
+                    sizeBytes: true,
+                    sha256: true,
+                    processingStatus: true,
+                    rejectionCode: true,
+                    uploadedAt: true,
+                    deletedAt: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
+            reviewRequests: {
+              orderBy: { requestNumber: 'asc' },
+              include: {
+                artifactShares: {
+                  select: {
+                    id: true,
+                    artifactVersionId: true,
+                    consentReceiptId: true,
+                    grantedAt: true,
+                    revokedAt: true,
+                  },
+                },
+              },
+            },
+            diagnostics: {
+              orderBy: { createdAt: 'asc' },
+              select: {
+                id: true,
+                workspaceId: true,
+                artifactVersionId: true,
+                status: true,
+                documentKind: true,
+                generatedLanguage: true,
+                strength: true,
+                priorityImprovement: true,
+                rationale: true,
+                nextAction: true,
+                criterionReferences: true,
+                workspaceVersion: true,
+                criteriaVersion: true,
+                promptVersion: true,
+                fallbackReason: true,
+                startedAt: true,
+                completedAt: true,
+                createdAt: true,
+                updatedAt: true,
+                usageAttempts: {
+                  orderBy: { attemptNumber: 'asc' },
+                  select: {
+                    id: true,
+                    attemptNumber: true,
+                    feature: true,
+                    provider: true,
+                    model: true,
+                    promptVersion: true,
+                    priceVersion: true,
+                    usageSource: true,
+                    inputTokens: true,
+                    cachedInputTokens: true,
+                    outputTokens: true,
+                    totalTokens: true,
+                    latencyMs: true,
+                    estimatedCostMicrosUsd: true,
+                    outcome: true,
+                    errorCode: true,
+                    startedAt: true,
+                    completedAt: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
+            outcomeEvidence: {
+              orderBy: { createdAt: 'asc' },
+              select: {
+                id: true,
+                workspaceId: true,
+                kind: true,
+                originalFileName: true,
+                mimeType: true,
+                sizeBytes: true,
+                sha256: true,
+                processingStatus: true,
+                version: true,
+                rejectionCode: true,
+                retentionClass: true,
+                uploadedAt: true,
+                deletedAt: true,
+                createdAt: true,
+                updatedAt: true,
+                links: {
+                  orderBy: { linkedAt: 'asc' },
+                  select: {
+                    id: true,
+                    entityType: true,
+                    entityId: true,
+                    isPrimary: true,
+                    linkedAt: true,
+                  },
+                },
+              },
+            },
+            submissions: {
+              orderBy: { version: 'asc' },
+              select: {
+                id: true,
+                workspaceId: true,
+                version: true,
+                submittedAt: true,
+                submissionChannel: true,
+                applicationRefHash: true,
+                evidenceId: true,
+                verificationStatus: true,
+                verificationNotes: true,
+                verifiedAt: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            admissionDecisions: {
+              orderBy: { version: 'asc' },
+              select: {
+                id: true,
+                workspaceId: true,
+                supersedesId: true,
+                version: true,
+                isCurrent: true,
+                issuedByName: true,
+                admissionDecision: true,
+                issuedAt: true,
+                receivedAt: true,
+                evidenceId: true,
+                verificationStatus: true,
+                verificationNotes: true,
+                verifiedAt: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            fundingDecisions: {
+              orderBy: { version: 'asc' },
+              select: {
+                id: true,
+                workspaceId: true,
+                admissionDecisionId: true,
+                supersedesId: true,
+                version: true,
+                isCurrent: true,
+                issuedByName: true,
+                fundingDecision: true,
+                fundingAmountMinor: true,
+                fundingCurrency: true,
+                issuedAt: true,
+                receivedAt: true,
+                evidenceId: true,
+                verificationStatus: true,
+                verificationNotes: true,
+                verifiedAt: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+          orderBy: { lastActivityAt: 'desc' },
+        }),
+        prisma.consentReceipt.findMany({
+          where: { userId: id },
+          select: {
+            id: true,
+            userId: true,
+            purpose: true,
+            noticeId: true,
+            languageCode: true,
+            channel: true,
+            grantedAt: true,
+            revokedAt: true,
+            guardianAuthorizationId: true,
+            ipHash: true,
+            userAgentClass: true,
+            createdAt: true,
+            notice: {
+              select: {
+                id: true,
+                purpose: true,
+                version: true,
+                languageCode: true,
+                contentHash: true,
+                effectiveAt: true,
+                retiredAt: true,
+              },
+            },
+            guardianAuthorization: {
+              select: {
+                id: true,
+                minorUserId: true,
+                guardianUserId: true,
+                relationshipCode: true,
+                verificationMethod: true,
+                status: true,
+                verifiedAt: true,
+                expiresAt: true,
+                revokedAt: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+          orderBy: { grantedAt: 'desc' },
+        }),
+        prisma.aiQuotaBucket.findMany({
+          where: { userId: id },
+          select: {
+            id: true,
+            feature: true,
+            periodKey: true,
+            quotaLimit: true,
+            used: true,
+            resetsAt: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: { createdAt: 'asc' },
+        }),
+        prisma.impactCohortMembership.findMany({
+          where: { userId: id },
+          select: {
+            id: true,
+            cohortId: true,
+            workspaceId: true,
+            consentReceiptId: true,
+            version: true,
+            status: true,
+            enrolledAt: true,
+            withdrawnAt: true,
+            exitReason: true,
+            countryCodeLocked: true,
+            studyLevelLocked: true,
+            genderCodeLocked: true,
+            deviceClassLocked: true,
+            connectivityLocked: true,
+            profileRubricVersion: true,
+            matchingAlgorithmVersion: true,
+            baselineSnapshot: true,
+            cohort: {
+              select: {
+                id: true,
+                code: true,
+                version: true,
+                label: true,
+                cohortType: true,
+                pilot: {
+                  select: {
+                    id: true,
+                    code: true,
+                    version: true,
+                    name: true,
+                    hypothesis: true,
+                    protocolVersion: true,
+                    status: true,
+                  },
+                },
+              },
+            },
+            assessments: {
+              orderBy: { administeredAt: 'asc' },
+              select: {
+                id: true,
+                assessmentType: true,
+                instrumentVersion: true,
+                answers: true,
+                score: true,
+                administeredAt: true,
+              },
+            },
+            experimentAssignment: {
+              select: {
+                id: true,
+                experimentKey: true,
+                experimentVersion: true,
+                armCode: true,
+                assignedAt: true,
+              },
+            },
+          },
+          orderBy: { enrolledAt: 'asc' },
+        }),
       ]);
+
+      const workspaceIds = scholarshipWorkspaces.map(
+        (workspace) => workspace.id,
+      );
+      const analyticsEvents = await prisma.analyticsEvent.findMany({
+        where: {
+          OR: [
+            { workspaceId: { in: workspaceIds } },
+            ...(actorKey ? [{ actorKey }] : []),
+          ],
+        },
+        select: {
+          eventId: true,
+          eventName: true,
+          schemaVersion: true,
+          occurredAt: true,
+          receivedAt: true,
+          source: true,
+          pilotId: true,
+          cohortId: true,
+          countryCodeLocked: true,
+          scholarshipId: true,
+          cycleId: true,
+          workspaceId: true,
+          properties: true,
+          isTest: true,
+        },
+        orderBy: { occurredAt: 'asc' },
+      });
 
       return {
         profile,
@@ -312,14 +905,37 @@ export class ProfilesService {
         coachConversations,
         orientationSessions,
         parentLinks: { asParent: parentLinksAsParent, asChild: parentLinksAsChild },
+        scholarshipWorkspaces,
+        consentReceipts,
+        aiQuotaBuckets,
+        analyticsEvents,
+        impactCohortMemberships,
       };
     });
 
+    const portable = data
+      ? this.toPortableObject(data)
+      : { profile: this.demoProfile };
     return {
       exportedAt: new Date().toISOString(),
-      note: 'Export of your KPB Education data. Uploaded document files are referenced by URL, not embedded.',
-      ...(data ?? { profile: this.demoProfile }),
+      note: 'Export of your KPB Education data. Uploaded document binaries and private storage keys are not embedded.',
+      ...portable,
     };
+  }
+
+  private toPortableObject(value: unknown): Record<string, unknown> {
+    return JSON.parse(
+      JSON.stringify(value, (_key, current) =>
+        typeof current === 'bigint' ? current.toString() : current,
+      ),
+    ) as Record<string, unknown>;
+  }
+
+  private analyticsActorKey(userId: string): string | null {
+    const secret = process.env.KPB_ANALYTICS_ACTOR_SECRET?.trim();
+    return secret
+      ? createHmac('sha256', secret).update(userId).digest('hex')
+      : null;
   }
 
   private mapDbProfile(p: UserProfile) {

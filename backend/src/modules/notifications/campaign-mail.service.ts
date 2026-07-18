@@ -39,13 +39,14 @@ export class CampaignMailService {
         }),
       });
       if (!response.ok) {
-        const detail = await response.text();
-        this.logger.error(`Resend failed (${response.status}): ${detail}`);
+        this.logger.error(
+          `Campaign email provider failed with status ${response.status}.`,
+        );
         return false;
       }
       return true;
-    } catch (error) {
-      this.logger.error(`Resend request error: ${String(error)}`);
+    } catch {
+      this.logger.error('Campaign email provider request failed.');
       return false;
     }
   }

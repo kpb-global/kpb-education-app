@@ -218,11 +218,7 @@ export class CasesService {
       void this.moduleRef
         .get(ReferralCreditsService, { strict: false })
         .creditReferrerForFirstCase(userId)
-        .catch((e) =>
-          this.logger.warn(
-            `Referral credit failed for ${userId}: ${e?.message ?? e}`,
-          ),
-        );
+        .catch(() => this.logger.warn('Referral credit failed.'));
 
       const advisorName = mapped.assignedAdvisorName ?? 'KPB';
       await this.pushService.sendToUser(

@@ -1,13 +1,53 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-export type LlmMessage = { role: 'user' | 'assistant' | 'system'; content: string };
+export type LlmMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
 type Lang = 'fr' | 'en';
 
 type GroqChatResponse = {
+  id?: string;
   choices?: Array<{
-    message?: { content?: string };
+    message?: { content?: string; refusal?: string | null };
     delta?: { content?: string };
   }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+    prompt_tokens_details?: { cached_tokens?: number };
+  };
+};
+
+export type JsonSchema = Readonly<Record<string, unknown>>;
+
+export type StructuredCompletionRequest<T> = {
+  feature: 'success_lab_diagnostic';
+  attemptKey: string;
+  system: string;
+  user: string;
+  responseSchema: JsonSchema;
+  validate: (value: unknown) => value is T;
+  fallback: T;
+  temperature: number;
+  maxTokens: number;
+  promptVersion: string;
+  model: string;
+};
+
+export type StructuredCompletionResult<T> = {
+  data: T;
+  provider: 'groq' | 'local';
+  model: string;
+  providerRequestId?: string;
+  inputTokens?: number;
+  cachedInputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+  latencyMs: number;
+  outcome: 'success' | 'fallback' | 'refused' | 'error';
+  fallbackReason?: string;
 };
 
 const GROQ_CHAT_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -90,9 +130,11 @@ export class LlmService {
         });
 
         if (!response.ok) {
-          const errBody = await response.text();
+          // Drain the provider response but never log it: error bodies can
+          // echo prompts, document excerpts or provider diagnostics.
+          await response.text();
           this.logger.warn(
-            `Groq error ${response.status} (attempt ${attempt + 1}): ${errBody.slice(0, 200)}`,
+            `Groq error ${response.status} (attempt ${attempt + 1}).`,
           );
           if (response.status >= 500 && attempt === 0) continue;
           return { data: params.fallback, model: 'local-fallback' };
@@ -105,15 +147,200 @@ export class LlmService {
           return { data: params.fallback, model: 'local-fallback' };
         }
         return { data: JSON.parse(jsonMatch[0]) as T, model: this.model };
-      } catch (error) {
+      } catch {
         this.logger.warn(
-          `Groq call failed (attempt ${attempt + 1}): ${String(error)}`,
+          `Groq call failed (attempt ${attempt + 1}).`,
         );
         if (attempt === 0) continue;
         return { data: params.fallback, model: 'local-fallback' };
       }
     }
     return { data: params.fallback, model: 'local-fallback' };
+  }
+
+  /**
+   * Executes exactly one provider attempt and returns a fully validated value.
+   * Retry policy belongs to the feature service so every paid attempt can be
+   * recorded independently in the usage ledger.
+   */
+  async completeStructured<T>(
+    params: StructuredCompletionRequest<T>,
+  ): Promise<StructuredCompletionResult<T>> {
+    const startedAt = Date.now();
+    const model = params.model.trim();
+    if (!this.apiKey || !model) {
+      return this.structuredFallback(
+        params.fallback,
+        startedAt,
+        'provider_unconfigured',
+      );
+    }
+
+    const strict = /^openai\/gpt-oss-(?:20b|120b)$/.test(model);
+    const body = JSON.stringify({
+      model,
+      max_tokens: params.maxTokens,
+      temperature: params.temperature,
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'success_lab_diagnostic',
+          strict,
+          schema: params.responseSchema,
+        },
+      },
+      messages: [
+        {
+          role: 'system',
+          content: `${params.system}\nReturn only the JSON object required by the schema.`,
+        },
+        { role: 'user', content: params.user },
+      ],
+    });
+
+    try {
+      const response = await this.fetchWithTimeout(GROQ_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${this.apiKey}`,
+          'x-client-request-id': params.attemptKey,
+        },
+        body,
+      });
+      const latencyMs = Date.now() - startedAt;
+      if (!response.ok) {
+        this.logger.warn(
+          `Groq structured request failed (${response.status}, feature=${params.feature}, prompt=${params.promptVersion}).`,
+        );
+        return {
+          data: params.fallback,
+          provider: 'groq',
+          model,
+          latencyMs,
+          outcome: 'error',
+          fallbackReason:
+            response.status === 429
+              ? 'provider_rate_limited'
+              : response.status >= 500
+                ? 'provider_unavailable'
+                : 'provider_rejected_request',
+        };
+      }
+
+      const payload = (await response.json()) as GroqChatResponse;
+      const usage = payload.usage;
+      const refusal = payload.choices?.[0]?.message?.refusal;
+      if (refusal) {
+        return {
+          data: params.fallback,
+          provider: 'groq',
+          model,
+          providerRequestId: payload.id,
+          inputTokens: usage?.prompt_tokens,
+          cachedInputTokens: usage?.prompt_tokens_details?.cached_tokens,
+          outputTokens: usage?.completion_tokens,
+          totalTokens: usage?.total_tokens,
+          latencyMs,
+          outcome: 'refused',
+          fallbackReason: 'provider_refusal',
+        };
+      }
+
+      const raw = payload.choices?.[0]?.message?.content?.trim();
+      if (!raw) {
+        return this.invalidStructuredResponse(
+          params,
+          payload,
+          latencyMs,
+          'provider_empty_response',
+        );
+      }
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return this.invalidStructuredResponse(
+          params,
+          payload,
+          latencyMs,
+          'provider_invalid_json',
+        );
+      }
+      if (!params.validate(parsed)) {
+        return this.invalidStructuredResponse(
+          params,
+          payload,
+          latencyMs,
+          'provider_schema_mismatch',
+        );
+      }
+
+      return {
+        data: parsed,
+        provider: 'groq',
+        model,
+        providerRequestId: payload.id,
+        inputTokens: usage?.prompt_tokens,
+        cachedInputTokens: usage?.prompt_tokens_details?.cached_tokens,
+        outputTokens: usage?.completion_tokens,
+        totalTokens: usage?.total_tokens,
+        latencyMs,
+        outcome: 'success',
+      };
+    } catch (error) {
+      const timedOut = error instanceof Error && error.name === 'AbortError';
+      this.logger.warn(
+        `Groq structured request failed (feature=${params.feature}, prompt=${params.promptVersion}, error=${timedOut ? 'timeout' : 'network'}).`,
+      );
+      return {
+        data: params.fallback,
+        provider: 'groq',
+        model,
+        latencyMs: Date.now() - startedAt,
+        outcome: 'error',
+        fallbackReason:
+          timedOut
+            ? 'provider_timeout'
+            : 'provider_network_error',
+      };
+    }
+  }
+
+  private structuredFallback<T>(
+    fallback: T,
+    startedAt: number,
+    reason: string,
+  ): StructuredCompletionResult<T> {
+    return {
+      data: fallback,
+      provider: 'local',
+      model: 'local-fallback',
+      latencyMs: Date.now() - startedAt,
+      outcome: 'fallback',
+      fallbackReason: reason,
+    };
+  }
+
+  private invalidStructuredResponse<T>(
+    params: StructuredCompletionRequest<T>,
+    payload: GroqChatResponse,
+    latencyMs: number,
+    reason: string,
+  ): StructuredCompletionResult<T> {
+    return {
+      data: params.fallback,
+      provider: 'groq',
+      model: params.model,
+      providerRequestId: payload.id,
+      inputTokens: payload.usage?.prompt_tokens,
+      cachedInputTokens: payload.usage?.prompt_tokens_details?.cached_tokens,
+      outputTokens: payload.usage?.completion_tokens,
+      totalTokens: payload.usage?.total_tokens,
+      latencyMs,
+      outcome: 'error',
+      fallbackReason: reason,
+    };
   }
 
   async *streamText(params: {
@@ -137,7 +364,10 @@ export class LlmService {
       max_tokens: params.maxTokens ?? 600,
       temperature: 0.6,
       stream: true,
-      messages: [{ role: 'system', content: params.system }, ...conversationMessages],
+      messages: [
+        { role: 'system', content: params.system },
+        ...conversationMessages,
+      ],
     });
 
     // One transient retry on the initial connection before yielding the
@@ -154,9 +384,9 @@ export class LlmService {
           body,
         });
         if (response.ok && response.body) break;
-        const errBody = response.ok ? '' : await response.text();
+        if (!response.ok) await response.text();
         this.logger.warn(
-          `Groq stream error ${response.status} (attempt ${attempt + 1}): ${errBody.slice(0, 200)}`,
+          `Groq stream error ${response.status} (attempt ${attempt + 1}).`,
         );
         if (response.status >= 500 && attempt === 0) {
           response = null;
@@ -164,9 +394,9 @@ export class LlmService {
         }
         response = null;
         break;
-      } catch (error) {
+      } catch {
         this.logger.warn(
-          `Groq stream failed (attempt ${attempt + 1}): ${String(error)}`,
+          `Groq stream failed (attempt ${attempt + 1}).`,
         );
         response = null;
         if (attempt === 0) continue;

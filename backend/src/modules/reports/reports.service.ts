@@ -9,13 +9,6 @@ const CLOSED_CASE_STATUSES = ['completed', 'rejected', 'cancelled'] as const;
 // Roles whose first message on a case counts as the advisor's first response
 // (same set the reassignment cron treats as staff activity).
 const ADVISOR_ROLES = ['counselor', 'advisor', 'commercial'] as const;
-// Statuses meaning the application actually went out the door.
-const APPLICATION_SUBMITTED_STATUSES = [
-  'application_submitted',
-  'waiting_decision',
-  'completed',
-] as const;
-
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Weeks shown on the dashboard's North-Star bar chart.
@@ -72,6 +65,9 @@ export class ReportsService {
       activeCases: 0,
       awaitingDocuments: 0,
       submittedThisWeek: 0,
+      admissionsSecured: 0,
+      scholarshipsSecured: 0,
+      knownDecisions: 0,
       paidServicePurchases: 0,
       counselorResponseSlaHours: null as number | null,
     };
@@ -85,6 +81,9 @@ export class ReportsService {
         activeCases,
         awaitingDocuments,
         submittedThisWeek,
+        admissionsSecured,
+        scholarshipsSecured,
+        knownDecisions,
         paidServicePurchases,
         responseSamples,
       ] = await Promise.all([
@@ -92,7 +91,32 @@ export class ReportsService {
           where: { status: { notIn: [...CLOSED_CASE_STATUSES] } },
         }),
         prisma.case.count({ where: { status: 'documents_needed' } }),
-        prisma.case.count({ where: { createdAt: { gte: weekAgo } } }),
+        prisma.applicationSubmission.count({
+          where: {
+            verificationStatus: 'verified',
+            submittedAt: { gte: weekAgo },
+          },
+        }),
+        prisma.applicationDecisionRecord.count({
+          where: {
+            isCurrent: true,
+            admissionDecision: 'admitted',
+            verificationStatus: 'verified',
+          },
+        }),
+        prisma.fundingDecisionRecord.count({
+          where: {
+            isCurrent: true,
+            fundingDecision: { in: ['full', 'partial'] },
+            verificationStatus: 'verified',
+          },
+        }),
+        prisma.applicationDecisionRecord.count({
+          where: {
+            isCurrent: true,
+            verificationStatus: 'verified',
+          },
+        }),
         prisma.servicePurchase.count({
           where: { status: { in: [...REVENUE_STATUSES] } },
         }),
@@ -116,6 +140,9 @@ export class ReportsService {
         activeCases,
         awaitingDocuments,
         submittedThisWeek,
+        admissionsSecured,
+        scholarshipsSecured,
+        knownDecisions,
         paidServicePurchases,
         counselorResponseSlaHours: averageResponseHours(responseSamples),
       };
@@ -235,17 +262,21 @@ export class ReportsService {
     }
 
     const items = await this.prismaService.execute(async (prisma) => {
-      const [studentSignups, casesCreated, applicationsSubmitted, paidServicePurchases] =
-        await Promise.all([
-          prisma.userProfile.count({ where: { accountType: 'student' } }),
-          prisma.case.count(),
-          prisma.case.count({
-            where: { status: { in: [...APPLICATION_SUBMITTED_STATUSES] } },
-          }),
-          prisma.servicePurchase.count({
-            where: { status: { in: [...REVENUE_STATUSES] } },
-          }),
-        ]);
+      const [
+        studentSignups,
+        casesCreated,
+        applicationsSubmitted,
+        paidServicePurchases,
+      ] = await Promise.all([
+        prisma.userProfile.count({ where: { accountType: 'student' } }),
+        prisma.case.count(),
+        prisma.applicationSubmission.count({
+          where: { verificationStatus: 'verified' },
+        }),
+        prisma.servicePurchase.count({
+          where: { status: { in: [...REVENUE_STATUSES] } },
+        }),
+      ]);
 
       return [
         { key: 'studentSignups', value: studentSignups },

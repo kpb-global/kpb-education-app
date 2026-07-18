@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/success_lab_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
+import '../../core/repositories/success_lab_repository.dart';
 import '../../core/services/analytics_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../cases/case_composer_sheet.dart';
 import 'scholarship_video_player_screen.dart';
@@ -40,6 +44,8 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
   LiveScholarshipModel? _scholarship;
   late bool _alertEnabled;
   bool _loading = false;
+  bool _startingWorkspace = false;
+  bool _successLabEnabled = false;
   String? _error;
 
   @override
@@ -50,12 +56,12 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
     _alertEnabled =
         widget.initialScholarship?.isAlertEnabled ?? widget.initialAlertEnabled;
     unawaited(
-      AnalyticsService.instance.logViewScholarship(widget.scholarshipId),
-    );
+        AnalyticsService.instance.logViewScholarship(widget.scholarshipId));
     unawaited(_load());
   }
 
   Future<void> _load() async {
+    unawaited(_refreshSuccessLabAccess());
     setState(() {
       _loading = _scholarship == null;
       _error = null;
@@ -119,6 +125,100 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
     );
   }
 
+  Future<bool> _refreshSuccessLabAccess() async {
+    var enabled = false;
+    try {
+      final raw = await _apiClient.getSuccessLabAccess();
+      enabled = SuccessLabApiCodec.accessFromApi(raw).enabled;
+    } catch (_) {
+      // The Success Lab is intentionally invisible unless the backend can
+      // confirm flags, rollout membership, and country eligibility.
+    }
+    if (mounted && enabled != _successLabEnabled) {
+      setState(() => _successLabEnabled = enabled);
+    }
+    return enabled;
+  }
+
+  bool _canStartWorkspace(LiveScholarshipModel scholarship) {
+    final cycle = scholarship.currentCycle;
+    return _successLabEnabled &&
+        scholarship.id.trim().isNotEmpty &&
+        cycle != null &&
+        cycle.id.trim().isNotEmpty &&
+        (cycle.status == 'forecast' || cycle.status == 'open');
+  }
+
+  Future<void> _startWorkspace() async {
+    final scholarship = _scholarship;
+    final cycle = scholarship?.currentCycle;
+    if (_startingWorkspace ||
+        scholarship == null ||
+        cycle == null ||
+        !_canStartWorkspace(scholarship)) {
+      return;
+    }
+
+    final app = Get.find<AppController>();
+    final authUserId = Get.isRegistered<AuthService>()
+        ? Get.find<AuthService>().userId?.trim()
+        : null;
+    final profileUserId = app.profile?.id.trim();
+    final userId = authUserId?.isNotEmpty == true
+        ? authUserId
+        : profileUserId?.isNotEmpty == true
+            ? profileUserId
+            : null;
+    if (userId == null) {
+      Get.snackbar(
+        'success_lab_start_error_title'.tr,
+        'success_lab_missing_identity'.tr,
+      );
+      return;
+    }
+
+    setState(() => _startingWorkspace = true);
+    try {
+      if (!await _refreshSuccessLabAccess()) return;
+
+      final repository = SuccessLabRepository.standard(
+        apiClient: _apiClient,
+        userId: userId,
+      );
+      final workspace = await repository.createWorkspace(
+        scholarshipId: scholarship.id,
+        cycleId: cycle.id,
+      );
+      if (!mounted) return;
+      await Get.toNamed(
+        AppRoutes.successLabWorkspacePath(workspace.id),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      final failure = SuccessLabRepository.normalizeFailure(error);
+      Get.snackbar(
+        'success_lab_start_error_title'.tr,
+        _startFailureMessage(failure),
+      );
+    } finally {
+      if (mounted) setState(() => _startingWorkspace = false);
+    }
+  }
+
+  String _startFailureMessage(SuccessLabFailure failure) {
+    return switch (failure.kind) {
+      SuccessLabFailureKind.offline => 'success_lab_start_offline'.tr,
+      SuccessLabFailureKind.forbidden => 'success_lab_forbidden_body'.tr,
+      SuccessLabFailureKind.featureDisabled => 'success_lab_disabled_body'.tr,
+      SuccessLabFailureKind.conflict => 'success_lab_start_conflict'.tr,
+      SuccessLabFailureKind.notFound ||
+      SuccessLabFailureKind.invalidPayload ||
+      SuccessLabFailureKind.server ||
+      SuccessLabFailureKind.unknown =>
+        'success_lab_start_error_body'.tr,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final scholarship = _scholarship;
@@ -168,6 +268,19 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                       minimumSize: const Size.fromHeight(48),
                     ),
                   ),
+                  if (_canStartWorkspace(scholarship)) ...[
+                    const SizedBox(height: 10),
+                    KpbButton(
+                      key: const ValueKey<String>(
+                        'scholarship-start-success-lab',
+                      ),
+                      label: 'success_lab_start_action'.tr,
+                      icon: Icons.auto_awesome_rounded,
+                      fullWidth: true,
+                      loading: _startingWorkspace,
+                      onPressed: _startWorkspace,
+                    ),
+                  ],
                   if (scholarship.description.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     _TextSection(
@@ -324,10 +437,9 @@ class _HeaderCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            [
-              scholarship.countryName,
-              scholarship.level,
-            ].where((value) => value.isNotEmpty).join(' · '),
+            [scholarship.countryName, scholarship.level]
+                .where((value) => value.isNotEmpty)
+                .join(' · '),
             style: const TextStyle(color: KpbColors.textMuted),
           ),
           const SizedBox(height: 16),
@@ -483,11 +595,8 @@ class _BulletSection extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 1, right: 10),
-                      child: Icon(
-                        Icons.check_circle_rounded,
-                        size: 17,
-                        color: color,
-                      ),
+                      child: Icon(Icons.check_circle_rounded,
+                          size: 17, color: color),
                     ),
                     Expanded(
                       child: Text(
@@ -559,11 +668,8 @@ class _VideosSection extends StatelessWidget {
                                   color: Colors.black87,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
+                                child: const Icon(Icons.play_arrow_rounded,
+                                    color: Colors.white, size: 28),
                               ),
                             ],
                           ),

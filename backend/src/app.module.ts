@@ -15,6 +15,8 @@ import { MagicLinkMailService } from './modules/auth/magic-link-mail.service';
 import { CatalogController } from './modules/catalog/catalog.controller';
 import { CatalogService } from './modules/catalog/catalog.service';
 import { CountriesModule } from './modules/countries/countries.module';
+import { CompetitionReadinessModule } from './modules/competition-readiness/competition-readiness.module';
+import { AdminCompetitionReadinessController } from './modules/competition-readiness/admin/admin-competition-readiness.controller';
 import { AppointmentsController } from './modules/appointments/appointments.controller';
 import { AppointmentsService } from './modules/appointments/appointments.service';
 import { AdminAuthGuard } from './common/guards/admin-auth.guard';
@@ -160,11 +162,13 @@ import { SalonService } from './modules/salon/salon.service';
     ]),
     ScheduleModule.forRoot(),
     CountriesModule,
+    CompetitionReadinessModule,
   ],
   controllers: [
     AuthController,
     StudentAuthController,
     AdminCasesController,
+    AdminCompetitionReadinessController,
     AdminUsersController,
     CatalogController,
     AppointmentsController,

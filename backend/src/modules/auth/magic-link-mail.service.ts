@@ -52,8 +52,9 @@ export class MagicLinkMailService {
         }),
       });
       if (!response.ok) {
-        const detail = await response.text();
-        this.logger.error(`Resend failed (${response.status}): ${detail}`);
+        this.logger.error(
+          `Magic-link email provider failed with status ${response.status}.`,
+        );
         throw new Error('Email delivery failed.');
       }
       return;
@@ -64,15 +65,15 @@ export class MagicLinkMailService {
     // one-time code/token to the logs (they are login secrets).
     if (process.env.NODE_ENV === 'production') {
       this.logger.error(
-        `Cannot send magic link to ${email}: RESEND_API_KEY is not configured.`,
+        'Cannot send magic link: RESEND_API_KEY is not configured.',
       );
       throw new ServiceUnavailableException(
         'Email delivery is not configured.',
       );
     }
 
-    this.logger.log(
-      `[dev] Magic link for ${email}\n  code=${payload.code}\n  token=${payload.token}\n  link=${appLink}`,
-    );
+    // Development responses can expose a dedicated test code through the
+    // calling harness; logs remain secret- and identity-free in every mode.
+    this.logger.log('[dev] Magic-link delivery skipped (provider disabled).');
   }
 }

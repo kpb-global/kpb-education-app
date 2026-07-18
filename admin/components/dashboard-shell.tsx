@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { canAccessCompetitionReadiness } from '../lib/competition-readiness-tabs';
 import { useAdminAuth } from './admin-auth-provider';
 import { useLocale } from './locale-provider';
 
@@ -24,6 +25,8 @@ const ICON_PATHS: Record<string, string> = {
     'M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 20a2 2 0 0 0 4 0',
   users: 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.5-6 8-6s8 2 8 6',
   reports: 'M4 20V10M10 20V4M16 20v-7M21 20H3',
+  readiness:
+    'M4 20V7l8-4 8 4v13M8 11h8M8 15h5M16 15l1.5 1.5L20 14',
   logout: 'M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h10',
 };
 
@@ -46,9 +49,22 @@ function NavIcon({ name, size = 17 }: Readonly<{ name: string; size?: number }>)
   );
 }
 
-const NAV_LINKS = [
+interface NavLinkDefinition {
+  href: string;
+  labelKey: string;
+  icon: string;
+  visibleForRole?: (role: string) => boolean;
+}
+
+const NAV_LINKS: readonly NavLinkDefinition[] = [
   { href: '/', labelKey: 'nav.overview', icon: 'overview' },
   { href: '/cases', labelKey: 'nav.cases', icon: 'cases' },
+  {
+    href: '/competition-readiness',
+    labelKey: 'nav.competitionReadiness',
+    icon: 'readiness',
+    visibleForRole: canAccessCompetitionReadiness,
+  },
   { href: '/content', labelKey: 'nav.content', icon: 'content' },
   { href: '/verification', labelKey: 'nav.verification', icon: 'verification' },
   {
@@ -169,7 +185,10 @@ export function DashboardShell({
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {NAV_LINKS.map((link) => {
+          {NAV_LINKS.filter(
+            (link) =>
+              !link.visibleForRole || link.visibleForRole(session.user.role),
+          ).map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link

@@ -12,9 +12,11 @@ export interface AdminSession {
   user: AdminSessionUser;
 }
 
-interface ApiOptions {
+export interface ApiOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: unknown;
+  headers?: Readonly<Record<string, string>>;
+  signal?: AbortSignal;
 }
 
 const API_BASE_URL =
@@ -61,11 +63,14 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? 'GET',
+    cache: 'no-store',
     // Send/receive the httpOnly session cookie on every request.
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...options.headers,
     },
+    signal: options.signal,
     body:
       options.body === undefined ? undefined : JSON.stringify(options.body),
   });

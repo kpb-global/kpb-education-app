@@ -70,9 +70,8 @@ export class OneSignalSenderService {
       });
 
       if (!response.ok) {
-        const text = await response.text();
         this.logger.error(
-          `OneSignal send failed (${response.status}) for ${userId}: ${text.slice(0, 200)}`,
+          `OneSignal send failed with status ${response.status}.`,
         );
         return false;
       }
@@ -83,21 +82,19 @@ export class OneSignalSenderService {
         errors?: unknown;
       };
       if (json.errors) {
-        this.logger.error(
-          `OneSignal send returned errors for ${userId}: ${JSON.stringify(json.errors).slice(0, 200)}`,
-        );
+        this.logger.error('OneSignal send returned provider errors.');
         return false;
       }
       // Distinguish "nobody to notify" (user has no subscribed device — not a
       // transient failure, so callers should NOT retry) from a real error.
       if (json.recipients === 0) {
         this.logger.debug(
-          `OneSignal: no subscribed recipients for ${userId} (push not delivered).`,
+          'OneSignal: no subscribed recipient (push not delivered).',
         );
       }
       return true;
-    } catch (error) {
-      this.logger.error(`OneSignal push failed for user ${userId}:`, error);
+    } catch {
+      this.logger.error('OneSignal push request failed.');
       return false;
     } finally {
       clearTimeout(timeout);

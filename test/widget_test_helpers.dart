@@ -16,6 +16,8 @@ import 'package:karatou/app/core/repositories/app_snapshot.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 void setupPlatformChannelMocks() {
+  AppConfig.enableRemoteSyncOverride = false;
+
   // Mock flutter_secure_storage
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
@@ -55,7 +57,10 @@ class FakeRepository implements AppRepository {
   }
 }
 
-class MockApiClient extends Mock implements AppApiClient {}
+class MockApiClient extends Mock implements AppApiClient {
+  @override
+  Future<bool> hasAuthSession() async => false;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Test App Wrapper

@@ -24,7 +24,9 @@
     "scholarships:import:dry-run": "ts-node scripts/import-scholarship-catalog.ts --dry-run",
     "scholarships:import": "ts-node scripts/import-scholarship-catalog.ts --apply",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "jest"
+    "test": "jest",
+    "test:integration:privacy": "jest --runInBand src/modules/profiles/profiles.postgres.spec.ts src/modules/competition-readiness/analytics/storage-purge-reconciliation.postgres.spec.ts",
+    "test:integration:migration-upgrade": "ts-node scripts/verify-competition-readiness-populated-upgrade.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1032.0",
@@ -40,7 +42,6 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "firebase-admin": "^13.7.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "9.0.3",
     "reflect-metadata": "^0.2.2",

@@ -19,7 +19,7 @@ class CaseSocketService {
   bool get isConnected => _socket?.connected ?? false;
   String? get currentCaseId => _currentCaseId;
 
-  Future<void> connect(String caseId, {String? fullName}) async {
+  Future<void> connect(String caseId) async {
     await disconnect();
     _currentCaseId = caseId;
 
@@ -32,10 +32,10 @@ class CaseSocketService {
       '$baseUrl/cases',
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setQuery({
-            'token': token,
-            if (fullName != null && fullName.isNotEmpty) 'fullName': fullName,
-          })
+          // Socket.IO sends auth payload in the handshake body. Query strings
+          // are routinely captured by proxies/access logs and must never carry
+          // bearer tokens or user-controlled display names.
+          .setAuth({'token': token})
           .enableAutoConnect()
           .enableReconnection()
           .build(),

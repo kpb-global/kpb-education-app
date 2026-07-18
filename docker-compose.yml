@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Production deploy — Hostinger VPS behind the EXISTING Traefik v3.
 #
@@ -19,7 +17,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: kpb-backend:latest
+    image: kpb-backend:${KPB_IMAGE_TAG:-local}
     container_name: kpb_api
     restart: always
     # No host port: ingress is via the shared Traefik (labels below).
@@ -32,6 +30,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000 # container port Traefik load-balances to (app default is 4000)
+      - KPB_BUILD_SHA=${KPB_BUILD_SHA:-}
       # Timezone for scheduled reminders + date math (Node honors TZ via ICU).
       # Defaults to the primary audience zone; override in .env if needed.
       - TZ=${TZ:-Africa/Niamey}
@@ -43,6 +42,10 @@ services:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
       - CORS_ORIGINS=${CORS_ORIGINS}
+      - KPB_MIN_APP_VERSION=${KPB_MIN_APP_VERSION:-0.0.0}
+      - KPB_ANDROID_STORE_URL=${KPB_ANDROID_STORE_URL:-}
+      - KPB_IOS_STORE_URL=${KPB_IOS_STORE_URL:-}
+      - KPB_MVP_ONLY=${KPB_MVP_ONLY:-true}
       # One Nginx proxy is trusted to provide the real client IP for throttling.
       - KPB_TRUST_PROXY_HOPS=${KPB_TRUST_PROXY_HOPS:-1}
       # Needed so account deletion also removes the Supabase Auth identity
@@ -57,6 +60,7 @@ services:
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - KPB_MAGIC_LINK_FROM=${KPB_MAGIC_LINK_FROM:-}
       - KPB_MAGIC_LINK_WEB_BASE=${KPB_MAGIC_LINK_WEB_BASE:-}
+      - KPB_CAMPAIGN_MAIL_FROM=${KPB_CAMPAIGN_MAIL_FROM:-}
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
       - YOUTUBE_PLAYLIST_ID=${YOUTUBE_PLAYLIST_ID:-}
       # Flight price search (Kayak Price-Insights affiliate API; leave blank
@@ -76,6 +80,42 @@ services:
       - KPB_S3_FORCE_PATH_STYLE=${KPB_S3_FORCE_PATH_STYLE:-}
       - KPB_UPLOADS_DIR=${KPB_UPLOADS_DIR:-/app/uploads}
       - KPB_UPLOADS_PUBLIC_URL=${KPB_UPLOADS_PUBLIC_URL:-}
+      # Competition Readiness is dark by default and can be rolled out without
+      # shipping a new mobile build. Secrets/budgets are never returned by config/app.
+      - KPB_COMPETITION_READINESS_ENABLED=${KPB_COMPETITION_READINESS_ENABLED:-false}
+      - KPB_SUCCESS_LAB_ENABLED=${KPB_SUCCESS_LAB_ENABLED:-false}
+      - KPB_AI_DIAGNOSTIC_ENABLED=${KPB_AI_DIAGNOSTIC_ENABLED:-false}
+      - KPB_AI_DIAGNOSTIC_KILL_SWITCH=${KPB_AI_DIAGNOSTIC_KILL_SWITCH:-true}
+      - KPB_AI_DIAGNOSTIC_MODEL=${KPB_AI_DIAGNOSTIC_MODEL:-}
+      - KPB_APPLICATION_ARTIFACTS_ENABLED=${KPB_APPLICATION_ARTIFACTS_ENABLED:-false}
+      - KPB_APPLICATION_ARTIFACT_MAX_BYTES=${KPB_APPLICATION_ARTIFACT_MAX_BYTES:-10485760}
+      - KPB_STUDY_REVIEW_ENABLED=${KPB_STUDY_REVIEW_ENABLED:-false}
+      - KPB_STUDY_REVIEW_SLA_HOURS=${KPB_STUDY_REVIEW_SLA_HOURS:-48}
+      - KPB_EVIDENCE_ACCESS_TTL_SECONDS=${KPB_EVIDENCE_ACCESS_TTL_SECONDS:-60}
+      - KPB_EVIDENCE_ACCESS_SECRET=${KPB_EVIDENCE_ACCESS_SECRET:-}
+      - KPB_AI_DIAGNOSTIC_MIN_AGE=${KPB_AI_DIAGNOSTIC_MIN_AGE:-13}
+      - KPB_AI_DIAGNOSTIC_PROMPT_VERSION=${KPB_AI_DIAGNOSTIC_PROMPT_VERSION:-success-lab-v1}
+      - KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS=${KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS:-8000}
+      - KPB_AI_DIAGNOSTIC_MAX_BILLABLE_INPUT_TOKENS=${KPB_AI_DIAGNOSTIC_MAX_BILLABLE_INPUT_TOKENS:-12000}
+      - KPB_AI_DIAGNOSTIC_MAX_OUTPUT_TOKENS=${KPB_AI_DIAGNOSTIC_MAX_OUTPUT_TOKENS:-220}
+      - KPB_AI_DIAGNOSTIC_DAILY_CALL_CAP=${KPB_AI_DIAGNOSTIC_DAILY_CALL_CAP:-100}
+      - KPB_AI_DIAGNOSTIC_USER_DAILY_ATTEMPT_CAP=${KPB_AI_DIAGNOSTIC_USER_DAILY_ATTEMPT_CAP:-3}
+      - KPB_AI_DIAGNOSTIC_MONTHLY_BUDGET_MICROS_USD=${KPB_AI_DIAGNOSTIC_MONTHLY_BUDGET_MICROS_USD:-0}
+      - KPB_AI_DIAGNOSTIC_PRICE_VERSION=${KPB_AI_DIAGNOSTIC_PRICE_VERSION:-}
+      - KPB_AI_DIAGNOSTIC_CRITERIA_MAX_AGE_DAYS=${KPB_AI_DIAGNOSTIC_CRITERIA_MAX_AGE_DAYS:-180}
+      - KPB_SUCCESS_LAB_PILOT_COUNTRIES=${KPB_SUCCESS_LAB_PILOT_COUNTRIES:-NE,SN,CI}
+      - KPB_SUCCESS_LAB_ROLLOUT_PERCENT=${KPB_SUCCESS_LAB_ROLLOUT_PERCENT:-0}
+      - KPB_FEATURE_ROLLOUT_SECRET=${KPB_FEATURE_ROLLOUT_SECRET:-}
+      - KPB_ANALYTICS_ACTOR_SECRET=${KPB_ANALYTICS_ACTOR_SECRET:-}
+      - KPB_OUTBOX_BATCH_SIZE=${KPB_OUTBOX_BATCH_SIZE:-10}
+      - KPB_OUTBOX_LEASE_MS=${KPB_OUTBOX_LEASE_MS:-300000}
+      - KPB_OUTBOX_MAX_ATTEMPTS=${KPB_OUTBOX_MAX_ATTEMPTS:-8}
+      - KPB_OUTBOX_RETRY_BASE_MS=${KPB_OUTBOX_RETRY_BASE_MS:-5000}
+      - KPB_OUTBOX_RETRY_CAP_MS=${KPB_OUTBOX_RETRY_CAP_MS:-3600000}
+      - KPB_OUTCOME_EVIDENCE_ENABLED=${KPB_OUTCOME_EVIDENCE_ENABLED:-false}
+      - KPB_OUTCOME_EVIDENCE_MAX_PENDING_PER_WORKSPACE=${KPB_OUTCOME_EVIDENCE_MAX_PENDING_PER_WORKSPACE:-20}
+      - KPB_OUTCOME_REFERENCE_HMAC_SECRET=${KPB_OUTCOME_REFERENCE_HMAC_SECRET:-}
+      - KPB_IMPACT_PUBLIC_STATS_ENABLED=${KPB_IMPACT_PUBLIC_STATS_ENABLED:-false}
       # Antivirus: uploads are scanned by the clamav sidecar before being
       # persisted (fail-closed). Set CLAMAV_HOST= (empty) in .env to disable.
       # Note `${VAR-default}` (no colon): an explicitly empty value disables
@@ -181,7 +221,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_KPB_API_BASE_URL: ${KPB_ADMIN_API_BASE_URL:-https://api.kpbeducation.cloud/api}
-    image: kpb-admin:latest
+    image: kpb-admin:${KPB_IMAGE_TAG:-local}
     container_name: kpb_admin
     restart: always
     mem_limit: 384m

@@ -35,6 +35,8 @@ import '../services/onesignal_service.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 import '../services/auth_service.dart';
+import '../services/success_lab_cache_service.dart';
+import '../services/success_lab_outbox.dart';
 
 part 'app_controller/search.dart';
 part 'app_controller/roadmap.dart';
@@ -487,9 +489,9 @@ abstract class _AppControllerBase extends GetxController {
   Future<void> logout() async {
     AnalyticsService.instance.logLogout();
     unawaited(OneSignalService.instance.logout());
-    if (Get.isRegistered<AuthService>()) {
-      await Get.find<AuthService>().clearSession();
-    }
+    // Keep the historical logout contract: callers that do not await this
+    // Future must still observe an anonymous in-memory state immediately.
+    // Session/cache cleanup remains awaited below before the Future completes.
     profile = null;
     _profileNeedsPush = false;
     hasCompletedOnboarding = false;
@@ -504,6 +506,10 @@ abstract class _AppControllerBase extends GetxController {
     pendingOrientationQuestionIndex = 0;
     _persist();
     update();
+    if (Get.isRegistered<AuthService>()) {
+      await Get.find<AuthService>().clearSession();
+    }
+    await _clearSuccessLabLocalData();
   }
 
   /// GDPR / store-required account deletion (KPB-67). When remote sync is on we
@@ -545,6 +551,24 @@ abstract class _AppControllerBase extends GetxController {
     }
     if (CatalogCacheService.isInitialized) {
       await CatalogCacheService.instance.clear();
+    }
+    await _clearSuccessLabLocalData();
+  }
+
+  Future<void> _clearSuccessLabLocalData() async {
+    // `main.dart` initializes Hive through the catalog service before creating
+    // the controller. Lightweight unit tests intentionally skip that boot
+    // sequence, so they must not try to open disk-backed boxes without a path.
+    if (!CatalogCacheService.isInitialized) return;
+    try {
+      await SuccessLabCacheService.clearAll();
+    } catch (_) {
+      // Hive may not have been initialized in this session.
+    }
+    try {
+      await SuccessLabOutbox.clearAll();
+    } catch (_) {
+      // Hive may not have been initialized in this session.
     }
   }
 
@@ -1004,7 +1028,7 @@ abstract class _AppControllerBase extends GetxController {
     if (!await _apiClient.hasAuthSession()) return;
 
     _activeCaseSocketId = caseId;
-    await _caseSocket.connect(caseId, fullName: profile?.fullName);
+    await _caseSocket.connect(caseId);
 
     _caseSocket.onMessage((data) => ingestRemoteCaseMessage(caseId, data));
     _caseSocket.onCaseUpdated((data) {

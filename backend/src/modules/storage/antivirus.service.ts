@@ -68,14 +68,15 @@ export class AntivirusService {
    * disabled). Throws 422 for an infected file, 503 when the scanner is
    * configured but cannot deliver a verdict (fail-closed).
    */
-  async assertClean(buffer: Buffer, label: string): Promise<void> {
+  async assertClean(buffer: Buffer, _label: string): Promise<void> {
     if (!this.isEnabled) return;
 
     let response: string;
     try {
       response = await this.instream(buffer);
-    } catch (error) {
-      this.logger.error(`ClamAV scan failed for ${label}: ${String(error)}`);
+    } catch {
+      // The original user-provided filename must never reach logs.
+      this.logger.error('ClamAV scan request failed.');
       throw new ServiceUnavailableException(
         'Antivirus scan unavailable. Please retry.',
       );
@@ -83,15 +84,13 @@ export class AntivirusService {
 
     const verdict = parseClamdResponse(response);
     if (verdict.infected) {
-      this.logger.warn(
-        `ClamAV rejected ${label}: ${verdict.signature ?? 'unknown signature'}`,
-      );
+      this.logger.warn('ClamAV rejected an uploaded private object.');
       throw new UnprocessableEntityException(
         'The file was rejected by the antivirus scan.',
       );
     }
     if (!verdict.ok) {
-      this.logger.error(`ClamAV returned an error for ${label}: ${response.trim()}`);
+      this.logger.error('ClamAV returned an invalid or error verdict.');
       throw new ServiceUnavailableException(
         'Antivirus scan unavailable. Please retry.',
       );

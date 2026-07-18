@@ -59,4 +59,14 @@ describe('OrientationController — authenticated userId override', () => {
     const ctrl = new OrientationController(service);
     expect(ctrl.getQuestions()).toEqual({ q: 1 });
   });
+
+  it('scopes result lookup to the authenticated id', async () => {
+    const getResults = jest.fn().mockResolvedValue({ id: 'session-1' });
+    const service = { getResults } as unknown as OrientationService;
+    const ctrl = new OrientationController(service);
+
+    await ctrl.getResults('session-1', authedReq);
+
+    expect(getResults).toHaveBeenCalledWith('session-1', 'user-real');
+  });
 });

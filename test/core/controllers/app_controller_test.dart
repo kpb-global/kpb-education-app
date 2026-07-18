@@ -96,6 +96,7 @@ void main() {
     Get.testMode = true;
     repository = _FakeRepository();
     apiClient = _MockApiClient();
+    when(() => apiClient.hasAuthSession()).thenAnswer((_) async => false);
 
     controller = AppController(
       repository: repository,

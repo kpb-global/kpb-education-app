@@ -94,14 +94,20 @@ describe('SupabaseAuthService', () => {
 
   it('verifies an ES256 token via JWKS despite the module-level HS256 secret', async () => {
     const service = await makeService();
-    mockPrismaService.execute.mockResolvedValueOnce({ id: 'profile-1' });
+    mockPrismaService.execute.mockResolvedValueOnce({
+      id: 'profile-1',
+      accountType: 'student',
+      fullName: 'Étudiante Test',
+    });
 
     const result = await service.verifyAndResolve(makeToken());
 
     expect(result).toEqual({
       id: 'profile-1',
       email: 'student@example.com',
+      fullName: 'Étudiante Test',
       role: 'student',
+      accountType: 'student',
     });
     expect(global.fetch).toHaveBeenCalledWith(
       `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`,
@@ -153,7 +159,11 @@ describe('SupabaseAuthService', () => {
     mockPrismaService.execute
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({ id: 'profile-new' });
+      .mockResolvedValueOnce({
+        id: 'profile-new',
+        accountType: 'student',
+        fullName: 'student',
+      });
 
     const result = await service.verifyAndResolve(makeToken());
 
@@ -172,5 +182,20 @@ describe('SupabaseAuthService', () => {
         }),
       }),
     );
+  });
+
+  it('uses the database accountType instead of a stale token role', async () => {
+    const service = await makeService();
+    mockPrismaService.execute.mockResolvedValueOnce({
+      id: 'profile-parent',
+      accountType: 'parent',
+      fullName: 'Parent Test',
+    });
+
+    const result = await service.verifyAndResolve(
+      makeToken({ app_metadata: { role: 'student' } }),
+    );
+
+    expect(result.accountType).toBe('parent');
   });
 });

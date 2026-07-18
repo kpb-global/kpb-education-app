@@ -5,11 +5,15 @@ on:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - 'docker-compose.yml'
+      - '.env.example'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - 'docker-compose.yml'
+      - '.env.example'
       - '.github/workflows/backend-ci.yml'
 
 jobs:
@@ -47,6 +51,9 @@ jobs:
       KPB_ADMIN_REFRESH_SECRET: ci-only-not-a-real-secret
       SUPABASE_URL: https://ci.example.supabase.co
       CORS_ORIGINS: http://localhost:3000
+      POSTGRES_USER: kpb
+      POSTGRES_PASSWORD: kpb
+      POSTGRES_DB: kpb_ci
 
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +75,10 @@ jobs:
 
       - name: Build NestJS
         run: npm run build
+
+      - name: Validate production Compose configuration
+        working-directory: .
+        run: docker compose --env-file .env.example config --quiet
 
       - name: Run Unit Tests
         # Unit tests exercise the DB-less fallback paths, so run them without a
@@ -93,6 +104,14 @@ jobs:
       - name: Apply migrations to a fresh database
         run: npx prisma migrate deploy
 
+      - name: Verify additive Competition Readiness upgrade on populated data
+        run: npm run test:integration:migration-upgrade
+
+      - name: PostgreSQL privacy export/delete integration
+        env:
+          KPB_RUN_POSTGRES_INTEGRATION: 'true'
+        run: npm run test:integration:privacy
+
       - name: Seed active countries + base catalog
         run: |
           npm run seed:countries-m5
@@ -105,6 +124,8 @@ jobs:
         run: npm run scholarships:validate:structure
 
       - name: Boot smoke — API serves /api/health against the DB
+        env:
+          NODE_ENV: production
         run: |
           node dist/main.js &
           APP_PID=$!

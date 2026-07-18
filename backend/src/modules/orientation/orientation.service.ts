@@ -20,6 +20,19 @@ type RecommendationDto = {
   partnerCountryIds: string[];
 };
 
+type OrientationSessionDto = {
+  id: string;
+  completedAt: string;
+  answers: Answers;
+  recommendations: RecommendationDto[];
+  iaModelUsed: string;
+  nextActions: { fr: string; en: string };
+};
+
+type StoredOrientationSession = OrientationSessionDto & {
+  userId: string | null;
+};
+
 @Injectable()
 export class OrientationService {
   /**
@@ -27,7 +40,7 @@ export class OrientationService {
    * (no `DATABASE_URL`); otherwise sessions live in Postgres and this array is
    * a best-effort mirror.
    */
-  private readonly sessions: Array<Record<string, unknown>> = [];
+  private readonly sessions: StoredOrientationSession[] = [];
 
   constructor(
     private readonly llmService: LlmService,
@@ -125,6 +138,7 @@ export class OrientationService {
     // ── In-memory fallback ──────────────────────────────────────────────────
     const session = {
       id: `orientation-${Date.now()}`,
+      userId,
       completedAt: new Date().toISOString(),
       answers,
       recommendations,
@@ -133,12 +147,12 @@ export class OrientationService {
     };
 
     this.sessions.unshift(session);
-    return session;
+    return this.toPublicSession(session);
   }
 
-  async getResults(id: string) {
+  async getResults(id: string, userId: string) {
     const persisted = await this.prisma.tryExecute((client) =>
-      client.orientationSession.findUnique({ where: { id } }),
+      client.orientationSession.findFirst({ where: { id, userId } }),
     );
 
     if (persisted) {
@@ -152,11 +166,18 @@ export class OrientationService {
       };
     }
 
-    const session = this.sessions.find((item) => item.id === id);
+    const session = this.sessions.find(
+      (item) => item.id === id && item.userId === userId,
+    );
     if (!session) {
       throw new NotFoundException(`Orientation session ${id} not found.`);
     }
-    return session;
+    return this.toPublicSession(session);
+  }
+
+  private toPublicSession(session: StoredOrientationSession): OrientationSessionDto {
+    const { userId: _userId, ...publicSession } = session;
+    return publicSession;
   }
 
   private buildRecommendation(

@@ -1,211 +1,270 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { ImpactService } from './impact.service';
 
-/**
- * Guards KPB-71: impact stats must derive from real data, never hardcoded
- * constants. In particular satisfactionRate is null until reviews exist (no
- * fabricated "96%"), countriesCovered comes from the catalogue (not a literal
- * 9), and the former invented EUR figure is replaced by a real scholarship
- * count.
- */
-describe('ImpactService.getStats', () => {
-  function makePrisma(
-    opts: {
-      students?: number;
-      completed?: number;
-      orientation?: number;
-      partners?: number;
-      countries?: number;
-      scholarships?: number;
-      reviews?: number;
-      avgRating?: number | null;
-    } | null,
-  ) {
-    if (opts === null) {
-      return { tryExecute: async () => null } as unknown as PrismaService;
-    }
-    const db = {
-      userProfile: { count: async () => opts.students ?? 0 },
-      case: { count: async () => opts.completed ?? 0 },
-      orientationSession: { count: async () => opts.orientation ?? 0 },
-      institution: { count: async () => opts.partners ?? 0 },
-      country: { count: async () => opts.countries ?? 0 },
-      scholarship: { count: async () => opts.scholarships ?? 0 },
-      counsellorReview: {
-        aggregate: async () => ({
-          _avg: { rating: opts.avgRating ?? null },
-          _count: { _all: opts.reviews ?? 0 },
-        }),
-      },
-    };
-    return {
-      tryExecute: async (fn: (c: typeof db) => unknown) => fn(db),
-    } as unknown as PrismaService;
-  }
+const IMPACT_FLAGS = [
+  'KPB_COMPETITION_READINESS_ENABLED',
+  'KPB_IMPACT_PUBLIC_STATS_ENABLED',
+] as const;
 
-  it('derives real aggregates and leaves satisfaction null with no reviews', async () => {
-    const svc = new ImpactService(
-      makePrisma({
-        students: 120,
-        completed: 18,
-        countries: 9,
-        scholarships: 42,
-        partners: 7,
-        reviews: 0,
+type SnapshotMetric = {
+  metricKey: string;
+  metricVersion: number;
+  value: number;
+  sampleSize: number;
+  caveat: null | string;
+};
+
+type PublishedReviewRow = {
+  id: string;
+  counsellorId: string;
+  reviewerName: string;
+  rating: number;
+  body: string;
+  createdAt: Date;
+};
+
+function metric(metricKey: string, value: number, sampleSize = 20): SnapshotMetric {
+  return { metricKey, metricVersion: 1, value, sampleSize, caveat: null };
+}
+
+function activeTestimonialReceipt(overrides: Record<string, unknown> = {}) {
+  return {
+    userId: 'student-1',
+    purpose: 'public_testimonial',
+    grantedAt: new Date('2026-01-01T00:00:00.000Z'),
+    revokedAt: null,
+    user: { birthDate: new Date('1998-01-01T00:00:00.000Z') },
+    notice: {
+      purpose: 'public_testimonial',
+      effectiveAt: new Date('2025-12-01T00:00:00.000Z'),
+      retiredAt: null,
+    },
+    guardianAuthorization: null,
+    ...overrides,
+  };
+}
+
+function makePrisma(options: {
+  snapshot?: { metrics: SnapshotMetric[]; generatedAt: Date } | null;
+  orientationSessions?: number;
+  partners?: Array<{ partnerId: string }>;
+  countries?: number;
+  scholarships?: number;
+  testimonialReceipts?: ReturnType<typeof activeTestimonialReceipt>[];
+  reviewAggregate?: { average: number | null; count: number };
+  reviews?: PublishedReviewRow[];
+  available?: boolean;
+} = {}) {
+  const db = {
+    impactSnapshot: {
+      findFirst: jest.fn().mockResolvedValue(options.snapshot ?? null),
+    },
+    orientationSession: {
+      count: jest.fn().mockResolvedValue(options.orientationSessions ?? 0),
+    },
+    partnerAgreement: {
+      findMany: jest.fn().mockResolvedValue(options.partners ?? []),
+    },
+    country: { count: jest.fn().mockResolvedValue(options.countries ?? 0) },
+    scholarship: {
+      count: jest.fn().mockResolvedValue(options.scholarships ?? 0),
+    },
+    consentReceipt: {
+      findMany: jest
+        .fn()
+        .mockResolvedValue(options.testimonialReceipts ?? []),
+    },
+    counsellorReview: {
+      aggregate: jest.fn().mockResolvedValue({
+        _avg: { rating: options.reviewAggregate?.average ?? null },
+        _count: { _all: options.reviewAggregate?.count ?? 0 },
+      }),
+      findMany: jest.fn().mockResolvedValue(options.reviews ?? []),
+    },
+  };
+  const prisma = {
+    execute: jest.fn(async (operation: (client: typeof db) => unknown) =>
+      options.available === false ? null : operation(db),
+    ),
+    __db: db,
+  } as unknown as PrismaService & { __db: typeof db };
+  return prisma;
+}
+
+describe('ImpactService public impact', () => {
+  const previousEnvironment = Object.fromEntries(
+    IMPACT_FLAGS.map((key) => [key, process.env[key]]),
+  ) as Record<(typeof IMPACT_FLAGS)[number], string | undefined>;
+
+  beforeEach(() => {
+    process.env.KPB_COMPETITION_READINESS_ENABLED = 'true';
+    process.env.KPB_IMPACT_PUBLIC_STATS_ENABLED = 'true';
+  });
+
+  afterAll(() => {
+    for (const key of IMPACT_FLAGS) {
+      const value = previousEnvironment[key];
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+
+  it('derives public outcome claims only from one immutable public-safe snapshot', async () => {
+    const prisma = makePrisma({
+      snapshot: {
+        metrics: [
+          metric('pilot_participants', 120, 120),
+          metric('verified_submissions', 31, 31),
+          metric('verified_admissions', 18, 20),
+          metric('verified_funding_awards', 11, 20),
+        ],
+        generatedAt: new Date('2026-07-01T00:00:00.000Z'),
+      },
+      orientationSessions: 14,
+      partners: [{ partnerId: 'partner-a' }, { partnerId: 'partner-b' }],
+      countries: 9,
+      scholarships: 42,
+      testimonialReceipts: [activeTestimonialReceipt()],
+      reviewAggregate: { average: 4.5, count: 8 },
+    });
+
+    const stats = await new ImpactService(prisma).getStats();
+
+    expect(stats).toMatchObject({
+      studentsGuided: 120,
+      admissionsSecured: 18,
+      verifiedApplicationsSubmitted: 31,
+      scholarshipsSecured: 11,
+      knownDecisions: 18,
+      orientationSessions: 14,
+      partnerInstitutions: 2,
+      countriesCovered: 9,
+      scholarshipsTracked: 42,
+      satisfactionRate: 90,
+      reviewsCount: 8,
+      generatedAt: '2026-07-01T00:00:00.000Z',
+    });
+    expect(prisma.__db.impactSnapshot.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isPublicSafe: true } }),
+    );
+    expect(prisma.__db.partnerAgreement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isCurrent: true, status: 'active' }),
+        distinct: ['partnerId'],
       }),
     );
-    const s = await svc.getStats();
-    expect(s.studentsGuided).toBe(120);
-    expect(s.admissionsSecured).toBe(18);
-    expect(s.countriesCovered).toBe(9); // from catalogue, not a literal
-    expect(s.scholarshipsTracked).toBe(42);
-    expect(s.partnerInstitutions).toBe(7);
-    expect(s.satisfactionRate).toBeNull(); // never fabricated
-    expect(s.reviewsCount).toBe(0);
-    expect(s).not.toHaveProperty('scholarshipsValueEur');
-    expect(s.generatedAt).toBeDefined();
+    expect(prisma.__db).not.toHaveProperty('userProfile');
+    expect(prisma.__db).not.toHaveProperty('case');
+    expect(prisma.__db).not.toHaveProperty('applicationSubmission');
   });
 
-  it('computes satisfaction from published review ratings (1–5 → 0–100)', async () => {
-    const svc = new ImpactService(
-      makePrisma({ reviews: 8, avgRating: 4.5, countries: 9 }),
-    );
-    const s = await svc.getStats();
-    expect(s.satisfactionRate).toBe(90);
-    expect(s.reviewsCount).toBe(8);
-  });
-
-  it('degrades to zeros / null without a database', async () => {
-    const svc = new ImpactService(makePrisma(null));
-    const s = await svc.getStats();
-    expect(s.studentsGuided).toBe(0);
-    expect(s.countriesCovered).toBe(0);
-    expect(s.scholarshipsTracked).toBe(0);
-    expect(s.satisfactionRate).toBeNull();
-  });
-});
-
-/**
- * Guards KPB-79: published-testimonials feed must surface only published
- * reviews, newest-first, capped, and must never leak PII (reviewerUserId,
- * caseId). It degrades to an empty list without a DB.
- */
-describe('ImpactService.getPublishedReviews', () => {
-  function makePrisma(
-    rows:
-      | Array<{
-          id: string;
-          counsellorId: string;
-          reviewerName: string;
-          rating: number;
-          body: string;
-          createdAt: Date;
-        }>
-      | null,
-  ) {
-    if (rows === null) {
-      return { tryExecute: async () => null } as unknown as PrismaService;
-    }
-    // Capture the args Prisma is called with so we can assert the query shape.
-    const captured: { args?: Record<string, unknown> } = {};
-    const db = {
-      counsellorReview: {
-        findMany: async (args: Record<string, unknown>) => {
-          captured.args = args;
-          return rows;
-        },
+  it('suppresses invalid, duplicated, caveated, and small public metric cells', async () => {
+    const prisma = makePrisma({
+      snapshot: {
+        metrics: [
+          metric('pilot_participants', 19, 19),
+          metric('verified_submissions', 4, 20),
+          metric('verified_submissions', 5, 20),
+          { ...metric('verified_admissions', 7, 20), caveat: 'provisional' },
+          { ...metric('verified_funding_awards', 3, 20), metricVersion: 2 },
+        ],
+        generatedAt: new Date('2026-07-01T00:00:00.000Z'),
       },
-    };
-    const prisma = {
-      tryExecute: async (fn: (c: typeof db) => unknown) => fn(db),
-      __captured: captured,
-    } as unknown as PrismaService & {
-      __captured: { args?: Record<string, unknown> };
-    };
-    return prisma;
-  }
-
-  const sample = [
-    {
-      id: 'r1',
-      counsellorId: 'c1',
-      reviewerName: 'Aïcha',
-      rating: 5,
-      body: 'Super accompagnement',
-      createdAt: new Date('2026-06-20T10:00:00.000Z'),
-    },
-    {
-      id: 'r2',
-      counsellorId: 'c2',
-      reviewerName: 'Boris',
-      rating: 4,
-      body: 'Très utile',
-      createdAt: new Date('2026-06-10T10:00:00.000Z'),
-    },
-  ];
-
-  it('returns published-only reviews, newest first, capped by limit', async () => {
-    const prisma = makePrisma(sample) as unknown as PrismaService & {
-      __captured: { args?: Record<string, unknown> };
-    };
-    const svc = new ImpactService(prisma);
-
-    const out = await svc.getPublishedReviews(10);
-
-    expect(out.count).toBe(2);
-    expect(out.reviews.map((r) => r.id)).toEqual(['r1', 'r2']);
-
-    const args = prisma.__captured.args!;
-    // Published-only filter
-    expect(args.where).toEqual({ isPublished: true });
-    // Newest first
-    expect(args.orderBy).toEqual({ createdAt: 'desc' });
-    // Limit honoured
-    expect(args.take).toBe(10);
-  });
-
-  it('respects a custom limit', async () => {
-    const prisma = makePrisma(sample) as unknown as PrismaService & {
-      __captured: { args?: Record<string, unknown> };
-    };
-    const svc = new ImpactService(prisma);
-
-    await svc.getPublishedReviews(3);
-    expect(prisma.__captured.args!.take).toBe(3);
-  });
-
-  it('selects only public-safe fields — no reviewerUserId or caseId', async () => {
-    const prisma = makePrisma(sample) as unknown as PrismaService & {
-      __captured: { args?: Record<string, unknown> };
-    };
-    const svc = new ImpactService(prisma);
-
-    await svc.getPublishedReviews();
-
-    const select = prisma.__captured.args!.select as Record<string, boolean>;
-    expect(select).toEqual({
-      id: true,
-      counsellorId: true,
-      reviewerName: true,
-      rating: true,
-      body: true,
-      createdAt: true,
     });
-    expect(select).not.toHaveProperty('reviewerUserId');
-    expect(select).not.toHaveProperty('caseId');
+
+    const stats = await new ImpactService(prisma).getStats();
+
+    expect(stats.studentsGuided).toBe(0);
+    expect(stats.verifiedApplicationsSubmitted).toBe(0);
+    expect(stats.admissionsSecured).toBe(0);
+    expect(stats.scholarshipsSecured).toBe(0);
   });
 
-  it('serialises createdAt to an ISO string', async () => {
-    const prisma = makePrisma(sample);
-    const svc = new ImpactService(prisma);
+  it('requires both public-impact flags and fails closed when the database is unavailable', async () => {
+    process.env.KPB_IMPACT_PUBLIC_STATS_ENABLED = 'false';
+    await expect(new ImpactService(makePrisma()).getStats()).rejects.toMatchObject({
+      response: expect.objectContaining({ code: 'FEATURE_DISABLED' }),
+    });
 
-    const out = await svc.getPublishedReviews();
-    expect(out.reviews[0].createdAt).toBe('2026-06-20T10:00:00.000Z');
+    process.env.KPB_IMPACT_PUBLIC_STATS_ENABLED = 'true';
+    await expect(
+      new ImpactService(makePrisma({ available: false })).getStats(),
+    ).rejects.toMatchObject({
+      response: expect.objectContaining({ code: 'DATABASE_UNAVAILABLE' }),
+    });
   });
 
-  it('degrades to an empty list without a database', async () => {
-    const svc = new ImpactService(makePrisma(null));
-    const out = await svc.getPublishedReviews();
-    expect(out).toEqual({ reviews: [], count: 0 });
+  it('releases published testimonials only for active, eligible consent receipts', async () => {
+    const rows: PublishedReviewRow[] = [
+      {
+        id: 'review-1',
+        counsellorId: 'counsellor-1',
+        reviewerName: 'Aïcha',
+        rating: 5,
+        body: 'Super accompagnement',
+        createdAt: new Date('2026-06-20T10:00:00.000Z'),
+      },
+    ];
+    const prisma = makePrisma({
+      testimonialReceipts: [activeTestimonialReceipt()],
+      reviews: rows,
+    });
+
+    const published = await new ImpactService(prisma).getPublishedReviews(10);
+
+    expect(published).toEqual({
+      reviews: [
+        {
+          ...rows[0],
+          createdAt: '2026-06-20T10:00:00.000Z',
+        },
+      ],
+      count: 1,
+    });
+    expect(prisma.__db.counsellorReview.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          isPublished: true,
+          reviewerUserId: { not: null, in: ['student-1'] },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: expect.not.objectContaining({ reviewerUserId: expect.anything() }),
+      }),
+    );
+  });
+
+  it('excludes a minor testimonial without a current guardian authorization', async () => {
+    const prisma = makePrisma({
+      testimonialReceipts: [
+        activeTestimonialReceipt({
+          user: { birthDate: new Date('2012-01-01T00:00:00.000Z') },
+        }),
+      ],
+      reviews: [
+        {
+          id: 'review-1',
+          counsellorId: 'counsellor-1',
+          reviewerName: 'Aïcha',
+          rating: 5,
+          body: 'Super accompagnement',
+          createdAt: new Date('2026-06-20T10:00:00.000Z'),
+        },
+      ],
+    });
+
+    await expect(new ImpactService(prisma).getPublishedReviews()).resolves.toEqual({
+      reviews: [],
+      count: 0,
+    });
+    expect(prisma.__db.counsellorReview.findMany).not.toHaveBeenCalled();
+  });
+
+  it('fails closed for published reviews when the database is unavailable', async () => {
+    await expect(
+      new ImpactService(makePrisma({ available: false })).getPublishedReviews(),
+    ).rejects.toMatchObject({
+      response: expect.objectContaining({ code: 'DATABASE_UNAVAILABLE' }),
+    });
   });
 });
