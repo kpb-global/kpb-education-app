@@ -17,7 +17,16 @@ rejoignent le réseau `traefik` et sont routés par des labels (déjà dans
 
 **DNS** (déjà créés) : `api.kpbeducation.cloud` et `admin.kpbeducation.cloud`
 → `72.60.190.175` (A). Requis avant le 1er déploiement pour l'émission du
-certificat (challenge HTTP-01 de Traefik).
+certificat (challenge HTTP-01 de Traefik). Le domaine racine
+`kpbeducation.cloud` (`@` + CNAME `www`) pointe aussi sur ce VPS et est servi
+par le service `web` (pages légales statiques — voir ci-dessous).
+
+**Site légal statique (`web`)** : sert `kpbeducation.cloud` — politique de
+confidentialité, CGU et procédure de suppression de compte. Ces URLs sont
+référencées dans Play Console (« Privacy policy », « Account deletion ») et
+App Store Connect ; elles doivent rester en ligne en permanence. Mise en
+service : `docker compose up -d web` (aucun build, image nginx officielle ;
+contenu monté depuis `web/public/`).
 
 **Déploiement (SSH sur le VPS)** :
 
