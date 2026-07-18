@@ -96,10 +96,7 @@ class HomeScreen extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
                   titleSpacing: 60,
-                  title: _HomeGreetingHeader(
-                    firstName: firstName,
-                    controller: controller,
-                  ),
+                  title: _HomeGreetingHeader(firstName: firstName),
                   actions: [
                     _NotifBellChip(
                       hasUnread: hasDerivedNotifications(controller),
@@ -392,62 +389,28 @@ class HomeScreen extends StatelessWidget {
 // App bar chip — light, soft-elevated icon button
 // ─────────────────────────────────────────────────────────────────────────────
 class _HomeGreetingHeader extends StatelessWidget {
-  const _HomeGreetingHeader({
-    required this.firstName,
-    required this.controller,
-  });
+  const _HomeGreetingHeader({required this.firstName});
 
   final String firstName;
-  final AppController controller;
 
   @override
   Widget build(BuildContext context) {
-    final countryFlags =
-        controller.profile?.targetCountryIds.take(2).map(_flag).join(' ') ??
-            '🌍';
-
-    return Row(
-      children: [
-        Image.asset(
-          'assets/images/logo/kpb-education-logo-mark.png',
-          width: 36,
-          height: 36,
-          semanticLabel: 'KPB Education',
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                firstName.isNotEmpty
-                    ? 'home_design_greeting_named'.trParams({'name': firstName})
-                    : 'home_design_greeting'.tr,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.4,
-                  color: KpbColors.brandNavy,
-                ),
-              ),
-              Text(
-                'home_design_header_subtitle'
-                    .trParams({'countries': countryFlags}),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: KpbColors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    // Header allégé : la salutation seule occupe toute la largeur (le logo-mark
+    // comprimé + le sous-titre destinations encombraient l'en-tête sur 390 pt
+    // et tronquaient « Salut, <prénom> » — retour de revue visuelle).
+    return Text(
+      firstName.isNotEmpty
+          ? 'home_design_greeting_named'.trParams({'name': firstName})
+          : 'home_design_greeting'.tr,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontFamily: KpbTextStyles.headingFamily,
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.4,
+        color: KpbColors.brandNavy,
+      ),
     );
   }
 }
