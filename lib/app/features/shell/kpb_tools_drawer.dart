@@ -16,18 +16,36 @@ import '../travel/flight_estimator_screen.dart';
 /// Global hamburger drawer for the 9 KPB student tools.
 ///
 /// Tab screens have their own Scaffolds, so the AppShell's drawer cannot be
-/// reached via `Scaffold.of(context)` from inside a tab. We expose a static
-/// [shellKey] attached to the AppShell Scaffold so any descendant can call
-/// [open] to surface the drawer regardless of how deeply they are nested.
+/// reached via `Scaffold.of(context)` from inside a tab. Each AppShell instead
+/// registers its own Scaffold key here on mount, so any descendant can call
+/// [open] to surface the drawer regardless of how deeply it is nested.
 class KpbToolsDrawer extends StatelessWidget {
   const KpbToolsDrawer({super.key});
 
-  /// Attach this to the AppShell's outer Scaffold so [open] can reach it.
-  static final GlobalKey<ScaffoldState> shellKey = GlobalKey<ScaffoldState>();
+  /// Scaffold key of the AppShell currently on screen. Each AppShell instance
+  /// publishes its own key on mount ([registerShell]) and clears it on dispose
+  /// ([unregisterShell]) — so if two shells briefly overlap during a route
+  /// transition (e.g. `Get.offAllNamed('/')` firing while the boot shell is
+  /// still a frame from being torn down, as happens when the app is foregrounded
+  /// via a `kpb://` URL) they never share one GlobalKey, which would crash with
+  /// "Duplicate GlobalKey [LabeledGlobalKey<ScaffoldState>]".
+  static GlobalKey<ScaffoldState>? _activeShellKey;
+
+  /// Publish [key] as the live shell. Called from `AppShell.initState`.
+  static void registerShell(GlobalKey<ScaffoldState> key) {
+    _activeShellKey = key;
+  }
+
+  /// Clear [key] if it is still the live shell. Called from `AppShell.dispose`.
+  /// The identity check stops an outgoing shell's teardown from clobbering an
+  /// incoming shell that already registered ahead of it.
+  static void unregisterShell(GlobalKey<ScaffoldState> key) {
+    if (identical(_activeShellKey, key)) _activeShellKey = null;
+  }
 
   /// Open the drawer from anywhere inside the AppShell tree.
   static void open(BuildContext _) {
-    shellKey.currentState?.openDrawer();
+    _activeShellKey?.currentState?.openDrawer();
   }
 
   @override

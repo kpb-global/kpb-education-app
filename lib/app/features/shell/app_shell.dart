@@ -22,8 +22,32 @@ import 'kpb_tools_drawer.dart';
 // design, with Scholarships occupying the high-intent centre slot.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   const AppShell({super.key});
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  // A fresh key per AppShell instance. The drawer opener targets whichever shell
+  // is live (see KpbToolsDrawer.registerShell); giving each instance its own key
+  // means two shells overlapping for a single transition frame never collide on
+  // one GlobalKey — the "Duplicate GlobalKey" crash seen when the app was
+  // foregrounded via a kpb:// URL.
+  final GlobalKey<ScaffoldState> _shellKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    KpbToolsDrawer.registerShell(_shellKey);
+  }
+
+  @override
+  void dispose() {
+    KpbToolsDrawer.unregisterShell(_shellKey);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +70,10 @@ class AppShell extends StatelessWidget {
         ];
 
         return Scaffold(
-          // Attach the global tools-drawer key so any descendant (including
-          // tab screens with their own inner Scaffolds) can call
+          // Attach this shell's own drawer key so any descendant (including tab
+          // screens with their own inner Scaffolds) can call
           // `KpbToolsDrawer.open(context)`.
-          key: KpbToolsDrawer.shellKey,
+          key: _shellKey,
           drawer: const KpbToolsDrawer(),
           // The banners live ABOVE the overlay Stack so they push everything
           // (tab content AND the floating hamburger) down instead of colliding

@@ -376,5 +376,39 @@ void main() {
       final container = tester.widget<Container>(navBar);
       expect(container.constraints!.maxHeight, equals(62));
     });
+
+    testWidgets('two overlapping shells do not collide on the drawer GlobalKey',
+        (tester) async {
+      // Regression: AppShell's Scaffold used a single *static* GlobalKey, so any
+      // moment two shells were mounted at once — e.g. `Get.offAllNamed('/')`
+      // firing while the boot shell was a frame from teardown, as happened when
+      // the app was foregrounded via a `kpb://` URL — threw "Duplicate GlobalKey
+      // [LabeledGlobalKey<ScaffoldState>]". Each shell now owns its key, so
+      // mounting two at once is harmless.
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(),
+      );
+
+      await pumpTestApp(
+        tester,
+        child: const Stack(
+          textDirection: TextDirection.ltr,
+          children: [
+            AppShell(key: ValueKey('shell_a')),
+            AppShell(key: ValueKey('shell_b')),
+          ],
+        ),
+        initialSnapshot: snapshot,
+      );
+
+      expect(tester.takeException(), isNull);
+      // Both shells mounted independently → two nav bars, no key collision.
+      expect(
+        find.byKey(const ValueKey('kpb_shell_nav_bar')),
+        findsNWidgets(2),
+      );
+    });
   });
 }

@@ -49,6 +49,9 @@ dependencies:
   permission_handler: ^12.0.1
   url_launcher: ^6.2.6
   shared_preferences: ^2.3.5
+  # Inbound `kpb://` deep links (iOS URL scheme + Android intent-filter). Already
+  # resolved transitively via supabase_flutter; pinned direct so we can import it.
+  app_links: ^7.0.0
   cached_network_image: ^3.4.1
   pin_code_fields: ^9.3.0
   flutter_localizations:
