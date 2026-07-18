@@ -154,6 +154,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         textStyle: const TextStyle(
+                          fontFamily: KpbTextStyles.bodyFamily,
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
                         ),
@@ -177,6 +178,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         textStyle: const TextStyle(
+                          fontFamily: KpbTextStyles.bodyFamily,
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                         ),

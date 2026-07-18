@@ -68,6 +68,7 @@ class AppTheme {
         labelStyle: WidgetStateTextStyle.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
+              fontFamily: KpbTextStyles.bodyFamily,
               color: Colors.white,
               fontWeight: FontWeight.w600,
               fontSize: 13,
@@ -117,7 +118,11 @@ class AppTheme {
           shape: const RoundedRectangleBorder(
             borderRadius: KpbRadius.mdBr,
           ),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
           elevation: 0,
         ),
       ),
@@ -129,13 +134,21 @@ class AppTheme {
             borderRadius: KpbRadius.mdBr,
           ),
           side: const BorderSide(color: KpbColors.decorSky),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: KpbColors.decorSky,
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -313,12 +326,14 @@ class AppTheme {
         labelStyle: WidgetStateTextStyle.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
+              fontFamily: KpbTextStyles.bodyFamily,
               color: Colors.white,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             );
           }
           return const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             color: KpbColors.textPrimary,
             fontWeight: FontWeight.w600,
             fontSize: 13,
@@ -376,6 +391,7 @@ class AppTheme {
             borderRadius: KpbRadius.mdBr,
           ),
           textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -397,6 +413,7 @@ class AppTheme {
             borderRadius: KpbRadius.mdBr,
           ),
           textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -415,6 +432,7 @@ class AppTheme {
           ),
           side: const BorderSide(color: KpbColors.borderStrong),
           textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -427,6 +445,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: KpbColors.actionPrimary,
           textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -456,12 +475,14 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
+              fontFamily: KpbTextStyles.bodyFamily,
               color: KpbColors.actionPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             );
           }
           return const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
             color: KpbColors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -525,9 +546,14 @@ class AppTheme {
         unselectedLabelColor: KpbColors.textMuted,
         indicatorColor: KpbColors.actionPrimary,
         dividerColor: KpbColors.border,
-        labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        unselectedLabelStyle:
-            TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        labelStyle: TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w600),
+        unselectedLabelStyle: TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w500),
       ),
 
       // ── Tooltip ───────────────────────────────────────────────────────────
@@ -536,7 +562,10 @@ class AppTheme {
           color: KpbColors.brandNavy.withValues(alpha: 0.92),
           borderRadius: KpbRadius.smBr,
         ),
-        textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+        textStyle: const TextStyle(
+            fontFamily: KpbTextStyles.bodyFamily,
+            color: Colors.white,
+            fontSize: 12),
       ),
 
       // ── Menus ─────────────────────────────────────────────────────────────
