@@ -27,6 +27,7 @@ import 'app/core/services/auth_service.dart';
 import 'app/core/navigation/shell_tabs.dart';
 import 'app/core/services/security_service.dart';
 import 'app/core/services/onesignal_service.dart';
+import 'app/core/services/deep_link_service.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'firebase_options.dart';
 
@@ -132,6 +133,13 @@ Future<void> main() async {
         icon: 'icon_search',
       ),
     ]);
+
+    // ── Deep links (kpb://) ────────────────────────────────────────────────────
+    // The scheme is declared natively (iOS Info.plist + Android intent-filter)
+    // but nothing consumed the inbound URLs. Start the listener so cold-start
+    // and in-flight `kpb://…` links route to the matching screen. It subscribes
+    // on the first frame internally, so this never delays boot.
+    DeepLinkService.instance.initialize();
 
     runApp(const KpbEducationApp());
   } catch (error, stack) {
