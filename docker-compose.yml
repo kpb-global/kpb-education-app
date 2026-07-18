@@ -236,6 +236,30 @@ services:
       - "traefik.http.routers.kpbadmin.tls.certresolver=letsencrypt"
       - "traefik.http.services.kpbadmin.loadbalancer.server.port=3000"
 
+  # Site légal statique sur le domaine racine (kpbeducation.cloud + www).
+  # Les stores exigent des URLs web permanentes : politique de confidentialité
+  # (Play Console) et procédure de suppression de compte (Apple + Play). Le DNS
+  # `@` et `www` pointent déjà sur ce VPS ; sans ce service, Traefik renvoyait
+  # un 404 sur le domaine racine.
+  web:
+    image: nginx:1.27-alpine
+    container_name: kpb_web
+    restart: always
+    mem_limit: 64m
+    networks:
+      - traefik
+    volumes:
+      - ./web/public:/usr/share/nginx/html:ro
+      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.kpbweb.rule=Host(`kpbeducation.cloud`) || Host(`www.kpbeducation.cloud`)"
+      - "traefik.http.routers.kpbweb.entrypoints=websecure"
+      - "traefik.http.routers.kpbweb.tls=true"
+      - "traefik.http.routers.kpbweb.tls.certresolver=letsencrypt"
+      - "traefik.http.services.kpbweb.loadbalancer.server.port=80"
+
 networks:
   # The shared edge network created by the existing Traefik stack. It must
   # already exist:  docker network create traefik  (or it is created by the
