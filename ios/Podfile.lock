@@ -249,6 +249,11 @@ PODS:
     - Flutter
   - permission_handler_apple (9.3.0):
     - Flutter
+  - PostHog (3.66.1)
+  - posthog_flutter (0.0.1):
+    - Flutter
+    - FlutterMacOS
+    - PostHog (< 4.0.0, >= 3.66.0)
   - printing (1.0.0):
     - Flutter
   - PromisesObjC (2.4.0)
@@ -305,6 +310,7 @@ DEPENDENCIES:
   - onesignal_flutter (from `.symlinks/plugins/onesignal_flutter/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - posthog_flutter (from `.symlinks/plugins/posthog_flutter/darwin`)
   - printing (from `.symlinks/plugins/printing/ios`)
   - quick_actions_ios (from `.symlinks/plugins/quick_actions_ios/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -339,6 +345,7 @@ SPEC REPOS:
     - nanopb
     - OneSignalXCFramework
     - OrderedSet
+    - PostHog
     - PromisesObjC
     - PromisesSwift
     - SDWebImage
@@ -383,6 +390,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  posthog_flutter:
+    :path: ".symlinks/plugins/posthog_flutter/darwin"
   printing:
     :path: ".symlinks/plugins/printing/ios"
   quick_actions_ios:
@@ -446,6 +455,8 @@ SPEC CHECKSUMS:
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  PostHog: f906c839bed59a21eb853587afc7fc303b492382
+  posthog_flutter: 528072e27902d8a2f413fa06111c7e3293d8f305
   printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
