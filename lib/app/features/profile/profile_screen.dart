@@ -736,6 +736,18 @@ class _PreferencesCard extends StatelessWidget {
           ),
           const _RowDivider(),
           _SettingRow(
+            icon: Icons.insights_rounded,
+            color: KpbColors.actionPrimary,
+            title: 'profile_analytics'.tr,
+            subtitle: 'profile_analytics_desc'.tr,
+            trailing: Switch.adaptive(
+              value: !controller.analyticsOptOut,
+              activeTrackColor: KpbColors.actionPrimary,
+              onChanged: (allowed) => controller.setAnalyticsAllowed(allowed),
+            ),
+          ),
+          const _RowDivider(),
+          _SettingRow(
             icon: Icons.fingerprint_rounded,
             color: KpbColors.actionPrimary,
             title: 'profile_biometric'.tr,

@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/core/config/app_config.dart';
@@ -54,6 +56,27 @@ Future<void> main() async {
           'Firebase/Crashlytics boot skipped (running offline/local-only): $firebaseError');
     }
 
+    // ── PostHog product analytics + session replay ─────────────────────────────
+    // Set up early so the "Application Opened" lifecycle event is captured.
+    // Inert unless POSTHOG_API_KEY is provided (--dart-define); never blocks
+    // boot. Session replay masks all text and images by default — the app shows
+    // passports, transcripts and personal data, which must never be recorded.
+    if (AppConfig.posthogEnabled) {
+      try {
+        final phConfig = PostHogConfig(AppConfig.posthogApiKey)
+          ..host = AppConfig.posthogHost
+          ..captureApplicationLifecycleEvents = true
+          ..sessionReplay = true
+          ..debug = kDebugMode;
+        phConfig.sessionReplayConfig
+          ..maskAllTexts = true
+          ..maskAllImages = true;
+        await Posthog().setup(phConfig);
+      } catch (posthogError) {
+        debugPrint('PostHog setup skipped: $posthogError');
+      }
+    }
+
     // ── Supabase Auth ────────────────────────────────────────────────────────
     // Store the session (incl. refresh token) in the platform secure store
     // rather than the default plain-text SharedPreferences/NSUserDefaults.
@@ -79,6 +102,10 @@ Future<void> main() async {
     );
     await controller.hydrate();
     Get.put(controller, permanent: true);
+    // Re-apply the persisted analytics/session-replay consent so a prior opt-out
+    // survives restarts (PostHog was just set up above; disable it now if the
+    // user had turned collection off).
+    controller.applyAnalyticsConsent();
 
     final authService = await AuthService.create(apiClient);
     Get.put(authService, permanent: true);
@@ -141,7 +168,10 @@ Future<void> main() async {
     // on the first frame internally, so this never delays boot.
     DeepLinkService.instance.initialize();
 
-    runApp(const KpbEducationApp());
+    // PostHogWidget wraps the tree so autocapture (taps) and session-replay
+    // screenshotting can observe it. Only mount it when PostHog is configured.
+    const Widget app = KpbEducationApp();
+    runApp(AppConfig.posthogEnabled ? const PostHogWidget(child: app) : app);
   } catch (error, stack) {
     if (firebaseInitialized) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -218,7 +248,7 @@ class KpbEducationApp extends StatelessWidget {
           defaultTransition: Transition.cupertino,
           transitionDuration: const Duration(milliseconds: 280),
           getPages: AppRoutes.pages,
-          navigatorObservers: [AnalyticsService.instance.observer],
+          navigatorObservers: AnalyticsService.instance.navigatorObservers,
           // Accessibility: honor the user's OS font-size preference (older
           // parents and low-vision users on budget Android phones often crank
           // it up) but clamp it so extreme scales don't shatter fixed-size

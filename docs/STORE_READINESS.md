@@ -31,10 +31,15 @@ What the app collects and where it lives.
 | Saved items, orientation answers, search history | In-app | Postgres + local | |
 | Coach (AI) messages | In-app | Postgres; **forwarded to Groq (US)** | Free text — see §2 |
 | Push token | Runtime | OneSignal | |
-| App interaction events | Runtime | Firebase Analytics | Event names + non-PII params; **search term is free text** |
+| App interaction events | Runtime | Firebase Analytics **+ PostHog** | Event names + non-PII params; **search term is free text** |
+| Session recordings (screen replays) | Runtime | PostHog (US) | Autocaptured screenshots of navigation; **all text + all images masked** at capture → no document/notes/PII content is recorded |
 | Crash diagnostics | On crash | Firebase Crashlytics | Stack traces, device model, OS, app version |
 
-**No advertising SDKs. No cross-app tracking. No data brokers.**
+**No advertising SDKs. No cross-app tracking. No data brokers.** Session replay
+is content-masked (`maskAllTexts` + `maskAllImages`); the backend user id sent
+to PostHog on login is a UUID, not PII. Users can turn analytics + replay off in
+**Profil → « Analyse d'usage »** (flips Firebase + PostHog collection at runtime,
+persisted across restarts).
 
 ---
 
@@ -47,6 +52,7 @@ What the app collects and where it lives.
 | **Groq** (LLM) | **United States** | **Pseudonymized** profile (level, target countries, budget *range* — **no name**) + the user's free-text coach messages | Generate AI coach replies | No (pseudonymized) | No |
 | **OneSignal** | US | Push token, external id (`UserProfile.id`) | Push notifications | Yes | No |
 | **Firebase Analytics** | Google | App-instance id, device/OS, coarse region, interaction events; **search terms** | Product analytics | Yes (app-instance) | No |
+| **PostHog** | **United States** | Interaction events + screen views; backend user id (UUID) after login; **content-masked** session recordings (screenshots with all text/images obscured); device/OS | Product analytics, session replay | Yes (UUID after login) | No |
 | **Firebase Crashlytics** | Google | Crash stack traces, device model, OS, app version | Stability/diagnostics | Pseudonymous | No |
 | **Embedded web (WebView)** | external sites | Whatever the loaded site sees (e.g. Kayak flight search) | Price comparison, content | n/a (external) | per that site |
 
@@ -54,6 +60,13 @@ What the app collects and where it lives.
 > backend deploy region, and confirm Firebase Analytics `logSearch` search
 > terms are acceptable to declare as "User Content / Search History" (they can
 > contain free text). If not, drop the search term from the event.
+>
+> **PostHog:** provision the dedicated "KPB Education" PostHog project, set
+> `POSTHOG_API_KEY` (build `--dart-define`, wired in `flutter-ci.yml`), and in
+> **PostHog → project settings enable "Record user sessions"** (session replay
+> is dark server-side until then even with `sessionReplay: true` in the app).
+> Declare session replay in both stores (see §3/§4). Masking is on by default —
+> keep it on for this app.
 
 ---
 
@@ -75,14 +88,24 @@ Tracking is **No** everywhere (no ad/attribution SDKs, no data sharing for ads).
 > "Budget" is a self-reported figure for guidance, stored as profile data
 > (Usage/Other), **not** a financial account — declare under App Functionality,
 > not "Financial Info".
+>
+> **Session replay (PostHog):** declare under **Usage Data — Product
+> Interaction** (Apple has no distinct "screen recording" type). Linked: Yes;
+> Tracking: No. Content is masked (no text/images captured), so it is not
+> "User Content". Users can disable it in-app.
 
 ---
 
 ## 4. Google Play — Data Safety form
 
 - **Does your app collect or share user data?** Yes (collect). **Share:** only
-  with processors acting on our behalf (Groq, OneSignal, Firebase, Supabase) —
-  Play treats processor transfers as collection, **not** "sharing" for ads.
+  with processors acting on our behalf (Groq, OneSignal, Firebase, Supabase,
+  **PostHog**) — Play treats processor transfers as collection, **not**
+  "sharing" for ads.
+- **Session replay (PostHog):** declare under **App activity → App
+  interactions**. Content is masked (no text/images), users can opt out in-app,
+  and it is never used for ads/tracking. No separate "screen recording" type
+  exists in the Play form.
 - **Is all data encrypted in transit?** Yes (HTTPS/TLS everywhere).
 - **Can users request data deletion?** **Yes** — in-app (Profile → "Mes données"
   → Supprimer mon compte) and via account deletion URL (see §6). Export also

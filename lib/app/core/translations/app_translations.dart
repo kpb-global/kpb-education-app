@@ -552,7 +552,8 @@ class AppTranslations extends Translations {
           'privacy_s6_title': '6. Durée de conservation',
           'privacy_s7_title': '7. Sécurité',
           'privacy_s8_title': '8. Vos droits',
-          'privacy_s9_title': '9. Firebase Analytics',
+          'privacy_s9_title':
+              '9. Analytique produit & enregistrement de session',
           'privacy_s10_title': '10. Modifications',
           'terms_of_use_2': 'Conditions d\'Utilisation',
           'terms_s1_title': '1. Objet',
@@ -1283,6 +1284,9 @@ class AppTranslations extends Translations {
           'continue_action': 'Continuer',
           'profile_data_saver_desc':
               'Economise la data (masque les images lourdes)',
+          'profile_analytics': 'Analyse d\'usage',
+          'profile_analytics_desc':
+              'Autoriser l\'analyse anonyme de l\'usage et l\'enregistrement de session (contenu masqué) pour améliorer l\'app',
           'profile_quick_orientation_test': 'Test d\'orientation',
           'profile_quick_eligibility_simulator': 'Simulateur d\'éligibilité',
           'profile_quick_journeys_testimonials': 'Parcours & témoignages',
@@ -3072,7 +3076,7 @@ class AppTranslations extends Translations {
           'privacy_s6_title': '6. Retention period',
           'privacy_s7_title': '7. Security',
           'privacy_s8_title': '8. Your rights',
-          'privacy_s9_title': '9. Firebase Analytics',
+          'privacy_s9_title': '9. Product analytics & session recording',
           'privacy_s10_title': '10. Changes',
           'terms_of_use_2': 'Terms of Use',
           'terms_s1_title': '1. Purpose',
@@ -3791,6 +3795,9 @@ class AppTranslations extends Translations {
           'get_started': 'Get started',
           'continue_action': 'Continue',
           'profile_data_saver_desc': 'Save data (hides heavy images)',
+          'profile_analytics': 'Usage analytics',
+          'profile_analytics_desc':
+              'Allow anonymous usage analytics and session recording (content masked) to improve the app',
           'profile_quick_orientation_test': 'Orientation test',
           'profile_quick_eligibility_simulator': 'Eligibility simulator',
           'profile_quick_journeys_testimonials': 'Journeys & testimonials',

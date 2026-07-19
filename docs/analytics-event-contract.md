@@ -2,6 +2,13 @@
 
 Single source of truth for **custom event names** and **parameter keys** is [`lib/app/core/observability/analytics_event_contract.dart`](../lib/app/core/observability/analytics_event_contract.dart) (`AnalyticsEventName`, `AnalyticsParamKey`). Implementations must use these constants so GA4 / BigQuery exports stay stable.
 
+> **PostHog mirror:** every event below is also sent to PostHog under the **same
+> name and parameter keys** (see `AnalyticsService._mirror` / `_mirrorScreen`),
+> so PostHog insights and GA4 stay aligned. PostHog is inert unless
+> `POSTHOG_API_KEY` is set (`--dart-define`). Screen views additionally arrive
+> via `PosthogObserver`, and taps via autocapture. Setup + privacy: see
+> [`docs/posthog-analytics.md`](posthog-analytics.md).
+
 ## Conventions
 
 | Rule | Detail |

@@ -80,6 +80,10 @@ abstract class _AppControllerBase extends GetxController {
 
   /// Data-saver mode — when on, the UI skips non-essential network images.
   bool dataSaverEnabled = false;
+
+  /// True when the user has opted OUT of product analytics + session replay.
+  /// Default false (analytics on). Exposed as an allow-toggle in the profile.
+  bool analyticsOptOut = false;
   bool hasCompletedOnboarding = false;
   bool onboardingSkipped = false;
   int onboardingStep = 0;
@@ -229,6 +233,7 @@ abstract class _AppControllerBase extends GetxController {
     isGuestMode = snapshot.isGuestMode;
     isAppLockEnabled = snapshot.isAppLockEnabled;
     dataSaverEnabled = snapshot.dataSaverEnabled;
+    analyticsOptOut = snapshot.analyticsOptOut;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
     onboardingSkipped = snapshot.onboardingSkipped;
     onboardingStep = snapshot.onboardingStep;
@@ -380,6 +385,23 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// Profile switch: [allowed] true = analytics + session replay ON. Persists
+  /// the inverse ([analyticsOptOut]) and flips Firebase + PostHog collection at
+  /// runtime immediately (no restart needed). Applied again on every boot from
+  /// the persisted flag ([applyAnalyticsConsent]).
+  void setAnalyticsAllowed(bool allowed) {
+    analyticsOptOut = !allowed;
+    _repository.saveSnapshot(_snapshot);
+    unawaited(AnalyticsService.instance.setCollectionEnabled(allowed));
+    update();
+  }
+
+  /// Re-applies the persisted analytics consent to the SDKs. Called at boot,
+  /// after [hydrate], so a prior opt-out survives restarts.
+  void applyAnalyticsConsent() {
+    unawaited(AnalyticsService.instance.setCollectionEnabled(!analyticsOptOut));
+  }
+
   void completeIntro() {
     hasSeenIntro = true;
     _repository.saveSnapshot(_snapshot);
@@ -402,6 +424,13 @@ abstract class _AppControllerBase extends GetxController {
     }
     maybeRestoreOnboardingFromProfile();
     unawaited(syncOneSignalIdentity());
+    // Tie the PostHog session (and any replay) to the backend user id — a UUID,
+    // not PII. No-op when PostHog is not configured. Runs on login and on
+    // cold-start-while-signed-in (both call this).
+    final userId = profile?.id;
+    if (userId != null) {
+      unawaited(AnalyticsService.instance.identifyUser(userId));
+    }
     _persist();
     update();
   }
@@ -1421,6 +1450,7 @@ abstract class _AppControllerBase extends GetxController {
         isGuestMode: isGuestMode,
         isAppLockEnabled: isAppLockEnabled,
         dataSaverEnabled: dataSaverEnabled,
+        analyticsOptOut: analyticsOptOut,
         hasCompletedOnboarding: hasCompletedOnboarding,
         themeMode: themeMode,
         profile: profile,

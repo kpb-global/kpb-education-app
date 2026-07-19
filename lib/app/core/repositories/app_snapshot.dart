@@ -10,6 +10,7 @@ class AppSnapshot {
     this.isGuestMode = false,
     this.isAppLockEnabled = false,
     this.dataSaverEnabled = false,
+    this.analyticsOptOut = false,
     this.themeMode = ThemeMode.system,
     this.profile,
     this.savedItems = const [],
@@ -45,6 +46,11 @@ class AppSnapshot {
 
   /// Data-saver: skip non-essential network image loads on low-bandwidth links.
   final bool dataSaverEnabled;
+
+  /// User opted out of product analytics + session replay (Firebase + PostHog).
+  /// Default false (analytics on); the profile toggle flips it. Honored on every
+  /// boot so the choice survives restarts.
+  final bool analyticsOptOut;
   final ThemeMode themeMode;
   final UserProfile? profile;
   final List<SavedItem> savedItems;

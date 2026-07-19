@@ -50,7 +50,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
                   '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
                   '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
-                  '• Données techniques : identifiant de l\'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics\n'
+                  '• Données techniques : identifiant de l\'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics et PostHog\n'
+                  '• Enregistrements de session (PostHog) : captures d\'écran de votre navigation, utilisées pour analyser et améliorer l\'expérience. Les textes et les images sont masqués automatiquement : aucun contenu personnel (documents, notes, coordonnées) n\'est enregistré\n'
                   '• Diagnostics : rapports d\'incidents et erreurs techniques via Firebase Crashlytics ; métriques agrégées de synchronisation des contenus (succès ou échec, durée, source locale/cache)',
             ),
             _LegalSection(
@@ -76,6 +77,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• Nos conseillers internes pour le suivi de vos dossiers\n'
                   '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
                   '• Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l\'analytique, la stabilité et les notifications push\n'
+                  '• PostHog (analytique produit et enregistrements de session au contenu masqué) pour comprendre et améliorer l\'usage de l\'application\n'
                   '• Les autorités compétentes si la loi l\'exige',
             ),
             _LegalSection(
@@ -109,10 +111,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
             _LegalSection(
               title: 'privacy_s9_title'.tr,
               body:
-                  'Nous utilisons Firebase Analytics (Google) pour collecter des données d\'usage anonymisées :\n\n'
+                  'Nous utilisons Firebase Analytics (Google) et PostHog pour comprendre l\'usage de l\'application et l\'améliorer :\n\n'
                   '• Écrans consultés, actions effectuées (orientation, recherche, sauvegarde)\n'
-                  '• Aucune donnée personnelle identifiable n\'est transmise à Google\n'
-                  '• Vous pouvez désactiver la collecte depuis les paramètres de votre profil',
+                  '• PostHog enregistre également des sessions (captures d\'écran de votre navigation) ; les textes et les images sont masqués automatiquement, donc aucun document, note ou coordonnée n\'est visible dans l\'enregistrement\n'
+                  '• Aucune donnée personnelle identifiable n\'est transmise à des fins publicitaires ; il n\'y a aucun SDK publicitaire ni suivi inter-applications\n'
+                  '• Vous pouvez désactiver à tout moment l\'analyse d\'usage et les enregistrements depuis Profil → « Analyse d\'usage » : la collecte s\'arrête immédiatement',
             ),
             _LegalSection(
               title: 'privacy_s10_title'.tr,

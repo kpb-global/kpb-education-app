@@ -23,7 +23,8 @@
       <li>Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp</li>
       <li>Profil académique : niveau d'études, niveau cible, compétences linguistiques, notes, filières d'intérêt, pays de destination</li>
       <li>Données d'utilisation : résultats d'orientation, éléments sauvegardés, historique de recherche</li>
-      <li>Données techniques : identifiant de l'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics</li>
+      <li>Données techniques : identifiant de l'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics et PostHog</li>
+      <li>Enregistrements de session (PostHog) : captures d'écran de votre navigation, utilisées pour analyser et améliorer l'expérience. Les textes et les images sont masqués automatiquement : aucun contenu personnel (documents, notes, coordonnées) n'est enregistré</li>
       <li>Diagnostics : rapports d'incidents et erreurs techniques via Firebase Crashlytics ; métriques agrégées de synchronisation des contenus (succès ou échec, durée, source locale/cache)</li>
     </ul>
 
@@ -51,6 +52,7 @@
       <li>Nos conseillers internes pour le suivi de vos dossiers</li>
       <li>Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d'un dossier</li>
       <li>Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l'analytique, la stabilité et les notifications push</li>
+      <li>PostHog (analytique produit et enregistrements de session au contenu masqué) pour comprendre et améliorer l'usage de l'application</li>
       <li>Les autorités compétentes si la loi l'exige</li>
     </ul>
 
@@ -83,12 +85,13 @@
     </ul>
     <p>Pour exercer ces droits, contactez-nous à : <a href="mailto:privacy@kpbeducation.com">privacy@kpbeducation.com</a></p>
 
-    <h2>9. Firebase Analytics</h2>
-    <p>Nous utilisons Firebase Analytics (Google) pour collecter des données d'usage anonymisées :</p>
+    <h2>9. Analytique produit &amp; enregistrement de session</h2>
+    <p>Nous utilisons Firebase Analytics (Google) et PostHog pour comprendre l'usage de l'application et l'améliorer :</p>
     <ul>
       <li>Écrans consultés, actions effectuées (orientation, recherche, sauvegarde)</li>
-      <li>Aucune donnée personnelle identifiable n'est transmise à Google</li>
-      <li>Vous pouvez désactiver la collecte depuis les paramètres de votre profil</li>
+      <li>PostHog enregistre également des sessions (captures d'écran de votre navigation) ; les textes et les images sont masqués automatiquement, donc aucun document, note ou coordonnée n'est visible dans l'enregistrement</li>
+      <li>Aucune donnée personnelle identifiable n'est transmise à des fins publicitaires ; il n'y a aucun SDK publicitaire ni suivi inter-applications</li>
+      <li>Vous pouvez désactiver à tout moment l'analyse d'usage et les enregistrements depuis Profil → « Analyse d'usage » : la collecte s'arrête immédiatement</li>
     </ul>
 
     <h2>10. Modifications</h2>

@@ -84,7 +84,7 @@ jobs:
         run: flutter pub get
 
       - name: Build debug APK
-        run: flutter build apk --debug --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292
+        run: flutter build apk --debug --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v5
@@ -142,7 +142,7 @@ jobs:
         # Production host is the branded domain (api.kpbeducation.cloud/api),
         # resolved from KPB_APP_ENV=prod in app_config.dart. Do not hardcode a
         # KPB_API_BASE_URL override here.
-        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292
+        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
 
       - name: Verify App Bundle signature
         run: jarsigner -verify -strict -certs build/app/outputs/bundle/release/app-release.aab
@@ -172,7 +172,7 @@ jobs:
         run: cd ios && rm -f Podfile.lock && pod install --repo-update
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292
+        run: flutter build ios --release --no-codesign --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
 
       - name: Upload iOS build
         uses: actions/upload-artifact@v5
