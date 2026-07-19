@@ -1,8 +1,9 @@
 import { createHmac } from 'node:crypto';
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
 
+import { NewsletterSyncService } from '../newsletter/newsletter-sync.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -14,6 +15,9 @@ export class ProfilesService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
+    // Optional so unit tests constructing the service positionally keep
+    // working; when absent, the reconciliation cron alone syncs Mautic.
+    @Optional() private readonly newsletterSync?: NewsletterSyncService,
   ) {}
 
   // Returned ONLY when the database is not configured. Kept readonly and never
@@ -54,6 +58,21 @@ export class ProfilesService {
 
   async updateMe(input: UpdateProfileDto, userId?: string) {
     const id = userId ?? 'demo-user';
+
+    // Newsletter consent transition: stamp the GDPR proof only when the flag
+    // actually flips to true — re-sending true must not rewrite the original
+    // consent timestamp.
+    let stampNewsletterConsent = false;
+    if (input.scholarshipNewsletterOptIn === true) {
+      const current = await this.prismaService.execute((prisma) =>
+        prisma.userProfile.findUnique({
+          where: { id },
+          select: { newsletterOptIn: true },
+        }),
+      );
+      stampNewsletterConsent = current ? !current.newsletterOptIn : false;
+    }
+
     const updated = await this.prismaService.execute((prisma) =>
       prisma.userProfile.update({
         where: { id },
@@ -89,6 +108,12 @@ export class ProfilesService {
           ...(input.wantsScholarshipSupport !== undefined
             ? { wantsScholarship: input.wantsScholarshipSupport }
             : {}),
+          ...(input.scholarshipNewsletterOptIn !== undefined
+            ? { newsletterOptIn: input.scholarshipNewsletterOptIn }
+            : {}),
+          ...(stampNewsletterConsent
+            ? { newsletterConsentedAt: new Date() }
+            : {}),
           ...(input.fieldIds ? { fieldIds: input.fieldIds } : {}),
           ...(input.targetCountryIds
             ? { targetCountryIds: input.targetCountryIds }
@@ -116,6 +141,11 @@ export class ProfilesService {
     );
 
     if (updated) {
+      // Fire-and-forget: low-latency Mautic push. A failure here is fine —
+      // the state stays desired≠synced and the reconciliation cron retries.
+      if (input.scholarshipNewsletterOptIn !== undefined) {
+        void this.newsletterSync?.syncProfile(updated.id);
+      }
       return this.mapDbProfile(updated);
     }
 
@@ -956,6 +986,7 @@ export class ProfilesService {
       monthlyBudgetEur: p.monthlyBudgetEur,
       preferredCurrency: p.preferredCurrency,
       wantsScholarshipSupport: p.wantsScholarship,
+      scholarshipNewsletterOptIn: p.newsletterOptIn,
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,

@@ -748,6 +748,20 @@ class _PreferencesCard extends StatelessWidget {
           ),
           const _RowDivider(),
           _SettingRow(
+            icon: Icons.mark_email_unread_outlined,
+            color: KpbColors.warning,
+            title: 'profile_newsletter'.tr,
+            subtitle: 'profile_newsletter_desc'.tr,
+            trailing: Switch.adaptive(
+              value: controller.profile?.wantsScholarshipNewsletter ?? false,
+              activeTrackColor: KpbColors.warning,
+              onChanged: controller.profile == null
+                  ? null
+                  : controller.setNewsletterOptIn,
+            ),
+          ),
+          const _RowDivider(),
+          _SettingRow(
             icon: Icons.fingerprint_rounded,
             color: KpbColors.actionPrimary,
             title: 'profile_biometric'.tr,

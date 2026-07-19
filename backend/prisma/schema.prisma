@@ -363,6 +363,14 @@ model UserProfile {
   // Separate, explicit consent for third-party AI processing (Groq). Gates the
   // AI coach independently of the general onboarding consent above.
   aiConsentedAt           DateTime?
+  // Scholarship-newsletter opt-in (Mautic). `newsletterOptIn` is the user's
+  // current desired state; `newsletterConsentedAt` is the timestamped proof of
+  // the latest opt-in (GDPR); `newsletterSyncedOptIn` is the last state
+  // actually pushed to Mautic (null = never synced). The reconciliation cron
+  // syncs every profile where desired != synced, so a failed push self-heals.
+  newsletterOptIn         Boolean                        @default(false)
+  newsletterConsentedAt   DateTime?
+  newsletterSyncedOptIn   Boolean?
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.
   birthDate               DateTime?

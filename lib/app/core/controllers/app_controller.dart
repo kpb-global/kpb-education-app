@@ -837,6 +837,14 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// Profile switch: opt in/out of the scholarship newsletter. The backend
+  /// stamps the consent timestamp on the opt-in transition and syncs Mautic.
+  void setNewsletterOptIn(bool optIn) {
+    final current = profile;
+    if (current == null) return;
+    updateProfile(current.copyWith(wantsScholarshipNewsletter: optIn));
+  }
+
   // ── Search ──────────────────────────────────────────────────
 
   StudentCase submitCase({
@@ -1748,6 +1756,7 @@ abstract class _AppControllerBase extends GetxController {
       'annualTuitionBudgetEur': profile.annualTuitionBudgetEur,
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
+      'scholarshipNewsletterOptIn': profile.wantsScholarshipNewsletter,
       'availableDocuments': profile.availableDocuments,
       if (profile.monthlyBudgetEur != null)
         'monthlyBudgetEur': profile.monthlyBudgetEur,

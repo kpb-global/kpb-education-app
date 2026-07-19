@@ -74,6 +74,13 @@ export class UpdateProfileDto {
   @IsBoolean()
   wantsScholarshipSupport?: boolean;
 
+  // Scholarship-newsletter (Mautic) opt-in. The server stamps
+  // newsletterConsentedAt on the false→true transition (GDPR proof) — clients
+  // only send the desired boolean.
+  @IsOptional()
+  @IsBoolean()
+  scholarshipNewsletterOptIn?: boolean;
+
   @IsOptional()
   @IsArray()
   availableDocuments?: string[];

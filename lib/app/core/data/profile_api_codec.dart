@@ -42,6 +42,8 @@ abstract final class ProfileApiCodec {
       wantsScholarshipSupport: json['wantsScholarshipSupport'] as bool? ??
           json['wantsScholarship'] as bool? ??
           false,
+      wantsScholarshipNewsletter:
+          json['scholarshipNewsletterOptIn'] as bool? ?? false,
       availableDocuments: stringListFromJson(json['availableDocuments']),
       consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
       aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
