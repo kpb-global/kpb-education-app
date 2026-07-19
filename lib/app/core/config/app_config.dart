@@ -63,6 +63,29 @@ class AppConfig {
   /// True when a non-empty OneSignal App ID is configured.
   static bool get oneSignalEnabled => oneSignalAppId.trim().isNotEmpty;
 
+  // ── PostHog product analytics ──────────────────────────────────────────
+  /// PostHog project API key (`phc_…`). Client-side keys are designed to ship
+  /// in the app, but we keep it out of the repo and inject it per build with
+  /// `--dart-define=POSTHOG_API_KEY=phc_…`. Empty (the default) disables
+  /// PostHog entirely: the app runs normally on Firebase Analytics alone, so
+  /// this is safe to ship before the KPB Education project key is provisioned.
+  static const posthogApiKey = String.fromEnvironment(
+    'POSTHOG_API_KEY',
+    defaultValue: '',
+  );
+
+  /// PostHog ingestion host. The KPB organization is on PostHog US cloud;
+  /// override with --dart-define=POSTHOG_HOST=... for EU/self-hosted.
+  static const posthogHost = String.fromEnvironment(
+    'POSTHOG_HOST',
+    defaultValue: 'https://us.i.posthog.com',
+  );
+
+  /// True when a PostHog key is configured (drives all PostHog wiring; when
+  /// false, setup, the navigator observer, the replay wrapper and every mirror
+  /// call are skipped).
+  static bool get posthogEnabled => posthogApiKey.trim().isNotEmpty;
+
   /// MVP launch lock. When true, modules outside the M1–M14 MVP scope
   /// (community/forum, alumni, academy, salon, housing, travel, blog and the
   /// scraped live-scholarships aggregator) are hidden from navigation without

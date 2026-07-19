@@ -42,6 +42,7 @@ class LocalAppRepository implements AppRepository {
       isGuestMode: json['isGuestMode'] as bool? ?? false,
       isAppLockEnabled: json['isAppLockEnabled'] as bool? ?? false,
       dataSaverEnabled: json['dataSaverEnabled'] as bool? ?? false,
+      analyticsOptOut: json['analyticsOptOut'] as bool? ?? false,
       themeMode: _themeModeFromString(json['themeMode'] as String?),
       profile: _userProfileFromJson(json['profile'] as Map<String, dynamic>?),
       savedItems: ((json['savedItems'] as List<dynamic>?) ?? <dynamic>[])
@@ -92,6 +93,7 @@ class LocalAppRepository implements AppRepository {
       'isGuestMode': snapshot.isGuestMode,
       'isAppLockEnabled': snapshot.isAppLockEnabled,
       'dataSaverEnabled': snapshot.dataSaverEnabled,
+      'analyticsOptOut': snapshot.analyticsOptOut,
       'themeMode': snapshot.themeMode.name,
       'profile': _userProfileToJson(snapshot.profile),
       'savedItems': snapshot.savedItems.map(_savedItemToJson).toList(),
