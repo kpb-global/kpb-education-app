@@ -60,6 +60,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• Personnaliser vos recommandations de filières, pays et bourses\n'
                   '• Gérer vos dossiers de candidature et vos rendez-vous\n'
                   '• Vous envoyer des notifications pertinentes (mises à jour de dossier, deadlines)\n'
+                  '• Vous envoyer par email les nouvelles bourses d\'études disponibles, uniquement si vous y avez consenti (case à cocher — désinscription possible à tout moment depuis votre profil ou le lien de désinscription des emails)\n'
                   '• Améliorer nos services via des statistiques agrégées et anonymisées\n'
                   '• Communiquer avec vous dans le cadre de vos démarches',
             ),
@@ -78,6 +79,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
                   '• Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l\'analytique, la stabilité et les notifications push\n'
                   '• PostHog (analytique produit et enregistrements de session au contenu masqué) pour comprendre et améliorer l\'usage de l\'application\n'
+                  '• Mautic (outil d\'emailing auto-hébergé par KPB) pour l\'envoi de la newsletter bourses, uniquement si vous y avez consenti\n'
                   '• Les autorités compétentes si la loi l\'exige',
             ),
             _LegalSection(

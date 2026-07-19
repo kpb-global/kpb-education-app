@@ -175,6 +175,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int? _annualTuitionBudgetEur;
   String _preferredCurrency = DisplayCurrency.xof.code;
   bool _wantsScholarship = true;
+  // Newsletter opt-in: UNCHECKED by default — GDPR requires an explicit,
+  // freely given consent (audience includes 16-18 year olds).
+  bool _wantsNewsletter = false;
   bool _sameWhatsApp = true;
   _DialCode _phoneCode = _dialCodes[0];
   _DialCode _waCode = _dialCodes[0];
@@ -295,6 +298,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _preferredCurrency =
         DisplayCurrency.fromCode(profile.preferredCurrency).code;
     _wantsScholarship = profile.wantsScholarshipSupport;
+    _wantsNewsletter = profile.wantsScholarshipNewsletter;
     if (profile.fieldIds.isNotEmpty) {
       _fieldIds
         ..clear()
@@ -384,6 +388,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       preferredCurrency: _preferredCurrency,
       wantsScholarshipSupport:
           _accountType == AccountType.student && _wantsScholarship,
+      wantsScholarshipNewsletter:
+          _accountType == AccountType.student && _wantsNewsletter,
       availableDocuments: isPartner ? const [] : _docs.toList(),
       consentedAt:
           _hasConsented ? (existing?.consentedAt ?? DateTime.now()) : null,
@@ -590,6 +596,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       annualTuitionBudgetEur: _annualTuitionBudgetEur,
                       preferredCurrency: _preferredCurrency,
                       wantsScholarship: _wantsScholarship,
+                      wantsNewsletter: _wantsNewsletter,
                       onCurrentLevel: (v) =>
                           setState(() => _currentLevel = v ?? _currentLevel),
                       onTargetLevel: (v) =>
@@ -605,6 +612,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       onWantsScholarship: (v) =>
                           setState(() => _wantsScholarship = v),
+                      onWantsNewsletter: (v) =>
+                          setState(() => _wantsNewsletter = v),
                     ),
                   )
                 else
@@ -1251,6 +1260,7 @@ class _PageAcademic extends StatelessWidget {
     required this.annualTuitionBudgetEur,
     required this.preferredCurrency,
     required this.wantsScholarship,
+    required this.wantsNewsletter,
     required this.onCurrentLevel,
     required this.onTargetLevel,
     required this.onLanguageLevel,
@@ -1258,12 +1268,14 @@ class _PageAcademic extends StatelessWidget {
     required this.onAnnualTuitionBudget,
     required this.onPreferredCurrency,
     required this.onWantsScholarship,
+    required this.onWantsNewsletter,
   });
 
   final String currentLevel, targetLevel, languageLevel, gradeRange;
   final int? annualTuitionBudgetEur;
   final String preferredCurrency;
   final bool wantsScholarship;
+  final bool wantsNewsletter;
   final ValueChanged<String?> onCurrentLevel,
       onTargetLevel,
       onLanguageLevel,
@@ -1271,6 +1283,7 @@ class _PageAcademic extends StatelessWidget {
   final ValueChanged<int?> onAnnualTuitionBudget;
   final ValueChanged<String?> onPreferredCurrency;
   final ValueChanged<bool> onWantsScholarship;
+  final ValueChanged<bool> onWantsNewsletter;
 
   @override
   Widget build(BuildContext context) {
@@ -1385,6 +1398,20 @@ class _PageAcademic extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+        // Newsletter opt-in — a real GDPR consent, so a plain checkbox
+        // UNCHECKED by default (never pre-ticked), distinct from the
+        // preference card above.
+        CheckboxListTile(
+          value: wantsNewsletter,
+          onChanged: (v) => onWantsNewsletter(v ?? false),
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+          activeColor: KpbColors.success,
+          title: Text(
+            'onboarding_newsletter_consent'.tr,
+            style: KpbTextStyles.bodySm,
           ),
         ),
         const SizedBox(height: KpbSpacing.md),

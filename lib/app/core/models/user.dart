@@ -58,6 +58,7 @@ class UserProfile {
     this.monthlyBudgetEur,
     this.preferredCurrency = 'XOF',
     this.wantsScholarshipSupport = false,
+    this.wantsScholarshipNewsletter = false,
     this.availableDocuments = const [],
     this.consentedAt,
     this.aiConsentedAt,
@@ -90,6 +91,11 @@ class UserProfile {
   final int? monthlyBudgetEur;
   final String preferredCurrency;
   final bool wantsScholarshipSupport;
+
+  /// Opt-in to the scholarship newsletter (Mautic). Unchecked by default —
+  /// GDPR requires an explicit, freely given consent. The backend stamps the
+  /// consent timestamp; the app only carries the desired boolean.
+  final bool wantsScholarshipNewsletter;
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
@@ -146,6 +152,7 @@ class UserProfile {
     int? monthlyBudgetEur,
     String? preferredCurrency,
     bool? wantsScholarshipSupport,
+    bool? wantsScholarshipNewsletter,
     List<String>? availableDocuments,
     DateTime? consentedAt,
     DateTime? aiConsentedAt,
@@ -176,6 +183,8 @@ class UserProfile {
       preferredCurrency: preferredCurrency ?? this.preferredCurrency,
       wantsScholarshipSupport:
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
+      wantsScholarshipNewsletter:
+          wantsScholarshipNewsletter ?? this.wantsScholarshipNewsletter,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
       aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,

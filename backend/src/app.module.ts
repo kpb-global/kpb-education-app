@@ -45,6 +45,9 @@ import { DeadlineReminderCronService } from './modules/notifications/deadline-re
 import { MilestoneReminderService } from './modules/notifications/milestone-reminder.service';
 import { ProfileNudgeCronService } from './modules/notifications/profile-nudge-cron.service';
 import { SalonReminderCronService } from './modules/notifications/salon-reminder-cron.service';
+import { MauticService } from './modules/newsletter/mautic.service';
+import { NewsletterSyncService } from './modules/newsletter/newsletter-sync.service';
+import { NewsletterSyncCronService } from './modules/newsletter/newsletter-sync-cron.service';
 import { DeviceTokensController } from './modules/notifications/device-tokens.controller';
 import { AdminPushController } from './modules/notifications/admin-push.controller';
 import { CoachController } from './modules/coach/coach.controller';
@@ -245,6 +248,9 @@ import { SalonService } from './modules/salon/salon.service';
     MilestoneReminderService,
     ProfileNudgeCronService,
     SalonReminderCronService,
+    MauticService,
+    NewsletterSyncService,
+    NewsletterSyncCronService,
     NotificationsService,
     OrientationService,
     LlmService,

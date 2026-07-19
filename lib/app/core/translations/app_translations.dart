@@ -28,6 +28,8 @@ class AppTranslations extends Translations {
           'currency_xof': 'Franc CFA (FCFA)',
           'currency_usd': "Dollar américain (\$)",
           'scholarship_interest': 'Recherche d\'écoles privées',
+          'onboarding_newsletter_consent':
+              'Recevoir les nouvelles bourses d\'études disponibles',
           'available_documents': 'Documents disponibles',
           'preferred_language': 'Langue préférée',
           'app_language': 'Langue de l\'application',
@@ -1287,6 +1289,9 @@ class AppTranslations extends Translations {
           'profile_analytics': 'Analyse d\'usage',
           'profile_analytics_desc':
               'Autoriser l\'analyse anonyme de l\'usage et l\'enregistrement de session (contenu masqué) pour améliorer l\'app',
+          'profile_newsletter': 'Newsletter bourses',
+          'profile_newsletter_desc':
+              'Recevoir les nouvelles bourses d\'études disponibles par email (désinscription à tout moment)',
           'profile_quick_orientation_test': 'Test d\'orientation',
           'profile_quick_eligibility_simulator': 'Simulateur d\'éligibilité',
           'profile_quick_journeys_testimonials': 'Parcours & témoignages',
@@ -2565,6 +2570,8 @@ class AppTranslations extends Translations {
           'currency_xof': 'CFA franc (XOF)',
           'currency_usd': 'US dollar (\$)',
           'scholarship_interest': 'Searching private schools',
+          'onboarding_newsletter_consent':
+              'Receive newly available scholarships',
           'available_documents': 'Available documents',
           'preferred_language': 'Preferred language',
           'app_language': 'App language',
@@ -3798,6 +3805,9 @@ class AppTranslations extends Translations {
           'profile_analytics': 'Usage analytics',
           'profile_analytics_desc':
               'Allow anonymous usage analytics and session recording (content masked) to improve the app',
+          'profile_newsletter': 'Scholarship newsletter',
+          'profile_newsletter_desc':
+              'Receive newly available scholarships by email (unsubscribe anytime)',
           'profile_quick_orientation_test': 'Orientation test',
           'profile_quick_eligibility_simulator': 'Eligibility simulator',
           'profile_quick_journeys_testimonials': 'Journeys & testimonials',
