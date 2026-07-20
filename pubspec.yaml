@@ -16,7 +16,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+45
+# 2.1.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
+# CFBundleShortVersionString doit lui être supérieure. versionCode 46 pour
+# Android (doit dépasser le dernier code publié sur la fiche com.karatou.android).
+version: 2.1.0+46
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
