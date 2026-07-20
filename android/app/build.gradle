@@ -67,7 +67,12 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.kpbeducation.app"
+        // MUST stay com.karatou.android: it is the package of the EXISTING
+        // Play Store listing (play.google.com/store/apps/details?id=com.karatou.android)
+        // and a published app's id can never change. com.kpbeducation.app was a
+        // rebrand attempt that would have shipped a brand-new app and stranded
+        // every existing install.
+        applicationId "com.karatou.android"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion

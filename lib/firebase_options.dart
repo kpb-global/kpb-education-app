@@ -67,6 +67,8 @@ class DefaultFirebaseOptions {
     storageBucket: 'karatoupostbac-178213.firebasestorage.app',
     iosClientId:
         '334788383631-59cfd9gdtauqpmnfvo1uju8qhmtkrk8b.apps.googleusercontent.com',
-    iosBundleId: 'com.kpbeducation.app',
+    // Bundle id of the EXISTING App Store app (id 1128659292) — a published
+    // app's bundle id can never change, so the binary must keep it.
+    iosBundleId: 'Karatou.karatou',
   );
 }

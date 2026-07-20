@@ -100,7 +100,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.kpbeducation.app</string>
+			<string>Karatou.karatou</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kpb</string>
