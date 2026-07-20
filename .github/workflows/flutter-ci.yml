@@ -121,7 +121,9 @@ jobs:
           test -n "$STORE_PASSWORD"
           test -n "$KEY_PASSWORD"
           test -n "$KEY_ALIAS"
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          # Tolère un secret base64 replié sur plusieurs lignes (sinon
+          # `base64: invalid input` — vu sur le workflow keystore-info).
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \t\r\n' | base64 --decode > android/upload-keystore.jks
           test -s android/upload-keystore.jks
           cat > android/key.properties << EOF
           storePassword=${STORE_PASSWORD}
