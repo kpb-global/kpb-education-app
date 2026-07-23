@@ -47,9 +47,12 @@ class _MagicLinkVerifyScreenState extends State<MagicLinkVerifyScreen> {
         code: code,
         token: token,
       );
-      AnalyticsService.instance.logLogin();
-      await navigateAfterAuth();
+      // Success logging is centralized in navigateAfterAuth (login vs sign-up
+      // + method), so it is not duplicated here.
+      await navigateAfterAuth(method: 'email');
     } catch (error) {
+      AnalyticsService.instance
+          .logAuthFailed(method: 'email', reason: 'verify_error');
       setState(() {
         _error = 'auth_magic_verify_error'.tr;
       });
@@ -66,12 +69,14 @@ class _MagicLinkVerifyScreenState extends State<MagicLinkVerifyScreen> {
       setState(() => _resendCooldown = 60);
       _startCooldownTimer();
     } catch (error) {
+      final rate = error is AuthException &&
+          (error.statusCode == '429' ||
+              error.message.toLowerCase().contains('rate'));
+      AnalyticsService.instance.logAuthFailed(
+          method: 'email', reason: rate ? 'rate_limited' : 'send_error');
       setState(() {
-        _error = error is AuthException &&
-                (error.statusCode == '429' ||
-                    error.message.toLowerCase().contains('rate'))
-            ? 'auth_magic_resend_cooldown'.tr
-            : 'auth_magic_send_error'.tr;
+        _error =
+            rate ? 'auth_magic_resend_cooldown'.tr : 'auth_magic_send_error'.tr;
       });
     } finally {
       if (mounted) setState(() => _resending = false);

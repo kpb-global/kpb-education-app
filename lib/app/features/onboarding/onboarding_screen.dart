@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/services/analytics_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/onesignal_service.dart';
@@ -236,6 +237,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _prefillFromAuthSession();
     _page = _ctrl.onboardingStep.clamp(0, _totalPages - 1);
     _pageController = PageController(initialPage: _page);
+    _logStepViewed(_page);
+  }
+
+  /// KPB-158 onboarding funnel: 1-based step, total step count, and account
+  /// type, so drop-off between pages is visible in PostHog.
+  void _logStepViewed(int page) {
+    AnalyticsService.instance.logOnboardingStepViewed(
+      step: page + 1,
+      stepCount: _totalPages,
+      accountType: _accountType.name,
+    );
+  }
+
+  void _skip() {
+    AnalyticsService.instance.logOnboardingSkipped(step: _page + 1);
+    _ctrl.skipOnboarding();
   }
 
   /// Fills email/name from the current Supabase session, but only where the
@@ -511,6 +528,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Ask for push permission via OneSignal; identity is linked in
     // completeOnboarding() → syncOneSignalIdentity().
     await OneSignalService.instance.requestPermission();
+    AnalyticsService.instance
+        .logOnboardingCompleted(accountType: _accountType.name);
     final profile = _buildProfile();
     if (_accountType == AccountType.student) {
       // AHA moment (P0-D): await the profile PATCH so the server scores the
@@ -536,7 +555,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page: _page,
             total: _totalPages,
             onBack: _page > 0 ? _prev : null,
-            onSkip: _page > 0 ? _ctrl.skipOnboarding : null,
+            onSkip: _page > 0 ? _skip : null,
           ),
 
           // ── Pages ────────────────────────────────────────────────
@@ -544,7 +563,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: PageView(
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: (p) => setState(() => _page = p),
+              onPageChanged: (p) {
+                setState(() => _page = p);
+                _logStepViewed(p);
+              },
               children: [
                 // Page 0 — Identité & compte
                 _Page(

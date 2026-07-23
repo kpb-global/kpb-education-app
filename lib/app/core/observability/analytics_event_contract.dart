@@ -22,6 +22,16 @@ abstract final class AnalyticsEventName {
   static const guestModeEntered = 'guest_mode_entered';
   static const guestToSignup = 'guest_to_signup';
 
+  /// Onboarding funnel (KPB-158): a step became visible, plus completion / skip,
+  /// so drop-off across the multi-page stepper is visible. `auth_failed` records
+  /// a failed sign-in/up attempt with method + coarse reason (auth drop-off by
+  /// method). The signup method itself rides the built-in `sign_up` event's
+  /// `method` param (see [AnalyticsService.logRegister]).
+  static const onboardingStepViewed = 'onboarding_step_viewed';
+  static const onboardingCompleted = 'onboarding_completed';
+  static const onboardingSkipped = 'onboarding_skipped';
+  static const authFailed = 'auth_failed';
+
   /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
   /// This is the core lead→advisor-contact step the funnel is measured on.
   static const whatsappHandoff = 'whatsapp_handoff';
@@ -63,4 +73,11 @@ abstract final class AnalyticsParamKey {
 
   static const resource = 'resource';
   static const attempts = 'attempts';
+
+  /// Onboarding funnel + auth attribution (KPB-158).
+  static const step = 'step';
+  static const stepCount = 'step_count';
+  static const accountType = 'account_type';
+  static const method = 'method';
+  static const reason = 'reason';
 }
