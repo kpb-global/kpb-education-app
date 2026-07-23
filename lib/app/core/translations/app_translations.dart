@@ -1763,6 +1763,7 @@ class AppTranslations extends Translations {
           'auth_intelligence_benefit_support':
               'Accompagnement humain KPB via WhatsApp',
           'auth_receive_email_link': 'Recevoir un lien par email',
+          'auth_explore_guest': 'Explorer sans compte',
           'auth_intelligence_note':
               'Gratuit · FCFA · pensé pour l’Afrique francophone',
           'auth_continue_google': 'Continuer avec Google',
@@ -4273,6 +4274,7 @@ class AppTranslations extends Translations {
           'auth_intelligence_benefit_support':
               'Human KPB guidance via WhatsApp',
           'auth_receive_email_link': 'Receive a link by email',
+          'auth_explore_guest': 'Explore without an account',
           'auth_intelligence_note':
               'Free · FCFA · designed for French-speaking Africa',
           'auth_continue_google': 'Continue with Google',

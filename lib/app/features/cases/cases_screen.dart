@@ -749,7 +749,14 @@ class _GuestCasesPrompt extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.login_rounded),
                     label: Text('guest_case_gate_cta'.tr),
-                    onPressed: () => Get.offAll(() => const AppBootScreen()),
+                    onPressed: () {
+                      // Clear guest state so the boot router lands on the auth
+                      // welcome screen (otherwise it loops straight back to the
+                      // shell) and the conversion is tracked.
+                      Get.find<AppController>()
+                          .leaveGuestForSignup(source: 'cases_gate');
+                      Get.offAll(() => const AppBootScreen());
+                    },
                   ),
                 ],
               ),

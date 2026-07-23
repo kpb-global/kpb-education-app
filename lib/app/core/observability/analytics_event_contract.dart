@@ -15,6 +15,13 @@ abstract final class AnalyticsEventName {
   static const profileUpdated = 'profile_updated';
   static const themeToggled = 'theme_toggled';
 
+  /// Guest mode (KPB-156): a visitor chose to explore without an account, and
+  /// the moment a guest heads to sign-up (with the gate `source`). Makes the
+  /// guest → signup → activation funnel attributable — otherwise guest usage is
+  /// invisible.
+  static const guestModeEntered = 'guest_mode_entered';
+  static const guestToSignup = 'guest_to_signup';
+
   /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
   /// This is the core lead→advisor-contact step the funnel is measured on.
   static const whatsappHandoff = 'whatsapp_handoff';

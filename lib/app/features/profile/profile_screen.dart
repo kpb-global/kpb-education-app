@@ -1653,9 +1653,7 @@ class _GuestProfilePrompt extends StatelessWidget {
                   const SizedBox(height: 32),
                   FilledButton(
                     onPressed: () {
-                      controller.isGuestMode = false;
-                      controller.hasCompletedOnboarding = false;
-                      controller.update();
+                      controller.leaveGuestForSignup(source: 'profile');
                       Get.offAll(() => const AppBootScreen());
                     },
                     style: FilledButton.styleFrom(

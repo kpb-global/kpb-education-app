@@ -417,6 +417,23 @@ abstract class _AppControllerBase extends GetxController {
     update();
   }
 
+  /// Guest → sign-up conversion (KPB-156). Clears guest state so the boot
+  /// router lands on the auth welcome screen, and resets onboarding so a
+  /// converting visitor still personalizes their profile after signing in.
+  /// [source] identifies the gate that triggered it (e.g. 'cases_gate',
+  /// 'profile') for funnel attribution. No-op if not currently a guest.
+  /// Callers navigate to AppBootScreen afterwards.
+  void leaveGuestForSignup({String source = 'unknown'}) {
+    if (!isGuestMode) return;
+    AnalyticsService.instance.logGuestToSignup(source: source);
+    isGuestMode = false;
+    hasCompletedOnboarding = false;
+    profile = null;
+    _profileNeedsPush = false;
+    _persist();
+    update();
+  }
+
   Future<void> finishAuthSession() async {
     isGuestMode = false;
     if (AppConfig.enableRemoteSync) {

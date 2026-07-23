@@ -60,6 +60,14 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
     }
   }
 
+  /// KPB-156: explore the app without an account. The boot router already sends
+  /// guests to the shell; gated actions (dossiers, coach) prompt sign-up later.
+  void _continueAsGuest() {
+    Get.find<AppController>().enterGuestMode();
+    AnalyticsService.instance.logGuestModeEntered();
+    Get.offAll(() => const AppRootShell());
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = _authService;
@@ -197,6 +205,20 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextButton(
+                    onPressed: _continueAsGuest,
+                    style: TextButton.styleFrom(
+                      foregroundColor: KpbColors.textMuted,
+                      minimumSize: const Size(0, 44),
+                      textStyle: const TextStyle(
+                        fontFamily: KpbTextStyles.bodyFamily,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    child: Text('auth_explore_guest'.tr),
                   ),
                 ],
               ),
