@@ -164,6 +164,33 @@ class AnalyticsService {
     }
   }
 
+  // ── Guest / acquisition (KPB-156) ──────────────────────────────────────────
+
+  /// A visitor chose "Explore without an account".
+  Future<void> logGuestModeEntered() async {
+    try {
+      await _analytics.logEvent(name: AnalyticsEventName.guestModeEntered);
+      _mirror(AnalyticsEventName.guestModeEntered);
+    } catch (e, s) {
+      _logError('logGuestModeEntered', e, s);
+    }
+  }
+
+  /// A guest chose to sign up. [source] is the gate that triggered it
+  /// (e.g. 'cases_gate', 'profile').
+  Future<void> logGuestToSignup({String source = 'unknown'}) async {
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.guestToSignup,
+        parameters: {AnalyticsParamKey.source: source},
+      );
+      _mirror(
+          AnalyticsEventName.guestToSignup, {AnalyticsParamKey.source: source});
+    } catch (e, s) {
+      _logError('logGuestToSignup', e, s);
+    }
+  }
+
   // ── Orientation events ────────────────────────────────────────────────────
 
   Future<void> logOrientationStart() async {

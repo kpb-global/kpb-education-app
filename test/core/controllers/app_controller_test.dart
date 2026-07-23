@@ -167,6 +167,41 @@ void main() {
     });
   });
 
+  // ── guest mode (KPB-156) ────────────────────────────────────────────────
+
+  group('guest mode', () {
+    test('enterGuestMode routes to the shell without a profile', () {
+      controller.enterGuestMode();
+
+      expect(controller.isGuestMode, isTrue);
+      expect(controller.hasCompletedOnboarding, isTrue);
+      expect(controller.profile, isNull);
+    });
+
+    test('leaveGuestForSignup clears guest + resets onboarding for conversion',
+        () {
+      controller.enterGuestMode();
+
+      controller.leaveGuestForSignup(source: 'cases_gate');
+
+      // No longer a guest, and onboarding is reset so a converting visitor
+      // still personalizes their profile after signing in (boot → auth).
+      expect(controller.isGuestMode, isFalse);
+      expect(controller.hasCompletedOnboarding, isFalse);
+      expect(controller.profile, isNull);
+    });
+
+    test('leaveGuestForSignup is a no-op for a signed-in user', () {
+      controller.completeOnboarding(_studentProfile());
+
+      controller.leaveGuestForSignup();
+
+      expect(controller.isGuestMode, isFalse);
+      expect(controller.hasCompletedOnboarding, isTrue);
+      expect(controller.profile?.id, equals('u-1'));
+    });
+  });
+
   // ── toggleSaved / isSaved ───────────────────────────────────────────────
 
   group('toggleSaved / isSaved', () {
