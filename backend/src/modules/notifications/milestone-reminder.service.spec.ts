@@ -1,13 +1,17 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { MilestoneReminderService } from './milestone-reminder.service';
-import { OneSignalSenderService } from './onesignal-sender.service';
+import {
+  DispatchInput,
+  NotificationDispatchService,
+} from './notification-dispatch.service';
 
 const DAY = 24 * 60 * 60 * 1000;
 
 /**
- * Guards KPB-64: the unified reminder cron only fires at the fixed thresholds,
- * only for approved+active saved scholarships, localizes on preferredLanguage,
- * and deep-links to /deadlines.
+ * Guards KPB-64/KPB-155: the unified reminder cron fires only at the fixed
+ * thresholds (incl. the new J-3), only for approved+active saved scholarships,
+ * deep-links to /deadlines, and routes every reminder through the dispatcher
+ * (durable feed + dedup + quiet-hours/cap) carrying both languages.
  */
 describe('MilestoneReminderService', () => {
   function makeService(
@@ -17,7 +21,7 @@ describe('MilestoneReminderService', () => {
       captureScholarshipWhere?: (where: Record<string, unknown>) => void;
     } = {},
   ) {
-    const sent: Array<{ title: string; body: string; data?: Record<string, string> }> = [];
+    const dispatched: DispatchInput[] = [];
     const client = {
       savedItem: { findMany: async () => opts.saved ?? [] },
       scholarship: {
@@ -32,24 +36,27 @@ describe('MilestoneReminderService', () => {
       isEnabled: true,
       execute: async (fn: (c: typeof client) => unknown) => fn(client),
     } as unknown as PrismaService;
-    const push = {
-      sendToUser: async (
-        _userId: string,
-        title: string,
-        body: string,
-        data?: Record<string, string>,
-      ) => {
-        sent.push({ title, body, data });
-        return true;
+    const dispatch = {
+      dispatch: async (input: DispatchInput) => {
+        dispatched.push(input);
+        return 'pushed' as const;
       },
-    } as unknown as OneSignalSenderService;
-    return { service: new MilestoneReminderService(prisma, push), sent };
+    } as unknown as NotificationDispatchService;
+    return {
+      service: new MilestoneReminderService(prisma, dispatch),
+      dispatched,
+    };
   }
 
   const savedFor = (lang: string) => ({
     itemId: 'sch-1',
     itemType: 'scholarship',
-    user: { id: 'u1', fullName: 'A', preferredLanguage: lang },
+    user: {
+      id: 'u1',
+      fullName: 'A',
+      preferredLanguage: lang,
+      countryOfResidence: 'SN',
+    },
   });
   const scholarshipDueInDays = (days: number) => ({
     id: 'sch-1',
@@ -69,6 +76,16 @@ describe('MilestoneReminderService', () => {
     expect(reminders).toHaveLength(1);
     expect(reminders[0].titleFr).toBe('Bourse à J-7');
     expect(reminders[0].route).toBe('/deadlines');
+  });
+
+  it('reminds at the new J-3 threshold', async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [scholarshipDueInDays(3)],
+    });
+    const reminders = await service.collectDueReminders(new Date());
+    expect(reminders).toHaveLength(1);
+    expect(reminders[0].titleFr).toBe('Bourse à J-3');
   });
 
   it('does not remind off-threshold (J-8)', async () => {
@@ -94,14 +111,20 @@ describe('MilestoneReminderService', () => {
     expect(where?.moderationStatus).toBe('approved');
   });
 
-  it('sends the English copy for an EN user', async () => {
-    const { service, sent } = makeService({
+  it('dispatches with both languages, a stable dedupeKey, and residence', async () => {
+    const { service, dispatched } = makeService({
       saved: [savedFor('en')],
       scholarships: [scholarshipDueInDays(7)],
     });
     await service.handleDailyMilestoneReminders();
-    expect(sent).toHaveLength(1);
-    expect(sent[0].title).toBe('Scholarship deadline in 7 days');
-    expect(sent[0].data?.route).toBe('/deadlines');
+    expect(dispatched).toHaveLength(1);
+    const input = dispatched[0];
+    expect(input.dedupeKey).toBe('deadline:scholarship:sch-1:u1:d7');
+    expect(input.title.fr).toBe('Bourse à J-7');
+    expect(input.title.en).toBe('Scholarship deadline in 7 days');
+    expect(input.preferredLanguage).toBe('en');
+    expect(input.countryOfResidence).toBe('SN');
+    expect(input.scholarshipId).toBe('sch-1');
+    expect(input.route).toBe('/deadlines');
   });
 });
