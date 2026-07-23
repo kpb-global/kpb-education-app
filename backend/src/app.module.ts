@@ -41,6 +41,7 @@ import { OneSignalSenderService } from './modules/notifications/onesignal-sender
 import { CampaignExecutorService } from './modules/notifications/campaign-executor.service';
 import { CampaignMailService } from './modules/notifications/campaign-mail.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
+import { NotificationDispatchService } from './modules/notifications/notification-dispatch.service';
 import { DeadlineReminderCronService } from './modules/notifications/deadline-reminder-cron.service';
 import { MilestoneReminderService } from './modules/notifications/milestone-reminder.service';
 import { ProfileNudgeCronService } from './modules/notifications/profile-nudge-cron.service';
@@ -244,6 +245,7 @@ import { SalonService } from './modules/salon/salon.service';
     CampaignExecutorService,
     CampaignMailService,
     CampaignCronService,
+    NotificationDispatchService,
     DeadlineReminderCronService,
     MilestoneReminderService,
     ProfileNudgeCronService,

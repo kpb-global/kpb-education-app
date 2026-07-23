@@ -2,21 +2,30 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { OneSignalSenderService } from './onesignal-sender.service';
+import {
+  DispatchOutcome,
+  NotificationDispatchService,
+} from './notification-dispatch.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TRACKER_ROUTE = '/deadlines';
-const SCHOLARSHIP_REMINDER_DAYS = new Set([30, 14, 7, 1, 0]);
+// KPB-155: escalating thresholds J-30 / J-14 / J-7 / J-3 / J-1 (+ day-of).
+const SCHOLARSHIP_REMINDER_DAYS = new Set([30, 14, 7, 3, 1, 0]);
 const CASE_REMINDER_DAYS = new Set([7, 3, 1, 0]);
+const REMINDER_KIND = 'deadline_reminder';
 
 interface ReminderRecipient {
   id: string;
   fullName: string | null;
   preferredLanguage: string;
+  countryOfResidence: string | null;
 }
 
 interface DueReminder {
   user: ReminderRecipient;
+  kind: string;
+  dedupeKey: string;
+  scholarshipId?: string;
   titleFr: string;
   titleEn: string;
   bodyFr: string;
@@ -31,31 +40,38 @@ export class MilestoneReminderService {
 
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly pushService: OneSignalSenderService,
+    private readonly dispatch: NotificationDispatchService,
   ) {}
 
+  // 08:00 UTC ≈ 08:00–09:00 across the core francophone market (UTC+0/+1), i.e.
+  // safely outside the quiet window. The dispatcher still guards per-user quiet
+  // hours and the daily cap, so this stays correct for other residences too.
   @Cron('0 8 * * *')
   async handleDailyMilestoneReminders() {
     if (!this.prismaService.isEnabled) return;
 
     const reminders = await this.collectDueReminders(new Date());
+    const tally: Partial<Record<DispatchOutcome, number>> = {};
     for (const reminder of reminders) {
-      const isEnglish = (reminder.user.preferredLanguage ?? '')
-        .toLowerCase()
-        .startsWith('en');
-      await this.pushService.sendToUser(
-        reminder.user.id,
-        isEnglish ? reminder.titleEn : reminder.titleFr,
-        isEnglish ? reminder.bodyEn : reminder.bodyFr,
-        {
-          ...reminder.data,
-          route: reminder.route,
-        },
-      );
+      const outcome = await this.dispatch.dispatch({
+        userId: reminder.user.id,
+        kind: reminder.kind,
+        dedupeKey: reminder.dedupeKey,
+        title: { fr: reminder.titleFr, en: reminder.titleEn },
+        body: { fr: reminder.bodyFr, en: reminder.bodyEn },
+        route: reminder.route,
+        data: reminder.data,
+        scholarshipId: reminder.scholarshipId ?? null,
+        preferredLanguage: reminder.user.preferredLanguage,
+        countryOfResidence: reminder.user.countryOfResidence,
+      });
+      tally[outcome] = (tally[outcome] ?? 0) + 1;
     }
 
     if (reminders.length > 0) {
-      this.logger.log(`Sent ${reminders.length} milestone reminders.`);
+      this.logger.log(
+        `Milestone reminders: ${reminders.length} due (${formatTally(tally)}).`,
+      );
     }
   }
 
@@ -83,6 +99,7 @@ export class MilestoneReminderService {
                 id: true,
                 fullName: true,
                 preferredLanguage: true,
+                countryOfResidence: true,
               },
             },
           },
@@ -123,6 +140,9 @@ export class MilestoneReminderService {
       if (!SCHOLARSHIP_REMINDER_DAYS.has(days)) continue;
       reminders.push({
         user: saved.user,
+        kind: REMINDER_KIND,
+        dedupeKey: `deadline:scholarship:${scholarship.id}:${saved.user.id}:d${days}`,
+        scholarshipId: scholarship.id,
         titleFr:
           days === 0 ? 'Échéance bourse aujourd’hui' : `Bourse à J-${days}`,
         titleEn:
@@ -136,6 +156,7 @@ export class MilestoneReminderService {
           type: 'milestone_reminder',
           reminderType: 'saved_scholarship',
           scholarshipId: scholarship.id,
+          daysUntil: String(days),
         },
       });
     }
@@ -169,6 +190,7 @@ export class MilestoneReminderService {
                 id: true,
                 fullName: true,
                 preferredLanguage: true,
+                countryOfResidence: true,
               },
             },
             tasks: {
@@ -189,6 +211,8 @@ export class MilestoneReminderService {
         if (CASE_REMINDER_DAYS.has(days)) {
           reminders.push({
             user: item.user,
+            kind: REMINDER_KIND,
+            dedupeKey: `deadline:case-schedule:${item.id}:${item.user.id}:d${days}`,
             titleFr:
               days === 0 ? 'Rendez-vous dossier aujourd’hui' : `Dossier à J-${days}`,
             titleEn:
@@ -202,6 +226,7 @@ export class MilestoneReminderService {
               type: 'milestone_reminder',
               reminderType: 'case_schedule',
               caseId: item.id,
+              daysUntil: String(days),
             },
           });
         }
@@ -213,6 +238,8 @@ export class MilestoneReminderService {
         if (!CASE_REMINDER_DAYS.has(days)) continue;
         reminders.push({
           user: item.user,
+          kind: REMINDER_KIND,
+          dedupeKey: `deadline:case-task:${task.id}:${item.user.id}:d${days}`,
           titleFr:
             days === 0 ? 'Action dossier aujourd’hui' : `Action dossier à J-${days}`,
           titleEn:
@@ -227,6 +254,7 @@ export class MilestoneReminderService {
             reminderType: 'case_task',
             caseId: item.id,
             taskId: task.id,
+            daysUntil: String(days),
           },
         });
       }
@@ -249,4 +277,9 @@ function daysUntil(now: Date, target: Date) {
   return Math.round(
     (startOfDay(target).getTime() - startOfDay(now).getTime()) / DAY_MS,
   );
+}
+
+function formatTally(tally: Partial<Record<DispatchOutcome, number>>): string {
+  const parts = Object.entries(tally).map(([k, v]) => `${k}=${v}`);
+  return parts.length ? parts.join(', ') : 'none';
 }

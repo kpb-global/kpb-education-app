@@ -1189,12 +1189,18 @@ model UserNotification {
   route         String
   data          Json?
   readAt        DateTime?
+  // When a push was actually delivered for this entry (NULL = feed-only: the
+  // durable in-app notification was written but no push went out, e.g. it was
+  // suppressed by quiet hours or the daily frequency cap). Also the counter the
+  // dispatcher uses to enforce the per-user daily push cap.
+  pushedAt      DateTime?
   createdAt     DateTime     @default(now())
   user          UserProfile  @relation(fields: [userId], references: [id], onDelete: Cascade)
   scholarship   Scholarship? @relation(fields: [scholarshipId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([userId, readAt])
+  @@index([userId, pushedAt])
   @@index([scholarshipId])
 }
 
