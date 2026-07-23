@@ -95,6 +95,18 @@ class AppConfig {
     defaultValue: true,
   );
 
+  /// KPB-160: the cash Ambassador programme (FCFA balances, city leaderboard,
+  /// Wave withdrawals, self-activation) is OFF by default. It carries Play
+  /// "incentivized behavior" exposure plus AML/KYC/tax duties on cross-border
+  /// payouts (incl. minors) that need legal clearance first. While false, only
+  /// users the backend already marks `activated` (an ops whitelist) reach the
+  /// cash surface; everyone else sees an application screen. Flip to true at
+  /// build time to open the programme to all once it is legally cleared.
+  static const ambassadorCashEnabled = bool.fromEnvironment(
+    'KPB_AMBASSADOR_CASH_ENABLED',
+    defaultValue: false,
+  );
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(

@@ -77,6 +77,14 @@ Map<String, dynamic> _sampleDashboard() => {
       ],
     };
 
+/// An ops-activated ambassador (the whitelist path). After KPB-160 this is the
+/// only way — short of the global flag — to reach the cash surface.
+Map<String, dynamic> _activatedDashboard() => {
+      ..._sampleDashboard(),
+      'activated': true,
+      'isSample': false,
+    };
+
 void main() {
   setUp(resetGetxSingleton);
   tearDown(resetGetxSingleton);
@@ -99,11 +107,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('renders the dashboard: code, stats and sample banner',
+  testWidgets('activated ambassador sees the cash surface: code and stats',
       (tester) async {
     final mock = MockApiClient();
     when(() => mock.getAmbassadorDashboard())
-        .thenAnswer((_) async => _sampleDashboard());
+        .thenAnswer((_) async => _activatedDashboard());
 
     await pump(tester, mock);
 
@@ -112,15 +120,13 @@ void main() {
     expect(find.text('KTOU-BS-7c21'), findsOneWidget);
     expect(find.text('Binta Sarr'), findsWidgets); // header + leaderboard
     expect(find.text('12'), findsWidgets); // active referrals
-    expect(find.text('amb_sample_banner'), findsOneWidget);
     expect(find.text('117 k'), findsOneWidget); // compact earned
   });
 
-  testWidgets('switches to the withdrawals tab and shows the balance',
-      (tester) async {
+  testWidgets('activated: withdrawals tab shows the balance', (tester) async {
     final mock = MockApiClient();
     when(() => mock.getAmbassadorDashboard())
-        .thenAnswer((_) async => _sampleDashboard());
+        .thenAnswer((_) async => _activatedDashboard());
 
     await pump(tester, mock);
 
@@ -132,11 +138,12 @@ void main() {
     expect(find.text('47 000 FCFA'), findsWidgets);
   });
 
-  testWidgets('withdraw requests a payout and shows the pending state',
+  testWidgets(
+      'activated: withdraw requests a payout and shows the pending state',
       (tester) async {
     final mock = MockApiClient();
     when(() => mock.getAmbassadorDashboard())
-        .thenAnswer((_) async => _sampleDashboard());
+        .thenAnswer((_) async => _activatedDashboard());
     when(() => mock.requestAmbassadorWithdrawal()).thenAnswer((_) async => {
           'id': 'wd-1',
           'amountFCFA': 47000,
@@ -154,5 +161,23 @@ void main() {
 
     verify(() => mock.requestAmbassadorWithdrawal()).called(1);
     expect(find.text('amb_withdraw_pending'), findsOneWidget);
+  });
+
+  testWidgets(
+      'KPB-160: a non-activated user sees the application screen, not cash',
+      (tester) async {
+    final mock = MockApiClient();
+    when(() => mock.getAmbassadorDashboard())
+        .thenAnswer((_) async => _sampleDashboard());
+
+    await pump(tester, mock);
+
+    // The application path is shown…
+    expect(find.text('amb_apply_cta_advisor'), findsOneWidget);
+    // …and none of the cash mechanics are: no payout tab, no FCFA balance,
+    // no withdraw button.
+    expect(find.text('amb_nav_payout'), findsNothing);
+    expect(find.text('47 000 FCFA'), findsNothing);
+    expect(find.text('amb_withdraw'), findsNothing);
   });
 }

@@ -10,9 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/utils/whatsapp_utils.dart';
+import 'referral_screen.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 // Couleurs catégorielles des avatars (séries distinctes — exception §14 de
@@ -155,31 +158,115 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
           : d == null
               ? _ErrorState(
                   message: _error ?? 'amb_load_error'.tr, onRetry: _load)
-              : Column(
-                  children: [
-                    if (d.isSample) const _SampleBanner(),
-                    Expanded(
-                      // Render only the active tab, each in its OWN scroll view,
-                      // so a short tab doesn't inherit the tallest tab's height
-                      // (no dead scroll region). PageStorageKey preserves each
-                      // tab's scroll offset across switches.
-                      child: SingleChildScrollView(
-                        key: PageStorageKey<int>(_tab),
-                        child: switch (_tab) {
-                          1 => _ReferralsTab(d: d),
-                          2 => _PayoutTab(
-                              d: d,
-                              withdrawing: _withdrawing,
-                              withdrawn: _withdrawn,
-                              onWithdraw: _withdraw,
-                            ),
-                          _ => _DashboardTab(d: d, onShare: _shareCode),
-                        },
-                      ),
-                    ),
-                    _BottomNav(current: _tab, onTap: _goTab),
-                  ],
+              : (AppConfig.ambassadorCashEnabled || d.activated)
+                  // KPB-160: the cash surface (FCFA, leaderboard, withdrawals,
+                  // self-activation) shows only for an ops-activated ambassador
+                  // or when the programme is globally enabled — preserving
+                  // active ambassadors regardless of the flag. Everyone else
+                  // gets the application screen (no payout mechanics).
+                  ? Column(
+                      children: [
+                        if (d.isSample) const _SampleBanner(),
+                        Expanded(
+                          // Render only the active tab, each in its OWN scroll
+                          // view, so a short tab doesn't inherit the tallest
+                          // tab's height (no dead scroll region). PageStorageKey
+                          // preserves each tab's scroll offset across switches.
+                          child: SingleChildScrollView(
+                            key: PageStorageKey<int>(_tab),
+                            child: switch (_tab) {
+                              1 => _ReferralsTab(d: d),
+                              2 => _PayoutTab(
+                                  d: d,
+                                  withdrawing: _withdrawing,
+                                  withdrawn: _withdrawn,
+                                  onWithdraw: _withdraw,
+                                ),
+                              _ => _DashboardTab(d: d, onShare: _shareCode),
+                            },
+                          ),
+                        ),
+                        _BottomNav(current: _tab, onTap: _goTab),
+                      ],
+                    )
+                  : const _AmbassadorApplication(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Application screen (KPB-160) — shown when the cash programme is gated: no
+// FCFA, leaderboard, withdrawal or self-activation. Keeps the programme
+// discoverable via an application path without exposing payout mechanics.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AmbassadorApplication extends StatelessWidget {
+  const _AmbassadorApplication();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                color: KpbColors.actionPrimarySoft,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: const Icon(Icons.diversity_3_outlined,
+                  size: 38, color: KpbColors.actionPrimary),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'amb_apply_title'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.4,
+                color: KpbColors.brandNavy,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'amb_apply_body'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: KpbColors.textMuted,
+                height: 1.45,
+                fontSize: 13.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: KpbColors.actionPrimary,
+                  foregroundColor: Colors.white,
                 ),
+                icon: const Icon(Icons.support_agent_rounded),
+                label: Text('amb_apply_cta_advisor'.tr),
+                onPressed: () => openWhatsAppOrToast(
+                  prefill: 'amb_apply_wa_prefill'.tr,
+                  source: 'ambassador_application',
+                  contextType: 'ambassador',
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () => Get.to(() => const ReferralScreen()),
+              child: Text('amb_apply_cta_referral'.tr),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
