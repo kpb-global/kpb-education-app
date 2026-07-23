@@ -45,8 +45,10 @@ class _AcademyPlayerScreenState extends State<AcademyPlayerScreen> {
       } else {
         _ytController = YoutubePlayerController(
           initialVideoId: videoId,
+          // KPB-157: never auto-play — data is metered for our audience, so the
+          // user taps play (matches the scholarship player).
           flags: const YoutubePlayerFlags(
-            autoPlay: true,
+            autoPlay: false,
             mute: false,
           ),
         );

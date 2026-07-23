@@ -774,7 +774,8 @@ class _ParcoursPlayerScreenState extends State<ParcoursPlayerScreen> {
         : (widget.videos[_currentIndex].youtubeId ?? '');
     _controller = YoutubePlayerController(
       initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
+      // KPB-157: tap-to-play — no auto-play on metered data.
+      flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
     );
   }
 
