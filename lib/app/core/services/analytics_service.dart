@@ -191,6 +191,79 @@ class AnalyticsService {
     }
   }
 
+  // ── Onboarding funnel (KPB-158) ─────────────────────────────────────────────
+
+  Future<void> logOnboardingStepViewed({
+    required int step,
+    required int stepCount,
+    required String accountType,
+  }) async {
+    try {
+      final params = <String, Object>{
+        AnalyticsParamKey.step: step,
+        AnalyticsParamKey.stepCount: stepCount,
+        AnalyticsParamKey.accountType: accountType,
+      };
+      await _analytics.logEvent(
+        name: AnalyticsEventName.onboardingStepViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.onboardingStepViewed, params);
+    } catch (e, s) {
+      _logError('logOnboardingStepViewed', e, s);
+    }
+  }
+
+  Future<void> logOnboardingCompleted({required String accountType}) async {
+    try {
+      final params = <String, Object>{
+        AnalyticsParamKey.accountType: accountType,
+      };
+      await _analytics.logEvent(
+        name: AnalyticsEventName.onboardingCompleted,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.onboardingCompleted, params);
+    } catch (e, s) {
+      _logError('logOnboardingCompleted', e, s);
+    }
+  }
+
+  Future<void> logOnboardingSkipped({required int step}) async {
+    try {
+      final params = <String, Object>{AnalyticsParamKey.step: step};
+      await _analytics.logEvent(
+        name: AnalyticsEventName.onboardingSkipped,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.onboardingSkipped, params);
+    } catch (e, s) {
+      _logError('logOnboardingSkipped', e, s);
+    }
+  }
+
+  /// A sign-in / sign-up attempt failed. [method] is 'google' | 'email';
+  /// [reason] a coarse code ('oauth_error', 'rate_limited', 'send_error',
+  /// 'verify_error'). Makes auth drop-off attributable per method.
+  Future<void> logAuthFailed({
+    required String method,
+    required String reason,
+  }) async {
+    try {
+      final params = <String, Object>{
+        AnalyticsParamKey.method: method,
+        AnalyticsParamKey.reason: reason,
+      };
+      await _analytics.logEvent(
+        name: AnalyticsEventName.authFailed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.authFailed, params);
+    } catch (e, s) {
+      _logError('logAuthFailed', e, s);
+    }
+  }
+
   // ── Orientation events ────────────────────────────────────────────────────
 
   Future<void> logOrientationStart() async {

@@ -25,6 +25,9 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
   late final AuthService _authService = Get.find<AuthService>();
   StreamSubscription<AuthState>? _authSub;
   bool _googleLoading = false;
+  // The auth method the user initiated with, read by the signed-in listener so
+  // the success event carries the accurate method (KPB-158).
+  String _pendingMethod = 'email';
 
   @override
   void initState() {
@@ -33,8 +36,9 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
     // session is established.
     _authSub = _authService.onAuthStateChange.listen((state) {
       if (state.event == AuthChangeEvent.signedIn && mounted) {
-        AnalyticsService.instance.logLogin();
-        navigateAfterAuth();
+        // Success logging (login vs sign-up + method) is centralized in
+        // navigateAfterAuth so it stays accurate for both Google and email.
+        navigateAfterAuth(method: _pendingMethod);
       }
     });
   }
@@ -46,10 +50,13 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
+    _pendingMethod = 'google';
     setState(() => _googleLoading = true);
     try {
       await _authService.signInWithGoogle();
     } catch (_) {
+      AnalyticsService.instance
+          .logAuthFailed(method: 'google', reason: 'oauth_error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('auth_google_error'.tr)),
@@ -173,9 +180,12 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                   SizedBox(
                     height: 58,
                     child: FilledButton.icon(
-                      onPressed: () => Get.to(
-                        () => MagicLinkEmailScreen(authService: authService),
-                      ),
+                      onPressed: () {
+                        _pendingMethod = 'email';
+                        Get.to(
+                          () => MagicLinkEmailScreen(authService: authService),
+                        );
+                      },
                       icon: const Icon(Icons.mail_outline_rounded, size: 23),
                       label: Text('auth_receive_email_link'.tr),
                       style: FilledButton.styleFrom(
@@ -265,13 +275,20 @@ class _BenefitRow extends StatelessWidget {
   }
 }
 
-/// Resumes authenticated session after magic-link verify.
-Future<void> navigateAfterAuth() async {
+/// Resumes the authenticated session after Google / magic-link sign-in.
+///
+/// Logs the auth outcome once, with the accurate [method] ('google' | 'email')
+/// and the signup-vs-login distinction: a user with no completed onboarding is
+/// treated as a new sign-up (`sign_up` event carrying the signup method),
+/// otherwise a returning login. Centralized here so callers don't double-log.
+Future<void> navigateAfterAuth({String method = 'email'}) async {
   final controller = Get.find<AppController>();
   await controller.finishAuthSession();
   if (controller.hasCompletedOnboarding) {
+    AnalyticsService.instance.logLogin(method: method);
     Get.offAll(() => const AppRootShell());
   } else {
+    AnalyticsService.instance.logRegister(method: method);
     Get.offAll(() => const OnboardingScreen());
   }
 }

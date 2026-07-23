@@ -42,6 +42,27 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 | `referral_invite_shared` | — | Invite shared via WhatsApp (KPB-69) |
 | `referral_redeemed` | — | Referral code redeemed by a referee (KPB-69) |
 
+## Acquisition, onboarding & auth (KPB-156 / KPB-158)
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `guest_mode_entered` | — | Visitor chose "Explore without an account" (KPB-156) |
+| `guest_to_signup` | `source` (gate: `cases_gate`, `profile`) | Guest headed to sign-up from a gated action (KPB-156) |
+| `onboarding_step_viewed` | `step` (1-based), `step_count`, `account_type` | A stepper page became visible (KPB-158) |
+| `onboarding_completed` | `account_type` | Finished the last onboarding step (KPB-158) |
+| `onboarding_skipped` | `step` (1-based, where skipped) | Left onboarding via Skip (KPB-158) |
+| `auth_failed` | `method` (`google`/`email`), `reason` (`oauth_error`/`rate_limited`/`send_error`/`verify_error`) | A sign-in/up attempt failed (KPB-158) |
+| `sign_up` (GA4 built-in) | `method` (`google`/`email`) | New account created — the **signup method** (KPB-158) |
+| `login` (GA4 built-in) | `method` (`google`/`email`) | Returning user signed in |
+
+> Auth success is logged once, in `navigateAfterAuth`: a user with no completed
+> onboarding is a new `sign_up` (carrying the signup method), otherwise a
+> returning `login`. Callers no longer log it directly (avoids double-counting).
+
+### Onboarding funnel (PostHog dashboard to build)
+
+Funnel steps: `sign_up` → `onboarding_step_viewed` (step 1) → … → `onboarding_step_viewed` (step N) → `onboarding_completed`. The drop between consecutive `step` values localizes where onboarding leaks; split by `account_type` to compare student / parent / partner. `onboarding_skipped` (by `step`) shows where users bail via Skip, and `auth_failed` split by `method` shows whether email OTP or Google loses people **before** signup — the evidence that gates the deferred phone-OTP decision (KPB-158 → KPB-172 review).
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |

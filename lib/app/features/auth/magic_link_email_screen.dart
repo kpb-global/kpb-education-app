@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/services/analytics_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/ui/kpb_components.dart';
 import 'magic_link_verify_screen.dart';
@@ -46,14 +47,14 @@ class _MagicLinkEmailScreenState extends State<MagicLinkEmailScreen> {
         ),
       );
     } catch (error) {
+      final rate = error is AuthException &&
+          (error.statusCode == '429' ||
+              error.message.toLowerCase().contains('rate'));
+      AnalyticsService.instance.logAuthFailed(
+          method: 'email', reason: rate ? 'rate_limited' : 'send_error');
       setState(() {
-        if (error is AuthException &&
-            (error.statusCode == '429' ||
-                error.message.toLowerCase().contains('rate'))) {
-          _error = 'auth_magic_resend_cooldown'.tr;
-        } else {
-          _error = 'auth_magic_send_error'.tr;
-        }
+        _error =
+            rate ? 'auth_magic_resend_cooldown'.tr : 'auth_magic_send_error'.tr;
       });
     } finally {
       if (mounted) setState(() => _loading = false);

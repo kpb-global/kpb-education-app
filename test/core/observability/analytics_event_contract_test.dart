@@ -9,6 +9,10 @@ void main() {
       AnalyticsEventName.syncFullComplete,
       AnalyticsEventName.syncConflictResolved,
       AnalyticsEventName.syncCatalogHiveFallback,
+      AnalyticsEventName.onboardingStepViewed,
+      AnalyticsEventName.onboardingCompleted,
+      AnalyticsEventName.onboardingSkipped,
+      AnalyticsEventName.authFailed,
     ];
     for (final e in events) {
       expect(e.length, lessThanOrEqualTo(40), reason: e);
