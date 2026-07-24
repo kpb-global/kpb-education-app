@@ -149,6 +149,7 @@ class LocalAppRepository implements AppRepository {
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'wantsScholarshipNewsletter': profile.wantsScholarshipNewsletter,
+      'dailyScholarshipOptOut': profile.dailyScholarshipOptOut,
       'availableDocuments': profile.availableDocuments,
       // Consent timestamps + age gate must survive a cold start so we don't
       // re-prompt. Guardian *contact* is PII (like the user's own contact
@@ -190,6 +191,7 @@ class LocalAppRepository implements AppRepository {
           json['wantsScholarshipSupport'] as bool? ?? false,
       wantsScholarshipNewsletter:
           json['wantsScholarshipNewsletter'] as bool? ?? false,
+      dailyScholarshipOptOut: json['dailyScholarshipOptOut'] as bool? ?? false,
       availableDocuments: _stringList(json['availableDocuments']),
       consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
       aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),

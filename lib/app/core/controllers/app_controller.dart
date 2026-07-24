@@ -862,6 +862,14 @@ abstract class _AppControllerBase extends GetxController {
     updateProfile(current.copyWith(wantsScholarshipNewsletter: optIn));
   }
 
+  /// KPB-162: opt out of (or back into) the daily "Bourse du jour" push.
+  /// Persisted via the profile PATCH; never affects other notifications.
+  void setDailyScholarshipOptOut(bool optOut) {
+    final current = profile;
+    if (current == null) return;
+    updateProfile(current.copyWith(dailyScholarshipOptOut: optOut));
+  }
+
   // ── Search ──────────────────────────────────────────────────
 
   StudentCase submitCase({
@@ -1774,6 +1782,7 @@ abstract class _AppControllerBase extends GetxController {
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'scholarshipNewsletterOptIn': profile.wantsScholarshipNewsletter,
+      'dailyScholarshipOptOut': profile.dailyScholarshipOptOut,
       'availableDocuments': profile.availableDocuments,
       if (profile.monthlyBudgetEur != null)
         'monthlyBudgetEur': profile.monthlyBudgetEur,

@@ -59,6 +59,7 @@ class UserProfile {
     this.preferredCurrency = 'XOF',
     this.wantsScholarshipSupport = false,
     this.wantsScholarshipNewsletter = false,
+    this.dailyScholarshipOptOut = false,
     this.availableDocuments = const [],
     this.consentedAt,
     this.aiConsentedAt,
@@ -96,6 +97,10 @@ class UserProfile {
   /// GDPR requires an explicit, freely given consent. The backend stamps the
   /// consent timestamp; the app only carries the desired boolean.
   final bool wantsScholarshipNewsletter;
+
+  /// KPB-162: opt-out of the daily "Bourse du jour" push (the "opportunités"
+  /// type). false = opted in. Never affects other notifications.
+  final bool dailyScholarshipOptOut;
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
@@ -153,6 +158,7 @@ class UserProfile {
     String? preferredCurrency,
     bool? wantsScholarshipSupport,
     bool? wantsScholarshipNewsletter,
+    bool? dailyScholarshipOptOut,
     List<String>? availableDocuments,
     DateTime? consentedAt,
     DateTime? aiConsentedAt,
@@ -185,6 +191,8 @@ class UserProfile {
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       wantsScholarshipNewsletter:
           wantsScholarshipNewsletter ?? this.wantsScholarshipNewsletter,
+      dailyScholarshipOptOut:
+          dailyScholarshipOptOut ?? this.dailyScholarshipOptOut,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
       aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,

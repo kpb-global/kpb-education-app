@@ -593,6 +593,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             children: [
               _enablePushRow(),
               const SizedBox(height: 12),
+              _dailyScholarshipRow(),
+              const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: KpbColors.canvas,
@@ -689,6 +691,61 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// KPB-162: real, backed per-type toggle — "receive the daily Bourse du jour"
+  /// (ON = not opted out). Persists via the profile PATCH and never touches
+  /// other notifications.
+  Widget _dailyScholarshipRow() {
+    return GetBuilder<AppController>(
+      builder: (c) {
+        final receive = !(c.profile?.dailyScholarshipOptOut ?? false);
+        return Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: KpbColors.actionPrimarySoft,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: const Icon(Icons.school_rounded,
+                  size: 18, color: KpbColors.actionPrimary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'daily_scholarship_pref_title'.tr,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: KpbColors.brandNavy,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    'daily_scholarship_pref_subtitle'.tr,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      height: 1.45,
+                      color: KpbColors.textFaint,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Switch(
+              value: receive,
+              onChanged: (v) => c.setDailyScholarshipOptOut(!v),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -32,6 +32,12 @@ abstract final class AnalyticsEventName {
   static const onboardingSkipped = 'onboarding_skipped';
   static const authFailed = 'auth_failed';
 
+  /// Daily "Bourse du jour" (KPB-162): the Home card was seen, and it was
+  /// tapped through to the scholarship. viewed → opened gives the card CTR;
+  /// saves ride the existing `save_item` event.
+  static const dailyScholarshipViewed = 'daily_scholarship_viewed';
+  static const dailyScholarshipOpened = 'daily_scholarship_opened';
+
   /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
   /// This is the core lead→advisor-contact step the funnel is measured on.
   static const whatsappHandoff = 'whatsapp_handoff';

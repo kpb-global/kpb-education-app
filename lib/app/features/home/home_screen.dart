@@ -23,6 +23,7 @@ import '../parcours/parcours_screen.dart';
 import '../parcours/parcours_story_screen.dart';
 import '../tools/student_tools_screen.dart';
 import 'counsellor_testimonials_carousel.dart';
+import 'daily_scholarship_card.dart';
 import 'home_impact_proof.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -154,6 +155,15 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: KpbSpacing.lg),
                         ],
+
+                        // ── 2.5 Bourse du jour (KPB-162) ────────────
+                        // Self-fetching + self-hiding (bottom spacing lives in
+                        // the card so there's no gap when nothing is featured).
+                        if (controller.isStudent)
+                          const StaggeredSlide(
+                            index: 2,
+                            child: DailyScholarshipCard(),
+                          ),
 
                         // ── 3. Quick Actions ────────────────────────
                         StaggeredSlide(

@@ -13,6 +13,8 @@ void main() {
       AnalyticsEventName.onboardingCompleted,
       AnalyticsEventName.onboardingSkipped,
       AnalyticsEventName.authFailed,
+      AnalyticsEventName.dailyScholarshipViewed,
+      AnalyticsEventName.dailyScholarshipOpened,
     ];
     for (final e in events) {
       expect(e.length, lessThanOrEqualTo(40), reason: e);

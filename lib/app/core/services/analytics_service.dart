@@ -191,6 +191,34 @@ class AnalyticsService {
     }
   }
 
+  // ── Daily scholarship (KPB-162) ─────────────────────────────────────────────
+
+  Future<void> logDailyScholarshipViewed(String scholarshipId) async {
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.dailyScholarshipViewed,
+        parameters: {AnalyticsParamKey.itemId: scholarshipId},
+      );
+      _mirror(AnalyticsEventName.dailyScholarshipViewed,
+          {AnalyticsParamKey.itemId: scholarshipId});
+    } catch (e, s) {
+      _logError('logDailyScholarshipViewed', e, s);
+    }
+  }
+
+  Future<void> logDailyScholarshipOpened(String scholarshipId) async {
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.dailyScholarshipOpened,
+        parameters: {AnalyticsParamKey.itemId: scholarshipId},
+      );
+      _mirror(AnalyticsEventName.dailyScholarshipOpened,
+          {AnalyticsParamKey.itemId: scholarshipId});
+    } catch (e, s) {
+      _logError('logDailyScholarshipOpened', e, s);
+    }
+  }
+
   // ── Onboarding funnel (KPB-158) ─────────────────────────────────────────────
 
   Future<void> logOnboardingStepViewed({
