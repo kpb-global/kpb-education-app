@@ -1054,6 +1054,28 @@ class AppApiClient {
     return initial;
   }
 
+  /// Today's featured scholarship (`GET /scholarships/daily`), or null when
+  /// none is eligible. Same DTO shape as the detail endpoint; best-effort — the
+  /// Home card self-hides on any error.
+  Future<LiveScholarshipModel?> fetchDailyScholarship({
+    required String lang,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/scholarships/daily',
+        queryParameters: {'lang': lang},
+      );
+      final data = response.data ?? <String, dynamic>{};
+      final raw = data['scholarship'];
+      if (raw is Map && ((raw['id'] as String?) ?? '').isNotEmpty) {
+        return LiveScholarshipModel.fromJson(Map<String, dynamic>.from(raw));
+      }
+    } catch (_) {
+      // Best-effort: the daily card degrades to hidden.
+    }
+    return null;
+  }
+
   /// Scholarships for which the current student explicitly requested alerts.
   Future<Set<String>> fetchScholarshipAlerts() async {
     final response = await _dio.get<Map<String, dynamic>>(

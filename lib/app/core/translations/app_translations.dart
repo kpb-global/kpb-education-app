@@ -1689,6 +1689,11 @@ class AppTranslations extends Translations {
           'explore_fields': 'Explorer les filières',
           'explore_countries': 'Explorer les pays',
           'scholarships_for_you': 'Bourses pour toi',
+          'daily_scholarship_title': 'Bourse du jour',
+          'daily_scholarship_badge_new': 'NOUVEAU',
+          'daily_scholarship_pref_title': 'Bourse du jour',
+          'daily_scholarship_pref_subtitle':
+              'Une bourse mise en avant chaque jour. N\'affecte pas les autres notifications.',
           'profile_completion': 'Complétude du profil',
           'orientation_intro':
               'Répondez à quelques questions. KPB vous propose des pistes de filières, des pays et des grandes écoles cohérents.',
@@ -4207,6 +4212,11 @@ class AppTranslations extends Translations {
           'explore_fields': 'Explore fields',
           'explore_countries': 'Explore countries',
           'scholarships_for_you': 'Scholarships for you',
+          'daily_scholarship_title': 'Scholarship of the day',
+          'daily_scholarship_badge_new': 'NEW',
+          'daily_scholarship_pref_title': 'Scholarship of the day',
+          'daily_scholarship_pref_subtitle':
+              'One featured scholarship each day. Does not affect other notifications.',
           'profile_completion': 'Profile completion',
           'orientation_intro':
               'Answer a few questions. KPB will suggest fields, countries, and top schools that fit your profile.',

@@ -82,6 +82,10 @@ export class UpdateProfileDto {
   scholarshipNewsletterOptIn?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  dailyScholarshipOptOut?: boolean;
+
+  @IsOptional()
   @IsArray()
   availableDocuments?: string[];
 

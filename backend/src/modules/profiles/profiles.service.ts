@@ -111,6 +111,9 @@ export class ProfilesService {
           ...(input.scholarshipNewsletterOptIn !== undefined
             ? { newsletterOptIn: input.scholarshipNewsletterOptIn }
             : {}),
+          ...(input.dailyScholarshipOptOut !== undefined
+            ? { dailyScholarshipOptOut: input.dailyScholarshipOptOut }
+            : {}),
           ...(stampNewsletterConsent
             ? { newsletterConsentedAt: new Date() }
             : {}),
@@ -987,6 +990,7 @@ export class ProfilesService {
       preferredCurrency: p.preferredCurrency,
       wantsScholarshipSupport: p.wantsScholarship,
       scholarshipNewsletterOptIn: p.newsletterOptIn,
+      dailyScholarshipOptOut: p.dailyScholarshipOptOut,
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,
