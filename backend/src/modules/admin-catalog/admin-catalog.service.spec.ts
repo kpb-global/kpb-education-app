@@ -208,3 +208,79 @@ describe('AdminCatalogService — scholarship application requirement & steps', 
     });
   });
 });
+
+/**
+ * Guards KPB-161: the freshness SLA summary aggregates the verification queue
+ * by category — overdue count, never-verified count, and oldest age — so the
+ * daily ops alert reports what admins see.
+ */
+describe('AdminCatalogService — verification SLA (KPB-161)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  function makeService(rows: {
+    countries?: unknown[];
+    institutions?: unknown[];
+    programs?: unknown[];
+    scholarships?: unknown[];
+  }) {
+    const client = {
+      country: { findMany: async () => rows.countries ?? [] },
+      institution: { findMany: async () => rows.institutions ?? [] },
+      program: { findMany: async () => rows.programs ?? [] },
+      scholarship: { findMany: async () => rows.scholarships ?? [] },
+      $transaction: async (ps: Promise<unknown>[]) => Promise.all(ps),
+    };
+    const prisma = {
+      isEnabled: true,
+      execute: async (fn: (c: typeof client) => unknown) => fn(client),
+    } as unknown as PrismaService;
+    return new AdminCatalogService(prisma);
+  }
+
+  it('groups overdue items by category with never-verified + oldest age',
+      async () => {
+    const now = new Date();
+    const service = makeService({
+      countries: [
+        {
+          id: 'c1',
+          nameFr: 'Niger',
+          nameEn: 'Niger',
+          lastVerifiedAt: null, // never verified
+          verifiedByName: null,
+          sourceUrl: null,
+        },
+      ],
+      scholarships: [
+        {
+          id: 's1',
+          nameFr: 'Bourse X',
+          nameEn: 'Scholarship X',
+          countryId: 'fra',
+          deadlineLabelFr: 'Juin',
+          lastVerifiedAt: new Date(now.getTime() - 45 * DAY),
+          verifiedByName: 'Amina',
+          sourceUrl: null,
+        },
+      ],
+    });
+
+    const sla = await service.verificationSlaSummary(now);
+
+    expect(sla.totalOverdue).toBe(2);
+    expect(sla.neverVerified).toBe(1);
+    expect(sla.byCategory.country_visa.overdue).toBe(1);
+    expect(sla.byCategory.country_visa.neverVerified).toBe(1);
+    expect(sla.byCategory.country_visa.oldestDays).toBeNull();
+    expect(sla.byCategory.scholarship_deadline.overdue).toBe(1);
+    expect(sla.byCategory.scholarship_deadline.oldestDays).toBe(45);
+  });
+
+  it('reports zero overdue when the queue is empty', async () => {
+    const service = makeService({});
+    const sla = await service.verificationSlaSummary();
+    expect(sla.totalOverdue).toBe(0);
+    expect(sla.neverVerified).toBe(0);
+    expect(sla.byCategory.scholarship_deadline.overdue).toBe(0);
+  });
+});

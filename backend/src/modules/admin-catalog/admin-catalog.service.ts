@@ -18,9 +18,11 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import type { Prisma } from '@prisma/client';
 
 import type { AdminSessionUser } from '../auth/auth.service';
@@ -87,8 +89,26 @@ export const VERIFICATION_POLICIES = {
 type VerificationPolicyName = keyof typeof VERIFICATION_POLICIES;
 type VerificationEntity = 'country' | 'institution' | 'program' | 'scholarship';
 
+interface VerificationSlaCategory {
+  label: string;
+  cadenceDays: number;
+  overdue: number;
+  neverVerified: number;
+  oldestDays: number | null;
+}
+
+/// Aggregate freshness view over the verification queue (KPB-161).
+export interface VerificationSlaSummary {
+  generatedAt: Date;
+  totalOverdue: number;
+  neverVerified: number;
+  byCategory: Record<string, VerificationSlaCategory>;
+}
+
 @Injectable()
 export class AdminCatalogService {
+  private readonly logger = new Logger(AdminCatalogService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   private assertDb() {
@@ -397,6 +417,79 @@ export class AdminCatalogService {
       total: items.length,
       policies: Object.values(VERIFICATION_POLICIES),
     };
+  }
+
+  /// Aggregate the verification queue into an SLA view: how many catalog items
+  /// are overdue (past their per-category cadence), split by category, with the
+  /// oldest age and the count never verified. Derived from the same source as
+  /// the admin queue, so counts always match what admins see.
+  async verificationSlaSummary(now = new Date()): Promise<VerificationSlaSummary> {
+    const { items } = await this.listVerificationDue();
+    const byCategory: Record<string, VerificationSlaCategory> = {};
+    for (const policy of Object.values(VERIFICATION_POLICIES)) {
+      byCategory[policy.key] = {
+        label: policy.label,
+        cadenceDays: policy.cadenceDays,
+        overdue: 0,
+        neverVerified: 0,
+        oldestDays: null,
+      };
+    }
+    for (const item of items) {
+      const cat = byCategory[item.category];
+      if (!cat) continue;
+      cat.overdue += 1;
+      if (item.lastVerifiedAt == null) {
+        cat.neverVerified += 1;
+      } else if (item.daysSinceVerification != null) {
+        cat.oldestDays = Math.max(
+          cat.oldestDays ?? 0,
+          item.daysSinceVerification,
+        );
+      }
+    }
+    return {
+      generatedAt: now,
+      totalOverdue: items.length,
+      neverVerified: Object.values(byCategory).reduce(
+        (n, c) => n + c.neverVerified,
+        0,
+      ),
+      byCategory,
+    };
+  }
+
+  /// Daily ops signal (KPB-161): a WARN when catalog data has drifted past its
+  /// freshness cadence, so stale deadlines / costs get re-verified before they
+  /// mislead a student. Stdout is the only alert channel today; wiring it to a
+  /// real alerting sink is a follow-up (KPB-167 observability).
+  @Cron('0 7 * * *')
+  async checkVerificationSla(): Promise<void> {
+    if (!this.prisma.isEnabled) return;
+    try {
+      const sla = await this.verificationSlaSummary();
+      if (sla.totalOverdue === 0) {
+        this.logger.log('Catalog freshness OK — nothing past its cadence.');
+        return;
+      }
+      const breakdown = Object.entries(sla.byCategory)
+        .filter(([, c]) => c.overdue > 0)
+        .map(([key, c]) => {
+          const never = c.neverVerified
+            ? ` (${c.neverVerified} never verified)`
+            : '';
+          const oldest = c.oldestDays != null ? `, +${c.oldestDays}d` : '';
+          return `${key}=${c.overdue}${never}${oldest}`;
+        })
+        .join('; ');
+      this.logger.warn(
+        `Catalog freshness SLA breach: ${sla.totalOverdue} item(s) overdue — ${breakdown}. Re-verify in the admin queue.`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Verification SLA check failed (${error instanceof Error ? error.message : 'unknown'}).`,
+      );
+    }
   }
 
   // ════════════════════════════════════════════════════════════════════════
