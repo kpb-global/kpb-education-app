@@ -108,6 +108,7 @@ import { AmbassadorController } from './modules/referrals/ambassador.controller'
 import { AmbassadorService } from './modules/referrals/ambassador.service';
 import { AdminScholarshipsController, ScholarshipsController } from './modules/scholarships-index/admin-scholarships.controller';
 import { ScholarshipsIndexService } from './modules/scholarships-index/scholarships-index.service';
+import { DailyScholarshipService } from './modules/scholarships-index/daily-scholarship.service';
 import { ScholarshipAlertsController } from './modules/scholarships-index/scholarship-alerts.controller';
 import { ScholarshipAlertsService } from './modules/scholarships-index/scholarship-alerts.service';
 import { ScholarshipLifecycleService } from './modules/scholarships-index/scholarship-lifecycle.service';
@@ -284,6 +285,7 @@ import { SalonService } from './modules/salon/salon.service';
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,
     ScholarshipsIndexService,
+    DailyScholarshipService,
     ScholarshipAlertsService,
     ScholarshipLifecycleService,
     ScholarshipContentQualityService,
