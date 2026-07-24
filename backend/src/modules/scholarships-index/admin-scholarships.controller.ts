@@ -16,6 +16,7 @@ import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { DailyScholarshipService } from './daily-scholarship.service';
 import { ActivateScholarshipDto } from './dto/activate-scholarship.dto';
 import { ForecastScholarshipDto } from './dto/forecast-scholarship.dto';
 import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
@@ -102,7 +103,21 @@ export class AdminScholarshipsController {
 export class ScholarshipsController {
   constructor(
     private readonly scholarshipsIndexService: ScholarshipsIndexService,
+    private readonly dailyScholarshipService: DailyScholarshipService,
   ) {}
+
+  // Declared before `:id` so "daily" is never captured as a scholarship id.
+  @Get('daily')
+  @UseGuards(StudentAuthGuard)
+  daily(
+    @Req() req: { studentUser: { id: string } },
+    @Query('lang') lang: string = 'fr',
+  ) {
+    return this.dailyScholarshipService.getDailyForProfile(
+      req.studentUser.id,
+      lang === 'en' ? 'en' : 'fr',
+    );
+  }
 
   @Get()
   @UseGuards(StudentAuthGuard)

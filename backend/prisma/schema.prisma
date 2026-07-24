@@ -371,6 +371,10 @@ model UserProfile {
   newsletterOptIn         Boolean                        @default(false)
   newsletterConsentedAt   DateTime?
   newsletterSyncedOptIn   Boolean?
+  // KPB-162: opt-out of the daily "Bourse du jour" push (the "opportunités"
+  // notification type). false = opted in; the daily cron skips users set true.
+  // Opting out never affects other notifications (deadlines, dossier, etc.).
+  dailyScholarshipOptOut  Boolean                        @default(false)
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.
   birthDate               DateTime?
