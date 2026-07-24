@@ -60,12 +60,15 @@ export class ScholarshipsIndexService {
   private readonly scrapers: ScholarshipScraper[];
 
   /**
-   * MVP launch lock. The live-scholarships aggregator is a V1.1+ module, so the
-   * automated 48h scrape is disabled at launch. Defaults to on; set
-   * `KPB_MVP_ONLY=false` to re-enable the scheduled refresh. The admin
-   * "Refresh now" endpoint stays available regardless.
+   * The automated 48h scrape is OFF by default and activated by a DEDICATED
+   * flag, decoupled from the global `KPB_MVP_ONLY` lock — flipping that lock to
+   * enable the refresh would also unlock other MVP-gated surfaces (MvpGuard).
+   * Set `KPB_SCHOLARSHIP_REFRESH_ENABLED=true` to activate; only the vetted
+   * sources (GreatYop, MastereTn) are wired. The admin "Refresh now" endpoint
+   * stays available on demand regardless of this flag.
    */
-  private readonly mvpOnly = process.env.KPB_MVP_ONLY !== 'false';
+  private readonly scheduledRefreshEnabled =
+      process.env.KPB_SCHOLARSHIP_REFRESH_ENABLED === 'true';
 
   constructor(
     private readonly prismaService: PrismaService,
@@ -79,9 +82,9 @@ export class ScholarshipsIndexService {
   /** Cron tick — every 48 hours (midnight every other day). */
   @Cron('0 0 */2 * *')
   async scheduledRefresh(): Promise<void> {
-    if (this.mvpOnly) {
+    if (!this.scheduledRefreshEnabled) {
       this.logger.log(
-        'Scheduled scholarship-index refresh skipped (KPB_MVP_ONLY). Use the admin "Refresh now" endpoint to run on demand.',
+        'Scheduled scholarship-index refresh disabled (set KPB_SCHOLARSHIP_REFRESH_ENABLED=true to activate). Admin "Refresh now" remains available on demand.',
       );
       return;
     }
