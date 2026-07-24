@@ -1965,6 +1965,13 @@ class AppTranslations extends Translations {
           'referral_become_ambassador_sub':
               'Gagne des FCFA en parrainant · retraits Wave',
           'amb_appbar': 'Espace ambassadeur',
+          'amb_apply_title': 'Programme Ambassadeur',
+          'amb_apply_body':
+              'Le programme Ambassadeur (parrainage rémunéré) ouvre sur candidature. Contacte un conseiller KPB pour le rejoindre, ou découvre notre programme de parrainage gratuit.',
+          'amb_apply_cta_advisor': 'Contacter un conseiller',
+          'amb_apply_cta_referral': 'Découvrir le parrainage',
+          'amb_apply_wa_prefill':
+              'Bonjour KPB, je souhaite candidater au programme Ambassadeur.',
           'amb_load_error': 'Impossible de charger ton espace ambassadeur.',
           'amb_sample_banner':
               'Aperçu — active ton espace pour gagner des FCFA.',
@@ -4470,6 +4477,13 @@ class AppTranslations extends Translations {
           'referral_become_ambassador_sub':
               'Earn FCFA by referring · Wave payouts',
           'amb_appbar': 'Ambassador space',
+          'amb_apply_title': 'Ambassador programme',
+          'amb_apply_body':
+              'The Ambassador programme (paid referrals) is open by application. Contact a KPB advisor to join, or explore our free referral programme.',
+          'amb_apply_cta_advisor': 'Contact an advisor',
+          'amb_apply_cta_referral': 'Explore referrals',
+          'amb_apply_wa_prefill':
+              'Hello KPB, I would like to apply to the Ambassador programme.',
           'amb_load_error': 'Could not load your ambassador space.',
           'amb_sample_banner': 'Preview — activate your space to earn FCFA.',
           'amb_nav_dashboard': 'Dashboard',
