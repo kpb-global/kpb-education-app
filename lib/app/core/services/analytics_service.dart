@@ -219,6 +219,29 @@ class AnalyticsService {
     }
   }
 
+  // ── "Mon plan" progress (KPB-164) ───────────────────────────────────────────
+
+  /// Current unified progress + the action being proposed. One event per change,
+  /// so retention analysis can chart progress over time per user.
+  Future<void> logMyPlanProgress({
+    required int percent,
+    required String nextStep,
+  }) async {
+    try {
+      final params = <String, Object>{
+        AnalyticsParamKey.percent: percent,
+        AnalyticsParamKey.nextStep: nextStep,
+      };
+      await _analytics.logEvent(
+        name: AnalyticsEventName.myPlanProgress,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.myPlanProgress, params);
+    } catch (e, s) {
+      _logError('logMyPlanProgress', e, s);
+    }
+  }
+
   // ── Onboarding funnel (KPB-158) ─────────────────────────────────────────────
 
   Future<void> logOnboardingStepViewed({
