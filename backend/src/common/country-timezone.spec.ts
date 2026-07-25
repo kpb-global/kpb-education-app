@@ -1,6 +1,7 @@
 import {
   isWithinQuietHours,
   localHourFor,
+  localWeekdayFor,
   utcOffsetHoursForCountry,
 } from './country-timezone';
 
@@ -26,6 +27,22 @@ describe('country-timezone', () => {
     expect(localHourFor(utc, 0)).toBe(23);
     expect(localHourFor(utc, 1)).toBe(0); // wraps past midnight
     expect(localHourFor(utc, 4)).toBe(3);
+  });
+
+  it('computes the local weekday, including day rollover from the offset', () => {
+    // 2026-07-27 is a Monday (getUTCDay() === 1).
+    const mondayMorning = new Date('2026-07-27T08:00:00Z');
+    expect(localWeekdayFor(mondayMorning, 0)).toBe(1); // Monday
+    expect(localWeekdayFor(mondayMorning, 1)).toBe(1); // still Monday
+
+    // Late Sunday UTC becomes Monday for a positive offset.
+    const sundayLate = new Date('2026-07-26T23:30:00Z');
+    expect(localWeekdayFor(sundayLate, 0)).toBe(0); // Sunday
+    expect(localWeekdayFor(sundayLate, 1)).toBe(1); // Monday locally
+
+    // Early Monday UTC is still Sunday for a negative offset.
+    const mondayEarly = new Date('2026-07-27T02:00:00Z');
+    expect(localWeekdayFor(mondayEarly, -5)).toBe(0); // Sunday in Montréal
   });
 
   it('detects the midnight-wrapping quiet window (21:00–08:00)', () => {

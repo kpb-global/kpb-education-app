@@ -133,6 +133,16 @@ export function localHourFor(utcDate: Date, offsetHours: number): number {
 }
 
 /**
+ * Local day of week (0 = Sunday … 6 = Saturday) at `utcDate` for the given
+ * whole-hour offset. Needed for "send on Monday morning local time" schedules,
+ * where the offset can push a user into the previous/next day.
+ */
+export function localWeekdayFor(utcDate: Date, offsetHours: number): number {
+  const shifted = new Date(utcDate.getTime() + offsetHours * 60 * 60 * 1000);
+  return shifted.getUTCDay();
+}
+
+/**
  * True when the local hour falls in the quiet window [startHour, endHour).
  * The window wraps midnight when startHour > endHour (e.g. 21 → 8 covers
  * 21,22,23,0,1,…,7). A degenerate start === end window is treated as "never

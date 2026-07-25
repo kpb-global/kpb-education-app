@@ -375,6 +375,11 @@ model UserProfile {
   // notification type). false = opted in; the daily cron skips users set true.
   // Opting out never affects other notifications (deadlines, dossier, etc.).
   dailyScholarshipOptOut  Boolean                        @default(false)
+  // KPB-163: opt-out of the Monday weekly digest (push + email). Independent of
+  // every other notification type. NOTE: if a third opt-out type appears,
+  // collapse these booleans into a single `disabledNotificationTypes String[]`
+  // rather than adding another column.
+  weeklyDigestOptOut      Boolean                        @default(false)
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.
   birthDate               DateTime?

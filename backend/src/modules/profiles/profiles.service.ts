@@ -114,6 +114,9 @@ export class ProfilesService {
           ...(input.dailyScholarshipOptOut !== undefined
             ? { dailyScholarshipOptOut: input.dailyScholarshipOptOut }
             : {}),
+          ...(input.weeklyDigestOptOut !== undefined
+            ? { weeklyDigestOptOut: input.weeklyDigestOptOut }
+            : {}),
           ...(stampNewsletterConsent
             ? { newsletterConsentedAt: new Date() }
             : {}),
@@ -991,6 +994,7 @@ export class ProfilesService {
       wantsScholarshipSupport: p.wantsScholarship,
       scholarshipNewsletterOptIn: p.newsletterOptIn,
       dailyScholarshipOptOut: p.dailyScholarshipOptOut,
+      weeklyDigestOptOut: p.weeklyDigestOptOut,
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,
