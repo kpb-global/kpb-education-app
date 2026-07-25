@@ -191,6 +191,63 @@ class AnalyticsService {
     }
   }
 
+  // ── Parcours stories (KPB-169) ──────────────────────────────────────────────
+
+  /// A story became the one on screen. [source] is the surface ('feed',
+  /// 'library', 'story_of_week') so completion can be read per surface.
+  Future<void> logParcoursView({
+    required String slug,
+    required String kind,
+    required String source,
+  }) =>
+      _logParcours(AnalyticsEventName.parcoursView, slug, kind, source);
+
+  /// The story was actually consumed — video watched to the end, or written
+  /// interview scrolled to the last answer. Paired with [logParcoursView],
+  /// this is the completion rate; a view count alone would say nothing.
+  Future<void> logParcoursComplete({
+    required String slug,
+    required String kind,
+    required String source,
+  }) =>
+      _logParcours(AnalyticsEventName.parcoursComplete, slug, kind, source);
+
+  Future<void> _logParcours(
+    String name,
+    String slug,
+    String kind,
+    String source,
+  ) async {
+    final parameters = <String, Object>{
+      AnalyticsParamKey.slug: slug,
+      AnalyticsParamKey.itemType: kind,
+      AnalyticsParamKey.source: source,
+    };
+    try {
+      await _analytics.logEvent(name: name, parameters: parameters);
+      _mirror(name, parameters);
+    } catch (e, s) {
+      _logError(name, e, s);
+    }
+  }
+
+  /// Home "récit de la semaine" card: shown, then tapped through.
+  Future<void> logStoryOfWeekViewed(String slug) =>
+      _logStoryOfWeek(AnalyticsEventName.storyOfWeekViewed, slug);
+
+  Future<void> logStoryOfWeekOpened(String slug) =>
+      _logStoryOfWeek(AnalyticsEventName.storyOfWeekOpened, slug);
+
+  Future<void> _logStoryOfWeek(String name, String slug) async {
+    final parameters = <String, Object>{AnalyticsParamKey.slug: slug};
+    try {
+      await _analytics.logEvent(name: name, parameters: parameters);
+      _mirror(name, parameters);
+    } catch (e, s) {
+      _logError(name, e, s);
+    }
+  }
+
   // ── Daily scholarship (KPB-162) ─────────────────────────────────────────────
 
   Future<void> logDailyScholarshipViewed(String scholarshipId) async {

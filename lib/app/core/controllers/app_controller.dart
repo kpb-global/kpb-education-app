@@ -16,6 +16,7 @@ import '../observability/crashlytics_observability.dart';
 import '../config/app_config.dart';
 import '../config/app_routes.dart';
 import '../data/mock_catalog.dart';
+import '../data/notification_opt_out.dart';
 import '../data/orientation_engine.dart';
 import '../data/orientation_questions_m4.dart';
 import '../data/roadmap_engine.dart';
@@ -863,20 +864,18 @@ abstract class _AppControllerBase extends GetxController {
     updateProfile(current.copyWith(wantsScholarshipNewsletter: optIn));
   }
 
-  /// KPB-162: opt out of (or back into) the daily "Bourse du jour" push.
-  /// Persisted via the profile PATCH; never affects other notifications.
-  void setDailyScholarshipOptOut(bool optOut) {
+  /// KPB-169: opt out of (or back into) ONE recurring notification family.
+  /// Persisted via the profile PATCH; the other families are untouched, and a
+  /// key this build doesn't know about is preserved rather than cleared.
+  void setNotificationTypeOptOut(String type, bool optOut) {
     final current = profile;
     if (current == null) return;
-    updateProfile(current.copyWith(dailyScholarshipOptOut: optOut));
-  }
-
-  /// KPB-163: opt out of (or back into) the Monday weekly digest (push + email).
-  /// Persisted via the profile PATCH; never affects other notifications.
-  void setWeeklyDigestOptOut(bool optOut) {
-    final current = profile;
-    if (current == null) return;
-    updateProfile(current.copyWith(weeklyDigestOptOut: optOut));
+    final next = applyOptOut(
+      current.disabledNotificationTypes,
+      type,
+      optOut: optOut,
+    );
+    updateProfile(current.copyWith(disabledNotificationTypes: next));
   }
 
   // ── Search ──────────────────────────────────────────────────
@@ -1824,8 +1823,7 @@ abstract class _AppControllerBase extends GetxController {
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'scholarshipNewsletterOptIn': profile.wantsScholarshipNewsletter,
-      'dailyScholarshipOptOut': profile.dailyScholarshipOptOut,
-      'weeklyDigestOptOut': profile.weeklyDigestOptOut,
+      'disabledNotificationTypes': profile.disabledNotificationTypes,
       'availableDocuments': profile.availableDocuments,
       if (profile.monthlyBudgetEur != null)
         'monthlyBudgetEur': profile.monthlyBudgetEur,

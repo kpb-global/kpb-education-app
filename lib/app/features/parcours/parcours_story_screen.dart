@@ -9,16 +9,70 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
-class ParcoursStoryScreen extends StatelessWidget {
-  const ParcoursStoryScreen({super.key, required this.story});
+class ParcoursStoryScreen extends StatefulWidget {
+  const ParcoursStoryScreen({
+    super.key,
+    required this.story,
+    this.analyticsSource = 'library',
+  });
 
   final ParcoursStory story;
 
+  /// Surface this reader was opened from ('library', 'feed', 'story_of_week'),
+  /// so completion can be read per surface rather than as one blended number.
+  final String analyticsSource;
+
+  @override
+  State<ParcoursStoryScreen> createState() => _ParcoursStoryScreenState();
+}
+
+class _ParcoursStoryScreenState extends State<ParcoursStoryScreen> {
+  final _scrollController = ScrollController();
+  bool _completeLogged = false;
+
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.instance.logParcoursView(
+      slug: widget.story.slug,
+      kind: 'text',
+      source: widget.analyticsSource,
+    );
+    _scrollController.addListener(_onScroll);
+    // A short interview can fit on one screen — there is no scroll to reach the
+    // end, and it is read all the same. Settle the first frame, then check.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  /// "Read" = the last answer is on screen. Measured, never assumed from a
+  /// simple open.
+  void _onScroll() {
+    if (_completeLogged || !_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    final atEnd = position.pixels >= position.maxScrollExtent - 24;
+    if (!atEnd) return;
+    _completeLogged = true;
+    AnalyticsService.instance.logParcoursComplete(
+      slug: widget.story.slug,
+      kind: 'text',
+      source: widget.analyticsSource,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final story = widget.story;
     final localeCode = Get.find<AppController>().localeCode;
     final role = story.role.resolve(localeCode);
     final summary = story.summary.resolve(localeCode);
@@ -31,6 +85,7 @@ class ParcoursStoryScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       body: ListView(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(
           KpbSpacing.pagePad,
           KpbSpacing.md,

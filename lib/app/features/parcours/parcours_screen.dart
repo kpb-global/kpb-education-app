@@ -12,7 +12,9 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/mock_catalog.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
+import 'parcours_feed_screen.dart';
 import 'parcours_story_screen.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
@@ -103,6 +105,13 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
                   ),
                 ),
                 SliverToBoxAdapter(
+                  child: _FeedEntryButton(
+                    // The feed plays what the filters currently select, so the
+                    // two discovery modes never disagree about what is on offer.
+                    onTap: () => _openFeed(controller.filteredParcoursStories),
+                  ),
+                ),
+                SliverToBoxAdapter(
                   child: _ThemeFilterBar(
                     fieldIds: controller.parcoursFieldIds,
                     selected: controller.parcoursFieldFilter,
@@ -160,7 +169,17 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
     );
   }
 
+  void _openFeed(List<ParcoursStory> stories) {
+    if (stories.isEmpty) return;
+    Get.to(() => ParcoursFeedScreen(stories: stories));
+  }
+
   void _openStory(ParcoursStory story, List<ParcoursStory> videoStories) {
+    AnalyticsService.instance.logParcoursView(
+      slug: story.slug,
+      kind: story.isVideo ? 'video' : 'text',
+      source: 'library',
+    );
     if (story.isVideo) {
       // Only hand the player videos with a real YouTube id — a malformed
       // "video" story with no id would otherwise open a permanently blank
@@ -185,6 +204,8 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
       );
     } else {
       Get.to(() => ParcoursStoryScreen(story: story));
+      // The reader logs its own view (source 'library' by default) — see
+      // ParcoursStoryScreen — so nothing else to emit here.
     }
   }
 }
@@ -965,6 +986,61 @@ class _NowPlaying extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Entry point to the vertical feed (KPB-169). The grid answers "what is
+/// there?"; the feed answers "just show me one". Both stay available — a
+/// student on a slow connection may prefer the list.
+class _FeedEntryButton extends StatelessWidget {
+  const _FeedEntryButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        KpbSpacing.pagePad,
+        KpbSpacing.md,
+        KpbSpacing.pagePad,
+        0,
+      ),
+      child: Semantics(
+        button: true,
+        label: 'parcours_feed_cta'.tr,
+        child: Material(
+          color: KpbColors.actionPrimarySoft,
+          borderRadius: KpbRadius.mdBr,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: KpbRadius.mdBr,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: KpbSpacing.md,
+                vertical: 12,
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.swipe_vertical_rounded,
+                      size: 19, color: KpbColors.actionPrimary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'parcours_feed_cta'.tr,
+                      style: KpbTextStyles.labelSm
+                          .copyWith(color: KpbColors.actionPrimary),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_rounded,
+                      size: 16, color: KpbColors.actionPrimary),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
