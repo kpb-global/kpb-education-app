@@ -227,6 +227,9 @@ export class ScholarshipLifecycleService {
       throw new NotFoundException(`Scholarship ${scholarshipId} not found.`);
     }
 
+    // KPB-173: solicited and event-driven — these users explicitly subscribed
+    // to THIS scholarship's opening, and the cycle opens once. Kept on the
+    // direct sender rather than the reminder path.
     let pushesSent = 0;
     if (result.firstActivation) {
       for (const subscriber of result.subscribers) {

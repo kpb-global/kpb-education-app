@@ -221,6 +221,11 @@ export class CasesService {
         .catch(() => this.logger.warn('Referral credit failed.'));
 
       const advisorName = mapped.assignedAdvisorName ?? 'KPB';
+      // KPB-173: deliberately NOT routed through NotificationDispatchService.
+      // This is transactional — the immediate receipt for an action the student
+      // just took. Holding it for quiet hours, or dropping it under the daily
+      // reminder cap, would make the app look broken at the exact moment it
+      // must feel reliable.
       await this.pushService.sendToUser(
         userId,
         'Demande reçue ✅',

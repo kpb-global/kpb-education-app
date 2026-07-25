@@ -96,6 +96,10 @@ export class CampaignExecutorService {
       }),
     );
 
+    // KPB-173: admin broadcasts keep their own delivery path — they carry
+    // per-recipient delivery records, their own scheduling and their own
+    // segmentation. Whether they should also inherit quiet hours and the daily
+    // cap is a product decision, tracked separately (KPB-175).
     let delivered = 0;
     if (campaign.channels.includes('push') && template) {
       for (const user of recipients) {
