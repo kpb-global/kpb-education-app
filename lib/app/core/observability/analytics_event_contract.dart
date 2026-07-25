@@ -43,6 +43,12 @@ abstract final class AnalyticsEventName {
   /// PostHog rather than from a local "last week" copy that could drift.
   static const myPlanProgress = 'my_plan_progress';
 
+  /// Shared result card (KPB-165): a student sent an eligibility verdict / match
+  /// / budget card into a conversation, carrying an invite link. `source` gives
+  /// the share rate per result type; `with_image` tells apart a full card from a
+  /// text-only fallback, so a rendering regression is visible in the data.
+  static const shareCard = 'share_card';
+
   /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
   /// This is the core lead→advisor-contact step the funnel is measured on.
   static const whatsappHandoff = 'whatsapp_handoff';
@@ -88,6 +94,9 @@ abstract final class AnalyticsParamKey {
   /// "Mon plan" progress (KPB-164).
   static const percent = 'percent';
   static const nextStep = 'next_step';
+
+  /// Shared result cards (KPB-165).
+  static const withImage = 'with_image';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';

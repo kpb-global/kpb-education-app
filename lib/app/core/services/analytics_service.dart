@@ -219,6 +219,31 @@ class AnalyticsService {
     }
   }
 
+  // ── Shared result cards (KPB-165) ───────────────────────────────────────────
+
+  /// A result card was shared. [withImage] is false when the PNG could not be
+  /// rendered and only the text (with its invite link) went out.
+  Future<void> logShareCard({
+    required String source,
+    required bool withImage,
+    required bool success,
+  }) async {
+    try {
+      final params = <String, Object>{
+        AnalyticsParamKey.source: source,
+        AnalyticsParamKey.withImage: withImage ? 1 : 0,
+        AnalyticsParamKey.success: success ? 1 : 0,
+      };
+      await _analytics.logEvent(
+        name: AnalyticsEventName.shareCard,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.shareCard, params);
+    } catch (e, s) {
+      _logError('logShareCard', e, s);
+    }
+  }
+
   // ── "Mon plan" progress (KPB-164) ───────────────────────────────────────────
 
   /// Current unified progress + the action being proposed. One event per change,

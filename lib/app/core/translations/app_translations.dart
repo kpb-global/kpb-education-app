@@ -633,7 +633,7 @@ class AppTranslations extends Translations {
           'match_card_share_whatsapp': 'Partager sur WhatsApp',
           'match_card_download': 'Télécharger',
           'match_card_whatsapp_prefill':
-              'Mes chances d\'admission à @school : @pct %. Calcule les tiennes sur @domain',
+              'Mes chances d\'admission à @school : @pct %. Calcule les tiennes sur Karatou : @link',
           'match_card_share_error': 'Impossible de générer la carte. Réessaie.',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
@@ -3183,7 +3183,7 @@ class AppTranslations extends Translations {
           'match_card_share_whatsapp': 'Share on WhatsApp',
           'match_card_download': 'Download',
           'match_card_whatsapp_prefill':
-              'My admission chances at @school: @pct%. Compute yours on @domain',
+              'My admission chances at @school: @pct%. Compute yours on Karatou: @link',
           'match_card_share_error': 'Could not generate the card. Try again.',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',
