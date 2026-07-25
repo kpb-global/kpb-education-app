@@ -1689,6 +1689,15 @@ class AppTranslations extends Translations {
           'explore_fields': 'Explorer les filières',
           'explore_countries': 'Explorer les pays',
           'scholarships_for_you': 'Bourses pour toi',
+          'budget_share': 'Partager mon budget',
+          'budget_share_prefill':
+              'Mon budget mensuel estimé pour étudier à l\'étranger : @amount. Calcule le tien sur Karatou : @link',
+          'eligibility_share_verdict': 'Partager mon verdict',
+          'eligibility_share_card_title': 'Mon éligibilité par destination',
+          'eligibility_share_prefill':
+              'Je suis éligible dans @count destinations sur @total. Teste la tienne sur Karatou : @link',
+          'eligibility_share_image_failed':
+              'Carte non générée — le texte a été partagé.',
           'my_plan_title': 'Mon plan',
           'my_plan_next_step': 'Prochaine étape : @step',
           'my_plan_step_profile': 'compléter ton profil',
@@ -4221,6 +4230,15 @@ class AppTranslations extends Translations {
           'explore_fields': 'Explore fields',
           'explore_countries': 'Explore countries',
           'scholarships_for_you': 'Scholarships for you',
+          'budget_share': 'Share my budget',
+          'budget_share_prefill':
+              'My estimated monthly budget to study abroad: @amount. Compute yours on Karatou: @link',
+          'eligibility_share_verdict': 'Share my verdict',
+          'eligibility_share_card_title': 'My eligibility by destination',
+          'eligibility_share_prefill':
+              'I am eligible in @count of @total destinations. Test yours on Karatou: @link',
+          'eligibility_share_image_failed':
+              'Card not generated — the text was shared.',
           'my_plan_title': 'My plan',
           'my_plan_next_step': 'Next step: @step',
           'my_plan_step_profile': 'complete your profile',
