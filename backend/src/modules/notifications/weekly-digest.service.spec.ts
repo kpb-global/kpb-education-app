@@ -110,7 +110,7 @@ describe('WeeklyDigestService', () => {
     // Opt-out is enforced in the recipient query.
     expect(profileWheres[0]).toMatchObject({
       accountType: 'student',
-      weeklyDigestOptOut: false,
+      NOT: { disabledNotificationTypes: { has: 'weekly_digest' } },
     });
     expect(dispatched).toHaveLength(1);
     expect(dispatched[0]).toMatchObject({

@@ -92,7 +92,10 @@ export class WeeklyDigestService {
     const recipients =
       (await this.prisma.execute((db) =>
         db.userProfile.findMany({
-          where: { accountType: 'student', weeklyDigestOptOut: false },
+          where: {
+            accountType: 'student',
+            NOT: { disabledNotificationTypes: { has: 'weekly_digest' } },
+          },
           select: {
             id: true,
             email: true,

@@ -112,7 +112,7 @@ describe('DailyScholarshipService', () => {
     // Opt-out is enforced in the recipient query (AC3).
     expect(profileWheres[0]).toMatchObject({
       accountType: 'student',
-      dailyScholarshipOptOut: false,
+      NOT: { disabledNotificationTypes: { has: 'daily_scholarship' } },
     });
     // Only the local-19h student is pushed.
     expect(dispatched).toHaveLength(1);

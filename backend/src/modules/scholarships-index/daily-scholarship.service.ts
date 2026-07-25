@@ -118,7 +118,10 @@ export class DailyScholarshipService {
     const recipients =
       (await this.prisma.execute((db) =>
         db.userProfile.findMany({
-          where: { accountType: 'student', dailyScholarshipOptOut: false },
+          where: {
+            accountType: 'student',
+            NOT: { disabledNotificationTypes: { has: 'daily_scholarship' } },
+          },
           select: {
             id: true,
             preferredLanguage: true,

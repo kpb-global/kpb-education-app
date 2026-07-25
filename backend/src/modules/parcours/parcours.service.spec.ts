@@ -127,6 +127,83 @@ describe('ParcoursService', () => {
     });
   });
 
+  describe('pickStoryOfWeek — "récit de la semaine" (KPB-169)', () => {
+    const featured = (id: string, order: number) => ({
+      id,
+      slug: id,
+      kind: 'video',
+      fieldId: null,
+      tags: [],
+      personName: '',
+      roleFr: '',
+      roleEn: '',
+      titleFr: id,
+      titleEn: id,
+      hookFr: '',
+      hookEn: '',
+      summaryFr: '',
+      summaryEn: '',
+      thumbnailUrl: '',
+      photoUrl: '',
+      youtubeId: 'yt',
+      durationMinutes: null,
+      interviewFr: null,
+      interviewEn: null,
+      status: 'published',
+      featured: true,
+      displayOrder: order,
+      popularity: 0,
+    });
+
+    it('returns null when nothing is featured — the slot stays empty', async () => {
+      const { prisma } = dbPrisma([]);
+      const service = new ParcoursService(prisma);
+      expect(await service.pickStoryOfWeek(new Date('2026-07-26'))).toBeNull();
+    });
+
+    it('is stable across a week and rotates the next one', async () => {
+      const { prisma } = dbPrisma([featured('a', 1), featured('b', 2)]);
+      const service = new ParcoursService(prisma);
+
+      // Monday → Sunday of the same week: one and the same story.
+      const week1 = await Promise.all(
+        [
+          '2026-07-20T00:00:00Z',
+          '2026-07-23T12:00:00Z',
+          '2026-07-26T23:59:00Z',
+        ].map((d) => service.pickStoryOfWeek(new Date(d))),
+      );
+      expect(new Set(week1.map((s) => s?.slug)).size).toBe(1);
+
+      // The following Monday is a different story.
+      const week2 = await service.pickStoryOfWeek(
+        new Date('2026-07-27T08:00:00Z'),
+      );
+      expect(week2?.slug).not.toBe(week1[0]?.slug);
+    });
+
+    it('keeps serving the only featured story rather than going empty', async () => {
+      const { prisma } = dbPrisma([featured('solo', 1)]);
+      const service = new ParcoursService(prisma);
+      const a = await service.pickStoryOfWeek(new Date('2026-07-20'));
+      const b = await service.pickStoryOfWeek(new Date('2026-08-10'));
+      expect([a?.slug, b?.slug]).toEqual(['solo', 'solo']);
+    });
+
+    it('getStoryOfWeek stamps a week key alongside the pick', async () => {
+      const { prisma } = dbPrisma([featured('a', 1)]);
+      const service = new ParcoursService(prisma);
+      const out = await service.getStoryOfWeek(new Date('2026-07-22T10:00:00Z'));
+      expect(out.story?.slug).toBe('a');
+      expect(out.week).toMatch(/^2026-W\d+$/);
+      // Same key all week, new key the next.
+      expect(service.weekKey(new Date('2026-07-26T10:00:00Z'))).toBe(out.week);
+      expect(service.weekKey(new Date('2026-07-27T10:00:00Z'))).not.toBe(
+        out.week,
+      );
+    });
+  });
+
   describe('admin mutations', () => {
     it('create maps the localized input into flat columns', async () => {
       const { prisma, calls } = dbPrisma([]);

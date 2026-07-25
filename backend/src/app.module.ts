@@ -33,6 +33,7 @@ import { ContentController } from './modules/content/content.controller';
 import { ContentService } from './modules/content/content.service';
 import { ParcoursController } from './modules/parcours/parcours.controller';
 import { ParcoursService } from './modules/parcours/parcours.service';
+import { ParcoursWeeklyService } from './modules/parcours/parcours-weekly.service';
 import { AppConfigController } from './modules/config/app-config.controller';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
@@ -244,6 +245,7 @@ import { SalonService } from './modules/salon/salon.service';
     CommunityService,
     ContentService,
     ParcoursService,
+    ParcoursWeeklyService,
     OneSignalSenderService,
     CampaignExecutorService,
     CampaignMailService,
