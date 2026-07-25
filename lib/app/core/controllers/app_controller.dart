@@ -870,6 +870,14 @@ abstract class _AppControllerBase extends GetxController {
     updateProfile(current.copyWith(dailyScholarshipOptOut: optOut));
   }
 
+  /// KPB-163: opt out of (or back into) the Monday weekly digest (push + email).
+  /// Persisted via the profile PATCH; never affects other notifications.
+  void setWeeklyDigestOptOut(bool optOut) {
+    final current = profile;
+    if (current == null) return;
+    updateProfile(current.copyWith(weeklyDigestOptOut: optOut));
+  }
+
   // ── Search ──────────────────────────────────────────────────
 
   StudentCase submitCase({
@@ -1783,6 +1791,7 @@ abstract class _AppControllerBase extends GetxController {
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'scholarshipNewsletterOptIn': profile.wantsScholarshipNewsletter,
       'dailyScholarshipOptOut': profile.dailyScholarshipOptOut,
+      'weeklyDigestOptOut': profile.weeklyDigestOptOut,
       'availableDocuments': profile.availableDocuments,
       if (profile.monthlyBudgetEur != null)
         'monthlyBudgetEur': profile.monthlyBudgetEur,

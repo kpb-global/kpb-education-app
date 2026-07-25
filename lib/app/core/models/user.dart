@@ -60,6 +60,7 @@ class UserProfile {
     this.wantsScholarshipSupport = false,
     this.wantsScholarshipNewsletter = false,
     this.dailyScholarshipOptOut = false,
+    this.weeklyDigestOptOut = false,
     this.availableDocuments = const [],
     this.consentedAt,
     this.aiConsentedAt,
@@ -101,6 +102,10 @@ class UserProfile {
   /// KPB-162: opt-out of the daily "Bourse du jour" push (the "opportunités"
   /// type). false = opted in. Never affects other notifications.
   final bool dailyScholarshipOptOut;
+
+  /// KPB-163: opt-out of the Monday weekly digest (push + email). false = opted
+  /// in. Independent of every other notification type.
+  final bool weeklyDigestOptOut;
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
@@ -159,6 +164,7 @@ class UserProfile {
     bool? wantsScholarshipSupport,
     bool? wantsScholarshipNewsletter,
     bool? dailyScholarshipOptOut,
+    bool? weeklyDigestOptOut,
     List<String>? availableDocuments,
     DateTime? consentedAt,
     DateTime? aiConsentedAt,
@@ -193,6 +199,7 @@ class UserProfile {
           wantsScholarshipNewsletter ?? this.wantsScholarshipNewsletter,
       dailyScholarshipOptOut:
           dailyScholarshipOptOut ?? this.dailyScholarshipOptOut,
+      weeklyDigestOptOut: weeklyDigestOptOut ?? this.weeklyDigestOptOut,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
       aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,
