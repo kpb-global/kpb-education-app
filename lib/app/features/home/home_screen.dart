@@ -24,6 +24,7 @@ import '../parcours/parcours_story_screen.dart';
 import '../tools/student_tools_screen.dart';
 import 'counsellor_testimonials_carousel.dart';
 import 'daily_scholarship_card.dart';
+import 'my_plan_card.dart';
 import 'home_impact_proof.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +144,15 @@ class HomeScreen extends StatelessWidget {
                           index: 1,
                           child: CounsellorTestimonialsCarousel(),
                         ),
+
+                        // ── 1.7 Mon plan (KPB-164) ───────────────────
+                        // Unified progress + THE next action. Self-hides for
+                        // guests and once the plan is complete.
+                        if (controller.isStudent)
+                          const StaggeredSlide(
+                            index: 2,
+                            child: MyPlanCard(),
+                          ),
 
                         // ── 2. Prochaine étape ──────────────────────
                         if (controller.isStudent) ...[

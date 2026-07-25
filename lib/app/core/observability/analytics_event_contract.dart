@@ -38,6 +38,11 @@ abstract final class AnalyticsEventName {
   static const dailyScholarshipViewed = 'daily_scholarship_viewed';
   static const dailyScholarshipOpened = 'daily_scholarship_opened';
 
+  /// "Mon plan" unified progress (KPB-164). Emitted with the current percentage
+  /// whenever it changes, so the weekly delta is derived from the series in
+  /// PostHog rather than from a local "last week" copy that could drift.
+  static const myPlanProgress = 'my_plan_progress';
+
   /// Conversion: the moment a user is handed off to a KPB advisor on WhatsApp.
   /// This is the core lead→advisor-contact step the funnel is measured on.
   static const whatsappHandoff = 'whatsapp_handoff';
@@ -79,6 +84,10 @@ abstract final class AnalyticsParamKey {
 
   static const resource = 'resource';
   static const attempts = 'attempts';
+
+  /// "Mon plan" progress (KPB-164).
+  static const percent = 'percent';
+  static const nextStep = 'next_step';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';
