@@ -595,6 +595,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const SizedBox(height: 12),
               _dailyScholarshipRow(),
               const SizedBox(height: 12),
+              _weeklyDigestRow(),
+              const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: KpbColors.canvas,
@@ -699,53 +701,78 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   /// other notifications.
   Widget _dailyScholarshipRow() {
     return GetBuilder<AppController>(
-      builder: (c) {
-        final receive = !(c.profile?.dailyScholarshipOptOut ?? false);
-        return Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: KpbColors.actionPrimarySoft,
-                borderRadius: BorderRadius.circular(11),
+      builder: (c) => _prefToggleRow(
+        icon: Icons.school_rounded,
+        titleKey: 'daily_scholarship_pref_title',
+        subtitleKey: 'daily_scholarship_pref_subtitle',
+        // The stored value is an OPT-OUT; the switch shows "receive".
+        receive: !(c.profile?.dailyScholarshipOptOut ?? false),
+        onReceiveChanged: (receive) => c.setDailyScholarshipOptOut(!receive),
+      ),
+    );
+  }
+
+  /// KPB-163: same, for the Monday weekly digest (push + email).
+  Widget _weeklyDigestRow() {
+    return GetBuilder<AppController>(
+      builder: (c) => _prefToggleRow(
+        icon: Icons.calendar_month_rounded,
+        titleKey: 'weekly_digest_pref_title',
+        subtitleKey: 'weekly_digest_pref_subtitle',
+        receive: !(c.profile?.weeklyDigestOptOut ?? false),
+        onReceiveChanged: (receive) => c.setWeeklyDigestOptOut(!receive),
+      ),
+    );
+  }
+
+  /// Shared layout for a per-type notification preference. Each row is backed by
+  /// a real persisted field — no toggle is rendered unless it actually sticks.
+  Widget _prefToggleRow({
+    required IconData icon,
+    required String titleKey,
+    required String subtitleKey,
+    required bool receive,
+    required ValueChanged<bool> onReceiveChanged,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: KpbColors.actionPrimarySoft,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(icon, size: 18, color: KpbColors.actionPrimary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                titleKey.tr,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: KpbColors.brandNavy,
+                ),
               ),
-              child: const Icon(Icons.school_rounded,
-                  size: 18, color: KpbColors.actionPrimary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'daily_scholarship_pref_title'.tr,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: KpbColors.brandNavy,
-                    ),
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    'daily_scholarship_pref_subtitle'.tr,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      height: 1.45,
-                      color: KpbColors.textFaint,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 1),
+              Text(
+                subtitleKey.tr,
+                style: const TextStyle(
+                  fontSize: 10,
+                  height: 1.45,
+                  color: KpbColors.textFaint,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Switch(
-              value: receive,
-              onChanged: (v) => c.setDailyScholarshipOptOut(!v),
-            ),
-          ],
-        );
-      },
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Switch(value: receive, onChanged: onReceiveChanged),
+      ],
     );
   }
 
