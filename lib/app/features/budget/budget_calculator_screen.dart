@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
+import '../../core/controllers/app_controller.dart';
+import '../../core/services/share_card_service.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/share_link.dart';
 import 'data/budget_data.dart';
 import '../../core/ui/app_tokens.dart';
 
@@ -41,6 +44,9 @@ class BudgetCalculatorScreen extends StatefulWidget {
 }
 
 class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
+  /// Boundary captured as the shareable budget card (KPB-165).
+  final _shareKey = GlobalKey();
+
   LivingBudgetProfile? _selectedProfile;
   Lifestyle _lifestyle = Lifestyle.standard;
 
@@ -79,6 +85,30 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     );
   }
 
+  /// KPB-165: share the monthly budget as a card + invite link. The referral
+  /// code is best-effort — its absence never blocks the share.
+  Future<void> _shareBudget(LivingBudgetProfile p, double total) async {
+    String? referralCode;
+    try {
+      final data = await Get.find<AppController>().apiClient.getMyReferral();
+      final code = (data['code'] as String?)?.trim();
+      if ((code ?? '').isNotEmpty) referralCode = code;
+    } catch (_) {
+      // Share without attribution rather than not at all.
+    }
+    await ShareCardService.instance.shareBoundary(
+      boundaryKey: _shareKey,
+      text: 'budget_share_prefill'.trParams({
+        'amount': '${_money(total)} ${p.currency}',
+        'link': buildInviteLink(
+          source: ShareSource.budget,
+          referralCode: referralCode,
+        ),
+      }),
+      source: ShareSource.budget,
+    );
+  }
+
   Widget _body(LivingBudgetProfile p) {
     final mult = _getMultiplier(p);
     final total = _getTotal(p);
@@ -91,7 +121,14 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
         const SizedBox(height: 12),
         _lifestyleToggle(),
         const SizedBox(height: 16),
-        _totalCard(p, total),
+        // KPB-165: the total card is the shareable artefact.
+        RepaintBoundary(key: _shareKey, child: _totalCard(p, total)),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: () => _shareBudget(p, total),
+          icon: const Icon(Icons.ios_share_rounded),
+          label: Text('budget_share'.tr),
+        ),
         const SizedBox(height: 14),
         _categoryCard(p, mult),
         const SizedBox(height: 14),

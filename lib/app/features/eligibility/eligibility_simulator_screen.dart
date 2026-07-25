@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/share_card_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/share_link.dart';
 import '../../core/utils/study_level.dart';
 import '../onboarding/onboarding_m2_constants.dart';
 import 'eligibility_pdf.dart';
@@ -25,6 +29,9 @@ class _EligibilitySimulatorScreenState
 
   late EligibilityInput _input;
   final _budgetCtrl = TextEditingController();
+
+  /// Boundary captured as the shareable verdict card (KPB-165).
+  final _shareKey = GlobalKey();
   List<EligibilityResult>? _results;
 
   AppController get _controller => Get.find<AppController>();
@@ -66,6 +73,49 @@ class _EligibilitySimulatorScreenState
       clearBudget: budget == null,
     );
     setState(() => _results = _engine.evaluate(_input));
+  }
+
+  /// KPB-165: share the verdict as an image + invite link. The referral code is
+  /// fetched best-effort — a failure means the link goes out without `ref`
+  /// rather than blocking the share.
+  Future<void> _shareVerdict() async {
+    final results = _results;
+    if (results == null) return;
+
+    String? referralCode;
+    try {
+      final data = await _controller.apiClient.getMyReferral();
+      final code = (data['code'] as String?)?.trim();
+      if ((code ?? '').isNotEmpty) referralCode = code;
+    } catch (_) {
+      // Share without attribution rather than not at all.
+    }
+
+    final eligible =
+        results.where((r) => r.verdict == EligibilityVerdict.eligible).length;
+    final text = 'eligibility_share_prefill'.trParams({
+      'count': '$eligible',
+      'total': '${results.length}',
+      'link': buildInviteLink(
+        source: ShareSource.eligibility,
+        referralCode: referralCode,
+        deepPath: AppRoutes.eligibility,
+      ),
+    });
+
+    final withImage = await ShareCardService.instance.shareBoundary(
+      boundaryKey: _shareKey,
+      text: text,
+      source: ShareSource.eligibility,
+    );
+    if (!withImage && mounted) {
+      Get.snackbar(
+        AppConfig.brandName,
+        'eligibility_share_image_failed'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(KpbSpacing.md),
+      );
+    }
   }
 
   Future<void> _exportPdf() async {
@@ -110,7 +160,42 @@ class _EligibilitySimulatorScreenState
           ),
           if (results != null) ...[
             const SizedBox(height: KpbSpacing.xl),
-            _SummaryRow(results: results),
+            // KPB-165: the summary doubles as the shareable card. Wrapped in a
+            // RepaintBoundary with its own title + brand line so the exported
+            // PNG stands alone in a conversation.
+            RepaintBoundary(
+              key: _shareKey,
+              child: ColoredBox(
+                color: KpbColors.surface,
+                child: Padding(
+                  padding: const EdgeInsets.all(KpbSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'eligibility_share_card_title'.tr,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: KpbColors.brandNavy,
+                        ),
+                      ),
+                      const SizedBox(height: KpbSpacing.sm),
+                      _SummaryRow(results: results),
+                      const SizedBox(height: KpbSpacing.sm),
+                      Text(
+                        '${AppConfig.brandName} · ${AppConfig.brandDomain}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: KpbColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: KpbSpacing.md),
             ...results.map((r) => Padding(
                   padding: const EdgeInsets.only(bottom: KpbSpacing.md),
@@ -121,6 +206,13 @@ class _EligibilitySimulatorScreenState
               onPressed: _exportPdf,
               icon: const Icon(Icons.picture_as_pdf_outlined),
               label: Text('eligibility_export_pdf'.tr),
+            ),
+            const SizedBox(height: KpbSpacing.sm),
+            // KPB-165: share the verdict as a card carrying an invite link.
+            OutlinedButton.icon(
+              onPressed: _shareVerdict,
+              icon: const Icon(Icons.ios_share_rounded),
+              label: Text('eligibility_share_verdict'.tr),
             ),
             const SizedBox(height: KpbSpacing.lg),
           ],
