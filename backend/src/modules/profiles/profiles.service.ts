@@ -4,6 +4,11 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
 
 import { NewsletterSyncService } from '../newsletter/newsletter-sync.service';
+import {
+  NotificationOptOutType,
+  sanitizeOptOutTypes,
+  withOptOut,
+} from '../../common/notification-types';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -56,6 +61,48 @@ export class ProfilesService {
     return dbProfile ? this.mapDbProfile(dbProfile) : this.demoProfile;
   }
 
+  /**
+   * The `disabledNotificationTypes` value to write, or null when this PATCH
+   * touches no notification preference (so the column is left alone).
+   *
+   * An explicit array wins outright. Otherwise the legacy per-type booleans are
+   * applied ON TOP of the stored list — a client that only knows about one type
+   * must never blank the student's other preferences.
+   */
+  private async resolveOptOutTypes(
+    id: string,
+    input: UpdateProfileDto,
+  ): Promise<NotificationOptOutType[] | null> {
+    if (input.disabledNotificationTypes !== undefined) {
+      return sanitizeOptOutTypes(input.disabledNotificationTypes);
+    }
+    if (
+      input.dailyScholarshipOptOut === undefined &&
+      input.weeklyDigestOptOut === undefined
+    ) {
+      return null;
+    }
+
+    const current = await this.prismaService.execute((prisma) =>
+      prisma.userProfile.findUnique({
+        where: { id },
+        select: { disabledNotificationTypes: true },
+      }),
+    );
+    let types: readonly string[] = current?.disabledNotificationTypes ?? [];
+    if (input.dailyScholarshipOptOut !== undefined) {
+      types = withOptOut(
+        types,
+        'daily_scholarship',
+        input.dailyScholarshipOptOut,
+      );
+    }
+    if (input.weeklyDigestOptOut !== undefined) {
+      types = withOptOut(types, 'weekly_digest', input.weeklyDigestOptOut);
+    }
+    return sanitizeOptOutTypes([...types]);
+  }
+
   async updateMe(input: UpdateProfileDto, userId?: string) {
     const id = userId ?? 'demo-user';
 
@@ -72,6 +119,11 @@ export class ProfilesService {
       );
       stampNewsletterConsent = current ? !current.newsletterOptIn : false;
     }
+
+    // KPB-169: per-type notification opt-outs live in one array column. A
+    // client may send the array directly, or the legacy per-type booleans —
+    // which are folded into the array so the already-built app keeps working.
+    const optOutTypes = await this.resolveOptOutTypes(id, input);
 
     const updated = await this.prismaService.execute((prisma) =>
       prisma.userProfile.update({
@@ -111,12 +163,7 @@ export class ProfilesService {
           ...(input.scholarshipNewsletterOptIn !== undefined
             ? { newsletterOptIn: input.scholarshipNewsletterOptIn }
             : {}),
-          ...(input.dailyScholarshipOptOut !== undefined
-            ? { dailyScholarshipOptOut: input.dailyScholarshipOptOut }
-            : {}),
-          ...(input.weeklyDigestOptOut !== undefined
-            ? { weeklyDigestOptOut: input.weeklyDigestOptOut }
-            : {}),
+          ...(optOutTypes ? { disabledNotificationTypes: optOutTypes } : {}),
           ...(stampNewsletterConsent
             ? { newsletterConsentedAt: new Date() }
             : {}),
@@ -993,8 +1040,17 @@ export class ProfilesService {
       preferredCurrency: p.preferredCurrency,
       wantsScholarshipSupport: p.wantsScholarship,
       scholarshipNewsletterOptIn: p.newsletterOptIn,
-      dailyScholarshipOptOut: p.dailyScholarshipOptOut,
-      weeklyDigestOptOut: p.weeklyDigestOptOut,
+      disabledNotificationTypes: sanitizeOptOutTypes(
+        p.disabledNotificationTypes,
+      ),
+      // Legacy mirrors, derived — kept so a client built before KPB-169 still
+      // renders the right switch state. Removed with the columns in KPB-174.
+      dailyScholarshipOptOut: (p.disabledNotificationTypes ?? []).includes(
+        'daily_scholarship',
+      ),
+      weeklyDigestOptOut: (p.disabledNotificationTypes ?? []).includes(
+        'weekly_digest',
+      ),
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,

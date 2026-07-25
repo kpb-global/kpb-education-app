@@ -15,6 +15,8 @@ import { PARCOURS_SEED, ParcoursSeedItem } from './data/parcours.seed';
 // ContentService. Payloads use the app-wide localized `{ fr, en }` shape.
 // ─────────────────────────────────────────────────────────────────────────────
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 interface Qa {
   question: string;
   answer: string;
@@ -98,6 +100,60 @@ export class ParcoursService {
       items: PARCOURS_SEED.filter(
         (s) => s.isActive && s.status === 'published',
       ).map((s) => this.seedToDto(s)),
+    };
+  }
+
+  // ── "Récit de la semaine" (KPB-169) ────────────────────────────────────────
+  //
+  // The library has 86 stories and no rhythm: nothing ever says "read THIS one,
+  // this week". The pick is editorial first (admins tick `featured`) and
+  // deterministic second (a weekly rotation over the featured set), so every
+  // student in a given week sees the same story and the app can talk about it.
+  //
+  // No featured story ⇒ null. The Home card and the weekly push both disappear
+  // rather than promoting an arbitrary row — an editorial slot with nothing in
+  // it is empty, not automatic.
+
+  /** ISO-ish week index (weeks since the Unix epoch, Monday-aligned). */
+  private weekNumber(date: Date): number {
+    // Epoch day 0 (1970-01-01) was a Thursday; +3 days aligns week starts to
+    // Monday, matching how the editorial team plans a week.
+    return Math.floor((date.getTime() / DAY_MS + 3) / 7);
+  }
+
+  /** `2026-W31`-style key — stable within a week, used for push dedup. */
+  weekKey(date: Date): string {
+    return `${date.getUTCFullYear()}-W${this.weekNumber(date)}`;
+  }
+
+  async pickStoryOfWeek(date: Date): Promise<ParcoursDto | null> {
+    const rows = await this.prismaService.execute((prisma) =>
+      prisma.parcoursStory.findMany({
+        where: {
+          isActive: true,
+          status: PublicationStatus.Published,
+          featured: true,
+        },
+        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
+      }),
+    );
+
+    const items: ParcoursDto[] = rows
+      ? (rows as ParcoursRow[]).map((r) => this.toDto(r))
+      : PARCOURS_SEED.filter(
+          (s) => s.isActive && s.status === 'published' && s.featured,
+        ).map((s) => this.seedToDto(s));
+
+    if (items.length === 0) return null;
+    return items[this.weekNumber(date) % items.length];
+  }
+
+  async getStoryOfWeek(
+    now = new Date(),
+  ): Promise<{ week: string; story: ParcoursDto | null }> {
+    return {
+      week: this.weekKey(now),
+      story: await this.pickStoryOfWeek(now),
     };
   }
 

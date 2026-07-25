@@ -28,6 +28,13 @@ export class ParcoursController {
     return this.parcoursService.listPublic();
   }
 
+  /** "Récit de la semaine" (KPB-169) — the editorial pick for the current week,
+   *  or `{ story: null }` when no story is featured. Public, like the list. */
+  @Get('content/parcours/featured')
+  storyOfWeek() {
+    return this.parcoursService.getStoryOfWeek();
+  }
+
   @Get('admin/parcours')
   @UseGuards(AdminAuthGuard, RolesGuard)
   @Roles(

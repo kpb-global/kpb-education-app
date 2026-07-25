@@ -371,14 +371,16 @@ model UserProfile {
   newsletterOptIn         Boolean                        @default(false)
   newsletterConsentedAt   DateTime?
   newsletterSyncedOptIn   Boolean?
-  // KPB-162: opt-out of the daily "Bourse du jour" push (the "opportunités"
-  // notification type). false = opted in; the daily cron skips users set true.
-  // Opting out never affects other notifications (deadlines, dossier, etc.).
+  // KPB-169: the per-type notification opt-outs, as stable keys (see
+  // src/common/notification-types.ts). A third type appeared, so — as the
+  // previous note planned — the per-type booleans collapsed into one column.
+  // Adding a family now costs a key, not a migration.
+  disabledNotificationTypes String[]                     @default([])
+  // DEPRECATED (KPB-169) — no longer read by any code path. Kept for one
+  // release so a rollback still finds its data; the values were copied into
+  // disabledNotificationTypes by the 20260725_notification_optout_types
+  // migration. Drop both columns in KPB-174.
   dailyScholarshipOptOut  Boolean                        @default(false)
-  // KPB-163: opt-out of the Monday weekly digest (push + email). Independent of
-  // every other notification type. NOTE: if a third opt-out type appears,
-  // collapse these booleans into a single `disabledNotificationTypes String[]`
-  // rather than adding another column.
   weeklyDigestOptOut      Boolean                        @default(false)
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.

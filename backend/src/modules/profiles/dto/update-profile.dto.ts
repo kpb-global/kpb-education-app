@@ -81,6 +81,16 @@ export class UpdateProfileDto {
   @IsBoolean()
   scholarshipNewsletterOptIn?: boolean;
 
+  // KPB-169: canonical per-type notification opt-outs. Unknown keys are
+  // dropped server-side rather than rejected, so a newer client that knows one
+  // extra type can still save the types this server does understand.
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  disabledNotificationTypes?: string[];
+
+  // DEPRECATED (KPB-169) — folded into disabledNotificationTypes on write and
+  // derived on read. Accepted for clients built before the array existed.
   @IsOptional()
   @IsBoolean()
   dailyScholarshipOptOut?: boolean;
