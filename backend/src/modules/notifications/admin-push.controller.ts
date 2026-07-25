@@ -4,7 +4,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { DeadlineReminderCronService } from './deadline-reminder-cron.service';
+import { MilestoneReminderService } from './milestone-reminder.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
 interface TestPushDto {
@@ -20,19 +20,28 @@ interface TestPushDto {
 export class AdminPushController {
   constructor(
     private readonly sender: OneSignalSenderService,
-    private readonly reminders: DeadlineReminderCronService,
+    private readonly reminders: MilestoneReminderService,
   ) {}
 
-  /// Run the scholarship deadline-reminder pass on demand (test the pipeline
-  /// without waiting for the daily cron).
+  /// Run the deadline / milestone pass on demand (test the pipeline without
+  /// waiting for the 08:00 cron). KPB-173: this used to call a second, parallel
+  /// reminder service that pushed directly — bypassing the durable feed, the
+  /// dedup, the quiet hours and the daily cap. It now runs the same code as the
+  /// cron, so a manual trigger can no longer produce a send the scheduled path
+  /// would not have produced. Re-running the same day returns `deduped`.
   @Post('deadline-reminders')
   runDeadlineReminders() {
-    return this.reminders.run();
+    return this.reminders.handleDailyMilestoneReminders();
   }
 
   /**
    * Fire a test push to a single user (by KPB user id = OneSignal external id).
    * Useful to verify the OneSignal pipeline without the dashboard.
+   *
+   * KPB-173: intentionally direct — this is a diagnostic ping for one known
+   * account, not a user-facing reminder. Routing it through the dispatcher
+   * would write a fake entry into that person's durable feed and consume their
+   * daily cap, which is exactly what a probe must not do.
    */
   @Post('test')
   async sendTest(@Body() dto: TestPushDto) {

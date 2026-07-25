@@ -132,7 +132,10 @@ export class CaseMessagingGateway
     this.server.to(room).emit('message', message);
     client.emit('messageAck', { messageId: message.id, status: 'delivered' });
 
-    // Send push to other participants (e.g., advisor)
+    // Send push to other participants (e.g., advisor).
+    // KPB-173: transactional, like every direct-message notification — not a
+    // reminder, so it does not go through NotificationDispatchService. A
+    // message held back until 08:00 is a broken conversation, not a courtesy.
     const caseRecord = await this.casesService.findOne(data.caseId);
     if (caseRecord?.userId && caseRecord.userId !== userId) {
       await this.pushService.sendToUser(

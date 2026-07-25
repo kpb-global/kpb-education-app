@@ -5,10 +5,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
 /**
- * KPB-78 — salon RSVP reminders. Mirrors DeadlineReminderCronService but runs
- * hourly so it can catch both the 24h-before and 1h-before windows. Each
+ * KPB-78 — salon RSVP reminders. Runs hourly so it can catch both the
+ * 24h-before and 1h-before windows. Each
  * reminder is stamped (remindedAt for 24h, reminded1hAt for 1h) so it fires
  * exactly once. The push deep-links to `/salon` (route added in KPB-63).
+ *
+ * KPB-173: kept on the direct sender on purpose. These reminders are SOLICITED
+ * (the student registered for this session) and time-critical to the minute —
+ * a "starts in 1h" push suppressed by quiet hours, or dropped by the daily cap,
+ * is worse than useless. See KPB-175 for giving dispatch a way to express
+ * "solicited, time-critical" so this can move without losing that property.
  */
 @Injectable()
 export class SalonReminderCronService {

@@ -47,8 +47,11 @@ export class MilestoneReminderService {
   // safely outside the quiet window. The dispatcher still guards per-user quiet
   // hours and the daily cap, so this stays correct for other residences too.
   @Cron('0 8 * * *')
-  async handleDailyMilestoneReminders() {
-    if (!this.prismaService.isEnabled) return;
+  async handleDailyMilestoneReminders(): Promise<{
+    due: number;
+    outcomes: Partial<Record<DispatchOutcome, number>>;
+  }> {
+    if (!this.prismaService.isEnabled) return { due: 0, outcomes: {} };
 
     const reminders = await this.collectDueReminders(new Date());
     const tally: Partial<Record<DispatchOutcome, number>> = {};
@@ -73,6 +76,10 @@ export class MilestoneReminderService {
         `Milestone reminders: ${reminders.length} due (${formatTally(tally)}).`,
       );
     }
+    // Returned so the manual admin trigger can report what actually happened
+    // (KPB-173) — `deduped` on a same-day re-run is the expected outcome, not a
+    // failure.
+    return { due: reminders.length, outcomes: tally };
   }
 
   async collectDueReminders(now: Date): Promise<DueReminder[]> {
