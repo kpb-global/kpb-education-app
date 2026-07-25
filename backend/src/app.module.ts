@@ -73,6 +73,7 @@ import { KayakController } from './modules/kayak/kayak.controller';
 import { KayakService } from './modules/kayak/kayak.service';
 import { MatchesController } from './modules/matches/matches.controller';
 import { MatchesService } from './modules/matches/matches.service';
+import { MatchRecomputeService } from './modules/matches/match-recompute.service';
 import { LlmService } from './modules/ai/llm.service';
 import { OrientationController } from './modules/orientation/orientation.controller';
 import { OrientationService } from './modules/orientation/orientation.service';
@@ -270,6 +271,7 @@ import { SalonService } from './modules/salon/salon.service';
     YoutubeService,
     KayakService,
     MatchesService,
+    MatchRecomputeService,
     PartnerLeadsService,
     ProfilesService,
     PrismaService,
