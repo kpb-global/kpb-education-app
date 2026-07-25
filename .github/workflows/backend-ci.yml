@@ -144,5 +144,8 @@ jobs:
           fi
           echo "API booted and served /api/health ✅"
 
-  # Note: A deployment job can be added here once the VPS SSH Key is set as a Secret.
-  # Example: Appleboy SSH Action to pull the latest image and restart docker-compose.
+  # Deployment lives in its own workflow: .github/workflows/deploy.yml (KPB-167).
+  # It is triggered MANUALLY (Actions → "Deploy backend (VPS)") because shipping
+  # to prod is a decision, not a side effect of merging. It reproduces the
+  # runbook in docs/DEPLOYMENT.md with a health gate and an automatic code
+  # rollback. Required secrets are listed in that document.

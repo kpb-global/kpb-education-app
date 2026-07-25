@@ -1,0 +1,169 @@
+name: Deploy backend (VPS)
+
+# Automates the manual SSH procedure documented in docs/DEPLOYMENT.md, with a
+# health gate and an automatic code rollback (KPB-167).
+#
+# MANUAL ON PURPOSE: deploying is a decision, not a side effect of merging. Run
+# it from the Actions tab when you want prod to move. (To make it automatic
+# later, add a `workflow_run` trigger on a green Backend CI.)
+#
+# What it does, in the same order as the validated runbook:
+#   sync code → build images → pg_dump backup → prisma migrate deploy →
+#   replace api+admin → health gate → rollback the CODE if unhealthy.
+#
+# Note on rollback: migrations are forward-only, so the rollback restores the
+# previous IMAGE, not the schema. That is safe because every migration in this
+# repo is additive (new nullable/defaulted columns), which older code ignores.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy (branch, tag or SHA)'
+        required: false
+        default: 'main'
+      run_seed:
+        description: 'Run prisma:seed after migrating (first install only)'
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Resolve the image tag from the deployed commit
+        id: meta
+        run: |
+          set -euo pipefail
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tag=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pin the host key instead of disabling verification.
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync code to the VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          # Only what the compose build contexts need. `.env`, `backups/` and
+          # `node_modules` live only on the VPS and are never touched (no
+          # --delete, and git does not track them).
+          rsync -az --info=stats1 \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
+            backend admin web docker-compose.yml \
+            "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
+
+      - name: Build, migrate, release (health-gated, auto-rollback)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          BUILD_SHA: ${{ steps.meta.outputs.sha }}
+          RUN_SEED: ${{ inputs.run_seed }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            IMAGE_TAG="$IMAGE_TAG" BUILD_SHA="$BUILD_SHA" \
+            VPS_PATH="$VPS_PATH" HEALTH_URL="$HEALTH_URL" RUN_SEED="$RUN_SEED" \
+            'bash -s' <<'REMOTE'
+          set -euo pipefail
+          cd "$VPS_PATH"
+          export KPB_IMAGE_TAG="$IMAGE_TAG" KPB_BUILD_SHA="$BUILD_SHA"
+
+          # Remember what is running so we can put it back.
+          PREV_IMAGE="$(docker inspect --format '{{.Config.Image}}' kpb_api 2>/dev/null || true)"
+          PREV_TAG="${PREV_IMAGE##*:}"
+          echo "Currently running: ${PREV_IMAGE:-none} (tag ${PREV_TAG:-none})"
+
+          echo "── build ──"
+          docker compose build api admin
+
+          echo "── backup (expands \$POSTGRES_USER INSIDE the db container) ──"
+          mkdir -p backups
+          docker compose exec -T db sh -c \
+            'pg_dump -U "$POSTGRES_USER" -d "${POSTGRES_DB:-kpb}" --format=custom' \
+            > "backups/predeploy-${IMAGE_TAG}-$(date +%Y%m%d-%H%M%S).dump"
+          # A truncated dump must stop the deploy, not be discovered later.
+          LATEST_DUMP="$(ls -t backups/predeploy-*.dump | head -1)"
+          if [ ! -s "$LATEST_DUMP" ]; then
+            echo "::error::pre-deploy dump is empty ($LATEST_DUMP) — aborting"
+            exit 1
+          fi
+          echo "backup ok: $(du -h "$LATEST_DUMP" | cut -f1) $LATEST_DUMP"
+
+          echo "── migrate ──"
+          docker compose run --rm --no-deps api npx prisma migrate deploy
+
+          if [ "$RUN_SEED" = "true" ]; then
+            echo "── seed (explicitly requested) ──"
+            docker compose exec -T api npm run prisma:seed
+          fi
+
+          echo "── release ──"
+          docker compose up -d --no-deps api admin
+
+          echo "── health gate ──"
+          healthy=0
+          for i in $(seq 1 20); do
+            sleep 5
+            if curl -fsS "${HEALTH_URL}/api/health/ready" >/dev/null 2>&1; then
+              healthy=1; break
+            fi
+            echo "not ready yet (attempt $i)"
+          done
+
+          if [ "$healthy" != "1" ]; then
+            echo "::error::API unhealthy after deploy — rolling back the code"
+            if [ -n "${PREV_TAG:-}" ] && [ "$PREV_TAG" != "$IMAGE_TAG" ]; then
+              KPB_IMAGE_TAG="$PREV_TAG" docker compose up -d --no-deps api admin
+              echo "rolled back to $PREV_TAG"
+            else
+              echo "::warning::no distinct previous tag to roll back to"
+            fi
+            docker compose logs --tail=80 api || true
+            exit 1
+          fi
+
+          echo "── running images ──"
+          docker compose images api admin
+          echo "DEPLOY OK ✅ (tag $IMAGE_TAG)"
+          REMOTE
+
+      - name: Verify from the outside
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          curl -fsS "${HEALTH_URL}/api/health/live"
+          curl -fsS "${HEALTH_URL}/api/health/ready"
+          echo "External health check OK ✅"
+
+      - name: Scrub the key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

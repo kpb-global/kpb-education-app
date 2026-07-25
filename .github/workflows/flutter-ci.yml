@@ -69,6 +69,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          # KPB-167: cache the Gradle dependency store. Without it every run
+          # re-downloads the Kotlin plugin from Maven Central, and a single
+          # network blip there reds the whole PR (that is exactly what happened
+          # on PR #175 — a re-run with no code change went green).
+          cache: 'gradle'
 
       - uses: subosito/flutter-action@v2.23.0
         with:
@@ -83,8 +88,22 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # One automatic retry on top of the cache: Flutter's own Gradle retry does
+      # not cover a repository that Gradle marked as disabled mid-run.
       - name: Build debug APK
-        run: flutter build apk --debug --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+        run: |
+          set -euo pipefail
+          build() {
+            flutter build apk --debug \
+              --dart-define=KPB_APP_ENV=prod \
+              --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
+              --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+          }
+          build || {
+            echo "::warning::First Gradle build failed — retrying once (likely a Maven Central blip)."
+            sleep 20
+            build
+          }
 
       - name: Upload APK
         uses: actions/upload-artifact@v5
