@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KPB Education — Tu es invité·e</title>
+  <meta name="description" content="Un ami t'invite sur Karatou (KPB Education) : orientation, universités, bourses et suivi de dossier pour étudier à l'étranger.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header><div class="wrap"><a class="brand" href="/">KPB <span>Education</span></a></div></header>
+  <main>
+    <h1>Tu es invité·e sur Karatou</h1>
+    <p>Karatou (KPB Education) accompagne les étudiants d'Afrique francophone : test d'orientation, universités et filières, bourses avec leurs échéances, et suivi de dossier avec un conseiller.</p>
+
+    <div class="card" id="ref-card" hidden>
+      <h2 class="first">Ton code de parrainage</h2>
+      <p>Saisis ce code dans l'application, à l'écran <strong>Parrainage</strong>, pour que la personne qui t'a invité·e soit créditée :</p>
+      <p><strong style="font-size:1.4rem; letter-spacing:.08em" id="ref-code"></strong></p>
+    </div>
+
+    <div class="card">
+      <h2 class="first">Télécharger l'application</h2>
+      <ul>
+        <li><a id="android" href="https://play.google.com/store/apps/details?id=com.karatou.android">Android — Google Play</a></li>
+        <li><a id="ios" href="https://apps.apple.com/app/id1128659292">iPhone — App Store</a></li>
+      </ul>
+      <p>Déjà installée ? Ouvre l'application, puis entre le code ci-dessus dans l'écran Parrainage.</p>
+    </div>
+
+    <div class="card">
+      <h2 class="first">En savoir plus</h2>
+      <ul>
+        <li><a href="/">À propos de KPB Education</a></li>
+        <li><a href="/confidentialite.html">Politique de confidentialité</a></li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    // Surface the referral code carried by the invite link. No tracking, no
+    // redirect: the visitor chooses their store. `to` (the in-app destination)
+    // is intentionally ignored here — it becomes useful only once App Links
+    // association is live and this URL can open the app directly.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var ref = (params.get('ref') || '').trim();
+      if (ref) {
+        document.getElementById('ref-code').textContent = ref;
+        document.getElementById('ref-card').hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>

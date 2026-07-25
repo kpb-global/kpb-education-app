@@ -1,8 +1,4 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,9 +6,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/analytics_service.dart';
+import '../../core/services/share_card_service.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/share_link.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
@@ -917,20 +916,60 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
   final _cardKey = GlobalKey();
   bool _busy = false;
 
-  String _shareText() => 'match_card_whatsapp_prefill'.trParams({
-        'pct': '${widget.score}',
-        'school': widget.schoolName,
-        'domain': AppConfig.brandDomain,
-      });
+  /// KPB-165: the caller's referral code, so a shared card credits them. Loaded
+  /// best-effort — a card without it is still worth sharing, so a failure here
+  /// never blocks the share (the link simply carries no `ref`).
+  String? _referralCode;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReferralCode();
+  }
+
+  Future<void> _loadReferralCode() async {
+    try {
+      final data = await Get.find<AppController>().apiClient.getMyReferral();
+      final code = (data['code'] as String?)?.trim();
+      if (mounted && (code ?? '').isNotEmpty) {
+        setState(() => _referralCode = code);
+      }
+    } catch (_) {
+      // No code available — share without attribution rather than not at all.
+    }
+  }
+
+  String _shareText() {
+    final link = buildInviteLink(
+      source: ShareSource.match,
+      referralCode: _referralCode,
+    );
+    return 'match_card_whatsapp_prefill'.trParams({
+      'pct': '${widget.score}',
+      'school': widget.schoolName,
+      'domain': AppConfig.brandDomain,
+      'link': link,
+    });
+  }
 
   Future<void> _shareWhatsApp() async {
     final text = _shareText();
     final waUri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
     if (await canLaunchUrl(waUri)) {
       await launchUrl(waUri, mode: LaunchMode.externalApplication);
+      AnalyticsService.instance.logShareCard(
+        source: ShareSource.match.wireName,
+        withImage: false,
+        success: true,
+      );
     } else {
       // WhatsApp unavailable → OS share sheet with the same message.
       await SharePlus.instance.share(ShareParams(text: text));
+      AnalyticsService.instance.logShareCard(
+        source: ShareSource.match.wireName,
+        withImage: false,
+        success: true,
+      );
     }
     if (mounted) Navigator.of(context).maybePop();
   }
@@ -939,27 +978,15 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      final boundary =
-          _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) throw StateError('boundary not ready');
-      final image = await boundary.toImage(pixelRatio: 3);
-      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      image.dispose();
-      if (bytes == null) throw StateError('encode failed');
-      final file = File(
-        '${Directory.systemTemp.path}/kpb_match_'
-        '${DateTime.now().millisecondsSinceEpoch}.png',
+      // KPB-165: shared render + share + analytics, identical for every result
+      // card. Falls back to a text-only share (still carrying the invite link)
+      // when the PNG can't be produced, and reports that in the event.
+      final withImage = await ShareCardService.instance.shareBoundary(
+        boundaryKey: _cardKey,
+        text: _shareText(),
+        source: ShareSource.match,
       );
-      await file.writeAsBytes(bytes.buffer.asUint8List());
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path, mimeType: 'image/png')],
-          text: _shareText(),
-        ),
-      );
-      if (mounted) Navigator.of(context).maybePop();
-    } catch (_) {
-      if (mounted) {
+      if (!withImage && mounted) {
         Get.snackbar(
           AppConfig.brandName,
           'match_card_share_error'.tr,
@@ -967,6 +994,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
           margin: const EdgeInsets.all(12),
         );
       }
+      if (mounted) Navigator.of(context).maybePop();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
