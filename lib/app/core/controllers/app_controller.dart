@@ -29,6 +29,7 @@ import '../data/case_api_codec.dart';
 import '../data/profile_api_codec.dart';
 import '../data/saved_item_api_codec.dart';
 import '../services/app_search_service.dart';
+import '../data/content_api_codec.dart';
 import '../services/catalog_remote_sync.dart';
 import '../services/catalog_cache_service.dart';
 import '../services/onesignal_service.dart';
@@ -1361,6 +1362,39 @@ abstract class _AppControllerBase extends GetxController {
         onHiveFallback: onCatalogHiveFallback,
       );
       _applyMvpCountryLock();
+
+      // KPB-166: editorial content that used to be frozen in the app bundle.
+      // Service offers carry their PRICES, so leaving them bundled meant a store
+      // release (7–14 days) to fix a price. Same generic path as the catalog:
+      // retries, Hive cache, offline fallback, and an empty response is a no-op.
+      // Non-fatal on purpose — a content outage must not fail the whole sync and
+      // strand the user on a "sample data" banner; the bundled seed still shows.
+      try {
+        await syncCatalogResource<ServiceOffer>(
+          _apiClient,
+          'service-offers',
+          serviceOffers,
+          ContentApiCodec.serviceOfferFromApi,
+          fetch: _apiClient.listContent,
+          cacheKey: 'content:service-offers',
+          onHiveFallback: onCatalogHiveFallback,
+        );
+      } catch (_) {
+        // Keep whatever we already had (cache or bundled seed).
+      }
+      try {
+        await syncCatalogResource<SupportDestination>(
+          _apiClient,
+          'support-destinations',
+          supportDestinations,
+          ContentApiCodec.supportDestinationFromApi,
+          fetch: _apiClient.listContent,
+          cacheKey: 'content:support-destinations',
+          onHiveFallback: onCatalogHiveFallback,
+        );
+      } catch (_) {
+        // Keep whatever we already had (cache or bundled seed).
+      }
 
       // We only reach here if every catalog resource resolved from the API or
       // the offline cache (a failed fetch with no cache throws out of this
