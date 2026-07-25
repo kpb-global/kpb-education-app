@@ -490,6 +490,11 @@ model CreditTransaction {
   @@index([profileId])
 }
 
+/// DEPRECATED (KPB-170) — the home-grown student auth it backed was removed;
+/// students authenticate through Supabase. No code reads or writes this table
+/// any more. Kept one release so the rows (email → profile mapping, if any
+/// legacy account was ever created) can be inspected before being dropped —
+/// see KPB-176.
 model StudentCredential {
   id            String      @id @default(cuid())
   userProfileId String      @unique
@@ -501,7 +506,9 @@ model StudentCredential {
   userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
 }
 
-/// Email magic-link / one-time code tokens (purged after use or expiry).
+/// DEPRECATED (KPB-170) — email magic-link / one-time code tokens for the
+/// removed home-grown auth. Supabase issues and verifies its own codes; nothing
+/// reads this table any more. Dropped in KPB-176.
 model MagicLinkToken {
   id        String    @id @default(cuid())
   email     String

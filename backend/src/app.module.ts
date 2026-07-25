@@ -8,10 +8,7 @@ import { AdminUsersController } from './modules/admin-users/admin-users.controll
 import { AdminUsersService } from './modules/admin-users/admin-users.service';
 import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
-import { StudentAuthController } from './modules/auth/student-auth.controller';
-import { StudentAuthService } from './modules/auth/student-auth.service';
 import { SupabaseAuthService } from './modules/auth/supabase-auth.service';
-import { MagicLinkMailService } from './modules/auth/magic-link-mail.service';
 import { CatalogController } from './modules/catalog/catalog.controller';
 import { CatalogService } from './modules/catalog/catalog.service';
 import { CountriesModule } from './modules/countries/countries.module';
@@ -173,7 +170,6 @@ import { SalonService } from './modules/salon/salon.service';
   ],
   controllers: [
     AuthController,
-    StudentAuthController,
     AdminCasesController,
     AdminCompetitionReadinessController,
     AdminUsersController,
@@ -233,9 +229,7 @@ import { SalonService } from './modules/salon/salon.service';
     RolesGuard,
     AdminUsersService,
     AuthService,
-    StudentAuthService,
     SupabaseAuthService,
-    MagicLinkMailService,
     AppointmentsService,
     CasesService,
     CaseMessagingGateway,
