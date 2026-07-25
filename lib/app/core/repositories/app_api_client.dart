@@ -943,6 +943,18 @@ class AppApiClient {
         .toList();
   }
 
+  /// "Récit de la semaine" (KPB-169). Returns null when no story is featured —
+  /// the caller renders nothing rather than promoting an arbitrary story.
+  Future<ParcoursStory?> fetchStoryOfWeek() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/content/parcours/featured',
+    );
+    final story = response.data?['story'];
+    if (story is! Map<String, dynamic>) return null;
+    final parsed = ParcoursStory.fromApi(story);
+    return parsed.slug.isEmpty ? null : parsed;
+  }
+
   Future<List<dynamic>> listCatalog(String resource) async {
     final queryParameters =
         (resource == 'programs' || resource == 'institutions')

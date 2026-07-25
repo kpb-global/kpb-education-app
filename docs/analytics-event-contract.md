@@ -63,6 +63,25 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 
 Funnel steps: `sign_up` → `onboarding_step_viewed` (step 1) → … → `onboarding_step_viewed` (step N) → `onboarding_completed`. The drop between consecutive `step` values localizes where onboarding leaks; split by `account_type` to compare student / parent / partner. `onboarding_skipped` (by `step`) shows where users bail via Skip, and `auth_failed` split by `method` shows whether email OTP or Google loses people **before** signup — the evidence that gates the deferred phone-OTP decision (KPB-158 → KPB-172 review).
 
+## Engagement & retention (KPB-162 / KPB-164 / KPB-165 / KPB-169)
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `daily_scholarship_viewed` / `daily_scholarship_opened` | `item_id` | Home "Bourse du jour" card CTR (KPB-162) |
+| `my_plan_progress` | `percent`, `next_step` | Unified progress whenever it changes (KPB-164) |
+| `share_card` | `source`, `with_image` | A result card was shared into a conversation (KPB-165) |
+| `parcours_view` | `slug`, `item_type` (`video`/`text`), `source` (`feed`/`library`/`story_of_week`) | A story became the one on screen (KPB-169) |
+| `parcours_complete` | same as above | The story was consumed — video ended, or written interview scrolled to the last answer (KPB-169) |
+| `story_of_week_viewed` / `story_of_week_opened` | `slug` | Home "Récit de la semaine" card CTR (KPB-169) |
+
+### Parcours completion rate (KPB-169)
+
+`parcours_complete ÷ parcours_view`, split by `source`, is the completion rate the
+feed is judged on — a view count alone says nothing about whether a story lands.
+Split by `item_type` too: a video that stalls at 20 % and an interview read to the
+end are different problems. A drop in `feed` completion while `library` holds
+steady points at the feed itself, not at the content.
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |

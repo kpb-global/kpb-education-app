@@ -59,8 +59,7 @@ class UserProfile {
     this.preferredCurrency = 'XOF',
     this.wantsScholarshipSupport = false,
     this.wantsScholarshipNewsletter = false,
-    this.dailyScholarshipOptOut = false,
-    this.weeklyDigestOptOut = false,
+    this.disabledNotificationTypes = const [],
     this.availableDocuments = const [],
     this.consentedAt,
     this.aiConsentedAt,
@@ -99,13 +98,16 @@ class UserProfile {
   /// consent timestamp; the app only carries the desired boolean.
   final bool wantsScholarshipNewsletter;
 
-  /// KPB-162: opt-out of the daily "Bourse du jour" push (the "opportunités"
-  /// type). false = opted in. Never affects other notifications.
-  final bool dailyScholarshipOptOut;
+  /// KPB-169: the recurring notification families this student has opted OUT
+  /// of, as stable keys ([NotificationOptOutType]). One list rather than one
+  /// boolean per family: adding a family costs a key, not a schema change.
+  ///
+  /// Opting out of one family never silences another, and never silences
+  /// transactional notifications (deadlines, dossier, messages).
+  final List<String> disabledNotificationTypes;
 
-  /// KPB-163: opt-out of the Monday weekly digest (push + email). false = opted
-  /// in. Independent of every other notification type.
-  final bool weeklyDigestOptOut;
+  bool isNotificationTypeDisabled(String type) =>
+      disabledNotificationTypes.contains(type);
   final List<String> availableDocuments;
   final DateTime? consentedAt;
 
@@ -163,8 +165,7 @@ class UserProfile {
     String? preferredCurrency,
     bool? wantsScholarshipSupport,
     bool? wantsScholarshipNewsletter,
-    bool? dailyScholarshipOptOut,
-    bool? weeklyDigestOptOut,
+    List<String>? disabledNotificationTypes,
     List<String>? availableDocuments,
     DateTime? consentedAt,
     DateTime? aiConsentedAt,
@@ -197,9 +198,8 @@ class UserProfile {
           wantsScholarshipSupport ?? this.wantsScholarshipSupport,
       wantsScholarshipNewsletter:
           wantsScholarshipNewsletter ?? this.wantsScholarshipNewsletter,
-      dailyScholarshipOptOut:
-          dailyScholarshipOptOut ?? this.dailyScholarshipOptOut,
-      weeklyDigestOptOut: weeklyDigestOptOut ?? this.weeklyDigestOptOut,
+      disabledNotificationTypes:
+          disabledNotificationTypes ?? this.disabledNotificationTypes,
       availableDocuments: availableDocuments ?? this.availableDocuments,
       consentedAt: consentedAt ?? this.consentedAt,
       aiConsentedAt: aiConsentedAt ?? this.aiConsentedAt,

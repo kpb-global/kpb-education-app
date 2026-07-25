@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 
 import '../models/app_models.dart';
 import 'json_parse_utils.dart';
+import 'notification_opt_out.dart';
 
 /// Maps `/profiles/me` JSON to [UserProfile].
 abstract final class ProfileApiCodec {
@@ -44,8 +45,7 @@ abstract final class ProfileApiCodec {
           false,
       wantsScholarshipNewsletter:
           json['scholarshipNewsletterOptIn'] as bool? ?? false,
-      dailyScholarshipOptOut: json['dailyScholarshipOptOut'] as bool? ?? false,
-      weeklyDigestOptOut: json['weeklyDigestOptOut'] as bool? ?? false,
+      disabledNotificationTypes: _optOutTypes(json),
       availableDocuments: stringListFromJson(json['availableDocuments']),
       consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
       aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
@@ -55,5 +55,23 @@ abstract final class ProfileApiCodec {
       guardianConsentedAt:
           DateTime.tryParse(json['guardianConsentedAt'] as String? ?? ''),
     );
+  }
+
+  /// KPB-169: the canonical list, with a fallback to the legacy per-type
+  /// booleans so a server that has not shipped the array yet still yields the
+  /// right switch state. Unknown keys are kept — see [applyOptOut].
+  static List<String> _optOutTypes(Map<String, dynamic> json) {
+    final raw = json['disabledNotificationTypes'];
+    if (raw is List) {
+      final types = raw.whereType<String>().where((t) => t.isNotEmpty).toList()
+        ..sort();
+      return List.unmodifiable(types);
+    }
+    return List.unmodifiable([
+      if (json['dailyScholarshipOptOut'] == true)
+        NotificationOptOutType.dailyScholarship,
+      if (json['weeklyDigestOptOut'] == true)
+        NotificationOptOutType.weeklyDigest,
+    ]);
   }
 }

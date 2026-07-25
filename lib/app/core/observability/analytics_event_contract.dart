@@ -38,6 +38,17 @@ abstract final class AnalyticsEventName {
   static const dailyScholarshipViewed = 'daily_scholarship_viewed';
   static const dailyScholarshipOpened = 'daily_scholarship_opened';
 
+  /// Parcours stories (KPB-169). `parcours_view` fires when a story actually
+  /// becomes the one on screen (not when the list scrolls past it);
+  /// `parcours_complete` when it is consumed — a video watched to the end, or a
+  /// written interview scrolled to the last answer. The pair IS the completion
+  /// rate the ticket asks for; without both, "views" alone say nothing.
+  /// `story_of_week_*` measure the Home card's own funnel.
+  static const parcoursView = 'parcours_view';
+  static const parcoursComplete = 'parcours_complete';
+  static const storyOfWeekViewed = 'story_of_week_viewed';
+  static const storyOfWeekOpened = 'story_of_week_opened';
+
   /// "Mon plan" unified progress (KPB-164). Emitted with the current percentage
   /// whenever it changes, so the weekly delta is derived from the series in
   /// PostHog rather than from a local "last week" copy that could drift.
@@ -97,6 +108,11 @@ abstract final class AnalyticsParamKey {
 
   /// Shared result cards (KPB-165).
   static const withImage = 'with_image';
+
+  /// Parcours stories (KPB-169). `item_type` is 'video' | 'text'; `source`
+  /// tells apart the feed, the library list and the Home card, so a completion
+  /// rate can be read per surface.
+  static const slug = 'slug';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';

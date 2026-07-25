@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/notification_opt_out.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/services/onesignal_service.dart';
@@ -593,9 +594,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             children: [
               _enablePushRow(),
               const SizedBox(height: 12),
-              _dailyScholarshipRow(),
+              _optOutRow(
+                icon: Icons.school_rounded,
+                type: NotificationOptOutType.dailyScholarship,
+                titleKey: 'daily_scholarship_pref_title',
+                subtitleKey: 'daily_scholarship_pref_subtitle',
+              ),
               const SizedBox(height: 12),
-              _weeklyDigestRow(),
+              _optOutRow(
+                icon: Icons.calendar_month_rounded,
+                type: NotificationOptOutType.weeklyDigest,
+                titleKey: 'weekly_digest_pref_title',
+                subtitleKey: 'weekly_digest_pref_subtitle',
+              ),
+              const SizedBox(height: 12),
+              _optOutRow(
+                icon: Icons.auto_awesome_rounded,
+                type: NotificationOptOutType.parcoursWeekly,
+                titleKey: 'parcours_weekly_pref_title',
+                subtitleKey: 'parcours_weekly_pref_subtitle',
+              ),
               const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
@@ -699,28 +717,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   /// KPB-162: real, backed per-type toggle — "receive the daily Bourse du jour"
   /// (ON = not opted out). Persists via the profile PATCH and never touches
   /// other notifications.
-  Widget _dailyScholarshipRow() {
+  /// One row per opt-out-able notification family (KPB-169). The stored value
+  /// is an OPT-OUT; the switch shows "receive", which is what the student
+  /// thinks in. Toggling one family never touches the others.
+  Widget _optOutRow({
+    required IconData icon,
+    required String type,
+    required String titleKey,
+    required String subtitleKey,
+  }) {
     return GetBuilder<AppController>(
       builder: (c) => _prefToggleRow(
-        icon: Icons.school_rounded,
-        titleKey: 'daily_scholarship_pref_title',
-        subtitleKey: 'daily_scholarship_pref_subtitle',
-        // The stored value is an OPT-OUT; the switch shows "receive".
-        receive: !(c.profile?.dailyScholarshipOptOut ?? false),
-        onReceiveChanged: (receive) => c.setDailyScholarshipOptOut(!receive),
-      ),
-    );
-  }
-
-  /// KPB-163: same, for the Monday weekly digest (push + email).
-  Widget _weeklyDigestRow() {
-    return GetBuilder<AppController>(
-      builder: (c) => _prefToggleRow(
-        icon: Icons.calendar_month_rounded,
-        titleKey: 'weekly_digest_pref_title',
-        subtitleKey: 'weekly_digest_pref_subtitle',
-        receive: !(c.profile?.weeklyDigestOptOut ?? false),
-        onReceiveChanged: (receive) => c.setWeeklyDigestOptOut(!receive),
+        icon: icon,
+        titleKey: titleKey,
+        subtitleKey: subtitleKey,
+        receive: !(c.profile?.isNotificationTypeDisabled(type) ?? false),
+        onReceiveChanged: (receive) =>
+            c.setNotificationTypeOptOut(type, !receive),
       ),
     );
   }

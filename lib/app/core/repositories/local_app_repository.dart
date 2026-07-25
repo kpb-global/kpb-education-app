@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
+import '../data/notification_opt_out.dart';
 import '../models/app_models.dart';
 import 'app_repository.dart';
 import 'app_snapshot.dart';
@@ -149,8 +150,7 @@ class LocalAppRepository implements AppRepository {
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,
       'wantsScholarshipNewsletter': profile.wantsScholarshipNewsletter,
-      'dailyScholarshipOptOut': profile.dailyScholarshipOptOut,
-      'weeklyDigestOptOut': profile.weeklyDigestOptOut,
+      'disabledNotificationTypes': profile.disabledNotificationTypes,
       'availableDocuments': profile.availableDocuments,
       // Consent timestamps + age gate must survive a cold start so we don't
       // re-prompt. Guardian *contact* is PII (like the user's own contact
@@ -192,8 +192,9 @@ class LocalAppRepository implements AppRepository {
           json['wantsScholarshipSupport'] as bool? ?? false,
       wantsScholarshipNewsletter:
           json['wantsScholarshipNewsletter'] as bool? ?? false,
-      dailyScholarshipOptOut: json['dailyScholarshipOptOut'] as bool? ?? false,
-      weeklyDigestOptOut: json['weeklyDigestOptOut'] as bool? ?? false,
+      // A snapshot written before KPB-169 carries the two booleans instead of
+      // the list; read either shape so a cold start never loses a preference.
+      disabledNotificationTypes: _optOutTypesFromSnapshot(json),
       availableDocuments: _stringList(json['availableDocuments']),
       consentedAt: DateTime.tryParse(json['consentedAt'] as String? ?? ''),
       aiConsentedAt: DateTime.tryParse(json['aiConsentedAt'] as String? ?? ''),
@@ -503,5 +504,23 @@ class LocalAppRepository implements AppRepository {
       if (predicate(value)) return value;
     }
     return null;
+  }
+
+  /// Reads either shape: the KPB-169 list, or the two booleans a snapshot
+  /// written by an earlier build carries. A cold start must never silently
+  /// re-enable a notification family the student turned off.
+  static List<String> _optOutTypesFromSnapshot(Map<String, dynamic> json) {
+    final raw = json['disabledNotificationTypes'];
+    if (raw is List) {
+      final types = raw.whereType<String>().where((t) => t.isNotEmpty).toList()
+        ..sort();
+      return List.unmodifiable(types);
+    }
+    return List.unmodifiable([
+      if (json['dailyScholarshipOptOut'] == true)
+        NotificationOptOutType.dailyScholarship,
+      if (json['weeklyDigestOptOut'] == true)
+        NotificationOptOutType.weeklyDigest,
+    ]);
   }
 }

@@ -1703,6 +1703,15 @@ class AppTranslations extends Translations {
           'weekly_digest_pref_title': 'Résumé hebdo',
           'weekly_digest_pref_subtitle':
               'Chaque lundi matin : bourses, échéances et prochaine étape de ton dossier. Rien ne t\'est envoyé s\'il n\'y a rien de neuf.',
+          'parcours_weekly_pref_title': 'Récit de la semaine',
+          'parcours_weekly_pref_subtitle':
+              'Un parcours inspirant choisi par l\'équipe, le dimanche soir. Rien n\'est envoyé si aucun récit n\'est mis en avant.',
+          'story_of_week_title': 'RÉCIT DE LA SEMAINE',
+          'parcours_feed_title': 'Récits',
+          'parcours_feed_cta': 'Voir les récits en plein écran',
+          'parcours_feed_play': 'Lancer la vidéo',
+          'parcours_feed_read': 'Lire l\'interview',
+          'parcours_feed_swipe_hint': 'Glisse vers le haut pour le suivant',
           'profile_completion': 'Complétude du profil',
           'orientation_intro':
               'Répondez à quelques questions. KPB vous propose des pistes de filières, des pays et des grandes écoles cohérents.',
@@ -4235,6 +4244,15 @@ class AppTranslations extends Translations {
           'weekly_digest_pref_title': 'Weekly digest',
           'weekly_digest_pref_subtitle':
               'Every Monday morning: scholarships, deadlines and your next dossier step. Nothing is sent when there is nothing new.',
+          'parcours_weekly_pref_title': 'Story of the week',
+          'parcours_weekly_pref_subtitle':
+              'One inspiring journey, hand-picked by the team, on Sunday evening. Nothing is sent when no story is featured.',
+          'story_of_week_title': 'STORY OF THE WEEK',
+          'parcours_feed_title': 'Stories',
+          'parcours_feed_cta': 'Watch stories full screen',
+          'parcours_feed_play': 'Play the video',
+          'parcours_feed_read': 'Read the interview',
+          'parcours_feed_swipe_hint': 'Swipe up for the next one',
           'profile_completion': 'Profile completion',
           'orientation_intro':
               'Answer a few questions. KPB will suggest fields, countries, and top schools that fit your profile.',

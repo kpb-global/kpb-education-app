@@ -24,6 +24,7 @@ import '../parcours/parcours_story_screen.dart';
 import '../tools/student_tools_screen.dart';
 import 'counsellor_testimonials_carousel.dart';
 import 'daily_scholarship_card.dart';
+import 'story_of_week_card.dart';
 import 'my_plan_card.dart';
 import 'home_impact_proof.dart';
 
@@ -174,6 +175,15 @@ class HomeScreen extends StatelessWidget {
                             index: 2,
                             child: DailyScholarshipCard(),
                           ),
+
+                        // ── 2.6 Récit de la semaine (KPB-169) ───────
+                        // Self-fetching + self-hiding: no featured story, no
+                        // card. Shown to guests too — it is free content and
+                        // one of the few reasons to come back before signing up.
+                        const StaggeredSlide(
+                          index: 2,
+                          child: StoryOfWeekCard(),
+                        ),
 
                         // ── 3. Quick Actions ────────────────────────
                         StaggeredSlide(
