@@ -74,6 +74,72 @@ Le démarrage de l'API n'applique volontairement aucune migration. Cette étape
 explicite garantit que la sauvegarde est terminée avant toute évolution du
 schéma et qu'un échec de migration ne remplace pas les conteneurs sains.
 
+## Déploiement automatisé (KPB-167)
+
+Le workflow **`.github/workflows/deploy.yml`** reproduit la procédure ci-dessus,
+et c'est désormais le chemin recommandé. Lancement : onglet **Actions →
+« Deploy backend (VPS) » → Run workflow** (ref à déployer, `main` par défaut).
+
+**Volontairement manuel** : déployer est une décision, pas un effet de bord d'un
+merge. Pour l'automatiser plus tard, ajouter un déclencheur `workflow_run` sur
+un Backend CI vert.
+
+Ce que le workflow ajoute par rapport au manuel :
+
+- il **échoue si le dump pré-déploiement est vide** (au lieu de le découvrir
+  plus tard) ;
+- **health gate** : jusqu'à 100 s d'attente sur `/api/health/ready`, qui vérifie
+  aussi la connexion PostgreSQL ;
+- **rollback automatique du code** : il mémorise l'image en cours d'exécution
+  avant le remplacement et la remet en cas d'échec du health gate, puis publie
+  les 80 dernières lignes de logs de l'API ;
+- il **exporte `KPB_IMAGE_TAG` dans la même session** que le build et le
+  `up -d`, ce qui supprime le piège du tag perdu (redémarrage silencieux de
+  l'ancienne image `:local`) ;
+- le `pg_dump` expand `$POSTGRES_USER` **dans le conteneur** `db`, donc il ne
+  dépend pas de l'environnement du shell appelant.
+
+> Le rollback restaure l'**image**, pas le schéma : les migrations sont
+> forward-only. C'est sûr parce que toutes les migrations de ce repo sont
+> additives (colonnes nullables ou avec défaut), qu'un code plus ancien ignore.
+> Ne restaurer la base qu'en cas de corruption avérée.
+
+### Secrets GitHub requis
+
+À créer dans **Settings → Secrets and variables → Actions** (et, si tu utilises
+l'environnement `production`, y ajouter éventuellement une règle de validation
+manuelle) :
+
+| Secret | Exemple | Rôle |
+|---|---|---|
+| `VPS_SSH_KEY` | contenu de la clé privée | Clé de déploiement (idéalement **dédiée**, pas ta clé personnelle) |
+| `VPS_HOST` | `72.60.190.175` | Hôte SSH |
+| `VPS_USER` | `root` | Utilisateur SSH |
+| `VPS_PATH` | `/opt/kpb` | Dossier contenant `docker-compose.yml` **et** `.env` |
+| `VPS_HEALTH_URL` | `https://api.kpbeducation.cloud` | Base URL des sondes de santé |
+| `VPS_ADMIN_URL` | `https://admin.kpbeducation.cloud` | Sonde admin (uptime) |
+| `VPS_WEB_URL` | `https://kpbeducation.cloud` | Sonde des pages légales (uptime) |
+
+La clé publique correspondante doit être autorisée sur le VPS
+(`~/.ssh/authorized_keys`). Le workflow épingle l'empreinte de l'hôte via
+`ssh-keyscan` — il ne désactive jamais la vérification — et supprime la clé
+privée du runner en fin de job.
+
+## Surveillance
+
+**`.github/workflows/uptime.yml`** sonde toutes les 15 minutes
+`/api/health/live`, `/api/health/ready` (donc aussi la base), l'admin et les
+pages légales référencées par les stores. Un échec fait échouer le run, ce qui
+déclenche la notification GitHub habituelle.
+
+⚠️ **C'est un filet de sécurité, pas un outil de monitoring** : les crons GitHub
+sont *best-effort* (retards de plusieurs minutes, exécutions parfois sautées) et
+les workflows planifiés sont **désactivés après 60 jours sans activité** sur le
+repo. Il n'y a ni escalade ni SMS. **Garde un moniteur externe comme alerte
+primaire** — UptimeRobot ou healthchecks.io suffisent en offre gratuite, sur les
+mêmes URLs. Le heartbeat de sauvegarde (KPB-153) doit lui aussi passer par ce
+moniteur externe.
+
 Pour un rollback applicatif, remettre tous les flags Competition Readiness à
 `false`, le kill switch IA à `true`, `KPB_SUCCESS_LAB_ROLLOUT_PERCENT=0`, puis
 revenir au `KPB_IMAGE_TAG` précédent et relancer uniquement `api` et `admin`.
