@@ -42,6 +42,7 @@ import { CampaignExecutorService } from './modules/notifications/campaign-execut
 import { CampaignMailService } from './modules/notifications/campaign-mail.service';
 import { CampaignCronService } from './modules/notifications/campaign-cron.service';
 import { NotificationDispatchService } from './modules/notifications/notification-dispatch.service';
+import { WeeklyDigestService } from './modules/notifications/weekly-digest.service';
 import { DeadlineReminderCronService } from './modules/notifications/deadline-reminder-cron.service';
 import { MilestoneReminderService } from './modules/notifications/milestone-reminder.service';
 import { ProfileNudgeCronService } from './modules/notifications/profile-nudge-cron.service';
@@ -247,6 +248,7 @@ import { SalonService } from './modules/salon/salon.service';
     CampaignMailService,
     CampaignCronService,
     NotificationDispatchService,
+    WeeklyDigestService,
     DeadlineReminderCronService,
     MilestoneReminderService,
     ProfileNudgeCronService,
