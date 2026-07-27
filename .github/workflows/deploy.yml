@@ -9,7 +9,8 @@ name: Deploy backend (VPS)
 #
 # What it does, in the same order as the validated runbook:
 #   sync code → build images → pg_dump backup → prisma migrate deploy →
-#   replace api+admin → health gate → rollback the CODE if unhealthy.
+#   replace api+admin → ASSERT the new tag is the one running → health gate →
+#   rollback the CODE if unhealthy.
 #
 # Note on rollback: migrations are forward-only, so the rollback restores the
 # previous IMAGE, not the schema. That is safe because every migration in this
@@ -88,10 +89,18 @@ jobs:
           RUN_SEED: ${{ inputs.run_seed }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
-            IMAGE_TAG="$IMAGE_TAG" BUILD_SHA="$BUILD_SHA" \
-            VPS_PATH="$VPS_PATH" HEALTH_URL="$HEALTH_URL" RUN_SEED="$RUN_SEED" \
-            'bash -s' <<'REMOTE'
+
+          # The remote script is COPIED, then executed with stdin closed — it is
+          # never piped into `bash -s`.
+          #
+          # Why this matters (learned the hard way on run #1, 2026-07-27): when
+          # the script arrives on stdin, the first command that reads stdin —
+          # `docker compose exec` and `docker compose run` both do — swallows
+          # the REST OF THE SCRIPT as input. Bash then hits EOF and exits 0.
+          # That run built the images, ate its own migrate/release/health-gate
+          # steps, and reported success while production kept serving the old
+          # container. A deploy that lies is worse than a deploy that fails.
+          cat > /tmp/kpb-deploy.sh <<'REMOTE'
           set -euo pipefail
           cd "$VPS_PATH"
           export KPB_IMAGE_TAG="$IMAGE_TAG" KPB_BUILD_SHA="$BUILD_SHA"
@@ -106,8 +115,11 @@ jobs:
 
           echo "── backup (expands \$POSTGRES_USER INSIDE the db container) ──"
           mkdir -p backups
+          # `< /dev/null` belt-and-braces: even if this script is ever fed on
+          # stdin again, no docker command can consume it.
           docker compose exec -T db sh -c \
             'pg_dump -U "$POSTGRES_USER" -d "${POSTGRES_DB:-kpb}" --format=custom' \
+            < /dev/null \
             > "backups/predeploy-${IMAGE_TAG}-$(date +%Y%m%d-%H%M%S).dump"
           # A truncated dump must stop the deploy, not be discovered later.
           LATEST_DUMP="$(ls -t backups/predeploy-*.dump | head -1)"
@@ -118,15 +130,27 @@ jobs:
           echo "backup ok: $(du -h "$LATEST_DUMP" | cut -f1) $LATEST_DUMP"
 
           echo "── migrate ──"
-          docker compose run --rm --no-deps api npx prisma migrate deploy
+          docker compose run --rm --no-deps api npx prisma migrate deploy < /dev/null
 
           if [ "$RUN_SEED" = "true" ]; then
             echo "── seed (explicitly requested) ──"
-            docker compose exec -T api npm run prisma:seed
+            docker compose exec -T api npm run prisma:seed < /dev/null
           fi
 
           echo "── release ──"
-          docker compose up -d --no-deps api admin
+          docker compose up -d --no-deps api admin < /dev/null
+
+          # The release assertion. "Something answers" is NOT "the new version is
+          # serving": run #1 passed every health check while the two-day-old
+          # container was still up. Compare what actually runs to what we built.
+          echo "── assert the built image is the one running ──"
+          RUNNING_IMAGE="$(docker inspect --format '{{.Config.Image}}' kpb_api)"
+          RUNNING_TAG="${RUNNING_IMAGE##*:}"
+          if [ "$RUNNING_TAG" != "$IMAGE_TAG" ]; then
+            echo "::error::kpb_api runs '$RUNNING_IMAGE' but this deploy built tag '$IMAGE_TAG' — the release did not take"
+            exit 1
+          fi
+          echo "running: $RUNNING_IMAGE"
 
           echo "── health gate ──"
           healthy=0
@@ -141,7 +165,7 @@ jobs:
           if [ "$healthy" != "1" ]; then
             echo "::error::API unhealthy after deploy — rolling back the code"
             if [ -n "${PREV_TAG:-}" ] && [ "$PREV_TAG" != "$IMAGE_TAG" ]; then
-              KPB_IMAGE_TAG="$PREV_TAG" docker compose up -d --no-deps api admin
+              KPB_IMAGE_TAG="$PREV_TAG" docker compose up -d --no-deps api admin < /dev/null
               echo "rolled back to $PREV_TAG"
             else
               echo "::warning::no distinct previous tag to roll back to"
@@ -150,10 +174,25 @@ jobs:
             exit 1
           fi
 
+          # Written proof of the schema state, in every run's log. Without this,
+          # "did the migration apply?" is answered by presumption.
+          echo "── schema state ──"
+          docker compose run --rm --no-deps api npx prisma migrate status < /dev/null
+
           echo "── running images ──"
           docker compose images api admin
+          rm -f /tmp/kpb-deploy.sh
           echo "DEPLOY OK ✅ (tag $IMAGE_TAG)"
           REMOTE
+
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            /tmp/kpb-deploy.sh "${VPS_USER}@${VPS_HOST}:/tmp/kpb-deploy.sh"
+
+          # -n closes stdin for good measure; the script now lives in a file.
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            IMAGE_TAG="$IMAGE_TAG" BUILD_SHA="$BUILD_SHA" \
+            VPS_PATH="$VPS_PATH" HEALTH_URL="$HEALTH_URL" RUN_SEED="$RUN_SEED" \
+            bash /tmp/kpb-deploy.sh
 
       - name: Verify from the outside
         env:
