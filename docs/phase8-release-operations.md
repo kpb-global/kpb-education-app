@@ -44,6 +44,49 @@ flutter build appbundle --release
 - **Play App Signing:** recommended; keep upload key in password manager + offline backup.
 - **Store listing:** short/long description, screenshots (phone + 7" tablet if required), feature graphic, privacy policy URL, data safety form aligned with [`security-compliance.md`](security-compliance.md) and in-app legal copy.
 
+#### Vérifier la chaîne de signature SANS créer de tag (KPB-154)
+
+Le job `release-android` ne se déclenchait que sur un tag `v*`. Aucun tag n'ayant
+jamais été poussé, il n'avait **jamais tourné** — et le secret
+`ANDROID_KEYSTORE_BASE64` contenait 11 caractères (un placeholder). Autrement
+dit : la capacité à signer n'avait jamais été prouvée. Un tag est une décision de
+release ; vérifier qu'on *peut* signer ne doit pas en exiger un.
+
+Procédure, dans l'ordre :
+
+1. **Poser les 4 secrets** depuis le keystore local (`android/upload-keystore.jks`
+   + `android/key.properties`, tous deux gitignorés). Le base64 ne doit jamais
+   passer par un chat ni un ticket :
+
+   ```bash
+   base64 -i android/upload-keystore.jks | tr -d '\n' | pbcopy
+   ```
+
+   → coller dans `ANDROID_KEYSTORE_BASE64`. Puis `ANDROID_KEYSTORE_PASSWORD`,
+   `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS` d'après `key.properties`.
+
+2. **Lancer `Keystore info`** (Actions → Keystore info → Run workflow). Il
+   affiche l'alias et les empreintes SHA-1/SHA-256 du certificat **sans** exposer
+   la clé. Si le secret est encore un placeholder, il le dit explicitement.
+
+3. **Comparer l'empreinte** à Play Console → *Test and release* → *Setup* →
+   *App signing* → **Upload key certificate**. Les SHA-256 doivent être
+   identiques. C'est le test qui décide de tout :
+
+   | Résultat | Signification |
+   |---|---|
+   | Identiques | La continuité est établie ; on peut uploader. |
+   | Différentes, Play App Signing **actif** | Demander une *upload key reset* dans Play Console : la clé d'app reste chez Google, les installs existantes continuent de se mettre à jour. Récupérable. |
+   | Différentes, Play App Signing **inactif** | Aucune mise à jour de l'app publiée n'est possible. À traiter comme un incident, pas comme une tâche. |
+
+4. **Produire l'AAB signé à la demande** : Actions → *Flutter CI* → *Run
+   workflow* → cocher `release_android`. Le job échoue si le keystore est absent
+   ou invalide, vérifie la signature avec `jarsigner -verify -strict`, publie
+   l'empreinte du certificat de l'artefact, et attache l'AAB en artefact de run.
+
+5. **Upload en piste interne** Play Console avec cet AAB. C'est seulement à ce
+   moment que la chaîne est prouvée de bout en bout.
+
 ### iOS (App Store)
 
 - **Distribution signing:** Apple Development / Distribution certificates, provisioning profiles, and **Release** `aps-environment=production` for push (configured in `RunnerRelease.entitlements`).

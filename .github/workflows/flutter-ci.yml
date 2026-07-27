@@ -2,6 +2,17 @@ name: Flutter CI
 
 # Phase 7 merge gate: analyze + tests on every PR; full builds on pushes to default branches.
 on:
+  # Manual entry point (KPB-154): producing a signed AAB used to require pushing
+  # a `v*` tag, so the release-android job had NEVER actually run and the signing
+  # chain was unverified. A tag is a release decision; verifying that we CAN sign
+  # must not require making one.
+  workflow_dispatch:
+    inputs:
+      release_android:
+        description: 'Build + verify the signed production AAB (needs the Android signing secrets)'
+        type: boolean
+        required: false
+        default: false
   push:
     branches: [master, main]
     tags: ['v*']
@@ -113,7 +124,9 @@ jobs:
 
   release-android:
     name: Produce signed Android App Bundle
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_android)
     needs: quality
     runs-on: ubuntu-latest
     env:
@@ -140,6 +153,16 @@ jobs:
           test -n "$STORE_PASSWORD"
           test -n "$KEY_PASSWORD"
           test -n "$KEY_ALIAS"
+          # A real keystore is thousands of base64 characters. On 2026-07-27 this
+          # secret held 11 — a placeholder — so every "signed" build was
+          # impossible and nobody knew, because the job only ran on tags that
+          # were never pushed. Say it plainly instead of failing on `base64:
+          # invalid input`. Length is not sensitive; the content never prints.
+          CLEAN=$(printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \t\r\n"')
+          if [ "${#CLEAN}" -lt 500 ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 holds ${#CLEAN} characters — that is not a keystore. Re-create the secret from the real upload keystore (see docs/DEPLOYMENT.md)."
+            exit 1
+          fi
           # Tolère un secret base64 replié sur plusieurs lignes (sinon
           # `base64: invalid input` — vu sur le workflow keystore-info).
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \t\r\n' | base64 --decode > android/upload-keystore.jks
@@ -166,7 +189,17 @@ jobs:
         run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
 
       - name: Verify App Bundle signature
-        run: jarsigner -verify -strict -certs build/app/outputs/bundle/release/app-release.aab
+        run: |
+          set -euo pipefail
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          jarsigner -verify -strict -certs "$AAB"
+          # The upload certificate fingerprint. PUBLIC data (Play Console shows
+          # it) and the only way to prove signing continuity with the published
+          # com.karatou.android before uploading: this SHA-256 must equal the one
+          # under Play Console → Test and release → Setup → App signing →
+          # "Upload key certificate". A mismatch means the upload is rejected.
+          echo "── upload certificate (compare with Play Console) ──"
+          keytool -printcert -jarfile "$AAB" | grep -E "Owner|Valid from|SHA1:|SHA256:" 
 
       - name: Upload signed AAB
         uses: actions/upload-artifact@v5
