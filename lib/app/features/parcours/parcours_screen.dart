@@ -67,7 +67,7 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
           final all = controller.parcoursStories;
 
           if (controller.isLoadingParcours && all.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const KpbLoading();
           }
 
           if (all.isEmpty) {

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../core/config/app_routes.dart';
 import '../../core/utils/country_utils.dart';
 import 'data/budget_data.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cost simulator — App-engagement handoff restyle (navy/blue).
@@ -72,9 +72,7 @@ class _BudgetCalculatorScreenState extends State<BudgetCalculatorScreen> {
     return Scaffold(
       backgroundColor: KpbColors.canvas,
       body: SafeArea(
-        child: p == null
-            ? const Center(child: CircularProgressIndicator())
-            : _body(p),
+        child: p == null ? const KpbLoading() : _body(p),
       ),
     );
   }

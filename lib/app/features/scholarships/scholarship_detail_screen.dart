@@ -354,7 +354,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
   }
 
   Widget _buildUnavailable() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const KpbLoading();
     return Center(
       child: KpbEmptyState(
         icon:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ class KpbButton extends StatelessWidget {
     this.variant,
     this.fullWidth = false,
     this.loading = false,
+    this.haptic = true,
     // Compat héritée — préférer `variant:`. `secondary:` mappe sur la
     // variante secondary ; les couleurs hors rôle restent fonctionnelles le
     // temps de la migration mais sont une dette (allowlist, architecture §9.1).
@@ -50,6 +52,10 @@ class KpbButton extends StatelessWidget {
   final KpbButtonVariant? variant;
   final bool fullWidth;
   final bool loading;
+
+  /// Tick haptique léger au tap (matrice produit) — désactivable quand le
+  /// call-site pose déjà sa propre haptique.
+  final bool haptic;
   final bool secondary;
   final Color? backgroundColor;
   final Color? bgColor;
@@ -63,7 +69,12 @@ class KpbButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveLabel = label ?? text ?? '';
     final onAction = onTap ?? onPressed;
-    final effectiveOnPressed = loading ? null : onAction;
+    final effectiveOnPressed = loading || onAction == null
+        ? null
+        : () {
+            if (haptic) HapticFeedback.lightImpact();
+            onAction();
+          };
     final customBg = backgroundColor ?? bgColor;
     final minHeight = _variant == KpbButtonVariant.tertiary ? 48.0 : 52.0;
 

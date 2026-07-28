@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/repositories/app_api_client.dart';
+import '../../core/ui/kpb_components.dart';
 
 /// Alumni self-application form (Phase 3).
 ///
@@ -107,7 +108,7 @@ class _AlumniApplyScreenState extends State<AlumniApplyScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('alumni_apply_title'.tr)),
       body: _loadingStatus
-          ? const Center(child: CircularProgressIndicator())
+          ? const KpbLoading()
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Form(

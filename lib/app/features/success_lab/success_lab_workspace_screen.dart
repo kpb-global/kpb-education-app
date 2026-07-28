@@ -132,7 +132,7 @@ class _SuccessLabWorkspaceScreenState extends State<SuccessLabWorkspaceScreen> {
         case LabLoadPhase.loading:
         case LabLoadPhase.cached:
         case LabLoadPhase.syncing:
-          return const Center(child: CircularProgressIndicator());
+          return const KpbLoading();
         case LabLoadPhase.offline:
           return KpbEmptyState(
             icon: Icons.cloud_off_rounded,

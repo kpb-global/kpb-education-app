@@ -158,7 +158,7 @@ class _MagicLinkVerifyScreenState extends State<MagicLinkVerifyScreen> {
               if (_loading)
                 const Padding(
                   padding: EdgeInsets.only(top: KpbSpacing.md),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: KpbLoading(),
                 ),
               const Spacer(),
               TextButton(

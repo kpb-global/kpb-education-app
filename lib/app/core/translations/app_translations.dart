@@ -56,6 +56,8 @@ class AppTranslations extends Translations {
           // ── Batch C2: screen i18n (buttons + titles) ───────────
           'cancel': 'Annuler',
           'retry': 'Réessayer',
+          'loading': 'Chargement…',
+          'field_optional': 'optionnel',
           'logout': 'Se déconnecter',
           'logout_confirm_title': 'Se déconnecter ?',
           'save_changes': 'Enregistrer',
@@ -2629,6 +2631,8 @@ class AppTranslations extends Translations {
           // ── Batch C2: screen i18n (buttons + titles) ───────────
           'cancel': 'Cancel',
           'retry': 'Retry',
+          'loading': 'Loading…',
+          'field_optional': 'optional',
           'logout': 'Sign out',
           'logout_confirm_title': 'Sign out?',
           'save_changes': 'Save',

@@ -13,7 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import 'referral_screen.dart';
 
@@ -154,7 +154,7 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: _loading && d == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const KpbLoading()
           : d == null
               ? _ErrorState(
                   message: _error ?? 'amb_load_error'.tr, onRetry: _load)

@@ -88,7 +88,7 @@ class _SalonScreenState extends State<SalonScreen> {
         physics: _scrollPhysics,
         children: const [
           SizedBox(height: 160),
-          Center(child: CircularProgressIndicator()),
+          KpbLoading(),
           SizedBox(height: 160),
         ],
       );
@@ -332,7 +332,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
         physics: _scrollPhysics,
         children: const [
           SizedBox(height: 160),
-          Center(child: CircularProgressIndicator()),
+          KpbLoading(),
           SizedBox(height: 160),
         ],
       );

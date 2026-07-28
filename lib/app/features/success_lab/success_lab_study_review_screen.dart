@@ -135,7 +135,7 @@ class _SuccessLabStudyReviewScreenState
     switch (controller.phase) {
       case SuccessLabStudyReviewPhase.initial:
       case SuccessLabStudyReviewPhase.loading:
-        return const Center(child: CircularProgressIndicator());
+        return const KpbLoading();
       case SuccessLabStudyReviewPhase.uploading:
         return _BusyStudy(
           label: 'success_lab_study_uploading'.tr,

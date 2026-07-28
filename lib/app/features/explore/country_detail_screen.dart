@@ -3,15 +3,13 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/ui/components/source_link.dart';
-import '../../core/ui/components/verified_badge.dart';
+import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../france/france_private_admission_screen.dart';
 import 'eligibility_quiz_screen.dart';
 import 'program_detail_screen.dart';
-import '../../core/ui/app_tokens.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
@@ -83,7 +81,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
     if (_loading) {
       return const Scaffold(
         backgroundColor: KpbColors.canvas,
-        body: Center(child: CircularProgressIndicator()),
+        body: KpbLoading(),
       );
     }
 

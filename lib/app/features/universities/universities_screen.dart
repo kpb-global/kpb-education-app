@@ -413,7 +413,7 @@ class _Body extends StatelessWidget {
         if (bodyIndex == shown.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: KpbLoading(),
           );
         }
 

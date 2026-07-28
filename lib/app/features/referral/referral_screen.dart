@@ -192,7 +192,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('referral_title'.tr)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const KpbLoading()
           : ListView(
               padding: const EdgeInsets.all(KpbSpacing.pagePad),
               children: [

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
@@ -181,8 +181,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
             Expanded(
               child: switch (_stage) {
                 _Stage.pickType => _buildPicker(),
-                _Stage.loading =>
-                  const Center(child: CircularProgressIndicator()),
+                _Stage.loading => const KpbLoading(),
                 _Stage.chat => _buildChat(),
               },
             ),
