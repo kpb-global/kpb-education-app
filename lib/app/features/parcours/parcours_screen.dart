@@ -93,7 +93,7 @@ class _ParcoursScreenState extends State<ParcoursScreen> {
           final videoStories =
               stories.where((s) => s.isVideo).toList(growable: false);
 
-          return RefreshIndicator(
+          return KpbRefresh(
             onRefresh: _refresh,
             child: CustomScrollView(
               slivers: [

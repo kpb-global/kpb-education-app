@@ -94,7 +94,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
             ),
           ),
           Expanded(
-            child: RefreshIndicator(
+            child: KpbRefresh(
               onRefresh: _load,
               child: _buildBody(),
             ),

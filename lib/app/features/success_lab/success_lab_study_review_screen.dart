@@ -410,7 +410,7 @@ class _SuccessLabStudyReviewScreenState
         onRetry: controller.load,
       );
     }
-    return RefreshIndicator(
+    return KpbRefresh(
       onRefresh: controller.load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

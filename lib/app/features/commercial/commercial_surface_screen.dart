@@ -138,7 +138,7 @@ class _CommercialSurfaceScreenState extends State<CommercialSurfaceScreen> {
           return Column(
             children: [
               Expanded(
-                child: RefreshIndicator(
+                child: KpbRefresh(
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     key: PageStorageKey<int>(_tab),

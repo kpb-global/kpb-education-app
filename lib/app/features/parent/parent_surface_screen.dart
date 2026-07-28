@@ -442,7 +442,7 @@ class _LinkedSurface extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: RefreshIndicator(
+          child: KpbRefresh(
             onRefresh: onRefresh,
             child: SingleChildScrollView(
               key: PageStorageKey<int>(tab),

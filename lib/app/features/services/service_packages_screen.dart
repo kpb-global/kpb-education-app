@@ -93,7 +93,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('service_packages_title'.tr)),
-      body: RefreshIndicator(
+      body: KpbRefresh(
         onRefresh: _load,
         child: _buildBody(),
       ),

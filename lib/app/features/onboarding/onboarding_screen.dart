@@ -503,7 +503,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         }(),
       _ => true,
     };
-    if (!valid) return;
+    if (!valid) {
+      // Single haptic per blocked attempt (never per-field) — error-surface
+      // row of the haptics matrix.
+      HapticFeedback.heavyImpact();
+      return;
+    }
     HapticFeedback.lightImpact();
     if (_page < _totalPages - 1) {
       final nextPage = _page + 1;

@@ -188,22 +188,15 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       }
     } on FileTooLargeException catch (error) {
       if (mounted) {
-        Get.snackbar(
-          'case_tunnel_file_too_large_title'.tr,
-          error.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12),
+        KpbToast.error(
+          context,
+          '${'case_tunnel_file_too_large_title'.tr} — $error',
         );
       }
       return;
     } catch (_) {
       if (mounted) {
-        Get.snackbar(
-          'common_error'.tr,
-          'case_tunnel_add_file_failed'.tr,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12),
-        );
+        KpbToast.error(context, 'case_tunnel_add_file_failed'.tr);
       }
       return;
     }
@@ -652,12 +645,7 @@ class _MessageStepState extends State<_MessageStep> {
       final status = await Permission.microphone.request();
       if (!status.isGranted) {
         if (mounted) {
-          Get.snackbar(
-            'case_message_mic_required_title'.tr,
-            'case_message_mic_required_body'.tr,
-            snackPosition: SnackPosition.BOTTOM,
-            margin: const EdgeInsets.all(12),
-          );
+          KpbToast.error(context, 'case_message_mic_required_body'.tr);
         }
         return;
       }
@@ -680,12 +668,7 @@ class _MessageStepState extends State<_MessageStep> {
     );
 
     if (!started && mounted) {
-      Get.snackbar(
-        'case_message_dictation_unavailable_title'.tr,
-        'case_message_dictation_unavailable_body'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
+      KpbToast.error(context, 'case_message_dictation_unavailable_body'.tr);
       return;
     }
 

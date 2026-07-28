@@ -243,7 +243,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
       ),
       body: scholarship == null
           ? _buildUnavailable()
-          : RefreshIndicator(
+          : KpbRefresh(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 36),

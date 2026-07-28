@@ -74,7 +74,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
                   subtitle: 'impact_unavailable_subtitle'.tr,
                   onRetry: _load,
                 )
-              : RefreshIndicator(
+              : KpbRefresh(
                   onRefresh: _load,
                   child: ListView(
                     padding: const EdgeInsets.all(KpbSpacing.pagePad),
