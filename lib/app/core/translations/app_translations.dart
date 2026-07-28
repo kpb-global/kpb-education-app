@@ -1255,6 +1255,8 @@ class AppTranslations extends Translations {
           'onboarding_consent_required_title': 'Consentement requis',
           'onboarding_consent_required_body':
               'Veuillez accepter la politique de confidentialité et les conditions d\'utilisation.',
+          'onboarding_submit_error':
+              'Impossible de finaliser ton inscription. Vérifie ta connexion et réessaie.',
           'onboarding_selection_required_title': 'Sélection requise',
           'onboarding_select_field_body':
               'Choisissez au moins une filière d\'intérêt.',
@@ -3804,6 +3806,8 @@ class AppTranslations extends Translations {
           'onboarding_consent_required_title': 'Consent required',
           'onboarding_consent_required_body':
               'Please accept the privacy policy and terms of use.',
+          'onboarding_submit_error':
+              'We could not finish your sign-up. Check your connection and try again.',
           'onboarding_selection_required_title': 'Selection required',
           'onboarding_select_field_body':
               'Choose at least one field of interest.',

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -114,6 +115,7 @@ class CaseDetailScreen extends StatefulWidget {
 class _CaseDetailScreenState extends State<CaseDetailScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _hasDraft = false;
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -622,6 +624,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                             ),
                             onChanged: (value) {
                               _ctrl.sendCaseTyping(c.id, value.isNotEmpty);
+                              final hasText = value.trim().isNotEmpty;
+                              if (hasText != _hasDraft) {
+                                setState(() => _hasDraft = hasText);
+                              }
                             },
                           ),
                         ),
@@ -629,22 +635,31 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                         Semantics(
                           button: true,
                           label: 'a11y_send_message'.tr,
+                          enabled: _hasDraft,
                           child: GestureDetector(
-                            onTap: () {
-                              final text = _messageController.text.trim();
-                              if (text.isEmpty) return;
-                              _ctrl.addCaseMessage(c.id, text);
-                              _messageController.clear();
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: const BoxDecoration(
-                                color: KpbColors.actionPrimary,
-                                shape: BoxShape.circle,
+                            onTap: _hasDraft
+                                ? () {
+                                    final text = _messageController.text.trim();
+                                    if (text.isEmpty) return;
+                                    HapticFeedback.mediumImpact();
+                                    _ctrl.addCaseMessage(c.id, text);
+                                    _messageController.clear();
+                                    setState(() => _hasDraft = false);
+                                  }
+                                : null,
+                            child: AnimatedOpacity(
+                              duration: KpbMotion.fast,
+                              opacity: _hasDraft ? 1 : 0.45,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  color: KpbColors.actionPrimary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.send_rounded,
+                                    color: Colors.white, size: 18),
                               ),
-                              child: const Icon(Icons.send_rounded,
-                                  color: Colors.white, size: 18),
                             ),
                           ),
                         ),

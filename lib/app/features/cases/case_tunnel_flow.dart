@@ -56,6 +56,7 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       ];
 
   var _step = 0;
+  var _submitting = false;
   late CaseType _type;
   final _messageController = TextEditingController();
   ContactMethod _contactMethod = ContactMethod.inApp;
@@ -114,6 +115,11 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
   }
 
   void _submit() {
+    // Garde anti double-tap : le CTA passe en chargement pendant toute la
+    // soumission (création locale + persistance) et n'est réarmé qu'en cas
+    // d'échec — en succès, l'écran se ferme derrière.
+    if (_submitting) return;
+    setState(() => _submitting = true);
     final message = _messageController.text.trim();
     final defaultTitle = widget.prefill.title;
     final descriptionParts = <String>[
@@ -135,12 +141,10 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       );
       widget.onSubmitted?.call();
     } catch (_) {
-      Get.snackbar(
-        'case_tunnel_incomplete_profile_title'.tr,
-        'case_tunnel_incomplete_profile_body'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
+      if (mounted) {
+        setState(() => _submitting = false);
+        KpbToast.error(context, 'case_tunnel_incomplete_profile_body'.tr);
+      }
     }
   }
 
@@ -237,13 +241,12 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
             const SizedBox(width: 12),
             Expanded(
               flex: 2,
-              child: FilledButton(
-                onPressed: _canContinue ? _next : null,
-                child: Text(
-                  _step == _stepLabels.length - 1
-                      ? 'submit'.tr
-                      : 'common_next'.tr,
-                ),
+              child: KpbButton(
+                loading: _submitting,
+                onTap: _canContinue && !_submitting ? _next : null,
+                label: _step == _stepLabels.length - 1
+                    ? 'submit'.tr
+                    : 'common_next'.tr,
               ),
             ),
           ],

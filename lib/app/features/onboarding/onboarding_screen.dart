@@ -153,6 +153,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   late final PageController _pageController;
   int _page = 0;
+  bool _submitting = false;
 
   // Form keys per page
   final _key0 = GlobalKey<FormState>();
@@ -525,22 +526,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _submit() async {
-    // Ask for push permission via OneSignal; identity is linked in
-    // completeOnboarding() → syncOneSignalIdentity().
-    await OneSignalService.instance.requestPermission();
-    AnalyticsService.instance
-        .logOnboardingCompleted(accountType: _accountType.name);
-    final profile = _buildProfile();
-    if (_accountType == AccountType.student) {
-      // AHA moment (P0-D): await the profile PATCH so the server scores the
-      // answers just given, then reveal the matches. Guest/skip paths never
-      // reach _submit, so they keep landing on home.
-      await _ctrl.completeOnboardingSynced(profile);
-      if (!mounted) return;
-      Get.offAll(() => const AhaMomentScreen());
-    } else {
-      _ctrl.completeOnboarding(profile);
-      Get.offAllNamed(AppRoutes.home);
+    // Anti double-tap : la synchro profil peut prendre plusieurs secondes —
+    // le CTA passe en chargement et ne se réarme qu'en cas d'échec.
+    if (_submitting) return;
+    setState(() => _submitting = true);
+    try {
+      // Ask for push permission via OneSignal; identity is linked in
+      // completeOnboarding() → syncOneSignalIdentity().
+      await OneSignalService.instance.requestPermission();
+      AnalyticsService.instance
+          .logOnboardingCompleted(accountType: _accountType.name);
+      final profile = _buildProfile();
+      if (_accountType == AccountType.student) {
+        // AHA moment (P0-D): await the profile PATCH so the server scores the
+        // answers just given, then reveal the matches. Guest/skip paths never
+        // reach _submit, so they keep landing on home.
+        await _ctrl.completeOnboardingSynced(profile);
+        if (!mounted) return;
+        Get.offAll(() => const AhaMomentScreen());
+      } else {
+        _ctrl.completeOnboarding(profile);
+        Get.offAllNamed(AppRoutes.home);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _submitting = false);
+        KpbToast.error(context, 'onboarding_submit_error'.tr);
+      }
     }
   }
 
@@ -689,6 +701,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page: _page,
             total: _totalPages,
             onNext: _next,
+            loading: _submitting,
           ),
         ],
       ),
@@ -846,9 +859,11 @@ class _BottomBar extends StatelessWidget {
     required this.page,
     required this.total,
     required this.onNext,
+    this.loading = false,
   });
   final int page, total;
   final VoidCallback onNext;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -864,24 +879,11 @@ class _BottomBar extends StatelessWidget {
         color: Colors.white,
         border: Border(top: BorderSide(color: KpbColors.border)),
       ),
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: onNext,
-          style: FilledButton.styleFrom(
-            backgroundColor: KpbColors.actionPrimary,
-            foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(52),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            textStyle: const TextStyle(
-              fontSize: 14.5,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          child: Text(isLast ? 'create_account'.tr : 'continue'.tr),
-        ),
+      child: KpbButton(
+        fullWidth: true,
+        loading: loading,
+        onTap: loading ? null : onNext,
+        label: isLast ? 'create_account'.tr : 'continue'.tr,
       ),
     );
   }

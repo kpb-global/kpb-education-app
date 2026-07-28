@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/navigation/app_boot_screen.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 import 'case_tunnel_flow.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
@@ -70,7 +70,13 @@ class CaseCreateScreen extends StatelessWidget {
               programId: programId,
             ),
             onClose: () => Get.back<void>(),
-            onSubmitted: () => Get.back<void>(),
+            onSubmitted: () {
+              Get.back<void>();
+              final rootCtx = Get.context;
+              if (rootCtx != null) {
+                KpbToast.success(rootCtx, 'request_submitted'.tr);
+              }
+            },
           ),
         ),
       ),

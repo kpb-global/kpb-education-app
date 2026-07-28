@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/models/app_models.dart';
+import '../../core/ui/kpb_components.dart';
 import 'case_tunnel_flow.dart';
 
 class CaseComposerSheet extends StatelessWidget {
@@ -45,11 +46,12 @@ class CaseComposerSheet extends StatelessWidget {
           onClose: () => Navigator.of(context).pop(),
           onSubmitted: () {
             Navigator.of(context).pop();
-            Get.snackbar(
-              'KPB Education',
-              'request_submitted'.tr,
-              snackPosition: SnackPosition.BOTTOM,
-            );
+            // Toast de confirmation après fermeture de la sheet : on vise le
+            // contexte racine (le ScaffoldMessenger y est disponible).
+            final rootCtx = Get.context;
+            if (rootCtx != null) {
+              KpbToast.success(rootCtx, 'request_submitted'.tr);
+            }
           },
         ),
       ),
