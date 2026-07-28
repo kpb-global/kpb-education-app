@@ -15,9 +15,13 @@ import 'program_detail_screen.dart';
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 class CountryDetailScreen extends StatefulWidget {
-  const CountryDetailScreen({super.key, required this.countryId});
+  const CountryDetailScreen({super.key, required this.countryId, this.heroTag});
 
   final String countryId;
+
+  /// When set (card→detail navigation), the hero flag participates in a
+  /// [KpbHero] flight under this tag. Null on deep links: no hero flight.
+  final String? heroTag;
 
   @override
   State<CountryDetailScreen> createState() => _CountryDetailScreenState();
@@ -32,6 +36,9 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
   void initState() {
     super.initState();
     _controller = Get.find<AppController>();
+    // Seed from the in-memory catalog so the header (and any hero target)
+    // renders on the first frame while the detail payload refreshes.
+    _country = _controller.countryByIdOrNull(_countryKey);
     _load();
   }
 
@@ -78,15 +85,14 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        backgroundColor: KpbColors.canvas,
-        body: KpbLoading(),
-      );
-    }
-
     final country = _country ?? _controller.countryByIdOrNull(_countryKey);
     if (country == null) {
+      if (_loading) {
+        return const Scaffold(
+          backgroundColor: KpbColors.canvas,
+          body: KpbLoading(),
+        );
+      }
       return Scaffold(
         backgroundColor: KpbColors.canvas,
         body: Center(child: Text('country_not_found'.tr)),
@@ -135,6 +141,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
               flag: displayCountryFlag(
                   id: country.id, flagEmoji: country.flagEmoji),
               badge: 'country_guide_badge'.tr,
+              heroTag: widget.heroTag,
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -422,9 +429,10 @@ class _Breadcrumb extends StatelessWidget {
 }
 
 class _Hero extends StatelessWidget {
-  const _Hero({required this.flag, required this.badge});
+  const _Hero({required this.flag, required this.badge, this.heroTag});
   final String flag;
   final String badge;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -440,7 +448,13 @@ class _Hero extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(flag, style: const TextStyle(fontSize: 52)),
+          if (heroTag != null)
+            KpbHero(
+              tag: heroTag!,
+              child: Text(flag, style: const TextStyle(fontSize: 52)),
+            )
+          else
+            Text(flag, style: const TextStyle(fontSize: 52)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),

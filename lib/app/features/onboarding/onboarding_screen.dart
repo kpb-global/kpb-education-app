@@ -787,12 +787,19 @@ class _ProgressHeader extends StatelessWidget {
             const SizedBox(height: KpbSpacing.sm),
             ClipRRect(
               borderRadius: KpbRadius.pillBr,
-              child: LinearProgressIndicator(
-                value: (page + 1) / total,
-                minHeight: 6,
-                backgroundColor: KpbColors.border,
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                    KpbColors.actionPrimary),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: (page + 1) / total),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                builder: (_, value, __) => LinearProgressIndicator(
+                  value: value,
+                  minHeight: 6,
+                  backgroundColor: KpbColors.border,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                      KpbColors.actionPrimary),
+                ),
               ),
             ),
           ],

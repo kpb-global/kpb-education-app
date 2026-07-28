@@ -9,6 +9,7 @@ import '../../core/data/success_lab_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
 import 'scholarship_detail_screen.dart';
 import 'scholarship_guide_info_screen.dart';
 import 'scholarships_controller.dart';
@@ -20,50 +21,6 @@ import 'widgets/scholarship_alert_button.dart';
 const _cardShadow = <BoxShadow>[
   BoxShadow(color: KpbShadow.softNavy, blurRadius: 2, offset: Offset(0, 1)),
 ];
-
-const _flagMap = <String, String>{
-  'Japan': '🇯🇵',
-  'Japon': '🇯🇵',
-  'France': '🇫🇷',
-  'Germany': '🇩🇪',
-  'Allemagne': '🇩🇪',
-  'United States': '🇺🇸',
-  'États-Unis': '🇺🇸',
-  'USA': '🇺🇸',
-  'Canada': '🇨🇦',
-  'United Kingdom': '🇬🇧',
-  'Royaume-Uni': '🇬🇧',
-  'UK': '🇬🇧',
-  'Australia': '🇦🇺',
-  'Australie': '🇦🇺',
-  'China': '🇨🇳',
-  'Chine': '🇨🇳',
-  'South Korea': '🇰🇷',
-  'Corée du Sud': '🇰🇷',
-  'Turkey': '🇹🇷',
-  'Turquie': '🇹🇷',
-  'Italy': '🇮🇹',
-  'Italie': '🇮🇹',
-  'Spain': '🇪🇸',
-  'Espagne': '🇪🇸',
-  'Morocco': '🇲🇦',
-  'Maroc': '🇲🇦',
-  'Tunisia': '🇹🇳',
-  'Tunisie': '🇹🇳',
-  'Switzerland': '🇨🇭',
-  'Suisse': '🇨🇭',
-  'Belgium': '🇧🇪',
-  'Belgique': '🇧🇪',
-  'Netherlands': '🇳🇱',
-  'Pays-Bas': '🇳🇱',
-  'Sweden': '🇸🇪',
-  'Suède': '🇸🇪',
-  'Senegal': '🇸🇳',
-  'Sénégal': '🇸🇳',
-  'International': '🌍',
-};
-
-String _flag(String country) => _flagMap[country] ?? '🌍';
 
 String _shortDate(DateTime date) {
   final local = date.toLocal();
@@ -488,6 +445,7 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
         initialAlertEnabled: _alertedScholarshipIds.contains(s.id),
         apiClient: _apiClient,
         onAlertChanged: (enabled) => _setAlertState(s.id, enabled),
+        heroTag: 'scholarship-flag-${s.id}',
       ),
       routeName: AppRoutes.scholarshipDetailPath(s.id),
     );
@@ -542,7 +500,13 @@ class _LiveScholarshipCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(_flag(s.countryName), style: const TextStyle(fontSize: 24)),
+              KpbHero(
+                tag: 'scholarship-flag-${s.id}',
+                child: Text(
+                  scholarshipCountryFlag(s.countryName),
+                  style: const TextStyle(fontSize: 24),
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

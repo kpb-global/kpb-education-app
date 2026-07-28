@@ -19,7 +19,9 @@ class AdmissionMeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 1200),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 1200),
       curve: Curves.easeOutExpo,
       tween: Tween(begin: 0, end: score.toDouble()),
       builder: (context, value, child) {

@@ -27,6 +27,7 @@ export 'components/kpb_network_image.dart';
 export 'components/admission_meter.dart';
 export 'components/staggered_slide.dart';
 export 'components/kpb_button.dart';
+export 'components/kpb_hero.dart';
 export 'components/kpb_app_bar.dart';
 export 'components/kpb_loading.dart';
 export 'components/kpb_toast.dart';

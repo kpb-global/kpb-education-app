@@ -46,6 +46,17 @@ class _StaggeredSlideState extends State<StaggeredSlide>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Respect the OS reduced-motion setting: snap to the end state so the
+    // content renders immediately, skipping both the delay and the flight.
+    if (MediaQuery.disableAnimationsOf(context) &&
+        _ctrl.status != AnimationStatus.completed) {
+      _ctrl.value = 1.0;
+    }
+  }
+
+  @override
   void dispose() {
     _ctrl.dispose();
     super.dispose();
@@ -53,6 +64,9 @@ class _StaggeredSlideState extends State<StaggeredSlide>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return widget.child;
+    }
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(

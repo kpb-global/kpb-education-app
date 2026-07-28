@@ -6,6 +6,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/kpb_empty_state.dart';
 import '../../core/ui/components/kpb_refresh.dart';
+import '../../core/ui/components/staggered_slide.dart';
 import '../../core/ui/skeleton.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../alumni/alumni_directory_screen.dart';
@@ -294,9 +295,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       sliver: SliverList.separated(
                         itemCount: articles.length - 1,
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (ctx, i) => _ArticleCard(
-                          article: articles[i + 1],
-                          controller: controller,
+                        itemBuilder: (ctx, i) => StaggeredSlide(
+                          index: i,
+                          child: _ArticleCard(
+                            article: articles[i + 1],
+                            controller: controller,
+                          ),
                         ),
                       ),
                     ),
@@ -326,18 +330,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       itemBuilder: (ctx, i) {
                         final cat = categories[i];
                         final colors = _categoryColors(i);
-                        return _ForumCategoryCard(
-                          title: controller.resolve(cat.label),
-                          description: controller.resolve(cat.description),
-                          accent: colors.fg,
-                          accentBg: colors.bg,
-                          icon: colors.icon,
-                          onTap: () => Get.to(
-                            () => ForumCategoryScreen(
-                              category: cat,
-                              accentColor: colors.fg,
-                              accentBg: colors.bg,
-                              icon: colors.icon,
+                        return StaggeredSlide(
+                          index: i,
+                          child: _ForumCategoryCard(
+                            title: controller.resolve(cat.label),
+                            description: controller.resolve(cat.description),
+                            accent: colors.fg,
+                            accentBg: colors.bg,
+                            icon: colors.icon,
+                            onTap: () => Get.to(
+                              () => ForumCategoryScreen(
+                                category: cat,
+                                accentColor: colors.fg,
+                                accentBg: colors.bg,
+                                icon: colors.icon,
+                              ),
                             ),
                           ),
                         );

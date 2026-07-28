@@ -217,9 +217,12 @@ class _CasesScreenState extends State<CasesScreen> {
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
-                      return _CaseCard(
-                        item: items[index],
-                        controller: controller,
+                      return StaggeredSlide(
+                        index: index,
+                        child: _CaseCard(
+                          item: items[index],
+                          controller: controller,
+                        ),
                       );
                     },
                   ),

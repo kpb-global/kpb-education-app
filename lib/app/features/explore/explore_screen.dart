@@ -312,7 +312,9 @@ class CountriesCatalogGrid extends StatelessWidget {
               displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
           name: controller.resolve(country.name),
           subtitle: subtitle,
-          onTap: () => Get.to(() => CountryDetailScreen(countryId: country.id)),
+          heroTag: 'country-flag-${country.id}',
+          onTap: () => Get.to(() => CountryDetailScreen(
+              countryId: country.id, heroTag: 'country-flag-${country.id}')),
         );
       },
     );
@@ -327,12 +329,14 @@ class _CountryGuideCard extends StatelessWidget {
     required this.name,
     required this.subtitle,
     required this.onTap,
+    this.heroTag,
   });
 
   final String flag;
   final String name;
   final String subtitle;
   final VoidCallback onTap;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +350,13 @@ class _CountryGuideCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 34)),
+            if (heroTag != null)
+              KpbHero(
+                tag: heroTag!,
+                child: Text(flag, style: const TextStyle(fontSize: 34)),
+              )
+            else
+              Text(flag, style: const TextStyle(fontSize: 34)),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
@@ -606,12 +616,16 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       flag: _flag(program.countryId),
                       saved: saved,
                       isPartner: isPartner,
+                      heroTag: 'program-flag-${program.id}',
                       onSave: () => controller.toggleSaved(
                         SavedItemType.program,
                         program.id,
                       ),
                       onTap: () => Get.to(
-                        () => ProgramDetailScreen(programId: program.id),
+                        () => ProgramDetailScreen(
+                          programId: program.id,
+                          heroTag: 'program-flag-${program.id}',
+                        ),
                       ),
                     );
                   },
@@ -635,6 +649,7 @@ class _ProgramCard extends StatelessWidget {
     required this.saved,
     this.campusCount = 0,
     this.isPartner = false,
+    this.heroTag,
     required this.onSave,
     required this.onTap,
   });
@@ -648,6 +663,7 @@ class _ProgramCard extends StatelessWidget {
   final String duration;
   final String flag;
   final bool saved;
+  final String? heroTag;
 
   /// Number of campuses the formation is offered on (multi-campus schools like
   /// OMNES). 0/1 = no badge.
@@ -676,7 +692,12 @@ class _ProgramCard extends StatelessWidget {
               borderRadius: KpbRadius.mdBr,
             ),
             child: Center(
-              child: Text(flag, style: const TextStyle(fontSize: 26)),
+              child: heroTag != null
+                  ? KpbHero(
+                      tag: heroTag!,
+                      child: Text(flag, style: const TextStyle(fontSize: 26)),
+                    )
+                  : Text(flag, style: const TextStyle(fontSize: 26)),
             ),
           ),
           const SizedBox(width: 12),

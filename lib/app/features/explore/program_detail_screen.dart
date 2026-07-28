@@ -8,6 +8,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/share_card_service.dart';
+import '../../core/ui/components/kpb_hero.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/utils/country_utils.dart';
@@ -45,9 +46,13 @@ String _zoneLabel(int score) {
 }
 
 class ProgramDetailScreen extends StatelessWidget {
-  const ProgramDetailScreen({super.key, required this.programId});
+  const ProgramDetailScreen({super.key, required this.programId, this.heroTag});
 
   final String programId;
+
+  /// When set (card→detail navigation), the header flag participates in a
+  /// [KpbHero] flight under this tag. Null on deep links: no hero.
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +113,7 @@ class ProgramDetailScreen extends StatelessWidget {
             name: controller.resolve(program.name),
             subtitle: city.isNotEmpty ? '$level · $city' : level,
             score: score,
+            heroTag: heroTag,
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -299,6 +305,7 @@ class _Header extends StatelessWidget {
     required this.name,
     required this.subtitle,
     required this.score,
+    this.heroTag,
   });
 
   final AppController controller;
@@ -308,6 +315,7 @@ class _Header extends StatelessWidget {
   final String name;
   final String subtitle;
   final int score;
+  final String? heroTag;
 
   /// Present the shareable "admission chances" match card (App-engagement
   /// handoff). Every value is real: the match % + zone come from the live
@@ -389,7 +397,13 @@ class _Header extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(flag, style: const TextStyle(fontSize: 34)),
+              if (heroTag != null)
+                KpbHero(
+                  tag: heroTag!,
+                  child: Text(flag, style: const TextStyle(fontSize: 34)),
+                )
+              else
+                Text(flag, style: const TextStyle(fontSize: 34)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
