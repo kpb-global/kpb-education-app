@@ -192,13 +192,35 @@ jobs:
         run: |
           set -euo pipefail
           AAB=build/app/outputs/bundle/release/app-release.aab
-          jarsigner -verify -strict -certs "$AAB"
-          # The upload certificate fingerprint. PUBLIC data (Play Console shows
-          # it) and the only way to prove signing continuity with the published
-          # com.karatou.android before uploading: this SHA-256 must equal the one
-          # under Play Console → Test and release → Setup → App signing →
-          # "Upload key certificate". A mismatch means the upload is rejected.
-          echo "── upload certificate (compare with Play Console) ──"
+
+          # NOT `-strict`. An upload key is self-signed BY DESIGN, and -strict
+          # promotes "self-signed certificate" to a fatal error (exit bit 4); it
+          # also flags the JarFile/JarInputStream mismatch inherent to every AAB
+          # container. The first real run of this job (2026-07-30) failed on
+          # exactly that, while reporting "jar verified, with signer errors" —
+          # i.e. the bundle was fine and the check was wrong.
+          jarsigner -verify "$AAB"
+
+          # The assertion -strict never actually made: the bundle must be signed
+          # by THE key this job installed, not merely by some valid key. Both
+          # sides are computed at runtime, so rotating the upload key needs no
+          # edit here and a mismatched secret can never pass unnoticed.
+          EXPECTED=$(keytool -list -v -keystore android/upload-keystore.jks \
+            -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" \
+            | grep -m1 'SHA256:' | tr -d ' \t')
+          ACTUAL=$(keytool -printcert -jarfile "$AAB" \
+            | grep -m1 'SHA256:' | tr -d ' \t')
+          echo "attendu (keystore) : $EXPECTED"
+          echo "obtenu  (AAB)      : $ACTUAL"
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::l'AAB n'est pas signé par la clé d'upload installée"
+            exit 1
+          fi
+          echo "✅ AAB signé par la clé d'upload attendue"
+
+          # Public data, to compare with Play Console → Intégrité des applis →
+          # Signature d'application → « Certificat de clé d'importation ».
+          echo "── certificat d'upload de l'artefact ──"
           keytool -printcert -jarfile "$AAB" | grep -E "Owner|Valid from|SHA1:|SHA256:" 
 
       - name: Upload signed AAB
