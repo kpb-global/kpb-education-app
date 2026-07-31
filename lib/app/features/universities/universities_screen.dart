@@ -413,7 +413,7 @@ class _Body extends StatelessWidget {
         if (bodyIndex == shown.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: KpbLoading(),
           );
         }
 
@@ -431,17 +431,21 @@ class _Body extends StatelessWidget {
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: _SchoolRow(
-            flag: countryFlag(program.countryId),
-            name: controller.resolve(program.name),
-            subtitle: city.isNotEmpty ? '$level · $city' : level,
-            feesLabel: displayedTuition.isNotEmpty ? displayedTuition : tuition,
-            score: controller.programMatch(program),
-            saved: controller.isSaved(SavedItemType.program, program.id),
-            onSave: () =>
-                controller.toggleSaved(SavedItemType.program, program.id),
-            onTap: () =>
-                Get.to(() => ProgramDetailScreen(programId: program.id)),
+          child: StaggeredSlide(
+            index: bodyIndex,
+            child: _SchoolRow(
+              flag: countryFlag(program.countryId),
+              name: controller.resolve(program.name),
+              subtitle: city.isNotEmpty ? '$level · $city' : level,
+              feesLabel:
+                  displayedTuition.isNotEmpty ? displayedTuition : tuition,
+              score: controller.programMatch(program),
+              saved: controller.isSaved(SavedItemType.program, program.id),
+              onSave: () =>
+                  controller.toggleSaved(SavedItemType.program, program.id),
+              onTap: () =>
+                  Get.to(() => ProgramDetailScreen(programId: program.id)),
+            ),
           ),
         );
       },

@@ -131,7 +131,7 @@ class _EligibilityQuizScreenState extends State<EligibilityQuizScreen> {
 
   Widget _buildBody(BuildContext context) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const KpbLoading();
     }
     if (_error != null) {
       return KpbEmptyState(

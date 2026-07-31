@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +11,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/skeleton.dart';
 import '../../core/services/document_upload_service.dart';
 import '../services/service_packages_screen.dart';
 import '../tools/interview_simulator_screen.dart';
@@ -113,6 +115,7 @@ class CaseDetailScreen extends StatefulWidget {
 class _CaseDetailScreenState extends State<CaseDetailScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _hasDraft = false;
 
   AppController get _ctrl => Get.find<AppController>();
 
@@ -288,6 +291,15 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
         // null-safely instead of crashing with a StateError.
         final c = _ctrl.cases.firstWhereOrNull((e) => e.id == widget.caseId);
         if (c == null) {
+          // La synchro tourne encore (deep link froid ou liste pas hydratée) :
+          // skeleton en forme de contenu plutôt qu'un faux « introuvable ».
+          if (_ctrl.isSyncing) {
+            return Scaffold(
+              backgroundColor: KpbColors.canvas,
+              appBar: KpbAppBar(title: 'loading'.tr),
+              body: const _CaseDetailSkeleton(),
+            );
+          }
           return Scaffold(
             backgroundColor: KpbColors.canvas,
             appBar: AppBar(
@@ -330,315 +342,365 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
           backgroundColor: KpbColors.canvas,
           body: SafeArea(
             bottom: false,
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
-              children: [
-                // ── Header : back · flag · institution · program · ring ──────
-                _DossierHeader(
-                  ctrl: _ctrl,
-                  studentCase: c,
-                  progress: progress,
-                ),
-                const SizedBox(height: 14),
-
-                // ── Decision received → honest "plan B" surface ──────────────
-                // Real entry point for the post-decision screen (Notifications
-                // isn't built yet): only when the case is genuinely rejected.
-                if (c.status == CaseStatus.rejected) ...[
-                  _NavCard(
-                    icon: Icons.flag_rounded,
-                    iconColor: KpbColors.error,
-                    iconBg: KpbColors.errorLight,
-                    title: 'post_decision_entry_title'.tr,
-                    subtitle: 'post_decision_entry_subtitle'.tr,
-                    onTap: () => Get.to(() => PostDecisionScreen(caseId: c.id)),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-
-                // ── Admission-milestone review prompt (KPB-75) ───────────────
-                if (c.status == CaseStatus.completed &&
-                    c.counsellorId != null &&
-                    !_ctrl.hasReviewedCase(c.id)) ...[
-                  _ReviewPromptCard(
-                    onLater: () => setState(() => _ctrl.markCaseReviewed(c.id)),
-                    onReview: () => _promptReview(c),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-
-                // ── Offline banner ───────────────────────────────────────────
-                if (!ConnectivityService.instance.isOnline) ...[
-                  const _OfflineBanner(),
-                  const SizedBox(height: 14),
-                ],
-
-                // ── Next step (real: c.nextStep*) ────────────────────────────
-                _NextStepCard(
-                  label: 'next_step'.tr,
-                  title: _ctrl.resolve(c.nextStepTitle),
-                  description: _ctrl.resolve(c.nextStepDescription),
-                ),
-                const SizedBox(height: 14),
-
-                // ── Step checklist (status-driven, real timeline) ────────────
-                _SectionLabel('case_steps_heading'.tr),
-                const SizedBox(height: 8),
-                CaseStatusTimeline(steps: steps),
-                const SizedBox(height: 14),
-
-                // ── Photo / PDF tip (honest: app compresses, no OCR/scan) ────
-                _InfoTip(
-                  icon: Icons.photo_camera_rounded,
-                  text: 'case_document_photo_tip'.tr,
-                ),
-                const SizedBox(height: 14),
-
-                // ── Interview simulator (existing tool) ──────────────────────
-                _NavCard(
-                  icon: Icons.mic_rounded,
-                  iconColor: KpbColors.warning,
-                  iconBg: KpbColors.warningLight,
-                  title: 'case_interview_sim_title'.tr,
-                  subtitle: 'case_interview_sim_subtitle'.tr,
-                  onTap: () => Get.to(() => const InterviewSimulatorScreen()),
-                ),
-                const SizedBox(height: 14),
-
-                // ── Documents ────────────────────────────────────────────────
-                if (docs.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _SectionLabel('case_section_documents'.tr),
-                      ),
-                      Text(
-                        'home_case_documents_ratio'.trParams(
-                            {'done': '$docsDone', 'total': '${docs.length}'}),
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
-                          color: KpbColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _DocumentsCard(
-                    docs: docs,
+            child: KpbRefresh(
+              onRefresh: _ctrl.pullToRefresh,
+              child: ListView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
+                children: [
+                  // ── Header : back · flag · institution · program · ring ──────
+                  _DossierHeader(
                     ctrl: _ctrl,
-                    onUpload: (doc) => _promptUpload(c.id, doc),
+                    studentCase: c,
+                    progress: progress,
                   ),
-                  const SizedBox(height: 12),
-                ],
+                  const SizedBox(height: 14),
 
-                // ── AI document review (existing tool) ───────────────────────
-                _NavCard(
-                  icon: Icons.auto_awesome_rounded,
-                  iconColor: KpbColors.actionPrimary,
-                  iconBg: KpbColors.actionPrimarySoft,
-                  title: 'case_ai_review_cta'.tr,
-                  subtitle: 'case_ai_review_subtitle'.tr,
-                  onTap: () => Get.to(() => const DocumentReviewScreen()),
-                ),
-                const SizedBox(height: 14),
+                  // ── Decision received → honest "plan B" surface ──────────────
+                  // Real entry point for the post-decision screen (Notifications
+                  // isn't built yet): only when the case is genuinely rejected.
+                  if (c.status == CaseStatus.rejected) ...[
+                    _NavCard(
+                      icon: Icons.flag_rounded,
+                      iconColor: KpbColors.error,
+                      iconBg: KpbColors.errorLight,
+                      title: 'post_decision_entry_title'.tr,
+                      subtitle: 'post_decision_entry_subtitle'.tr,
+                      onTap: () =>
+                          Get.to(() => PostDecisionScreen(caseId: c.id)),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
 
-                // ── Advisor ──────────────────────────────────────────────────
-                if (c.assignedAdvisorName != null) ...[
-                  _AdvisorCard(
-                    name: c.assignedAdvisorName!,
-                    onWhatsapp: () => _openWhatsapp(
+                  // ── Admission-milestone review prompt (KPB-75) ───────────────
+                  if (c.status == CaseStatus.completed &&
+                      c.counsellorId != null &&
+                      !_ctrl.hasReviewedCase(c.id)) ...[
+                    _ReviewPromptCard(
+                      onLater: () =>
+                          setState(() => _ctrl.markCaseReviewed(c.id)),
+                      onReview: () => _promptReview(c),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+
+                  // ── Offline banner ───────────────────────────────────────────
+                  if (!ConnectivityService.instance.isOnline) ...[
+                    const _OfflineBanner(),
+                    const SizedBox(height: 14),
+                  ],
+
+                  // ── Next step (real: c.nextStep*) ────────────────────────────
+                  _NextStepCard(
+                    label: 'next_step'.tr,
+                    title: _ctrl.resolve(c.nextStepTitle),
+                    description: _ctrl.resolve(c.nextStepDescription),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ── Step checklist (status-driven, real timeline) ────────────
+                  _SectionLabel('case_steps_heading'.tr),
+                  const SizedBox(height: 8),
+                  CaseStatusTimeline(steps: steps),
+                  const SizedBox(height: 14),
+
+                  // ── Photo / PDF tip (honest: app compresses, no OCR/scan) ────
+                  _InfoTip(
+                    icon: Icons.photo_camera_rounded,
+                    text: 'case_document_photo_tip'.tr,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ── Interview simulator (existing tool) ──────────────────────
+                  _NavCard(
+                    icon: Icons.mic_rounded,
+                    iconColor: KpbColors.warning,
+                    iconBg: KpbColors.warningLight,
+                    title: 'case_interview_sim_title'.tr,
+                    subtitle: 'case_interview_sim_subtitle'.tr,
+                    onTap: () => Get.to(() => const InterviewSimulatorScreen()),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ── Documents ────────────────────────────────────────────────
+                  if (docs.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _SectionLabel('case_section_documents'.tr),
+                        ),
+                        Text(
+                          'home_case_documents_ratio'.trParams(
+                              {'done': '$docsDone', 'total': '${docs.length}'}),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: KpbColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _DocumentsCard(
+                      docs: docs,
+                      ctrl: _ctrl,
+                      onUpload: (doc) => _promptUpload(c.id, doc),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
+                  // ── AI document review (existing tool) ───────────────────────
+                  _NavCard(
+                    icon: Icons.auto_awesome_rounded,
+                    iconColor: KpbColors.actionPrimary,
+                    iconBg: KpbColors.actionPrimarySoft,
+                    title: 'case_ai_review_cta'.tr,
+                    subtitle: 'case_ai_review_subtitle'.tr,
+                    onTap: () => Get.to(() => const DocumentReviewScreen()),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ── Advisor ──────────────────────────────────────────────────
+                  if (c.assignedAdvisorName != null) ...[
+                    _AdvisorCard(
+                      name: c.assignedAdvisorName!,
+                      onWhatsapp: () => _openWhatsapp(
+                        advisorName: c.assignedAdvisorName,
+                        prefill: c.isReferenceProvisional
+                            ? 'case_whatsapp_advisor_prefill_provisional'
+                                .trParams({'title': _ctrl.resolve(c.title)})
+                            : 'case_whatsapp_advisor_prefill'
+                                .trParams({'reference': c.referenceCode}),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+
+                  // ── WhatsApp CTA (official KPB line; verified-advisor gate) ───
+                  _GreenWhatsAppCta(
+                    onTap: () => _openWhatsapp(
                       advisorName: c.assignedAdvisorName,
                       prefill: c.isReferenceProvisional
-                          ? 'case_whatsapp_advisor_prefill_provisional'
+                          ? 'case_whatsapp_continue_prefill_provisional'
                               .trParams({'title': _ctrl.resolve(c.title)})
-                          : 'case_whatsapp_advisor_prefill'
+                          : 'case_whatsapp_continue_prefill'
                               .trParams({'reference': c.referenceCode}),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const KpbAntiFraudNotice(source: 'case_detail'),
                   const SizedBox(height: 14),
-                ],
 
-                // ── WhatsApp CTA (official KPB line; verified-advisor gate) ───
-                _GreenWhatsAppCta(
-                  onTap: () => _openWhatsapp(
-                    advisorName: c.assignedAdvisorName,
-                    prefill: c.isReferenceProvisional
-                        ? 'case_whatsapp_continue_prefill_provisional'
-                            .trParams({'title': _ctrl.resolve(c.title)})
-                        : 'case_whatsapp_continue_prefill'
-                            .trParams({'reference': c.referenceCode}),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const KpbAntiFraudNotice(source: 'case_detail'),
-                const SizedBox(height: 14),
-
-                // ── Prepare application package ──────────────────────────────
-                _NavCard(
-                  icon: Icons.assignment_turned_in_rounded,
-                  iconColor: KpbColors.actionPrimary,
-                  iconBg: KpbColors.actionPrimarySoft,
-                  title: 'case_prepare_package_title'.tr,
-                  subtitle: 'case_prepare_package_subtitle'.tr,
-                  onTap: () => Get.to(
-                    () => ServicePackagesScreen(
-                      caseId: c.id,
-                      caseReference: c.referenceCode,
+                  // ── Prepare application package ──────────────────────────────
+                  _NavCard(
+                    icon: Icons.assignment_turned_in_rounded,
+                    iconColor: KpbColors.actionPrimary,
+                    iconBg: KpbColors.actionPrimarySoft,
+                    title: 'case_prepare_package_title'.tr,
+                    subtitle: 'case_prepare_package_subtitle'.tr,
+                    onTap: () => Get.to(
+                      () => ServicePackagesScreen(
+                        caseId: c.id,
+                        caseReference: c.referenceCode,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-                // ── Share with a parent (opt-in, per case) ───────────────────
-                _ParentShareCard(
-                  value: c.parentCanView,
-                  onChanged: (v) => _ctrl.setCaseParentVisibility(c.id, v),
-                ),
-                const SizedBox(height: 14),
+                  // ── Share with a parent (opt-in, per case) ───────────────────
+                  _ParentShareCard(
+                    value: c.parentCanView,
+                    onChanged: (v) => _ctrl.setCaseParentVisibility(c.id, v),
+                  ),
+                  const SizedBox(height: 14),
 
-                // ── History ──────────────────────────────────────────────────
-                if (c.timeline.isNotEmpty) ...[
-                  _SectionLabel('case_section_history'.tr),
+                  // ── History ──────────────────────────────────────────────────
+                  if (c.timeline.isNotEmpty) ...[
+                    _SectionLabel('case_section_history'.tr),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: _cardDecoration(),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: c.timeline.asMap().entries.map((e) {
+                          return _TimelineItem(
+                            event: e.value,
+                            isLast: e.key == c.timeline.length - 1,
+                            ctrl: _ctrl,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+
+                  // ── Messages ─────────────────────────────────────────────────
+                  _SectionLabel(
+                    '${'case_section_messages'.tr}${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} ${'case_unread_suffix'.tr}' : ''}',
+                  ),
                   const SizedBox(height: 8),
-                  Container(
-                    decoration: _cardDecoration(),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: c.timeline.asMap().entries.map((e) {
-                        return _TimelineItem(
-                          event: e.value,
-                          isLast: e.key == c.timeline.length - 1,
-                          ctrl: _ctrl,
-                        );
-                      }).toList(),
+                  if (c.messages.isEmpty)
+                    Container(
+                      decoration: _cardDecoration(),
+                      padding: const EdgeInsets.all(16),
+                      child: KpbEmptyState(
+                        icon: Icons.chat_bubble_outline_rounded,
+                        title: 'no_messages'.tr,
+                        subtitle: 'send_message_hint'.tr,
+                      ),
+                    )
+                  else
+                    Column(
+                      children: c.messages
+                          .map((msg) => _MessageBubble(msg: msg, ctrl: _ctrl))
+                          .toList(),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                ],
+                  const SizedBox(height: 8),
 
-                // ── Messages ─────────────────────────────────────────────────
-                _SectionLabel(
-                  '${'case_section_messages'.tr}${c.messages.isNotEmpty ? ' (${c.messages.length})' : ''}${_ctrl.unreadMessagesForCase(c.id) > 0 ? ' · ${_ctrl.unreadMessagesForCase(c.id)} ${'case_unread_suffix'.tr}' : ''}',
-                ),
-                const SizedBox(height: 8),
-                if (c.messages.isEmpty)
-                  Container(
-                    decoration: _cardDecoration(),
-                    padding: const EdgeInsets.all(16),
-                    child: KpbEmptyState(
-                      icon: Icons.chat_bubble_outline_rounded,
-                      title: 'no_messages'.tr,
-                      subtitle: 'send_message_hint'.tr,
-                    ),
-                  )
-                else
-                  Column(
-                    children: c.messages
-                        .map((msg) => _MessageBubble(msg: msg, ctrl: _ctrl))
-                        .toList(),
-                  ),
-                const SizedBox(height: 8),
-
-                // ── Typing indicator ─────────────────────────────────────────
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: _ctrl.isCaseAdvisorTyping
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            key: const ValueKey('typing'),
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: KpbColors.surface,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16),
-                                bottomRight: Radius.circular(16),
-                                bottomLeft: Radius.circular(4),
+                  // ── Typing indicator ─────────────────────────────────────────
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: _ctrl.isCaseAdvisorTyping
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              key: const ValueKey('typing'),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: KpbColors.surface,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
+                                  bottomRight: Radius.circular(16),
+                                  bottomLeft: Radius.circular(4),
+                                ),
+                                border: Border.all(color: KpbColors.border),
+                                boxShadow: _cardShadow,
                               ),
-                              border: Border.all(color: KpbColors.border),
-                              boxShadow: _cardShadow,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  _TypingDot(delay: Duration.zero),
+                                  SizedBox(width: 4),
+                                  _TypingDot(
+                                      delay: Duration(milliseconds: 200)),
+                                  SizedBox(width: 4),
+                                  _TypingDot(
+                                      delay: Duration(milliseconds: 400)),
+                                ],
+                              ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                _TypingDot(delay: Duration.zero),
-                                SizedBox(width: 4),
-                                _TypingDot(delay: Duration(milliseconds: 200)),
-                                SizedBox(width: 4),
-                                _TypingDot(delay: Duration(milliseconds: 400)),
-                              ],
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(key: ValueKey('no-typing')),
-                ),
+                          )
+                        : const SizedBox.shrink(key: ValueKey('no-typing')),
+                  ),
 
-                // ── Message input ────────────────────────────────────────────
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: KpbColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: KpbColors.border),
-                    boxShadow: _cardShadow,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _messageController,
-                          maxLines: 3,
-                          minLines: 1,
-                          decoration: InputDecoration(
-                            hintText: 'message_input_hint'.tr,
-                            hintStyle:
-                                const TextStyle(color: KpbColors.textFaint),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 8),
-                          ),
-                          onChanged: (value) {
-                            _ctrl.sendCaseTyping(c.id, value.isNotEmpty);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Semantics(
-                        button: true,
-                        label: 'a11y_send_message'.tr,
-                        child: GestureDetector(
-                          onTap: () {
-                            final text = _messageController.text.trim();
-                            if (text.isEmpty) return;
-                            _ctrl.addCaseMessage(c.id, text);
-                            _messageController.clear();
-                          },
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              color: KpbColors.actionPrimary,
-                              shape: BoxShape.circle,
+                  // ── Message input ────────────────────────────────────────────
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: KpbColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: KpbColors.border),
+                      boxShadow: _cardShadow,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            maxLines: 3,
+                            minLines: 1,
+                            decoration: InputDecoration(
+                              hintText: 'message_input_hint'.tr,
+                              hintStyle:
+                                  const TextStyle(color: KpbColors.textFaint),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 8),
                             ),
-                            child: const Icon(Icons.send_rounded,
-                                color: Colors.white, size: 18),
+                            onChanged: (value) {
+                              _ctrl.sendCaseTyping(c.id, value.isNotEmpty);
+                              final hasText = value.trim().isNotEmpty;
+                              if (hasText != _hasDraft) {
+                                setState(() => _hasDraft = hasText);
+                              }
+                            },
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Semantics(
+                          button: true,
+                          label: 'a11y_send_message'.tr,
+                          enabled: _hasDraft,
+                          child: GestureDetector(
+                            onTap: _hasDraft
+                                ? () {
+                                    final text = _messageController.text.trim();
+                                    if (text.isEmpty) return;
+                                    HapticFeedback.mediumImpact();
+                                    _ctrl.addCaseMessage(c.id, text);
+                                    _messageController.clear();
+                                    setState(() => _hasDraft = false);
+                                  }
+                                : null,
+                            child: AnimatedOpacity(
+                              duration: KpbMotion.fast,
+                              opacity: _hasDraft ? 1 : 0.45,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  color: KpbColors.actionPrimary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.send_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// Skeleton de premier chargement du détail dossier : épouse la structure
+/// réelle (en-tête, étapes, documents, messages) pendant la synchro.
+class _CaseDetailSkeleton extends StatelessWidget {
+  const _CaseDetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
+      children: const [
+        SkeletonBox(height: 120, borderRadius: 16),
+        SizedBox(height: 14),
+        SkeletonBox(height: 76, borderRadius: 12),
+        SizedBox(height: 14),
+        SkeletonBox(width: 140, height: 16, borderRadius: 6),
+        SizedBox(height: 8),
+        SkeletonBox(height: 160, borderRadius: 16),
+        SizedBox(height: 14),
+        SkeletonBox(width: 180, height: 16, borderRadius: 6),
+        SizedBox(height: 8),
+        SkeletonBox(height: 120, borderRadius: 16),
+        SizedBox(height: 14),
+        SkeletonBox(height: 56, borderRadius: 16),
+      ],
     );
   }
 }

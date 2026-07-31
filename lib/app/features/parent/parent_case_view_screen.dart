@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
-import '../../core/ui/app_tokens.dart';
-import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../../core/ui/kpb_components.dart';
 import '../../core/utils/tuition_utils.dart';
 
 /// FR/EN short labels for each backend case status (kept local so the parent
@@ -108,7 +107,7 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
         elevation: 0,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const KpbLoading()
           : _error != null
               ? Center(child: Text(_error!))
               : _buildBody(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../app_tokens.dart';
 
 // ── Pull-to-refresh wrapper ───────────────────────────────────────────────────
@@ -16,7 +17,12 @@ class KpbRefresh extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: onRefresh,
+      onRefresh: () {
+        // Tick haptique au relâchement du pull : confirme le geste sans
+        // attendre la fin du réseau (matrice haptique produit).
+        HapticFeedback.lightImpact();
+        return onRefresh();
+      },
       color: KpbColors.blue,
       backgroundColor: Theme.of(context).cardColor,
       displacement: 60,

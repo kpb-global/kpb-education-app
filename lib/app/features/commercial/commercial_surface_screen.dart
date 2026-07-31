@@ -20,7 +20,7 @@ import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/whatsapp_utils.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 // Couleurs catégorielles des avatars (séries distinctes — exception §14 de
@@ -138,7 +138,7 @@ class _CommercialSurfaceScreenState extends State<CommercialSurfaceScreen> {
           return Column(
             children: [
               Expanded(
-                child: RefreshIndicator(
+                child: KpbRefresh(
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     key: PageStorageKey<int>(_tab),
@@ -288,7 +288,7 @@ class _LeadsTab extends StatelessWidget {
           if (loading && leads.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 40),
-              child: Center(child: CircularProgressIndicator()),
+              child: KpbLoading(),
             )
           else if (error != null && leads.isEmpty)
             _ErrorState(message: error!, onRetry: onRetry)
@@ -1061,7 +1061,7 @@ class _CasesTab extends StatelessWidget {
           if (loading && leads.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 40),
-              child: Center(child: CircularProgressIndicator()),
+              child: KpbLoading(),
             )
           else if (leads.isEmpty)
             _EmptyHint(

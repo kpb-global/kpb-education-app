@@ -149,9 +149,9 @@ class AppTheme {
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -439,8 +439,9 @@ class AppTheme {
         ),
       ),
 
-      // `shrinkWrap` : réservé aux liens inline dans un contexte dense —
-      // jamais pour une action isolée (cible tactile < 48 dp).
+      // Cible tactile ≥ 48 dp sur tous les TextButton (accessibilité) : les
+      // liens inline gardent un rendu compact via le padding, la zone de
+      // toucher passe par `padded`.
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: KpbColors.actionPrimary,
@@ -449,9 +450,9 @@ class AppTheme {
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
 

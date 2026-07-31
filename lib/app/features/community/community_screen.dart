@@ -6,6 +6,8 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/kpb_empty_state.dart';
 import '../../core/ui/components/kpb_refresh.dart';
+import '../../core/ui/components/staggered_slide.dart';
+import '../../core/ui/skeleton.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../alumni/alumni_directory_screen.dart';
 import '../parcours/parcours_screen.dart';
@@ -58,6 +60,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
           final allArticles = controller.publishedArticles;
           final categories = controller.visibleForumCategories;
           final tags = controller.visibleForumTopicTags;
+          // Premier chargement : tant que la synchro catalogue tourne et que
+          // rien n'est disponible, on montre un skeleton plutôt que l'état
+          // vide « bientôt disponible » (qui mentirait pendant la synchro).
+          final isInitialLoading =
+              controller.isSyncing && allArticles.isEmpty && categories.isEmpty;
 
           // Filter articles by selected tag.
           final articles = _selectedTag == null
@@ -243,7 +250,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                 ),
 
-                if (articles.isEmpty)
+                if (isInitialLoading)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: _CommunityArticlesSkeleton(),
+                    ),
+                  )
+                else if (articles.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -281,9 +295,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       sliver: SliverList.separated(
                         itemCount: articles.length - 1,
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (ctx, i) => _ArticleCard(
-                          article: articles[i + 1],
-                          controller: controller,
+                        itemBuilder: (ctx, i) => StaggeredSlide(
+                          index: i,
+                          child: _ArticleCard(
+                            article: articles[i + 1],
+                            controller: controller,
+                          ),
                         ),
                       ),
                     ),
@@ -313,18 +330,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       itemBuilder: (ctx, i) {
                         final cat = categories[i];
                         final colors = _categoryColors(i);
-                        return _ForumCategoryCard(
-                          title: controller.resolve(cat.label),
-                          description: controller.resolve(cat.description),
-                          accent: colors.fg,
-                          accentBg: colors.bg,
-                          icon: colors.icon,
-                          onTap: () => Get.to(
-                            () => ForumCategoryScreen(
-                              category: cat,
-                              accentColor: colors.fg,
-                              accentBg: colors.bg,
-                              icon: colors.icon,
+                        return StaggeredSlide(
+                          index: i,
+                          child: _ForumCategoryCard(
+                            title: controller.resolve(cat.label),
+                            description: controller.resolve(cat.description),
+                            accent: colors.fg,
+                            accentBg: colors.bg,
+                            icon: colors.icon,
+                            onTap: () => Get.to(
+                              () => ForumCategoryScreen(
+                                category: cat,
+                                accentColor: colors.fg,
+                                accentBg: colors.bg,
+                                icon: colors.icon,
+                              ),
                             ),
                           ),
                         );
@@ -992,6 +1012,25 @@ String _articleBody(AppController controller, ArticleModel article) {
   return content.trim().isNotEmpty
       ? content
       : controller.resolve(article.summary);
+}
+
+/// Skeleton de la section articles pendant le premier chargement : épouse la
+/// forme du contenu réel (une carte mise en avant + deux lignes de liste).
+class _CommunityArticlesSkeleton extends StatelessWidget {
+  const _CommunityArticlesSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        SkeletonBox(height: 180, borderRadius: 16),
+        SizedBox(height: 10),
+        SkeletonBox(height: 92, borderRadius: 12),
+        SizedBox(height: 10),
+        SkeletonBox(height: 92, borderRadius: 12),
+      ],
+    );
+  }
 }
 
 String _formatDate(DateTime dt) {

@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/utils/whatsapp_utils.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/kpb_components.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §10.2).
 /// A shared case, from `/parent-links/cases` — only fields the backend returns.
@@ -178,7 +178,7 @@ class _ParentSurfaceScreenState extends State<ParentSurfaceScreen> {
   Widget build(BuildContext context) {
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const KpbLoading();
     } else if (_error != null) {
       // P3: a failed load must show the error/retry state, never fall through
       // to any placeholder data.
@@ -442,7 +442,7 @@ class _LinkedSurface extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: RefreshIndicator(
+          child: KpbRefresh(
             onRefresh: onRefresh,
             child: SingleChildScrollView(
               key: PageStorageKey<int>(tab),

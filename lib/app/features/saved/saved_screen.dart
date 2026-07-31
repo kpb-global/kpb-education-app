@@ -142,6 +142,7 @@ class SavedScreen extends StatelessWidget {
                 // ── Filières ──────────────────────────────────────────────
                 if (fields.isNotEmpty)
                   _SavedGroup(
+                    index: 0,
                     icon: Icons.school_outlined,
                     iconColor: KpbColors.blue,
                     label: 'saved_group_fields'.tr,
@@ -178,6 +179,7 @@ class SavedScreen extends StatelessWidget {
                 // ── Pays ──────────────────────────────────────────────────
                 if (countries.isNotEmpty)
                   _SavedGroup(
+                    index: 1,
                     icon: Icons.public_rounded,
                     iconColor: KpbColors.sky,
                     label: 'saved_group_countries'.tr,
@@ -214,6 +216,7 @@ class SavedScreen extends StatelessWidget {
                 // ── Universités ───────────────────────────────────────────
                 if (institutions.isNotEmpty)
                   _SavedGroup(
+                    index: 2,
                     icon: Icons.account_balance_outlined,
                     iconColor: KpbColors.navy,
                     label: 'saved_group_institutions'.tr,
@@ -248,6 +251,7 @@ class SavedScreen extends StatelessWidget {
                 // ── Programmes ────────────────────────────────────────────
                 if (programs.isNotEmpty)
                   _SavedGroup(
+                    index: 3,
                     icon: Icons.menu_book_outlined,
                     iconColor: KpbColors.gold,
                     label: 'saved_group_programs'.tr,
@@ -300,6 +304,7 @@ class _SavedGroup extends StatefulWidget {
     required this.items,
     required this.controller,
     required this.buildItem,
+    this.index = 0,
   });
 
   final IconData icon;
@@ -308,6 +313,9 @@ class _SavedGroup extends StatefulWidget {
   final List<SavedItem> items;
   final AppController controller;
   final Widget Function(SavedItem item) buildItem;
+
+  /// Position among the visible groups — drives the first-render stagger.
+  final int index;
 
   @override
   State<_SavedGroup> createState() => _SavedGroupState();
@@ -319,136 +327,140 @@ class _SavedGroupState extends State<_SavedGroup> {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-            KpbSpacing.pagePad, 0, KpbSpacing.pagePad, KpbSpacing.md),
-        child: Column(
-          children: [
-            // Group header
-            GestureDetector(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Row(
-                children: [
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: widget.iconColor.withValues(alpha: 0.1),
-                      borderRadius: KpbRadius.smBr,
+      child: StaggeredSlide(
+        index: widget.index,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+              KpbSpacing.pagePad, 0, KpbSpacing.pagePad, KpbSpacing.md),
+          child: Column(
+            children: [
+              // Group header
+              GestureDetector(
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: widget.iconColor.withValues(alpha: 0.1),
+                        borderRadius: KpbRadius.smBr,
+                      ),
+                      child:
+                          Icon(widget.icon, color: widget.iconColor, size: 16),
                     ),
-                    child: Icon(widget.icon, color: widget.iconColor, size: 16),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: context.kpb.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: context.kpb.surfaceBg,
-                      borderRadius: KpbRadius.pillBr,
-                    ),
-                    child: Text(
-                      '${widget.items.length}',
+                    const SizedBox(width: 10),
+                    Text(
+                      widget.label,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: context.kpb.textMuted,
+                        color: context.kpb.textPrimary,
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: context.kpb.gray300,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-            if (_expanded) ...[
-              const SizedBox(height: KpbSpacing.sm),
-              KpbCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: widget.items.asMap().entries.map((e) {
-                    final i = e.key;
-                    final item = e.value;
-                    return Column(
-                      children: [
-                        if (i > 0)
-                          Divider(
-                            height: 1,
-                            indent: 16,
-                            endIndent: 16,
-                            color: context.kpb.gray100,
-                          ),
-                        Dismissible(
-                          key: Key('saved-${item.type.name}-${item.itemId}'),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 20),
-                            decoration: BoxDecoration(
-                              color: context.kpb.errorLight,
-                              borderRadius: KpbRadius.lgBr,
-                            ),
-                            child: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: KpbColors.error,
-                              size: 22,
-                            ),
-                          ),
-                          confirmDismiss: (_) async => true,
-                          onDismissed: (_) {
-                            widget.controller
-                                .toggleSaved(item.type, item.itemId);
-                            Get.showSnackbar(GetSnackBar(
-                              messageText: Text(
-                                'item_deleted'.tr,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 14),
-                              ),
-                              mainButton: TextButton(
-                                onPressed: () {
-                                  widget.controller
-                                      .toggleSaved(item.type, item.itemId);
-                                  Get.closeCurrentSnackbar();
-                                },
-                                child: Text(
-                                  'cancel'.tr,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              duration: const Duration(seconds: 3),
-                              backgroundColor: KpbColors.gray700,
-                              borderRadius: KpbRadius.md,
-                              margin: const EdgeInsets.all(12),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                            ));
-                          },
-                          child: widget.buildItem(item),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: context.kpb.surfaceBg,
+                        borderRadius: KpbRadius.pillBr,
+                      ),
+                      child: Text(
+                        '${widget.items.length}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: context.kpb.textMuted,
                         ),
-                      ],
-                    );
-                  }).toList(),
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      _expanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: context.kpb.gray300,
+                      size: 20,
+                    ),
+                  ],
                 ),
               ),
+              if (_expanded) ...[
+                const SizedBox(height: KpbSpacing.sm),
+                KpbCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: widget.items.asMap().entries.map((e) {
+                      final i = e.key;
+                      final item = e.value;
+                      return Column(
+                        children: [
+                          if (i > 0)
+                            Divider(
+                              height: 1,
+                              indent: 16,
+                              endIndent: 16,
+                              color: context.kpb.gray100,
+                            ),
+                          Dismissible(
+                            key: Key('saved-${item.type.name}-${item.itemId}'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              decoration: BoxDecoration(
+                                color: context.kpb.errorLight,
+                                borderRadius: KpbRadius.lgBr,
+                              ),
+                              child: const Icon(
+                                Icons.delete_outline_rounded,
+                                color: KpbColors.error,
+                                size: 22,
+                              ),
+                            ),
+                            confirmDismiss: (_) async => true,
+                            onDismissed: (_) {
+                              widget.controller
+                                  .toggleSaved(item.type, item.itemId);
+                              Get.showSnackbar(GetSnackBar(
+                                messageText: Text(
+                                  'item_deleted'.tr,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                ),
+                                mainButton: TextButton(
+                                  onPressed: () {
+                                    widget.controller
+                                        .toggleSaved(item.type, item.itemId);
+                                    Get.closeCurrentSnackbar();
+                                  },
+                                  child: Text(
+                                    'cancel'.tr,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                duration: const Duration(seconds: 3),
+                                backgroundColor: KpbColors.gray700,
+                                borderRadius: KpbRadius.md,
+                                margin: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                              ));
+                            },
+                            child: widget.buildItem(item),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

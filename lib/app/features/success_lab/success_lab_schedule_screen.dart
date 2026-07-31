@@ -118,7 +118,7 @@ class _SuccessLabScheduleScreenState extends State<SuccessLabScheduleScreen> {
     switch (controller.phase) {
       case SuccessLabSchedulePhase.initial:
       case SuccessLabSchedulePhase.loading:
-        return const Center(child: CircularProgressIndicator());
+        return const KpbLoading();
       case SuccessLabSchedulePhase.booking:
         return _BusySchedule(label: 'success_lab_schedule_booking'.tr);
       case SuccessLabSchedulePhase.ready:

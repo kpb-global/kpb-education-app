@@ -72,3 +72,51 @@ String countryFlag(String id, {String fallbackEmoji = '🌍'}) =>
 
 String displayCountryFlag({required String id, String flagEmoji = ''}) =>
     flagEmoji.isNotEmpty ? flagEmoji : countryFlag(id);
+
+/// Display-name → emoji map for scholarship listings (backend returns country
+/// names, not ids, in both FR and EN spellings).
+const _scholarshipFlagByName = <String, String>{
+  'Japan': '🇯🇵',
+  'Japon': '🇯🇵',
+  'France': '🇫🇷',
+  'Germany': '🇩🇪',
+  'Allemagne': '🇩🇪',
+  'United States': '🇺🇸',
+  'États-Unis': '🇺🇸',
+  'USA': '🇺🇸',
+  'Canada': '🇨🇦',
+  'United Kingdom': '🇬🇧',
+  'Royaume-Uni': '🇬🇧',
+  'UK': '🇬🇧',
+  'Australia': '🇦🇺',
+  'Australie': '🇦🇺',
+  'China': '🇨🇳',
+  'Chine': '🇨🇳',
+  'South Korea': '🇰🇷',
+  'Corée du Sud': '🇰🇷',
+  'Turkey': '🇹🇷',
+  'Turquie': '🇹🇷',
+  'Italy': '🇮🇹',
+  'Italie': '🇮🇹',
+  'Spain': '🇪🇸',
+  'Espagne': '🇪🇸',
+  'Morocco': '🇲🇦',
+  'Maroc': '🇲🇦',
+  'Tunisia': '🇹🇳',
+  'Tunisie': '🇹🇳',
+  'Switzerland': '🇨🇭',
+  'Suisse': '🇨🇭',
+  'Belgium': '🇧🇪',
+  'Belgique': '🇧🇪',
+  'Netherlands': '🇳🇱',
+  'Pays-Bas': '🇳🇱',
+  'Sweden': '🇸🇪',
+  'Suède': '🇸🇪',
+  'Senegal': '🇸🇳',
+  'Sénégal': '🇸🇳',
+  'International': '🌍',
+};
+
+/// Flag emoji for a scholarship's country *display name* (FR or EN).
+String scholarshipCountryFlag(String countryName) =>
+    _scholarshipFlagByName[countryName] ?? '🌍';

@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/skeleton.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
@@ -45,15 +46,30 @@ class ExploreScreen extends StatelessWidget {
           ),
         ),
         body: GetBuilder<AppController>(
-          builder: (_) => TabBarView(
-            children: [
-              _FieldsGrid(controller: controller),
-              CountriesCatalogGrid(controller: controller),
-              ProgramsCatalogList(controller: controller),
-              InstitutionsCatalogTab(controller: controller),
-              _SupportList(controller: controller),
-            ],
-          ),
+          builder: (_) {
+            // Premier chargement : skeleton en forme de contenu plutôt qu'un
+            // écran vide ou un spinner centré (règle UX du design system).
+            final isInitialLoad = controller.isSyncing &&
+                controller.fields.isEmpty &&
+                controller.countries.isEmpty &&
+                controller.programs.isEmpty &&
+                controller.institutions.isEmpty;
+            if (isInitialLoad) {
+              return const ExploreScreenSkeleton();
+            }
+            return KpbRefresh(
+              onRefresh: controller.pullToRefresh,
+              child: TabBarView(
+                children: [
+                  _FieldsGrid(controller: controller),
+                  CountriesCatalogGrid(controller: controller),
+                  ProgramsCatalogList(controller: controller),
+                  InstitutionsCatalogTab(controller: controller),
+                  _SupportList(controller: controller),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -77,6 +93,9 @@ class _FieldsGrid extends StatelessWidget {
     }
 
     return GridView.builder(
+      // Toujours scrollable : le pull-to-refresh parent reste disponible même
+      // quand la grille ne remplit pas l'écran.
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -252,6 +271,7 @@ class CountriesCatalogGrid extends StatelessWidget {
     // "Onglet pays" (handoff): a subtitle, a vertical list of dark navy country
     // guide cards, and a closing "more coming" tip card.
     return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
       itemCount: countries.length + 2,
       separatorBuilder: (_, index) => SizedBox(height: index == 0 ? 11 : 10),
@@ -292,7 +312,9 @@ class CountriesCatalogGrid extends StatelessWidget {
               displayCountryFlag(id: country.id, flagEmoji: country.flagEmoji),
           name: controller.resolve(country.name),
           subtitle: subtitle,
-          onTap: () => Get.to(() => CountryDetailScreen(countryId: country.id)),
+          heroTag: 'country-flag-${country.id}',
+          onTap: () => Get.to(() => CountryDetailScreen(
+              countryId: country.id, heroTag: 'country-flag-${country.id}')),
         );
       },
     );
@@ -307,12 +329,14 @@ class _CountryGuideCard extends StatelessWidget {
     required this.name,
     required this.subtitle,
     required this.onTap,
+    this.heroTag,
   });
 
   final String flag;
   final String name;
   final String subtitle;
   final VoidCallback onTap;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +350,13 @@ class _CountryGuideCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 34)),
+            if (heroTag != null)
+              KpbHero(
+                tag: heroTag!,
+                child: Text(flag, style: const TextStyle(fontSize: 34)),
+              )
+            else
+              Text(flag, style: const TextStyle(fontSize: 34)),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
@@ -550,6 +580,7 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                   subtitle: 'catalog_no_match_body'.tr,
                 )
               : ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(
                     KpbSpacing.pagePad,
                     0,
@@ -585,12 +616,16 @@ class _ProgramsCatalogListState extends State<ProgramsCatalogList> {
                       flag: _flag(program.countryId),
                       saved: saved,
                       isPartner: isPartner,
+                      heroTag: 'program-flag-${program.id}',
                       onSave: () => controller.toggleSaved(
                         SavedItemType.program,
                         program.id,
                       ),
                       onTap: () => Get.to(
-                        () => ProgramDetailScreen(programId: program.id),
+                        () => ProgramDetailScreen(
+                          programId: program.id,
+                          heroTag: 'program-flag-${program.id}',
+                        ),
                       ),
                     );
                   },
@@ -614,6 +649,7 @@ class _ProgramCard extends StatelessWidget {
     required this.saved,
     this.campusCount = 0,
     this.isPartner = false,
+    this.heroTag,
     required this.onSave,
     required this.onTap,
   });
@@ -627,6 +663,7 @@ class _ProgramCard extends StatelessWidget {
   final String duration;
   final String flag;
   final bool saved;
+  final String? heroTag;
 
   /// Number of campuses the formation is offered on (multi-campus schools like
   /// OMNES). 0/1 = no badge.
@@ -655,7 +692,12 @@ class _ProgramCard extends StatelessWidget {
               borderRadius: KpbRadius.mdBr,
             ),
             child: Center(
-              child: Text(flag, style: const TextStyle(fontSize: 26)),
+              child: heroTag != null
+                  ? KpbHero(
+                      tag: heroTag!,
+                      child: Text(flag, style: const TextStyle(fontSize: 26)),
+                    )
+                  : Text(flag, style: const TextStyle(fontSize: 26)),
             ),
           ),
           const SizedBox(width: 12),
@@ -751,6 +793,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
     return Stack(
       children: [
         ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             KpbSpacing.pagePad,
             KpbSpacing.pagePad,
@@ -1154,6 +1197,7 @@ class _SupportList extends StatelessWidget {
     final offers = controller.publishedServiceOffers;
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(KpbSpacing.pagePad),
       children: [
         if (destinations.isNotEmpty) ...[

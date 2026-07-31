@@ -764,7 +764,9 @@ class _AnimatedRing extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: value),
-      duration: const Duration(milliseconds: 900),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 900),
       curve: Curves.easeOutCubic,
       builder: (_, v, __) => SizedBox(
         height: 76,

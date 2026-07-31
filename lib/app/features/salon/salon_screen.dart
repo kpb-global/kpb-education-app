@@ -72,7 +72,7 @@ class _SalonScreenState extends State<SalonScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('salon_title'.tr)),
-      body: RefreshIndicator(
+      body: KpbRefresh(
         onRefresh: _load,
         child: _buildBody(),
       ),
@@ -88,7 +88,7 @@ class _SalonScreenState extends State<SalonScreen> {
         physics: _scrollPhysics,
         children: const [
           SizedBox(height: 160),
-          Center(child: CircularProgressIndicator()),
+          KpbLoading(),
           SizedBox(height: 160),
         ],
       );
@@ -322,7 +322,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
         'salon_fallback_title'.tr;
     return Scaffold(
       appBar: AppBar(title: Text(name)),
-      body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
+      body: KpbRefresh(onRefresh: _load, child: _buildBody()),
     );
   }
 
@@ -332,7 +332,7 @@ class _SalonEventScreenState extends State<_SalonEventScreen> {
         physics: _scrollPhysics,
         children: const [
           SizedBox(height: 160),
-          Center(child: CircularProgressIndicator()),
+          KpbLoading(),
           SizedBox(height: 160),
         ],
       );

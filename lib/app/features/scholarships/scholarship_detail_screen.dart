@@ -13,6 +13,7 @@ import '../../core/repositories/success_lab_repository.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import 'scholarship_video_player_screen.dart';
 import 'widgets/how_to_apply_sheet.dart';
@@ -26,6 +27,7 @@ class ScholarshipDetailScreen extends StatefulWidget {
     this.initialAlertEnabled = false,
     this.apiClient,
     this.onAlertChanged,
+    this.heroTag,
   });
 
   final String scholarshipId;
@@ -33,6 +35,11 @@ class ScholarshipDetailScreen extends StatefulWidget {
   final bool initialAlertEnabled;
   final AppApiClient? apiClient;
   final ValueChanged<bool>? onAlertChanged;
+
+  /// When set (card→detail navigation), the header flag participates in a
+  /// [KpbHero] flight under this tag. Null on deep links: no hero, and the
+  /// header keeps its text-only layout.
+  final String? heroTag;
 
   @override
   State<ScholarshipDetailScreen> createState() =>
@@ -236,12 +243,13 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
       ),
       body: scholarship == null
           ? _buildUnavailable()
-          : RefreshIndicator(
+          : KpbRefresh(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 36),
                 children: [
-                  _HeaderCard(scholarship: scholarship),
+                  _HeaderCard(
+                      scholarship: scholarship, heroTag: widget.heroTag),
                   const SizedBox(height: 12),
                   ScholarshipAlertButton(
                     scholarshipId: scholarship.id,
@@ -354,7 +362,7 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
   }
 
   Widget _buildUnavailable() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const KpbLoading();
     return Center(
       child: KpbEmptyState(
         icon:
@@ -372,9 +380,10 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
 }
 
 class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({required this.scholarship});
+  const _HeaderCard({required this.scholarship, this.heroTag});
 
   final LiveScholarshipModel scholarship;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -398,6 +407,16 @@ class _HeaderCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (heroTag != null) ...[
+                KpbHero(
+                  tag: heroTag!,
+                  child: Text(
+                    scholarshipCountryFlag(scholarship.countryName),
+                    style: const TextStyle(fontSize: 28),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
               Expanded(
                 child: Semantics(
                   header: true,

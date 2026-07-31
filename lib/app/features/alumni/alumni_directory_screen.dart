@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
+import '../../core/ui/kpb_components.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 /// Verified alumni mentor directory (Phase 3).
@@ -93,7 +94,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
             ),
           ),
           Expanded(
-            child: RefreshIndicator(
+            child: KpbRefresh(
               onRefresh: _load,
               child: _buildBody(),
             ),
@@ -105,7 +106,7 @@ class _AlumniDirectoryScreenState extends State<AlumniDirectoryScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const KpbLoading();
     }
     if (_error != null) {
       return ListView(

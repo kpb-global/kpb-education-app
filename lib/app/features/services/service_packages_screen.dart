@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
-import '../../core/ui/components/anti_fraud_notice.dart';
-import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../../core/ui/kpb_components.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
@@ -94,7 +93,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('service_packages_title'.tr)),
-      body: RefreshIndicator(
+      body: KpbRefresh(
         onRefresh: _load,
         child: _buildBody(),
       ),
@@ -103,7 +102,7 @@ class _ServicePackagesScreenState extends State<ServicePackagesScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const KpbLoading();
     }
     if (_error != null) {
       return ListView(

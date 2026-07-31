@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/components/kpb_refresh.dart';
 import 'parent_case_view_screen.dart';
 
 /// Entry point for parent accounts (Track C1 — Phase 1).
@@ -211,7 +212,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         foregroundColor: KpbColors.textPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
+      body: KpbRefresh(
         onRefresh: _refresh,
         child: ListView(
           padding: const EdgeInsets.all(KpbSpacing.pagePad),

@@ -130,7 +130,7 @@ class _SuccessLabOutcomeScreenState extends State<SuccessLabOutcomeScreen> {
   Widget _buildState(SuccessLabOutcomeController controller) {
     if (controller.phase == SuccessLabOutcomePhase.initial ||
         controller.phase == SuccessLabOutcomePhase.loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const KpbLoading();
     }
     if (controller.phase == SuccessLabOutcomePhase.offline) {
       return KpbEmptyState(

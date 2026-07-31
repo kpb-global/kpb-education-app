@@ -127,7 +127,7 @@ class _SuccessLabListScreenState extends State<SuccessLabListScreen> {
         case LabLoadPhase.initial:
         case LabLoadPhase.loading:
         case LabLoadPhase.syncing:
-          return const Center(child: CircularProgressIndicator());
+          return const KpbLoading();
         case LabLoadPhase.empty:
           return KpbEmptyState(
             icon: Icons.auto_awesome_outlined,
@@ -212,7 +212,7 @@ class _SuccessLabListScreenState extends State<SuccessLabListScreen> {
             return controller.loadingMore
                 ? const Padding(
                     padding: EdgeInsets.all(KpbSpacing.md),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: KpbLoading(),
                   )
                 : const SizedBox.shrink();
           }

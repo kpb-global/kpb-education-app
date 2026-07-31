@@ -203,8 +203,9 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
             icon: Icons.auto_awesome_rounded,
             fullWidth: true,
             loading: _loading,
-            bgColor: _canSubmit ? KpbColors.actionPrimary : context.kpb.gray300,
-            onPressed: _canSubmit ? _analyze : () {},
+            // null quand non soumissible : le thème rend l'état disabled
+            // (fond muted + label faint) plutôt qu'un bouton qui semble actif.
+            onPressed: _canSubmit ? _analyze : null,
           ),
 
           if (_error != null) ...[

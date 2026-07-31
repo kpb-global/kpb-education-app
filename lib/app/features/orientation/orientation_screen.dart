@@ -97,7 +97,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
         }
 
         if (questions.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return const KpbLoading();
         }
 
         // A persisted index can exceed the current question count (e.g. the

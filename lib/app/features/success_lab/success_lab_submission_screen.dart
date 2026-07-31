@@ -125,7 +125,7 @@ class _SuccessLabSubmissionScreenState
   Widget _buildState(SuccessLabSubmissionController controller) {
     if (controller.phase == SuccessLabSubmissionPhase.initial ||
         controller.phase == SuccessLabSubmissionPhase.loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const KpbLoading();
     }
     if (controller.phase == SuccessLabSubmissionPhase.offline) {
       return KpbEmptyState(

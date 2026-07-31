@@ -67,14 +67,14 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('impact_title'.tr)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const KpbLoading()
           : _loadError != null
               ? KpbErrorState(
                   title: 'impact_unavailable_title'.tr,
                   subtitle: 'impact_unavailable_subtitle'.tr,
                   onRetry: _load,
                 )
-              : RefreshIndicator(
+              : KpbRefresh(
                   onRefresh: _load,
                   child: ListView(
                     padding: const EdgeInsets.all(KpbSpacing.pagePad),
