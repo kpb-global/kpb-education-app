@@ -7,7 +7,14 @@ import {
   ORIENTATION_FIELD_BY_ID,
   ORIENTATION_FIELDS,
 } from './orientation-fields.data';
-import { scoreOrientationAnswers } from './orientation-scorer';
+import { ORIENTATION_QUESTIONS } from './orientation-questions.data';
+import {
+  compareScoredFields,
+  matchPercentByField,
+  normalizeStoredScore,
+  prioritizesIaResilience,
+  scoreOrientationAnswers,
+} from './orientation-scorer';
 
 type Answers = Record<string, string[]>;
 
@@ -33,6 +40,79 @@ type StoredOrientationSession = OrientationSessionDto & {
   userId: string | null;
 };
 
+/** Field ids declared in a client-supplied profile, ignoring anything else. */
+function readFieldIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string');
+}
+
+function readAnswers(value: unknown): Answers {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const answers: Answers = {};
+  for (const [questionId, selected] of Object.entries(value)) {
+    if (!Array.isArray(selected)) continue;
+    answers[questionId] = selected.filter(
+      (item): item is string => typeof item === 'string',
+    );
+  }
+  return answers;
+}
+
+/**
+ * Re-scores a session read back from storage so its percentages are on the
+ * current normalised scale.
+ *
+ * Sessions written before the fix hold `rawPoints * 10` floored at 55 — up to
+ * 260, which is how a result card ended up reading "160 %". Recomputing from the
+ * stored answers is idempotent for sessions written after the fix, needs no
+ * migration, and never rewrites what is in the database.
+ *
+ * They are also re-ranked: the old ordering put AI resilience before the score,
+ * so the first recommendation — the one the app badges "best match" — was not
+ * necessarily the highest scoring one.
+ */
+function normalizeRecommendationScores(
+  storedAnswers: unknown,
+  storedRecommendations: unknown,
+): unknown {
+  if (!Array.isArray(storedRecommendations)) return storedRecommendations;
+
+  const answers = readAnswers(storedAnswers);
+  const percentByField = matchPercentByField(answers);
+
+  const rescored = storedRecommendations.map((recommendation) => {
+    const isObject =
+      !!recommendation &&
+      typeof recommendation === 'object' &&
+      !Array.isArray(recommendation);
+    const record = isObject
+      ? (recommendation as Record<string, unknown>)
+      : null;
+    const fieldId = typeof record?.fieldId === 'string' ? record.fieldId : null;
+    if (!record || fieldId === null) {
+      return { fieldId: '', score: 0, recomputed: false, recommendation };
+    }
+    const score = normalizeStoredScore(fieldId, record.score, percentByField);
+    return {
+      fieldId,
+      score,
+      recomputed: percentByField.has(fieldId),
+      recommendation: { ...record, score },
+    };
+  });
+
+  // Re-rank only when every score came from the same (recomputed) scale —
+  // mixing a recomputed percentage with a clamped legacy one would invent an
+  // ordering. Sessions written after the fix are already in this order, so the
+  // sort is a no-op for them.
+  if (!rescored.every((entry) => entry.recomputed)) {
+    return rescored.map((entry) => entry.recommendation);
+  }
+  return [...rescored]
+    .sort(compareScoredFields(prioritizesIaResilience(answers)))
+    .map((entry) => entry.recommendation);
+}
+
 @Injectable()
 export class OrientationService {
   /**
@@ -49,18 +129,22 @@ export class OrientationService {
 
   getQuestions() {
     return {
-      count: 10,
+      count: ORIENTATION_QUESTIONS.length,
       fields: ORIENTATION_FIELDS,
-      note: 'Mobile app ships the full questionnaire locally; backend scoring uses answer option ids.',
+      // Exposed so the questionnaire the server scores with can be diffed
+      // against the one the app ships, instead of the two drifting silently.
+      questions: ORIENTATION_QUESTIONS,
+      note: 'Mobile app ships the full questionnaire (wording + translations) locally; backend scoring uses the answer option ids and the weights returned here.',
     };
   }
 
   async createSession(body: Record<string, unknown>) {
     const answers = (body.answers as Answers | undefined) ?? {};
     const profile = (body.profile as Record<string, unknown> | undefined) ?? {};
-    const prioritizeIaResilience = (answers.ai_concern ?? []).includes('ai_yes');
-
-    const ranked = scoreOrientationAnswers(answers, { prioritizeIaResilience });
+    const ranked = scoreOrientationAnswers(answers, {
+      prioritizeIaResilience: prioritizesIaResilience(answers),
+      declaredFieldIds: readFieldIds(profile.fieldIds),
+    });
     const fallbackRecommendations = ranked.map((entry) =>
       this.buildRecommendation(entry.fieldId, entry.score, answers, profile),
     );
@@ -160,7 +244,10 @@ export class OrientationService {
         id: persisted.id,
         completedAt: persisted.completedAt.toISOString(),
         answers: persisted.answers,
-        recommendations: persisted.recommendations,
+        recommendations: normalizeRecommendationScores(
+          persisted.answers,
+          persisted.recommendations,
+        ),
         iaModelUsed: persisted.iaModelUsed,
         nextActions: persisted.nextActions,
       };
@@ -177,7 +264,13 @@ export class OrientationService {
 
   private toPublicSession(session: StoredOrientationSession): OrientationSessionDto {
     const { userId: _userId, ...publicSession } = session;
-    return publicSession;
+    return {
+      ...publicSession,
+      recommendations: normalizeRecommendationScores(
+        publicSession.answers,
+        publicSession.recommendations,
+      ) as RecommendationDto[],
+    };
   }
 
   private buildRecommendation(
@@ -192,7 +285,10 @@ export class OrientationService {
 
     return {
       fieldId,
-      score: Math.max(score, 55),
+      // `score` is already the normalised percentage from the scorer. It used to
+      // be floored at 55, which collapsed every weak match onto one value and
+      // made two unrelated fields display the same number.
+      score,
       explanation: {
         fr: `${firstName}, ${fieldName} ressort fortement d'après tes réponses. Ce domaine correspond à tes centres d'intérêt et ouvre des débouchés concrets chez nos écoles partenaires KPB.`,
         en: `${firstName}, ${meta?.nameEn ?? fieldId} stands out based on your answers. This field matches your interests and opens concrete pathways through KPB partner schools.`,
