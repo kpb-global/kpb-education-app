@@ -33,6 +33,31 @@ import 'home_impact_proof.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 String _flag(String id) => countryFlag(id);
 
+/// Width reserved on the left of the home app bar for the AppShell's floating
+/// hamburger. That button is NOT this bar's `leading` — it is an overlay in
+/// `AppShell`'s Stack (`Positioned(top: 0, left: 0)` → `SafeArea` → `Padding`
+/// of `KpbSpacing.xs` → a 48 pt `IconButton`), so it occupies x ∈ [4, 52] in
+/// the same vertical band as the toolbar. 56 pt clears it with 4 pt of air.
+const double _kHomeDrawerGutter = 56;
+
+/// Test hook: the greeting occupies this slot in the home app bar. Its measured
+/// width IS the budget the salutation gets, so the regression guard asserts it
+/// stays wide enough for a long West-African first name on a 393 pt screen.
+@visibleForTesting
+const Key homeGreetingSlotKey = ValueKey('home_greeting_slot');
+
+/// Longest first name we render in full before hard-truncating. Real names are
+/// far shorter ("Mouhamadou" = 10); the cap only guards against a pathological
+/// single-token `fullName` scaling the greeting into illegibility.
+const int _kGreetingFirstNameMaxChars = 18;
+
+/// First token of the display name, defensively capped.
+String _greetingFirstName(String? fullName) {
+  final first = (fullName ?? '').trim().split(RegExp(r'\s+')).first;
+  if (first.length <= _kGreetingFirstNameMaxChars) return first;
+  return '${first.substring(0, _kGreetingFirstNameMaxChars - 1)}…';
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
@@ -68,7 +93,7 @@ class HomeScreen extends StatelessWidget {
         }
 
         final profile = controller.profile;
-        final firstName = profile?.fullName.split(' ').first ?? '';
+        final firstName = _greetingFirstName(profile?.fullName);
 
         // Data — limited, curated
         final institutions = controller.institutions.take(4).toList();
@@ -96,9 +121,41 @@ class HomeScreen extends StatelessWidget {
                   snap: true,
                   pinned: false,
                   toolbarHeight: 72,
-                  backgroundColor: Colors.transparent,
+
+                  // OPAQUE, deliberately. This bar is `floating`, so it
+                  // re-enters over content that is already scrolled. With
+                  // `Colors.transparent` the section titles underneath
+                  // ("Tes meilleures chances", "Voir tout") showed straight
+                  // through and collided with the greeting and the action
+                  // buttons — unreadable as soon as you scrolled (revue vidéo
+                  // TestFlight). The colour matches the page canvas set on the
+                  // wrapping Container, so at rest it is invisible; the shadow
+                  // only appears once content is scrolled under it.
+                  backgroundColor: KpbColors.canvas,
                   surfaceTintColor: Colors.transparent,
-                  titleSpacing: 60,
+                  elevation: 0,
+                  scrolledUnderElevation: 3,
+                  shadowColor: KpbColors.brandNavy.withValues(alpha: 0.12),
+
+                  // The hamburger at the top-left belongs to AppShell (an
+                  // overlay in its Stack), NOT to this bar. But because an
+                  // ancestor Scaffold DOES have a drawer, AppBar's
+                  // `automaticallyImplyLeading` was silently rendering a second
+                  // DrawerButton underneath it: an invisible 56 pt twin. On top
+                  // of that, `titleSpacing` is counted TWICE by
+                  // NavigationToolbar (`size.width - leading - trailing -
+                  // middleSpacing * 2`), so `titleSpacing: 60` cost 120 pt.
+                  // Budget on a 393 pt screen was 393 − 56 − 136 − 120 = 81 pt,
+                  // i.e. "Salut, …" no matter how short the first name.
+                  //
+                  // Fix: no implied leading, a zero-width leading that reserves
+                  // the overlay's gutter exactly ONCE via `leadingWidth`, and
+                  // `titleSpacing: 0` so nothing is double-counted. Budget
+                  // becomes 393 − 56 − 136 = 201 pt.
+                  automaticallyImplyLeading: false,
+                  leading: const SizedBox.shrink(),
+                  leadingWidth: _kHomeDrawerGutter,
+                  titleSpacing: 0,
                   title: _HomeGreetingHeader(firstName: firstName),
                   actions: [
                     _NotifBellChip(
@@ -416,7 +473,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// App bar chip — light, soft-elevated icon button
+// App bar — greeting (fills the title slot) + soft-elevated icon chips
 // ─────────────────────────────────────────────────────────────────────────────
 class _HomeGreetingHeader extends StatelessWidget {
   const _HomeGreetingHeader({required this.firstName});
@@ -425,21 +482,48 @@ class _HomeGreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Header allégé : la salutation seule occupe toute la largeur (le logo-mark
-    // comprimé + le sous-titre destinations encombraient l'en-tête sur 390 pt
-    // et tronquaient « Salut, <prénom> » — retour de revue visuelle).
-    return Text(
-      firstName.isNotEmpty
-          ? 'home_design_greeting_named'.trParams({'name': firstName})
-          : 'home_design_greeting'.tr,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontFamily: KpbTextStyles.headingFamily,
-        fontSize: 20,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.4,
-        color: KpbColors.brandNavy,
+    final greeting = firstName.isNotEmpty
+        ? 'home_design_greeting_named'.trParams({'name': firstName})
+        : 'home_design_greeting'.tr;
+
+    // Two things happen here, both required.
+    //
+    // 1. `SizedBox(width: double.infinity)` — AppBar wraps the title in
+    //    `_AppBarTitleBox`, which SHRINK-WRAPS its child. Without this the
+    //    greeting would report its natural width and the slot's real budget
+    //    would be unmeasurable (and unassertable in tests).
+    //
+    // 2. `FittedBox(scaleDown)` instead of relying on ellipsis — the previous
+    //    round of this bug was "fixed" by decluttering the header, which only
+    //    moved the cliff. West-African first names are long (« Abdoulaye »,
+    //    « Mouhamadou ») and AppBar already clamps title text scaling at
+    //    1.34×, so at large accessibility sizes the line still cannot fit any
+    //    fixed budget. Scaling the line down keeps the user's name WHOLE —
+    //    truncating someone's own name to "Salut, …" is the actual defect.
+    //    `maxLines`/`overflow` stay as a backstop if this ever loses the
+    //    FittedBox.
+    return SizedBox(
+      key: homeGreetingSlotKey,
+      width: double.infinity,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            greeting,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: KpbTextStyles.headingFamily,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.4,
+              color: KpbColors.brandNavy,
+            ),
+          ),
+        ),
       ),
     );
   }

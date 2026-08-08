@@ -203,9 +203,33 @@ void main() {
 
   testWidgets('capture — accueil connecté', (tester) async {
     await setViewport(tester);
-    await _seedController();
-    await tester.pumpWidget(_app(const HomeScreen()));
+    // Production geometry, not a convenient one:
+    //  · a Scaffold that OWNS a drawer — AppShell's does, and that is what makes
+    //    AppBar imply an extra (invisible) DrawerButton in Home's SliverAppBar.
+    //    Capturing without it hid the real cause of the "Salut, …" truncation
+    //    through a whole review round.
+    //  · a long West-African first name, the public this app serves.
+    await _seedController(
+      snapshot: AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(fullName: 'Mouhamadou Diallo'),
+      ),
+    );
+    await tester.pumpWidget(_app(const Scaffold(
+      drawer: Drawer(),
+      body: HomeScreen(),
+    )));
     await _capture(tester, '02-accueil');
+
+    // Second frame, scrolled: the app bar is `floating`, so it comes back over
+    // content. This capture is the one that shows whether it is opaque.
+    final scrollable = find.byType(CustomScrollView).first;
+    await tester.drag(scrollable, const Offset(0, -520));
+    await tester.pump();
+    await tester.drag(scrollable, const Offset(0, 90)); // snap the bar back in
+    await tester.pump();
+    await _capture(tester, '02b-accueil-defilement');
   });
 
   testWidgets('capture — bourses (liste)', (tester) async {
