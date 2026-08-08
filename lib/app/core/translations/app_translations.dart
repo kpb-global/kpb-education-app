@@ -742,9 +742,23 @@ class AppTranslations extends Translations {
           'eligibility_pdf_generated_on': 'Généré le @date',
           'eligibility_pdf_budget_per_month': '@budget € / mois',
           // --- KPB-89 batch ---
-          'cv_default_languages': 'Francais, Anglais',
+          // Les accents s'affichent correctement dans le PDF (Latin-1 ⊂ WinAnsi) :
+          // l'orthographe prudente « Francais » n'avait pas lieu d'être.
+          'cv_default_languages': 'Français, Anglais',
+          // Réservé au VRAI échec réseau. Un 404/503 ne doit pas accuser la
+          // connexion de l'utilisateur : voir les trois clés suivantes.
           'tools_ai_error_check_connection':
               'Erreur IA — vérifiez votre connexion',
+          'tools_ai_error_unavailable':
+              'Le service IA est momentanément indisponible. Réessaie dans un instant.',
+          'tools_ai_error_rate_limited':
+              'Trop de demandes d\'affilée. Réessaie dans une minute.',
+          'tools_ai_error_signin_required':
+              'Reconnecte-toi pour utiliser l\'IA.',
+          'cv_field_residence': 'Pays de résidence',
+          'cv_objective_prefill':
+              'Objectif : intégrer un programme de @level en @field.',
+          'cv_objective_destination': 'Destination visée : @country.',
           'cv_generator_title': 'Générateur de CV',
           'cv_generator_intro':
               'Remplissez les champs et laissez l\'IA rédiger votre profil professionnel.',
@@ -886,9 +900,19 @@ class AppTranslations extends Translations {
           'live_scholarships_connection_error_title': 'Erreur de connexion',
           'live_scholarships_connection_error_subtitle':
               'Vérifie ta connexion et réessaie.',
-          'live_scholarships_empty_title': 'Aucune bourse trouvée',
-          'live_scholarships_empty_subtitle':
-              'Modifie tes critères ou vérifie ton profil académique.',
+          // Le vide a deux causes très différentes, et les confondre faisait
+          // porter à l'étudiant la responsabilité d'un catalogue non publié.
+          'live_scholarships_empty_filtered_title':
+              'Aucune bourse pour ces filtres',
+          'live_scholarships_empty_filtered_subtitle':
+              'Tes filtres ou ton profil académique restreignent la liste. Tu peux voir toutes les bourses disponibles.',
+          'live_scholarships_show_all': 'Voir toutes les bourses',
+          'live_scholarships_empty_catalog_title':
+              'Aucune bourse publiée pour l\'instant',
+          'live_scholarships_empty_catalog_subtitle':
+              'Notre équipe vérifie et publie de nouvelles bourses régulièrement. Reviens bientôt ou active les alertes.',
+          'live_scholarships_unfiltered_notice':
+              'Aucune bourse ne correspond exactement à ton profil : voici toutes les bourses disponibles.',
           'live_scholarships_fully_funded': 'Entièrement financée',
           'live_scholarships_partially_funded': 'Partiellement financée',
           'live_scholarships_funding_unknown': 'Financement inconnu',
@@ -3300,6 +3324,15 @@ class AppTranslations extends Translations {
           // --- KPB-89 batch ---
           'cv_default_languages': 'French, English',
           'tools_ai_error_check_connection': 'AI error — check your connection',
+          'tools_ai_error_unavailable':
+              'The AI service is temporarily unavailable. Please try again shortly.',
+          'tools_ai_error_rate_limited':
+              'Too many requests. Try again in a minute.',
+          'tools_ai_error_signin_required':
+              'Please sign in again to use the AI.',
+          'cv_field_residence': 'Country of residence',
+          'cv_objective_prefill': 'Goal: join a @level programme in @field.',
+          'cv_objective_destination': 'Target destination: @country.',
           'cv_generator_title': 'CV Generator',
           'cv_generator_intro':
               'Fill in the fields and let the AI write your professional profile.',
@@ -3438,9 +3471,17 @@ class AppTranslations extends Translations {
           'live_scholarships_connection_error_title': 'Connection error',
           'live_scholarships_connection_error_subtitle':
               'Check your connection and try again.',
-          'live_scholarships_empty_title': 'No scholarships found',
-          'live_scholarships_empty_subtitle':
-              'Change your criteria or check your academic profile.',
+          'live_scholarships_empty_filtered_title':
+              'No scholarship matches these filters',
+          'live_scholarships_empty_filtered_subtitle':
+              'Your filters or academic profile are narrowing the list. You can view every available scholarship.',
+          'live_scholarships_show_all': 'View all scholarships',
+          'live_scholarships_empty_catalog_title':
+              'No scholarship published yet',
+          'live_scholarships_empty_catalog_subtitle':
+              'Our team verifies and publishes new scholarships regularly. Check back soon or turn on alerts.',
+          'live_scholarships_unfiltered_notice':
+              'No scholarship matches your profile exactly — showing all available scholarships.',
           'live_scholarships_fully_funded': 'Fully funded',
           'live_scholarships_partially_funded': 'Partially funded',
           'live_scholarships_funding_unknown': 'Funding unknown',

@@ -150,6 +150,126 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
     });
   });
 
+  /**
+   * `relatedFieldIds` is empty on every write path into the table (legacy seed,
+   * verified-catalog import, scraper upsert) until an admin curates it. Applied
+   * as an exclusion, a student's profile fields therefore hid the ENTIRE
+   * published catalog and the app rendered "no scholarships found" — a curation
+   * gap indistinguishable from an outage. The profile fields must rank, never
+   * exclude everything.
+   */
+  describe('listForProfile — profile field filter degrades gracefully', () => {
+    function makeFilteringService(rows: Array<Record<string, unknown>>) {
+      const wheres: Array<Record<string, unknown>> = [];
+      const client = {
+        scholarship: {
+          findMany: async (args: Record<string, unknown>) => {
+            const where = args.where as Record<string, unknown>;
+            wheres.push(where);
+            const fieldFilter = where.relatedFieldIds as
+              | { hasSome: string[] }
+              | undefined;
+            if (!fieldFilter) return rows;
+            return rows.filter((row) =>
+              (row.relatedFieldIds as string[]).some((id) =>
+                fieldFilter.hasSome.includes(id),
+              ),
+            );
+          },
+          count: async (args: Record<string, unknown>) => {
+            const where = args.where as Record<string, unknown>;
+            return where.relatedFieldIds ? 0 : rows.length;
+          },
+        },
+        scholarshipAlertSubscription: { findMany: async () => [] },
+      };
+      const prisma = {
+        isEnabled: true,
+        execute: async (fn: (c: typeof client) => unknown) => fn(client),
+      } as unknown as PrismaService;
+      const service = new ScholarshipsIndexService(
+        prisma,
+        {} as unknown as GreatYopScraper,
+        {} as unknown as MastereTnScraper,
+        { assertReady: jest.fn() } as unknown as ScholarshipContentQualityService,
+      );
+      return { service, wheres };
+    }
+
+    it('falls back to the unfiltered catalog when the profile fields match nothing', async () => {
+      const { service, wheres } = makeFilteringService([
+        { ...baseRow, relatedFieldIds: [] },
+      ]);
+
+      const result = await service.listForProfile({
+        lang: 'fr',
+        fieldIds: ['d01', 'd05'],
+      });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.fieldFilterRelaxed).toBe(true);
+      // First attempt filtered, retry dropped only the field criterion.
+      expect(wheres[0].relatedFieldIds).toEqual({ hasSome: ['d01', 'd05'] });
+      expect(wheres[1].relatedFieldIds).toBeUndefined();
+      expect(wheres[1]).toMatchObject({
+        isActive: true,
+        moderationStatus: 'approved',
+      });
+    });
+
+    it('keeps the field filter when it actually matches, and reports no relaxation', async () => {
+      const { service, wheres } = makeFilteringService([
+        { ...baseRow, id: 'sch-match', relatedFieldIds: ['d01'] },
+        { ...baseRow, id: 'sch-other', relatedFieldIds: ['d09'] },
+      ]);
+
+      const result = await service.listForProfile({
+        lang: 'fr',
+        fieldIds: ['d01'],
+      });
+
+      expect(result.items.map((item) => item.id)).toEqual(['sch-match']);
+      expect(result.fieldFilterRelaxed).toBe(false);
+      expect(wheres).toHaveLength(1);
+    });
+
+    it('keeps a student-chosen funding filter through the relaxation', async () => {
+      const { service, wheres } = makeFilteringService([
+        { ...baseRow, relatedFieldIds: [] },
+      ]);
+
+      const result = await service.listForProfile({
+        lang: 'fr',
+        fieldIds: ['d01'],
+        fundingType: 'fully_funded',
+      });
+
+      expect(result.fieldFilterRelaxed).toBe(true);
+      expect(wheres[1]).toMatchObject({ fundingType: 'fully_funded' });
+    });
+
+    it('flags an unconfigured database instead of reporting an empty catalog', async () => {
+      const prisma = {
+        isEnabled: false,
+        execute: async () => null,
+      } as unknown as PrismaService;
+      const service = new ScholarshipsIndexService(
+        prisma,
+        {} as unknown as GreatYopScraper,
+        {} as unknown as MastereTnScraper,
+        { assertReady: jest.fn() } as unknown as ScholarshipContentQualityService,
+      );
+
+      const result = await service.listForProfile({
+        lang: 'fr',
+        fieldIds: ['d01'],
+      });
+
+      expect(result.items).toEqual([]);
+      expect(result.databaseUnavailable).toBe(true);
+    });
+  });
+
   describe('publication safety and detail route', () => {
     it('does not approve a scholarship rejected by the quality gate', async () => {
       const update = jest.fn();
