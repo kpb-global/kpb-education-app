@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # 2.1.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
 # CFBundleShortVersionString doit lui être supérieure. versionCode 46 pour
 # Android (doit dépasser le dernier code publié sur la fiche com.karatou.android).
-version: 2.1.0+46
+version: 2.1.0+47
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -127,6 +127,11 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icon/icon.png"
+  # Apple rejette toute icône iOS comportant un canal alpha (erreur 90717 à
+  # l'upload). C'est CE bloc que lit l'outil — flutter_launcher_icons.yaml
+  # n'est utilisé qu'avec l'option -f, et il portait une clé inexistante
+  # (`remove_alpha_channel_ios`) silencieusement ignorée depuis toujours.
+  remove_alpha_ios: true
 
 flutter:
   # The following line ensures that the Material Icons font is
