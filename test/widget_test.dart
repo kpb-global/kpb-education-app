@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:karatou/app/core/controllers/app_controller.dart';
+import 'package:karatou/app/core/data/catalog_source.dart';
 import 'package:karatou/app/core/repositories/app_api_client.dart';
 import 'package:karatou/app/core/repositories/local_app_repository.dart';
 import 'package:karatou/app/core/services/catalog_cache_service.dart';
@@ -35,6 +36,14 @@ void main() {
     when(() => mockApi.listCases()).thenAnswer((_) async => []);
     when(() => mockApi.listSavedItems()).thenAnswer((_) async => []);
     when(() => mockApi.listCatalog(any())).thenAnswer((_) async => []);
+    // The catalog sync reads the envelope (rows + provenance), so that an
+    // answer built from backend demo fixtures can be rejected.
+    when(() => mockApi.listCatalogEnvelope(any())).thenAnswer(
+      (_) async => const CatalogListPayload(
+        items: [],
+        source: CatalogDataSource.database,
+      ),
+    );
 
     final repository = await LocalAppRepository.create();
     final controller = AppController(

@@ -9,6 +9,15 @@ import 'package:karatou/app/core/ui/app_theme.dart';
 import 'package:karatou/app/core/ui/app_tokens.dart';
 import 'package:karatou/app/core/ui/kpb_theme_ext.dart';
 
+/// Ratio de contraste WCAG 2.1 entre deux couleurs opaques.
+double _contrast(Color fg, Color bg) {
+  final lf = fg.computeLuminance();
+  final lb = bg.computeLuminance();
+  final hi = lf > lb ? lf : lb;
+  final lo = lf > lb ? lb : lf;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 void main() {
   final theme = AppTheme.buildTheme();
 
@@ -135,6 +144,65 @@ void main() {
       expect(theme.chipTheme.color!.resolve({WidgetState.selected}),
           KpbColors.actionPrimary);
       expect(theme.chipTheme.color!.resolve({}), KpbColors.surfaceMuted);
+      final side = theme.chipTheme.side! as WidgetStateBorderSide;
+      expect(side.resolve({})!.color, KpbColors.borderStrong);
+      expect(side.resolve({WidgetState.selected})!.color, Colors.transparent);
+    });
+
+    // Régression « puces non sélectionnées illisibles » (revue vidéo
+    // TestFlight) : RawChip ne résout PAS un WidgetStateTextStyle — il ne lit
+    // que le CHAMP `labelStyle.color` comme WidgetStateProperty. Un
+    // WidgetStateTextStyle dégénérait en TextStyle() vide, le moteur retombait
+    // sur du blanc, et le label disparaissait sur la pastille claire (1,10:1).
+    group('Chip — contraste du label (WCAG AA, texte normal ≥ 4,5:1)', () {
+      for (final entry in {
+        'clair': AppTheme.buildTheme(),
+        'sombre': AppTheme.buildDarkTheme(),
+      }.entries) {
+        final chipTheme = entry.value.chipTheme;
+
+        test('${entry.key} : labelStyle est un TextStyle ordinaire', () {
+          // Le type WidgetStateTextStyle est silencieusement ignoré par
+          // RawChip : l'interdire ici est le vrai garde-fou.
+          expect(chipTheme.labelStyle, isNot(isA<WidgetStateTextStyle>()));
+          expect(chipTheme.labelStyle!.fontSize, 13);
+          expect(chipTheme.labelStyle!.fontFamily, KpbTextStyles.bodyFamily);
+        });
+
+        test('${entry.key} : la couleur du label est résolue par état', () {
+          final color = chipTheme.labelStyle!.color;
+          expect(color, isA<WidgetStateProperty<Color>>());
+          final resolved = color! as WidgetStateProperty<Color>;
+          // Aucun état ne doit laisser la couleur à null (= blanc moteur).
+          for (final states in <Set<WidgetState>>[
+            {},
+            {WidgetState.selected},
+            {WidgetState.disabled},
+            {WidgetState.hovered},
+            {WidgetState.pressed},
+            {WidgetState.focused},
+          ]) {
+            expect(resolved.resolve(states), isNotNull,
+                reason: 'états $states');
+          }
+        });
+
+        test('${entry.key} : repos et sélection passent 4,5:1', () {
+          final color =
+              chipTheme.labelStyle!.color! as WidgetStateProperty<Color>;
+          for (final states in <Set<WidgetState>>[
+            {},
+            {WidgetState.selected},
+            {WidgetState.disabled},
+          ]) {
+            final bg = chipTheme.color!.resolve(states)!;
+            final fg = color.resolve(states);
+            expect(_contrast(fg, bg), greaterThanOrEqualTo(4.5),
+                reason: '${entry.key} / états $states : '
+                    '${_contrast(fg, bg).toStringAsFixed(2)}:1');
+          }
+        });
+      }
     });
 
     test('Input : focus action 1.5, bordure par défaut', () {

@@ -7,6 +7,7 @@ import '../../core/services/program_filter_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/currency_utils.dart';
+import '../../core/ui/shell_chrome.dart';
 import '../../core/ui/skeleton_loader.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
@@ -253,7 +254,9 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      // 56 à gauche : le shell peint son hamburger flottant en haut-à-gauche de
+      // chaque onglet (4 + 48 pt). À 16, le titre passait derrière.
+      padding: const EdgeInsets.fromLTRB(56, 14, 16, 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -373,7 +376,9 @@ class _Body extends StatelessWidget {
 
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.only(bottom: 24),
+      // 24 pt laissaient la dernière carte de programme sous la pastille
+      // copilote et la barre de navigation, qui flottent au-dessus de l'onglet.
+      padding: EdgeInsets.only(bottom: KpbShellChrome.bottomReserve(context)),
       itemCount: headerSlots + bodyCount,
       itemBuilder: (context, index) {
         if (index == 0) {

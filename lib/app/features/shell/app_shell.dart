@@ -9,6 +9,7 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/ui/components/kpb_offline_banner.dart';
 import '../../core/ui/components/kpb_sample_data_banner.dart';
 import '../../core/ui/kpb_theme_ext.dart';
+import '../../core/ui/shell_chrome.dart';
 import '../cases/cases_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
@@ -121,6 +122,11 @@ class _AppShellState extends State<AppShell> {
                               ),
                             ),
                           ),
+                          // "KPB Intelligence" pill. It floats over the tab
+                          // content, so every scrollable in a tab must keep
+                          // `KpbShellChrome.bottomReserve(context)` free at its
+                          // bottom edge (KpbShellBottomSpacer) — otherwise the
+                          // pill and the nav bar hide the last row.
                           if (index != StudentShellTab.home) const CoachFab(),
                           Positioned(
                             left: 0,
@@ -160,7 +166,7 @@ class _KpbFloatingNavBar extends StatelessWidget {
       top: false,
       child: Container(
         key: const ValueKey('kpb_shell_nav_bar'),
-        height: 62,
+        height: KpbShellChrome.navBarHeight,
         decoration: BoxDecoration(
           color: KpbColors.surface,
           border: Border(

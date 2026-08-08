@@ -214,7 +214,10 @@ export class ScholarshipsIndexService {
       throw new BadRequestException('Invalid fundingType filter.');
     }
 
-    const where = {
+    // Filters the student did choose (funding, country) stay hard filters.
+    // `fieldIds` does NOT belong here: the mobile client derives it from the
+    // saved profile, not from a control the student can see or clear.
+    const baseWhere = {
       isActive: true,
       // Only approved (curated default-approved + admin-approved scraped) is public.
       moderationStatus: 'approved' as const,
@@ -227,39 +230,71 @@ export class ScholarshipsIndexService {
           }
         : {}),
       ...(params.countryId ? { countryId: params.countryId } : {}),
-      ...(params.fieldIds?.length
-        ? {
-            relatedFieldIds: {
-              hasSome: params.fieldIds,
-            },
-          }
-        : {}),
     };
+    const fieldWhere = params.fieldIds?.length
+      ? { relatedFieldIds: { hasSome: params.fieldIds } }
+      : null;
 
     // matchScore is computed in memory, so we must score the full candidate
     // set before sorting/paginating — fetching only `limit + offset` rows (as
     // before) meant higher-scoring scholarships past that window were never
     // ranked, and `total` was wrong. Cap the set to stay bounded.
     const MAX_CANDIDATES = 500;
-    const items = await this.prismaService.execute((prisma) =>
-      prisma.scholarship.findMany({
-        where,
-        orderBy: [{ deadlineAt: 'asc' }, { createdAt: 'desc' }],
-        take: MAX_CANDIDATES,
-        include: {
-          applicationSteps: { orderBy: { stepNumber: 'asc' } },
-          cycles: { orderBy: { academicYear: 'desc' }, take: 5 },
-          videos: {
-            where: { status: 'published' },
-            orderBy: [{ isFeatured: 'desc' }, { displayOrder: 'asc' }],
-            take: 1,
+    const findCandidates = (criteria: Prisma.ScholarshipWhereInput) =>
+      this.prismaService.execute((prisma) =>
+        prisma.scholarship.findMany({
+          where: criteria,
+          orderBy: [{ deadlineAt: 'asc' }, { createdAt: 'desc' }],
+          take: MAX_CANDIDATES,
+          include: {
+            applicationSteps: { orderBy: { stepNumber: 'asc' } },
+            cycles: { orderBy: { academicYear: 'desc' }, take: 5 },
+            videos: {
+              where: { status: 'published' },
+              orderBy: [{ isFeatured: 'desc' }, { displayOrder: 'asc' }],
+              take: 1,
+            },
           },
-        },
-      }),
-    );
+        }),
+      );
+
+    let where: Prisma.ScholarshipWhereInput = {
+      ...baseWhere,
+      ...(fieldWhere ?? {}),
+    };
+    let items = await findCandidates(where);
+
+    // Graceful degradation instead of a bare "no scholarships found".
+    // `relatedFieldIds` is populated only by admin curation: every write path
+    // (legacy seed, verified-catalog import, scraper upsert) creates the row
+    // with an EMPTY array. Left as an exclusion, the profile's fields of
+    // interest therefore hide the entire published catalog from any student who
+    // picked a field — a curation gap rendered as an outage. Fall back to the
+    // unfiltered set and tell the client the profile filter was dropped, so the
+    // UI can say the list is not narrowed to their fields.
+    let fieldFilterRelaxed = false;
+    if (fieldWhere && items !== null && items.length === 0) {
+      where = baseWhere;
+      fieldFilterRelaxed = true;
+      items = await findCandidates(where);
+    }
 
     if (!items) {
-      return { items: [], total: 0, limit, offset, hasMore: false };
+      // Reached only when no DATABASE_URL is configured (PrismaService.execute
+      // returns null). Flagged so an unconfigured deployment is not reported to
+      // the client as a legitimately empty catalog.
+      this.logger.warn(
+        'listForProfile served an empty list: no database is configured.',
+      );
+      return {
+        items: [],
+        total: 0,
+        limit,
+        offset,
+        hasMore: false,
+        fieldFilterRelaxed: false,
+        databaseUnavailable: true,
+      };
     }
     if (items.length === MAX_CANDIDATES) {
       this.logger.warn(
@@ -331,6 +366,11 @@ export class ScholarshipsIndexService {
       limit,
       offset,
       hasMore: offset + page.length < total,
+      // True when the student's profile fields matched nothing and the listing
+      // fell back to the unfiltered catalog. The client must disclose it rather
+      // than presenting the result as a profile-matched list.
+      fieldFilterRelaxed,
+      databaseUnavailable: false,
     };
   }
 

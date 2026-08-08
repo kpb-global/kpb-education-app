@@ -1,3 +1,23 @@
+/**
+ * Demo fixtures for local development — **not data**.
+ *
+ * These rows read like the real thing (McCall MacBain, Mastercard Foundation
+ * Scholars, …) but their ids exist in no database, so nothing downstream can
+ * resolve them: a user tapping such a card reaches a dead end.
+ *
+ * Rules for any code that reads this object:
+ *  1. Never serve it from a production process. `/catalog/*` enforces this in
+ *     `src/modules/catalog/catalog-degraded-mode.ts` (production answers 503
+ *     `CATALOG_UNAVAILABLE` instead of substituting fixtures).
+ *  2. When serving it outside production, tag the response `source: "mock"` so
+ *     the client refuses to display it as real or to cache it.
+ *
+ * Both rules were missing once, and two of these scholarships shipped to a real
+ * device and were pinned in its offline cache.
+ *
+ * `src/modules/matches/matches.service.ts` still reads these fixtures behind a
+ * silent `tryExecute` fallback — see the report; it needs the same treatment.
+ */
 export const mockCatalog = {
   fields: [
     {

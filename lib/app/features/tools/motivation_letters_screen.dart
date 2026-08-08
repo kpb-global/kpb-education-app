@@ -209,7 +209,9 @@ class _LetterCardState extends State<_LetterCard> {
               .firstOrNull ??
           '';
 
-      final result = await _ctrl.apiClient.post('tools/personalize-letter', {
+      // Leading slash required: Dio concatenates `baseUrl + path`, and the base
+      // ends with `/api`, so 'tools/…' resolved to `/apitools/…` → 404.
+      final result = await _ctrl.apiClient.post('/tools/personalize-letter', {
         'templateKey': widget.template.key,
         'templateBody': widget.template.bodyFr,
         'name': p?.fullName ?? '',

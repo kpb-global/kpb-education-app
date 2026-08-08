@@ -65,21 +65,22 @@ class AppTheme {
           }
           return KpbColorsDark.divider;
         }),
-        labelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              fontFamily: KpbTextStyles.bodyFamily,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            );
-          }
-          return const TextStyle(
-            color: KpbColorsDark.textSecondary,
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-          );
-        }),
+        // Même piège que le thème clair (cf. commentaire détaillé dans
+        // buildTheme) : la couleur d'état se porte sur `labelStyle.color`,
+        // jamais via un WidgetStateTextStyle que RawChip ignorerait.
+        labelStyle: TextStyle(
+          fontFamily: KpbTextStyles.bodyFamily,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          color: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return Colors.white;
+            if (states.contains(WidgetState.disabled)) {
+              return KpbColorsDark.textSecondary;
+            }
+            // 11,99:1 sur KpbColorsDark.divider.
+            return KpbColorsDark.textPrimary;
+          }),
+        ),
         side: BorderSide.none,
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -309,8 +310,20 @@ class AppTheme {
       ),
 
       // ── Chips ───────────────────────────────────────────────────────────
-      // Sélectionnée : action pleine. Repos : surface muted + bordure, label
-      // textPrimary (jamais de gris-sur-gris illisible).
+      // Sélectionnée : action pleine, label blanc (5,17:1). Repos : surface
+      // muted + bordure appuyée, label textPrimary (16,30:1) — jamais de
+      // gris-sur-gris illisible.
+      //
+      // ⚠️ PIÈGE FLUTTER — ne pas remettre un `WidgetStateTextStyle` ici.
+      // `RawChip` ne résout PAS le labelStyle par état : il ne résout que le
+      // *champ* `labelStyle.color` (chip.dart : `resolveAs(effectiveLabelStyle
+      // .color, states)`). Un `WidgetStateTextStyle` « se comporte comme un
+      // TextStyle() vide s'il est utilisé comme TextStyle ordinaire » (doc
+      // Flutter) : couleur, taille et graisse partaient donc à null, et le
+      // moteur retombait sur sa couleur par défaut — du BLANC. Résultat en
+      // prod : label blanc sur fond clair (1,10:1, invisible) au repos, alors
+      // que l'état sélectionné semblait parfait (blanc sur bleu). D'où la
+      // couleur d'état portée par le champ `color`, seul point que RawChip lit.
       chipTheme: ChipThemeData(
         shape: const RoundedRectangleBorder(
           borderRadius: KpbRadius.pillBr,
@@ -323,27 +336,27 @@ class AppTheme {
           }
           return KpbColors.surfaceMuted;
         }),
-        labelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              fontFamily: KpbTextStyles.bodyFamily,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            );
-          }
-          return const TextStyle(
-            fontFamily: KpbTextStyles.bodyFamily,
-            color: KpbColors.textPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          );
-        }),
+        labelStyle: TextStyle(
+          fontFamily: KpbTextStyles.bodyFamily,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          color: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return Colors.white;
+            // Désactivée : atténuée mais encore lisible (6,92:1) — textMuted
+            // tomberait à 4,34:1 sur surfaceMuted.
+            if (states.contains(WidgetState.disabled)) {
+              return KpbColors.textSecondary;
+            }
+            return KpbColors.textPrimary;
+          }),
+        ),
         side: WidgetStateBorderSide.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const BorderSide(color: Colors.transparent);
           }
-          return const BorderSide(color: KpbColors.border, width: 1);
+          // borderStrong (pas border) : la pastille au repos doit se détacher
+          // du canvas, y compris en plein soleil sur écran d'entrée de gamme.
+          return const BorderSide(color: KpbColors.borderStrong, width: 1);
         }),
       ),
 

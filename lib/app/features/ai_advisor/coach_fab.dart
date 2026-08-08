@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/shell_chrome.dart';
 import '../ai_advisor/ai_chat_screen.dart';
 
 class CoachFab extends StatelessWidget {
@@ -18,10 +19,14 @@ class CoachFab extends StatelessWidget {
     // The floating bottom nav is ~68px high + 24px page padding; we add the
     // device safe-area inset so the FAB stays clear of the home indicator on
     // iPhones with notch/dynamic island. Old constant 96 sat behind the bar.
+    //
+    // The offset comes from KpbShellChrome so that the band screens have to
+    // keep free (KpbShellChrome.bottomReserve) stays in sync with where the
+    // pill actually sits — see shell_chrome.dart.
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return Positioned(
       right: KpbSpacing.pagePad,
-      bottom: 92 + bottomInset,
+      bottom: KpbShellChrome.coachPillBottom + bottomInset,
       child: FloatingActionButton.extended(
         heroTag: 'kpb_coach_fab',
         backgroundColor: KpbColors.navy,

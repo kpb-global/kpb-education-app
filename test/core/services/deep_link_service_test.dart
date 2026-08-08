@@ -142,6 +142,27 @@ void main() {
         isNull,
       );
     });
+
+    // The Supabase callback never arrives bare: PKCE appends `?code=…`, the
+    // implicit flow a `#access_token=…` fragment, and the trailing slash of
+    // `AppConfig.supabaseOAuthRedirect` is part of the registered URL. All of
+    // those shapes must stay unroutable here so this listener never competes
+    // with supabase_flutter's own deep link handling for the OAuth return.
+    test('ignores every shape of the Supabase auth callback', () {
+      const callbacks = <String>[
+        'io.supabase.kpbeducation://login-callback/',
+        'io.supabase.kpbeducation://login-callback/?code=abc123',
+        'io.supabase.kpbeducation://login-callback/#access_token=abc&refresh_token=def',
+        'io.supabase.kpbeducation://login-callback/?error_description=denied',
+      ];
+      for (final callback in callbacks) {
+        expect(
+          DeepLinkService.resolveRoute(Uri.parse(callback)),
+          isNull,
+          reason: 'Supabase callback must not resolve to a route: $callback',
+        );
+      }
+    });
   });
 
   group('DeepLinkService.handleUri (end-to-end flow)', () {

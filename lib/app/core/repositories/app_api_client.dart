@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide MultipartFile;
 
 import '../config/app_config.dart';
 import '../controllers/app_controller.dart';
+import '../data/catalog_source.dart';
 import '../models/app_models.dart';
 import '../navigation/app_boot_screen.dart';
 
@@ -45,18 +46,34 @@ class AppApiClient {
     return token != null && token.isNotEmpty;
   }
 
+  /// Dio CONCATENATES `baseUrl + path` (`dio/lib/src/options.dart`) — it does
+  /// not resolve URIs. Since `resolveApiBaseUrl` ends in `/api` with no trailing
+  /// slash, a path without a leading slash silently produced
+  /// `https://api.kpbeducation.cloud/apitools/cv-summary` → 404. That shipped:
+  /// three AI features (CV summary, letter personalisation, interview
+  /// simulator) and the impact stats were dead in production, all reporting
+  /// « vérifiez votre connexion ». Normalising here kills the trap for good —
+  /// fixing the five call sites alone would let the next one reintroduce it.
+  static String _normalizePath(String path) =>
+      path.startsWith('/') ? path : '/$path';
+
   /// Generic POST for auth endpoints (no token needed).
   Future<Map<String, dynamic>> post(
     String path,
     Map<String, dynamic> payload,
   ) async {
-    final response = await _dio.post<Map<String, dynamic>>(path, data: payload);
+    final response = await _dio.post<Map<String, dynamic>>(
+      _normalizePath(path),
+      data: payload,
+    );
     return response.data ?? <String, dynamic>{};
   }
 
   /// Generic GET returning a JSON object.
   Future<Map<String, dynamic>> get(String path) async {
-    final response = await _dio.get<Map<String, dynamic>>(path);
+    final response = await _dio.get<Map<String, dynamic>>(
+      _normalizePath(path),
+    );
     return response.data ?? <String, dynamic>{};
   }
 
@@ -955,7 +972,16 @@ class AppApiClient {
     return parsed.slug.isEmpty ? null : parsed;
   }
 
-  Future<List<dynamic>> listCatalog(String resource) async {
+  Future<List<dynamic>> listCatalog(String resource) async =>
+      (await listCatalogEnvelope(resource)).items;
+
+  /// Same call as [listCatalog], keeping the envelope's `source` field.
+  ///
+  /// The backend tags degraded answers with `source: "mock"` (bundled demo
+  /// fixtures served when it cannot reach Postgres). Callers that persist rows
+  /// — the offline cache — must check [CatalogListPayload.isTrustworthy] before
+  /// storing them, otherwise fake catalog entries get pinned on the device.
+  Future<CatalogListPayload> listCatalogEnvelope(String resource) async {
     final queryParameters =
         (resource == 'programs' || resource == 'institutions')
             ? <String, dynamic>{'limit': 1000}
@@ -965,7 +991,10 @@ class AppApiClient {
       queryParameters: queryParameters,
     );
     final data = response.data ?? <String, dynamic>{};
-    return (data['items'] as List<dynamic>? ?? <dynamic>[]);
+    return CatalogListPayload(
+      items: data['items'] as List<dynamic>? ?? <dynamic>[],
+      source: CatalogDataSource.parse(data['source']),
+    );
   }
 
   Future<Map<String, dynamic>> getCountryDetail(String countryKey) async {

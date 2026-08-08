@@ -91,7 +91,9 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
               .firstOrNull ??
           '';
 
-      final result = await _ctrl.apiClient.post('tools/interview/questions', {
+      // Leading slash required: Dio concatenates `baseUrl + path`, and the base
+      // ends with `/api`, so 'tools/…' resolved to `/apitools/…` → 404.
+      final result = await _ctrl.apiClient.post('/tools/interview/questions', {
         'type': type,
         'fieldOfStudy': field,
         'targetCountry': country,
@@ -122,7 +124,7 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
     if (text.isEmpty || turn == null) return;
     setState(() => _evaluating = true);
     try {
-      final result = await _ctrl.apiClient.post('tools/interview/feedback', {
+      final result = await _ctrl.apiClient.post('/tools/interview/feedback', {
         'type': _type,
         'question': turn.question,
         'answer': text,

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/orientation_engine.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
@@ -447,8 +448,30 @@ class _ResultsViewState extends State<_ResultsView>
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
-    final recs = (widget.result.recommendations as List);
-    final topScore = recs.isNotEmpty ? (recs.first.score as int) : 0;
+
+    // A match percentage can never exceed 100, so never trust `rec.score` as a
+    // percentage: the REST backend (and any session persisted by an older
+    // build) still stores raw questionnaire points multiplied by 10, which is
+    // how a card ended up reading "160 %". The percentage is recomputed here
+    // from the stored answers with the same engine that scores an offline
+    // session, so every source lands on one normalised scale; `rec.score` is a
+    // clamped last resort for a session whose answers we cannot re-score.
+    final percentByField = OrientationEngine.matchPercentByField(
+      answers: Map<String, List<String>>.from(
+        widget.result.answers as Map,
+      ),
+      questions: controller.orientationQuestions,
+    );
+    int scoreOf(dynamic rec) =>
+        percentByField[rec.fieldId as String] ??
+        (rec.score as int).clamp(0, 100);
+
+    // Re-rank on the normalised percentage: the backend orders on AI resilience
+    // before the score, which could otherwise put the "best match" badge on a
+    // card showing a lower percentage than the one below it.
+    final recs = List<dynamic>.from(widget.result.recommendations as List)
+      ..sort((a, b) => scoreOf(b).compareTo(scoreOf(a)));
+    final topScore = recs.isNotEmpty ? scoreOf(recs.first) : 0;
     final topField =
         recs.isNotEmpty ? controller.fieldByIdOrNull(recs.first.fieldId) : null;
 
@@ -512,6 +535,7 @@ class _ResultsViewState extends State<_ResultsView>
                       delayMs: 130,
                       child: _RecommendationCard(
                         rec: rec,
+                        score: scoreOf(rec),
                         field: field,
                         countries: countries,
                         scholarships: scholarships,
@@ -884,6 +908,7 @@ class _ConfettiPainter extends CustomPainter {
 class _RecommendationCard extends StatelessWidget {
   const _RecommendationCard({
     required this.rec,
+    required this.score,
     required this.field,
     required this.countries,
     required this.scholarships,
@@ -893,6 +918,11 @@ class _RecommendationCard extends StatelessWidget {
   });
 
   final dynamic rec;
+
+  /// Normalised match percentage in `[0, 100]` — see `scoreOf` in
+  /// `_ResultsViewState.build`. Never read `rec.score` here: it may still hold
+  /// raw questionnaire points.
+  final int score;
   final FieldModel field;
   final List<CountryModel> countries;
   final List<ScholarshipModel> scholarships;
@@ -902,7 +932,6 @@ class _RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) {
-    final score = rec.score as int;
     final accentColor = field.accentColor;
     final saved = controller.isSaved(SavedItemType.field, field.id);
 
@@ -980,7 +1009,7 @@ class _RecommendationCard extends StatelessWidget {
           ClipRRect(
             borderRadius: KpbRadius.pillBr,
             child: LinearProgressIndicator(
-              value: score / 100,
+              value: (score / 100).clamp(0.0, 1.0),
               minHeight: 6,
               backgroundColor: context.kpb.gray100,
               valueColor: AlwaysStoppedAnimation<Color>(accentColor),

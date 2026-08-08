@@ -32,7 +32,7 @@ class _ImpactDashboardScreenState extends State<ImpactDashboardScreen> {
       });
     }
     try {
-      final data = await _ctrl.apiClient.get('impact/stats');
+      final data = await _ctrl.apiClient.get('/impact/stats');
       if (mounted) {
         setState(() {
           _stats = data;

@@ -1,4 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+// `LaunchMode` comes from supabase_flutter (it re-exports it); only the
+// dismiss helper needs to be pulled from url_launcher directly.
+import 'package:url_launcher/url_launcher.dart' show closeInAppWebView;
 
 import '../config/app_config.dart';
 import '../repositories/app_api_client.dart';
@@ -75,12 +78,50 @@ class AuthService {
     );
   }
 
-  /// Launches the Google OAuth flow via the system browser / deep link.
+  /// Launch mode for the OAuth consent screen. Pinned to the **system browser**
+  /// on purpose — do not switch this back to `platformDefault`.
+  ///
+  /// `signInWithOAuth` defaults to [LaunchMode.platformDefault], which
+  /// `url_launcher_ios` maps to an in-app `SFSafariViewController` for any
+  /// `https` URL. supabase_flutter creates the session from the
+  /// `io.supabase.kpbeducation://login-callback/` deep link but never calls
+  /// `closeInAppWebView()`, so on iOS that Safari sheet stayed presented over
+  /// the app: sign-in succeeded, the app navigated on *behind* it, and the user
+  /// was left on the blank redirect page having to tap Done (reproduced on
+  /// TestFlight, iPhone / iOS 26). Handing the URL to the system browser removes
+  /// the overlay entirely — which is exactly what supabase_flutter already
+  /// forces for Google on Android, so this also aligns the two platforms.
+  ///
+  /// [LaunchMode.inAppWebView] is not an option either way: Google rejects
+  /// embedded web views (`disallowed_useragent`).
+  static const LaunchMode oauthLaunchMode = LaunchMode.externalApplication;
+
+  /// Launches the Google OAuth flow in the system browser.
+  ///
+  /// The returned bool only says the consent URL was handed to the browser — it
+  /// is **not** the auth result. Sign-in completion is observed through
+  /// [onAuthStateChange] (`AuthChangeEvent.signedIn`), which fires once the
+  /// redirect deep link comes back into the app.
   Future<bool> signInWithGoogle() async {
     return _client.auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: AppConfig.supabaseOAuthRedirect,
+      authScreenLaunchMode: oauthLaunchMode,
     );
+  }
+
+  /// Dismisses any in-app browser view still presented over the app after an
+  /// auth redirect. A no-op when nothing is presented (the iOS plugin closes an
+  /// optional `currentSession`), so it is safe to call on every auth return.
+  ///
+  /// Belt-and-braces next to [oauthLaunchMode]: it also covers a redirect that
+  /// arrives while some other flow left an in-app browser view on screen.
+  Future<void> dismissAuthWebView() async {
+    try {
+      await closeInAppWebView();
+    } catch (_) {
+      // Platform not available (tests) or nothing to close — nothing to do.
+    }
   }
 
   Future<void> logout() async {

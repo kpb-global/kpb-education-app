@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
@@ -7,6 +8,7 @@ import 'package:printing/printing.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/study_level.dart';
+import 'pdf_text.dart';
 
 /// CV Generator — pre-filled from profile, AI-enhanced summary, PDF export.
 class CvGeneratorScreen extends StatefulWidget {
@@ -25,6 +27,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
   late final TextEditingController _levelCtrl;
   late final TextEditingController _fieldCtrl;
   late final TextEditingController _countryCtrl;
+  late final TextEditingController _residenceCtrl;
   late final TextEditingController _skillsCtrl;
   late final TextEditingController _languagesCtrl;
   late final TextEditingController _experienceCtrl;
@@ -35,35 +38,124 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
   bool _isGenerating = false;
   bool _useEnglish = false;
 
+  /// Profile facts that have no form field of their own but do belong on the
+  /// CV (they are rendered in the Education block / contact sidebar).
+  String _bacSeries = '';
+  String _gradeRange = '';
+  String _languageLevel = '';
+  String _targetLevel = '';
+  String _whatsApp = '';
+
   @override
   void initState() {
     super.initState();
     final p = _ctrl.profile;
-    final level = p?.currentLevel ?? '';
-    final fieldId = p?.fieldIds.isNotEmpty == true ? p!.fieldIds.first : '';
-    final field = _ctrl.fields
-            .where((f) => f.id == fieldId)
-            .map((f) => _ctrl.resolve(f.name))
-            .firstOrNull ??
-        '';
-    final targetId =
-        p?.targetCountryIds.isNotEmpty == true ? p!.targetCountryIds.first : '';
-    final country = _ctrl.countries
-            .where((c) => c.id == targetId)
-            .map((c) => _ctrl.resolve(c.name))
-            .firstOrNull ??
-        '';
+
+    // A student's declared level is a *year of study* (axis 1 of
+    // study_level.dart), so it must go through studentLevelLabel: the previous
+    // programLevelLabel() call mapped "bachelor_3" to the degree "Bachelor"
+    // and silently dropped the year.
+    final level = studentLevelLabel(p?.currentLevel);
+    // Every declared field / target country, not just the first one.
+    final fields = _resolveNames(
+      p?.fieldIds ?? const [],
+      (id) => _ctrl.fields
+          .where((f) => f.id == id)
+          .map((f) => _ctrl.resolve(f.name))
+          .firstOrNull,
+    );
+    final countries = _resolveNames(
+      p?.targetCountryIds ?? const [],
+      (id) => _ctrl.countries
+          .where((c) => c.id == id)
+          .map((c) => _ctrl.resolve(c.name))
+          .firstOrNull,
+    );
+
+    _bacSeries = (p?.bacSeries ?? '').trim();
+    _gradeRange = (p?.gradeRange ?? '').trim();
+    _languageLevel = (p?.languageLevel ?? '').trim();
+    _whatsApp = (p?.whatsApp ?? '').trim();
+    final rawTargetLevel = (p?.targetLevel ?? '').trim();
+    // programLevelLabel('') answers "Autre" — only label a real value.
+    _targetLevel =
+        rawTargetLevel.isEmpty ? '' : programLevelLabel(rawTargetLevel);
+
+    // A francophone student gets the FR CV first, an anglophone the EN one.
+    _useEnglish = !_ctrl.localeCode.toLowerCase().startsWith('fr');
 
     _nameCtrl = TextEditingController(text: p?.fullName ?? '');
     _emailCtrl = TextEditingController(text: p?.email ?? '');
-    _phoneCtrl = TextEditingController(text: p?.phone ?? '');
-    _levelCtrl = TextEditingController(text: programLevelLabel(level));
-    _fieldCtrl = TextEditingController(text: field);
-    _countryCtrl = TextEditingController(text: country);
+    // Fall back to WhatsApp when no plain phone number was recorded — most of
+    // our students only ever fill the WhatsApp field.
+    _phoneCtrl = TextEditingController(
+      text: (p?.phone ?? '').trim().isNotEmpty ? p!.phone : _whatsApp,
+    );
+    _levelCtrl = TextEditingController(text: level);
+    _fieldCtrl = TextEditingController(text: fields.join(', '));
+    _countryCtrl = TextEditingController(text: countries.join(', '));
+    _residenceCtrl = TextEditingController(
+      text: (p?.countryOfResidence ?? '').trim(),
+    );
     _skillsCtrl = TextEditingController();
-    _languagesCtrl = TextEditingController(text: 'cv_default_languages'.tr);
+    _languagesCtrl = TextEditingController(text: _prefilledLanguages());
     _experienceCtrl = TextEditingController();
-    _objectiveCtrl = TextEditingController();
+    _objectiveCtrl = TextEditingController(
+      text: _prefilledObjective(
+        level: _targetLevel.isNotEmpty ? _targetLevel : level,
+        field: fields.isNotEmpty ? fields.first : '',
+        country: countries.isNotEmpty ? countries.first : '',
+      ),
+    );
+  }
+
+  /// Resolves ids to labels while preserving the profile's own order and
+  /// dropping ids the catalogue does not know about.
+  List<String> _resolveNames(
+    List<String> ids,
+    String? Function(String id) lookup,
+  ) =>
+      ids
+          .map((id) => (lookup(id) ?? '').trim())
+          .where((name) => name.isNotEmpty)
+          .toList(growable: false);
+
+  /// Default languages, plus the declared language level when there is one
+  /// (e.g. "Français, Anglais (B2)").
+  String _prefilledLanguages() {
+    final base = 'cv_default_languages'.tr;
+    if (_languageLevel.isEmpty) return base;
+    final parts = base.split(',').map((s) => s.trim()).toList();
+    if (parts.length < 2) return '$base ($_languageLevel)';
+    parts[parts.length - 1] = '${parts.last} ($_languageLevel)';
+    return parts.join(', ');
+  }
+
+  /// Seeds the career-objective field from the profile so the exported CV is
+  /// not almost empty. The student can still edit or clear it.
+  String _prefilledObjective({
+    required String level,
+    required String field,
+    required String country,
+  }) {
+    if (level.isEmpty || field.isEmpty) return '';
+    final goal = _trOrNull(
+      'cv_objective_prefill',
+      params: {'level': level, 'field': field},
+    );
+    if (goal == null) return '';
+    if (country.isEmpty) return goal;
+    final destination =
+        _trOrNull('cv_objective_destination', params: {'country': country});
+    return destination == null ? goal : '$goal $destination';
+  }
+
+  /// GetX echoes the key back when a translation is missing. New keys land in
+  /// `app_translations.dart`, which this change does not own, so never show a
+  /// raw key to a student: answer null and let the caller degrade.
+  String? _trOrNull(String key, {Map<String, String>? params}) {
+    final value = params == null ? key.tr : key.trParams(params);
+    return value == key ? null : value;
   }
 
   @override
@@ -75,6 +167,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
       _levelCtrl,
       _fieldCtrl,
       _countryCtrl,
+      _residenceCtrl,
       _skillsCtrl,
       _languagesCtrl,
       _experienceCtrl,
@@ -88,22 +181,26 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
   Future<void> _generateSummary() async {
     setState(() => _isGenerating = true);
     try {
-      final result = await _ctrl.apiClient.post('tools/cv-summary', {
-        'name': _nameCtrl.text,
-        'studyLevel': _levelCtrl.text,
-        'fieldOfStudy': _fieldCtrl.text,
-        'targetCountry': _countryCtrl.text,
-        'skills': _skillsCtrl.text
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList(),
-        'languages': _languagesCtrl.text
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList(),
-        'experience': _experienceCtrl.text,
+      // The path MUST keep its leading slash. Dio concatenates
+      // `baseUrl + path` verbatim (RequestOptions.uri), and the base URL ends
+      // with `/api` and no trailing slash — so 'tools/cv-summary' was posted to
+      // `https://api.kpbeducation.cloud/apitools/cv-summary`, i.e. a 404 on
+      // every single tap. The coach chat never hit this because it calls
+      // '/coach/…' with the slash.
+      final result = await _ctrl.apiClient.post('/tools/cv-summary', {
+        'name': _nameCtrl.text.trim(),
+        'studyLevel': _levelCtrl.text.trim(),
+        'fieldOfStudy': _fieldCtrl.text.trim(),
+        'targetCountry': _countryCtrl.text.trim(),
+        'skills': _splitCsv(_skillsCtrl.text),
+        'languages': _splitCsv(_languagesCtrl.text),
+        'experience': _experienceCtrl.text.trim(),
+        // Extra profile context so the summary reflects the whole dossier.
+        if (_targetLevel.isNotEmpty) 'targetLevel': _targetLevel,
+        if (_residenceCtrl.text.trim().isNotEmpty)
+          'countryOfResidence': _residenceCtrl.text.trim(),
+        if (_objectiveCtrl.text.trim().isNotEmpty)
+          'objective': _objectiveCtrl.text.trim(),
       });
       if (mounted) {
         setState(() {
@@ -111,15 +208,51 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
           _aiSummaryEn = result['en'] as String? ?? '';
         });
       }
-    } catch (e) {
+    } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
+          SnackBar(content: Text(_aiErrorMessage(error))),
         );
       }
     } finally {
       if (mounted) setState(() => _isGenerating = false);
     }
+  }
+
+  List<String> _splitCsv(String raw) => raw
+      .split(',')
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList(growable: false);
+
+  /// Honest failure copy. "Check your connection" used to be shown for every
+  /// cause, including a 404/503 coming from a perfectly healthy network — which
+  /// is what made this bug so hard to report.
+  String _aiErrorMessage(Object error) {
+    const fallback = 'tools_ai_error_check_connection';
+    if (error is! DioException) {
+      return _trOrNull('tools_ai_error_unavailable') ?? fallback.tr;
+    }
+    switch (error.type) {
+      case DioExceptionType.connectionError:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        // The only case where blaming the network is truthful.
+        return fallback.tr;
+      default:
+        break;
+    }
+    final status = error.response?.statusCode;
+    if (status == 401 || status == 403) {
+      return _trOrNull('tools_ai_error_signin_required') ?? fallback.tr;
+    }
+    if (status == 429) {
+      return _trOrNull('tools_ai_error_rate_limited') ?? fallback.tr;
+    }
+    // 404 (route missing / misdeployed), 503 (AI not configured on the server)
+    // and every 5xx are server-side: say so instead of pointing at the phone.
+    return _trOrNull('tools_ai_error_unavailable') ?? fallback.tr;
   }
 
   // ── KPB brand colours for the PDF ──────────────────────────────────────────
@@ -130,28 +263,45 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
   Future<void> _exportPdf() async {
     final doc = pw.Document();
-    final summary = _useEnglish
-        ? (_aiSummaryEn.isNotEmpty ? _aiSummaryEn : _aiSummaryFr)
-        : (_aiSummaryFr.isNotEmpty ? _aiSummaryFr : _aiSummaryEn);
     final en = _useEnglish;
 
-    final skills = _skillsCtrl.text
-        .split(',')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    // Everything below goes through pdfSafe*: the built-in Helvetica has no
+    // glyph above U+00FF, so emoji (from translations, catalogue labels, text
+    // typed by the student or the AI summary) and typographic punctuation would
+    // be drawn as empty boxes. See pdf_text.dart.
+    final summary = pdfSafeText(_useEnglish
+        ? (_aiSummaryEn.isNotEmpty ? _aiSummaryEn : _aiSummaryFr)
+        : (_aiSummaryFr.isNotEmpty ? _aiSummaryFr : _aiSummaryEn));
 
-    final languages = _languagesCtrl.text
-        .split(',')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final name = pdfSafeText(_nameCtrl.text);
+    final email = pdfSafeText(_emailCtrl.text);
+    final phone = pdfSafeText(_phoneCtrl.text);
+    final whatsApp = pdfSafeText(_whatsApp);
+    final residence = pdfSafeText(_residenceCtrl.text);
+    final targetCountry = pdfSafeText(_countryCtrl.text);
+    final headline = pdfSafeJoin([_levelCtrl.text, _fieldCtrl.text]);
+    final objective = pdfSafeText(_objectiveCtrl.text);
 
-    final experiences = _experienceCtrl.text
-        .split('\n')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final skills = pdfSafeCsv(_skillsCtrl.text);
+    final languages = pdfSafeCsv(_languagesCtrl.text);
+    final experiences = pdfSafeLines(_experienceCtrl.text);
+
+    // Education details that live on the profile but have no form field.
+    final educationDetails = <String>[
+      if (_bacSeries.isNotEmpty)
+        '${en ? "Bac series" : "Série du bac"} : ${pdfSafeText(_bacSeries)}',
+      if (_gradeRange.isNotEmpty)
+        '${en ? "Academic results" : "Résultats"} : '
+            '${pdfSafeText(_gradeRange)}',
+      if (_languageLevel.isNotEmpty)
+        '${en ? "Language level" : "Niveau de langue"} : '
+            '${pdfSafeText(_languageLevel)}',
+      if (targetCountry.isNotEmpty)
+        '${en ? "Target country" : "Pays cible"} : $targetCountry',
+      if (_targetLevel.isNotEmpty)
+        '${en ? "Target degree" : "Diplôme visé"} : '
+            '${pdfSafeText(_targetLevel)}',
+    ];
 
     doc.addPage(
       pw.Page(
@@ -180,7 +330,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                       ),
                       alignment: pw.Alignment.center,
                       child: pw.Text(
-                        _initials(_nameCtrl.text),
+                        _initials(name),
                         style: pw.TextStyle(
                           fontSize: 28,
                           fontWeight: pw.FontWeight.bold,
@@ -192,11 +342,14 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                   pw.SizedBox(height: 24),
 
                   // Contact
-                  _sidebarSection(en ? 'CONTACT' : 'CONTACT'),
-                  _sidebarItem(Icons.email, _emailCtrl.text),
-                  _sidebarItem(Icons.phone, _phoneCtrl.text),
-                  if (_countryCtrl.text.isNotEmpty)
-                    _sidebarItem(Icons.location_on, _countryCtrl.text),
+                  _sidebarSection('CONTACT'),
+                  if (email.isNotEmpty) _sidebarItem(email),
+                  if (phone.isNotEmpty) _sidebarItem(phone),
+                  if (whatsApp.isNotEmpty && whatsApp != phone)
+                    _sidebarItem('WhatsApp : $whatsApp'),
+                  // A CV states where the candidate lives; the target country
+                  // belongs to the education/objective block below.
+                  if (residence.isNotEmpty) _sidebarItem(residence),
                   pw.SizedBox(height: 16),
 
                   // Languages
@@ -265,7 +418,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                   children: [
                     // Name & title
                     pw.Text(
-                      _nameCtrl.text.toUpperCase(),
+                      name.toUpperCase(),
                       style: pw.TextStyle(
                         fontSize: 24,
                         fontWeight: pw.FontWeight.bold,
@@ -275,7 +428,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                     ),
                     pw.SizedBox(height: 4),
                     pw.Text(
-                      '${_levelCtrl.text} — ${_fieldCtrl.text}',
+                      headline,
                       style: pw.TextStyle(
                         fontSize: 12,
                         color: _kpbBlue,
@@ -300,37 +453,45 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                       pw.SizedBox(height: 16),
                     ],
 
-                    // Education
-                    _mainSection(en ? 'EDUCATION' : 'FORMATION'),
-                    pw.Container(
-                      padding: const pw.EdgeInsets.all(10),
-                      decoration: pw.BoxDecoration(
-                        color: _kpbBlueBg,
-                        borderRadius: pw.BorderRadius.circular(6),
-                      ),
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            '${_levelCtrl.text} — ${_fieldCtrl.text}',
-                            style: pw.TextStyle(
-                              fontSize: 10,
-                              fontWeight: pw.FontWeight.bold,
-                              color: _darkText,
-                            ),
-                          ),
-                          if (_countryCtrl.text.isNotEmpty)
-                            pw.Text(
-                              '${en ? "Target country" : "Pays cible"} : ${_countryCtrl.text}',
-                              style: const pw.TextStyle(
-                                fontSize: 9,
-                                color: _mutedText,
+                    // Education — skipped entirely rather than printing an
+                    // empty blue box when the profile has nothing to say.
+                    if (headline.isNotEmpty || educationDetails.isNotEmpty) ...[
+                      _mainSection(en ? 'EDUCATION' : 'FORMATION'),
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(10),
+                        decoration: pw.BoxDecoration(
+                          color: _kpbBlueBg,
+                          borderRadius: pw.BorderRadius.circular(6),
+                        ),
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            if (headline.isNotEmpty)
+                              pw.Text(
+                                headline,
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: pw.FontWeight.bold,
+                                  color: _darkText,
+                                ),
+                              ),
+                            ...educationDetails.map(
+                              (detail) => pw.Padding(
+                                padding: const pw.EdgeInsets.only(top: 2),
+                                child: pw.Text(
+                                  detail,
+                                  style: const pw.TextStyle(
+                                    fontSize: 9,
+                                    color: _mutedText,
+                                  ),
+                                ),
                               ),
                             ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    pw.SizedBox(height: 16),
+                      pw.SizedBox(height: 16),
+                    ],
 
                     // Experience
                     if (experiences.isNotEmpty) ...[
@@ -366,11 +527,11 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                     ],
 
                     // Objective
-                    if (_objectiveCtrl.text.isNotEmpty) ...[
+                    if (objective.isNotEmpty) ...[
                       _mainSection(
                           en ? 'CAREER OBJECTIVE' : 'OBJECTIF PROFESSIONNEL'),
                       pw.Text(
-                        _objectiveCtrl.text,
+                        objective,
                         style: const pw.TextStyle(
                           fontSize: 9.5,
                           color: _darkText,
@@ -385,9 +546,11 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
                     pw.Align(
                       alignment: pw.Alignment.centerRight,
                       child: pw.Text(
+                        // "Généré" is safe now: é is WinAnsi 0xE9. Only code
+                        // points above U+00FF are unrenderable.
                         en
                             ? 'Generated with KPB Education'
-                            : 'Genere avec KPB Education',
+                            : 'Généré avec KPB Education',
                         style: const pw.TextStyle(
                           fontSize: 7,
                           color: _mutedText,
@@ -405,15 +568,31 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
 
     await Printing.sharePdf(
       bytes: await doc.save(),
-      filename: 'CV_${_nameCtrl.text.replaceAll(' ', '_')}.pdf',
+      filename: _pdfFileName(name),
     );
   }
 
+  /// ASCII-only, emoji-free file name — a share sheet / mail client should
+  /// never receive `CV_🎓.pdf`, and an empty name must not yield `CV_.pdf`.
+  String _pdfFileName(String sanitizedName) {
+    final slug = sanitizedName
+        .replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    return slug.isEmpty ? 'CV_KPB.pdf' : 'CV_$slug.pdf';
+  }
+
+  /// Initials for the avatar circle. [name] is already PDF-sanitized, so it can
+  /// be empty (or emoji-only before sanitising) — never index blindly.
   String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
   pw.Widget _sidebarSection(String title) => pw.Padding(
@@ -436,7 +615,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
         ),
       );
 
-  pw.Widget _sidebarItem(IconData _, String text) => pw.Padding(
+  pw.Widget _sidebarItem(String text) => pw.Padding(
         padding: const pw.EdgeInsets.only(bottom: 5),
         child: pw.Text(
           text,
@@ -485,6 +664,12 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
           _field('cv_field_phone'.tr, _phoneCtrl),
           _field('cv_field_study_level'.tr, _levelCtrl),
           _field('cv_field_field_of_study'.tr, _fieldCtrl),
+          // Prefilled from the profile; editable because it is printed in the
+          // CV contact block.
+          // 'Residence' is the accent-free, FR/EN-readable fallback used until
+          // the `cv_field_residence` key lands in app_translations.dart.
+          _field(
+              _trOrNull('cv_field_residence') ?? 'Residence', _residenceCtrl),
           _field('cv_field_target_country'.tr, _countryCtrl),
           _field('cv_field_skills'.tr, _skillsCtrl),
           _field('cv_field_languages'.tr, _languagesCtrl),

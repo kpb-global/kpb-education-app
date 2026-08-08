@@ -6,6 +6,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/shell_chrome.dart';
 import '../../core/ui/skeleton.dart';
 import 'case_composer_sheet.dart';
 import 'case_detail_screen.dart';
@@ -95,7 +96,9 @@ class _CasesScreenState extends State<CasesScreen> {
         }
 
         if (controller.isSyncing && controller.cases.isEmpty) {
-          return const CasesScreenSkeleton();
+          // SafeArea: this tab has no AppBar, so nothing else absorbs the
+          // status-bar / Dynamic Island inset (see the header below).
+          return const SafeArea(bottom: false, child: CasesScreenSkeleton());
         }
 
         if (controller.syncError != null && controller.cases.isEmpty) {
@@ -109,9 +112,14 @@ class _CasesScreenState extends State<CasesScreen> {
           child: CustomScrollView(
             slivers: [
               // ── Header ───────────────────────────────────────────────
+              // Left inset of 56: the shell paints its floating hamburger in
+              // the top-left corner of every tab (48px + 4px margin), so the
+              // title has to start to the right of it — same trick as the Home
+              // app bar (`titleSpacing: 60`). The vertical inset for the
+              // notch / Dynamic Island comes from the SafeArea below.
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 14),
+                  padding: const EdgeInsets.fromLTRB(56, 14, 16, 14),
                   child: Row(
                     children: [
                       Expanded(
@@ -225,7 +233,10 @@ class _CasesScreenState extends State<CasesScreen> {
                   ),
                 ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              // Keep the last card clear of the floating nav bar AND of the
+              // "KPB Intelligence" pill (the old hardcoded 100 only cleared
+              // the nav bar, so the pill sat on top of the last card).
+              const SliverToBoxAdapter(child: KpbShellBottomSpacer()),
             ],
           ),
         );
@@ -240,7 +251,17 @@ class _CasesScreenState extends State<CasesScreen> {
           color: KpbColors.canvas,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: safeWidth),
-            child: body,
+            // This tab has no AppBar/SliverAppBar to absorb the status-bar
+            // inset, and the shell keeps the top padding for its tabs
+            // (MediaQuery.removePadding only kicks in under a banner). Without
+            // this SafeArea the header + filters were drawn *under* the notch /
+            // Dynamic Island (reported on TestFlight). `bottom: false` keeps
+            // the list full-bleed: the trailing KpbShellBottomSpacer already
+            // reserves the floating chrome's band.
+            child: SafeArea(
+              bottom: false,
+              child: body,
+            ),
           ),
         );
       },
@@ -694,6 +715,9 @@ class _GuestCasesPrompt extends StatelessWidget {
             backgroundColor: KpbColors.canvas,
             surfaceTintColor: KpbColors.canvas,
             elevation: 0,
+            // Clear the shell's floating hamburger (top-left overlay); the
+            // SliverAppBar already absorbs the status-bar inset itself.
+            titleSpacing: 60,
             title: Text(
               'nav_cases'.tr,
               style: const TextStyle(

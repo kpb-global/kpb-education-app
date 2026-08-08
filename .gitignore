@@ -73,3 +73,6 @@ backend/scripts/output/
 # Local database backups and uploaded files (produced on the VPS at runtime)
 /backups/
 /uploads/
+
+# Diffs produits par un golden en échec (flutter_test) — jamais versionnés.
+test/goldens/failures/

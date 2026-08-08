@@ -31,7 +31,7 @@ class _HomeImpactProofState extends State<HomeImpactProof> {
   Future<void> _load() async {
     try {
       final data =
-          await Get.find<AppController>().apiClient.get('impact/stats');
+          await Get.find<AppController>().apiClient.get('/impact/stats');
       if (mounted) setState(() => _stats = data);
     } catch (_) {
       // Offline / no backend — stay hidden rather than show fabricated proof.

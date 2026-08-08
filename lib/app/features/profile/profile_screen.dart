@@ -32,6 +32,7 @@ import '../alumni/alumni_directory_screen.dart';
 import '../alumni/alumni_apply_screen.dart';
 import '../salon/salon_screen.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/shell_chrome.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Student Profile — App-engagement handoff restyle (navy/blue).
@@ -177,7 +178,9 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 100),
+                      // 100 pt laissaient « Se déconnecter » sous la pastille
+                      // copilote (bande 92→140 depuis le bas de l'écran).
+                      const KpbShellBottomSpacer(),
                     ],
                   ),
                 ),

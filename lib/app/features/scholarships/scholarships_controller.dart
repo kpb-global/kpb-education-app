@@ -37,8 +37,30 @@ class ScholarshipsController extends ChangeNotifier {
   String? error;
   String fundingFilter = 'all';
 
+  /// True once the profile-derived criteria ([level], [fieldIds]) have been
+  /// dropped from the query because they matched nothing. The screen must
+  /// disclose it: the visible list is then the whole catalog, not a
+  /// profile-matched selection.
+  bool profileFiltersRelaxed = false;
+
+  /// Sticky counterpart of [profileFiltersRelaxed], set only by
+  /// [clearAllFilters]. An automatic relaxation is re-evaluated on every reload
+  /// (the catalog may have been curated since); an explicit user choice is not.
+  bool _userDroppedProfileFilters = false;
+
   int _offset = 0;
   int _requestGeneration = 0;
+
+  /// Whether this controller has profile-derived criteria that could hide
+  /// results. They come from the saved profile, not from a visible control, so
+  /// the student cannot clear them from the filter row.
+  bool get hasProfileFilters =>
+      (level ?? '').trim().isNotEmpty || (fieldIds?.isNotEmpty ?? false);
+
+  /// Criteria actually sent to the API, honouring [profileFiltersRelaxed].
+  String? get _effectiveLevel => profileFiltersRelaxed ? null : level;
+  List<String>? get _effectiveFieldIds =>
+      profileFiltersRelaxed ? null : fieldIds;
 
   Future<void> loadInitial() async {
     final generation = ++_requestGeneration;
@@ -47,18 +69,40 @@ class ScholarshipsController extends ChangeNotifier {
     error = null;
     hasMore = true;
     _offset = 0;
+    // Re-attempt the profile criteria on every reload so a pull-to-refresh
+    // picks up newly curated scholarships instead of staying unfiltered forever.
+    profileFiltersRelaxed = _userDroppedProfileFilters;
     notifyListeners();
 
     try {
       // Keep the first request byte-for-byte compatible with the pre-pagination
       // client call. This matters for older servers and existing test doubles.
-      final raw = await _apiClient.fetchLiveScholarships(
+      var raw = await _apiClient.fetchLiveScholarships(
         lang: lang,
-        level: level,
-        fieldIds: fieldIds,
+        level: _effectiveLevel,
+        fieldIds: _effectiveFieldIds,
         fundingType: fundingFilter == 'all' ? null : fundingFilter,
       );
       if (generation != _requestGeneration) return;
+
+      // Graceful degradation: the profile criteria are a ranking preference, not
+      // a reason to show nothing. `relatedFieldIds` is empty on every
+      // server-side write path until an admin curates it, so a profile with a
+      // field of interest can filter the whole published catalog out. Retry once
+      // without those criteria rather than claiming there is no scholarship.
+      // Server-side relaxation covers up-to-date deployments; this keeps the
+      // screen working against a backend that still filters strictly.
+      if (raw.isEmpty && !profileFiltersRelaxed && hasProfileFilters) {
+        profileFiltersRelaxed = true;
+        raw = await _apiClient.fetchLiveScholarships(
+          lang: lang,
+          level: null,
+          fieldIds: null,
+          fundingType: fundingFilter == 'all' ? null : fundingFilter,
+        );
+        if (generation != _requestGeneration) return;
+      }
+
       final parsed = _parse(raw);
       _items
         ..clear()
@@ -102,8 +146,8 @@ class ScholarshipsController extends ChangeNotifier {
     try {
       final raw = await _apiClient.fetchLiveScholarships(
         lang: lang,
-        level: level,
-        fieldIds: fieldIds,
+        level: _effectiveLevel,
+        fieldIds: _effectiveFieldIds,
         fundingType: fundingFilter == 'all' ? null : fundingFilter,
         limit: pageSize,
         offset: _offset,
@@ -138,6 +182,19 @@ class ScholarshipsController extends ChangeNotifier {
   Future<void> changeFundingFilter(String value) async {
     if (value == fundingFilter) return;
     fundingFilter = value;
+    // A new funding filter is a fresh question: re-apply the profile criteria so
+    // a relaxation carried over from the previous filter does not silently make
+    // this listing unfiltered too.
+    _userDroppedProfileFilters = false;
+    await loadInitial();
+  }
+
+  /// Escape hatch offered by the empty state: drop every filter (funding +
+  /// profile-derived criteria) and reload. Lets a student reach the catalog
+  /// instead of being stuck behind criteria they cannot see.
+  Future<void> clearAllFilters() async {
+    fundingFilter = 'all';
+    _userDroppedProfileFilters = true;
     await loadInitial();
   }
 

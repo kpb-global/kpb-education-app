@@ -258,7 +258,12 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('empty results render the honest empty state', (tester) async {
+  // With every filter already dropped, an empty list means the published
+  // catalog is empty — the screen must say that, not "modifie tes critères",
+  // which reads as a loading failure and sends the student hunting a bug in
+  // their own profile.
+  testWidgets('empty results render the honest catalog-empty state',
+      (tester) async {
     final mock = MockApiClient();
     _stubFetch(mock, <dynamic>[]);
     await _seed(mock);
@@ -266,7 +271,62 @@ void main() {
     await tester.pumpWidget(_wrap(LiveScholarshipsScreen(apiClient: mock)));
     await tester.pumpAndSettle();
 
-    expect(find.text('Aucune bourse trouvée'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey<String>('scholarships-empty-catalog')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('scholarships-empty-filtered')),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  // The funding filter is the one filter the student can see; when it empties
+  // the list, the empty state must offer the way out.
+  testWidgets('a funding filter that empties the list offers a way out',
+      (tester) async {
+    final mock = MockApiClient();
+    when(() => mock.fetchLiveScholarships(
+          lang: any(named: 'lang'),
+          level: any(named: 'level'),
+          fieldIds: any(named: 'fieldIds'),
+          fundingType: 'partially_funded',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => <dynamic>[]);
+    when(() => mock.fetchLiveScholarships(
+          lang: any(named: 'lang'),
+          level: any(named: 'level'),
+          fieldIds: any(named: 'fieldIds'),
+          fundingType: null,
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => <dynamic>[_scholarshipJson()]);
+    when(() => mock.fetchScholarshipAlerts())
+        .thenAnswer((_) async => <String>{});
+    when(() => mock.getSuccessLabAccess())
+        .thenAnswer((_) async => _access(false, reason: 'feature_disabled'));
+    await _seed(mock);
+
+    await tester.pumpWidget(_wrap(LiveScholarshipsScreen(apiClient: mock)));
+    await tester.pumpAndSettle();
+    expect(find.text('MEXT Japan Scholarship'), findsOneWidget);
+
+    await tester.tap(find.text('Partiellement financées'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey<String>('scholarships-empty-filtered')),
+      findsOneWidget,
+    );
+
+    // The escape hatch actually clears the filter and brings the list back.
+    await tester
+        .tap(find.byKey(const ValueKey<String>('scholarships-show-all')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('MEXT Japan Scholarship'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
