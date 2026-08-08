@@ -32,14 +32,19 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Google OAuth returns via deep link; complete navigation when the
-    // session is established.
-    _authSub = _authService.onAuthStateChange.listen((state) {
-      if (state.event == AuthChangeEvent.signedIn && mounted) {
-        // Success logging (login vs sign-up + method) is centralized in
-        // navigateAfterAuth so it stays accurate for both Google and email.
-        navigateAfterAuth(method: _pendingMethod);
-      }
+    // Google OAuth (and a clicked magic link) return via deep link; complete
+    // navigation when the session is established.
+    _authSub = _authService.onAuthStateChange.listen((state) async {
+      if (state.event != AuthChangeEvent.signedIn || !mounted) return;
+      // The redirect lands in the app while the browser that showed the consent
+      // screen may still be presented on top of it. Dismiss it first, otherwise
+      // the user stares at the blank redirect page while the app has already
+      // navigated behind it.
+      await _authService.dismissAuthWebView();
+      if (!mounted) return;
+      // Success logging (login vs sign-up + method) is centralized in
+      // navigateAfterAuth so it stays accurate for both Google and email.
+      await navigateAfterAuth(method: _pendingMethod);
     });
   }
 
@@ -275,6 +280,14 @@ class _BenefitRow extends StatelessWidget {
   }
 }
 
+/// True while a [navigateAfterAuth] call is still resolving the session.
+///
+/// Two triggers can race on one sign-in: the `signedIn` listener on this screen
+/// (still mounted under the pushed magic-link screens) and the explicit call
+/// made by `MagicLinkVerifyScreen` once `verifyOTP` returns. Without this guard
+/// the second one replays `Get.offAll` and logs a duplicate login/sign-up event.
+bool _authNavigationInFlight = false;
+
 /// Resumes the authenticated session after Google / magic-link sign-in.
 ///
 /// Logs the auth outcome once, with the accurate [method] ('google' | 'email')
@@ -282,13 +295,20 @@ class _BenefitRow extends StatelessWidget {
 /// treated as a new sign-up (`sign_up` event carrying the signup method),
 /// otherwise a returning login. Centralized here so callers don't double-log.
 Future<void> navigateAfterAuth({String method = 'email'}) async {
-  final controller = Get.find<AppController>();
-  await controller.finishAuthSession();
-  if (controller.hasCompletedOnboarding) {
-    AnalyticsService.instance.logLogin(method: method);
-    Get.offAll(() => const AppRootShell());
-  } else {
-    AnalyticsService.instance.logRegister(method: method);
-    Get.offAll(() => const OnboardingScreen());
+  if (_authNavigationInFlight) return;
+  _authNavigationInFlight = true;
+  try {
+    final controller = Get.find<AppController>();
+    await controller.finishAuthSession();
+    if (controller.hasCompletedOnboarding) {
+      AnalyticsService.instance.logLogin(method: method);
+      Get.offAll(() => const AppRootShell());
+    } else {
+      AnalyticsService.instance.logRegister(method: method);
+      Get.offAll(() => const OnboardingScreen());
+    }
+  } finally {
+    // Reset so a later sign-out → sign-in in the same session still navigates.
+    _authNavigationInFlight = false;
   }
 }
