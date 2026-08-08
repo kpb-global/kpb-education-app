@@ -1,0 +1,80 @@
+name: DB info (read-only diagnostic)
+
+# Diagnostic MANUEL et EN LECTURE SEULE de la base de production.
+#
+# Pourquoi ce workflow existe : diagnostiquer « pourquoi l'écran Bourses est
+# vide » demandait de connaître l'état réel des données — combien de lignes
+# publiées, combien avec des domaines renseignés, et si les bourses affichées
+# sur l'accueil existent vraiment. Le port 22 du VPS n'est pas joignable depuis
+# un poste de travail et le panneau Hostinger n'expose pas de console SQL : ce
+# workflow emprunte le même chemin d'accès que le déploiement.
+#
+# Même esprit que keystore-info.yml : un diagnostic sûr, relançable, qui ne
+# divulgue aucun secret et ne modifie rien.
+#
+# GARDE-FOUS
+#   - Les requêtes vivent dans .github/scripts/db-info.sql, relisible en revue,
+#     et s'exécutent dans une transaction `BEGIN READ ONLY` : c'est Postgres qui
+#     refuse les écritures, pas seulement notre bonne volonté.
+#   - AUCUNE donnée personnelle affichée. Que des agrégats. Les seules chaînes
+#     libres imprimées sont des noms de bourses — données publiques du
+#     catalogue — jamais un profil étudiant.
+#   - Les identifiants de connexion sont lus dans le .env du VPS : ni passés en
+#     argument de commande, ni journalisés.
+#   - `ON_ERROR_STOP=1` : un nom de colonne devenu obsolète doit faire échouer
+#     le diagnostic, pas produire un rapport partiel qu'on lirait comme complet.
+#   - Le script est COPIÉ puis exécuté avec stdin fermé (`ssh -n`). Piper un
+#     script dans `bash -s` avait déjà produit un déploiement fantôme qui
+#     « réussissait » sans rien faire (KPB-177) : la commande interactive
+#     consommait le reste du script sur stdin.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: db-info
+  cancel-in-progress: false
+
+jobs:
+  db-info:
+    name: Inspecter l'état du catalogue
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Interroger la base (lecture seule)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+
+          printf '%s\n' \
+            'set -euo pipefail' \
+            'cd "$VPS_PATH"' \
+            'docker compose exec -T db psql -v ON_ERROR_STOP=1 \' \
+            '  -U "$(grep -E "^POSTGRES_USER=" .env | cut -d= -f2-)" \' \
+            '  -d "$(grep -E "^POSTGRES_DB=" .env | cut -d= -f2-)" \' \
+            '  < db-info.sql' \
+            > /tmp/db-info.sh
+
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            .github/scripts/db-info.sql /tmp/db-info.sh \
+            "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
+
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "VPS_PATH='${VPS_PATH}' bash '${VPS_PATH}/db-info.sh'; rc=\$?; rm -f '${VPS_PATH}/db-info.sh' '${VPS_PATH}/db-info.sql'; exit \$rc"
