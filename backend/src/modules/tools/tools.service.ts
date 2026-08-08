@@ -13,6 +13,13 @@ export interface CvSummaryDto {
   skills?: string[];
   languages?: string[];
   experience?: string;
+  /// Degree the student is aiming for (e.g. "Master"), when declared.
+  targetLevel?: string;
+  /// Where the student currently lives — a recruiter reads mobility into it.
+  countryOfResidence?: string;
+  /// The student's own career-objective sentence, so the summary echoes it
+  /// instead of inventing a different ambition.
+  objective?: string;
 }
 
 export interface LetterPersonalizeDto {
@@ -67,10 +74,15 @@ export class ToolsService {
       `Nom : ${dto.name}`,
       `Niveau d'études : ${dto.studyLevel}`,
       `Domaine : ${dto.fieldOfStudy}`,
+      dto.countryOfResidence
+        ? `Pays de résidence : ${dto.countryOfResidence}`
+        : '',
       dto.targetCountry ? `Pays cible : ${dto.targetCountry}` : '',
+      dto.targetLevel ? `Diplôme visé : ${dto.targetLevel}` : '',
       dto.skills?.length ? `Compétences : ${dto.skills.join(', ')}` : '',
       dto.languages?.length ? `Langues : ${dto.languages.join(', ')}` : '',
       dto.experience ? `Expérience : ${dto.experience}` : '',
+      dto.objective ? `Objectif professionnel : ${dto.objective}` : '',
     ]
       .filter(Boolean)
       .join('\n');
@@ -81,6 +93,13 @@ export class ToolsService {
         'Rédige un paragraphe de présentation professionnelle (5-7 phrases) ' +
         'en français ET en anglais, percutant et adapté au recrutement international. ' +
         'Ne commence pas par "Je suis" / "I am". ' +
+        // The client renders this text into a PDF whose built-in Helvetica has
+        // no glyph above U+00FF: emoji and typographic dashes/quotes come out as
+        // empty boxes. The client sanitises defensively, but not emitting them
+        // in the first place keeps the on-screen preview and the PDF identical.
+        'N\'utilise AUCUN emoji, pictogramme, puce décorative ni caractère ' +
+        'spécial (pas de —, ’, “ ”, …) : uniquement du texte simple avec la ' +
+        'ponctuation ASCII et les accents français. ' +
         'Retourne un JSON { "fr": "...", "en": "..." }.',
       user: context,
       maxTokens: 600,
