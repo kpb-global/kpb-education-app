@@ -9,6 +9,7 @@ import '../../core/data/success_lab_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/shell_chrome.dart';
 import 'scholarship_detail_screen.dart';
 import 'scholarship_guide_info_screen.dart';
 import 'scholarships_controller.dart';
@@ -406,15 +407,11 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
               else if (_items.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(
-                    child: KpbEmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: 'live_scholarships_empty_title'.tr,
-                      subtitle: 'live_scholarships_empty_subtitle'.tr,
-                    ),
-                  ),
+                  child: Center(child: _buildEmptyState()),
                 )
               else ...[
+                if (_scholarshipsController.profileFiltersRelaxed)
+                  const SliverToBoxAdapter(child: _UnfilteredNotice()),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
@@ -461,7 +458,9 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                   ),
               ],
 
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              // 100 pt dégageaient la barre de navigation mais pas la pastille
+              // copilote (bande 92→140) : la dernière bourse restait dessous.
+              const SliverToBoxAdapter(child: KpbShellBottomSpacer()),
             ],
           ),
         ),
@@ -471,6 +470,50 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
 
   void _applyFilter(String value) {
     _scholarshipsController.changeFundingFilter(value);
+  }
+
+  /// Empty state that names the real reason instead of implying a breakdown.
+  ///
+  /// Three distinct situations, three distinct messages:
+  ///  * a filter is still narrowing the query → say so and offer to drop it;
+  ///  * every filter is already off → the published catalog is genuinely empty,
+  ///    so promise nothing and offer a refresh;
+  /// Never "modifie tes critères" when there are no critères left to modify —
+  /// that reads as a loading failure and sends the student looking for a bug in
+  /// their own profile.
+  Widget _buildEmptyState() {
+    final controller = _scholarshipsController;
+    final fundingFilterActive = controller.fundingFilter != 'all';
+    final profileFilterActive =
+        controller.hasProfileFilters && !controller.profileFiltersRelaxed;
+    final anyFilterActive = fundingFilterActive || profileFilterActive;
+
+    if (anyFilterActive) {
+      return KpbEmptyState(
+        key: const ValueKey<String>('scholarships-empty-filtered'),
+        icon: Icons.filter_alt_off_rounded,
+        title: 'live_scholarships_empty_filtered_title'.tr,
+        subtitle: 'live_scholarships_empty_filtered_subtitle'.tr,
+        action: KpbButton(
+          key: const ValueKey<String>('scholarships-show-all'),
+          text: 'live_scholarships_show_all'.tr,
+          onPressed: controller.clearAllFilters,
+          bgColor: KpbColors.actionPrimary,
+        ),
+      );
+    }
+
+    return KpbEmptyState(
+      key: const ValueKey<String>('scholarships-empty-catalog'),
+      icon: Icons.hourglass_empty_rounded,
+      title: 'live_scholarships_empty_catalog_title'.tr,
+      subtitle: 'live_scholarships_empty_catalog_subtitle'.tr,
+      action: KpbButton(
+        text: 'retry'.tr,
+        onPressed: _load,
+        bgColor: KpbColors.actionPrimary,
+      ),
+    );
   }
 
   static Widget _buildShimmerCard(BuildContext context, int index) {
@@ -659,6 +702,47 @@ class _FilterChip extends StatelessWidget {
             fontWeight: FontWeight.w700,
             color: active ? Colors.white : KpbColors.textMuted,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Disclosure shown when the listing could not be narrowed to the student's
+/// profile and fell back to the whole catalog. Without it the screen would
+/// silently pass an unfiltered list off as "sorted for you".
+class _UnfilteredNotice extends StatelessWidget {
+  const _UnfilteredNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      key: const ValueKey<String>('scholarships-unfiltered-notice'),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: KpbColors.warningLight,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_outline_rounded,
+                size: 16, color: KpbColors.warning),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'live_scholarships_unfiltered_notice'.tr,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  height: 1.4,
+                  fontWeight: FontWeight.w600,
+                  color: KpbColors.warning,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
