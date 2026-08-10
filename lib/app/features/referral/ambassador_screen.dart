@@ -102,7 +102,12 @@ class _AmbassadorScreenState extends State<AmbassadorScreen> {
   Future<void> _shareCode() async {
     final d = _dash;
     if (d == null) return;
-    final msg = 'amb_share_message'.trParams({'code': d.ambassador.code});
+    // @link → the smart store-redirect page, so the recipient has something
+    // to tap (the message used to carry only the code, with no link at all).
+    final msg = 'amb_share_message'.trParams({
+      'code': d.ambassador.code,
+      'link': AppConfig.appDownloadUrl,
+    });
     await SharePlus.instance.share(ShareParams(text: msg));
     _toast('amb_toast_share'.tr);
   }

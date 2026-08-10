@@ -16,7 +16,7 @@
     <div class="card" id="ref-card" hidden>
       <h2 class="first">Ton code de parrainage</h2>
       <p>Saisis ce code dans l'application, à l'écran <strong>Parrainage</strong>, pour que la personne qui t'a invité·e soit créditée :</p>
-      <p><strong style="font-size:1.4rem; letter-spacing:.08em" id="ref-code"></strong></p>
+      <p><strong class="ref-code" id="ref-code"></strong></p>
     </div>
 
     <div class="card">
@@ -37,19 +37,8 @@
     </div>
   </main>
 
-  <script>
-    // Surface the referral code carried by the invite link. No tracking, no
-    // redirect: the visitor chooses their store. `to` (the in-app destination)
-    // is intentionally ignored here — it becomes useful only once App Links
-    // association is live and this URL can open the app directly.
-    (function () {
-      var params = new URLSearchParams(window.location.search);
-      var ref = (params.get('ref') || '').trim();
-      if (ref) {
-        document.getElementById('ref-code').textContent = ref;
-        document.getElementById('ref-card').hidden = false;
-      }
-    })();
-  </script>
+  <!-- Script externe : la CSP du site (default-src 'self') bloque les scripts
+       inline — en inline, le code de parrainage ne s'affichait jamais. -->
+  <script src="/invite.js"></script>
 </body>
 </html>

@@ -43,6 +43,8 @@ a { color: var(--blue); }
   padding: 20px 24px;
   margin: 16px 0;
 }
+/* Code de parrainage sur invite.html (classe : la CSP bloque les styles inline). */
+.ref-code { font-size: 1.4rem; letter-spacing: .08em; }
 .btn {
   display: inline-block;
   background: var(--blue);

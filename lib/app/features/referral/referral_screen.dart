@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
@@ -136,8 +137,12 @@ class _ReferralScreenState extends State<ReferralScreen> {
   String get _code => (_data?['code'] as String?) ?? '';
   int _stat(String k) => (_data?[k] as num?)?.toInt() ?? 0;
 
-  String _inviteMessage() =>
-      'referral_invite_message'.trParams({'code': _code});
+  // @link → the smart store-redirect page (App Store / Play Store detection),
+  // so the invited friend has something to tap, not just a code to remember.
+  String _inviteMessage() => 'referral_invite_message'.trParams({
+        'code': _code,
+        'link': AppConfig.appDownloadUrl,
+      });
 
   Future<void> _inviteOnWhatsApp() async {
     final text = _inviteMessage();
