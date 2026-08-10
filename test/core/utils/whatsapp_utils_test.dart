@@ -24,6 +24,18 @@ void main() {
       expect(uri.queryParameters['text'], 'Bonjour KPB & co ?');
     });
 
+    test('accents and guillemets survive the wa.me encoding round-trip', () {
+      const prefill = 'Je viens de voir le programme « Génie Électrique » '
+          '(HEC Montréal, Canada) et je suis intéressé(e).';
+      final uri = buildWhatsAppUri(phone: '33768674292', prefill: prefill);
+      // Percent-encoded UTF-8 in the raw query (é → %C3%A9, « → %C2%AB)…
+      expect(uri.query, contains('%C3%A9'));
+      expect(uri.query, contains('%C2%AB'));
+      expect(uri.query, isNot(contains('«')));
+      // …and lossless once decoded, so WhatsApp shows the exact message.
+      expect(uri.queryParameters['text'], prefill);
+    });
+
     test('falls back to the KPB advisor line when no phone is given', () {
       final uri = buildWhatsAppUri();
       final advisor = AppConfig.whatsappNumber
@@ -92,6 +104,35 @@ void main() {
       );
     });
 
+    testWidgets('program mentions the school so the advisor sees the sheet',
+        (tester) async {
+      await pumpI18n(tester);
+      expect(
+        kpbWhatsAppPrefill(
+          program: 'MSc Data',
+          institution: 'HEC Montréal',
+          country: 'Canada',
+        ),
+        'Bonjour KPB Education, je viens de voir le programme « MSc Data » '
+        '(HEC Montréal, Canada) et je suis intéressé(e).',
+      );
+      expect(
+        kpbWhatsAppPrefill(program: 'MSc Data', institution: 'HEC Montréal'),
+        'Bonjour KPB Education, je viens de voir le programme « MSc Data » '
+        '(HEC Montréal) et je suis intéressé(e).',
+      );
+      // A blank school falls back to the plain program copy.
+      expect(
+        kpbWhatsAppPrefill(
+          program: 'MSc Data',
+          institution: '  ',
+          country: 'France',
+        ),
+        'Bonjour KPB Education, je suis intéressé(e) par le programme '
+        '« MSc Data » (France) et j\'aimerais être accompagné(e).',
+      );
+    });
+
     testWidgets('service and country contexts get their own copy',
         (tester) async {
       await pumpI18n(tester);
@@ -127,6 +168,15 @@ void main() {
         kpbWhatsAppPrefill(program: 'MSc Data', country: 'France'),
         'Hello KPB Education, I\'m interested in the "MSc Data" programme '
         '(France) and would like some guidance.',
+      );
+      expect(
+        kpbWhatsAppPrefill(
+          program: 'MSc Data',
+          institution: 'HEC Montréal',
+          country: 'Canada',
+        ),
+        'Hello KPB Education, I just saw the "MSc Data" programme '
+        '(HEC Montréal, Canada) and I\'m interested.',
       );
     });
   });

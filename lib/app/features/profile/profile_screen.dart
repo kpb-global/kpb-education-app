@@ -1260,12 +1260,17 @@ class _QuickAccessCard extends StatelessWidget {
           KpbColors.success,
           'profile_quick_budget_calculator'.tr,
           () => Get.to(() => const BudgetCalculatorScreen()));
-      // Flight search (Kayak-backed) ships in the MVP.
-      add(
-          Icons.flight_takeoff_rounded,
-          KpbColors.decorSky,
-          'profile_quick_flight_simulator'.tr,
-          () => Get.to(() => const FlightEstimatorScreen()));
+      // Estimateur de vols : masqué tant que KPB_KAYAK_API_KEY n'est pas posée
+      // côté serveur — l'outil renvoie toujours une erreur sinon (revue vidéo
+      // du 08/08 : « ça ne sert à rien pour l'instant »). Même drapeau que
+      // l'entrée du tiroir d'outils.
+      if (AppConfig.flightEstimatorEnabled) {
+        add(
+            Icons.flight_takeoff_rounded,
+            KpbColors.decorSky,
+            'profile_quick_flight_simulator'.tr,
+            () => Get.to(() => const FlightEstimatorScreen()));
+      }
       // Housing estimator is a V1.1+ module.
       if (!AppConfig.mvpOnly) {
         add(

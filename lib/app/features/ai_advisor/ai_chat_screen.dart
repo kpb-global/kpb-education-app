@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
+import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../tools/motivation_letters_screen.dart';
 import '../../core/ui/app_tokens.dart';
+import 'coach_quota_handoff.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
@@ -119,17 +121,38 @@ class _AiChatScreenState extends State<AiChatScreen> {
     );
   }
 
+  bool get _quotaExhausted => _remainingMessages <= 0;
+
+  /// The conversion the free AI exists for: the student just hit the paywall
+  /// moment, hand them to a human KPB advisor with the conversation context.
+  /// The verified-advisor sheet shows the exact prefill (and official number)
+  /// before anything leaves the app, then logs the `whatsapp_handoff` funnel
+  /// event through the shared choke-point in whatsapp_utils.
+  void _continueWithAdvisor() {
+    String? lastUserMessage;
+    for (final msg in _messages.reversed) {
+      if (msg.isUser) {
+        lastUserMessage = msg.text;
+        break;
+      }
+    }
+    final topic = clipCoachHandoffTopic(lastUserMessage);
+    final prefill = topic == null
+        ? 'coach_wa_prefill'.tr
+        : '${'coach_wa_prefill'.tr}\n'
+            '${'coach_wa_prefill_topic'.trParams({'topic': topic})}';
+    unawaited(showVerifiedAdvisorThenWhatsApp(
+      prefill: prefill,
+      source: 'ai_quota_exhausted',
+      contextType: 'coach',
+    ));
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
-    if (_remainingMessages <= 0) {
-      Get.snackbar(
-        'coach_quota_reached_title'.tr,
-        'coach_quota_reached_body'.trParams({'quota': '$_weeklyQuota'}),
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 4),
-      );
-      return;
-    }
+    // Defensive only: when the quota is exhausted the input bar is replaced by
+    // the advisor hand-off panel, so nothing should reach this path.
+    if (_quotaExhausted) return;
 
     final controller = Get.find<AppController>();
     final profile = controller.profile;
@@ -158,13 +181,27 @@ class _AiChatScreenState extends State<AiChatScreen> {
         if (!mounted) return;
 
         if (event.type == 'error') {
+          // The server enforces the quota inside the stream too (the local
+          // counter can be stale, e.g. two devices). Show the same friendly
+          // hand-off state as a client-side exhaustion — never a raw error.
+          final isQuotaRefusal = looksLikeCoachQuotaError(event.message);
           setState(() {
             _isTyping = false;
-            _messages.add(AiMessage(
-              text: event.message ?? 'coach_unavailable'.tr,
-              isUser: false,
-              timestamp: DateTime.now(),
-            ));
+            if (isQuotaRefusal) {
+              _remainingMessages = 0;
+              _messages.add(AiMessage(
+                text: 'coach_quota_reached_body'
+                    .trParams({'quota': '$_weeklyQuota'}),
+                isUser: false,
+                timestamp: DateTime.now(),
+              ));
+            } else {
+              _messages.add(AiMessage(
+                text: event.message ?? 'coach_unavailable'.tr,
+                isUser: false,
+                timestamp: DateTime.now(),
+              ));
+            }
           });
           break;
         }
@@ -227,23 +264,6 @@ class _AiChatScreenState extends State<AiChatScreen> {
         child: Column(
           children: [
             _buildHeader(context),
-            if (_remainingMessages <= 0)
-              Container(
-                width: double.infinity,
-                color: KpbColors.warningLight,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Text(
-                  'coach_quota_exhausted'.tr,
-                  style: const TextStyle(
-                    color: KpbColors.warning,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
@@ -259,9 +279,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 },
               ),
             ),
-            if (_messages.length <= 2 && !_isTyping && _suggestions.isNotEmpty)
+            if (!_quotaExhausted &&
+                _messages.length <= 2 &&
+                !_isTyping &&
+                _suggestions.isNotEmpty)
               _buildSuggestions(),
-            _buildInputBar(context),
+            // Quota épuisé = LE moment de conversion : la zone de saisie cède
+            // sa place à un bloc persistant de hand-off vers un conseiller
+            // humain (jamais un toast, jamais une impasse).
+            if (_quotaExhausted)
+              _buildQuotaHandoffPanel(context)
+            else
+              _buildInputBar(context),
           ],
         ),
       ),
@@ -490,6 +519,78 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  /// Persistent quota-exhausted state, shown IN PLACE of the input bar: a
+  /// benevolent explanation plus a prominent "continue with a KPB advisor on
+  /// WhatsApp" CTA (the free AI is a lead generator; this is the conversion).
+  Widget _buildQuotaHandoffPanel(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: const BoxDecoration(
+        color: KpbColors.surface,
+        border: Border(top: BorderSide(color: KpbColors.border)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.hourglass_bottom_rounded,
+                size: 18,
+                color: KpbColors.warning,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'coach_quota_handoff_title'.tr,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: KpbColors.brandNavy,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'coach_quota_handoff_body'.trParams({'quota': '$_weeklyQuota'}),
+            style: const TextStyle(
+              fontSize: 12,
+              height: 1.45,
+              fontWeight: FontWeight.w500,
+              color: KpbColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _continueWithAdvisor,
+              style: FilledButton.styleFrom(
+                // Vert WhatsApp = token marque externe (allowlist §10.4),
+                // même CTA que les autres hand-offs conseiller de l'app.
+                backgroundColor: KpbColors.whatsapp,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+              ),
+              icon: const Icon(Icons.chat_rounded, size: 18),
+              label: Text(
+                'coach_quota_handoff_cta'.tr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

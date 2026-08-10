@@ -107,6 +107,17 @@ class AppConfig {
     defaultValue: false,
   );
 
+  /// The flight price estimator ("Simulateur de Vols") is backed by the
+  /// server-proxied Kayak Price-Insights API (KPB-94), which returns nothing
+  /// until `KPB_KAYAK_API_KEY` is provisioned on the backend. That key has
+  /// never been set in prod, so every estimate fails; while false, all entry
+  /// points to the estimator are hidden from navigation without removing the
+  /// code. Flip to true at build time once the Kayak key is live server-side.
+  static const flightEstimatorEnabled = bool.fromEnvironment(
+    'KPB_FLIGHT_ESTIMATOR_ENABLED',
+    defaultValue: false,
+  );
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(
@@ -137,6 +148,13 @@ class AppConfig {
   /// Public brand domain (marketing site). Matches the `kpbeducation.cloud`
   /// API host; surfaced on shareable cards instead of any placeholder domain.
   static const brandDomain = 'kpbeducation.cloud';
+
+  /// Smart download link appended to referral/ambassador share messages.
+  /// The page (`web/public/app/index.html`) detects the visitor's phone and
+  /// redirects to the App Store (iOS) or Play Store (Android), with both store
+  /// links as a no-JS fallback — so a WhatsApp recipient always has something
+  /// to tap instead of hunting for the app themselves.
+  static const appDownloadUrl = 'https://$brandDomain/app';
 
   /// Pure resolver for tests and tooling.
   @visibleForTesting

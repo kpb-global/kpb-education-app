@@ -42,4 +42,25 @@ void main() {
       );
     });
   });
+
+  group('AppConfig.appDownloadUrl', () {
+    // The smart store-redirect page appended to referral/ambassador share
+    // messages. Must be an https link on the brand domain (a bare scheme or a
+    // placeholder domain would be dead for WhatsApp recipients), matching the
+    // nginx route `location = /app` (no trailing slash, no .html suffix).
+    test('is the /app page on the brand domain', () {
+      expect(
+        AppConfig.appDownloadUrl,
+        'https://${AppConfig.brandDomain}/app',
+      );
+    });
+
+    test('is a plain https URL WhatsApp will linkify as-is', () {
+      final uri = Uri.parse(AppConfig.appDownloadUrl);
+      expect(uri.scheme, 'https');
+      expect(uri.path, '/app');
+      expect(uri.hasQuery, isFalse);
+      expect(AppConfig.appDownloadUrl, isNot(endsWith('/')));
+    });
+  });
 }

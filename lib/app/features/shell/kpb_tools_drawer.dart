@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../budget/budget_calculator_screen.dart';
@@ -13,7 +14,7 @@ import '../tools/interview_simulator_screen.dart';
 import '../tools/motivation_letters_screen.dart';
 import '../travel/flight_estimator_screen.dart';
 
-/// Global hamburger drawer for the 9 KPB student tools.
+/// Global hamburger drawer for the KPB student tools.
 ///
 /// Tab screens have their own Scaffolds, so the AppShell's drawer cannot be
 /// reached via `Scaffold.of(context)` from inside a tab. Each AppShell instead
@@ -159,12 +160,15 @@ class KpbToolsDrawer extends StatelessWidget {
       color: KpbColors.success,
       builder: () => const BudgetCalculatorScreen(),
     ),
-    _ToolEntry(
-      labelKey: 'tools_flight',
-      icon: Icons.flight_takeoff_outlined,
-      color: KpbColors.sky,
-      builder: () => const FlightEstimatorScreen(),
-    ),
+    // Hidden while the backend has no Kayak key: the estimator can only
+    // fail without it (revue vidéo du propriétaire — « ça ne sert à rien »).
+    if (AppConfig.flightEstimatorEnabled)
+      _ToolEntry(
+        labelKey: 'tools_flight',
+        icon: Icons.flight_takeoff_outlined,
+        color: KpbColors.sky,
+        builder: () => const FlightEstimatorScreen(),
+      ),
     _ToolEntry(
       labelKey: 'tools_housing',
       icon: Icons.home_work_outlined,

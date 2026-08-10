@@ -47,6 +47,66 @@ part 'app_controller/parcours.dart';
 part 'app_controller/academy.dart';
 part 'app_controller/referral_credits.dart';
 
+/// What the catalog on screen actually **is** right now.
+///
+/// The client used to know a single boolean (`catalogIsSampleData`), which
+/// collapsed two very different situations into one alarming message. The sync
+/// layer already distinguishes them ([CatalogSyncOutcome]); this is the
+/// consumer side of that contract:
+///
+///  * [live] — real rows from the backend. No banner. An authoritative *empty*
+///    catalog also lands here: "the server has zero rows" is a fact about the
+///    data, not a degradation, and the lists were emptied to match it.
+///  * [sample] — the bundled `MockCatalog` seed is on screen: plausible but
+///    **fake** rows (never synced, or the service is unavailable and no real
+///    snapshot exists). Loud banner — the product promises verifiable data.
+///  * [offline] — the service is unavailable but the last **real** snapshot was
+///    replayed from Hive. The rows are true, merely dated, so the banner is
+///    discreet and says so instead of crying "sample data".
+enum CatalogDataState { live, sample, offline }
+
+/// How bad each state is, for the aggregation rule below. Not exposed: callers
+/// should compare through [aggregateCatalogDataState], not by ordering.
+int _catalogStateSeverity(CatalogDataState state) => switch (state) {
+      CatalogDataState.live => 0,
+      CatalogDataState.offline => 1,
+      CatalogDataState.sample => 2,
+    };
+
+/// Folds the per-resource [CatalogSyncOutcome]s of one sync into the single
+/// state the shell shows.
+///
+/// **Aggregation rule: the worst situation wins — `sample` > `offline` > `live`.**
+/// Resources are synced independently, so they can disagree (countries served
+/// live while scholarships fell back to yesterday's snapshot). The banner must
+/// describe the weakest data the user can reach, otherwise a "live" claim would
+/// cover dated rows one tap away. An empty [outcomes] means nothing was
+/// resolved at all, which is exactly the bundled-seed situation → [sample].
+///
+/// Only the five `/catalog/*` resources feed this. Editorial `/content/*`
+/// resources are deliberately excluded: their endpoint has no `source`
+/// envelope and no 503 contract yet, so an empty response there is a no-op
+/// that keeps the bundled seed — feeding that into the fold would pin the app
+/// to a permanent "sample data" banner because a content table is unpopulated.
+CatalogDataState aggregateCatalogDataState(
+  Iterable<CatalogSyncOutcome> outcomes,
+) {
+  var worst = CatalogDataState.live;
+  var sawAny = false;
+  for (final outcome in outcomes) {
+    sawAny = true;
+    final state = switch (outcome) {
+      CatalogSyncOutcome.live => CatalogDataState.live,
+      CatalogSyncOutcome.empty => CatalogDataState.live,
+      CatalogSyncOutcome.offlineCache => CatalogDataState.offline,
+    };
+    if (_catalogStateSeverity(state) > _catalogStateSeverity(worst)) {
+      worst = state;
+    }
+  }
+  return sawAny ? worst : CatalogDataState.sample;
+}
+
 class AppController extends _AppControllerBase
     with
         _SearchMixin,
@@ -97,12 +157,30 @@ abstract class _AppControllerBase extends GetxController {
   DateTime? lastSyncedAt;
   String? syncError;
 
-  /// True while the app is still showing the bundled MockCatalog seed because
-  /// no live or cached catalog has loaded yet (backend unreachable / empty on a
-  /// first run). Drives the "sample data" banner so users are never shown
-  /// plausible-but-fake data silently. Flips to false once a full catalog sync
-  /// completes (live or offline cache).
-  bool catalogIsSampleData = true;
+  /// What the catalog on screen actually is — see [CatalogDataState].
+  ///
+  /// Starts at [CatalogDataState.sample] because that is the truth before the
+  /// first sync: the lists below are seeded from `MockCatalog`. Recomputed at
+  /// the end of every catalog sync from the per-resource outcomes, so a later
+  /// successful sync returns to [CatalogDataState.live] and the banner
+  /// disappears without an app restart (the shell rebuilds on `update()`).
+  CatalogDataState catalogDataState = CatalogDataState.sample;
+
+  /// Historical boolean, now derived. Kept because "are we on fake rows?" is a
+  /// genuinely different question from "is anything off?", and callers that
+  /// only care about the fake-data case should not have to know the enum.
+  bool get catalogIsSampleData => catalogDataState == CatalogDataState.sample;
+
+  /// When the replayed snapshot was written, for the `offline` banner's
+  /// freshness label. Non-null only while [catalogDataState] is
+  /// [CatalogDataState.offline]. Read once per sync from the Hive cache's
+  /// existing `lastSyncedAt` so the banner never touches Hive during a build.
+  DateTime? catalogSnapshotAt;
+
+  /// True once any sync put real rows (live or replayed snapshot) in the lists.
+  /// Guards the failure path: a sync that dies before reaching the catalog must
+  /// not relabel already-loaded real data as "sample".
+  bool _catalogEverLoadedRealRows = false;
   UserProfile? profile;
   OrientationSession? latestOrientationSession;
 
@@ -1226,6 +1304,10 @@ abstract class _AppControllerBase extends GetxController {
     final syncStarted = DateTime.now();
     var catalogHiveFallbackCount = 0;
     var authSyncFailed = false;
+    // One entry per `/catalog/*` resource that resolved in this run. Declared
+    // outside the try so the failure path can tell "nothing resolved" from
+    // "some resources resolved before the sync blew up".
+    final catalogOutcomes = <CatalogSyncOutcome>[];
     void onCatalogHiveFallback(String resource, int attempts) {
       catalogHiveFallbackCount++;
       SyncTelemetry.catalogHiveFallback(resource: resource, attempts: attempts);
@@ -1325,41 +1407,41 @@ abstract class _AppControllerBase extends GetxController {
         SyncTelemetry.profileSkippedRemotePull(reason: 'guest_no_auth_token');
       }
 
-      await syncCatalogResource<FieldModel>(
+      catalogOutcomes.add(await syncCatalogResource<FieldModel>(
         _apiClient,
         'fields',
         fields,
         FieldModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
-      );
-      await syncCatalogResource<CountryModel>(
+      ));
+      catalogOutcomes.add(await syncCatalogResource<CountryModel>(
         _apiClient,
         'countries',
         countries,
         CountryModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
-      );
-      await syncCatalogResource<InstitutionModel>(
+      ));
+      catalogOutcomes.add(await syncCatalogResource<InstitutionModel>(
         _apiClient,
         'institutions',
         institutions,
         InstitutionModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
-      );
-      await syncCatalogResource<ProgramModel>(
+      ));
+      catalogOutcomes.add(await syncCatalogResource<ProgramModel>(
         _apiClient,
         'programs',
         programs,
         ProgramModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
-      );
-      await syncCatalogResource<ScholarshipModel>(
+      ));
+      catalogOutcomes.add(await syncCatalogResource<ScholarshipModel>(
         _apiClient,
         'scholarships',
         scholarships,
         ScholarshipModel.fromJson,
         onHiveFallback: onCatalogHiveFallback,
-      );
+      ));
       _applyMvpCountryLock();
 
       // KPB-166: editorial content that used to be frozen in the app bundle.
@@ -1397,8 +1479,11 @@ abstract class _AppControllerBase extends GetxController {
 
       // We only reach here if every catalog resource resolved from the API or
       // the offline cache (a failed fetch with no cache throws out of this
-      // block). So we are no longer showing the bundled sample catalog.
-      catalogIsSampleData = false;
+      // block). So we are no longer showing the bundled sample catalog — but
+      // "resolved" covers two different truths, and the fold tells them apart:
+      // all-live → no banner, any resource replayed from Hive → the discreet
+      // "offline, data from the last load" banner.
+      _setCatalogDataState(aggregateCatalogDataState(catalogOutcomes));
 
       lastSyncedAt = DateTime.now();
       if (!authSyncFailed) {
@@ -1414,6 +1499,16 @@ abstract class _AppControllerBase extends GetxController {
       if (error is DioException && error.response?.statusCode == 429) {
         _syncBackoffUntil = DateTime.now().add(const Duration(seconds: 60));
       }
+      // The sync died — typically a catalog resource that could be fetched
+      // neither from the service nor from a snapshot. A failed run can never
+      // upgrade the state; it degrades it to the worst thing that is still
+      // *true*: fake bundled rows if no sync ever landed real ones, otherwise
+      // real-but-dated rows still held in memory.
+      _setCatalogDataState(
+        _catalogEverLoadedRealRows
+            ? CatalogDataState.offline
+            : CatalogDataState.sample,
+      );
       syncError = userFacingSyncError(error, localeCode);
       if (error is! DioException || error.response?.statusCode != 429) {
         safeRecordError(
@@ -1433,6 +1528,24 @@ abstract class _AppControllerBase extends GetxController {
       isSyncing = false;
       update();
     }
+  }
+
+  /// Commits a freshly computed [CatalogDataState] and the data the banner
+  /// needs with it. No `update()` here: every caller sits inside
+  /// [syncRemoteData], whose `finally` already notifies the shell — which is
+  /// what makes the banner appear and disappear without a restart.
+  void _setCatalogDataState(CatalogDataState state) {
+    catalogDataState = state;
+    if (state != CatalogDataState.sample) {
+      _catalogEverLoadedRealRows = true;
+    }
+    // Only the offline banner shows an age, and the cache's own `lastSyncedAt`
+    // is exactly the write time of the snapshot we just replayed (a fallback
+    // writes nothing, so the stamp is still the last real sync's).
+    catalogSnapshotAt =
+        state == CatalogDataState.offline && CatalogCacheService.isInitialized
+            ? CatalogCacheService.instance.lastSyncedAt
+            : null;
   }
 
   /// Restricts the catalog to the nine MVP destination countries. Drops any

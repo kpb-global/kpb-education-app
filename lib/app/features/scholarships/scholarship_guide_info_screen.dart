@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/ui/app_tokens.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 /// Store-safe editorial presentation of the scholarship guide.
 ///
 /// Deliberately contains no price, promotion, external purchase URL or wording
-/// that directs a student to pay elsewhere.
+/// that directs a student to pay elsewhere. The only action is the app-wide
+/// pattern: hand the student off to a KPB advisor on WhatsApp (owner video
+/// review, 08/2026 — the screen previously offered no action at all).
 class ScholarshipGuideInfoScreen extends StatelessWidget {
   const ScholarshipGuideInfoScreen({super.key});
 
@@ -113,6 +116,24 @@ class ScholarshipGuideInfoScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          // Primary CTA — the guide is delivered by an advisor, so the screen
+          // ends on the WhatsApp hand-off instead of a dead end.
+          FilledButton.icon(
+            key: const ValueKey('scholarship_guide_whatsapp_cta'),
+            onPressed: () => openWhatsAppOrToast(
+              prefill: 'scholarship_guide_whatsapp_prefill'.tr,
+              source: 'scholarship_guide_info',
+              contextType: 'scholarship_guide',
+            ),
+            icon: const Icon(Icons.chat_rounded),
+            label: Text('scholarship_guide_whatsapp_cta'.tr),
+            style: FilledButton.styleFrom(
+              backgroundColor: KpbColors.success,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(52),
             ),
           ),
         ],
