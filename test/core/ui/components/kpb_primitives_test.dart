@@ -131,5 +131,42 @@ void main() {
       expect(material.color, KpbColors.warningLight);
       expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
     });
+
+    // Données VRAIES mais datées : la bannière doit être visiblement plus
+    // discrète que « données d'exemple », sinon on crie au loup sur des
+    // données correctes (et l'utilisateur apprend à ignorer les deux).
+    testWidgets('KpbStaleCatalogBanner : surface soft, pas la paire warning',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const KpbStaleCatalogBanner()));
+      final material = tester.widget<Material>(
+        find
+            .descendant(
+                of: find.byType(KpbStaleCatalogBanner),
+                matching: find.byType(Material))
+            .first,
+      );
+      expect(material.color, KpbColors.skyLight);
+      expect(material.color, isNot(KpbColors.warningLight));
+      expect(find.byIcon(Icons.history_rounded), findsOneWidget);
+      // Contraste AA dans les deux thèmes : premier plan neutre, pas
+      // `actionPrimary` (2,9:1 sur le `skyLight` sombre).
+      final label = tester.widget<Text>(find.descendant(
+        of: find.byType(KpbStaleCatalogBanner),
+        matching: find.byType(Text),
+      ));
+      expect(label.style?.color, KpbColors.textPrimary);
+    });
+
+    testWidgets("KpbStaleCatalogBanner : l'ancienneté n'apparaît que si connue",
+        (tester) async {
+      // Sans horodatage : pas de séparateur, donc pas d'âge inventé.
+      await tester.pumpWidget(_wrap(const KpbStaleCatalogBanner()));
+      expect(find.textContaining(' · '), findsNothing);
+
+      await tester.pumpWidget(_wrap(KpbStaleCatalogBanner(
+        snapshotAt: DateTime.now().subtract(const Duration(days: 1)),
+      )));
+      expect(find.textContaining(' · '), findsOneWidget);
+    });
   });
 }

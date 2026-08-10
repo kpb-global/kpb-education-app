@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { HttpException, NotFoundException } from '@nestjs/common';
 
 import { MatchesService } from './matches.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -266,121 +266,372 @@ describe('scoreProgram — totals, caps and guardrails', () => {
   });
 });
 
-describe('MatchesService', () => {
-  const mockPrismaService = {
-    execute: jest.fn(),
-    tryExecute: jest.fn(),
+// ─────────────────────────────────────────────────────────────────────────────
+// MatchesService — data loading and degraded mode.
+//
+// The rule this guards: a database outage must never turn into matches scored
+// on `mock-catalog.ts` fixtures in production. Fixture matches are worse than
+// fixture catalog rows — the app presents them as "this programme is a 70%
+// match for YOU" about a programme that does not exist.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PROFILE_CAN_CS = {
+  gradeRange: '15+/20',
+  languageLevel: 'Advanced',
+  targetLevel: 'Bachelor',
+  monthlyBudgetEur: 1800,
+  fieldIds: ['computer_science'],
+  targetCountryIds: ['can'],
+};
+
+const DB_PROGRAM = {
+  id: 'db-prog-1',
+  institutionId: 'db-inst-1',
+  countryId: 'can',
+  fieldId: 'computer_science',
+  nameFr: 'Licence en informatique (DB)',
+  nameEn: 'BSc Computer Science (DB)',
+  levelFr: 'Licence',
+  levelEn: 'Bachelor',
+  minGpaRequired: 12,
+  tuitionMinEur: 12000,
+  applicationDeadline: null,
+  teachingLanguages: ['fr', 'en'],
+};
+
+const DB_INSTITUTION = {
+  id: 'db-inst-1',
+  nameFr: 'Université de test',
+  nameEn: 'Test University',
+  studyLevels: ['Bachelor', 'Master'],
+};
+
+type FailurePoint = 'programs' | 'institutions' | 'profile';
+
+/** A PrismaService double that behaves like the real `execute()`: it runs the
+ *  operation and lets database errors propagate (no silent null). */
+function prismaDouble(opts: {
+  isEnabled?: boolean;
+  profile?: Record<string, unknown> | null;
+  fail?: FailurePoint[];
+  programRows?: unknown[];
+  institutionRows?: unknown[];
+}) {
+  const fail = new Set(opts.fail ?? []);
+  const boom = () => {
+    throw Object.assign(new Error('connection refused'), {
+      code: 'ECONNREFUSED',
+    });
   };
-  let service: MatchesService;
+  const upserts: Array<Record<string, unknown>> = [];
+  const client = {
+    userProfile: {
+      findUnique: async () =>
+        fail.has('profile')
+          ? boom()
+          : opts.profile === undefined
+            ? PROFILE_CAN_CS
+            : opts.profile,
+    },
+    program: {
+      findMany: async () =>
+        fail.has('programs') ? boom() : (opts.programRows ?? [DB_PROGRAM]),
+    },
+    institution: {
+      findMany: async () =>
+        fail.has('institutions')
+          ? boom()
+          : (opts.institutionRows ?? [DB_INSTITUTION]),
+    },
+    match: {
+      upsert: async (args: Record<string, unknown>) => {
+        upserts.push(args);
+        return { id: 'match-1' };
+      },
+    },
+    matchExplanation: { upsert: async () => ({ id: 'expl-1' }) },
+  };
+
+  const prisma = {
+    isEnabled: opts.isEnabled ?? true,
+    execute: jest.fn(async (op: (c: unknown) => Promise<unknown>) => {
+      if (!(opts.isEnabled ?? true)) return null;
+      return op(client);
+    }),
+    tryExecute: jest.fn(async (op: (c: unknown) => Promise<unknown>) => {
+      if (!(opts.isEnabled ?? true)) return null;
+      try {
+        return (await op(client)) ?? null;
+      } catch {
+        return null;
+      }
+    }),
+  };
+  return { prisma, upserts };
+}
+
+function serviceWith(opts: Parameters<typeof prismaDouble>[0]) {
+  const { prisma, upserts } = prismaDouble(opts);
+  return {
+    service: new MatchesService(prisma as unknown as PrismaService),
+    prisma,
+    upserts,
+  };
+}
+
+describe('MatchesService', () => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  const previousFlag = process.env.KPB_CATALOG_MOCK_FALLBACK;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new MatchesService(mockPrismaService as unknown as PrismaService);
+    process.env.NODE_ENV = 'test';
+    delete process.env.KPB_CATALOG_MOCK_FALLBACK;
   });
 
-  function dbFallsBack() {
-    // Every tryExecute call returns null → service must fall back to the
-    // mock catalog for programs/institutions... except loadProfile, which
-    // legitimately 404s. So tests below stub profile explicitly.
-    mockPrismaService.tryExecute.mockImplementation(
-      async (op: (prisma: unknown) => Promise<unknown>) => {
-        const prisma = {
-          userProfile: {
-            findUnique: async () => ({
-              gradeRange: '15+/20',
-              languageLevel: 'Advanced',
-              targetLevel: 'Bachelor',
-              monthlyBudgetEur: 1800,
-              fieldIds: ['computer_science'],
-              targetCountryIds: ['can'],
-            }),
-          },
-          program: { findMany: async () => null },
-          institution: { findMany: async () => null },
-          match: { upsert: async () => null },
-        };
-        try {
-          const result = await op(prisma);
-          return result ?? null;
-        } catch {
-          return null;
-        }
-      },
-    );
-  }
-
-  it('schoolMatch returns the best-scoring mock program when the DB is down', async () => {
-    dbFallsBack();
-
-    const result = await service.schoolMatch('user-1', 'uottawa');
-
-    expect(result.institutionId).toBe('uottawa');
-    expect(result.programId).toBe('uottawa-cs');
-    expect(result.zone).toBeDefined();
-    expect(result.factors).toHaveLength(5);
-    expect(result.narrative.fr).toContain('Bachelor en informatique');
-    expect(result.narrative.en).toContain('Bachelor in Computer Science');
+  afterAll(() => {
+    if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previousNodeEnv;
+    if (previousFlag === undefined) delete process.env.KPB_CATALOG_MOCK_FALLBACK;
+    else process.env.KPB_CATALOG_MOCK_FALLBACK = previousFlag;
   });
 
-  it('schoolMatch 404s on an unknown institution', async () => {
-    dbFallsBack();
+  describe('healthy database', () => {
+    it('scores database rows and tags them source="database"', async () => {
+      const { service, upserts } = serviceWith({});
 
-    await expect(service.schoolMatch('user-1', 'nope')).rejects.toThrow(
-      NotFoundException,
-    );
+      const result = await service.ahaMoment('user-1', 5);
+
+      expect(result.source).toBe('database');
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]).toMatchObject({
+        programId: 'db-prog-1',
+        institutionId: 'db-inst-1',
+        source: 'database',
+      });
+      expect(result.items[0].institutionName.en).toBe('Test University');
+      // Real rows are cached for the weekly recompute to diff against.
+      expect(upserts).toHaveLength(1);
+    });
+
+    it('schoolMatch scores the database programs of that institution', async () => {
+      const { service } = serviceWith({});
+
+      const result = await service.schoolMatch('user-1', 'db-inst-1');
+
+      expect(result.programId).toBe('db-prog-1');
+      expect(result.source).toBe('database');
+      expect(result.factors).toHaveLength(5);
+    });
+
+    it('an empty database is not a degradation: no items, no fixtures', async () => {
+      const { service } = serviceWith({ programRows: [], institutionRows: [] });
+
+      const result = await service.ahaMoment('user-1');
+
+      expect(result.items).toEqual([]);
+      expect(result.source).toBe('database');
+    });
   });
 
-  it('ahaMoment returns one entry per institution, sorted by probability', async () => {
-    dbFallsBack();
+  describe('production refuses to score fixtures', () => {
+    beforeEach(() => {
+      process.env.NODE_ENV = 'production';
+    });
 
-    const result = await service.ahaMoment('user-1', 5);
+    it('ahaMoment throws 503 MATCHES_UNAVAILABLE when the programs read fails', async () => {
+      const { service } = serviceWith({ fail: ['programs'] });
 
-    // Mock catalog: profile targets 'can' → uottawa-cs only.
-    expect(result.items).toHaveLength(1);
-    expect(result.items[0].institutionId).toBe('uottawa');
-    expect(result.items[0].institutionName.en).toBe('University of Ottawa');
+      const error = await service.ahaMoment('user-1').catch((e) => e as unknown);
+
+      expect(error).toBeInstanceOf(HttpException);
+      const httpError = error as HttpException;
+      expect(httpError.getStatus()).toBe(503);
+      expect(httpError.getResponse()).toMatchObject({
+        code: 'MATCHES_UNAVAILABLE',
+        details: { resource: 'programs' },
+      });
+    });
+
+    it('never leaks a fixture programme name in the 503 payload', async () => {
+      const { service } = serviceWith({ fail: ['programs'] });
+
+      const error = (await service
+        .ahaMoment('user-1')
+        .catch((e) => e as unknown)) as HttpException;
+
+      const body = JSON.stringify(error.getResponse());
+      expect(body).not.toContain('uottawa');
+      expect(body).not.toContain('Ottawa');
+    });
+
+    it('schoolMatch throws 503 when the institutions read fails', async () => {
+      const { service } = serviceWith({ fail: ['institutions'] });
+
+      const error = await service
+        .schoolMatch('user-1', 'db-inst-1')
+        .catch((e) => e as unknown);
+
+      expect(error).toBeInstanceOf(HttpException);
+      expect((error as HttpException).getResponse()).toMatchObject({
+        code: 'MATCHES_UNAVAILABLE',
+        details: { resource: 'institutions' },
+      });
+    });
+
+    it('refuses to score anything when no database is configured at all', async () => {
+      const { service, prisma } = serviceWith({ isEnabled: false });
+
+      await expect(service.ahaMoment('user-1')).rejects.toBeInstanceOf(
+        HttpException,
+      );
+      expect(prisma.execute).not.toHaveBeenCalled();
+    });
+
+    it('logs the outage at error level instead of swallowing it', async () => {
+      const { service } = serviceWith({ fail: ['programs'] });
+      const errorSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation(() => undefined);
+
+      await expect(service.ahaMoment('user-1')).rejects.toBeInstanceOf(
+        HttpException,
+      );
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy.mock.calls[0][0]).toContain('MATCHES_UNAVAILABLE');
+    });
+
+    it('never writes a fixture-scored match into the Match cache', async () => {
+      const { service, upserts } = serviceWith({ fail: ['programs'] });
+
+      await expect(service.ahaMoment('user-1')).rejects.toBeInstanceOf(
+        HttpException,
+      );
+
+      expect(upserts).toEqual([]);
+    });
   });
 
-  it('ahaMoment falls back to the whole catalog when preference filters match nothing', async () => {
-    mockPrismaService.tryExecute.mockImplementation(
-      async (op: (prisma: unknown) => Promise<unknown>) => {
-        const prisma = {
-          userProfile: {
-            findUnique: async () => ({
-              gradeRange: null,
-              languageLevel: null,
-              targetLevel: null,
-              monthlyBudgetEur: null,
-              fieldIds: [],
-              targetCountryIds: ['xyz'], // matches no catalog row
-            }),
-          },
-          program: { findMany: async () => null },
-          institution: { findMany: async () => null },
-          match: { upsert: async () => null },
-        };
-        try {
-          const result = await op(prisma);
-          return result ?? null;
-        } catch {
-          return null;
-        }
-      },
-    );
+  describe('non-production degraded mode stays available but honest', () => {
+    it('schoolMatch scores the mock catalog and tags it source="mock"', async () => {
+      const { service } = serviceWith({
+        fail: ['programs', 'institutions'],
+      });
 
-    const result = await service.ahaMoment('user-1');
+      const result = await service.schoolMatch('user-1', 'uottawa');
 
-    expect(result.items.length).toBeGreaterThan(0);
-    // Everything is missing on the profile side → estimates, capped ≤ 0.65.
-    expect(result.isEstimate).toBe(true);
-    for (const item of result.items) {
-      expect(item.probability).toBeLessThanOrEqual(0.65);
-    }
+      expect(result.institutionId).toBe('uottawa');
+      expect(result.programId).toBe('uottawa-cs');
+      expect(result.source).toBe('mock');
+      expect(result.factors).toHaveLength(5);
+      expect(result.narrative.fr).toContain('Bachelor en informatique');
+      expect(result.narrative.en).toContain('Bachelor in Computer Science');
+    });
+
+    it('warns (not silently) when it degrades', async () => {
+      const { service } = serviceWith({ fail: ['programs', 'institutions'] });
+      const warnSpy = jest
+        .spyOn(service['logger'], 'warn')
+        .mockImplementation(() => undefined);
+
+      await service.schoolMatch('user-1', 'uottawa');
+
+      expect(warnSpy).toHaveBeenCalled();
+      expect(warnSpy.mock.calls[0][0]).toContain('mock-catalog');
+    });
+
+    it('does not cache fixture-scored matches either', async () => {
+      const { service, upserts } = serviceWith({
+        fail: ['programs', 'institutions'],
+      });
+
+      await service.schoolMatch('user-1', 'uottawa');
+
+      expect(upserts).toEqual([]);
+    });
+
+    it('schoolMatch 404s on an unknown institution', async () => {
+      const { service } = serviceWith({ fail: ['programs', 'institutions'] });
+
+      await expect(service.schoolMatch('user-1', 'nope')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('ahaMoment returns one entry per institution, tagged source="mock"', async () => {
+      const { service } = serviceWith({ fail: ['programs', 'institutions'] });
+
+      const result = await service.ahaMoment('user-1', 5);
+
+      // Mock catalog: profile targets 'can' → uottawa-cs only.
+      expect(result.source).toBe('mock');
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].institutionId).toBe('uottawa');
+      expect(result.items[0].institutionName.en).toBe('University of Ottawa');
+    });
+
+    it('falls back to the whole catalog when preference filters match nothing', async () => {
+      const { service } = serviceWith({
+        fail: ['programs', 'institutions'],
+        profile: {
+          gradeRange: null,
+          languageLevel: null,
+          targetLevel: null,
+          monthlyBudgetEur: null,
+          fieldIds: [],
+          targetCountryIds: ['xyz'], // matches no catalog row
+        },
+      });
+
+      const result = await service.ahaMoment('user-1');
+
+      expect(result.items.length).toBeGreaterThan(0);
+      // Everything is missing on the profile side → estimates, capped ≤ 0.65.
+      expect(result.isEstimate).toBe(true);
+      for (const item of result.items) {
+        expect(item.probability).toBeLessThanOrEqual(0.65);
+      }
+    });
+
+    it('can be switched off with KPB_CATALOG_MOCK_FALLBACK=0', async () => {
+      process.env.KPB_CATALOG_MOCK_FALLBACK = '0';
+      const { service } = serviceWith({ fail: ['programs'] });
+
+      await expect(service.ahaMoment('user-1')).rejects.toBeInstanceOf(
+        HttpException,
+      );
+    });
   });
 
-  it('ahaMoment 404s when the profile does not exist', async () => {
-    mockPrismaService.tryExecute.mockResolvedValue(null);
+  describe('profile lookup', () => {
+    it('404s when the profile does not exist (not a degradation)', async () => {
+      const { service } = serviceWith({ profile: null });
 
-    await expect(service.ahaMoment('ghost')).rejects.toThrow(NotFoundException);
+      await expect(service.ahaMoment('ghost')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('404s in degraded mode too — there is no mock profile to invent', async () => {
+      const { service } = serviceWith({ fail: ['profile'] });
+
+      await expect(service.ahaMoment('user-1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('503s in production when the profile read fails', async () => {
+      process.env.NODE_ENV = 'production';
+      const { service } = serviceWith({ fail: ['profile'] });
+
+      const error = await service.ahaMoment('user-1').catch((e) => e as unknown);
+
+      expect(error).toBeInstanceOf(HttpException);
+      expect((error as HttpException).getResponse()).toMatchObject({
+        code: 'MATCHES_UNAVAILABLE',
+        details: { resource: 'profile' },
+      });
+    });
   });
 });

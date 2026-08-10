@@ -1,3 +1,5 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
 import { NotificationDispatchService } from '../notifications/notification-dispatch.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchRecomputeService } from './match-recompute.service';
@@ -27,6 +29,12 @@ describe('MatchRecomputeService', () => {
     computed?: Computed[];
     enabled?: boolean;
     ahaThrows?: boolean;
+    /** Simulates the 503 the matching service throws when its data is down. */
+    ahaUnavailable?: boolean;
+    /** Simulates the recipients query failing (database unreachable). */
+    recipientsThrow?: boolean;
+    /** Simulates non-production scoring degrading to mock fixtures. */
+    source?: 'database' | 'mock';
   }) {
     if (opts.enabled ?? true) {
       process.env.KPB_MATCH_RECOMPUTE_ENABLED = 'true';
@@ -36,14 +44,18 @@ describe('MatchRecomputeService', () => {
 
     const client = {
       userProfile: {
-        findMany: async () =>
-          opts.recipients ?? [
-            {
-              id: 'u1',
-              preferredLanguage: 'fr',
-              countryOfResidence: 'NE',
-            },
-          ],
+        findMany: async () => {
+          if (opts.recipientsThrow) throw new Error('connection refused');
+          return (
+            opts.recipients ?? [
+              {
+                id: 'u1',
+                preferredLanguage: 'fr',
+                countryOfResidence: 'NE',
+              },
+            ]
+          );
+        },
       },
       match: { findMany: async () => opts.stored ?? [] },
     };
@@ -52,11 +64,24 @@ describe('MatchRecomputeService', () => {
       execute: async (fn: (c: typeof client) => unknown) => fn(client),
     } as unknown as PrismaService;
 
+    let ahaCalls = 0;
     const matches = {
       ahaMoment: async () => {
+        ahaCalls++;
+        if (opts.ahaUnavailable) {
+          throw new HttpException(
+            {
+              code: 'MATCHES_UNAVAILABLE',
+              message: 'Match scoring is temporarily unavailable.',
+              details: { resource: 'programs' },
+            },
+            HttpStatus.SERVICE_UNAVAILABLE,
+          );
+        }
         if (opts.ahaThrows) throw new Error('scoring exploded');
         return {
           isEstimate: false,
+          source: opts.source ?? 'database',
           items: (opts.computed ?? []).map((c) => ({
             institutionId: c.institutionId ?? `inst-${c.programId}`,
             institutionName: { fr: 'Université X', en: 'University X' },
@@ -68,6 +93,7 @@ describe('MatchRecomputeService', () => {
             algorithmVersion: 'v1',
             factors: [],
             narrative: { fr: '', en: '' },
+            source: opts.source ?? 'database',
           })),
         };
       },
@@ -81,9 +107,11 @@ describe('MatchRecomputeService', () => {
       },
     } as unknown as NotificationDispatchService;
 
+    const service = new MatchRecomputeService(prisma, matches, dispatch);
     return {
-      service: new MatchRecomputeService(prisma, matches, dispatch),
+      service,
       dispatched,
+      ahaCallCount: () => ahaCalls,
     };
   }
 
@@ -180,7 +208,7 @@ describe('MatchRecomputeService', () => {
   });
 
   it('one student failing does not abort the run', async () => {
-    const { service, dispatched } = make({
+    const { service, dispatched, ahaCallCount } = make({
       recipients: [
         { id: 'u1', preferredLanguage: 'fr', countryOfResidence: 'NE' },
         { id: 'u2', preferredLanguage: 'fr', countryOfResidence: 'NE' },
@@ -189,5 +217,67 @@ describe('MatchRecomputeService', () => {
     });
     await expect(service.recomputeWeekly(now)).resolves.toBeUndefined();
     expect(dispatched).toEqual([]);
+    // Both students were still attempted.
+    expect(ahaCallCount()).toBe(2);
+  });
+
+  // ── Degraded database: skip the run, never notify on fixtures ─────────────
+
+  it('skips the run (no crash, error log) when the recipients query fails', async () => {
+    const { service, dispatched } = make({ recipientsThrow: true });
+    const errorSpy = jest
+      .spyOn(service['logger'], 'error')
+      .mockImplementation(() => undefined);
+
+    await expect(service.recomputeWeekly(now)).resolves.toBeUndefined();
+
+    expect(dispatched).toEqual([]);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy.mock.calls[0][0]).toContain('aborted');
+  });
+
+  it('stops the whole run on 503 MATCHES_UNAVAILABLE instead of retrying every student', async () => {
+    const { service, dispatched, ahaCallCount } = make({
+      recipients: [
+        { id: 'u1', preferredLanguage: 'fr', countryOfResidence: 'NE' },
+        { id: 'u2', preferredLanguage: 'fr', countryOfResidence: 'NE' },
+        { id: 'u3', preferredLanguage: 'fr', countryOfResidence: 'NE' },
+      ],
+      stored: [{ programId: 'p1', zone: 'green' }],
+      ahaUnavailable: true,
+    });
+    const errorSpy = jest
+      .spyOn(service['logger'], 'error')
+      .mockImplementation(() => undefined);
+
+    // The scheduler must survive: no rejection escapes recomputeWeekly.
+    await expect(service.recomputeWeekly(now)).resolves.toBeUndefined();
+
+    expect(dispatched).toEqual([]);
+    expect(ahaCallCount()).toBe(1);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy.mock.calls[0][0]).toContain('MATCHES_UNAVAILABLE');
+  });
+
+  it('refuses to notify when scoring degraded to mock-catalog fixtures', async () => {
+    const { service, dispatched, ahaCallCount } = make({
+      recipients: [
+        { id: 'u1', preferredLanguage: 'fr', countryOfResidence: 'NE' },
+        { id: 'u2', preferredLanguage: 'fr', countryOfResidence: 'NE' },
+      ],
+      stored: [{ programId: 'p1', zone: 'blue' }],
+      computed: [{ programId: 'p1', zone: 'green' }], // would normally push
+      source: 'mock',
+    });
+    const errorSpy = jest
+      .spyOn(service['logger'], 'error')
+      .mockImplementation(() => undefined);
+
+    await expect(service.recomputeWeekly(now)).resolves.toBeUndefined();
+
+    expect(dispatched).toEqual([]);
+    expect(ahaCallCount()).toBe(1);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy.mock.calls[0][0]).toContain('mock-catalog');
   });
 });

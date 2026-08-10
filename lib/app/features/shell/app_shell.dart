@@ -89,7 +89,14 @@ class _AppShellState extends State<AppShell> {
               // inset (each banner wraps its content in SafeArea), so the
               // subtree below must not re-apply the top padding — otherwise
               // the hamburger would float a full status-bar height too low.
-              final bannerVisible = !online || controller.catalogIsSampleData;
+              // Real-but-dated rows: only worth a banner when the device is
+              // online, otherwise KpbOfflineBanner already says it (with the
+              // same freshness label) and we would stack two near-identical
+              // strips.
+              final staleCatalog = online &&
+                  controller.catalogDataState == CatalogDataState.offline;
+              final bannerVisible =
+                  !online || controller.catalogIsSampleData || staleCatalog;
 
               return Column(
                 children: [
@@ -99,6 +106,10 @@ class _AppShellState extends State<AppShell> {
                   // real data.
                   if (controller.catalogIsSampleData)
                     const KpbSampleDataBanner(),
+                  if (staleCatalog)
+                    KpbStaleCatalogBanner(
+                      snapshotAt: controller.catalogSnapshotAt,
+                    ),
                   Expanded(
                     child: MediaQuery.removePadding(
                       context: context,

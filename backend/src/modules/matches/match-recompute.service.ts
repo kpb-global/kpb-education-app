@@ -11,19 +11,24 @@
 //   • a different school entered (or left) the top 3, or
 //   • an existing match changed zone (green / yellow / blue).
 //
-// Two rules keep it honest:
+// Three rules keep it honest:
 //   • no stored matches yet ⇒ NO push. A first computation is not a change, and
 //     pushing on it would blast every never-matched user on the first run.
 //   • nothing moved ⇒ nothing sent. Silence is the correct output.
+//   • database unavailable, or scoring degraded to mock-catalog fixtures ⇒ the
+//     run is skipped with a logger.error. A weekly job that recomputes on
+//     fixtures would push "your matches moved" about programmes that do not
+//     exist; a skipped run costs one week and is always the safer output.
 //
 // OFF by default (KPB_MATCH_RECOMPUTE_ENABLED). Push goes through
 // NotificationDispatchService, so quiet hours, the daily cap, the durable feed
 // and per-week dedup are inherited (KPB-155).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
+import { CATALOG_SOURCE_MOCK } from '../../common/degraded-mode';
 import { NotificationDispatchService } from '../notifications/notification-dispatch.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchesService } from './matches.service';
@@ -58,6 +63,20 @@ export class MatchRecomputeService {
   async recomputeWeekly(now = new Date()): Promise<void> {
     if (!this.enabled || !this.prisma.isEnabled) return;
 
+    // A database outage must skip the run, not crash the scheduler: an
+    // unhandled rejection here would take down the whole @nestjs/schedule
+    // registry, so every remaining cron (digest, deadline reminders) with it.
+    try {
+      await this.runOnce(now);
+    } catch (error) {
+      this.logger.error(
+        'Match recompute run aborted — the database is unavailable. No ' +
+          `notification was sent this week (${describe(error)}).`,
+      );
+    }
+  }
+
+  private async runOnce(now: Date): Promise<void> {
     const recipients =
       (await this.prisma.execute((db) =>
         db.userProfile.findMany({
@@ -96,6 +115,17 @@ export class MatchRecomputeService {
       try {
         const before = await this.snapshot(r.id);
         const result = await this.matches.ahaMoment(r.id, TOP_N);
+        // The scoring degraded to mock-catalog fixtures (only reachable outside
+        // production). Recomputing on fixtures would notify students about
+        // programmes that do not exist, so the whole run stops here rather than
+        // repeating the mistake for every remaining student.
+        if (result.source === CATALOG_SOURCE_MOCK) {
+          this.logger.error(
+            'Match recompute aborted: scoring fell back to mock-catalog ' +
+              'fixtures. Refusing to notify students about fixture matches.',
+          );
+          return;
+        }
         if (result.items.length === 0) continue;
 
         // A first computation is not a change.
@@ -135,9 +165,16 @@ export class MatchRecomputeService {
           now,
         });
         if (outcome === 'pushed') moved++;
-      } catch {
-        // One student's scoring failure must not abort the weekly run.
-        this.logger.warn(`Match recompute failed for user ${r.id}.`);
+      } catch (error) {
+        // A 503 MATCHES_UNAVAILABLE is not this student's problem: the database
+        // is down for everyone, so retrying 499 more times only spams the logs.
+        // Bubble it up and let recomputeWeekly skip the run.
+        if (isServiceUnavailable(error)) throw error;
+        // One student's scoring failure must not abort the weekly run — but it
+        // is an error, not a shrug.
+        this.logger.error(
+          `Match recompute failed for user ${r.id} (${describe(error)}).`,
+        );
       }
     }
 
@@ -179,4 +216,29 @@ export class MatchRecomputeService {
     }
     return false;
   }
+}
+
+/** True for the 503 the matching service throws when its data is unavailable. */
+function isServiceUnavailable(error: unknown): boolean {
+  return (
+    error instanceof HttpException &&
+    error.getStatus() === HttpStatus.SERVICE_UNAVAILABLE
+  );
+}
+
+/** A bounded, PII-free label for a log line — never a Prisma message/stack. */
+function describe(error: unknown): string {
+  if (error instanceof HttpException) {
+    const body = error.getResponse();
+    const code =
+      typeof body === 'object' && body !== null && 'code' in body
+        ? String((body as { code?: unknown }).code)
+        : 'HTTP_EXCEPTION';
+    return `${error.getStatus()} ${code}`;
+  }
+  if (error && typeof error === 'object' && 'code' in error) {
+    const code = (error as { code?: unknown }).code;
+    if (typeof code === 'string' && /^[A-Z0-9_]{1,20}$/.test(code)) return code;
+  }
+  return 'UNKNOWN';
 }

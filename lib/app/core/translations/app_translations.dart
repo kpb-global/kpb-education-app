@@ -617,6 +617,13 @@ class AppTranslations extends Translations {
               'Bonjour KPB Education, je suis intéressé(e) par le programme « @program » et j\'aimerais être accompagné(e).',
           'kpb_prefill_program_with_country':
               'Bonjour KPB Education, je suis intéressé(e) par le programme « @program » (@country) et j\'aimerais être accompagné(e).',
+          // Variantes les plus spécifiques : elles portent l'école, donc le
+          // conseiller sait de quoi on parle sans relancer. Libellés assertés
+          // au caractère près dans whatsapp_utils_test.dart.
+          'kpb_prefill_program_full':
+              'Bonjour KPB Education, je viens de voir le programme « @program » (@institution, @country) et je suis intéressé(e).',
+          'kpb_prefill_program_with_institution':
+              'Bonjour KPB Education, je viens de voir le programme « @program » (@institution) et je suis intéressé(e).',
           'kpb_prefill_service':
               'Bonjour KPB Education, je souhaite en savoir plus sur le service « @service ».',
           'kpb_prefill_country':
@@ -971,6 +978,12 @@ class AppTranslations extends Translations {
           'scholarship_guide_promo_body':
               'Une méthode claire pour préparer tes candidatures aux bourses internationales.',
           'scholarship_guide_learn_more': 'En savoir plus',
+          // La carte du guide n'offrait aucune action : « En savoir plus »
+          // menait à une page purement éditoriale, sans sortie (revue vidéo
+          // du 08/08). Le guide devient une porte d'entrée conseiller.
+          'scholarship_guide_whatsapp_cta': 'Recevoir le guide sur WhatsApp',
+          'scholarship_guide_whatsapp_prefill':
+              'Bonjour KPB, je souhaite recevoir le Guide Ultime du Boursier.',
           'scholarship_guide_title': 'Le Guide Ultime du Boursier Africain',
           'scholarship_guide_intro':
               'Un parcours pratique pour passer du rêve d\'étudier à l\'étranger à une candidature structurée et compétitive.',
@@ -1453,6 +1466,11 @@ class AppTranslations extends Translations {
           'freshness_yesterday': 'données enregistrées hier',
           'freshness_days': 'données enregistrées il y a @n jours',
           'freshness_date': 'données du @date',
+          // Distinct de la bannière « données d'exemple » : ici les données sont
+          // VRAIES, seulement datées. Crier au loup sur des données correctes
+          // apprend à ignorer la bannière qui compte.
+          'stale_catalog_notice':
+              'Serveur injoignable — données réelles du dernier chargement',
           'coming_soon_title': 'Bientôt disponible',
           'coming_soon_body':
               'Ce module arrive dans une prochaine version de KPB. Reste connecté !',
@@ -2027,8 +2045,10 @@ class AppTranslations extends Translations {
           'amb_nav_payout': 'Retraits',
           'amb_code_label': 'TON CODE DE PARRAINAGE',
           'amb_share': 'Partager',
+          // @link en fin de message, sur sa propre ligne : sans lien, le
+          // destinataire devait chercher l'app lui-même (revue vidéo du 08/08).
           'amb_share_message':
-              'Rejoins KPB Éducation avec mon code @code et lance ton projet d\'études à l\'étranger 🎓',
+              'Rejoins KPB Éducation avec mon code @code et lance ton projet d\'études à l\'étranger 🎓\n@link',
           'amb_stat_active': 'Filleuls actifs',
           'amb_stat_placed': 'Placés 🎉',
           'amb_stat_earned': 'FCFA gagnés',
@@ -2071,7 +2091,7 @@ class AppTranslations extends Translations {
           'referral_your_code': 'Ton code de parrainage',
           'referral_invite_whatsapp': 'Inviter sur WhatsApp',
           'referral_invite_message':
-              'Salut ! J\'utilise KPB Education pour mes études à l\'étranger (orientation, bourses, accompagnement visa). Inscris-toi et saisis mon code de parrainage : @code',
+              'Salut ! J\'utilise KPB Education pour mes études à l\'étranger (orientation, bourses, accompagnement visa). Inscris-toi et saisis mon code de parrainage : @code\n@link',
           'referral_friends_joined': 'Amis inscrits',
           'referral_friends_cases': 'Ont créé un dossier',
           'referral_have_code': 'Tu as un code de parrainage ?',
@@ -2101,6 +2121,19 @@ class AppTranslations extends Translations {
           'referral_voucher_error': 'Échec de l\'échange. Réessaie plus tard.',
           // ── Consentement IA (Coach) ──
           'coach_ai': 'KPB Intelligence',
+          // Quota épuisé : ne pas laisser l'étudiant dans une impasse. Le moment
+          // où il est le plus engagé est celui où l'on bascule vers un conseiller
+          // humain — whatsapp_handoff est LA métrique de conversion de l'app.
+          'coach_quota_handoff_title': 'Quota gratuit atteint',
+          'coach_quota_handoff_body':
+              'Tu as utilisé tes @quota messages gratuits de la semaine. Un conseiller KPB peut continuer la discussion avec toi sur WhatsApp, gratuitement.',
+          'coach_quota_handoff_cta':
+              'Continuer avec un conseiller sur WhatsApp',
+          // `coach_quota_reached_body` existe déjà plus haut dans ce bloc —
+          // ne pas la redéclarer ici (clé dupliquée = avertissement d'analyse).
+          'coach_wa_prefill':
+              'Bonjour KPB, je discutais avec KPB Intelligence et je souhaite continuer avec un conseiller.',
+          'coach_wa_prefill_topic': 'Mon dernier sujet : @topic',
           'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
               'Pour te répondre, KPB Intelligence envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
@@ -3200,6 +3233,10 @@ class AppTranslations extends Translations {
               'Hello KPB Education, I\'m interested in the "@program" programme and would like some guidance.',
           'kpb_prefill_program_with_country':
               'Hello KPB Education, I\'m interested in the "@program" programme (@country) and would like some guidance.',
+          'kpb_prefill_program_full':
+              'Hello KPB Education, I just saw the "@program" programme (@institution, @country) and I\'m interested.',
+          'kpb_prefill_program_with_institution':
+              'Hello KPB Education, I just saw the "@program" programme (@institution) and I\'m interested.',
           'kpb_prefill_service':
               'Hello KPB Education, I\'d like to know more about the "@service" service.',
           'kpb_prefill_country':
@@ -3540,6 +3577,9 @@ class AppTranslations extends Translations {
           'scholarship_guide_promo_body':
               'A clear method for preparing competitive international scholarship applications.',
           'scholarship_guide_learn_more': 'Learn more',
+          'scholarship_guide_whatsapp_cta': 'Get the guide on WhatsApp',
+          'scholarship_guide_whatsapp_prefill':
+              'Hello KPB, I would like to receive the Ultimate Scholarship Guide.',
           'scholarship_guide_title': 'The Ultimate African Scholarship Guide',
           'scholarship_guide_intro':
               'A practical path from the dream of studying abroad to a structured and competitive application.',
@@ -4015,6 +4055,8 @@ class AppTranslations extends Translations {
           'freshness_yesterday': 'data saved yesterday',
           'freshness_days': 'data saved @n days ago',
           'freshness_date': 'data from @date',
+          'stale_catalog_notice':
+              'Server unreachable — real data from your last load',
           'coming_soon_title': 'Coming soon',
           'coming_soon_body':
               'This module is arriving in an upcoming KPB version. Stay tuned!',
@@ -4579,7 +4621,7 @@ class AppTranslations extends Translations {
           'amb_code_label': 'YOUR REFERRAL CODE',
           'amb_share': 'Share',
           'amb_share_message':
-              'Join KPB Education with my code @code and kick off your study-abroad plan 🎓',
+              'Join KPB Education with my code @code and kick off your study-abroad plan 🎓\n@link',
           'amb_stat_active': 'Active referrals',
           'amb_stat_placed': 'Placed 🎉',
           'amb_stat_earned': 'FCFA earned',
@@ -4622,7 +4664,7 @@ class AppTranslations extends Translations {
           'referral_your_code': 'Your referral code',
           'referral_invite_whatsapp': 'Invite on WhatsApp',
           'referral_invite_message':
-              'Hi! I use KPB Education for studying abroad (guidance, scholarships, visa support). Sign up and enter my referral code: @code',
+              'Hi! I use KPB Education for studying abroad (guidance, scholarships, visa support). Sign up and enter my referral code: @code\n@link',
           'referral_friends_joined': 'Friends joined',
           'referral_friends_cases': 'Started a case',
           'referral_have_code': 'Have a referral code?',
@@ -4650,6 +4692,13 @@ class AppTranslations extends Translations {
           'referral_voucher_error': 'Redemption failed. Try again later.',
           // ── AI consent (Coach) ──
           'coach_ai': 'KPB Intelligence',
+          'coach_quota_handoff_title': 'Free quota reached',
+          'coach_quota_handoff_body':
+              'You\'ve used your @quota free messages this week. A KPB advisor can continue the conversation with you on WhatsApp, free of charge.',
+          'coach_quota_handoff_cta': 'Continue with an advisor on WhatsApp',
+          'coach_wa_prefill':
+              'Hello KPB, I was chatting with KPB Intelligence and I\'d like to continue with an advisor.',
+          'coach_wa_prefill_topic': 'My last topic: @topic',
           'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
               'To answer you, KPB Intelligence sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
