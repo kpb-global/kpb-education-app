@@ -7,6 +7,7 @@ import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/translations/app_translations.dart';
 import 'package:flutter/material.dart';
+import 'package:karatou/app/features/destinations/destinations_screen.dart';
 import 'package:karatou/app/features/explore/country_detail_screen.dart';
 import 'package:karatou/app/features/explore/program_detail_screen.dart';
 import 'package:karatou/app/features/universities/universities_screen.dart';
@@ -206,6 +207,82 @@ void main() {
     expect(find.textContaining('Aperçu'), findsOneWidget); // section 1 heading
     // No fabricated tuition figure is surfaced anywhere in the guide.
     expect(find.textContaining('3 000–8 000'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  // Owner video review: the back button must stay on screen while scrolling —
+  // the audience does not reliably know the iOS back-swipe gesture.
+  testWidgets(
+      'CountryDetailScreen keeps the breadcrumb back button pinned while '
+      'scrolling', (tester) async {
+    await _seedController();
+    await tester.pumpWidget(_wrap(const CountryDetailScreen(countryId: 'fra')));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+    final before = tester.getTopLeft(find.byIcon(Icons.arrow_back_rounded));
+    // Structural: the back button must NOT be a child of the scroll view —
+    // that is the actual bug being fixed, independent of any drag distance.
+    expect(
+      find.descendant(
+        of: find.byType(ListView),
+        matching: find.byIcon(Icons.arrow_back_rounded),
+      ),
+      findsNothing,
+    );
+
+    // Scroll deep into the guide (before the fix the breadcrumb was the first
+    // ListView child and left the screen here).
+    await tester.drag(find.byType(ListView), const Offset(0, -4000));
+    await tester.pumpAndSettle();
+
+    // Guard against a vacuous pass: prove the list really scrolled by checking
+    // that in-list content (the hero badge) has left the viewport.
+    expect(find.text('GUIDE PAYS'), findsNothing);
+
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byIcon(Icons.arrow_back_rounded)),
+      before,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'DestinationsScreen, when pushed, shows a pinned back bar that pops',
+      (tester) async {
+    await _seedController();
+    await tester.pumpWidget(_wrap(Scaffold(
+      body: Center(
+        child: TextButton(
+          onPressed: () => Get.to<void>(() => const DestinationsScreen()),
+          child: const Text('ouvrir'),
+        ),
+      ),
+    )));
+    await tester.tap(find.text('ouvrir'));
+    await tester.pumpAndSettle();
+
+    // Back bar present (screen previously had no back affordance at all).
+    expect(find.text('Accueil'), findsOneWidget); // nav_home crumb
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+
+    // Pinned by construction: the back bar lives outside the country list, so
+    // it cannot scroll away. Asserted structurally rather than by dragging —
+    // this fixture seeds a single country, so the list does not overflow the
+    // test viewport and a drag assertion would pass vacuously.
+    expect(
+      find.descendant(
+        of: find.byType(ListView),
+        matching: find.byIcon(Icons.arrow_back_rounded),
+      ),
+      findsNothing,
+    );
+
+    // And it actually navigates back.
+    await tester.tap(find.text('Accueil'));
+    await tester.pumpAndSettle();
+    expect(find.text('ouvrir'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

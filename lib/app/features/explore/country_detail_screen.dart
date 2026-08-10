@@ -117,7 +117,6 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
     String num() => '${++n}.';
 
     final children = <Widget>[
-      _Breadcrumb(crumb: 'nav_destinations'.tr, onBack: () => Get.back()),
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Column(
@@ -137,6 +136,10 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
               flag: displayCountryFlag(
                   id: country.id, flagEmoji: country.flagEmoji),
               badge: 'country_guide_badge'.tr,
+              // Per-country generated visual (owner request): wire this to a
+              // future CountryModel field (e.g. country.heroImageUrl) once the
+              // backend exposes one — _Hero falls back to today's gradient.
+              imageUrl: null,
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -330,11 +333,21 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
 
     children.add(const SizedBox(height: 28));
 
+    // The breadcrumb (with the back button) is pinned OUTSIDE the scroll view:
+    // the target audience does not reliably know the iOS back-swipe gesture,
+    // so the visible back affordance must survive scrolling (owner review).
     return Scaffold(
       backgroundColor: KpbColors.canvas,
       body: SafeArea(
         bottom: false,
-        child: ListView(padding: EdgeInsets.zero, children: children),
+        child: Column(
+          children: [
+            _Breadcrumb(crumb: 'nav_destinations'.tr, onBack: () => Get.back()),
+            Expanded(
+              child: ListView(padding: EdgeInsets.zero, children: children),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -381,6 +394,8 @@ void _openWhatsApp(AppController controller, CountryModel country) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Header pieces.
 // ─────────────────────────────────────────────────────────────────────────────
+/// Pinned breadcrumb bar with the back button. Rendered outside the scroll
+/// view so the back affordance never leaves the screen while scrolling.
 class _Breadcrumb extends StatelessWidget {
   const _Breadcrumb({required this.crumb, required this.onBack});
   final String crumb;
@@ -389,13 +404,19 @@ class _Breadcrumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: KpbColors.actionPrimarySoft,
+      decoration: const BoxDecoration(
+        color: KpbColors.actionPrimarySoft,
+        border: Border(bottom: BorderSide(color: KpbColors.border)),
+      ),
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: onBack,
-            child: Container(
+      // The whole row (circle + label) is one tap target: 30px alone is too
+      // small for first-smartphone users.
+      child: GestureDetector(
+        onTap: onBack,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          children: [
+            Container(
               width: 30,
               height: 30,
               decoration: BoxDecoration(
@@ -407,64 +428,101 @@ class _Breadcrumb extends StatelessWidget {
               child: const Icon(Icons.arrow_back_rounded,
                   size: 15, color: KpbColors.actionPrimary),
             ),
-          ),
-          const SizedBox(width: 9),
-          Text(
-            crumb,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: KpbColors.actionPrimary,
+            const SizedBox(width: 9),
+            Text(
+              crumb,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: KpbColors.actionPrimary,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
+/// Country hero frame. Accepts an optional per-country image URL (owner wants
+/// generated country visuals later): when [imageUrl] is provided the image is
+/// the backdrop (under a navy scrim so flag/badge stay readable); on null,
+/// empty, or load failure it falls back cleanly to the current gradient.
 class _Hero extends StatelessWidget {
-  const _Hero({required this.flag, required this.badge});
+  const _Hero({required this.flag, required this.badge, this.imageUrl});
   final String flag;
   final String badge;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Column(
+    final url = imageUrl;
+    final hasImage = url != null && url.isNotEmpty;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(
         children: [
-          Text(flag, style: const TextStyle(fontSize: 52)),
-          const SizedBox(height: 12),
+          // Base layer: the current brand gradient — always painted, so a
+          // missing/failed image degrades to exactly today's rendering.
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [KpbColors.brandNavy, KpbColors.heroIndigo],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+          ),
+          if (hasImage) ...[
+            Positioned.fill(
+              child: Image.network(
+                url,
+                fit: BoxFit.cover,
+                // On load error the gradient base layer shows through.
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+            // Scrim: keeps flag/badge readable on any photo brightness.
+            Positioned.fill(
+              child: ColoredBox(
+                color: KpbColors.brandNavy.withValues(alpha: 0.45),
+              ),
+            ),
+          ],
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: KpbColors.error,
-              borderRadius: BorderRadius.circular(6),
-              boxShadow: [
-                BoxShadow(
-                  color: KpbColors.error.withValues(alpha: 0.35),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 18),
+            child: Column(
+              children: [
+                Text(flag, style: const TextStyle(fontSize: 52)),
+                const SizedBox(height: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: KpbColors.error,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: KpbColors.error.withValues(alpha: 0.35),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
-            ),
-            child: Text(
-              badge,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1,
-                color: Colors.white,
-              ),
             ),
           ),
         ],
