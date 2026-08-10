@@ -10,6 +10,7 @@ import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/ui/shell_chrome.dart';
+import '../../core/utils/whatsapp_utils.dart';
 import 'scholarship_detail_screen.dart';
 import 'scholarship_guide_info_screen.dart';
 import 'scholarships_controller.dart';
@@ -700,7 +701,8 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: active ? Colors.white : KpbColors.textMuted,
+            // textSecondary (7,58:1) : textMuted frôle le seuil AA à 12,5 px.
+            color: active ? Colors.white : KpbColors.textSecondary,
           ),
         ),
       ),
@@ -767,49 +769,74 @@ class _GuidePromoCard extends StatelessWidget {
             Border.all(color: KpbColors.actionPrimary.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(17),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: 44,
-            height: 52,
-            decoration: BoxDecoration(
-              color: KpbColors.actionPrimary,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: const Icon(Icons.auto_stories_rounded,
-                color: Colors.white, size: 23),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'scholarship_guide_short_title'.tr,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: KpbColors.brandNavy,
-                  ),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: KpbColors.actionPrimary,
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  'scholarship_guide_promo_body'.tr,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    height: 1.4,
-                    color: KpbColors.textMuted,
-                  ),
+                child: const Icon(Icons.auto_stories_rounded,
+                    color: Colors.white, size: 23),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'scholarship_guide_short_title'.tr,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: KpbColors.brandNavy,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'scholarship_guide_promo_body'.tr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        height: 1.4,
+                        color: KpbColors.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: onTap,
+                child: Text('scholarship_guide_learn_more'.tr),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          TextButton(
-            onPressed: onTap,
-            child: Text('scholarship_guide_learn_more'.tr),
+          // Secondary, labelled shortcut for students already sold on the
+          // guide — "En savoir plus" above still opens the editorial screen
+          // (owner video review, 08/2026: the card led nowhere actionable).
+          TextButton.icon(
+            key: const ValueKey('scholarship_guide_promo_whatsapp'),
+            onPressed: () => openWhatsAppOrToast(
+              prefill: 'scholarship_guide_whatsapp_prefill'.tr,
+              source: 'live_scholarships_guide_promo',
+              contextType: 'scholarship_guide',
+            ),
+            icon: const Icon(Icons.chat_rounded, size: 18),
+            label: Text('scholarship_guide_whatsapp_cta'.tr),
+            style: TextButton.styleFrom(
+              foregroundColor: KpbColors.success,
+              textStyle: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
         ],
       ),

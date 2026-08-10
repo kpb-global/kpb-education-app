@@ -20,6 +20,7 @@ String kpbWhatsAppPrefill({
   String? service,
   String? country,
   String? program,
+  String? institution,
   String? reference,
 }) {
   final overridden = custom?.trim() ?? '';
@@ -27,6 +28,7 @@ String kpbWhatsAppPrefill({
 
   final ref = reference?.trim() ?? '';
   final prog = program?.trim() ?? '';
+  final school = institution?.trim() ?? '';
   final svc = service?.trim() ?? '';
   final dest = country?.trim() ?? '';
 
@@ -34,6 +36,16 @@ String kpbWhatsAppPrefill({
     return 'kpb_prefill_case'.trParams({'ref': ref});
   }
   if (prog.isNotEmpty) {
+    // The advisor reads "programme + école (+ pays)" and knows exactly which
+    // catalog sheet the student is looking at — the most specific copy the
+    // available context allows.
+    if (school.isNotEmpty) {
+      return dest.isNotEmpty
+          ? 'kpb_prefill_program_full'.trParams(
+              {'program': prog, 'institution': school, 'country': dest})
+          : 'kpb_prefill_program_with_institution'
+              .trParams({'program': prog, 'institution': school});
+    }
     return dest.isNotEmpty
         ? 'kpb_prefill_program_with_country'
             .trParams({'program': prog, 'country': dest})

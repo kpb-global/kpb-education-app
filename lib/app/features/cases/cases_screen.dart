@@ -689,7 +689,8 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: selected ? Colors.white : KpbColors.textMuted,
+            // textSecondary (7,58:1) : textMuted frôle le seuil AA à 12 px.
+            color: selected ? Colors.white : KpbColors.textSecondary,
           ),
         ),
       ),

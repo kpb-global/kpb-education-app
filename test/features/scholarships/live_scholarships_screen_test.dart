@@ -284,8 +284,20 @@ void main() {
 
   // The funding filter is the one filter the student can see; when it empties
   // the list, the empty state must offer the way out.
+  //
+  // Rendered at REAL phone geometry (393×852, the iPhone the video review was
+  // recorded on) instead of the 800×600 test default. That default is not a
+  // device anyone owns, and it hid a genuine question: once the guide card grew
+  // a second CTA, is the escape-hatch button still reachable without scrolling?
+  // Tapping it here proves it is — on the default surface it fell below the
+  // fold and the tap silently missed.
   testWidgets('a funding filter that empties the list offers a way out',
       (tester) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final mock = MockApiClient();
     when(() => mock.fetchLiveScholarships(
           lang: any(named: 'lang'),
@@ -313,6 +325,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('MEXT Japan Scholarship'), findsOneWidget);
 
+    // `ensureVisible` avant chaque tap, et ce n'est pas une commodité de test :
+    // à 393 pt la puce « Partiellement financées » dépasse à droite de sa liste
+    // horizontale — c'est visible sur la capture de la revue vidéo, où le mot
+    // est coupé au bord. Taper sans défiler viserait le vide et le test
+    // passerait pour de mauvaises raisons.
+    await tester.ensureVisible(find.text('Partiellement financées'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Partiellement financées'));
     await tester.pumpAndSettle();
 
@@ -322,8 +341,10 @@ void main() {
     );
 
     // The escape hatch actually clears the filter and brings the list back.
-    await tester
-        .tap(find.byKey(const ValueKey<String>('scholarships-show-all')));
+    final showAll = find.byKey(const ValueKey<String>('scholarships-show-all'));
+    await tester.ensureVisible(showAll);
+    await tester.pumpAndSettle();
+    await tester.tap(showAll);
     await tester.pumpAndSettle();
 
     expect(find.text('MEXT Japan Scholarship'), findsOneWidget);

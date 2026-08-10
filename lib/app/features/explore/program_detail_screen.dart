@@ -259,16 +259,17 @@ class ProgramDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 // Secondary CTA — WhatsApp hand-off to a KPB counselor.
+                // Deliberately NOT overridden by the country's catalog-level
+                // `whatsAppPrefill`: on a program sheet the advisor must see
+                // which program/school the student was reading, and the
+                // country-level copy is generic (owner video review, 08/2026).
                 _CounselorCta(
                   onTap: () => openWhatsAppOrToast(
                     prefill: kpbWhatsAppPrefill(
-                      custom: country != null &&
-                              controller
-                                  .resolve(country.whatsAppPrefill)
-                                  .isNotEmpty
-                          ? controller.resolve(country.whatsAppPrefill)
-                          : null,
                       program: controller.resolve(program.name),
+                      institution: institution != null
+                          ? controller.resolve(institution.name)
+                          : null,
                       country: country != null
                           ? controller.resolve(country.name)
                           : null,
