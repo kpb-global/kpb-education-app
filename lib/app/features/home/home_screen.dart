@@ -2420,51 +2420,62 @@ class _ParcoursHomeCarouselState extends State<_ParcoursHomeCarousel> {
             controller.parcoursStories.where((s) => s.isVideo).toList();
         final locale = controller.localeCode;
 
+        // This section lives in its own SliverToBoxAdapter (outside the padded
+        // Column at the top of the scroll view), so it must carry the page
+        // gutter itself — same recipe as HScrollSection ("Bourses pour toi",
+        // "Universités recommandées"): header padded, and the horizontal list
+        // padded via its `padding` so cards align with the gutter but still
+        // scroll edge-to-edge.
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'home_parcours_title'.tr,
-                        style: const TextStyle(
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.w800,
-                          color: KpbColors.brandNavy,
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'home_parcours_title'.tr,
+                          style: const TextStyle(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w800,
+                            color: KpbColors.brandNavy,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'home_parcours_subtitle'.tr,
-                        style: const TextStyle(
-                            fontSize: 10.5, color: KpbColors.textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.to(() => const ParcoursScreen()),
-                  child: Text(
-                    'see_all'.tr,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: KpbColors.actionPrimary,
+                        Text(
+                          'home_parcours_subtitle'.tr,
+                          style: const TextStyle(
+                              fontSize: 10.5, color: KpbColors.textMuted),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () => Get.to(() => const ParcoursScreen()),
+                    child: Text(
+                      'see_all'.tr,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: KpbColors.actionPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             SizedBox(
               height: 168,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.zero,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
                 itemCount: stories.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 11),
                 itemBuilder: (ctx, i) {
