@@ -482,4 +482,47 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  // Le catalogue est majoritairement composé de cycles ESTIMÉS : la plupart des
+  // institutions africaines fonctionnent en admissions continues, et ni le DAAD
+  // ni les consortiums Erasmus ne publient de date pour la campagne suivante.
+  // L'importeur remplit quand même `deadlineAt` depuis `estimatedCloseAt` pour
+  // pouvoir classer les bourses par échéance — d'où le risque d'afficher une
+  // projection comme une échéance ferme.
+  testWidgets('un cycle estimé n\'affiche jamais de compte à rebours',
+      (tester) async {
+    final mock = MockApiClient();
+    final estimatedClose = DateTime.now().add(const Duration(days: 6));
+    _stubFetch(mock, <dynamic>[
+      <String, dynamic>{
+        ..._scholarshipJson(),
+        // Volontairement proche : à 6 jours, le badge confirmé afficherait
+        // « J-6 » en rouge « Deadline imminente ». Rien ne doit apparaître.
+        'deadlineAt': estimatedClose.toIso8601String(),
+        'currentCycle': <String, dynamic>{
+          'id': 'mext-2027-cycle',
+          'academicYear': '2027-2028',
+          'status': 'forecast',
+          'dateConfidence': 'estimated',
+          'estimatedOpenAt': DateTime.now()
+              .subtract(const Duration(days: 20))
+              .toIso8601String(),
+          'estimatedCloseAt': estimatedClose.toIso8601String(),
+        },
+      },
+    ]);
+    await _seed(mock);
+
+    await tester.pumpWidget(_wrap(LiveScholarshipsScreen(apiClient: mock)));
+    await tester.pumpAndSettle();
+
+    // La bourse est bien rendue — le test ne passe pas à vide.
+    expect(find.text('MEXT Japan Scholarship'), findsOneWidget);
+    // Aucun compte à rebours au jour près, aucune urgence fabriquée.
+    expect(find.textContaining('J-'), findsNothing);
+    expect(find.text('Deadline imminente'), findsNothing);
+    // Mais la fenêtre estimée, elle, est annoncée comme telle.
+    expect(find.textContaining('Période estimée'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -267,22 +267,30 @@ function validateRecord(
   if (!/^\d{4}-\d{4}$/.test(cycle.academicYear)) {
     push(issues, 'invalid_academic_year', `${root}.cycle.academicYear`, 'Use YYYY-YYYY.');
   }
-  const startRaw =
-    cycle.dateConfidence === 'confirmed' ? cycle.opensAt : cycle.estimatedOpenAt;
-  const closeRaw =
-    cycle.dateConfidence === 'confirmed' ? cycle.closesAt : cycle.estimatedCloseAt;
+  const isConfirmed = cycle.dateConfidence === 'confirmed';
+  const startRaw = isConfirmed ? cycle.opensAt : cycle.estimatedOpenAt;
+  const closeRaw = isConfirmed ? cycle.closesAt : cycle.estimatedCloseAt;
   const start = parseDate(startRaw);
   const close = parseDate(closeRaw);
-  if (!start || !close) {
+  // Une date de clôture confirmée SANS date d'ouverture est le cas courant, pas
+  // une anomalie : beaucoup d'institutions publient « date limite : 31 août »
+  // sans jamais annoncer d'ouverture (University of Pretoria, par exemple).
+  // Exiger les deux forçait un choix entre inventer une ouverture et déclasser
+  // toute la fiche en « estimée » — or c'est la clôture qui est le fait
+  // actionnable pour l'étudiant. On exige donc la clôture, et l'ouverture reste
+  // facultative. Un cycle estimé garde ses deux bornes : une fenêtre sans début
+  // n'a pas de sens.
+  const missingDates = isConfirmed ? !close : !start || !close;
+  if (missingDates) {
     push(
       issues,
       'missing_cycle_dates',
       `${root}.cycle`,
-      cycle.dateConfidence === 'confirmed'
-        ? 'Confirmed cycles require opensAt and closesAt.'
+      isConfirmed
+        ? 'Confirmed cycles require closesAt (opensAt is optional).'
         : 'Estimated cycles require estimatedOpenAt and estimatedCloseAt.',
     );
-  } else if (close <= start) {
+  } else if (start && close && close <= start) {
     push(issues, 'invalid_cycle_order', `${root}.cycle`, 'The closing date must be after the opening date.');
   }
   if (cycle.status === 'open' && cycle.dateConfidence !== 'confirmed') {
