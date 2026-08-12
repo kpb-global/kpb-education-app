@@ -54,19 +54,23 @@ jobs:
         with:
           # Version ÉPINGLÉE, pas `channel: stable` seul.
           #
-          # Sans épinglage la CI suit la dernière stable du jour, donc elle
-          # change sous nos pieds : le 12/08/2026 le passage à 3.47 a introduit
-          # le lint `unawaited_return_in_try_block` et fait échouer TOUTES les
-          # PR ouvertes, sans qu'aucune ligne de code ait bougé. Le lint avait
-          # raison (il désignait un vrai `catch` inopérant), mais découvrir une
-          # règle nouvelle par une CI rouge sur une PR sans rapport coûte cher.
+          # Sans épinglage la CI suivait la dernière stable du jour et changeait
+          # sous nos pieds : le 12/08/2026 le passage à 3.47 a fait échouer
+          # TOUTES les PR ouvertes sans qu'une ligne de code ait bougé — d'abord
+          # sur un lint nouveau (`unawaited_return_in_try_block`, qui avait
+          # raison : il désignait un `catch` inopérant, corrigé), puis sur un
+          # blocage plus lourd : **Flutter 3.47 exige Gradle >= 8.14 et le
+          # projet est en 8.11.1**.
           #
-          # Monter cette version est désormais un acte volontaire : on lit les
-          # nouvelles règles, on corrige, on épingle. Gardez la machine de
-          # développement alignée (`flutter --version`), sinon `flutter analyze`
-          # en local est plus permissif que la CI et ne peut plus servir de
-          # garde-fou.
-          flutter-version: '3.47.0'
+          # On épingle donc la version que le projet supporte RÉELLEMENT
+          # aujourd'hui, et qui est celle des machines de développement : local
+          # et CI appliquent enfin les mêmes règles, ce qui rend
+          # `flutter analyze` en local à nouveau utile comme garde-fou.
+          #
+          # Monter vers 3.47 est un chantier à part : migration Gradle sur une
+          # app déjà publiée, avec sa chaîne de signature. À planifier seul, pas
+          # en marge d'une autre PR.
+          flutter-version: '3.44.1'
           channel: 'stable'
           cache: true
 
@@ -105,19 +109,23 @@ jobs:
         with:
           # Version ÉPINGLÉE, pas `channel: stable` seul.
           #
-          # Sans épinglage la CI suit la dernière stable du jour, donc elle
-          # change sous nos pieds : le 12/08/2026 le passage à 3.47 a introduit
-          # le lint `unawaited_return_in_try_block` et fait échouer TOUTES les
-          # PR ouvertes, sans qu'aucune ligne de code ait bougé. Le lint avait
-          # raison (il désignait un vrai `catch` inopérant), mais découvrir une
-          # règle nouvelle par une CI rouge sur une PR sans rapport coûte cher.
+          # Sans épinglage la CI suivait la dernière stable du jour et changeait
+          # sous nos pieds : le 12/08/2026 le passage à 3.47 a fait échouer
+          # TOUTES les PR ouvertes sans qu'une ligne de code ait bougé — d'abord
+          # sur un lint nouveau (`unawaited_return_in_try_block`, qui avait
+          # raison : il désignait un `catch` inopérant, corrigé), puis sur un
+          # blocage plus lourd : **Flutter 3.47 exige Gradle >= 8.14 et le
+          # projet est en 8.11.1**.
           #
-          # Monter cette version est désormais un acte volontaire : on lit les
-          # nouvelles règles, on corrige, on épingle. Gardez la machine de
-          # développement alignée (`flutter --version`), sinon `flutter analyze`
-          # en local est plus permissif que la CI et ne peut plus servir de
-          # garde-fou.
-          flutter-version: '3.47.0'
+          # On épingle donc la version que le projet supporte RÉELLEMENT
+          # aujourd'hui, et qui est celle des machines de développement : local
+          # et CI appliquent enfin les mêmes règles, ce qui rend
+          # `flutter analyze` en local à nouveau utile comme garde-fou.
+          #
+          # Monter vers 3.47 est un chantier à part : migration Gradle sur une
+          # app déjà publiée, avec sa chaîne de signature. À planifier seul, pas
+          # en marge d'une autre PR.
+          flutter-version: '3.44.1'
           channel: 'stable'
           cache: true
 
@@ -176,19 +184,23 @@ jobs:
         with:
           # Version ÉPINGLÉE, pas `channel: stable` seul.
           #
-          # Sans épinglage la CI suit la dernière stable du jour, donc elle
-          # change sous nos pieds : le 12/08/2026 le passage à 3.47 a introduit
-          # le lint `unawaited_return_in_try_block` et fait échouer TOUTES les
-          # PR ouvertes, sans qu'aucune ligne de code ait bougé. Le lint avait
-          # raison (il désignait un vrai `catch` inopérant), mais découvrir une
-          # règle nouvelle par une CI rouge sur une PR sans rapport coûte cher.
+          # Sans épinglage la CI suivait la dernière stable du jour et changeait
+          # sous nos pieds : le 12/08/2026 le passage à 3.47 a fait échouer
+          # TOUTES les PR ouvertes sans qu'une ligne de code ait bougé — d'abord
+          # sur un lint nouveau (`unawaited_return_in_try_block`, qui avait
+          # raison : il désignait un `catch` inopérant, corrigé), puis sur un
+          # blocage plus lourd : **Flutter 3.47 exige Gradle >= 8.14 et le
+          # projet est en 8.11.1**.
           #
-          # Monter cette version est désormais un acte volontaire : on lit les
-          # nouvelles règles, on corrige, on épingle. Gardez la machine de
-          # développement alignée (`flutter --version`), sinon `flutter analyze`
-          # en local est plus permissif que la CI et ne peut plus servir de
-          # garde-fou.
-          flutter-version: '3.47.0'
+          # On épingle donc la version que le projet supporte RÉELLEMENT
+          # aujourd'hui, et qui est celle des machines de développement : local
+          # et CI appliquent enfin les mêmes règles, ce qui rend
+          # `flutter analyze` en local à nouveau utile comme garde-fou.
+          #
+          # Monter vers 3.47 est un chantier à part : migration Gradle sur une
+          # app déjà publiée, avec sa chaîne de signature. À planifier seul, pas
+          # en marge d'une autre PR.
+          flutter-version: '3.44.1'
           channel: 'stable'
           cache: true
 
@@ -285,19 +297,23 @@ jobs:
         with:
           # Version ÉPINGLÉE, pas `channel: stable` seul.
           #
-          # Sans épinglage la CI suit la dernière stable du jour, donc elle
-          # change sous nos pieds : le 12/08/2026 le passage à 3.47 a introduit
-          # le lint `unawaited_return_in_try_block` et fait échouer TOUTES les
-          # PR ouvertes, sans qu'aucune ligne de code ait bougé. Le lint avait
-          # raison (il désignait un vrai `catch` inopérant), mais découvrir une
-          # règle nouvelle par une CI rouge sur une PR sans rapport coûte cher.
+          # Sans épinglage la CI suivait la dernière stable du jour et changeait
+          # sous nos pieds : le 12/08/2026 le passage à 3.47 a fait échouer
+          # TOUTES les PR ouvertes sans qu'une ligne de code ait bougé — d'abord
+          # sur un lint nouveau (`unawaited_return_in_try_block`, qui avait
+          # raison : il désignait un `catch` inopérant, corrigé), puis sur un
+          # blocage plus lourd : **Flutter 3.47 exige Gradle >= 8.14 et le
+          # projet est en 8.11.1**.
           #
-          # Monter cette version est désormais un acte volontaire : on lit les
-          # nouvelles règles, on corrige, on épingle. Gardez la machine de
-          # développement alignée (`flutter --version`), sinon `flutter analyze`
-          # en local est plus permissif que la CI et ne peut plus servir de
-          # garde-fou.
-          flutter-version: '3.47.0'
+          # On épingle donc la version que le projet supporte RÉELLEMENT
+          # aujourd'hui, et qui est celle des machines de développement : local
+          # et CI appliquent enfin les mêmes règles, ce qui rend
+          # `flutter analyze` en local à nouveau utile comme garde-fou.
+          #
+          # Monter vers 3.47 est un chantier à part : migration Gradle sur une
+          # app déjà publiée, avec sa chaîne de signature. À planifier seul, pas
+          # en marge d'une autre PR.
+          flutter-version: '3.44.1'
           channel: 'stable'
           cache: true
 
