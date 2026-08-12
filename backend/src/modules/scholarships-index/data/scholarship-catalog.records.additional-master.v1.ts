@@ -11,7 +11,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     levelLabel: ['Master ou autre diplôme supérieur Stanford admissible', 'Eligible Stanford Master or other graduate degree'],
     fundingLabel: ['Financement complet jusqu’à trois ans', 'Comprehensive funding for up to three years'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — clôture le 6 octobre 2026 à 13 h, heure du Pacifique', 'Open — closes 6 October 2026 at 1:00 PM Pacific Time'],
+    deadlineLabel: ['Ouvert — deux dates limites : KHS le 6 octobre 2026 à 13 h heure du Pacifique, et le programme Stanford à la plus proche de sa propre date ou du 1er décembre 2026', 'Open — two deadlines: KHS on 6 October 2026 at 1:00 PM Pacific Time, and the Stanford degree programme by the earlier of its own deadline or 1 December 2026'],
     description: [
       'Programme multidisciplinaire de financement et de leadership pour nouveaux étudiants à temps plein dans un diplôme supérieur admissible de Stanford.',
       'Multidisciplinary funding and leadership programme for newly enrolling full-time students in an eligible Stanford graduate degree.',
@@ -37,14 +37,14 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['CV, relevés et résultats de tests lorsque le programme Stanford les exige', 'Resume, transcripts and test scores when required by the Stanford programme'],
       ['Réponses courtes et essai', 'Short answers and essay'],
       ['Lettres de recommandation', 'Letters of recommendation'],
-      ['Candidature parallèle au diplôme supérieur Stanford', 'Concurrent Stanford graduate degree application'],
+      ['Candidature distincte et parallèle au diplôme supérieur Stanford, avec sa propre date limite : les deux dossiers sont obligatoires', 'Separate, concurrent Stanford graduate degree application with its own deadline: both applications are mandatory'],
       ['Tous les documents Knight-Hennessy en anglais et en ligne', 'All Knight-Hennessy materials online and in English'],
     ],
     steps: [
       ['Vérifier les deux admissibilités', 'Check both eligibility paths', 'Confirmer la date du premier diplôme puis vérifier l’admissibilité du cursus Stanford choisi.', 'Confirm the first-degree date and then check the selected Stanford programme’s eligibility.'],
       ['Créer deux candidatures', 'Create two applications', 'Ouvrir tôt le dossier Knight-Hennessy et la candidature Stanford correspondante.', 'Open both the Knight-Hennessy and corresponding Stanford applications early.'],
       ['Préparer le dossier KHS', 'Prepare the KHS file', 'Finaliser CV, relevés, essais, réponses courtes et recommandations en anglais.', 'Complete the resume, transcripts, essays, short answers and recommendations in English.'],
-      ['Respecter les deux échéances', 'Meet both deadlines', 'Soumettre KHS avant le 6 octobre et le programme Stanford à sa date propre ou au plus tard le 1er décembre selon la règle KHS.', 'Submit KHS by 6 October and Stanford by its own deadline or 1 December at the latest under the KHS rule.'],
+      ['Respecter les deux échéances', 'Meet both deadlines', 'Soumettre le dossier KHS avant le 6 octobre 2026 à 13 h heure du Pacifique, puis le programme Stanford avant la plus proche des deux dates : sa propre date limite pour les candidats KHS ou le 1er décembre 2026. Manquer l’une des deux échéances annule la candidature.', 'Submit the KHS application by 6 October 2026 at 1:00 PM Pacific Time, then the Stanford programme by the earlier of the two dates: its own deadline for KHS applicants or 1 December 2026. Missing either deadline voids the application.'],
     ],
     cycle: {
       academicYear: '2027-2028',
@@ -62,6 +62,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications',
     },
     tags: ['master', 'usa', 'stanford', 'open', 'leadership', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'rhodes_southern_africa_2027',
@@ -71,7 +72,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     levelLabel: ['Études supérieures à temps plein à Oxford', 'Full-time postgraduate study at Oxford'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — candidature avant le 3 août 2026 ; références avant le 17 août', 'Open — application due 3 August 2026; references due 17 August'],
+    deadlineLabel: ['Clôturé — les candidatures 2027 ont fermé le 3 août 2026 à 23 h 59 SAST ; les références restent attendues jusqu’au 17 août 2026 ; prochain cycle attendu vers juin 2027, date non publiée', 'Closed — 2027 applications closed on 3 August 2026 at 23:59 SAST; references remain due until 17 August 2026; next cycle expected around June 2027, date not published'],
     description: [
       'Voie Rhodes 2027 pour citoyens ou résidents permanents d’Afrique du Sud, Botswana, Lesotho, Malawi, Namibie ou Eswatini, en vue d’études supérieures à Oxford en octobre 2027.',
       '2027 Rhodes route for citizens or permanent residents of South Africa, Botswana, Lesotho, Malawi, Namibia or Eswatini, for postgraduate study at Oxford from October 2027.',
@@ -80,7 +81,9 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['Frais de cursus à l’Université d’Oxford', 'University of Oxford course fees'],
       ['Allocation annuelle ; le montant 2025–2026 publié est de 20 400 GBP, révisable', 'Annual stipend; the published 2025–2026 amount is GBP 20,400 and may be revised'],
       ['Frais de candidature au cursus Oxford après sélection', 'Oxford course application fee after selection'],
-      ['Voyage vers Oxford au début et retour au pays à la fin selon les conditions de la bourse', 'Travel to Oxford at the start and home at the end under the scholarship terms'],
+      ['Deux vols en classe économique aller et retour, au début et à la fin des études à Oxford', 'Two economy-class flights to and from the UK, at the beginning and end of studies in Oxford'],
+      ['Frais de visa étudiant et surtaxe santé internationale (IHS) pris en charge après sélection', 'Student visa fees and the International Health Surcharge (IHS) covered after selection'],
+      ['Allocation d’installation à l’arrivée à Oxford', 'Settling-in allowance on arrival in Oxford'],
       ['Deux années ou plus de financement selon la combinaison de diplômes autorisée', 'Two or more years of funding depending on the permitted degree combination'],
       ['Communauté Rhodes et programme de développement du leadership', 'Rhodes community and leadership-development programme'],
     ],
@@ -111,7 +114,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'open',
+      status: 'closed',
       dateConfidence: 'confirmed',
       opensAt: '2026-05-31T22:01:00.000Z',
       closesAt: '2026-08-03T21:59:00.000Z',
@@ -124,7 +127,8 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       application: 'https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/',
       cycle: 'https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf',
     },
-    tags: ['master', 'uk', 'oxford', 'southern-africa', 'open', 'fully-funded'],
+    tags: ['master', 'uk', 'oxford', 'southern-africa', 'closed', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'eth_zurich_esop_2027',
@@ -184,6 +188,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html',
     },
     tags: ['master', 'switzerland', 'eth-zurich', 'future-cycle', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'jj_wbgsp_2027_forecast',
@@ -195,8 +200,8 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     fundingType: 'fully_funded',
     deadlineLabel: ['Prévision fenêtre 1 — environ du 15 janvier au 27 février 2027, à reconfirmer', 'Window 1 forecast — approximately 15 January to 27 February 2027, to be reconfirmed'],
     description: [
-      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. Les programmes, critères et dates 2027 devront être reconfirmés ; la fenêtre est estimée depuis l’appel officiel 2026.',
-      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 programmes, criteria and dates must be reconfirmed; the window is estimated from the official 2026 call.',
+      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026 ; en revanche les dates des deux fenêtres 2027, la liste des programmes participants et les critères détaillés restent à reconfirmer, la fenêtre étant estimée depuis l’appel officiel 2026.',
+      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026; the two 2027 window dates, the participating-programme list and the detailed criteria still need reconfirming, so the window is estimated from the official 2026 call.',
     ],
     advantages: [
       ['Frais de scolarité du Master participant', 'Tuition for the participating Master programme'],
@@ -207,7 +212,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['Durée du cursus ou deux ans maximum', 'Programme duration or a maximum of two years'],
     ],
     eligibility: [
-      ['Pour l’appel de référence, être citoyen d’un pays en développement membre de la Banque mondiale figurant sur la liste officielle', 'For the reference call, be a citizen of an officially listed World Bank member developing country'],
+      ['Être citoyen d’un pays en développement membre de la Banque mondiale figurant sur la liste officielle 2027, qui inclut notamment le Bénin, le Burkina Faso, le Cameroun, la Côte d’Ivoire, la Guinée, le Mali, le Niger, le Sénégal, le Tchad et le Togo', 'Be a citizen of a World Bank member developing country on the official 2027 list, which includes Benin, Burkina Faso, Cameroon, Chad, Côte d’Ivoire, Guinea, Mali, Niger, Senegal and Togo among others'],
       ['Ne pas détenir la double nationalité d’un pays développé', 'Not hold dual citizenship of a developed country'],
       ['Être en bonne santé', 'Be in good health'],
       ['Avoir obtenu une Licence au moins trois ans avant la date limite', 'Have earned a Bachelor degree at least three years before the deadline'],
@@ -225,7 +230,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['Traductions anglaises des documents non anglophones', 'English translations of non-English documents'],
     ],
     steps: [
-      ['Attendre la liste 2027', 'Wait for the 2027 list', 'Activer l’alerte et reconfirmer pays, programmes, fenêtres et critères dès publication.', 'Enable the alert and reconfirm countries, programmes, windows and criteria when published.'],
+      ['Vérifier la liste des pays puis attendre les fenêtres', 'Check the country list, then wait for the windows', 'La liste des pays éligibles 2027 est déjà publiée : vérifier son pays. Activer ensuite l’alerte pour reconfirmer les dates des deux fenêtres, les programmes participants et les critères dès publication.', 'The 2027 eligible-country list is already published: check your country. Then enable the alert to reconfirm the two window dates, the participating programmes and the criteria once published.'],
       ['Postuler au Master', 'Apply to the Master', 'Candidater suffisamment tôt à un programme participant et obtenir une admission inconditionnelle.', 'Apply early to a participating programme and secure unconditional admission.'],
       ['Obtenir la présélection', 'Obtain shortlisting', 'L’université vérifie l’éligibilité et transmet le lien privé aux candidats retenus.', 'The university checks eligibility and sends the private link to shortlisted candidates.'],
       ['Préparer les preuves', 'Prepare evidence', 'Rassembler diplôme, CV, emploi admissible, admission et deux recommandations professionnelles.', 'Gather diploma, CV, eligible employment evidence, admission and two professional recommendations.'],
@@ -247,5 +252,6 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://www.worldbank.org/en/programs/scholarships/jj-wbgsp',
     },
     tags: ['master', 'development', 'world-bank', 'forecast', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
 ];

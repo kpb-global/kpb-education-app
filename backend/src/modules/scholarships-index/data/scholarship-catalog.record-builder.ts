@@ -44,9 +44,23 @@ export interface ScholarshipRecordInput {
   tags: string[];
   relatedFieldIds?: string[];
   baseMatch?: number;
+  /**
+   * ISO date on which THIS record's official sources were actually opened and
+   * read. REQUIRED — deliberately not optional, and with no shared default.
+   *
+   * The validator refuses any source checked more than 30 days ago. A shared
+   * constant therefore forced a choice between letting the whole catalog expire
+   * on one day, or bumping the date for every record at once — which would
+   * claim a re-verification that never happened. That constant existed until
+   * the 12/08/2026 wave and its expiry warning was already three days out.
+   *
+   * Making this required means a new record cannot silently inherit someone
+   * else's reading: whoever adds a scholarship must state when THEY opened its
+   * pages. Records are verified in waves; each wave carries its own honest date.
+   */
+  checkedAt: string;
 }
 
-const CHECKED_AT = '2026-07-16T00:00:00.000Z';
 const VERIFIED_BY = 'KPB Education official-source review';
 
 const SOURCE_KINDS: ScholarshipOfficialSourceKind[] = [
@@ -125,10 +139,10 @@ export function buildVerifiedScholarshipRecord(
       kind,
       url: input.sources[kind],
       isOfficial: true,
-      checkedAt: CHECKED_AT,
+      checkedAt: input.checkedAt,
       label: `${input.name[1]} — official ${kind} source`,
     })),
-    verifiedAt: CHECKED_AT,
+    verifiedAt: input.checkedAt,
     verifiedBy: VERIFIED_BY,
   };
 }

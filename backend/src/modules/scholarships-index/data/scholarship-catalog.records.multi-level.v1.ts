@@ -11,15 +11,15 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février, à reconfirmer', '2027 forecast — approximately 10 January to 20 February, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février 2027, à reconfirmer', '2027 forecast — approximately 10 January to 20 February 2027, to be reconfirmed'],
     description: [
-      'Programme public turc ouvert aux candidats internationaux de tous pays, avec placement universitaire et financement des études à temps plein. Les dates 2027 sont estimées à partir du cycle officiel 2026.',
-      'Turkish government programme open to international candidates from all countries, combining university placement with full-time study funding. The 2027 dates are estimated from the official 2026 cycle.',
+      'Programme public turc ouvert aux candidats internationaux de tous pays, avec placement universitaire et financement des études à temps plein. Les dates 2027 sont estimées à partir du calendrier annuel officiel, qui fixe les candidatures du 10 janvier au 20 février.',
+      'Turkish government programme open to international candidates from all countries, combining university placement with full-time study funding. The 2027 dates are estimated from the official annual calendar, which sets applications from 10 January to 20 February.',
     ],
     advantages: [
-      ['Placement dans une université et un programme', 'Placement in a university and programme'],
+      ['Placement dans une université et un programme, avec jusqu’à 12 choix', 'Placement in a university and programme, with up to 12 choices'],
       ['Frais de scolarité pris en charge', 'Tuition fees covered'],
-      ['Logement, assurance santé et billet d’avion aller-retour unique', 'Accommodation, health insurance and one-time round-trip flight'],
+      ['Résidence universitaire en Licence ; en Master, un an de résidence puis allocation logement de 5 000 à 6 000 TL par mois. Assurance santé et billet d’avion aller-retour unique', 'University dormitory for Bachelor; for Master, one year of dormitory then a TRY 5,000–6,000 monthly housing allowance. Health insurance and a one-time round-trip flight'],
       ['Cours de turc pendant un an', 'One-year Turkish language course'],
       ['Allocation mensuelle officielle : 4 500 TL en Licence et 6 500 TL en Master', 'Published monthly stipend: TRY 4,500 for Bachelor and TRY 6,500 for Master'],
     ],
@@ -27,7 +27,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Être ressortissant de n’importe quel pays et ne pas être citoyen turc ou ancien citoyen turc', 'Be a national of any country and not be a Turkish citizen or former Turkish citizen'],
       ['Avoir au minimum 70 % pour la Licence et 75 % pour le Master ; 90 % pour médecine, dentaire et pharmacie', 'Have at least 70% for Bachelor and 75% for Master; 90% for medicine, dentistry and pharmacy'],
       ['Avoir moins de 21 ans pour la Licence ou moins de 30 ans pour le Master', 'Be under 21 for Bachelor or under 30 for Master'],
-      ['Être diplômé ou en dernière année avec diplomation avant août 2026', 'Be graduated or in the final year with graduation before August 2026'],
+      ['Être diplômé ou en dernière année, avec diplomation avant la rentrée d’août 2027', 'Be graduated or in the final year, with graduation before the August 2027 intake'],
       ['Ne pas être déjà inscrit en Turquie au même niveau d’études', 'Not already be enrolled in Türkiye at the same study level'],
     ],
     requirements: [
@@ -49,16 +49,17 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       dateConfidence: 'estimated',
       estimatedOpenAt: '2027-01-10T00:00:00.000Z',
       estimatedCloseAt: '2027-02-20T23:59:59.000Z',
-      sourceUrl: 'https://www.turkiyeburslari.gov.tr/announcements/turkiye-scholarships-2026-applications-121',
+      sourceUrl: 'https://www.turkiyeburslari.gov.tr/calendar',
     },
     sources: {
       overview: 'https://www.turkiyeburslari.gov.tr/fulltimeprograms',
       eligibility: 'https://turkiyeburslari.gov.tr/scholarshipsprograms',
       benefits: 'https://www.turkiyeburslari.gov.tr/whyturkiyescholarships',
       application: 'https://tbbs.turkiyeburslari.gov.tr/',
-      cycle: 'https://www.turkiyeburslari.gov.tr/announcements/turkiye-scholarships-2026-applications-121',
+      cycle: 'https://www.turkiyeburslari.gov.tr/calendar',
     },
     tags: ['bachelor', 'master', 'turkiye', 'government', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'turkiye_isdb_joint_2027_forecast',
@@ -68,7 +69,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février, à reconfirmer', '2027 forecast — approximately 10 January to 20 February, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février 2027, à reconfirmer', '2027 forecast — approximately 10 January to 20 February 2027, to be reconfirmed'],
     description: [
       'Volet conjoint de Türkiye Scholarships et de la Banque islamique de développement pour les candidats des pays membres de la BID et des communautés musulmanes éligibles. Les dates 2027 sont estimées depuis l’appel 2026.',
       'Joint Türkiye Scholarships and Islamic Development Bank route for candidates from IsDB member countries and eligible Muslim communities. The 2027 dates are estimated from the 2026 call.',
@@ -83,7 +84,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     eligibility: [
       ['Être citoyen d’un pays membre de la BID ou membre d’une communauté musulmane éligible', 'Be a citizen of an IsDB member country or member of an eligible Muslim community'],
       ['Satisfaire les critères académiques et d’âge du niveau Türkiye Scholarships demandé', 'Meet the Türkiye Scholarships academic and age criteria for the requested level'],
-      ['Être diplômé ou en dernière année et obtenir le diplôme avant août 2026', 'Be graduated or in the final year and complete the degree before August 2026'],
+      ['Être diplômé ou en dernière année et obtenir le diplôme avant la rentrée d’août 2027', 'Be graduated or in the final year and complete the degree before the August 2027 intake'],
       ['Ne pas être citoyen turc ni déjà inscrit en Turquie au même niveau', 'Not be a Turkish citizen or already enrolled in Türkiye at the same level'],
     ],
     requirements: [
@@ -114,6 +115,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
     },
     tags: ['bachelor', 'master', 'turkiye', 'isdb', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'stipendium_hungaricum_2027_forecast',
@@ -123,16 +125,16 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Financement important mais contribution personnelle possible', 'Substantial funding; personal contribution may still be needed'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prévision — environ du 17 novembre 2026 au 15 janvier 2027, à reconfirmer', 'Forecast — approximately 17 November 2026 to 15 January 2027, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027–2028 — ouverture estimée en novembre-décembre 2026, clôture estimée vers le 15 janvier 2027 à 14 h CET, à reconfirmer', '2027–2028 forecast — opening estimated in November–December 2026, closing estimated around 15 January 2027 at 2 pm CET, to be reconfirmed'],
     description: [
-      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. La fenêtre suivante est estimée depuis le calendrier officiel 2026–2027.',
-      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. The next window is estimated from the official 2026–2027 schedule.',
+      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. Au 10 août 2026, seul le cycle 2026–2027 est publié (clôture le 15 janvier 2026 à 14 h CET) : la fenêtre suivante est estimée depuis ce calendrier.',
+      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. As of 10 August 2026 only the 2026–2027 cycle is published (closing 15 January 2026 at 2 pm CET), so the next window is estimated from that schedule.',
     ],
     advantages: [
       ['Exonération des frais de scolarité', 'Tuition-free education'],
       ['Allocation mensuelle de 43 700 HUF pour Licence et Master selon la page officielle', 'Monthly HUF 43,700 stipend for Bachelor and Master according to the official page'],
       ['Place en résidence ou contribution logement de 40 000 HUF par mois', 'Dormitory place or HUF 40,000 monthly housing contribution'],
-      ['Assurance médicale prévue par le programme', 'Medical insurance provided by the programme'],
+      ['Couverture santé et assurance complémentaire jusqu’à 65 000 HUF par an', 'Health care coverage and supplementary insurance up to HUF 65,000 per year'],
       ['Les prestations sont des contributions et peuvent ne pas couvrir toutes les dépenses', 'Benefits are contributions and may not cover every living expense'],
     ],
     eligibility: [
@@ -140,6 +142,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Avoir le diplôme requis : fin du secondaire pour la Licence, Licence pour le Master', 'Hold the required qualification: secondary completion for Bachelor, Bachelor degree for Master'],
       ['Respecter les exigences linguistiques et académiques de l’établissement', 'Meet the host institution’s language and academic requirements'],
       ['Obtenir la nomination du partenaire d’envoi lorsque cette étape s’applique', 'Receive sending-partner nomination where that step applies'],
+      ['Atteindre au moins 56 points sur 100 à l’examen d’entrée du programme choisi', 'Score at least 56 out of 100 points in the chosen programme’s entrance exam'],
     ],
     requirements: [
       ['Formulaire en ligne et lettre de motivation', 'Online form and motivation letter'],
@@ -158,7 +161,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       academicYear: '2027-2028',
       status: 'forecast',
       dateConfidence: 'estimated',
-      estimatedOpenAt: '2026-11-17T00:00:00.000Z',
+      estimatedOpenAt: '2026-11-01T00:00:00.000Z',
       estimatedCloseAt: '2027-01-15T13:00:00.000Z',
       sourceUrl: 'https://stipendiumhungaricum.hu/apply/',
     },
@@ -170,6 +173,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://stipendiumhungaricum.hu/apply/',
     },
     tags: ['bachelor', 'master', 'hungary', 'government', 'sending-partner'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'romania_mfa_scholarship_2027_forecast',
@@ -179,7 +183,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Frais couverts et soutien mensuel/logement partiel', 'Covered fees with monthly and partial housing support'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prévision 2027 — environ du 16 février au 31 mars, à reconfirmer', '2027 forecast — approximately 16 February to 31 March, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027 — environ du 16 février au 31 mars 2027, à reconfirmer', '2027 forecast — approximately 16 February to 31 March 2027, to be reconfirmed'],
     description: [
       'Bourse du ministère roumain des Affaires étrangères pour ressortissants de pays hors Union européenne ; Licence et Master sont enseignés en roumain avec année préparatoire si nécessaire. Les dates 2027 sont estimées depuis le cycle 2026.',
       'Romanian Ministry of Foreign Affairs scholarship for non-EU nationals; Bachelor and Master studies are in Romanian, with a preparatory year where needed. The 2027 dates are estimated from the 2026 cycle.',
@@ -226,6 +230,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://scholarships.studyinromania.gov.ro/scholarship-about',
     },
     tags: ['bachelor', 'master', 'romania', 'government', 'romanian-language'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'brunei_government_scholarship_2027_forecast',
@@ -283,6 +288,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.mfa.gov.bn/pages/online-bdgs.aspx',
     },
     tags: ['bachelor', 'master', 'brunei', 'government', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'kazakhstan_foreign_students_2027_forecast',
@@ -292,10 +298,10 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Scolarité et allocation mensuelle ; autres coûts non couverts', 'Tuition and monthly allowance; other costs excluded'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prévision 2027 — environ du 30 mars au 31 mai, à reconfirmer', '2027 forecast — approximately 30 March to 31 May, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027 — environ du 30 mars au 31 mai 2027 (23 h 59 heure d’Astana), à reconfirmer', '2027 forecast — approximately 30 March to 31 May 2027 (23:59 Astana time), to be reconfirmed'],
     description: [
-      'Programme national ayant proposé en 2026 490 places en Licence et 50 en Master aux citoyens étrangers, y compris aux Kazakhs ethniques sans citoyenneté kazakhe. Les dates 2027 sont prévisionnelles.',
-      'National programme that offered 490 Bachelor and 50 Master places in 2026 to foreign citizens, including ethnic Kazakhs without Kazakh citizenship. The 2027 dates are forecasts.',
+      'Programme national administré par le Centre des programmes internationaux, ayant proposé en 2026 490 places en Licence et 50 en Master aux citoyens étrangers, y compris aux Kazakhs ethniques sans citoyenneté kazakhe. Les dates 2027 sont prévisionnelles.',
+      'National programme run by the Center for International Programs, which offered 490 Bachelor and 50 Master places in 2026 to foreign citizens, including ethnic Kazakhs without Kazakh citizenship. The 2027 dates are forecasts.',
     ],
     advantages: [
       ['Frais de scolarité couverts pendant la durée officielle', 'Tuition covered for the standard study duration'],
@@ -307,8 +313,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Être citoyen étranger ou Kazakh ethnique sans citoyenneté kazakhe', 'Be a foreign citizen or ethnic Kazakh without Kazakh citizenship'],
       ['Pour la Licence, avoir achevé le secondaire avec une appréciation au moins « bonne »', 'For Bachelor, complete secondary education with at least a “good” result'],
       ['Pour le Master, détenir une Licence avec une moyenne d’au moins 3,0/4,0 selon l’appel 2026', 'For Master, hold a Bachelor degree with at least 3.0/4.0 GPA under the 2026 call'],
-      ['Pour le Master, satisfaire le seuil linguistique publié ou prouver que les études précédentes étaient dans cette langue', 'For Master, meet the published language threshold or prove prior study in that language'],
-      ['Ne pas être déjà titulaire d’une bourse kazakhe au même niveau', 'Not already hold a Kazakhstan scholarship for the same level'],
+      ['Pour le Master, satisfaire le seuil linguistique publié (IELTS 5.5, TOEFL iBT 46, DELF/DALF B2, TestDaF B2 ou HSK 4) ou prouver que les études précédentes étaient dans cette langue', 'For Master, meet the published language threshold (IELTS 5.5, TOEFL iBT 46, DELF/DALF B2, TestDaF B2 or HSK 4) or prove prior study in that language'],
+      ['Préparer ce niveau d’études pour la première fois et présenter une pièce d’identité valide', 'Be pursuing this level of study for the first time and hold a valid identity document'],
     ],
     requirements: [
       ['Passeport ou pièce d’identité', 'Passport or identity document'],
@@ -340,6 +346,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://oq.gov.kz/en/news/1504',
     },
     tags: ['bachelor', 'master', 'kazakhstan', 'government', 'tuition'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'heydar_aliyev_grant_2027_forecast',
@@ -349,37 +356,37 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prévision 2027 — première étape vers le 16 février au 15 avril, à reconfirmer', '2027 forecast — first stage around 16 February to 15 April, to be reconfirmed'],
+    deadlineLabel: ['Prévision 2027 — première étape (nomination) vers le 16 février au 15 avril 2027, 18 h heure de Bakou, à reconfirmer', '2027 forecast — first stage (nomination) around 16 February to 15 April 2027, 6 pm Baku time, to be reconfirmed'],
     description: [
-      'Programme présidentiel azerbaïdjanais offrant jusqu’à 100 bourses annuelles aux ressortissants des groupes de pays officiellement éligibles. La fenêtre 2027 est estimée depuis l’appel 2026.',
-      'Azerbaijani presidential programme offering up to 100 annual awards to nationals of officially eligible country groups. The 2027 window is estimated from the 2026 call.',
+      'Programme institué par décret présidentiel azerbaïdjanais en 2023 et attribué annuellement pendant cinq ans : 100 bourses par an pour les ressortissants des groupes de pays officiellement éligibles. La fenêtre 2027 est estimée depuis l’appel 2026–2027.',
+      'Programme established by Azerbaijani presidential decree in 2023 and awarded annually for five years: 100 awards per year for nationals of officially eligible country groups. The 2027 window is estimated from the 2026–2027 call.',
     ],
     advantages: [
-      ['Frais de scolarité et préparation linguistique', 'Tuition fees and language preparation'],
-      ['Billet aller-retour annuel en classe économique', 'Annual economy round-trip ticket'],
-      ['Allocation de 800 AZN par mois pendant dix mois', 'AZN 800 monthly allowance for ten months'],
+      ['Frais de scolarité et cours préparatoires de langue', 'Tuition fees and language preparatory courses'],
+      ['Billet d’avion aller-retour annuel en classe économique vers Bakou', 'Annual economy-class round-trip flight to Baku'],
+      ['Allocation de 800 AZN par mois pendant dix mois par an (hors juillet et août)', 'AZN 800 monthly allowance for ten months a year (excluding July and August)'],
       ['Allocation médicale de 200 AZN par an', 'AZN 200 annual medical allowance'],
-      ['Visa et permis de séjour', 'Visa and residence permit'],
+      ['Visa d’entrée simple et permis de séjour temporaire renouvelé chaque année universitaire', 'Single-entry visa and temporary residence permit renewed each academic year'],
     ],
     eligibility: [
       ['Être ressortissant d’un pays de l’OCI, du Mouvement des non-alignés, d’un petit État insulaire en développement ou d’un pays lié culturellement/historiquement', 'Be a national of an OIC, Non-Aligned Movement, Small Island Developing State or culturally/historically linked country'],
       ['Ne pas être citoyen actuel ou ancien citoyen de l’Azerbaïdjan', 'Not be a current or former citizen of Azerbaijan'],
-      ['Avoir moins de 35 ans en Licence ou moins de 40 ans en Master au 15 septembre 2026', 'Be under 35 for Bachelor or under 40 for Master on 15 September 2026'],
-      ['Avoir au moins 70/100 au dernier diplôme', 'Have at least 70/100 in the latest qualification'],
-      ['Respecter les seuils de langue publiés ou prouver une scolarité antérieure dans la langue du cursus', 'Meet published language thresholds or prove prior education in the programme language'],
+      ['Avoir moins de 35 ans en Licence ou moins de 40 ans en Master à la date de référence de la rentrée, fixée au 15 septembre par l’appel officiel', 'Be under 35 for Bachelor or under 40 for Master at the intake reference date, set at 15 September by the official call'],
+      ['Avoir au moins 70/100 (ou 7/10 ou l’équivalent) au dernier diplôme', 'Have at least 70/100 (or 7/10 or equivalent) in the latest qualification'],
+      ['Respecter les seuils de langue publiés — IELTS 5 en Licence, IELTS 5.5 en Master pour l’anglais — ou prouver une scolarité antérieure dans la langue du cursus', 'Meet the published language thresholds — IELTS 5 for Bachelor, IELTS 5.5 for Master in English — or prove prior education in the programme language'],
     ],
     requirements: [
       ['Nomination par l’autorité publique compétente du pays', 'Nomination by the designated government authority'],
       ['Diplômes et relevés', 'Diplomas and transcripts'],
       ['Passeport, CV et lettre de motivation', 'Passport, CV and motivation letter'],
-      ['Certificat médical récent incluant VIH et hépatites B/C', 'Recent medical certificate including HIV and hepatitis B/C'],
-      ['Preuve linguistique et traductions/notarisations applicables', 'Language proof and applicable translations/notarisations'],
+      ['Certificat médical de moins de trois mois incluant VIH/SIDA et hépatites B/C', 'Medical certificate less than three months old including HIV/AIDS and hepatitis B/C'],
+      ['Preuve linguistique, pièces notariées et traduction notariée en anglais si la langue d’origine n’est pas l’azerbaïdjanais, le turc, l’anglais ou le russe', 'Language proof, notarised documents and a notarised English translation when the original language is not Azerbaijani, Turkish, English or Russian'],
     ],
     steps: [
       ['Contacter l’autorité nationale', 'Contact the national authority', 'Identifier l’organisme de nomination de son pays et respecter sa procédure interne.', 'Identify the nominating body in the home country and follow its internal process.'],
       ['Préparer le dossier', 'Prepare the file', 'Rassembler études, santé, langue, CV, passeport et motivation.', 'Gather academic, medical, language, CV, passport and motivation evidence.'],
       ['Obtenir la nomination', 'Obtain nomination', 'Faire transmettre la candidature officielle avant le 15 avril.', 'Have the official nomination submitted before 15 April.'],
-      ['Finaliser dans SIACAS', 'Finalise in SIACAS', 'Les candidats nommés complètent la seconde étape en ligne du 1er au 10 juin.', 'Nominated candidates complete the online second stage from 1 to 10 June.'],
+      ['Finaliser dans SIACAS', 'Finalise in SIACAS', 'Les candidats nommés complètent la seconde étape en ligne sur portal.edu.az du 1er au 10 juin et peuvent choisir trois spécialités dans différents établissements.', 'Nominated candidates complete the online second stage on portal.edu.az from 1 to 10 June and may choose three specialities at different institutions.'],
     ],
     cycle: {
       academicYear: '2027-2028',
@@ -397,6 +404,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf',
     },
     tags: ['bachelor', 'master', 'azerbaijan', 'government', 'nomination', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'taiwan_icdf_2027',
@@ -406,7 +414,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence (pays diplomatiques seulement) et Master', 'Bachelor (diplomatic allies only) and Master'],
     fundingLabel: ['Financement complet selon le barème du programme', 'Comprehensive funding under the programme terms'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prochain cycle confirmé — 1 décembre 2026 au 15 mars 2027', 'Confirmed next cycle — 1 December 2026 to 15 March 2027'],
+    deadlineLabel: ['Prochain cycle confirmé — 1er décembre 2026 au 15 mars 2027', 'Confirmed next cycle — 1 December 2026 to 15 March 2027'],
     description: [
       'Programme de coopération internationale de TaiwanICDF pour des cursus partenaires en anglais. Pour l’Afrique, la Licence est limitée aux pays alliés diplomatiques indiqués ; le Master couvre une liste africaine plus large.',
       'TaiwanICDF international cooperation programme for partner degrees taught in English. In Africa, Bachelor eligibility is limited to listed diplomatic allies, while Master eligibility covers a broader African list.',
@@ -449,12 +457,13 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     },
     sources: {
       overview: 'https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505',
-      eligibility: 'https://www.icdf.org.tw/wSite/ct?ctNode=31563&mp=2&xItem=69337',
+      eligibility: 'https://www.icdf.org.tw/wSite/np?ctNode=31563&CtUnit=365&BaseDSD=7&mp=2',
       benefits: 'https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach',
       application: 'https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338',
       cycle: 'https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505',
     },
     tags: ['bachelor', 'master', 'taiwan', 'icdf', 'future-cycle', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'open_doors_russia_2027',
@@ -464,7 +473,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Frais de scolarité couverts ; vie et voyage non couverts', 'Tuition covered; living and travel costs excluded'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prochain cycle confirmé — 20 août au 1 novembre 2026', 'Confirmed next cycle — 20 August to 1 November 2026'],
+    deadlineLabel: ['Prochain cycle confirmé — inscriptions du 20 août au 1er novembre 2026', 'Confirmed next cycle — registration from 20 August to 1 November 2026'],
     description: [
       'Olympiade internationale gratuite et en ligne donnant accès, selon le classement, à des études sans frais dans des universités russes participantes.',
       'Free online international competition providing tuition-free access, according to ranking, to programmes at participating Russian universities.',
@@ -492,7 +501,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     steps: [
       ['S’inscrire', 'Register', 'Créer le compte dès l’ouverture et sélectionner le niveau et le domaine.', 'Create an account when registration opens and select level and subject area.'],
       ['Construire le portfolio', 'Build the portfolio', 'Ajouter les résultats, réalisations et justificatifs demandés.', 'Add results, achievements and requested evidence.'],
-      ['Passer les étapes', 'Complete the stages', 'Soumettre le portfolio puis réaliser les épreuves en ligne selon le calendrier.', 'Submit the portfolio and complete online tests according to the schedule.'],
+      ['Passer les étapes', 'Complete the stages', 'Première étape jusqu’au 13 novembre 2026 (portfolio et test), puis seconde étape en ligne du 13 novembre au 21 décembre 2026.', 'First stage until 13 November 2026 (portfolio and test), then the online second stage from 13 November to 21 December 2026.'],
       ['Choisir le programme', 'Choose a programme', 'Après classement, suivre la procédure de placement et d’inscription universitaire.', 'After ranking, follow programme placement and university enrolment.'],
     ],
     cycle: {
@@ -511,5 +520,6 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://od.globaluni.ru/',
     },
     tags: ['bachelor', 'master', 'russia', 'olympiad', 'future-cycle', 'tuition'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
 ];

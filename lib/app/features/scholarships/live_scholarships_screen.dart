@@ -131,6 +131,15 @@ class _DeadlineBadge {
 _DeadlineBadge? _deadlineBadge(LiveScholarshipModel s) {
   final at = s.deadlineAt;
   if (at == null) return null;
+  // Un compte à rebours au jour près sur une date ESTIMÉE serait un mensonge.
+  // L'importeur remplit `deadlineAt` depuis `estimatedCloseAt` quand le cycle
+  // n'est pas confirmé (import-scholarship-catalog.ts) — utile pour classer les
+  // bourses par échéance, mais pas pour l'affirmer à l'étudiant. La plupart des
+  // institutions africaines et des consortiums Erasmus ne publient AUCUNE date
+  // pour la campagne suivante : la fenêtre estimée est alors la seule vérité
+  // disponible, et `_cyclePill` l'affiche déjà comme telle (« Période estimée
+  // du … au … », en ambre). On laisse donc la pastille de cycle parler seule.
+  if (s.currentCycle?.isEstimated ?? false) return null;
   final days = at.difference(DateTime.now()).inDays;
   if (days < 0) {
     return _DeadlineBadge('live_scholarships_deadline_closed'.tr,

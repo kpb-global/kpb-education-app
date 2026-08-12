@@ -11,7 +11,16 @@ import type {
 import { SCHOLARSHIP_CATALOG_V1 } from './scholarship-catalog.v1';
 import { validateScholarshipCatalog } from './scholarship-catalog.validator';
 
-const NOW = new Date('2026-07-16T12:00:00.000Z');
+// Date de référence figée : elle rend les assertions structurelles
+// déterministes. Elle est calée sur la vague de vérification la plus récente
+// (10/08/2026, lot « Top 10 ») et doit avancer avec elle — sinon les nouvelles
+// fiches se retrouvent dans le futur par rapport à NOW, ce que le validateur
+// rejette au même titre qu'une source périmée.
+//
+// ⚠️ Figer le temps ici a un angle mort : aucun de ces tests ne peut détecter
+// l'expiration réelle du catalogue. C'est le rôle du test « fenêtre de
+// vérification réelle » en fin de fichier, qui interroge l'horloge du système.
+const NOW = new Date('2026-08-10T12:00:00.000Z');
 
 function validRecord(): VerifiedScholarshipCatalogRecord {
   const checkedAt = '2026-07-15T12:00:00.000Z';
@@ -94,12 +103,12 @@ describe('versioned scholarship catalog', () => {
     });
 
     expect(report.valid).toBe(true);
-    expect(report.uniqueRecordCount).toBe(25);
+    expect(report.uniqueRecordCount).toBe(34);
     expect(report.uniqueRecordDeficit).toBe(0);
     expect(report.verifiedCounts).toEqual({
-      secondary: 3,
-      bachelor: 12,
-      master: 19,
+      secondary: 4,
+      bachelor: 17,
+      master: 25,
     });
     expect(report.backlogCounts).toEqual({
       secondary: 0,
@@ -113,7 +122,7 @@ describe('versioned scholarship catalog', () => {
     });
     expect(report.backlogDeficits).toEqual({
       secondary: 3,
-      bachelor: 8,
+      bachelor: 11,
       master: 4,
     });
     expect(report.issues.filter((issue) => issue.code === 'volume_target_not_met')).toHaveLength(0);
@@ -135,6 +144,49 @@ describe('versioned scholarship catalog', () => {
       now: NOW,
     });
     expect(report.valid).toBe(true);
+  });
+
+  // Deux fiches annonçaient « Ouvert » pour une campagne terminée au 10/08/2026
+  // (Rhodes Afrique australe, close le 3 août ; DAAD Helmut-Schmidt, le
+  // 31 juillet) et le catalogue restait `valid: true`. Seule une relecture
+  // humaine les a attrapées — d'où cette règle.
+  it('refuse un cycle « ouvert » dont la clôture est déjà passée', () => {
+    const record = validRecord();
+    record.cycle.status = 'open';
+    record.cycle.dateConfidence = 'confirmed';
+    record.cycle.opensAt = '2026-06-01T00:00:00.000Z';
+    record.cycle.closesAt = '2026-08-03T21:59:00.000Z'; // avant NOW
+    const catalog: VersionedScholarshipCatalog = {
+      schemaVersion: 1,
+      catalogVersion: '1.0.1',
+      volumeTargets: {
+        uniqueRecords: 1,
+        secondary: 1,
+        bachelor: 1,
+        master: 1,
+      },
+      records: [record],
+      backlog: [],
+    };
+
+    const report = validateScholarshipCatalog(catalog, { now: NOW });
+    const issue = report.issues.find(
+      (i) => i.code === 'open_cycle_already_closed',
+    );
+    expect(issue).toBeDefined();
+    // Le message doit nommer la date fautive : sans elle, on ignore laquelle
+    // des deux dates du cycle est en cause.
+    expect(issue?.message).toContain('2026-08-03');
+    expect(report.valid).toBe(false);
+
+    // La même fiche passée en `closed` redevient valide : la règle vise le
+    // mensonge, pas la présence d'une date passée.
+    record.cycle.status = 'closed';
+    expect(
+      validateScholarshipCatalog(catalog, { now: NOW }).issues.filter(
+        (i) => i.code === 'open_cycle_already_closed',
+      ),
+    ).toEqual([]);
   });
 
   it('accepts a complete bilingual record with fresh official HTTPS evidence', () => {
@@ -292,5 +344,41 @@ describe('versioned scholarship catalog', () => {
         'sourceUrl.https',
       ]),
     );
+  });
+
+  // Le seul test du fichier qui utilise l'horloge RÉELLE, et c'est délibéré.
+  //
+  // Tous les autres épinglent `now` pour être déterministes — au prix d'un angle
+  // mort : ils resteraient verts indéfiniment alors que le catalogue est devenu
+  // non-importable. Le validateur refuse toute source contrôlée il y a plus de
+  // 30 jours, donc les fiches expirent en silence et `import-scholarship-catalog`
+  // échouerait sans que rien ne l'ait annoncé. Plus aucune bourse ne pourrait
+  // être publiée.
+  //
+  // Ce test est donc conçu pour CASSER quand la vérification vieillit. Ce n'est
+  // pas une fragilité, c'est le rappel : rouvrir les sources officielles des
+  // fiches signalées, puis porter leur nouvelle date dans `checkedAt`. Ne le
+  // neutralisez pas en repoussant `CHECKED_AT` sans avoir relu les pages : le
+  // catalogue affirmerait une vérification qui n'a pas eu lieu.
+  it('reste importable à la date du jour (fenêtre de vérification réelle)', () => {
+    const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
+      includeVolumeTargets: false,
+    });
+
+    const stale = report.issues.filter(
+      (issue) => issue.code === 'stale_verification',
+    );
+    // Jest n'accepte pas de message en second argument : on le fait porter par
+    // la valeur comparée, pour qu'il s'affiche dans le diff de l'échec.
+    const diagnosis =
+      stale.length === 0
+        ? 'catalogue à jour'
+        : `${stale.length} fiche(s) vérifiées il y a plus de 30 jours ` +
+          `(${stale.map((issue) => issue.path).join(', ')}) — rouvrez leurs ` +
+          'pages officielles puis mettez à jour leur `checkedAt`. Sans cela, ' +
+          '`npm run scholarships:import` refusera le catalogue entier et plus ' +
+          'aucune bourse ne pourra être publiée.';
+    expect(diagnosis).toBe('catalogue à jour');
+    expect(report.valid).toBe(true);
   });
 });

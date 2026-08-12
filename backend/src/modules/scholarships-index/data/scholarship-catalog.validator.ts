@@ -267,26 +267,57 @@ function validateRecord(
   if (!/^\d{4}-\d{4}$/.test(cycle.academicYear)) {
     push(issues, 'invalid_academic_year', `${root}.cycle.academicYear`, 'Use YYYY-YYYY.');
   }
-  const startRaw =
-    cycle.dateConfidence === 'confirmed' ? cycle.opensAt : cycle.estimatedOpenAt;
-  const closeRaw =
-    cycle.dateConfidence === 'confirmed' ? cycle.closesAt : cycle.estimatedCloseAt;
+  const isConfirmed = cycle.dateConfidence === 'confirmed';
+  const startRaw = isConfirmed ? cycle.opensAt : cycle.estimatedOpenAt;
+  const closeRaw = isConfirmed ? cycle.closesAt : cycle.estimatedCloseAt;
   const start = parseDate(startRaw);
   const close = parseDate(closeRaw);
-  if (!start || !close) {
+  // Une date de clôture confirmée SANS date d'ouverture est le cas courant, pas
+  // une anomalie : beaucoup d'institutions publient « date limite : 31 août »
+  // sans jamais annoncer d'ouverture (University of Pretoria, par exemple).
+  // Exiger les deux forçait un choix entre inventer une ouverture et déclasser
+  // toute la fiche en « estimée » — or c'est la clôture qui est le fait
+  // actionnable pour l'étudiant. On exige donc la clôture, et l'ouverture reste
+  // facultative. Un cycle estimé garde ses deux bornes : une fenêtre sans début
+  // n'a pas de sens.
+  const missingDates = isConfirmed ? !close : !start || !close;
+  if (missingDates) {
     push(
       issues,
       'missing_cycle_dates',
       `${root}.cycle`,
-      cycle.dateConfidence === 'confirmed'
-        ? 'Confirmed cycles require opensAt and closesAt.'
+      isConfirmed
+        ? 'Confirmed cycles require closesAt (opensAt is optional).'
         : 'Estimated cycles require estimatedOpenAt and estimatedCloseAt.',
     );
-  } else if (close <= start) {
+  } else if (start && close && close <= start) {
     push(issues, 'invalid_cycle_order', `${root}.cycle`, 'The closing date must be after the opening date.');
   }
   if (cycle.status === 'open' && cycle.dateConfidence !== 'confirmed') {
     push(issues, 'open_cycle_not_confirmed', `${root}.cycle`, 'An open cycle must use confirmed dates.');
+  }
+  // Une campagne annoncée « ouverte » dont la clôture est passée est un mensonge
+  // à date. Deux fiches en circulaient au 10/08/2026 : Rhodes Afrique australe
+  // (fermée le 3 août) et DAAD Helmut-Schmidt (fermée le 31 juillet), toutes
+  // deux avec un `deadlineLabel` commençant par « Ouvert ». Le catalogue restait
+  // `valid: true`, et seule une relecture humaine les a attrapées.
+  //
+  // La pastille de cycle côté Flutter dégrade déjà correctement (elle affiche
+  // « Deadline closed » si la clôture est passée), mais le `deadlineLabel` est
+  // une chaîne figée : lui, il continue d'affirmer « Ouvert ». C'est ce texte
+  // que cette règle protège.
+  //
+  // Elle est volontairement adossée à l'horloge : ce test DOIT casser quand une
+  // campagne se termine. Le correctif est d'une ligne (`status: 'closed'`), et
+  // c'est le prix d'un catalogue qui ne périme pas en silence.
+  if (cycle.status === 'open' && close && close <= now) {
+    push(
+      issues,
+      'open_cycle_already_closed',
+      `${root}.cycle`,
+      `An open cycle cannot have a closing date in the past (${close.toISOString().slice(0, 10)}). ` +
+        'Set status to "closed" and refresh the deadline label.',
+    );
   }
 }
 
