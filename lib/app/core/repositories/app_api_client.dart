@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -110,6 +111,86 @@ class AppApiClient {
   /// (and, best-effort, the Supabase auth identity).
   Future<void> deleteAccount() async {
     await _dio.delete<void>('/profiles/me');
+  }
+
+  // ── Profile photo (avatar) ─────────────────────────────────────────────
+  //
+  // The avatar is a PRIVATE object: `GET /profiles/me/avatar` is authenticated
+  // and 404s when the user has none. The profile never exposes a storage path,
+  // only `hasAvatar` / the URL of this endpoint. A bare `Image.network` on it
+  // therefore gets a 401 — see [authImageHeaders].
+
+  /// Absolute URL of the authenticated avatar stream.
+  ///
+  /// Built from the live Dio `baseUrl` (not `AppConfig.apiBaseUrl`) so an
+  /// injected test client points at its own host.
+  String get avatarStreamUrl => '${_dio.options.baseUrl}/profiles/me/avatar';
+
+  /// Bearer header for image fetches that go OUTSIDE Dio.
+  ///
+  /// `cached_network_image` uses its own HTTP client, so [_AuthInterceptor] —
+  /// which attaches the token and transparently refreshes on 401 — never runs
+  /// for the avatar. The expiry is therefore handled here: an expired session
+  /// is refreshed once before the header is handed out.
+  ///
+  /// Returns null when no usable session exists (guest, signed-out, Supabase
+  /// not initialised as in widget tests). Callers must then render the initials
+  /// fallback rather than fire a request that can only fail.
+  Future<Map<String, String>?> authImageHeaders() async {
+    try {
+      final auth = Supabase.instance.client.auth;
+      var session = auth.currentSession;
+      if (session == null) return null;
+      if (session.isExpired) {
+        try {
+          session = (await auth.refreshSession()).session;
+        } catch (_) {
+          return null;
+        }
+      }
+      final token = session?.accessToken;
+      if (token == null || token.isEmpty) return null;
+      return <String, String>{'Authorization': 'Bearer $token'};
+    } catch (_) {
+      // Supabase.instance throws when the SDK was never initialised.
+      return null;
+    }
+  }
+
+  /// Uploads the profile photo (multipart field `file`) and returns the updated
+  /// profile. The image must already be downscaled client-side — the caller is
+  /// [ProfileAvatar], which caps it at 512 px before we ever touch the network.
+  /// Prend des OCTETS, pas un chemin de fichier.
+  ///
+  /// `image_picker` rend un `XFile`, qui abstrait sa source : disque sur mobile,
+  /// mémoire ailleurs (et dans les tests). Passer par `MultipartFile.fromFile`
+  /// forçait un accès disque réel — invisible en production, mais l'envoi ne
+  /// partait jamais sous l'horloge simulée des tests de widgets, sans erreur ni
+  /// trace. Lire via `XFile.readAsBytes()` en amont rend la chaîne complète
+  /// observable et fonctionne quelle que soit l'origine du fichier.
+  Future<Map<String, dynamic>> uploadAvatar({
+    required Uint8List bytes,
+    required String fileName,
+    void Function(int sent, int total)? onProgress,
+  }) async {
+    final formData = FormData.fromMap(<String, dynamic>{
+      'file': MultipartFile.fromBytes(bytes, filename: fileName),
+    });
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/profiles/me/avatar',
+      data: formData,
+      onSendProgress: onProgress,
+      options: Options(
+        contentType: 'multipart/form-data',
+        headers: const <String, dynamic>{'Accept': 'application/json'},
+      ),
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Removes the profile photo. Idempotent by backend contract.
+  Future<void> deleteAvatar() async {
+    await _dio.delete<void>('/profiles/me/avatar');
   }
 
   // ── Success Lab / competition readiness ────────────────────────────────

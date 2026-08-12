@@ -243,6 +243,27 @@ describe('ProfilesService — account deletion & export', () => {
     ]);
   });
 
+  it('removes the profile photo object with the account', async () => {
+    const { client } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: null,
+      avatarStorageKey: '2026-08-12/avatar.jpg',
+    });
+    const deleteFile = jest.fn().mockResolvedValue(undefined);
+    const storage = {
+      keyFromUrl: () => null,
+      delete: deleteFile,
+    } as unknown as StorageService;
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await new ProfilesService(prisma, storage).deleteMe('user-1');
+
+    // Erasure must reach the image itself, not just the column pointing at it.
+    expect(deleteFile).toHaveBeenCalledWith('2026-08-12/avatar.jpg');
+  });
+
   it('reports not-deleted when there is no database', async () => {
     const prisma = {
       execute: async () => null,
@@ -273,5 +294,27 @@ describe('ProfilesService — account deletion & export', () => {
     expect((out as { consentReceipts?: unknown }).consentReceipts).toEqual([]);
     expect((out as { aiQuotaBuckets?: unknown }).aiQuotaBuckets).toEqual([]);
     expect((out as { analyticsEvents?: unknown }).analyticsEvents).toEqual([]);
+  });
+
+  it('never puts the avatar storage key in the GDPR export', async () => {
+    const { client } = makeFakePrisma({
+      id: 'user-1',
+      email: 'a@b.com',
+      avatarStorageKey: '2026-08-12/avatar.jpg',
+    });
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    const out = await new ProfilesService(prisma, fakeStorage).exportMe(
+      'user-1',
+    );
+
+    // The export is a document the student may forward anywhere.
+    expect(JSON.stringify(out)).not.toContain('2026-08-12/avatar.jpg');
+    expect(JSON.stringify(out)).not.toContain('avatarStorageKey');
+    expect((out as { profile?: Record<string, unknown> }).profile).toMatchObject(
+      { hasAvatar: true },
+    );
   });
 });

@@ -6,6 +6,21 @@ import {
 } from '@nestjs/common';
 import { Socket } from 'net';
 
+/**
+ * The scanner delivered a verdict and it was positive: the FILE is the problem.
+ * Subclasses the exception this path has always thrown (422), so existing
+ * `instanceof UnprocessableEntityException` consumers are unaffected — callers
+ * that need to tell "infected" from "no verdict" now can.
+ */
+export class InfectedFileError extends UnprocessableEntityException {}
+
+/**
+ * Fail-closed outcome: the scanner is configured but produced no usable verdict
+ * (unreachable, timed out, ERROR response). Not the user's fault — retrying
+ * later is the honest advice. Subclasses the 503 previously thrown here.
+ */
+export class AntivirusUnavailableError extends ServiceUnavailableException {}
+
 export type ClamdVerdict = {
   ok: boolean;
   infected: boolean;
@@ -77,7 +92,7 @@ export class AntivirusService {
     } catch {
       // The original user-provided filename must never reach logs.
       this.logger.error('ClamAV scan request failed.');
-      throw new ServiceUnavailableException(
+      throw new AntivirusUnavailableError(
         'Antivirus scan unavailable. Please retry.',
       );
     }
@@ -85,13 +100,13 @@ export class AntivirusService {
     const verdict = parseClamdResponse(response);
     if (verdict.infected) {
       this.logger.warn('ClamAV rejected an uploaded private object.');
-      throw new UnprocessableEntityException(
+      throw new InfectedFileError(
         'The file was rejected by the antivirus scan.',
       );
     }
     if (!verdict.ok) {
       this.logger.error('ClamAV returned an invalid or error verdict.');
-      throw new ServiceUnavailableException(
+      throw new AntivirusUnavailableError(
         'Antivirus scan unavailable. Please retry.',
       );
     }

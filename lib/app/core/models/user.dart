@@ -67,6 +67,7 @@ class UserProfile {
     this.guardianName,
     this.guardianContact,
     this.guardianConsentedAt,
+    this.hasAvatar = false,
   });
 
   final String id;
@@ -146,6 +147,15 @@ class UserProfile {
   /// Whether a declared minor has recorded guardian consent.
   bool get hasGuardianConsent => guardianConsentedAt != null;
 
+  /// Whether the user has a profile photo stored server-side.
+  ///
+  /// The avatar itself is a PRIVATE object served by the authenticated
+  /// `GET /profiles/me/avatar`; the profile never carries a storage path, only
+  /// this boolean. It is a display *hint*: when true the UI can fetch straight
+  /// away; when false it may still probe (the fetch 404s and falls back to the
+  /// initials) because this flag is only as fresh as the last profile pull.
+  final bool hasAvatar;
+
   UserProfile copyWith({
     String? fullName,
     String? email,
@@ -173,6 +183,7 @@ class UserProfile {
     String? guardianName,
     String? guardianContact,
     DateTime? guardianConsentedAt,
+    bool? hasAvatar,
   }) {
     return UserProfile(
       id: id,
@@ -207,6 +218,7 @@ class UserProfile {
       guardianName: guardianName ?? this.guardianName,
       guardianContact: guardianContact ?? this.guardianContact,
       guardianConsentedAt: guardianConsentedAt ?? this.guardianConsentedAt,
+      hasAvatar: hasAvatar ?? this.hasAvatar,
     );
   }
 

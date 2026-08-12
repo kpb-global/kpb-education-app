@@ -388,6 +388,12 @@ model UserProfile {
   guardianName            String?
   guardianContact         String?
   guardianConsentedAt     DateTime?
+  // Profile photo. This is the PRIVATE storage key of the image object (e.g.
+  // "2026-08-12/<uuid>.jpg"), never a URL: the catalog also serves secondary
+  // scholarships, so an avatar can be a minor's face and a guessable public URL
+  // would be a design defect. The bytes are served only by the authenticated
+  // GET /api/profiles/me/avatar endpoint, which re-checks ownership.
+  avatarStorageKey        String?
   // Last time the profile-completion nudge (KPB-76) was sent — throttles the
   // re-engagement push so an incomplete profile is reminded at most monthly.
   profileNudgedAt         DateTime?

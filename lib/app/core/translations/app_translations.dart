@@ -63,6 +63,48 @@ class AppTranslations extends Translations {
           'levels': 'Niveaux',
           'fees_per_year': 'Frais / an',
           'profile_edit': 'Modifier',
+          // Photo de profil. Un message par cause : « vérifiez votre connexion »
+          // est réservé au VRAI échec réseau. Distinction essentielle entre
+          // `infected` (la photo est en cause) et `scan_unavailable` (notre
+          // antivirus est en fail-closed — l'utilisateur n'y est pour rien).
+          'profile_avatar_sheet_title': 'Photo de profil',
+          'profile_avatar_take_photo': 'Prendre une photo',
+          'profile_avatar_choose_photo': 'Choisir dans la galerie',
+          'profile_avatar_remove': 'Retirer la photo',
+          'profile_avatar_remove_confirm_title': 'Retirer votre photo ?',
+          'profile_avatar_remove_confirm_body':
+              'Vos initiales seront affichées à la place. Vous pourrez ajouter une nouvelle photo à tout moment.',
+          'profile_avatar_updated': 'Votre photo de profil a été mise à jour.',
+          'profile_avatar_removed': 'Votre photo de profil a été retirée.',
+          'profile_avatar_a11y_label': 'Modifier la photo de profil',
+          'profile_avatar_error_too_large':
+              'Cette image est trop lourde. Choisissez une photo plus légère.',
+          'profile_avatar_error_unsupported_type':
+              'Ce format n\'est pas accepté. Utilisez une photo JPEG, PNG ou WebP.',
+          'profile_avatar_error_unreadable':
+              'Cette image n\'a pas pu être lue. Choisissez une autre photo.',
+          'profile_avatar_error_infected':
+              'Cette image a été refusée par notre analyse antivirus. Choisissez une autre photo — réessayer avec la même ne fonctionnera pas.',
+          'profile_avatar_error_scan_unavailable':
+              'Notre analyse antivirus est momentanément indisponible, donc rien n\'a été enregistré. Votre photo n\'est pas en cause : réessayez dans quelques minutes.',
+          'profile_avatar_error_service_unavailable':
+              'Notre service d\'images est momentanément indisponible. Votre photo n\'est pas en cause : réessayez dans quelques minutes.',
+          'profile_avatar_error_conflict':
+              'Une autre modification de votre photo a été enregistrée avant celle-ci. Réessayez.',
+          'profile_avatar_error_profile_missing':
+              'Votre profil n\'a pas été retrouvé sur le serveur. Reconnectez-vous, puis réessayez.',
+          'profile_avatar_error_unauthorized':
+              'Votre session a expiré. Reconnectez-vous, puis réessayez.',
+          'profile_avatar_error_rate_limited':
+              'Trop de tentatives. Attendez une minute avant de réessayer.',
+          'profile_avatar_error_permission_denied':
+              'KPB Education n\'a pas accès à votre appareil photo ou à vos photos. Autorisez-le dans les réglages de votre téléphone.',
+          'profile_avatar_error_network':
+              'Impossible de joindre le serveur. Vérifiez votre connexion, puis réessayez.',
+          'profile_avatar_error_server':
+              'Le serveur a rencontré une erreur. Réessayez plus tard.',
+          'profile_avatar_error_unknown':
+              'L\'envoi de la photo a échoué pour une raison inattendue. Réessayez ; si cela persiste, contactez un conseiller KPB.',
           'profile_edit_title': 'Modifier le profil',
           'profile_security': 'Sécurité',
           'profile_biometric': 'Verrouillage biométrique',
@@ -2693,6 +2735,44 @@ class AppTranslations extends Translations {
           'levels': 'Levels',
           'fees_per_year': 'Fees / year',
           'profile_edit': 'Edit',
+          'profile_avatar_sheet_title': 'Profile photo',
+          'profile_avatar_take_photo': 'Take a photo',
+          'profile_avatar_choose_photo': 'Choose from gallery',
+          'profile_avatar_remove': 'Remove photo',
+          'profile_avatar_remove_confirm_title': 'Remove your photo?',
+          'profile_avatar_remove_confirm_body':
+              'Your initials will be shown instead. You can add a new photo at any time.',
+          'profile_avatar_updated': 'Your profile photo has been updated.',
+          'profile_avatar_removed': 'Your profile photo has been removed.',
+          'profile_avatar_a11y_label': 'Change profile photo',
+          'profile_avatar_error_too_large':
+              'This image is too heavy. Please choose a lighter photo.',
+          'profile_avatar_error_unsupported_type':
+              'This format isn\'t supported. Please use a JPEG, PNG or WebP photo.',
+          'profile_avatar_error_unreadable':
+              'This image couldn\'t be read. Please choose another photo.',
+          'profile_avatar_error_infected':
+              'This image was rejected by our antivirus scan. Please choose a different photo — retrying the same one won\'t work.',
+          'profile_avatar_error_scan_unavailable':
+              'Our antivirus scan is temporarily unavailable, so nothing was saved. There\'s nothing wrong with your photo — please try again in a few minutes.',
+          'profile_avatar_error_service_unavailable':
+              'Our image service is temporarily unavailable. There\'s nothing wrong with your photo — please try again in a few minutes.',
+          'profile_avatar_error_conflict':
+              'Another change to your photo was saved first. Please try again.',
+          'profile_avatar_error_profile_missing':
+              'Your profile couldn\'t be found on the server. Please sign in again, then retry.',
+          'profile_avatar_error_unauthorized':
+              'Your session has expired. Please sign in again, then retry.',
+          'profile_avatar_error_rate_limited':
+              'Too many attempts. Please wait a minute before retrying.',
+          'profile_avatar_error_permission_denied':
+              'KPB Education doesn\'t have access to your camera or photos. Please allow it in your phone settings.',
+          'profile_avatar_error_network':
+              'Could not reach the server. Check your connection, then try again.',
+          'profile_avatar_error_server':
+              'The server hit an error. Please try again later.',
+          'profile_avatar_error_unknown':
+              'Uploading the photo failed for an unexpected reason. Please retry; if it persists, contact a KPB advisor.',
           'profile_edit_title': 'Edit profile',
           'profile_security': 'Security',
           'profile_biometric': 'Biometric lock',

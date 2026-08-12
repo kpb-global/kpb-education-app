@@ -27,6 +27,11 @@ abstract final class ProfileApiCodec {
       whatsApp: json['whatsApp'] as String? ?? '',
       countryOfResidence: json['countryOfResidence'] as String? ?? '',
       preferredLanguage: json['preferredLanguage'] as String? ?? fallbackLocale,
+      // Indice POSITIF seulement : évite une requête d'image inutile quand
+      // l'utilisateur n'a pas de photo. `false` ne prouve rien (le profil peut
+      // être plus ancien que le dernier envoi), donc le widget sonde quand même
+      // et laisse le 404 trancher.
+      hasAvatar: json['hasAvatar'] as bool? ?? false,
       currentLevel: json['currentLevel'] as String?,
       targetLevel: json['targetLevel'] as String?,
       languageLevel: json['languageLevel'] as String?,

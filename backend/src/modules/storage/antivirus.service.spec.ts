@@ -3,7 +3,12 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 
-import { AntivirusService, parseClamdResponse } from './antivirus.service';
+import {
+  AntivirusService,
+  AntivirusUnavailableError,
+  InfectedFileError,
+  parseClamdResponse,
+} from './antivirus.service';
 
 describe('parseClamdResponse', () => {
   it('parses a clean verdict', () => {
@@ -83,6 +88,10 @@ describe('AntivirusService', () => {
     await expect(
       service.assertClean(Buffer.from('evil'), 'doc.pdf'),
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
+    // Typed so a caller can say "this file is infected" rather than a catch-all.
+    await expect(
+      service.assertClean(Buffer.from('evil'), 'doc.pdf'),
+    ).rejects.toBeInstanceOf(InfectedFileError);
   });
 
   it('fails closed with 503 when the scanner is unreachable', async () => {
@@ -96,6 +105,14 @@ describe('AntivirusService', () => {
     await expect(
       service.assertClean(Buffer.from('anything'), 'doc.pdf'),
     ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    // A distinct type from InfectedFileError: "no verdict" is our problem, not
+    // the student's, and the two must never be reported with one message.
+    await expect(
+      service.assertClean(Buffer.from('anything'), 'doc.pdf'),
+    ).rejects.toBeInstanceOf(AntivirusUnavailableError);
+    await expect(
+      service.assertClean(Buffer.from('anything'), 'doc.pdf'),
+    ).rejects.not.toBeInstanceOf(InfectedFileError);
   });
 
   it('fails closed with 503 on a clamd ERROR response', async () => {

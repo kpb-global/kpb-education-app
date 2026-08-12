@@ -57,6 +57,8 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
     `2026-07-18/${randomUUID()}.pdf`,
     `2026-07-18/${randomUUID()}.pdf`,
   ];
+  // Profile photo: a private object like any other user upload.
+  const avatarStorageKey = `2026-08-12/${randomUUID()}.jpg`;
 
   const deleteObject = jest.fn().mockResolvedValue(undefined);
   const storage = {
@@ -80,6 +82,7 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
         email: `privacy-${suffix}@example.test`,
         phone: "+22790000000",
         countryOfResidence: "Niger",
+        avatarStorageKey,
       },
     });
     await prisma.scholarship.create({
@@ -468,6 +471,10 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
       }),
     ]);
     expect(() => JSON.stringify(exported)).not.toThrow();
+    // The photo is reported as a flag; its private storage key never ships.
+    expect(exportRecord.profile).toMatchObject({ hasAvatar: true });
+    expect(JSON.stringify(exported)).not.toContain(avatarStorageKey);
+    expect(JSON.stringify(exported)).not.toContain("avatarStorageKey");
 
     await expect(service.deleteMe(userId)).resolves.toEqual({
       deleted: true,
@@ -508,7 +515,7 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
     });
     expect(retainedBudget?.diagnosticId).toBeNull();
     expect(deleteObject.mock.calls.map(([key]) => key).sort()).toEqual(
-      [...storageKeys].sort(),
+      [...storageKeys, avatarStorageKey].sort(),
     );
   });
 });

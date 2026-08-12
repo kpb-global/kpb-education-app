@@ -1,0 +1,11 @@
+-- Profile photo (owner video review: "users should be able to add their image").
+--
+-- ADDITIVE ONLY: one nullable column, no default, no backfill, no rewrite, no
+-- DROP and no NOT NULL. Existing rows keep NULL = "no avatar", so an older
+-- backend rolled back onto this schema keeps working (it simply ignores the
+-- column) and no data is at risk.
+--
+-- The value is a PRIVATE object-storage key (e.g. "2026-08-12/<uuid>.jpg"),
+-- never a public URL: the image is served only by the authenticated
+-- GET /api/profiles/me/avatar endpoint after an ownership check.
+ALTER TABLE "UserProfile" ADD COLUMN "avatarStorageKey" TEXT;

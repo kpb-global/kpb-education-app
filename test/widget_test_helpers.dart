@@ -60,6 +60,16 @@ class FakeRepository implements AppRepository {
 class MockApiClient extends Mock implements AppApiClient {
   @override
   Future<bool> hasAuthSession() async => false;
+
+  /// No session in widget tests, so the profile avatar renders the initials and
+  /// never reaches for the network. Stubbed explicitly rather than left to
+  /// throw MissingStubError inside a widget build.
+  @override
+  Future<Map<String, String>?> authImageHeaders() async => null;
+
+  @override
+  String get avatarStreamUrl =>
+      'https://api.invalid.test/api/profiles/me/avatar';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -31,6 +31,15 @@ const MIME_TO_EXTENSION: Record<string, string> = {
   'image/webp': '.webp',
 };
 
+/**
+ * The object store itself failed or is misconfigured while WRITING. Distinct
+ * from an antivirus outcome, which is about the file: both used to surface as a
+ * bare 503 with a near-identical message, so a caller could not tell the
+ * student "retry, our scanner is down" from "our storage is down". Subclasses
+ * the 503 previously thrown here, so existing consumers are unaffected.
+ */
+export class StorageWriteError extends ServiceUnavailableException {}
+
 export interface StoredFile {
   key: string;
   /** Opaque reference stored in the database. It is never a public URL. */
@@ -239,8 +248,15 @@ export class StorageService {
     mimeType: string,
   ): Promise<StoredFile> {
     const target = this.getLocalPath(key);
-    await fs.mkdir(resolve(target, '..'), { recursive: true });
-    await fs.writeFile(target, fileBuffer, { flag: 'wx' });
+    try {
+      await fs.mkdir(resolve(target, '..'), { recursive: true });
+      await fs.writeFile(target, fileBuffer, { flag: 'wx' });
+    } catch {
+      // ENOSPC / EACCES on the uploads volume is an infrastructure failure, not
+      // a bad request: surface it as such instead of a bare 500.
+      this.logger.error('Local private-object write failed.');
+      throw new StorageWriteError('Upload failed. Please retry.');
+    }
     this.logger.log(
       `Stored private object locally (${fileBuffer.byteLength} bytes).`,
     );
@@ -258,7 +274,7 @@ export class StorageService {
     mimeType: string,
   ): Promise<StoredFile> {
     if (!this.s3Client || !this.s3Bucket) {
-      throw new ServiceUnavailableException('S3 storage not configured.');
+      throw new StorageWriteError('S3 storage not configured.');
     }
     try {
       await this.s3Client.send(
@@ -272,7 +288,7 @@ export class StorageService {
       );
     } catch {
       this.logger.error('S3 private-object write failed.');
-      throw new ServiceUnavailableException('Upload failed. Please retry.');
+      throw new StorageWriteError('Upload failed. Please retry.');
     }
     this.logger.log(
       `Stored private object in S3 (${fileBuffer.byteLength} bytes).`,
