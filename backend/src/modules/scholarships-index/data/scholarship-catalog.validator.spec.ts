@@ -146,6 +146,49 @@ describe('versioned scholarship catalog', () => {
     expect(report.valid).toBe(true);
   });
 
+  // Deux fiches annonçaient « Ouvert » pour une campagne terminée au 10/08/2026
+  // (Rhodes Afrique australe, close le 3 août ; DAAD Helmut-Schmidt, le
+  // 31 juillet) et le catalogue restait `valid: true`. Seule une relecture
+  // humaine les a attrapées — d'où cette règle.
+  it('refuse un cycle « ouvert » dont la clôture est déjà passée', () => {
+    const record = validRecord();
+    record.cycle.status = 'open';
+    record.cycle.dateConfidence = 'confirmed';
+    record.cycle.opensAt = '2026-06-01T00:00:00.000Z';
+    record.cycle.closesAt = '2026-08-03T21:59:00.000Z'; // avant NOW
+    const catalog: VersionedScholarshipCatalog = {
+      schemaVersion: 1,
+      catalogVersion: '1.0.1',
+      volumeTargets: {
+        uniqueRecords: 1,
+        secondary: 1,
+        bachelor: 1,
+        master: 1,
+      },
+      records: [record],
+      backlog: [],
+    };
+
+    const report = validateScholarshipCatalog(catalog, { now: NOW });
+    const issue = report.issues.find(
+      (i) => i.code === 'open_cycle_already_closed',
+    );
+    expect(issue).toBeDefined();
+    // Le message doit nommer la date fautive : sans elle, on ignore laquelle
+    // des deux dates du cycle est en cause.
+    expect(issue?.message).toContain('2026-08-03');
+    expect(report.valid).toBe(false);
+
+    // La même fiche passée en `closed` redevient valide : la règle vise le
+    // mensonge, pas la présence d'une date passée.
+    record.cycle.status = 'closed';
+    expect(
+      validateScholarshipCatalog(catalog, { now: NOW }).issues.filter(
+        (i) => i.code === 'open_cycle_already_closed',
+      ),
+    ).toEqual([]);
+  });
+
   it('accepts a complete bilingual record with fresh official HTTPS evidence', () => {
     const catalog: VersionedScholarshipCatalog = {
       schemaVersion: 1,

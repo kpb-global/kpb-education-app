@@ -11,26 +11,26 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     levelLabel: ['Master d’un an', 'One-year Master'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prochain cycle confirmé — 4 août au 6 octobre 2026', 'Confirmed next cycle — 4 August to 6 October 2026'],
+    deadlineLabel: ['Ouvert — clôture le 6 octobre 2026 à 11 h UTC', 'Open — closes 6 October 2026 at 11:00 UTC'],
     description: [
-      'Bourse internationale du gouvernement britannique pour futurs leaders admis à un Master éligible d’un an au Royaume-Uni.',
-      'UK government international scholarship for future leaders admitted to an eligible one-year Master programme in the United Kingdom.',
+      'Bourse internationale du gouvernement britannique pour futurs leaders admis à un Master éligible d’un an au Royaume-Uni. La campagne 2027-2028 est ouverte depuis le 4 août 2026 et la source officielle publie la clôture au 6 octobre 2026 à 11 h UTC.',
+      'UK government international scholarship for future leaders admitted to an eligible one-year Master programme in the United Kingdom. The 2027-2028 campaign opened on 4 August 2026 and the official source publishes the 6 October 2026, 11:00 UTC closing time.',
     ],
     advantages: [
-      ['Frais de scolarité, sous réserve des conditions et plafonds applicables', 'Tuition fees, subject to applicable terms and caps'],
-      ['Voyage aller-retour en classe économique', 'Return economy travel'],
-      ['Allocation mensuelle de vie', 'Monthly living stipend'],
-      ['Allocations d’arrivée et de départ', 'Arrival and departure allowances'],
-      ['Coût d’une demande de visa et contribution au test tuberculose lorsque requis', 'Cost of one visa application and TB-test contribution where required'],
+      ['Paiement des frais de scolarité', 'Payment of tuition fees'],
+      ['Voyage aller-retour en classe économique depuis le pays de résidence, pour le boursier uniquement', 'Economy travel to and from the country of residence, for the scholar only'],
+      ['Allocation mensuelle de vie, à un taux différent selon des études à Londres ou hors de Londres', 'Monthly personal living allowance, at a different rate inside or outside London'],
+      ['Allocations d’arrivée et de départ et allocation complémentaire de voyage', 'Arrival and departure allowances plus a travel top-up allowance'],
+      ['Coût d’une demande de visa et contribution jusqu’à 75 £ au test tuberculose lorsqu’il est requis', 'Cost of one visa application and a contribution of up to £75 for TB testing where required'],
       ['Programme d’engagement et réseau international Chevening', 'Chevening engagement programme and global network'],
     ],
     eligibility: [
-      ['Être citoyen d’un pays ou territoire Chevening éligible', 'Be a citizen of a Chevening-eligible country or territory'],
+      ['Être citoyen d’un pays ou territoire Chevening éligible et, pour une bourse d’un pays éligible à l’APD, résider dans un pays éligible à l’APD', 'Be a citizen of a Chevening-eligible country or territory and, for an award from an ODA-eligible country, be resident in an ODA-eligible country'],
       ['S’engager à retourner dans son pays pendant au moins deux ans après la bourse', 'Commit to return home for at least two years after the award'],
-      ['Détenir une Licence permettant l’admission en Master au Royaume-Uni, achevée au moins deux ans avant la date limite', 'Hold a Bachelor degree enabling UK Master admission, completed at least two years before the deadline'],
-      ['Avoir au moins 2 800 heures d’expérience professionnelle après la Licence', 'Have at least 2,800 hours of post-Bachelor work experience'],
-      ['Postuler à trois cursus britanniques Chevening éligibles et obtenir une offre inconditionnelle avant le 8 juillet 2027', 'Apply to three eligible UK courses and secure one unconditional offer by 8 July 2027'],
-      ['Ne relever d’aucune exclusion de citoyenneté britannique, d’emploi public lié ou de bourse britannique antérieure publiée', 'Not fall under published British-citizenship, linked-government-employment or prior UK-scholarship exclusions'],
+      ['Détenir une Licence permettant l’admission en Master au Royaume-Uni, achevée au moins deux ans avant la date limite, le certificat étant exigé au plus tard à l’entretien', 'Hold a Bachelor degree enabling UK Master admission, completed at least two years before the deadline, with the certificate required by the interview'],
+      ['Avoir au moins deux ans d’expérience professionnelle après la Licence, équivalant à 2 800 heures', 'Have at least two years of post-Bachelor work experience, equivalent to 2,800 hours'],
+      ['Postuler à trois cursus britanniques différents et éligibles et obtenir une offre inconditionnelle avant l’échéance du calendrier officiel', 'Apply to three different eligible UK courses and secure one unconditional offer by the official timeline deadline'],
+      ['Ne relever d’aucune exclusion publiée : citoyenneté britannique, résidence au Royaume-Uni lors de la candidature, emploi public ou universitaire partenaire lié, bourse britannique antérieure', 'Not fall under published exclusions: British citizenship, UK residence at the time of application, linked government or partner-university employment, or a prior UK-government scholarship'],
     ],
     requirements: [
       ['Formulaire Chevening en ligne', 'Online Chevening application form'],
@@ -44,11 +44,11 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       ['Vérifier son éligibilité', 'Check eligibility', 'Confirmer pays, diplôme, expérience après Licence et engagement de retour.', 'Confirm country, degree, post-Bachelor experience and return commitment.'],
       ['Choisir trois Masters', 'Choose three Master courses', 'Rechercher trois cursus Chevening éligibles et préparer aussi leurs candidatures universitaires.', 'Research three eligible Chevening courses and prepare their separate university applications.'],
       ['Déposer Chevening', 'Submit Chevening', 'Compléter les expériences, essais, cours et référents avant le 6 octobre.', 'Complete work history, essays, course choices and referees before 6 October.'],
-      ['Suivre les étapes', 'Follow later stages', 'Si présélectionné, fournir références/documents, passer l’entretien et obtenir l’offre inconditionnelle.', 'If shortlisted, provide references/documents, interview and secure the unconditional offer.'],
+      ['Suivre les étapes', 'Follow later stages', 'Si présélectionné, téléverser références et documents au moins sept jours ouvrés avant l’entretien de mars-avril 2027, puis soumettre l’offre inconditionnelle avant le 8 juillet 2027 à 17 h BST.', 'If shortlisted, upload references and documents at least seven working days before the March–April 2027 interview, then submit the unconditional offer by 8 July 2027 at 17:00 BST.'],
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'forecast',
+      status: 'open',
       dateConfidence: 'confirmed',
       opensAt: '2026-08-04T11:00:00.000Z',
       closesAt: '2026-10-06T11:00:00.000Z',
@@ -61,7 +61,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://www.chevening.org/apply/',
       cycle: 'https://www.chevening.org/scholarships/application-timeline/',
     },
-    tags: ['master', 'uk', 'government', 'future-cycle', 'fully-funded'],
+    tags: ['master', 'uk', 'government', 'open', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'mccall_macbain_2027',
@@ -72,19 +73,19 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
     deadlineLabel: [
-      'Ouvert selon la source officielle — international : 19 août 2026 à 16 h ET',
-      'Open per the official source — international deadline: 19 August 2026 at 4:00 PM ET',
+      'Ouvert — clôture pour les candidats internationaux le 19 août 2026 à 16 h (heure de l’Est)',
+      'Open — international deadline 19 August 2026 at 4:00 PM Eastern Time',
     ],
     description: [
-      'Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible. La source confirme que le portail est ouvert et que l’ouverture a eu lieu en juin, sans publier le jour exact ; celui-ci reste donc estimé dans le cycle.',
-      'McGill leadership scholarship for an eligible Master or professional degree. The source confirms the portal is open and opened in June but does not publish the exact day, so that date remains estimated in the cycle.',
+      'Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible, pour une entrée à l’été ou à l’automne 2027. La source officielle publie deux dates limites : 19 août 2026 pour les candidats des universités hors Canada et États-Unis, 23 septembre 2026 pour le Canada et les États-Unis. Jusqu’à 30 bourses complètes et 100 prix d’admission sont offerts chaque année.',
+      'McGill leadership scholarship for an eligible Master or professional degree, for Summer/Fall 2027 entry. The official source publishes two deadlines: 19 August 2026 for applicants from universities outside Canada and the United States, 23 September 2026 for Canada and the United States. Up to 30 full scholarships and 100 entrance awards are offered each year.',
     ],
     advantages: [
       ['Frais de scolarité et droits du programme admissible', 'Tuition and fees for the eligible programme'],
       ['Allocation de vie de 2 300 CAD par mois pendant les trimestres académiques', 'CAD 2,300 monthly living stipend during academic terms'],
       ['Subvention unique de déménagement à Montréal', 'One-time relocation grant for moving to Montreal'],
-      ['Options de financement d’activités d’été', 'Summer funding options'],
-      ['Mentorat, coaching et programme intensif de leadership', 'Mentorship, coaching and intensive leadership programme'],
+      ['Financement d’été jusqu’à 5 000 $ pour un travail de recherche ou d’impact, pour les boursiers non inscrits à temps plein l’été', 'Summer funding of up to $5,000 for research or impact work, for scholars not enrolled full-time over the summer'],
+      ['Programme de développement du leadership, mentors et conseillers, ateliers et conférences', 'Leadership development programme, mentors and advisors, workshops and talks'],
     ],
     eligibility: [
       ['Être en voie d’obtenir son premier diplôme universitaire avant août 2027', 'Be on track to earn a first Bachelor degree by August 2027'],
@@ -95,7 +96,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     ],
     requirements: [
       ['Formulaire de bourse distinct de l’admission McGill', 'Scholarship form separate from McGill admission'],
-      ['Informations personnelles, études, activités et jusqu’à cinq expériences rémunérées', 'Personal, academic, activity and up to five paid-work entries'],
+      ['Informations personnelles, parcours d’études et activités de leadership', 'Personal information, academic record and leadership activities'],
       ['Réponses courtes, essais, CV et relevés', 'Short answers, essays, CV and transcripts'],
       ['Deux formulaires de référence', 'Two reference forms'],
       ['Endossement universitaire lorsque la procédure l’exige', 'University endorsement where the process requires it'],
@@ -109,10 +110,13 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'forecast',
-      dateConfidence: 'estimated',
-      estimatedOpenAt: '2026-06-01T00:00:00.000Z',
-      estimatedCloseAt: '2026-08-19T20:00:00.000Z',
+      // La source officielle publie la date limite internationale à la minute
+      // (19 août 2026, 16 h ET) mais n'annonce aucune date d'ouverture : le
+      // portail est simplement déclaré ouvert. `opensAt` est donc omis plutôt
+      // que deviné, ce que le validateur autorise pour un cycle confirmé.
+      status: 'open',
+      dateConfidence: 'confirmed',
+      closesAt: '2026-08-19T20:00:00.000Z',
       sourceUrl: 'https://mccallmacbainscholars.org/apply/',
     },
     sources: {
@@ -122,7 +126,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://apply.mccallmacbainscholars.org/apply/',
       cycle: 'https://mccallmacbainscholars.org/apply/',
     },
-    tags: ['master', 'canada', 'mcgill', 'currently-open-source', 'estimated-open-date', 'fully-funded'],
+    tags: ['master', 'canada', 'mcgill', 'open', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'schwarzman_scholars_2027',
@@ -140,10 +145,10 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     advantages: [
       ['Frais de scolarité et autres droits', 'Tuition and fees'],
       ['Chambre et pension', 'Room and board'],
-      ['Voyage vers et depuis Pékin', 'Travel to and from Beijing'],
       ['Voyage d’étude en Chine', 'In-country study tour'],
-      ['Manuels, fournitures et ordinateur Lenovo', 'Required books, supplies and Lenovo laptop'],
-      ['Assurance santé et allocation personnelle', 'Health insurance and personal stipend'],
+      ['Voyage vers et depuis Pékin', 'Travel to and from Beijing'],
+      ['Assurance santé', 'Health insurance'],
+      ['Allocation pour dépenses personnelles', 'Stipend for personal expenses'],
     ],
     eligibility: [
       ['Avoir au moins 18 ans et moins de 29 ans au 1er août 2027', 'Be at least 18 and under 29 on 1 August 2027'],
@@ -153,11 +158,11 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       ['Démontrer leadership, caractère, aptitude intellectuelle, empathie interculturelle et ouverture', 'Demonstrate leadership, character, intellectual ability, intercultural empathy and open-mindedness'],
     ],
     requirements: [
-      ['Formulaire en ligne et CV/résumé', 'Online form and CV/resume'],
-      ['Essai de leadership et déclaration d’intention', 'Leadership essay and statement of purpose'],
-      ['Relevés de chaque établissement postsecondaire', 'Transcripts from every post-secondary institution'],
-      ['Trois lettres de recommandation', 'Three letters of recommendation'],
-      ['Présentation vidéo', 'Video introduction'],
+      ['Formulaire en ligne, profil biographique de 100 mots et CV de deux pages maximum', 'Online form, 100-word biographical profile and CV of no more than two pages'],
+      ['Essai de leadership de 750 mots, déclaration d’intention de 500 mots et deux réponses courtes de 100 mots', '750-word leadership essay, 500-word statement of purpose and two 100-word short answers'],
+      ['Relevés de chaque diplôme, avec traduction anglaise si nécessaire', 'Transcripts for every degree, with English translation where needed'],
+      ['Trois lettres de recommandation, hors membres de la famille', 'Three letters of recommendation, excluding family members'],
+      ['Présentation vidéo d’une minute — fortement recommandée mais non obligatoire', 'One-minute video introduction — highly recommended but not required'],
       ['Résultat d’anglais lorsque la dispense ne s’applique pas', 'English test result when no exemption applies'],
     ],
     steps: [
@@ -182,6 +187,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.schwarzmanscholars.org/admissions/application-instructions/',
     },
     tags: ['master', 'china', 'tsinghua', 'open', 'leadership', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'si_global_professionals_2027_forecast',
@@ -192,12 +198,12 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     fundingLabel: ['Financement complet publié, hors certains coûts', 'Published full funding, with specified exclusions'],
     fundingType: 'fully_funded',
     deadlineLabel: [
-      'Prévision 2027 — portail vers le 9 au 25 février, à reconfirmer',
-      '2027 forecast — portal around 9 to 25 February, to be reconfirmed',
+      'Prévision 2027 — fenêtre de deux semaines attendue en février, à reconfirmer',
+      '2027 forecast — two-week window expected in February, to be reconfirmed',
     ],
     description: [
-      'Bourse du Swedish Institute pour professionnels de 34 pays éligibles admis à un Master en anglais. Les dates et critères devront être reconfirmés au prochain appel ; le cycle affiché reprend le rythme officiel 2026 comme estimation.',
-      'Swedish Institute scholarship for professionals from 34 eligible countries admitted to an English-taught Master. Dates and criteria must be reconfirmed in the next call; the displayed cycle estimates the official 2026 cadence.',
+      'Bourse du Swedish Institute pour professionnels de 34 pays éligibles admis à un Master en anglais, dans les domaines gouvernance, santé publique, entrepreneuriat et innovation, et STEM. La page officielle affiche « Application closed » pour l’appel de référence, ouvert du 9 au 25 février 2026, et confirme que la bourse est offerte une fois par an : aucune suspension ni coupe budgétaire n’y est annoncée. Les dates et critères du prochain appel devront être reconfirmés ; le cycle affiché estime le rythme officiel 2026.',
+      'Swedish Institute scholarship for professionals from 34 eligible countries admitted to an English-taught Master, in governance, public health, entrepreneurship and innovation, and STEM. The official page shows “Application closed” for the reference call, open 9 to 25 February 2026, and confirms the scholarship runs once a year: no suspension or budget cut is announced there. Next-call dates and criteria must be reconfirmed; the displayed cycle estimates the official 2026 cadence.',
     ],
     advantages: [
       ['Prise en charge complète des frais de scolarité', 'Full tuition fee coverage'],
@@ -207,7 +213,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       ['L’assurance, les frais de candidature universitaire et les membres de famille ne sont pas couverts', 'Insurance, university application fee and family members are not covered'],
     ],
     eligibility: [
-      ['Être citoyen d’un des pays éligibles publiés par SI', 'Be a citizen of one of SI’s published eligible countries'],
+      ['Être citoyen d’un des 34 pays éligibles publiés par SI, sans obligation d’y résider ; côté Afrique francophone, l’appel de référence liste le Sénégal et le Maroc', 'Be a citizen of one of SI’s 34 published eligible countries, with no residence requirement; on the francophone-Africa side, the reference call lists Senegal and Morocco'],
       ['Postuler à un Master en anglais déclaré admissible par SI', 'Apply to an English-taught Master listed as SI-eligible'],
       ['Être redevable des frais de scolarité et être admis selon le calendrier University Admissions', 'Be liable for tuition and admitted under the University Admissions timeline'],
       ['Démontrer une expérience professionnelle suffisante ; de nombreux pays africains exigent au moins 3 000 heures dans l’appel de référence', 'Demonstrate sufficient work experience; many African countries require at least 3,000 hours in the reference call'],
@@ -243,6 +249,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/',
     },
     tags: ['master', 'sweden', 'government', 'leadership', 'forecast', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'daad_helmut_schmidt_2027',
@@ -250,28 +257,33 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     name: ['Programme DAAD Helmut-Schmidt 2027', 'DAAD Helmut-Schmidt Programme 2027'],
     country: ['deu', 'Allemagne', 'Germany'],
     levelLabel: ['Masters sélectionnés en politiques publiques et bonne gouvernance', 'Selected Master programmes in public policy and good governance'],
-    fundingLabel: ['Financement complet du programme avec frais semestriels possibles', 'Comprehensive programme funding with possible semester fees'],
+    fundingLabel: ['Financement complet du programme', 'Comprehensive programme funding'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — clôture le 31 juillet 2026', 'Open — closes 31 July 2026'],
+    deadlineLabel: [
+      'Clôturé — la période 2027 s’est achevée le 31 juillet 2026 ; prochain appel attendu vers juin 2027',
+      'Closed — the 2027 call ended on 31 July 2026; next call expected around June 2027',
+    ],
     description: [
-      'Bourses DAAD pour futurs leaders de pays en développement et émergents dans sept Masters anglophones liés aux politiques publiques, à la gouvernance, au développement et à la paix.',
-      'DAAD scholarships for future leaders from developing and emerging countries in seven English-taught Master programmes related to public policy, governance, development and peace.',
+      'Bourses DAAD pour futurs leaders de pays en développement et émergents dans sept Masters anglophones liés aux politiques publiques, à la gouvernance, au développement et à la paix, pour des études débutant en septembre-octobre 2027. L’appel officiel 2027 fixait la période de candidature du 1er juin au 31 juillet 2026 : elle est close, la sélection étant prévue en octobre-novembre 2026 et les réponses en décembre 2026-janvier 2027.',
+      'DAAD scholarships for future leaders from developing and emerging countries in seven English-taught Master programmes related to public policy, governance, development and peace, for studies starting in September–October 2027. The official 2027 call set the application period from 1 June to 31 July 2026: it has closed, with selection due in October–November 2026 and decisions in December 2026–January 2027.',
     ],
     advantages: [
-      ['Exonération des frais de scolarité ; frais d’inscription semestriels restant possibles', 'Tuition exemption; semester registration fees may still apply'],
+      ['Exonération des frais de scolarité pour les boursiers DAAD', 'Exemption from tuition fees for DAAD scholarship holders'],
       ['Allocation actuelle de 992 EUR par mois', 'Current EUR 992 monthly stipend'],
-      ['Assurance santé, accident et responsabilité civile en Allemagne', 'Health, accident and personal liability insurance in Germany'],
-      ['Forfait voyage et subvention annuelle d’études/recherche', 'Travel lump sum and annual study/research grant'],
-      ['Subvention de loyer et aides familiales lorsque applicables', 'Rent subsidy and family allowances where applicable'],
-      ['Cours obligatoire d’allemand jusqu’à quatre mois avant le Master', 'Mandatory German course of up to four months before the Master'],
+      ['Couverture d’assurance maladie en Allemagne', 'Health insurance cover in Germany'],
+      ['Forfaits de voyage entre l’Allemagne et le pays d’origine, et subvention d’études et de recherche', 'Travel lump sums between Germany and the home country, and a study and research grant'],
+      ['Subvention de loyer et compléments familiaux lorsque applicables', 'Rent subsidy and family supplements where applicable'],
+      ['Cours obligatoire d’allemand en Allemagne, jusqu’à quatre mois avant le Master', 'Mandatory German course in Germany, up to four months before the Master'],
+      ['Pour le Master « Social Protection » uniquement, un taux sur place de 500 EUR par mois remplace l’allocation habituelle au 4e semestre en ligne', 'For the “Social Protection” Master only, a EUR 500 monthly sur place rate replaces the usual stipend during the online 4th semester'],
     ],
     eligibility: [
       ['Être diplômé d’un pays en développement ou émergent avec une première Licence pertinente', 'Be a graduate from a developing or emerging country with a relevant first degree'],
       ['Avoir des résultats supérieurs à la moyenne, dans le tiers supérieur', 'Have above-average results in the upper third'],
       ['Avoir une formation en sciences sociales/politiques, droit, économie, politiques publiques ou administration selon le cursus', 'Have a background in social/political sciences, law, economics, public policy or administration as required by the course'],
       ['Démontrer une expérience pratique pertinente : emploi, stage, engagement politique/social, bénévolat ou ONG', 'Demonstrate relevant practical experience through work, internships, political/social engagement, volunteering or NGOs'],
-      ['Avoir obtenu le dernier diplôme au plus tôt le 1er janvier 2020', 'Have received the latest degree no earlier than 1 January 2020'],
+      ['Avoir obtenu le dernier diplôme universitaire depuis six ans au plus, soit une date de délivrance au plus tôt le 1er janvier 2020', 'Have obtained the latest university degree no more than six years ago, i.e. issued no earlier than 1 January 2020'],
       ['Ne pas avoir passé plus des 15 derniers mois dans un pays hors liste CAD', 'Not have spent more than the past 15 months in a country outside the DAC list'],
+      ['Si l’on détient déjà un Master, argumenter solidement le financement d’un second diplôme de troisième cycle', 'If already holding a Master, make a well-argued case for funding a second postgraduate degree'],
       ['Satisfaire les critères propres du ou des Masters, notamment la langue', 'Meet the selected Master programme’s own criteria, including language'],
     ],
     requirements: [
@@ -290,7 +302,11 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'open',
+      // L'appel officiel 2027 (ST42, édition 05/2026) écrit noir sur blanc :
+      // « The application period for all seven higher education institutions is
+      // from 1 June until 31 July 2026. » Cette fenêtre est passée, donc
+      // 'closed' et non 'open' — la fiche annonçait l'inverse.
+      status: 'closed',
       dateConfidence: 'confirmed',
       opensAt: '2026-06-01T00:00:00.000Z',
       closesAt: '2026-07-31T23:59:59.000Z',
@@ -303,7 +319,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf',
       cycle: 'https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf',
     },
-    tags: ['master', 'germany', 'daad', 'open', 'governance', 'fully-funded'],
+    tags: ['master', 'germany', 'daad', 'closed', 'governance', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({
     id: 'australia_awards_africa_2028_forecast',
@@ -318,8 +335,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       'Next-cycle forecast — approximately 1 February to 30 April 2027, to be reconfirmed',
     ],
     description: [
-      'Bourses du gouvernement australien pour professionnels africains de niveau intermédiaire à senior. Les dates et critères affichés comme prévision sont dérivés du document officiel pour les études débutant en 2027 et doivent être reconfirmés pour l’appel suivant.',
-      'Australian Government scholarships for mid- to senior-level African professionals. Forecast dates and criteria are derived from the official 2027-intake document and must be reconfirmed for the next call.',
+      'Bourses du gouvernement australien pour professionnels africains de niveau intermédiaire à senior, adossées au partenariat Australie-Afrique 2025-2030. Le portail OASIS confirme que la rentrée 2027 est close et aucune suspension ni coupe budgétaire n’est annoncée sur les pages officielles. Les dates et critères affichés comme prévision sont dérivés du document officiel pour les études débutant en 2027, dont l’appel courait du 1er février au 30 avril 2026, et doivent être reconfirmés pour l’appel suivant.',
+      'Australian Government scholarships for mid- to senior-level African professionals, backed by the 2025-2030 Australia-Africa partnership. The OASIS portal confirms the 2027 intake has closed and no suspension or budget cut is announced on the official pages. Forecast dates and criteria are derived from the official 2027-intake document, whose call ran from 1 February to 30 April 2026, and must be reconfirmed for the next call.',
     ],
     advantages: [
       ['Frais de scolarité complets', 'Full tuition fees'],
@@ -330,7 +347,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       ['Allocation de terrain pour les cursus comportant un terrain obligatoire', 'Fieldwork allowance for programmes with compulsory fieldwork'],
     ],
     eligibility: [
-      ['Pour l’appel de référence, être citoyen d’un des 26 pays africains listés, y résider et y candidater sauf exception publiée', 'For the reference call, be a citizen of one of 26 listed African countries, reside there and apply from there unless a published exception applies'],
+      ['Pour l’appel de référence, être citoyen d’un des 25 pays africains listés, y résider et y candidater, sauf pour un agent d’une organisation régionale africaine ou en mission diplomatique pour son pays', 'For the reference call, be a citizen of one of the 25 listed African countries, reside there and apply from there, except when working for an African regional organisation or on diplomatic mission for the home country'],
+      ['Viser un domaine prioritaire publié : agriculture et sécurité alimentaire, changement climatique, politique étrangère et sécurité internationale, genre, handicap et inclusion sociale, mines et énergie', 'Target a published priority field: agriculture and food security, climate change, foreign policy and international security, gender, disability and social inclusion, mining and energy'],
       ['Avoir au moins 25 ans au 1er février de l’année de rentrée de référence', 'Be at least 25 on 1 February of the reference intake year'],
       ['Détenir une Licence équivalente à une Licence australienne', 'Hold an undergraduate degree equivalent to an Australian Bachelor'],
       ['Avoir au moins cinq ans d’expérience professionnelle après le diplôme, pertinente pour le domaine choisi', 'Have at least five years of post-graduate work experience relevant to the proposed study field'],
@@ -369,5 +387,6 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.dfat.gov.au/sites/default/files/australia-awards-africa-information-for-intake.pdf',
     },
     tags: ['master', 'australia', 'africa', 'government', 'forecast', 'fully-funded'],
+    checkedAt: '2026-08-10T08:00:00.000Z',
   }),
 ];

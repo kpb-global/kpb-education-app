@@ -296,6 +296,29 @@ function validateRecord(
   if (cycle.status === 'open' && cycle.dateConfidence !== 'confirmed') {
     push(issues, 'open_cycle_not_confirmed', `${root}.cycle`, 'An open cycle must use confirmed dates.');
   }
+  // Une campagne annoncée « ouverte » dont la clôture est passée est un mensonge
+  // à date. Deux fiches en circulaient au 10/08/2026 : Rhodes Afrique australe
+  // (fermée le 3 août) et DAAD Helmut-Schmidt (fermée le 31 juillet), toutes
+  // deux avec un `deadlineLabel` commençant par « Ouvert ». Le catalogue restait
+  // `valid: true`, et seule une relecture humaine les a attrapées.
+  //
+  // La pastille de cycle côté Flutter dégrade déjà correctement (elle affiche
+  // « Deadline closed » si la clôture est passée), mais le `deadlineLabel` est
+  // une chaîne figée : lui, il continue d'affirmer « Ouvert ». C'est ce texte
+  // que cette règle protège.
+  //
+  // Elle est volontairement adossée à l'horloge : ce test DOIT casser quand une
+  // campagne se termine. Le correctif est d'une ligne (`status: 'closed'`), et
+  // c'est le prix d'un catalogue qui ne périme pas en silence.
+  if (cycle.status === 'open' && close && close <= now) {
+    push(
+      issues,
+      'open_cycle_already_closed',
+      `${root}.cycle`,
+      `An open cycle cannot have a closing date in the past (${close.toISOString().slice(0, 10)}). ` +
+        'Set status to "closed" and refresh the deadline label.',
+    );
+  }
 }
 
 export function validateScholarshipCatalog(
