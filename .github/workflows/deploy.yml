@@ -61,7 +61,28 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           # Pin the host key instead of disabling verification.
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          #
+          # Avec réessais, et ce n'est pas de la superstition : le lien entre les
+          # runners GitHub et ce VPS tombe par intermittence. Trois modes
+          # d'échec observés le 12 et le 13/08/2026 — sondes de disponibilité en
+          # `Connection timed out` sur /api/health, et ce `ssh-keyscan` sorti en
+          # échec au bout de ses 5 secondes de délai par défaut — alors que
+          # l'hôte répondait normalement depuis ailleurs à la même minute.
+          # Sans réessai, un déploiement échoue pour une raison qui n'a rien à
+          # voir avec le code, et l'opérateur en déduit ce qu'il peut.
+          keyscanned=0
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              keyscanned=1; break
+            fi
+            echo "ssh-keyscan attempt $attempt failed — retrying in 10s"
+            sleep 10
+          done
+          if [ "$keyscanned" != "1" ]; then
+            echo "::error::ssh-keyscan could not reach $VPS_HOST after 5 attempts."
+            echo "::error::The host may be fine: check it from elsewhere before assuming an outage."
+            exit 1
+          fi
 
       - name: Sync code to the VPS
         env:
@@ -144,10 +165,10 @@ jobs:
           fi
 
           echo "── release ──"
-          # `web` is in the list because recreating kpb_web is the ONLY way a
-          # change to web/nginx.conf ever loads: the container mounts the file
-          # once at start. The `location = /app` block added on 2026-08-10 sat
-          # in the repo for days while /app kept 404-ing in production.
+          # `web` is in the list so a NEW image or a CHANGED service definition
+          # reaches kpb_web. It is NOT what loads a new web/nginx.conf: compose
+          # leaves an unchanged container running, and the file mount is resolved
+          # by inode anyway. The recreate step after the health gate does that.
           #
           # `clamav` is deliberately NOT in the list. Upload scanning is
           # fail-closed, so recreating it would 503 every profile-photo upload
@@ -189,6 +210,31 @@ jobs:
             exit 1
           fi
 
+          # `web/nginx.conf` est bind-monté FICHIER À FICHIER, et Docker résout
+          # ce montage par inode au démarrage du conteneur. `rsync` écrit un
+          # fichier temporaire puis le renomme : le chemin de l'hôte porte donc
+          # le nouveau contenu sous un NOUVEL inode, tandis que le conteneur
+          # continue de lire l'ancien, désormais sans nom.
+          #
+          # Conséquence mesurée le 13/08/2026 : un `nginx -s reload` réussit,
+          # annonce « syntax is ok », et ne change rien — il relit le même
+          # ancien fichier. Le rechargement seul est un placebo ; seule la
+          # recréation du conteneur ré-résout le montage.
+          #
+          # Le fichier NEUF est validé avant qu'on y touche, dans un conteneur
+          # jetable : si sa syntaxe est mauvaise, le déploiement s'arrête et le
+          # site en production continue de servir l'ancienne configuration.
+          # Valider dans le conteneur en cours ne prouverait rien — il teste le
+          # fichier qu'il a déjà, pas celui qu'on veut installer.
+          #
+          # Placé APRÈS le portail de santé pour que le filet de l'API et son
+          # retour arrière automatique aient joué en premier.
+          echo "── reload web config ──"
+          docker run --rm -v "$PWD/web/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:1.27-alpine nginx -t < /dev/null
+          docker compose up -d --no-deps --force-recreate web < /dev/null
+          echo "kpb_web recreated with the current nginx.conf"
+
           # Written proof of the schema state, in every run's log. Without this,
           # "did the migration apply?" is answered by presumption.
           echo "── schema state ──"
@@ -225,12 +271,29 @@ jobs:
           echo "External health check OK ✅"
 
           # Scope note: this step runs AFTER the remote script, so failing it
-          # turns the job red without undoing anything. It therefore asserts the
-          # API only. Web-content assertions live in uptime.yml, where a red run
-          # is information rather than an ambiguous signal on a healthy,
-          # already-migrated production. WEB_URL is passed so the log names the
-          # page an operator should open by hand.
-          echo "Web content is asserted by uptime.yml on ${WEB_URL:-<VPS_WEB_URL unset>}/app"
+          # turns the job red without undoing anything. Broad web-content
+          # assertions therefore stay in uptime.yml, where a red run is
+          # information rather than an ambiguous signal on a healthy,
+          # already-migrated production.
+          #
+          # ONE exception, and it earned its place on 2026-08-13: /app must be
+          # served directly, with no redirect. It is the download link printed in
+          # every WhatsApp referral message, and it is the only assertion that
+          # proves the kpb_web recreation above actually took effect. Silence here is
+          # what let /app stay broken through a "successful" deploy.
+          if [ -n "${WEB_URL:-}" ]; then
+            code="$(curl -sS -o /tmp/app.html -w '%{http_code}' "${WEB_URL}/app")"
+            if [ "$code" != "200" ] || ! grep -q 'id1128659292' /tmp/app.html; then
+              echo "::error::${WEB_URL}/app returned $code and/or does not carry the iOS store id."
+              echo "::error::The API is deployed, migrated and healthy — this is the web layer only:"
+              echo "::error::kpb_web was not recreated with the current nginx.conf, so \`location = /app\` is not active."
+              exit 1
+            fi
+            echo "/app served directly ✅"
+          else
+            echo "::error::VPS_WEB_URL is not set — /app was NOT verified."
+            exit 1
+          fi
 
       - name: Scrub the key
         if: always()
