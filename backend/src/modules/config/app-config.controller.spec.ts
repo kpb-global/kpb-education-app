@@ -38,11 +38,20 @@ describe('AppConfigController', () => {
     }
   });
 
+  // The force-update screen is not dismissible and its only button is disabled
+  // when the URL is empty or dead. So the fallback — what production serves
+  // whenever KPB_ANDROID_STORE_URL / KPB_IOS_STORE_URL are unset — must point at
+  // the listings that are actually published, not at a package that 404s.
+  it('falls back to the store listings that are actually published', () => {
+    const config = new AppConfigController().getAppConfig();
+    expect(config.androidStoreUrl).toContain('id=com.karatou.android');
+    expect(config.iosStoreUrl).toContain('id1128659292');
+  });
+
   it('defaults to a non-blocking minVersion when unset', () => {
     delete process.env.KPB_MIN_APP_VERSION;
     const config = new AppConfigController().getAppConfig();
     expect(config.minVersion).toBe('0.0.0');
-    expect(config.androidStoreUrl).toContain('com.kpbeducation.app');
     expect(config.features).toEqual({
       competitionReadiness: false,
       successLab: false,

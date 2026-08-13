@@ -28,6 +28,15 @@ App Store Connect ; elles doivent rester en ligne en permanence. Mise en
 service : `docker compose up -d web` (aucun build, image nginx officielle ;
 contenu monté depuis `web/public/`).
 
+> ⚠️ `web/nginx.conf` et `web/public/` sont **montés au démarrage** du conteneur.
+> Modifier un de ces fichiers ne change rien tant que `kpb_web` n'est pas
+> recréé. C'est ce qui est arrivé au bloc `location = /app` ajouté le
+> 10/08/2026 : il est resté dans le dépôt pendant 17 jours pendant que
+> `https://kpbeducation.cloud/app` — l'URL courte imprimée dans **tous** les
+> messages de parrainage WhatsApp — renvoyait un 404 servant le corps de la page
+> d'accueil. `deploy.yml` inclut désormais `web` dans son `up -d`, donc un
+> déploiement suffit.
+
 **Déploiement (SSH sur le VPS)** :
 
 ```bash
@@ -66,6 +75,8 @@ docker compose exec api npm run prisma:seed
 # 10. Vérifs
 curl -fsS https://api.kpbeducation.cloud/api/health/live   # 200 attendu
 curl -fsS https://api.kpbeducation.cloud/api/health/ready  # 200 attendu
+# Quel commit tourne réellement ? Doit valoir $KPB_IMAGE_TAG, jamais "unknown".
+curl -fsS https://api.kpbeducation.cloud/api/health/version
 curl -fsS https://api.kpbeducation.cloud/api/config/app
 #    admin.kpbeducation.cloud doit répondre en HTTPS (cert Let's Encrypt auto)
 ```
@@ -86,8 +97,16 @@ un Backend CI vert.
 
 Ce que le workflow ajoute par rapport au manuel :
 
+- il **remplace `api`, `admin` et `web`** — `web` en fait partie parce que
+  recréer `kpb_web` est la seule façon de charger un changement de
+  `web/nginx.conf` ou de `web/public/`. `clamav` est **volontairement exclu** :
+  le scan d'upload est fail-closed, donc le recréer ferait échouer en 503 tout
+  envoi de photo de profil pendant les minutes de chargement des signatures ;
 - il **échoue si le dump pré-déploiement est vide** (au lieu de le découvrir
   plus tard) ;
+- il **vérifie de l'extérieur que le catalogue vient de PostgreSQL**
+  (`"source":"database"` dans `/api/catalog/scholarships`) : un `200` prouve
+  seulement que quelque chose répond, pas que le code de ce build est en ligne ;
 - **health gate** : jusqu'à 100 s d'attente sur `/api/health/ready`, qui vérifie
   aussi la connexion PostgreSQL ;
 - **rollback automatique du code** : il mémorise l'image en cours d'exécution
@@ -103,6 +122,65 @@ Ce que le workflow ajoute par rapport au manuel :
 > forward-only. C'est sûr parce que toutes les migrations de ce repo sont
 > additives (colonnes nullables ou avec défaut), qu'un code plus ancien ignore.
 > Ne restaurer la base qu'en cas de corruption avérée.
+
+**Limite connue, assumée** : le `rsync` du workflow n'utilise pas `--delete`,
+ce qui protège `.env` et `backups/` (présents seulement sur le VPS). Conséquence
+directe : un fichier **supprimé du dépôt reste servi en production**. Retirer une
+page de `web/public/` demande donc un `rm` à la main sur le VPS.
+
+## Ordre de livraison : le backend d'abord, le mobile ensuite
+
+**La règle.** Une build mobile ne part jamais avant que la production ne fasse
+tourner le commit dont elle est issue. L'inverse met entre les mains des
+utilisateurs une app qui appelle des routes que l'API ne connaît pas encore —
+et un téléphone déjà mis à jour ne peut pas revenir en arrière, alors qu'un
+backend, si.
+
+**Le geste, avant d'ouvrir Xcode Organizer ou de promouvoir une piste Play** :
+lancer **Actions → « Release preflight (backend before mobile) » → Run workflow**
+avec le ref d'où la build est coupée. Il est rouge si :
+
+- `GET /api/health/version` ne renvoie pas le même SHA court que
+  `git rev-parse --short=12 <ref>` — donc la prod est en retard ;
+- il renvoie `sha: unknown` — la prod n'a pas été livrée par `deploy.yml` ;
+- `https://kpbeducation.cloud/app` ne contient pas l'identifiant App Store.
+
+Il est en lecture seule : deux `curl` et un `git rev-parse`.
+
+> **Pourquoi un workflow et pas un paragraphe.** Ce document contient depuis des
+> semaines la phrase « Mise en service : `docker compose up -d web` ». Elle n'a
+> jamais été exécutée, et `/app` a renvoyé 404 pendant 17 jours. Une règle écrite
+> nulle part ailleurs que dans une doc n'est pas une règle, c'est un souhait :
+> elle doit être **écrite ici ET outillée** par le préflight.
+
+### Avant de relever `KPB_MIN_APP_VERSION`
+
+`KPB_MIN_APP_VERSION` est le seul interrupteur à distance du produit : le relever
+force toutes les builds antérieures sur un écran de mise à jour **non
+refermable**, dont l'unique bouton est grisé si l'URL de store est vide ou
+morte. Le relever avec de mauvaises URLs enferme donc tous les utilisateurs
+dehors, sans recours applicatif.
+
+Poser d'abord ces deux variables dans le `.env` du VPS :
+
+```env
+KPB_ANDROID_STORE_URL=https://play.google.com/store/apps/details?id=com.karatou.android
+KPB_IOS_STORE_URL=https://apps.apple.com/app/id1128659292
+```
+
+Puis **constater les deux URLs correctes dans la réponse réelle**, et seulement
+ensuite relever la version minimale :
+
+```bash
+curl -fsS https://api.kpbeducation.cloud/api/config/app   # lire androidStoreUrl ET iosStoreUrl
+```
+
+Les identifiants publiés sont `com.karatou.android` (Play) et `id1128659292`
+(App Store) — l'app est **déjà en ligne** sous ces identifiants. Ce sont aussi
+les valeurs de repli du contrôleur, verrouillées par un test unitaire
+(`backend/src/modules/config/app-config.controller.spec.ts`) : un redéploiement
+sans les variables sert donc des URLs valides. Ne pas s'en contenter — vérifier
+la réponse.
 
 ### Secrets GitHub requis
 
@@ -128,9 +206,31 @@ privée du runner en fin de job.
 ## Surveillance
 
 **`.github/workflows/uptime.yml`** sonde toutes les 15 minutes
-`/api/health/live`, `/api/health/ready` (donc aussi la base), l'admin et les
-pages légales référencées par les stores. Un échec fait échouer le run, ce qui
-déclenche la notification GitHub habituelle.
+`/api/health/live`, `/api/health/ready` (donc aussi la base), l'admin, puis les
+pages web : `/app`, `/invite.html`, `/confidentialite.html`, `/conditions.html`
+et `/suppression-compte.html`. Un échec fait échouer le run, ce qui déclenche la
+notification GitHub habituelle.
+
+Deux propriétés de cette sonde méritent d'être connues, parce qu'elle a
+longtemps pu passer au vert sans rien tester :
+
+- **Une sonde sans URL est une sonde cassée, pas une sonde satisfaite.** Chaque
+  étape échoue quand son secret manque. Avant, les trois étapes se sautaient en
+  silence : les trois secrets absents donnaient un run vert n'ayant rien testé.
+- **Les pages web sont vérifiées sur leur CONTENU, jamais sur leur statut.**
+  `web/nginx.conf` contient `error_page 404 /index.html` : n'importe quel chemin
+  inconnu répond avec le corps de la page d'accueil. Un test de statut est donc
+  aveugle deux fois — il lit 404 sur une page qui s'affiche bien, et le jour où
+  ce repli deviendrait un 200 il passerait au vert sur la mauvaise page. D'où :
+  `/app` doit porter les deux identifiants de store ; `/invite.html` doit charger
+  `/invite.js` et ne contenir **ni** `<script>` inline **ni** `style=` (la CSP
+  envoyée par ce même nginx les bloque, et le code de parrainage reste alors
+  vide) ; chaque page légale est reconnue à son propre `<title>`.
+
+Le nombre d'appels `/api` par run est volontairement limité à deux : l'API
+applique un rate limiting par IP cliente, et une sonde bavarde finirait par
+mesurer le throttler. Les URLs `web` ne traversent pas l'API et ne comptent pas
+dans ce budget.
 
 ⚠️ **C'est un filet de sécurité, pas un outil de monitoring** : les crons GitHub
 sont *best-effort* (retards de plusieurs minutes, exécutions parfois sautées) et
@@ -237,10 +337,18 @@ KPB_TRUST_PROXY_HOPS=1
 
 ### Vérification de santé après déploiement
 
-L'API expose deux contrôles distincts :
+L'API expose trois contrôles distincts :
 
 - `GET /api/health/live` vérifie que le processus répond ; Docker l'utilise pour son healthcheck.
 - `GET /api/health/ready` vérifie aussi la connexion PostgreSQL. Un répartiteur ou une sonde externe doit exiger un `200` avant de router du trafic vers une nouvelle version.
+- `GET /api/health/version` renvoie `{ sha, startedAt }` : le SHA court (12
+  caractères de `KPB_BUILD_SHA`, injecté par `docker-compose.yml` et exporté par
+  `deploy.yml`) du code **réellement** en ligne, et l'instant de démarrage du
+  processus. C'est ce qui rend « la prod est-elle sur ce commit ? » vérifiable
+  au lieu d'être présumé ; c'est aussi ce que compare le préflight de release.
+  `sha: "unknown"` signifie que la build n'a pas été estampillée — donc qu'elle
+  n'est pas passée par `deploy.yml`. La route n'expose rien d'autre : ni versions
+  de dépendances, ni chemins.
 
 Après `docker-compose up -d --build`, vérifiez les deux :
 

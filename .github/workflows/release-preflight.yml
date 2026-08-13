@@ -1,0 +1,90 @@
+name: Release preflight (backend before mobile)
+
+# The one gesture to make before opening Xcode Organizer or promoting a Play
+# track: prove that production already runs the commit the mobile build expects.
+#
+# WHY THIS EXISTS AS A WORKFLOW AND NOT AS A PARAGRAPH: docs/DEPLOYMENT.md has
+# said "Mise en service : docker compose up -d web" since the web service was
+# added, and that line went unexecuted for 17 days while /app served a 404 to
+# every WhatsApp recipient. Prose does not run. This does.
+#
+# Read-only: it curls two public URLs and reads git. It changes nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref the mobile build is cut from (branch, tag or SHA)'
+        required: false
+        default: 'main'
+
+concurrency:
+  group: release-preflight
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    name: Is production ahead of the mobile build?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+          # Full history: `git rev-parse` must resolve an arbitrary ref, not
+          # just the tip of a shallow clone.
+          fetch-depth: 0
+
+      - name: Backend first — production runs this ref
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HEALTH_URL:-}" ]; then
+            echo "::error::VPS_HEALTH_URL is not set — the preflight cannot"
+            echo "::error::compare anything, so it must not pass. Add the secret."
+            exit 1
+          fi
+
+          EXPECTED="$(git rev-parse --short=12 "$REF")"
+          RESPONSE="$(curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
+            "${HEALTH_URL}/api/health/version")"
+          DEPLOYED="$(printf '%s' "$RESPONSE" | jq -r '.sha')"
+
+          echo "ref $REF        → $EXPECTED"
+          echo "production      → $DEPLOYED"
+          echo "started at      → $(printf '%s' "$RESPONSE" | jq -r '.startedAt')"
+
+          if [ "$DEPLOYED" = "unknown" ]; then
+            echo "::error::production reports an unstamped build (sha=unknown)."
+            echo "::error::It was not released by deploy.yml — redeploy before shipping mobile."
+            exit 1
+          fi
+
+          if [ "$DEPLOYED" != "$EXPECTED" ]; then
+            echo "::error::production runs $DEPLOYED but the mobile build is cut from $EXPECTED."
+            echo "::error::Run « Deploy backend (VPS) » on $REF first. A build that talks to an"
+            echo "::error::older API reaches users before the API it needs does."
+            exit 1
+          fi
+          echo "backend is on $EXPECTED ✅"
+
+      - name: The store-redirect page is served, not 404-ed onto the home page
+        env:
+          WEB_URL: ${{ secrets.VPS_WEB_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${WEB_URL:-}" ]; then
+            echo "::error::VPS_WEB_URL is not set — nothing was checked. Add the secret."
+            exit 1
+          fi
+          # Content, not status: nginx serves the HOME PAGE body on any unknown
+          # path (`error_page 404 /index.html`), so /app can answer with a real
+          # page that is the wrong page. The store id is what proves otherwise.
+          curl -fsS --retry 2 --retry-delay 5 --max-time 20 "${WEB_URL}/app" \
+            | grep -q 'id1128659292'
+          echo "${WEB_URL}/app serves the store-redirect page ✅"
+
+      - name: Verdict
+        run: echo "Preflight green — the backend is ahead of the mobile build. Xcode Organizer is now safe to open."

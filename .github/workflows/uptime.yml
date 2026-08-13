@@ -11,6 +11,10 @@ name: Uptime backstop
 #   • There is no escalation, no SMS, no on-call.
 # So keep a real external monitor as the primary alert (UptimeRobot,
 # healthchecks.io — both have free tiers). See docs/DEPLOYMENT.md.
+#
+# A PROBE WITHOUT A URL IS A BROKEN PROBE, NOT A SATISFIED ONE. Every step below
+# fails when its secret is missing. The earlier version skipped silently: with
+# the three secrets gone, the run was green and had tested nothing.
 
 on:
   schedule:
@@ -33,9 +37,15 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${HEALTH_URL:-}" ]; then
-            echo "::notice::VPS_HEALTH_URL is not set — nothing to probe."
-            exit 0
+            echo "::error::VPS_HEALTH_URL is not set — this probe checked NOTHING."
+            echo "::error::Failing on purpose: a green run here would mean 'the API is up'."
+            exit 1
           fi
+          # Exactly two API calls per run, and no more. The API rate-limits by
+          # client IP, and a runner that hammers /api would start measuring the
+          # throttler instead of the service. The web URLs below do not traverse
+          # the API, so they cost nothing against that budget.
+          #
           # --retry absorbs a single transient blip; a real outage still fails.
           curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
             "${HEALTH_URL}/api/health/live" >/dev/null
@@ -46,21 +56,77 @@ jobs:
             "${HEALTH_URL}/api/health/ready" >/dev/null
           echo "ready ✅ (API + database)"
 
-      - name: Admin and legal pages
+      # `!cancelled()` on the remaining probes: one run must report EVERY broken
+      # surface, not just the first. Without it, a down API hides whether the
+      # legal pages the stores link to are still up.
+      - name: Admin console
+        if: ${{ !cancelled() }}
         env:
           ADMIN_URL: ${{ secrets.VPS_ADMIN_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ADMIN_URL:-}" ]; then
+            echo "::error::VPS_ADMIN_URL is not set — the admin was NOT probed."
+            exit 1
+          fi
+          curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
+            -o /dev/null "$ADMIN_URL"
+          echo "admin ✅"
+
+      - name: Web pages — asserted on CONTENT, never on status
+        if: ${{ !cancelled() }}
+        env:
           WEB_URL: ${{ secrets.VPS_WEB_URL }}
         run: |
           set -euo pipefail
-          if [ -n "${ADMIN_URL:-}" ]; then
-            curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
-              -o /dev/null "$ADMIN_URL"
-            echo "admin ✅"
+          if [ -z "${WEB_URL:-}" ]; then
+            echo "::error::VPS_WEB_URL is not set — no web page was probed."
+            exit 1
           fi
-          # The legal pages are referenced from the store listings, so a 404
-          # here is a compliance problem, not just a broken link.
-          if [ -n "${WEB_URL:-}" ]; then
-            curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
-              -o /dev/null "${WEB_URL}/confidentialite.html"
-            echo "legal pages ✅"
+
+          # WHY CONTENT AND NOT STATUS: nginx answers every unknown path with
+          # the HOME PAGE body (`error_page 404 /index.html` in web/nginx.conf).
+          # A status check is therefore blind twice over — today it reads 404 on
+          # a page that renders fine, and the day someone turns that fallback
+          # into a 200 it would go green on the wrong page.
+          fetch() {
+            curl -fsS --retry 2 --retry-delay 5 --max-time 20 "${WEB_URL}$1"
+          }
+
+          # /app is the short URL printed in every WhatsApp share message. It
+          # must carry both store ids or the recipient lands on the home page.
+          fetch /app > /tmp/app.html
+          grep -q 'id1128659292' /tmp/app.html \
+            || { echo "::error::${WEB_URL}/app does not carry the iOS store id — the share link is dead."; exit 1; }
+          grep -q 'com.karatou.android' /tmp/app.html \
+            || { echo "::error::${WEB_URL}/app does not carry the Play package — the share link is dead."; exit 1; }
+          echo "/app ✅"
+
+          # The referral page's code is rendered by /invite.js. The CSP this very
+          # nginx sends (`default-src 'self'; style-src 'self'`) forbids inline
+          # script and inline style, so an inlined build shows an EMPTY code box
+          # while answering 200. The absence assertions are the point.
+          fetch /invite.html > /tmp/invite.html
+          grep -q 'src="/invite.js"' /tmp/invite.html \
+            || { echo "::error::${WEB_URL}/invite.html does not load /invite.js — the referral code cannot render."; exit 1; }
+          if grep -q '<script>' /tmp/invite.html; then
+            echo "::error::${WEB_URL}/invite.html has an inline <script> the CSP blocks — the referral code stays empty."
+            exit 1
           fi
+          if grep -q 'style=' /tmp/invite.html; then
+            echo "::error::${WEB_URL}/invite.html has an inline style= the CSP blocks."
+            exit 1
+          fi
+          echo "/invite.html ✅"
+
+          # Apple and Play link these permanently; a 404 here is a compliance
+          # problem, not a broken link. Each is matched on its OWN title, so the
+          # home-page fallback cannot stand in for a missing one.
+          legal_page() {
+            fetch "/$1" | grep -qF "<title>$2" \
+              || { echo "::error::${WEB_URL}/$1 is not the expected page (title '$2' absent) — the store listings link here."; exit 1; }
+            echo "/$1 ✅"
+          }
+          legal_page confidentialite.html 'Politique de confidentialité'
+          legal_page conditions.html "Conditions générales d'utilisation"
+          legal_page suppression-compte.html 'Suppression de compte'

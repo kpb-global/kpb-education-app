@@ -200,6 +200,15 @@ git diff --stat origin/main...HEAD
 - [ ] Configurer ClamAV.
 - [ ] Configurer les origines CORS exactes.
 - [ ] Vérifier qu’aucun secret n’est présent dans Git ou dans un artefact client.
+- [ ] Poser `KPB_ANDROID_STORE_URL=https://play.google.com/store/apps/details?id=com.karatou.android`.
+- [ ] Poser `KPB_IOS_STORE_URL=https://apps.apple.com/app/id1128659292`.
+- [ ] **Constater les deux URLs dans la réponse réelle de `GET /api/config/app`**,
+      et ne relever `KPB_MIN_APP_VERSION` **qu’après**. L’écran de mise à jour
+      forcée n’est pas refermable et son unique bouton est grisé quand l’URL est
+      vide ou morte : relever la version minimale avec de mauvaises URLs enferme
+      tous les utilisateurs dehors, sans recours applicatif. La valeur de repli du
+      contrôleur est correcte et verrouillée par un test unitaire — le vérifier
+      quand même, un repli correct ne prouve pas que la variable est posée.
 
 ### 3.3 Parcours d’intégration
 
@@ -259,6 +268,10 @@ git diff --stat origin/main...HEAD
 - AAB accepté par Google Play.
 - IPA accepté par App Store Connect/TestFlight.
 - Aucun artefact n’est signé avec un certificat de développement.
+- Le workflow **« Release preflight (backend before mobile) »** est vert sur le
+  ref d’où la build est coupée : la production tourne déjà ce commit. Une build
+  mobile ne part jamais devant son backend — un téléphone mis à jour ne revient
+  pas en arrière, un backend si.
 
 ---
 

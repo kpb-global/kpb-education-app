@@ -12,6 +12,17 @@ function rolloutPercent(value: string | undefined): number {
 }
 
 /**
+ * The listings actually published. These serve whenever the env vars are unset,
+ * which makes them a fallback and not merely a default: the force-update screen
+ * cannot be dismissed and its only button is disabled without a usable URL, so a
+ * wrong fallback locks every user out of the app on the day
+ * KPB_MIN_APP_VERSION is raised.
+ */
+const PUBLISHED_ANDROID_STORE_URL =
+  'https://play.google.com/store/apps/details?id=com.karatou.android';
+const PUBLISHED_IOS_STORE_URL = 'https://apps.apple.com/app/id1128659292';
+
+/**
  * Public, unauthenticated app configuration. The mobile client reads this at
  * boot to decide whether the installed build is still supported (force-update
  * gate). `minVersion` defaults to 0.0.0 — i.e. no build is ever blocked until
@@ -35,8 +46,9 @@ export class AppConfigController {
       minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || '0.0.0',
       androidStoreUrl:
         process.env.KPB_ANDROID_STORE_URL?.trim() ||
-        'https://play.google.com/store/apps/details?id=com.kpbeducation.app',
-      iosStoreUrl: process.env.KPB_IOS_STORE_URL?.trim() || '',
+        PUBLISHED_ANDROID_STORE_URL,
+      iosStoreUrl:
+        process.env.KPB_IOS_STORE_URL?.trim() || PUBLISHED_IOS_STORE_URL,
       features: {
         competitionReadiness,
         successLab,

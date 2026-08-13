@@ -73,6 +73,12 @@ jobs:
           # Only what the compose build contexts need. `.env`, `backups/` and
           # `node_modules` live only on the VPS and are never touched (no
           # --delete, and git does not track them).
+          #
+          # KNOWN GAP, left as is on purpose: without --delete, a file removed
+          # from the repo survives on the VPS forever. That protects `.env` and
+          # `backups/`, but it also means a deleted page under web/public/ keeps
+          # being served. Deleting one requires an `rm` on the VPS by hand, or a
+          # narrower --delete scoped to web/ only.
           rsync -az --info=stats1 \
             -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
             backend admin web docker-compose.yml \
@@ -138,7 +144,16 @@ jobs:
           fi
 
           echo "── release ──"
-          docker compose up -d --no-deps api admin < /dev/null
+          # `web` is in the list because recreating kpb_web is the ONLY way a
+          # change to web/nginx.conf ever loads: the container mounts the file
+          # once at start. The `location = /app` block added on 2026-08-10 sat
+          # in the repo for days while /app kept 404-ing in production.
+          #
+          # `clamav` is deliberately NOT in the list. Upload scanning is
+          # fail-closed, so recreating it would 503 every profile-photo upload
+          # for the minutes clamd spends loading its signatures. It has no code
+          # from this repo in it and nothing to redeploy.
+          docker compose up -d --no-deps api admin web < /dev/null
 
           # The release assertion. "Something answers" is NOT "the new version is
           # serving": run #1 passed every health check while the two-day-old
@@ -165,7 +180,7 @@ jobs:
           if [ "$healthy" != "1" ]; then
             echo "::error::API unhealthy after deploy — rolling back the code"
             if [ -n "${PREV_TAG:-}" ] && [ "$PREV_TAG" != "$IMAGE_TAG" ]; then
-              KPB_IMAGE_TAG="$PREV_TAG" docker compose up -d --no-deps api admin < /dev/null
+              KPB_IMAGE_TAG="$PREV_TAG" docker compose up -d --no-deps api admin web < /dev/null
               echo "rolled back to $PREV_TAG"
             else
               echo "::warning::no distinct previous tag to roll back to"
@@ -197,11 +212,25 @@ jobs:
       - name: Verify from the outside
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          WEB_URL: ${{ secrets.VPS_WEB_URL }}
         run: |
           set -euo pipefail
           curl -fsS "${HEALTH_URL}/api/health/live"
           curl -fsS "${HEALTH_URL}/api/health/ready"
+          # A 200 only proves something answers. This proves the catalogue is
+          # served from PostgreSQL and not from the in-repo mock fallback — the
+          # shortest external evidence that this build's code is the one running.
+          curl -fsS "${HEALTH_URL}/api/catalog/scholarships" \
+            | grep -q '"source":"database"'
           echo "External health check OK ✅"
+
+          # Scope note: this step runs AFTER the remote script, so failing it
+          # turns the job red without undoing anything. It therefore asserts the
+          # API only. Web-content assertions live in uptime.yml, where a red run
+          # is information rather than an ambiguous signal on a healthy,
+          # already-migrated production. WEB_URL is passed so the log names the
+          # page an operator should open by hand.
+          echo "Web content is asserted by uptime.yml on ${WEB_URL:-<VPS_WEB_URL unset>}/app"
 
       - name: Scrub the key
         if: always()
