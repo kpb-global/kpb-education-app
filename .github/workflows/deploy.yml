@@ -145,13 +145,9 @@ jobs:
 
           echo "── release ──"
           # `web` is in the list so a NEW image or a CHANGED service definition
-          # reaches kpb_web. But `up -d` alone is not enough to load a new
-          # web/nginx.conf: compose leaves a container running untouched when
-          # neither its image nor its definition changed, so the rsynced file is
-          # current on disk while the process still serves the configuration it
-          # read at its last start — and Docker resolves that file mount by inode, so a
-          # reload re-reads the same stale file. See the recreate step after the
-          # health gate.
+          # reaches kpb_web. It is NOT what loads a new web/nginx.conf: compose
+          # leaves an unchanged container running, and the file mount is resolved
+          # by inode anyway. The recreate step after the health gate does that.
           #
           # `clamav` is deliberately NOT in the list. Upload scanning is
           # fail-closed, so recreating it would 503 every profile-photo upload
@@ -269,7 +265,7 @@ jobs:
             if [ "$code" != "200" ] || ! grep -q 'id1128659292' /tmp/app.html; then
               echo "::error::${WEB_URL}/app returned $code and/or does not carry the iOS store id."
               echo "::error::The API is deployed, migrated and healthy — this is the web layer only:"
-              echo "::error::the nginx reload did not take, so \`location = /app\` is not active."
+              echo "::error::kpb_web was not recreated with the current nginx.conf, so \`location = /app\` is not active."
               exit 1
             fi
             echo "/app served directly ✅"
