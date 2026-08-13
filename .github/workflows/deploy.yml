@@ -191,25 +191,30 @@ jobs:
             exit 1
           fi
 
-          # Le déploiement du 13/08/2026 a réussi de bout en bout tout en
-          # laissant /app rediriger en 301 vers http:// au lieu d'être servi
-          # directement : les fichiers rsyncés étaient bien arrivés (donc /app/
-          # fonctionnait), mais `location = /app` n'était pas dans la
-          # configuration chargée par le processus nginx, vieille de trois
-          # semaines. Un rechargement explicite est le seul geste qui fasse
-          # relire un fichier bind-monté.
+          # `web/nginx.conf` est bind-monté FICHIER À FICHIER, et Docker résout
+          # ce montage par inode au démarrage du conteneur. `rsync` écrit un
+          # fichier temporaire puis le renomme : le chemin de l'hôte porte donc
+          # le nouveau contenu sous un NOUVEL inode, tandis que le conteneur
+          # continue de lire l'ancien, désormais sans nom.
           #
-          # Placé APRÈS le portail de santé pour que le filet de l'API — et son
-          # retour arrière automatique — ait joué en premier : une configuration
-          # web invalide ne doit pas empêcher un retour arrière de l'API.
+          # Conséquence mesurée le 13/08/2026 : un `nginx -s reload` réussit,
+          # annonce « syntax is ok », et ne change rien — il relit le même
+          # ancien fichier. Le rechargement seul est un placebo ; seule la
+          # recréation du conteneur ré-résout le montage.
           #
-          # `nginx -t` d'abord, et son échec est fatal : recharger une
-          # configuration invalide couperait le site, et servir une
-          # configuration qu'on vient de constater cassée est pire que rouge.
+          # Le fichier NEUF est validé avant qu'on y touche, dans un conteneur
+          # jetable : si sa syntaxe est mauvaise, le déploiement s'arrête et le
+          # site en production continue de servir l'ancienne configuration.
+          # Valider dans le conteneur en cours ne prouverait rien — il teste le
+          # fichier qu'il a déjà, pas celui qu'on veut installer.
+          #
+          # Placé APRÈS le portail de santé pour que le filet de l'API et son
+          # retour arrière automatique aient joué en premier.
           echo "── reload web config ──"
-          docker compose exec -T web nginx -t < /dev/null
-          docker compose exec -T web nginx -s reload < /dev/null
-          echo "nginx reloaded"
+          docker run --rm -v "$PWD/web/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:1.27-alpine nginx -t < /dev/null
+          docker compose up -d --no-deps --force-recreate web < /dev/null
+          echo "kpb_web recreated with the current nginx.conf"
 
           # Written proof of the schema state, in every run's log. Without this,
           # "did the migration apply?" is answered by presumption.
