@@ -144,10 +144,12 @@ jobs:
           fi
 
           echo "── release ──"
-          # `web` is in the list because recreating kpb_web is the ONLY way a
-          # change to web/nginx.conf ever loads: the container mounts the file
-          # once at start. The `location = /app` block added on 2026-08-10 sat
-          # in the repo for days while /app kept 404-ing in production.
+          # `web` is in the list so a NEW image or a CHANGED service definition
+          # reaches kpb_web. But `up -d` alone is not enough to load a new
+          # web/nginx.conf: compose leaves a container running untouched when
+          # neither its image nor its definition changed, so the rsynced file is
+          # current on disk while the process still serves the configuration it
+          # read at its last start. See the reload step after the health gate.
           #
           # `clamav` is deliberately NOT in the list. Upload scanning is
           # fail-closed, so recreating it would 503 every profile-photo upload
@@ -189,6 +191,26 @@ jobs:
             exit 1
           fi
 
+          # Le déploiement du 13/08/2026 a réussi de bout en bout tout en
+          # laissant /app rediriger en 301 vers http:// au lieu d'être servi
+          # directement : les fichiers rsyncés étaient bien arrivés (donc /app/
+          # fonctionnait), mais `location = /app` n'était pas dans la
+          # configuration chargée par le processus nginx, vieille de trois
+          # semaines. Un rechargement explicite est le seul geste qui fasse
+          # relire un fichier bind-monté.
+          #
+          # Placé APRÈS le portail de santé pour que le filet de l'API — et son
+          # retour arrière automatique — ait joué en premier : une configuration
+          # web invalide ne doit pas empêcher un retour arrière de l'API.
+          #
+          # `nginx -t` d'abord, et son échec est fatal : recharger une
+          # configuration invalide couperait le site, et servir une
+          # configuration qu'on vient de constater cassée est pire que rouge.
+          echo "── reload web config ──"
+          docker compose exec -T web nginx -t < /dev/null
+          docker compose exec -T web nginx -s reload < /dev/null
+          echo "nginx reloaded"
+
           # Written proof of the schema state, in every run's log. Without this,
           # "did the migration apply?" is answered by presumption.
           echo "── schema state ──"
@@ -225,12 +247,29 @@ jobs:
           echo "External health check OK ✅"
 
           # Scope note: this step runs AFTER the remote script, so failing it
-          # turns the job red without undoing anything. It therefore asserts the
-          # API only. Web-content assertions live in uptime.yml, where a red run
-          # is information rather than an ambiguous signal on a healthy,
-          # already-migrated production. WEB_URL is passed so the log names the
-          # page an operator should open by hand.
-          echo "Web content is asserted by uptime.yml on ${WEB_URL:-<VPS_WEB_URL unset>}/app"
+          # turns the job red without undoing anything. Broad web-content
+          # assertions therefore stay in uptime.yml, where a red run is
+          # information rather than an ambiguous signal on a healthy,
+          # already-migrated production.
+          #
+          # ONE exception, and it earned its place on 2026-08-13: /app must be
+          # served directly, with no redirect. It is the download link printed in
+          # every WhatsApp referral message, and it is the only assertion that
+          # proves the nginx reload above actually took effect. Silence here is
+          # what let /app stay broken through a "successful" deploy.
+          if [ -n "${WEB_URL:-}" ]; then
+            code="$(curl -sS -o /tmp/app.html -w '%{http_code}' "${WEB_URL}/app")"
+            if [ "$code" != "200" ] || ! grep -q 'id1128659292' /tmp/app.html; then
+              echo "::error::${WEB_URL}/app returned $code and/or does not carry the iOS store id."
+              echo "::error::The API is deployed, migrated and healthy — this is the web layer only:"
+              echo "::error::the nginx reload did not take, so \`location = /app\` is not active."
+              exit 1
+            fi
+            echo "/app served directly ✅"
+          else
+            echo "::error::VPS_WEB_URL is not set — /app was NOT verified."
+            exit 1
+          fi
 
       - name: Scrub the key
         if: always()
