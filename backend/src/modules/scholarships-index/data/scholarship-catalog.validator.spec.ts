@@ -9,7 +9,13 @@ import type {
   VersionedScholarshipCatalog,
 } from './scholarship-catalog.types';
 import { SCHOLARSHIP_CATALOG_V1 } from './scholarship-catalog.v1';
-import { validateScholarshipCatalog } from './scholarship-catalog.validator';
+import {
+  CATALOG_EXPIRED_CYCLE_CODES,
+  CATALOG_STALENESS_CODES,
+  CATALOG_UP_TO_DATE,
+  buildCatalogDiagnosis,
+  validateScholarshipCatalog,
+} from './scholarship-catalog.validator';
 
 // Date de référence figée : elle rend les assertions structurelles
 // déterministes. Elle est calée sur la vague de vérification la plus récente
@@ -360,25 +366,74 @@ describe('versioned scholarship catalog', () => {
   // fiches signalées, puis porter leur nouvelle date dans `checkedAt`. Ne le
   // neutralisez pas en repoussant `CHECKED_AT` sans avoir relu les pages : le
   // catalogue affirmerait une vérification qui n'a pas eu lieu.
-  it('reste importable à la date du jour (fenêtre de vérification réelle)', () => {
+  // Ce test garde l'horloge du système et reste dans le portail de fusion : une
+  // vérification périmée demande de rouvrir les pages officielles, c'est un
+  // travail humain qui se planifie, et rien d'autre dans ce dépôt ne sait le
+  // réclamer.
+  //
+  // La campagne close, elle, a été SORTIE d'ici : c'est une ligne de littéral à
+  // rafraîchir, et la laisser bloquer une PR d'authentification était une
+  // punition sans rapport. Elle fait désormais rougir
+  // `.github/workflows/catalog-freshness.yml`, qui tourne chaque jour.
+  it('reste importable à la date du jour (fraîcheur des vérifications)', () => {
     const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
       includeVolumeTargets: false,
     });
 
-    const stale = report.issues.filter(
-      (issue) => issue.code === 'stale_verification',
-    );
     // Jest n'accepte pas de message en second argument : on le fait porter par
     // la valeur comparée, pour qu'il s'affiche dans le diff de l'échec.
-    const diagnosis =
-      stale.length === 0
-        ? 'catalogue à jour'
-        : `${stale.length} fiche(s) vérifiées il y a plus de 30 jours ` +
-          `(${stale.map((issue) => issue.path).join(', ')}) — rouvrez leurs ` +
-          'pages officielles puis mettez à jour leur `checkedAt`. Sans cela, ' +
-          '`npm run scholarships:import` refusera le catalogue entier et plus ' +
-          'aucune bourse ne pourra être publiée.';
-    expect(diagnosis).toBe('catalogue à jour');
-    expect(report.valid).toBe(true);
+    expect(
+      buildCatalogDiagnosis(report, {
+        catalog: SCHOLARSHIP_CATALOG_V1,
+        codes: CATALOG_STALENESS_CODES,
+      }),
+    ).toBe(CATALOG_UP_TO_DATE);
+  });
+
+  it('nomme la fiche et la règle quand une campagne annoncée ouverte est close', () => {
+    const diagnosis = buildCatalogDiagnosis(
+      {
+        valid: false,
+        catalogVersion: '1.3.0',
+        uniqueRecordCount: 0,
+        uniqueRecordDeficit: 0,
+        verifiedCounts: { secondary: 0, bachelor: 0, master: 0 },
+        backlogCounts: { secondary: 0, bachelor: 0, master: 0 },
+        volumeDeficits: { secondary: 0, bachelor: 0, master: 0 },
+        backlogDeficits: { secondary: 0, bachelor: 0, master: 0 },
+        issues: [
+          {
+            code: 'open_cycle_already_closed',
+            path: 'records[16].cycle',
+            message: 'An open cycle cannot have a closing date in the past.',
+          },
+        ],
+      },
+      { catalog: SCHOLARSHIP_CATALOG_V1, codes: CATALOG_EXPIRED_CYCLE_CODES },
+    );
+
+    expect(diagnosis).toContain('mccall_macbain_2027');
+    expect(diagnosis).toContain('open_cycle_already_closed');
+    expect(diagnosis).not.toBe(CATALOG_UP_TO_DATE);
+  });
+
+  // Preuve que la règle de fraîcheur peut encore échouer : si quelqu'un la
+  // neutralise, ce compte tombe à zéro et ce test rougit.
+  it('expire en entier une fois le plafond de 30 jours dépassé', () => {
+    const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
+      includeVolumeTargets: false,
+      now: new Date('2026-09-11T00:00:00.000Z'),
+    });
+
+    expect(report.valid).toBe(false);
+    expect(
+      report.issues.filter((issue) => issue.code === 'stale_verification'),
+    ).toHaveLength(34);
+    expect(
+      buildCatalogDiagnosis(report, {
+        catalog: SCHOLARSHIP_CATALOG_V1,
+        codes: CATALOG_STALENESS_CODES,
+      }),
+    ).toContain('mccall_macbain_2027');
   });
 });

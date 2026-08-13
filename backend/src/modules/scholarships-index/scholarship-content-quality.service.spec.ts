@@ -126,4 +126,132 @@ describe('ScholarshipContentQualityService', () => {
 
     expect(report.ready).toBe(true);
   });
+
+  // Les quatre cas suivants sont ceux du catalogue vérifié 1.3.0 : sur ses 34
+  // fiches, la porte en refusait 9 alors que 3 seulement doivent l'être.
+  it('publishes a confirmed cycle that only announces a closing date', () => {
+    const report = service().evaluate(
+      {
+        ...complete,
+        cycles: [
+          {
+            academicYear: '2026-2027',
+            status: 'open',
+            dateConfidence: 'confirmed',
+            opensAt: null,
+            closesAt: new Date('2026-08-19T20:00:00.000Z'),
+            sourceUrl: 'https://official.example.org/apply',
+            verifiedAt: now,
+          },
+        ],
+      },
+      undefined,
+      now,
+    );
+
+    expect(report.blockingIssues.map((issue) => issue.code)).not.toContain(
+      'application_cycle',
+    );
+    expect(report.ready).toBe(true);
+  });
+
+  it('publishes a forecast cycle whose dates are confirmed rather than estimated', () => {
+    const report = service().evaluate(
+      {
+        ...complete,
+        cycles: [
+          {
+            academicYear: '2026-2027',
+            status: 'forecast',
+            dateConfidence: 'confirmed',
+            estimatedOpenAt: null,
+            estimatedCloseAt: null,
+            opensAt: new Date('2026-08-20T00:00:00.000Z'),
+            closesAt: new Date('2026-10-20T00:00:00.000Z'),
+            sourceUrl: 'https://official.example.org/dates',
+            verifiedAt: now,
+          },
+        ],
+      },
+      undefined,
+      now,
+    );
+
+    expect(report.blockingIssues.map((issue) => issue.code)).not.toContain(
+      'application_cycle',
+    );
+    expect(report.ready).toBe(true);
+  });
+
+  it.each(['closed', 'suspended'])('never publishes a %s cycle', (status) => {
+    const report = service().evaluate(
+      {
+        ...complete,
+        cycles: [
+          {
+            ...complete.cycles[0],
+            status,
+            estimatedCloseAt: new Date('2026-11-10T21:59:00.000Z'),
+          },
+        ],
+      },
+      undefined,
+      now,
+    );
+
+    expect(report.blockingIssues.map((issue) => issue.code)).toContain(
+      'application_cycle',
+    );
+    expect(report.ready).toBe(false);
+  });
+
+  it('still refuses a cycle whose closing date precedes its opening date', () => {
+    const report = service().evaluate(
+      {
+        ...complete,
+        cycles: [
+          {
+            academicYear: '2026-2027',
+            status: 'open',
+            dateConfidence: 'confirmed',
+            opensAt: new Date('2026-11-01T00:00:00.000Z'),
+            closesAt: new Date('2026-08-19T20:00:00.000Z'),
+            sourceUrl: 'https://official.example.org/apply',
+            verifiedAt: now,
+          },
+        ],
+      },
+      undefined,
+      now,
+    );
+
+    expect(report.blockingIssues.map((issue) => issue.code)).toContain(
+      'application_cycle',
+    );
+  });
+
+  it('refuses a confirmed cycle that announces no closing date at all', () => {
+    const report = service().evaluate(
+      {
+        ...complete,
+        cycles: [
+          {
+            academicYear: '2026-2027',
+            status: 'open',
+            dateConfidence: 'confirmed',
+            opensAt: new Date('2026-08-01T00:00:00.000Z'),
+            closesAt: null,
+            sourceUrl: 'https://official.example.org/apply',
+            verifiedAt: now,
+          },
+        ],
+      },
+      undefined,
+      now,
+    );
+
+    expect(report.blockingIssues.map((issue) => issue.code)).toContain(
+      'application_cycle',
+    );
+  });
 });
