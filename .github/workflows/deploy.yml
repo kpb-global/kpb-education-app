@@ -149,7 +149,9 @@ jobs:
           # web/nginx.conf: compose leaves a container running untouched when
           # neither its image nor its definition changed, so the rsynced file is
           # current on disk while the process still serves the configuration it
-          # read at its last start. See the reload step after the health gate.
+          # read at its last start — and Docker resolves that file mount by inode, so a
+          # reload re-reads the same stale file. See the recreate step after the
+          # health gate.
           #
           # `clamav` is deliberately NOT in the list. Upload scanning is
           # fail-closed, so recreating it would 503 every profile-photo upload
@@ -260,7 +262,7 @@ jobs:
           # ONE exception, and it earned its place on 2026-08-13: /app must be
           # served directly, with no redirect. It is the download link printed in
           # every WhatsApp referral message, and it is the only assertion that
-          # proves the nginx reload above actually took effect. Silence here is
+          # proves the kpb_web recreation above actually took effect. Silence here is
           # what let /app stay broken through a "successful" deploy.
           if [ -n "${WEB_URL:-}" ]; then
             code="$(curl -sS -o /tmp/app.html -w '%{http_code}' "${WEB_URL}/app")"
