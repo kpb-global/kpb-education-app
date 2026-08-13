@@ -61,7 +61,28 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           # Pin the host key instead of disabling verification.
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          #
+          # Avec réessais, et ce n'est pas de la superstition : le lien entre les
+          # runners GitHub et ce VPS tombe par intermittence. Trois modes
+          # d'échec observés le 12 et le 13/08/2026 — sondes de disponibilité en
+          # `Connection timed out` sur /api/health, et ce `ssh-keyscan` sorti en
+          # échec au bout de ses 5 secondes de délai par défaut — alors que
+          # l'hôte répondait normalement depuis ailleurs à la même minute.
+          # Sans réessai, un déploiement échoue pour une raison qui n'a rien à
+          # voir avec le code, et l'opérateur en déduit ce qu'il peut.
+          keyscanned=0
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              keyscanned=1; break
+            fi
+            echo "ssh-keyscan attempt $attempt failed — retrying in 10s"
+            sleep 10
+          done
+          if [ "$keyscanned" != "1" ]; then
+            echo "::error::ssh-keyscan could not reach $VPS_HOST after 5 attempts."
+            echo "::error::The host may be fine: check it from elsewhere before assuming an outage."
+            exit 1
+          fi
 
       - name: Sync code to the VPS
         env:
