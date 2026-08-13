@@ -1088,7 +1088,13 @@ class SuccessLabRepository {
         errorCode: 'VERSION_CONFLICT',
         rebasedVersion: latest.version,
       );
-      return _sendMutation(rebased);
+      // `await` indispensable, pas cosmétique : sans lui le Future s'échappe du
+      // `try` et le `catch` ci-dessous ne l'attrape JAMAIS. Un échec du renvoi
+      // après rebase remontait donc en exception non gérée au lieu de rendre
+      // `null` — alors que tout l'intérêt de ce catch est de laisser la mutation
+      // dans l'outbox pour un nouvel essai. Signalé par le lint
+      // `unawaited_return_in_try_block`, apparu avec Flutter 3.47.
+      return await _sendMutation(rebased);
     } catch (_) {
       return null;
     }

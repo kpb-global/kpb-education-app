@@ -1,4 +1,4 @@
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
@@ -10,8 +10,46 @@ import {
   withOptOut,
 } from '../../common/notification-types';
 import { PrismaService } from '../prisma/prisma.service';
-import { StorageService } from '../storage/storage.service';
+import {
+  AntivirusUnavailableError,
+  InfectedFileError,
+} from '../storage/antivirus.service';
+import {
+  type StoredObject,
+  StorageService,
+  StorageWriteError,
+} from '../storage/storage.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import {
+  avatarInfected,
+  avatarNotFound,
+  avatarProfileNotFound,
+  avatarScannerUnavailable,
+  avatarStorageUnavailable,
+  avatarUploadConflict,
+  ProfileAvatarHttpException,
+} from './profile-avatar.errors';
+import {
+  assertAvatarContent,
+  assertAvatarScannerReady,
+  AVATAR_ENDPOINT_PATH,
+  AVATAR_STORAGE_LABEL,
+} from './profile-avatar.policy';
+
+/** The multipart file as produced by multer's memory storage. */
+export interface UploadedAvatarFile {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}
+
+export interface AvatarStream {
+  /** Stable per-stored-object validator; changes when the avatar changes. */
+  etag: string;
+  /** Null when the caller's If-None-Match already matches (304, zero bytes). */
+  object: StoredObject | null;
+}
 
 @Injectable()
 export class ProfilesService {
@@ -49,6 +87,8 @@ export class ProfilesService {
     preferredCurrency: 'XOF',
     wantsScholarshipSupport: true,
     availableDocuments: ['Passport', 'Transcripts'],
+    hasAvatar: false,
+    avatarUrl: null as string | null,
     updatedAt: new Date().toISOString(),
   };
 
@@ -211,6 +251,178 @@ export class ProfilesService {
     };
   }
 
+  // ── Profile photo ──────────────────────────────────────────────────────────
+  // The image is stored as a private object and referenced by its storage KEY.
+  // No public URL exists anywhere: the bytes only ever leave through
+  // `streamAvatar`, behind StudentAuthGuard, for the owner of the row.
+
+  /**
+   * Replaces the caller's avatar. Order of operations is what keeps the bucket
+   * clean: validate → scan+store the new object → claim the row conditionally →
+   * only then delete the previous object. A failure at any earlier step leaves
+   * either nothing new stored, or a brand-new object that we delete ourselves.
+   */
+  async uploadAvatar(file: UploadedAvatarFile, userId?: string) {
+    const id = userId ?? 'demo-user';
+
+    // Cheap, honest rejections first — never scan or store what we will refuse.
+    const mimeType = assertAvatarContent(file.buffer);
+    assertAvatarScannerReady();
+
+    const before = await this.prismaService.execute((prisma) =>
+      prisma.userProfile.findUnique({
+        where: { id },
+        select: { avatarStorageKey: true },
+      }),
+    );
+    if (!before) throw avatarProfileNotFound();
+
+    let stored;
+    try {
+      stored = await this.storageService.save(
+        file.buffer,
+        AVATAR_STORAGE_LABEL,
+        mimeType,
+      );
+    } catch (error) {
+      throw this.translateAvatarStorageError(error);
+    }
+
+    try {
+      const updated = await this.prismaService.execute((prisma) =>
+        prisma.$transaction(async (tx) => {
+          // Conditional claim: if a concurrent upload changed the key while we
+          // were scanning, we lose and discard our object instead of orphaning
+          // the winner's — the row and the bucket never disagree.
+          const claimed = await tx.userProfile.updateMany({
+            where: { id, avatarStorageKey: before.avatarStorageKey },
+            data: { avatarStorageKey: stored.key },
+          });
+          if (claimed.count === 0) throw avatarUploadConflict();
+          return tx.userProfile.findUnique({ where: { id } });
+        }),
+      );
+      if (!updated) throw avatarProfileNotFound();
+
+      // Committed: the old object is now unreferenced. Deleting it after the
+      // commit (never before) means a failed commit cannot destroy the avatar
+      // the student still has. `delete` swallows its own errors.
+      if (
+        before.avatarStorageKey &&
+        before.avatarStorageKey !== stored.key
+      ) {
+        await this.storageService.delete(before.avatarStorageKey);
+      }
+      return this.mapDbProfile(updated);
+    } catch (error) {
+      // Nothing references the new object — remove it rather than leak it.
+      await this.storageService.delete(stored.key);
+      throw error instanceof ProfileAvatarHttpException
+        ? error
+        : this.translateAvatarStorageError(error);
+    }
+  }
+
+  /**
+   * Streams the caller's own avatar. `ifNoneMatch` lets a client revalidate for
+   * a few hundred bytes instead of re-downloading the image — the audience pays
+   * for its data by the megabyte.
+   */
+  async streamAvatar(
+    userId?: string,
+    ifNoneMatch?: string,
+  ): Promise<AvatarStream> {
+    const id = userId ?? 'demo-user';
+    const profile = await this.prismaService.execute((prisma) =>
+      prisma.userProfile.findUnique({
+        where: { id },
+        select: { avatarStorageKey: true },
+      }),
+    );
+    if (!profile) throw avatarProfileNotFound();
+    if (!profile.avatarStorageKey) throw avatarNotFound();
+
+    const etag = this.avatarEtag(profile.avatarStorageKey);
+    if (ifNoneMatch && this.etagMatches(ifNoneMatch, etag)) {
+      return { etag, object: null };
+    }
+
+    let object: StoredObject | null;
+    try {
+      object = await this.storageService.getObject(profile.avatarStorageKey);
+    } catch (error) {
+      throw this.translateAvatarStorageError(error);
+    }
+    // The row points at an object the store does not have. That is a 404 for
+    // this user, not a 500 and certainly not "check your connection".
+    if (!object) throw avatarNotFound();
+    return { etag, object };
+  }
+
+  /** Clears the key, then removes the object (best-effort, never throws). */
+  async deleteAvatar(userId?: string) {
+    const id = userId ?? 'demo-user';
+    const result = await this.prismaService.execute((prisma) =>
+      prisma.$transaction(async (tx) => {
+        const before = await tx.userProfile.findUnique({
+          where: { id },
+          select: { avatarStorageKey: true },
+        });
+        if (!before) return null;
+        const updated = await tx.userProfile.update({
+          where: { id },
+          data: { avatarStorageKey: null },
+        });
+        return { previousKey: before.avatarStorageKey, profile: updated };
+      }),
+    );
+    if (!result) throw avatarProfileNotFound();
+
+    if (result.previousKey) {
+      await this.storageService.delete(result.previousKey);
+    }
+    return this.mapDbProfile(result.profile);
+  }
+
+  /**
+   * Keeps the two 503 causes apart. Both used to read as one generic
+   * "unavailable", which is precisely how a real cause gets hidden: a student
+   * told "storage problem" when in fact our scanner is down cannot be helped by
+   * support, and neither can one told "connection problem" for a clean 404.
+   */
+  private translateAvatarStorageError(error: unknown): unknown {
+    if (error instanceof InfectedFileError) return avatarInfected();
+    if (error instanceof AntivirusUnavailableError) {
+      return avatarScannerUnavailable();
+    }
+    if (error instanceof StorageWriteError) return avatarStorageUnavailable();
+    return error;
+  }
+
+  /**
+   * Weak validator derived from the storage key. The key itself is never sent —
+   * it is hashed, so the ETag cannot be turned back into an object path.
+   */
+  private avatarEtag(storageKey: string): string {
+    const digest = createHash('sha256')
+      .update(`avatar:${storageKey}`)
+      .digest('hex')
+      .slice(0, 32);
+    return `W/"${digest}"`;
+  }
+
+  private etagMatches(header: string, etag: string): boolean {
+    return header
+      .split(',')
+      .map((candidate) => candidate.trim())
+      .some(
+        (candidate) =>
+          candidate === '*' ||
+          candidate === etag ||
+          candidate === etag.replace(/^W\//, ''),
+      );
+  }
+
   /// GDPR / store-required account deletion. Hard-deletes every user-owned row
   /// in one transaction (FK-safe order: case children → case-referencing rows →
   /// cases → other user-owned rows → profile), then best-effort deletes the
@@ -224,7 +436,11 @@ export class ProfilesService {
     const purged = await this.prismaService.execute(async (prisma) => {
       const profile = await prisma.userProfile.findUnique({
         where: { id },
-        select: { email: true, supabaseUserId: true },
+        select: {
+          email: true,
+          supabaseUserId: true,
+          avatarStorageKey: true,
+        },
       });
       if (!profile) return null;
 
@@ -523,6 +739,11 @@ export class ProfilesService {
         artifactStorageKeys,
         outcomeStorageKeys,
         guardianEvidenceStorageKeys,
+        // The profile photo is user-uploaded content too: erasure must reach the
+        // object, not just the column that pointed at it.
+        avatarStorageKeys: profile.avatarStorageKey
+          ? [profile.avatarStorageKey]
+          : [],
       };
     });
 
@@ -545,6 +766,9 @@ export class ProfilesService {
       await this.storageService.delete(key);
     }
     for (const key of purged.guardianEvidenceStorageKeys) {
+      await this.storageService.delete(key);
+    }
+    for (const key of purged.avatarStorageKeys) {
       await this.storageService.delete(key);
     }
 
@@ -602,8 +826,16 @@ export class ProfilesService {
     const actorKey = this.analyticsActorKey(id);
 
     const data = await this.prismaService.execute(async (prisma) => {
-      const profile = await prisma.userProfile.findUnique({ where: { id } });
-      if (!profile) return null;
+      const row = await prisma.userProfile.findUnique({ where: { id } });
+      if (!row) return null;
+      // The export is a document the student may forward anywhere. Private
+      // storage keys stay out of it (see the `note` below) — the photo is
+      // reported as a boolean, and downloaded from the authenticated endpoint.
+      const { avatarStorageKey, ...exportableProfile } = row;
+      const profile = {
+        ...exportableProfile,
+        hasAvatar: Boolean(avatarStorageKey),
+      };
 
       const [
         cases,
@@ -1054,6 +1286,10 @@ export class ProfilesService {
       fieldIds: p.fieldIds,
       targetCountryIds: p.targetCountryIds,
       availableDocuments: p.availableDocuments,
+      // The storage key is deliberately NOT exposed — it would leak the internal
+      // object layout. Clients get a boolean plus the authenticated endpoint.
+      hasAvatar: Boolean(p.avatarStorageKey),
+      avatarUrl: p.avatarStorageKey ? AVATAR_ENDPOINT_PATH : null,
       aiConsentedAt: p.aiConsentedAt ? p.aiConsentedAt.toISOString() : null,
       birthDate: p.birthDate ? p.birthDate.toISOString() : null,
       guardianName: p.guardianName,

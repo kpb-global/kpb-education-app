@@ -33,6 +33,7 @@ import '../alumni/alumni_apply_screen.dart';
 import '../salon/salon_screen.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/shell_chrome.dart';
+import 'profile_avatar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Student Profile — App-engagement handoff restyle (navy/blue).
@@ -430,22 +431,13 @@ class _HeaderCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: const BoxDecoration(
-              color: KpbColors.brandNavy,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              _initials(profile.fullName),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
+          // Photo de profil : la photo remplace les initiales quand elle
+          // existe, les initiales restent le repli (pas de photo, chargement,
+          // échec de chargement). Tout le parcours ajout/remplacement/
+          // suppression vit dans ProfileAvatar.
+          ProfileAvatar(
+            profile: profile,
+            initials: _initials(profile.fullName),
           ),
           const SizedBox(width: 13),
           Expanded(
