@@ -417,3 +417,56 @@ export function validateScholarshipCatalog(
     issues,
   };
 }
+
+/** Ce que renvoie [buildCatalogDiagnosis] quand il n'y a rien à signaler. */
+export const CATALOG_UP_TO_DATE = 'catalogue à jour';
+
+/**
+ * Les anomalies dues au seul passage du temps, et le métier qui les corrige.
+ *
+ * La distinction n'est pas cosmétique : rouvrir 102 pages officielles est un
+ * travail humain qui se planifie, tandis que passer un cycle en `closed` est une
+ * ligne de littéral. Les confondre dans un seul message a produit exactement ce
+ * qu'on voulait éviter — un échec qui ne dit pas quoi faire.
+ */
+export const CATALOG_STALENESS_CODES = [
+  'stale_verification',
+  'stale_source_check',
+] as const;
+
+export const CATALOG_EXPIRED_CYCLE_CODES = [
+  'open_cycle_already_closed',
+] as const;
+
+/**
+ * Décrit les anomalies d'un rapport en nommant la fiche concernée.
+ *
+ * Sans cette fonction, l'échec du test à horloge réelle se présentait en
+ * `expect(false).toBe(true)` : ni la fiche, ni la règle, ni le geste correctif.
+ * Le diagnostic ne portait d'ailleurs que `stale_verification`, donc une
+ * campagne close passée en cours de route laissait le message affirmer
+ * « catalogue à jour » pendant que le catalogue était refusé.
+ */
+export function buildCatalogDiagnosis(
+  report: ScholarshipCatalogValidationReport,
+  options: {
+    catalog?: VersionedScholarshipCatalog;
+    codes?: readonly string[];
+  } = {},
+): string {
+  const matching = options.codes
+    ? report.issues.filter((issue) => options.codes!.includes(issue.code))
+    : report.issues;
+  if (matching.length === 0) return CATALOG_UP_TO_DATE;
+
+  const nameRecord = (path: string): string => {
+    const index = /^records\[(\d+)\]/.exec(path)?.[1];
+    if (index == null) return path;
+    const record = options.catalog?.records[Number(index)];
+    return record ? `${record.scholarship.id} (${path})` : path;
+  };
+
+  return matching
+    .map((issue) => `${issue.code} — ${nameRecord(issue.path)} : ${issue.message}`)
+    .join('\n');
+}

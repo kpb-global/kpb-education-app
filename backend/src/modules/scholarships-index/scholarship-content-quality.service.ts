@@ -13,6 +13,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 type QualityCycle = {
   academicYear?: string | null;
   status: string;
+  dateConfidence?: string | null;
   estimatedOpenAt?: Date | null;
   estimatedCloseAt?: Date | null;
   opensAt?: Date | null;
@@ -234,16 +235,21 @@ export class ScholarshipContentQualityService {
     const cycle =
       cycleOverride ?? this.selectPublicationCycle(scholarship.cycles ?? [], now);
     const dates = this.cycleDates(cycle);
+    // La clôture est le fait actionnable pour l'étudiant, et beaucoup
+    // d'institutions ne publient qu'elle (McCall MacBain, University of
+    // Pretoria). Exiger aussi une ouverture forçait à en inventer une ou à
+    // déclasser la fiche : on exige donc la clôture, et l'ordre des deux bornes
+    // seulement quand l'ouverture existe. Même règle que
+    // `scholarship-catalog.validator.ts`, qui fait foi.
     add(
       'application_cycle',
-      'Cycle de candidature ouvert ou prévisionnel cohérent',
-      'Consistent open or forecast application cycle',
+      'Cycle ouvert ou prévisionnel, avec une date de clôture',
+      'Open or forecast cycle with a closing date',
       Boolean(
         cycle &&
           (cycle.status === 'open' || cycle.status === 'forecast') &&
-          dates.open &&
           dates.close &&
-          dates.close.getTime() > dates.open.getTime(),
+          (!dates.open || dates.close.getTime() > dates.open.getTime()),
       ),
     );
     add(
@@ -299,12 +305,25 @@ export class ScholarshipContentQualityService {
     close: Date | null;
   } {
     if (!cycle) return { open: null, close: null };
-    return cycle.status === 'open'
-      ? { open: cycle.opensAt ?? null, close: cycle.closesAt ?? null }
-      : {
-          open: cycle.estimatedOpenAt ?? null,
-          close: cycle.estimatedCloseAt ?? null,
-        };
+    // C'est `dateConfidence` qui dit où lire les dates, pas `status` : une fiche
+    // « forecast » peut porter des dates confirmées (Taiwan ICDF, Open Doors
+    // Russie, ETH Zurich). Lire la paire d'après le statut renvoyait deux nulls
+    // pour ces fiches, et la porte de publication en écartait 6 sur 31.
+    if (cycle.dateConfidence === 'estimated') {
+      return {
+        open: cycle.estimatedOpenAt ?? null,
+        close: cycle.estimatedCloseAt ?? null,
+      };
+    }
+    if (cycle.dateConfidence === 'confirmed') {
+      return { open: cycle.opensAt ?? null, close: cycle.closesAt ?? null };
+    }
+    // Cycle saisi à l'activation depuis l'admin : il n'a pas de
+    // `dateConfidence`, on prend la paire réellement renseignée.
+    return {
+      open: cycle.opensAt ?? cycle.estimatedOpenAt ?? null,
+      close: cycle.closesAt ?? cycle.estimatedCloseAt ?? null,
+    };
   }
 
   private hasText(value: string | null | undefined): boolean {
