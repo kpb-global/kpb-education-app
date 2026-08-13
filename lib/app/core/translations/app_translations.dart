@@ -1023,9 +1023,20 @@ class AppTranslations extends Translations {
           // La carte du guide n'offrait aucune action : « En savoir plus »
           // menait à une page purement éditoriale, sans sortie (revue vidéo
           // du 08/08). Le guide devient une porte d'entrée conseiller.
-          'scholarship_guide_whatsapp_cta': 'Recevoir le guide sur WhatsApp',
+          //
+          // IMPORTANT — le guide est un produit PAYANT, remis par un conseiller
+          // après règlement. D'où deux règles sur cette formulation :
+          //   1. « Recevoir » laissait croire qu'il était offert : l'étudiant
+          //      arrivait en attendant un cadeau et le conseiller devait lui
+          //      annoncer un prix. Friction et déception, temps conseiller perdu.
+          //   2. Aucun prix ni verbe d'achat DANS l'app : un PDF est un bien
+          //      numérique au sens d'Apple 3.1.1, et le vendre hors achat
+          //      intégré est un motif de rejet. Le Pass Bourses y échappe parce
+          //      qu'il inclut des revues humaines (3.1.3(e)) ; un guide seul,
+          //      non. L'app met en relation, le conseiller traite les modalités.
+          'scholarship_guide_whatsapp_cta': 'Demander le guide à un conseiller',
           'scholarship_guide_whatsapp_prefill':
-              'Bonjour KPB, je souhaite recevoir le Guide Ultime du Boursier.',
+              'Bonjour KPB, je souhaite obtenir le Guide Ultime du Boursier. Pouvez-vous m\'indiquer les modalités ?',
           'scholarship_guide_title': 'Le Guide Ultime du Boursier Africain',
           'scholarship_guide_intro':
               'Un parcours pratique pour passer du rêve d\'étudier à l\'étranger à une candidature structurée et compétitive.',
@@ -3657,9 +3668,9 @@ class AppTranslations extends Translations {
           'scholarship_guide_promo_body':
               'A clear method for preparing competitive international scholarship applications.',
           'scholarship_guide_learn_more': 'Learn more',
-          'scholarship_guide_whatsapp_cta': 'Get the guide on WhatsApp',
+          'scholarship_guide_whatsapp_cta': 'Ask an advisor about the guide',
           'scholarship_guide_whatsapp_prefill':
-              'Hello KPB, I would like to receive the Ultimate Scholarship Guide.',
+              'Hello KPB, I would like to obtain the Ultimate Scholarship Guide. Could you tell me how it works?',
           'scholarship_guide_title': 'The Ultimate African Scholarship Guide',
           'scholarship_guide_intro':
               'A practical path from the dream of studying abroad to a structured and competitive application.',
