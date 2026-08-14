@@ -2234,6 +2234,10 @@ class AppTranslations extends Translations {
           'force_update_body':
               'Cette version de l\'application n\'est plus prise en charge. Mets-la à jour pour continuer à utiliser KPB Education.',
           'force_update_cta': 'Mettre à jour',
+          'force_update_contact_cta': 'Contacter un conseiller KPB',
+          'force_update_prefill':
+              "Bonjour, mon application KPB me demande une mise à jour mais je "
+                  "n'arrive pas à la faire. Pouvez-vous m'aider ?",
           // ── AHA moment post-onboarding (P0-D) ──
           'aha_loading': 'Calcul de tes compatibilités…',
           'aha_title': 'Tes écoles compatibles',
@@ -4836,6 +4840,10 @@ class AppTranslations extends Translations {
           'force_update_body':
               'This version of the app is no longer supported. Update it to keep using KPB Education.',
           'force_update_cta': 'Update now',
+          'force_update_contact_cta': 'Contact a KPB advisor',
+          'force_update_prefill':
+              'Hello, my KPB app is asking for an update but I cannot complete '
+                  'it. Could you help me?',
           // ── AHA moment post-onboarding (P0-D) ──
           'aha_loading': 'Scoring your matches…',
           'aha_title': 'Your school matches',
