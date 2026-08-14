@@ -33,7 +33,12 @@ class RoadmapEngine {
           en: 'Write your Personal Statement using our tutorials.',
         ),
         daysBeforeDeadline: 30,
-        actionRoute: '/academy', // Deep link to Academy
+        // PAS d'actionRoute. Il valait '/academy', une route qui n'existe pas
+        // dans AppRoutes : le bouton rendu par roadmap_timeline_view affichait un
+        // Get.snackbar « Redirection vers les tutoriels… » et rien d'autre. Et il
+        // n'y a de toute façon aucun tutoriel de rédaction dans l'app, l'Academy
+        // étant masquée. Un bouton qui promet une redirection qui n'arrive jamais
+        // est pire qu'un bouton absent : l'étudiant croit avoir raté quelque chose.
       ),
       RoadmapStepModel(
         type: RoadmapStepType.review,
@@ -44,7 +49,11 @@ class RoadmapEngine {
           en: 'Have your application reviewed by a KPB expert to maximize your chances.',
         ),
         daysBeforeDeadline: 15,
-        actionRoute: '/consultation', // Deep link to Consultation
+        // Idem : '/consultation' n'existe pas non plus. L'affordance n'est pas
+        // perdue pour autant — l'écran hôte porte DÉJÀ, juste en dessous, un
+        // bouton « créer un dossier » qui ouvre réellement le tunnel
+        // (orientation_roadmap_screen.dart). Deux boutons pour la même action,
+        // dont un seul marche, valent moins qu'un seul qui marche.
       ),
       RoadmapStepModel(
         type: RoadmapStepType.submission,

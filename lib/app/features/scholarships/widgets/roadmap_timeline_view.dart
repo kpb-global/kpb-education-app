@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/config/app_routes.dart';
+
 import '../../../core/controllers/app_controller.dart';
 import '../../../core/data/roadmap_engine.dart';
 import '../../../core/models/app_models.dart';
@@ -56,16 +58,17 @@ class RoadmapTimelineView extends StatelessWidget {
     );
   }
 
+  /// Ouvre la route d'une étape.
+  ///
+  /// Ne subsiste que pour les étapes qui portent une route RÉELLE. Les deux
+  /// seules qui en portaient une — `/academy` et `/consultation` — visaient des
+  /// routes inexistantes, et cette méthode se contentait alors d'un
+  /// `Get.snackbar` annonçant une redirection qui n'arrivait jamais. Les
+  /// `actionRoute` ont été retirés de roadmap_engine.dart ; l'assertion qui
+  /// empêche leur retour vit dans roadmap_engine_test.dart.
   void _handleAction(String route) {
-    if (route == '/academy') {
-      // Handle deep link to academy
-      Get.snackbar('Academy', 'roadmap_redirect_writing_tutorials'.tr,
-          backgroundColor: KpbColors.blue, colorText: Colors.white);
-    } else if (route == '/consultation') {
-      // Handle deep link to consultation
-      Get.snackbar(
-          'home_hero_cta_consultation'.tr, 'roadmap_redirect_kpb_expert'.tr,
-          backgroundColor: KpbColors.blue, colorText: Colors.white);
+    if (AppRoutes.pages.any((page) => page.name == route)) {
+      Get.toNamed<void>(route);
     }
   }
 }

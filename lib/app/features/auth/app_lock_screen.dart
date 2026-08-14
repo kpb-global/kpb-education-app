@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../core/services/security_service.dart';
 import '../../core/ui/app_tokens.dart';
@@ -52,11 +51,41 @@ class _AppLockScreenState extends State<AppLockScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Lottie.network(
-                  'https://assets9.lottiefiles.com/packages/lf20_S69j4B.json',
+                // Un cadenas dessiné localement, et non une animation tirée d'un
+                // CDN tiers.
+                //
+                // Cette place était occupée par le seul `Lottie.network` du
+                // dépôt, sur une URL lottiefiles qui répond **403**. Deux
+                // conséquences, chacune suffisante :
+                //
+                //  · en release, lottie ne rend son erreur que sous `kDebugMode`
+                //    (lottie_builder.dart:538-548) — l'écran de verrouillage
+                //    affichait donc un TROU de 180×180 à chaque ouverture, et
+                //    personne ne le voyait en développement ;
+                //  · et chaque déverrouillage envoyait l'adresse IP de
+                //    l'utilisateur à un tiers que la déclaration de
+                //    confidentialité des stores ne mentionne pas. Sur un écran de
+                //    sécurité, c'est le pire endroit possible pour une fuite
+                //    involontaire.
+                //
+                // Le paquet `lottie` n'avait aucun autre usage dans l'app : il
+                // sort de pubspec.yaml avec cet appel.
+                Container(
                   width: 180,
                   height: 180,
-                  repeat: true,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.06),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.lock_outline_rounded,
+                    size: 88,
+                    color: Colors.white.withValues(alpha: 0.85),
+                  ),
                 ),
                 SizedBox(height: 12),
                 Text(

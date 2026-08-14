@@ -92,7 +92,6 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^33.2.3
   local_auth: ^3.0.1
   onesignal_flutter: ^5.0.0
-  lottie: ^3.3.3
   shimmer: ^3.0.0
   quick_actions: ^1.1.0
   pdf: ^3.12.0
@@ -103,6 +102,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.3
+
+  # Couture officielle de url_launcher pour les tests : un faux
+  # `UrlLauncherPlatform` permet d'affirmer QUELLE URL un bouton ouvre, sans
+  # ajouter de paramètre d'injection à la production. Déclarés explicitement
+  # plutôt que consommés en transitif — le lint a raison, une dépendance
+  # transitive peut disparaître à la prochaine montée de version.
+  plugin_platform_interface: ^2.1.8
+  url_launcher_platform_interface: ^2.3.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
