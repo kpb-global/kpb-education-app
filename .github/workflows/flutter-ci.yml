@@ -109,7 +109,12 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          flutter test --tags=known-defect \
+          # `--reporter expanded` et non le rapporteur « github » automatique :
+          # celui-ci émet une annotation ::error:: pour chaque échec, et ces
+          # échecs sont ATTENDUS ici. On verrait donc une annotation rouge sur
+          # un job vert — précisément le genre de signal trompeur que ce lot
+          # existe pour supprimer.
+          flutter test --tags=known-defect --reporter expanded \
             --dart-define=KPB_ENABLE_REMOTE_SYNC=false 2>&1 | tee /tmp/known.log || true
           {
             echo "### Défauts connus, non corrigés"
