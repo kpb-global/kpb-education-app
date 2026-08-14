@@ -2,3 +2,16 @@ tags:
   # Goldens : générées et comparées en local (macOS) — exclues en CI Linux
   # (rendu de police différent). Voir architecture §11.5.
   golden:
+
+  # Défauts CONNUS, documentés, non encore corrigés. Ces tests affirment le
+  # comportement CORRECT et sont donc ROUGES par construction : c'est leur
+  # travail. Ils sont exclus du portillon de fusion (flutter-ci.yml) et rapportés
+  # quotidiennement, sans bloquer, par catalog-freshness.yml.
+  #
+  # Le tag n'est PAS une échappatoire : chaque cas taué ici doit avoir un budget
+  # chiffré dans un cliquet vert exécuté par la CI (voir
+  # test/core/utils/tuition_defect_budget.dart), et ce cliquet devient rouge si
+  # le défaut grandit — ou s'il est corrigé sans qu'on retire le tag.
+  #
+  # Pour les lire :  flutter test --tags=known-defect
+  known-defect:

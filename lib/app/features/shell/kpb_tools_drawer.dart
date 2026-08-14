@@ -123,6 +123,21 @@ class KpbToolsDrawer extends StatelessWidget {
     );
   }
 
+  /// Les outils RÉELLEMENT offerts par le tiroir, sous une forme publique.
+  ///
+  /// Exposé pour que la matrice d'écrans (test/core/ui/screen_matrix_test.dart)
+  /// se pilote sur CETTE liste et non sur une copie. Deux conséquences voulues :
+  /// un outil ajouté ici est couvert automatiquement, et le compte reflète les
+  /// drapeaux — il y a 9 entrées littérales mais 8 à l'exécution, `tools_flight`
+  /// étant derrière `AppConfig.flightEstimatorEnabled`, un
+  /// `bool.fromEnvironment` qu'un test ne peut pas basculer. Une matrice qui
+  /// écrirait « 9 » en dur échouerait pour cette seule raison.
+  @visibleForTesting
+  static List<({String labelKey, Widget Function() builder})>
+      get toolsForTest => _tools
+          .map((tool) => (labelKey: tool.labelKey, builder: tool.builder))
+          .toList(growable: false);
+
   static final List<_ToolEntry> _tools = <_ToolEntry>[
     _ToolEntry(
       labelKey: 'tools_cv',

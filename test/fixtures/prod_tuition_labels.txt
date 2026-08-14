@@ -1,0 +1,178 @@
+# Étiquettes de frais de scolarité RÉELLES de la production KPB.
+#
+# Source     : https://api.kpbeducation.cloud/api/catalog/programs?lang=fr
+# Relevé le  : 2026-08-14 (champ `source` de la réponse : "database")
+# Volume     : 582 programmes -> 146 étiquettes `tuitionFr` distinctes
+#
+# Pourquoi ce fichier existe. Le parseur d'aujourd'hui
+# (TuitionUtils.parseEurAnnual) extrait le PREMIER nombre de l'étiquette et le
+# traite comme des euros, sans jamais lire la devise qui y est écrite. Un test
+# écrit sur des exemples inventés ne l'attrape pas : il faut les vraies chaînes,
+# avec leurs vraies bizarreries. 227 des 582 programmes affichent aujourd'hui un
+# coût faux, dont 48 faux d'un facteur 656.
+#
+# Répartition par devise DÉCLARÉE dans l'étiquette (étiquettes / programmes) :
+#   EUR 58 / 350   <- la seule famille que le parseur lit juste, par accident
+#   USD 33 /  55
+#   XOF 18 /  48   <- le pire cas : des francs CFA re-multipliés par 655,957
+#   MAD 12 /  50
+#   CAD 11 /  32
+#   GBP  8 /  32
+#   AED  4 /  10
+#   aucune devise  2 /   5
+#
+# Format : <nombre de programmes><TAB><étiquette>, un enregistrement par ligne.
+# Les lignes vides et celles commençant par « # » sont ignorées. Une ligne dont
+# le champ étiquette est vide décrit les programmes SANS libellé de frais.
+#
+# LES OCTETS SONT CONSERVÉS TELS QUELS : espace fine insécable U+202F
+# (« 12 990 €/an »), tiret demi-cadratin U+2013 (« 11 490 € – 11 690 € »),
+# virgule décimale anglo-saxonne (« MAD 35,000/an »), point (« 9.850 EUR/an »),
+# abréviation « k ». C'est exactement ce qui met un parseur en défaut : ne
+# « nettoyez » pas ce fichier et ne le passez dans aucun formateur.
+31	12 990 €/an
+27	12 090 €/an
+21	12 690 €/an
+18	10 690 €/an
+17	12 890 €/an
+16	14 150 €/an
+15	13 350 €/an
+14	10 650 €/an
+10	11 490 € – 11 690 €/an selon le campus
+10	12 090 € – 12 290 €/an selon le campus
+10	9 690 €/an
+9	14 690 €/an
+9	40 000 MAD/an
+9	45 000 MAD/an
+8	EUR 9 000/an
+7	10 050 €/an
+7	10 550 €/an
+7	14 850 €/an
+7	15 420 €/an
+7	17 610 USD/an
+7	40 000 AED/an
+7	8 350 € – 10 050 €/an selon le campus
+7	8 350 € – 10 550 €/an selon le campus
+7	8 690 € – 10 690 €/an selon le campus
+7	MAD 45,000/an
+6	11 050 €/an
+5	10 090 €/an
+5	14 290 €/an
+5	17 250 €/an
+5	8 500 USD/an
+5	CAD 18 000/an (indicatif)
+5	MAD 50,000/an
+5	XOF 1 000 000/an (est.)
+5	XOF 1 300 000/an (est.)
+5	XOF 1 800 000/an (est.)
+5	XOF 950 000/an (est.)
+4	16 560 €/an
+4	19 620 USD/an
+4	8 850 €/an
+4	9 890 €/an
+4	CAD 13 000/an (indicatif)
+4	CAD 14 000/an (indicatif)
+4	CAD 16 000/an (indicatif)
+4	CAD 30 000/an (indicatif)
+4	EUR 10 000/an
+4	EUR 12 000/an
+4	EUR 13 000/an
+4	EUR 16 000/an
+4	EUR 20 000/an
+4	EUR 6 000/an
+4	EUR 8 500/an
+4	GBP 12 000/an
+4	GBP 13 500/an
+4	GBP 14 000/an
+4	GBP 15 000/an
+4	GBP 16 000/an
+4	GBP 17 000/an
+4	GBP 18 000/an
+4	GBP 20 000/an
+4	MAD 30,000/an
+4	MAD 40,000/an
+4	XOF 1 100 000/an (est.)
+4	XOF 1 200 000/an (est.)
+3	11 690 €/an
+3	CAD 12 000/an (indicatif)
+3	CAD 15 000/an (indicatif)
+3	MAD 25,000/an
+3	MAD 35,000/an
+3	MAD 80,000/an
+3	Sur demande
+3	USD 1,200/an (frais évalués)
+3	USD 18,000/an (approx.)
+3	XOF 1 700 000/an (est.)
+3	XOF 1 900 000/an (est.)
+2	
+2	12 290 €/an
+2	12 550 €/an
+2	12 650 €/an
+2	13 000 €/an
+2	16 500 €/an
+2	19 410 USD/an
+2	5 500 €/an (B1)
+2	8 350 €/an
+2	9 000 USD/an
+2	9 900 €/an
+2	CAD 20 000/an (indicatif)
+2	USD 12,000/an (approx.)
+2	USD 20,000/an (approx.)
+2	USD 24,000/an (approx.)
+2	XOF 1 600 000/an (est.)
+2	XOF 2 000 000/an (est.)
+2	XOF 2 200 000/an (est.)
+2	XOF 900 000/an (est.)
+1	10 000 AED (programme)
+1	10 000 €/an
+1	11 090 €/an
+1	11 490 €/an
+1	12 000 USD/an
+1	12 090 € – 14 150 €/an selon le campus
+1	13 650 €/an
+1	14 500 €/an
+1	20 700 €/an
+1	24 525 USD/an
+1	25 000 AED/an
+1	28 000 USD/an
+1	30 000 € (programme)
+1	7 690 €/an
+1	8 000 - 18 500 AED
+1	8 000 €/an
+1	8 850 € – 11 090 €/an selon le campus
+1	9 000 €/an
+1	9 200 €/an
+1	9 500 €/an
+1	9 050 € – 9 250 €/an selon le campus
+1	CAD 10 000/an (indicatif)
+1	CAD 17 000/an (indicatif)
+1	CAD 22 000/an (indicatif)
+1	MAD 150,000/an
+1	MAD 55,000/an
+1	MAD 90,000/an
+1	USD 1,200/an (frais administratifs évalués)
+1	USD 11,500/an (approx.)
+1	USD 12,500/an (approx.)
+1	USD 13,500/an (approx.)
+1	USD 13,800/an (approx.)
+1	USD 14,000/an (approx.)
+1	USD 14,500/an (approx.)
+1	USD 15,000/an (approx.)
+1	USD 15,500/an (approx.)
+1	USD 16,000/an (approx.)
+1	USD 17,000/an (approx.)
+1	USD 17,500/an (approx.)
+1	USD 19,000/an (approx.)
+1	USD 19,500/an (approx.)
+1	USD 21,500/an (approx.)
+1	USD 22,500/an (approx.)
+1	USD 23,000/an (approx.)
+1	USD 26,000/an (approx.)
+1	USD 27,000/an (approx.)
+1	USD 28,000/an (approx.)
+1	XOF 1 050 000/an (est.)
+1	XOF 1 150 000/an (est.)
+1	XOF 1 250 000/an (est.)
+1	XOF 1 500 000/an (est.)
+1	XOF 600 000/an (est.)
+1	XOF 700 000/an (est.)
