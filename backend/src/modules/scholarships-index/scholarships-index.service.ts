@@ -9,6 +9,11 @@ import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  publicScholarshipWhere,
+  servedCycleStatus,
+} from '../../common/public-scholarship-where';
+import type { AdminSessionUser } from '../auth/auth.service';
+import {
   ScrapedScholarship,
   ScholarshipScraper,
 } from './scholarship-source.interface';
@@ -218,9 +223,7 @@ export class ScholarshipsIndexService {
     // `fieldIds` does NOT belong here: the mobile client derives it from the
     // saved profile, not from a control the student can see or clear.
     const baseWhere = {
-      isActive: true,
-      // Only approved (curated default-approved + admin-approved scraped) is public.
-      moderationStatus: 'approved' as const,
+      ...publicScholarshipWhere(),
       ...(params.fundingType
         ? {
             fundingType: params.fundingType as
@@ -380,11 +383,10 @@ export class ScholarshipsIndexService {
   ) {
     const scholarship = await this.prismaService.execute((prisma) =>
       prisma.scholarship.findFirst({
-        where: {
-          id,
-          isActive: true,
-          moderationStatus: 'approved',
-        },
+        // Même clause que les listes : sinon un lien profond, une alerte ou un
+        // favori continue d'ouvrir la fiche d'une campagne close, qui affiche
+        // son `deadlineLabel` figé « Ouvert — clôture le … ».
+        where: { id, ...publicScholarshipWhere() },
         include: {
           applicationSteps: { orderBy: { stepNumber: 'asc' } },
           cycles: { orderBy: { academicYear: 'desc' } },
@@ -486,14 +488,40 @@ export class ScholarshipsIndexService {
   /// Admin moderation: approve / reject / reset a scholarship's visibility.
   /// moderationStatus is intentionally NOT touched by the refresh upsert, so an
   /// admin decision survives subsequent scraper runs.
-  async setModeration(id: string, status: 'approved' | 'rejected' | 'pending') {
+  /**
+   * Contrepartie obligatoire de `lastVerifiedAt: { not: null }` dans la clause
+   * publique : approuver EST un acte de vérification humaine, donc l'approbation
+   * horodate. Sans cela, la seule interface d'ajout de bourse de l'équipe
+   * produirait des fiches approuvées mais impubliables — et le filtre censé
+   * protéger l'étudiant casserait l'outil de travail.
+   *
+   * Le rejet et la remise en attente n'effacent PAS la date : la fiche a bien été
+   * relue, et l'effacer ferait perdre la trace de qui l'a regardée.
+   */
+  async setModeration(
+    id: string,
+    status: 'approved' | 'rejected' | 'pending',
+    verifier?: AdminSessionUser,
+  ) {
     if (status === 'approved') {
       await this.contentQuality.assertReady(id);
     }
     return this.prismaService.execute((prisma) =>
       prisma.scholarship.update({
         where: { id },
-        data: { moderationStatus: status },
+        data: {
+          moderationStatus: status,
+          ...(status === 'approved'
+            ? {
+                lastVerifiedAt: new Date(),
+                verifiedById: verifier?.id ?? 'admin-moderation',
+                verifiedByName:
+                  verifier?.fullName ??
+                  verifier?.email ??
+                  'Admin moderation queue',
+              }
+            : {}),
+        },
       }),
     );
   }
@@ -559,7 +587,11 @@ export class ScholarshipsIndexService {
     return {
       id: cycle.id,
       academicYear: cycle.academicYear,
-      status: cycle.status,
+      status: servedCycleStatus(
+        cycle.status,
+        cycle.closesAt,
+        cycle.estimatedCloseAt,
+      ),
       dateConfidence: cycle.dateConfidence,
       estimatedOpenAt: cycle.estimatedOpenAt?.toISOString() ?? null,
       estimatedCloseAt: cycle.estimatedCloseAt?.toISOString() ?? null,

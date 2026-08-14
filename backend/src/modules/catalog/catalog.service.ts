@@ -3,6 +3,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { mockCatalog } from '../../common/data/mock-catalog';
+import { publicScholarshipWhere } from '../../common/public-scholarship-where';
 import {
   CATALOG_SOURCE_DATABASE,
   CATALOG_SOURCE_MOCK,
@@ -141,8 +142,13 @@ export class CatalogService {
   async getScholarships(): Promise<CatalogListResponse<unknown>> {
     const rows = await this.readOrDegrade('scholarships', (prisma) =>
       prisma.scholarship.findMany({
-        // Only show approved + active rows; hide pending-scraped and expired.
-        where: { isActive: true, moderationStatus: 'approved' },
+        // Le commentaire qui vivait ici affirmait masquer les fiches expirées.
+        // C'était faux : le `where` n'avait aucun filtre de date, et trois
+        // bourses closes depuis 13 à 90 jours étaient servies comme
+        // disponibles. La règle est maintenant partagée avec `/scholarships`,
+        // en un seul endroit, pour qu'un commentaire ne puisse plus tenir lieu
+        // de filtre.
+        where: publicScholarshipWhere(),
         orderBy: { nameFr: 'asc' },
       }),
     );
