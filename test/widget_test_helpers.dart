@@ -72,6 +72,31 @@ class MockApiClient extends Mock implements AppApiClient {
       'https://api.invalid.test/api/profiles/me/avatar';
 }
 
+/// Client qui COMPTE ses appels, pour les tests qui doivent prouver qu'un
+/// aller-retour réseau a réellement eu lieu — et pas seulement qu'un booléen
+/// vaut `true`.
+///
+/// L'observable est `listParcoursStories()`, appelé par
+/// `AppController.fetchParcoursStories()` juste après son portillon
+/// `if (!AppConfig.enableRemoteSync) return;`
+/// (lib/app/core/controllers/app_controller/parcours.dart:69, appel :80).
+///
+/// Ce chemin-là et pas `syncRemoteData` : `syncRemoteData` enchaîne des dizaines
+/// d'appels, des délais de repli et une file d'attente, et ne se termine JAMAIS
+/// sous un client qui rend `null` — mesuré, le test pendait indéfiniment.
+/// `fetchParcoursStories` fait un seul appel dans un `try/catch`, sans toucher
+/// Hive (`CatalogCacheService.isInitialized` est faux en test) : borné et
+/// déterministe. Un observable qui pend n'est pas un observable.
+class CountingApiClient extends MockApiClient {
+  int listParcoursStoriesCalls = 0;
+
+  @override
+  Future<List<ParcoursStory>> listParcoursStories() async {
+    listParcoursStoriesCalls++;
+    return const <ParcoursStory>[];
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Test App Wrapper
 // ─────────────────────────────────────────────────────────────────────────────
@@ -101,15 +126,54 @@ class TestAppWrapper extends StatelessWidget {
 // Helper: Create Test App with AppController
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Monte [child] avec un AppController hydraté depuis [initialSnapshot].
+///
+/// ## Pourquoi [enableRemoteSync] existe, et pourquoi son défaut est `false`
+///
+/// `AppConfig.enableRemoteSync` garde une trentaine de chemins de
+/// `AppController` (`app_controller.dart` : 18 occurrences, plus parcours.dart
+/// et commercial.dart). Le défaut `false` est le bon pour la grande majorité des
+/// tests : sans lui, chaque `pumpTestApp` partirait chercher le réseau et
+/// exploserait sur un `MissingStubError` au milieu d'un `build`.
+///
+/// Mais ce défaut a un coût, et il faut le nommer : **un test d'envoi qui ne
+/// passe pas `enableRemoteSync: true` ne teste PAS l'envoi.** Il monte l'écran,
+/// tape sur le bouton, voit « fourni ✓ » et passe au vert — pendant qu'aucun
+/// octet ne part. C'est le motif d'outillage menteur que le lot 5 existe pour
+/// supprimer : le harnais doit être capable d'échouer.
+///
+/// Donc : tout test qui prétend vérifier un aller-retour réseau (création de
+/// dossier, téléversement de pièce, synchronisation) DOIT passer
+/// `enableRemoteSync: true` et observer un client qui compte. Voir
+/// `test/core/remote_sync_seam_test.dart`, le méta-test qui rougit si ce
+/// paramètre est ignoré ou re-figé à `false`.
+///
+/// ## Le paramètre s'applique APRÈS l'hydratation, et ce n'est pas un détail
+///
+/// `AppController.hydrate()` fait `if (AppConfig.enableRemoteSync) await
+/// syncRemoteData(silent: true);` (app_controller.dart:429-431). Poser le drapeau
+/// avant `hydrate()` fait donc partir une synchronisation COMPLÈTE dans le
+/// helper — et sous un client de test elle ne se termine jamais : dizaines
+/// d'appels, replis temporisés, file d'attente. Mesuré : le test pendait
+/// indéfiniment, y compris avec `--timeout 45s`, avant même d'atteindre son
+/// premier `expect`.
+///
+/// L'hydratation reste donc LOCALE dans tous les cas, et le drapeau s'ouvre
+/// juste avant le premier `build`. C'est aussi la sémantique utile : ce qu'un
+/// test d'envoi veut, c'est « le chemin réseau est ouvert quand j'appuie sur le
+/// bouton », pas « le helper a rejoué toute la synchronisation d'ouverture ».
+///
+/// Conséquence à connaître : avec `enableRemoteSync: true`, un écran qui lance un
+/// appel dans son `initState` le lancera pour de vrai pendant le `pumpAndSettle`
+/// final. C'est au test de fournir les réponses.
 Future<void> pumpTestApp(
   WidgetTester tester, {
   required Widget child,
   AppSnapshot? initialSnapshot,
   MockApiClient? mockApiClient,
   bool ensureBinding = true,
+  bool enableRemoteSync = false,
 }) async {
-  AppConfig.enableRemoteSyncOverride = false;
-
   if (ensureBinding) {
     TestWidgetsFlutterBinding.ensureInitialized();
   }
@@ -124,7 +188,16 @@ Future<void> pumpTestApp(
     apiClient: apiClient,
   );
 
+  // Hydratation TOUJOURS locale : `hydrate()` enchaîne un `syncRemoteData`
+  // complet dès que le drapeau est levé (app_controller.dart:429-431), et cette
+  // synchronisation ne se termine jamais sous un client de test.
   await controller.hydrate();
+
+  // Le drapeau s'ouvre ici, après l'hydratation et avant le premier build.
+  // Booléen EXPLICITE, jamais `null` : `null` retomberait sur le dart-define
+  // `KPB_ENABLE_REMOTE_SYNC`, qui vaut `false` en CI (flutter-ci.yml:89) et
+  // `true` en local — le test dirait deux choses selon la machine.
+  AppConfig.enableRemoteSyncOverride = enableRemoteSync;
 
   Get.put<AppController>(controller, permanent: true);
 

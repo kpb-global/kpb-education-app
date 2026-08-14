@@ -84,9 +84,44 @@ jobs:
         run: flutter analyze
 
       - name: Test (no remote catalog sync)
-        # Goldens exclues : générées/comparées en local macOS (le rendu de
-        # police Linux diffère) — voir docs/fable-global-theme-architecture.md §11.5.
-        run: flutter test --exclude-tags=golden --dart-define=KPB_ENABLE_REMOTE_SYNC=false
+        # Deux tags exclus, pour deux raisons différentes.
+        #
+        # `golden` : générées/comparées en local macOS (le rendu de police Linux
+        # diffère) — voir docs/fable-global-theme-architecture.md §11.5.
+        #
+        # `known-defect` : des tests qui affirment le comportement CORRECT d'un
+        # défaut documenté et NON ENCORE CORRIGÉ. Ils sont rouges par
+        # construction — c'est leur travail — et ne peuvent donc pas garder un
+        # portillon de fusion. Ce qui garde le portillon, c'est le cliquet chiffré
+        # qui les accompagne (test/core/utils/tuition_defect_budget.dart,
+        # test/core/ui/screen_overflow_budget.dart) : il rougit si le défaut
+        # grandit, ET si le défaut est corrigé sans que le budget baisse. Le tag
+        # n'est donc pas une échappatoire, c'est un aiguillage.
+        #
+        # Ces tests sont exécutés juste en dessous, en informatif.
+        run: flutter test --exclude-tags="golden || known-defect" --dart-define=KPB_ENABLE_REMOTE_SYNC=false
+
+      # Ne bloque PAS : ces tests décrivent des défauts qu'on n'a pas encore
+      # corrigés. Ils sont ici pour que leur nombre soit visible sur la page du
+      # run, et pour qu'une aggravation se voie tout de suite.
+      - name: Défauts connus (informatif, ne bloque pas la fusion)
+        id: known_defects
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter test --tags=known-defect \
+            --dart-define=KPB_ENABLE_REMOTE_SYNC=false 2>&1 | tee /tmp/known.log || true
+          {
+            echo "### Défauts connus, non corrigés"
+            echo
+            echo "Ces tests affirment le comportement correct ; ils échouent tant"
+            echo "que le défaut existe. Le portillon de fusion ne les regarde pas —"
+            echo "il regarde les cliquets chiffrés."
+            echo
+            echo '```'
+            grep -E "^0[0-9]:.*(Some tests failed|All tests passed)" /tmp/known.log | tail -1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-android:
     name: Build Android APK (debug validation)
