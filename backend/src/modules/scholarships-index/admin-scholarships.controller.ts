@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import type { AdminSessionUser } from '../auth/auth.service';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
@@ -22,6 +23,8 @@ import { ForecastScholarshipDto } from './dto/forecast-scholarship.dto';
 import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
 import { ScholarshipLifecycleService } from './scholarship-lifecycle.service';
 import { ScholarshipsIndexService } from './scholarships-index.service';
+
+type AdminRequest = { adminUser?: AdminSessionUser };
 
 /**
  * Admin: manual refresh trigger.
@@ -54,8 +57,14 @@ export class AdminScholarshipsController {
 
   @Post(':id/approve')
   @HttpCode(HttpStatus.OK)
-  approve(@Param('id') id: string) {
-    return this.scholarshipsIndexService.setModeration(id, 'approved');
+  approve(@Param('id') id: string, @Req() req: AdminRequest) {
+    // L'approbation horodate `lastVerifiedAt` : la clause publique exige une
+    // date de vérification, et c'est l'humain qui approuve qui la fournit.
+    return this.scholarshipsIndexService.setModeration(
+      id,
+      'approved',
+      req.adminUser,
+    );
   }
 
   @Post(':id/reject')

@@ -112,6 +112,14 @@ jobs:
           KPB_RUN_POSTGRES_INTEGRATION: 'true'
         run: npm run test:integration:privacy
 
+      # Les lectures publiques de bourses vivent dans un `where` Prisma : seule
+      # une base réelle dit si elles filtrent. Trois états qui ont été servis à
+      # de vrais étudiants sont insérés puis vérifiés absents.
+      - name: PostgreSQL public scholarship reads integration
+        env:
+          KPB_RUN_POSTGRES_INTEGRATION: 'true'
+        run: npm run test:integration:catalog-reads
+
       - name: Seed active countries + base catalog
         run: |
           npm run seed:countries-m5

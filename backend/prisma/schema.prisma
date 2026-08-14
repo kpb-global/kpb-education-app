@@ -1131,9 +1131,17 @@ model Scholarship {
   lastVerifiedAt         DateTime?
   verifiedById           String?
   verifiedByName         String?
-  isActive               Boolean                        @default(true)
-  // Approved for curated/seeded rows; scraper inserts land as pending.
-  moderationStatus       ScholarshipModeration          @default(approved)
+  // FAIL-CLOSED. Ces deux défauts valaient `true` et `approved`, et c'est le
+  // mécanisme exact par lequel 11 fiches de démonstration sont devenues
+  // publiques : créées par une version du seed antérieure au 16/07/2026 qui ne
+  // posait pas ces champs, les défauts du schéma les ont publiées.
+  //
+  // Tous les chemins d'écriture actuels posent ces deux champs explicitement
+  // (seed, importeur de catalogue, upsert du scraper, createScholarship), donc
+  // le changement n'a aucun effet sur le comportement existant. Il ferme la
+  // porte pour le prochain chemin d'écriture qui oubliera.
+  isActive               Boolean                        @default(false)
+  moderationStatus       ScholarshipModeration          @default(pending)
   tags                   String[]                       @default([])
   createdAt              DateTime                       @default(now())
   updatedAt              DateTime                       @updatedAt
