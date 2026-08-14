@@ -1548,18 +1548,24 @@ abstract class _AppControllerBase extends GetxController {
             : null;
   }
 
-  /// Restricts the catalog to the nine MVP destination countries. Drops any
-  /// country/institution/program/scholarship outside the launch scope so a
-  /// stale Hive cache or a broader remote payload can't surface V1.1+ data.
+  /// Restricts the catalog to the MVP destination countries. Drops any
+  /// country/institution/program outside the launch scope so a stale Hive cache
+  /// or a broader remote payload can't surface V1.1+ data.
+  ///
+  /// LES BOURSES SONT EXEMPTÉES, délibérément. Une bourse est une information,
+  /// pas une offre de service : masquer un financement vérifié parce que KPB n'a
+  /// pas encore de formations dans ce pays prive l'étudiant sans rien protéger.
+  ///
+  /// Mesuré le 14/08/2026 sur les 11 fiches vérifiées publiées en production :
+  /// le filtre en cachait 6, dont l'Université de Pretoria (clôture au 30/09) et
+  /// les deux UWC africaines. L'échappatoire « countryId vide », censée garder
+  /// les bourses transfrontalières, ne se déclenchait jamais — le catalogue
+  /// vérifié attribue un pays à chaque fiche.
   void _applyMvpCountryLock() {
     if (!AppConfig.mvpOnly) return;
     countries.retainWhere((c) => isMvpCountryId(c.id));
     institutions.retainWhere((i) => isMvpCountryId(i.countryId));
     programs.retainWhere((p) => isMvpCountryId(p.countryId));
-    // Keep cross-border scholarships (no specific country) alongside MVP ones.
-    scholarships.retainWhere(
-      (s) => s.countryId.trim().isEmpty || isMvpCountryId(s.countryId),
-    );
   }
 
   List<StudentCase> casesByType(CaseType? filter) {
