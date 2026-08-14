@@ -324,6 +324,68 @@ async function assertNoUnverifiedPublication(
   }
 }
 
+/**
+ * Dépublier l'ancien sans publier le neuf vide l'onglet Bourses.
+ *
+ * C'est arrivé en production le 14/08/2026 : `switch` a été lancé sans que
+ * `import` l'ait précédé, n'a trouvé aucune ligne portant le tag du catalogue, a
+ * donc publié 0 fiche — et a quand même dépublié les 11 fiches legacy. Résultat :
+ * 0 bourse servie aux utilisateurs.
+ *
+ * Mettre les deux opérations dans une seule transaction protégeait l'ORDRE, pas
+ * le RÉSULTAT. C'est le résultat que voit l'utilisateur.
+ *
+ * Renvoie la raison du refus, ou `null` si l'opération peut continuer.
+ */
+export function refuseSwitchReason(
+  decisions: PublishDecision[],
+  alsoDeactivate: boolean,
+): string | null {
+  if (!alsoDeactivate) return null;
+  if (decisions.some((item) => item.publish)) return null;
+  const head =
+    'switch refusé : aucune fiche à publier, donc dépublier les fiches legacy ' +
+    "laisserait l'onglet Bourses vide.\n" +
+    `Fiches portant le tag ${CATALOG_TAG} trouvées en base : ${decisions.length}.\n`;
+  if (decisions.length === 0) {
+    return (
+      head +
+      "Cause probable : `import` n'a jamais été exécuté sur cette base. Lancez " +
+      '`catalog:import --apply`, vérifiez avec `catalog:publish --dry-run`, puis ' +
+      'relancez.'
+    );
+  }
+  return (
+    head +
+    `Toutes ont été écartées : ${decisions
+      .map((item) => `${item.id} (${item.reason})`)
+      .join(' ; ')}`
+  );
+}
+
+/**
+ * Dernier filet, posé sur l'état FINAL de la base et non sur l'intention : à la
+ * sortie d'un `switch`, il doit rester au moins une bourse publiée. Le contrôle
+ * précédent raisonne sur les décisions, celui-ci sur ce que l'utilisateur verra.
+ * Les deux sont nécessaires : le premier explique la cause, le second garantit
+ * le résultat même si un futur chemin d'écriture contourne le premier.
+ */
+async function assertCatalogNotEmptied(
+  tx: Prisma.TransactionClient,
+  alsoDeactivate: boolean,
+): Promise<void> {
+  if (!alsoDeactivate) return;
+  const active = await tx.scholarship.count({
+    where: { isActive: true, moderationStatus: 'approved' },
+  });
+  if (active === 0) {
+    throw new Error(
+      'Transaction annulée : à la fin de cette opération, 0 bourse serait ' +
+        "publiée. L'onglet Bourses serait vide pour tous les utilisateurs.",
+    );
+  }
+}
+
 async function runPublishAndSwitch(
   prisma: PrismaClient,
   options: Options,
@@ -338,11 +400,16 @@ async function runPublishAndSwitch(
         now,
         options.confirmedOnly,
       );
+
+      const refusal = refuseSwitchReason(decisions, alsoDeactivate);
+      if (refusal) throw new Error(refusal);
+
       const deactivated = alsoDeactivate
         ? await deactivateLegacyInTransaction(tx)
         : [];
 
       await assertNoUnverifiedPublication(tx);
+      await assertCatalogNotEmptied(tx, alsoDeactivate);
 
       const active = await tx.scholarship.count({
         where: { isActive: true, moderationStatus: 'approved' },
@@ -458,4 +525,9 @@ if (require.main === module) {
   });
 }
 
-export { LEGACY_SEED_IDS, decidePublication, issuesByRecordIndex, parseArgs };
+export {
+  LEGACY_SEED_IDS,
+  decidePublication,
+  issuesByRecordIndex,
+  parseArgs,
+};

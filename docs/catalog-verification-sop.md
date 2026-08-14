@@ -41,11 +41,20 @@ conteneur. Chaque sous-commande exige `--dry-run` ou `--apply` : il n'y a pas de
 mode par défaut.
 
 ```bash
-docker compose exec api npm run catalog:import -- --dry-run
-docker compose exec api npm run catalog:import -- --apply
-docker compose exec api npm run catalog:switch -- --dry-run --confirmed-only
-docker compose exec api npm run catalog:switch -- --apply --confirmed-only
+docker compose exec -T api npm run catalog:import -- --dry-run
+docker compose exec -T api npm run catalog:import -- --apply
+docker compose exec -T api npm run catalog:switch -- --dry-run --confirmed-only
+docker compose exec -T api npm run catalog:switch -- --apply --confirmed-only
 ```
+
+> **`import` n'est pas optionnel, et l'ordre n'est pas une préférence.** `switch`
+> publie les fiches *déjà présentes en base* puis dépublie les anciennes. Lancé
+> sans `import`, il ne trouve rien à publier et dépublie quand même : l'onglet
+> Bourses se vide. C'est arrivé en production le 14 août 2026. La CLI refuse
+> désormais ce cas, mais la règle reste : **`import` d'abord, toujours.**
+>
+> Et lisez la sortie du `--dry-run` au lieu de la parcourir : `"published": 0`
+> est le signal qu'il ne faut pas passer à `--apply`.
 
 **Pourquoi `switch` et pas `publish` puis `deactivate-legacy`.** `switch` fait les
 deux dans une seule transaction, en publiant avant de dépublier : il n'existe
