@@ -67,7 +67,7 @@ class ProgramDetailScreen extends StatelessWidget {
     final city =
         institution != null ? controller.resolve(institution.location) : '';
     final tuition = controller.resolve(program.tuition);
-    final displayedTuition = TuitionUtils.displayFromTuition(
+    final displayedTuition = TuitionUtils.tuitionForDisplay(
       tuition,
       controller.profile?.preferredCurrency,
     );
@@ -123,11 +123,11 @@ class ProgramDetailScreen extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           label: 'school_fees_per_year'.tr,
+                          // `tuitionForDisplay` rend au minimum l'étiquette :
+                          // le seul repli restant est l'étiquette VIDE.
                           value: displayedTuition.isNotEmpty
                               ? displayedTuition
-                              : tuition.isNotEmpty
-                                  ? tuition
-                                  : 'school_intake_on_request'.tr,
+                              : 'school_intake_on_request'.tr,
                           sub: '',
                           subColor: KpbColors.actionPrimary,
                         ),

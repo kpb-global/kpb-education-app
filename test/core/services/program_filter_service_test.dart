@@ -1,17 +1,22 @@
 // ProgramFilterService — première couverture. Aucun test du dépôt ne référençait
 // ni `ProgramFilterService`, ni `ProgramFilterState`, ni `budgetMaxEur`.
 //
-// Pourquoi ça compte maintenant : le filtre budget appelle le MÊME parseur que
-// l'affichage (`TuitionUtils.parseEurAnnual`, program_filter_service.dart:116-120).
-// Le défaut de conversion n'est donc pas seulement cosmétique — il DÉCIDE de ce
-// que l'étudiant voit. Un programme sénégalais étiqueté « XOF 1 150 000/an » est
-// lu comme 1 150 000 euros, donc écarté de tout budget raisonnable : le curseur
-// « budget maximum » fait DISPARAÎTRE des formations parmi les moins chères du
-// catalogue, sans un mot.
+// Pourquoi ça comptait : le filtre budget appelait le MÊME parseur que
+// l'affichage. Le défaut de conversion n'était donc pas cosmétique — il DÉCIDAIT
+// de ce que l'étudiant voit. Un programme sénégalais étiqueté « XOF 1 150 000/an »
+// était lu comme 1 150 000 euros, donc écarté de tout budget raisonnable : le
+// curseur « budget maximum » faisait DISPARAÎTRE des formations parmi les moins
+// chères du catalogue, sans un mot.
 //
-// Les cas qui décrivent ce défaut portent le tag `known-defect` : ils sont rouges
-// aujourd'hui, hors portillon de fusion, et deviendront verts avec le lot 6. Le
-// reste du fichier est du vert franc — la couverture qui manquait.
+// Il consomme maintenant `readTuition` et une table de taux INDICATIFS réservée à
+// la comparaison, avec une tolérance de 20 % accordée dans le sens de
+// l'utilisateur : la dérive d'un taux ne peut jamais RECACHER une formation
+// abordable.
+//
+// LES DEUX CAS QUI PORTAIENT LE TAG `known-defect` SONT MAINTENANT VERTS, et le
+// tag est retiré : le lot 6 a corrigé le filtre. C'est le mécanisme du cliquet
+// qui fonctionne — un défaut chiffré, puis corrigé, puis dé-tagué dans le même
+// mouvement. Ce qu'ils affirment est devenu une garde de non-régression.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -19,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/services/program_filter_service.dart';
+import 'package:karatou/app/core/utils/tuition_utils.dart';
 
 import '../../support/screen_harness.dart';
 
@@ -127,7 +133,6 @@ void main() {
               '(program_filter_service.dart:116-120).',
         );
       },
-      tags: 'known-defect',
     );
 
     test(
@@ -145,7 +150,6 @@ void main() {
                 'budget de 10 000 € : ses dirhams ont été comptés comme des '
                 'euros. 50 programmes marocains sont dans ce cas en production.');
       },
-      tags: 'known-defect',
     );
   });
 
@@ -222,4 +226,75 @@ void main() {
       expect(order, ['p-5k', 'p-20k', 'p-inconnu']);
     });
   });
+
+  group('la porte de sortie du lot 6 — quatre programmes, deux budgets', () {
+    // Les quatre cas du plan, avec leurs équivalents estimés :
+    //   A  MAD 40 000/an   ≈ 3 720 €
+    //   B  MAD 150,000/an  ≈ 13 950 €
+    //   C  12 990 €/an     = 12 990 €
+    //   D  Sur demande     illisible → toujours gardé
+    List<ProgramModel> abcd() => [
+          _program(id: 'A', tuition: 'MAD 40 000/an', countryId: 'mar'),
+          _program(id: 'B', tuition: 'MAD 150,000/an', countryId: 'mar'),
+          _program(id: 'C', tuition: '12 990 €/an', countryId: 'france'),
+          _program(id: 'D', tuition: 'Sur demande', countryId: 'france'),
+        ];
+
+    List<String> keptWith(ProgramFilterState filters) =>
+        ProgramFilterService.apply(abcd(), filters, controller)
+            .map((p) => p.id)
+            .toList();
+
+    test('état par défaut : les quatre sont présents', () {
+      // Avant, A et B disparaissaient — 40 000 et 150 000 dirhams comparés à
+      // 30 000 euros.
+      expect(
+        keptWith(const ProgramFilterState(partnerOnly: false))..sort(),
+        ['A', 'B', 'C', 'D'],
+      );
+    });
+
+    test('puce « < 3 M FCFA » : A et D seulement', () {
+      // 3 000 000 FCFA / 655,957 = 4 573 € de plafond, tolérance ×1,2 = 5 488 €.
+      // A (3 720 €) passe ; B (13 950 €) non ; C (12 990 €) non — exclusion
+      // LÉGITIME, pas un bug ; D reste faute de savoir lire son prix.
+      const chip = ProgramFilterState(
+        partnerOnly: false,
+        budgetMaxEur: 3000000 / 655.957,
+      );
+      expect(keptWith(chip)..sort(), ['A', 'D']);
+    });
+
+    test('le tri place le programme marocain avant le français', () {
+      // 3 720 € contre 12 990 € : à statut partenaire égal, le moins cher devant.
+      final order = keptWith(const ProgramFilterState(partnerOnly: false));
+      expect(order.indexOf('A'), lessThan(order.indexOf('C')));
+    });
+
+    test('aucun taux indicatif ne peut apparaître dans un libellé', () {
+      // La promesse structurante du lot : la table de taux sert à COMPARER, jamais
+      // à afficher. `TuitionUtils` n'y a pas accès, et voici l'assertion qui le
+      // dit — sur les quatre programmes, aucun montant converti en euros ne
+      // ressort côté affichage pour une devise sans parité fixe.
+      for (final program in abcd()) {
+        final label = controller.resolve(program.tuition);
+        if (declaredCurrencyOf(label) == 'MAD') {
+          expect(TuitionUtils.equivalentFor(label, 'XOF'), isNull,
+              reason:
+                  '« $label » a produit un équivalent : un taux MAD a fui de '
+                  "la table de comparaison vers l'affichage.");
+        }
+      }
+    });
+  });
+}
+
+/// La devise déclarée, lue ici de façon volontairement naïve : ce test ne doit pas
+/// dépendre du parseur qu'il surveille.
+String? declaredCurrencyOf(String label) {
+  for (final code in const ['MAD', 'AED', 'CAD', 'GBP', 'USD', 'XOF', 'EUR']) {
+    if (label.contains(code)) return code;
+  }
+  if (label.contains('€')) return 'EUR';
+  return null;
 }

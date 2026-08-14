@@ -36,7 +36,7 @@ abstract final class CurrencyUtils {
       DisplayCurrency.xof => (eur * xofPerEur).round(),
       DisplayCurrency.usd => (eur * usdPerEur).round(),
     };
-    final value = _group(amount);
+    final value = group(amount);
     final prefix = approximate ? '~ ' : '';
     final unit = switch (currency) {
       DisplayCurrency.eur => '$value €',
@@ -53,7 +53,7 @@ abstract final class CurrencyUtils {
   }) {
     final currency = DisplayCurrency.fromCode(currencyCode);
     if (currency == DisplayCurrency.xof) {
-      return '${approximate ? '~ ' : ''}${_group(xof.round())} FCFA';
+      return '${approximate ? '~ ' : ''}${group(xof.round())} FCFA';
     }
     return formatEur(
       xof / xofPerEur,
@@ -79,7 +79,13 @@ abstract final class CurrencyUtils {
         : '$roundedThousands K €';
   }
 
-  static String _group(int value) {
+  /// Groupement par milliers avec une espace ORDINAIRE (U+0020).
+  ///
+  /// Public parce que l'affichage des équivalents de frais (`TuitionUtils`) doit
+  /// produire exactement le même groupement : deux formateurs concurrents
+  /// finiraient par diverger d'une espace, et une assertion de test comparant
+  /// des chaînes deviendrait silencieusement inoffensive.
+  static String group(int value) {
     return value.toString().replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (match) => '${match[1]} ',

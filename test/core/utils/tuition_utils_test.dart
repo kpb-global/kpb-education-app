@@ -1,216 +1,219 @@
-// Cliquet des prix affichés — exécuté par la CI, VERT aujourd'hui.
+// LE CLIQUET DES PRIX — il garde à zéro ce que le lot 6 vient de corriger.
 //
-// Il ne demande pas que les prix soient justes : ils ne le sont pas, et les
-// corriger est le lot 6 (qui doit d'abord choisir une source de taux). Il demande
-// que l'ampleur du défaut soit ÉCRITE, MESURÉE sur les vraies données, et
-// incapable de bouger en silence — dans un sens comme dans l'autre.
+// Au lot 5, ce fichier chiffrait un défaut : 272 des 582 programmes de production
+// affichaient un prix faux, répartis en quatre causes budgétées. Les budgets ne
+// pouvaient que décroître, et le fichier disait explicitement quoi faire quand
+// ils tomberaient à zéro.
 //
-// Le rouge, celui qui nomme chaque prix faux, vit dans tuition_defects_test.dart
-// (tagué `known-defect`, hors portillon de fusion, exécuté par
-// .github/workflows/catalog-freshness.yml et à la main).
+// Ils y sont tombés. Ce fichier est donc devenu ce pour quoi il avait été écrit :
+// non plus la mesure d'un mensonge, mais l'interdiction de son retour.
 //
-// Les six assertions, dans l'ordre où elles se défendent :
-//   1. la fixture décrit bien la production (7 devises, 146 étiquettes,
-//      582 programmes, une seule devise par étiquette) — sinon tout le reste
-//      mesure autre chose ;
-//   2. le formateur de référence de ce test est calibré sur trois littéraux
-//      figés — sinon la « valeur interdite » qu'il calcule serait fausse ;
-//   3. aucune cause ne dépasse son budget ;
-//   4. les budgets ne peuvent que décroître ;
-//   5. les prix JUSTES d'aujourd'hui le restent (305 programmes en euros) ;
-//   6. une étiquette sans chiffre n'affiche aucun montant.
+// Ce qu'il vérifie, sur les 146 étiquettes RÉELLES de la production :
+//   1. la fixture décrit toujours bien la production ;
+//   2. le formateur de référence est calibré, sinon les valeurs « interdites »
+//      qu'il calcule seraient fausses et l'interdiction inoffensive ;
+//   3. ZÉRO étiquette n'affiche le premier nombre multiplié par la parité de
+//      l'euro — l'ancien défaut, exprimé de la seule façon qui le rende
+//      détectable ;
+//   4. les 305 programmes en euros gardent leur équivalent exact, parce qu'un
+//      correctif qui les aurait emportés serait un recul déguisé en progrès ;
+//   5. et les comptes par forme d'étiquette sont figés, pour que la fixture ne
+//      puisse pas être régénérée en douce sur des données plus commodes.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:karatou/app/core/utils/currency_utils.dart';
 import 'package:karatou/app/core/utils/tuition_utils.dart';
 
-import 'tuition_defect_budget.dart';
 import 'tuition_fixture.dart';
+
+/// Les comptes MESURÉS le 14/08/2026 sur les 582 programmes de production.
+///
+/// Ces nombres ne budgètent plus un défaut : ils décrivent la donnée. S'ils
+/// changent, la fixture a été régénérée — ce qui est légitime, mais doit être un
+/// geste conscient et non un effet de bord.
+const _shapeLabelCount = <TuitionShape, int>{
+  TuitionShape.euroSingleAmount: 49,
+  TuitionShape.foreignCurrency: 66,
+  TuitionShape.alreadyCfa: 18,
+  TuitionShape.notASingleAmount: 9,
+  TuitionShape.wholeProgrammeCost: 2,
+  TuitionShape.noAmount: 2,
+};
+
+const _shapeProgramCount = <TuitionShape, int>{
+  TuitionShape.euroSingleAmount: 305,
+  TuitionShape.foreignCurrency: 177,
+  TuitionShape.alreadyCfa: 48,
+  TuitionShape.notASingleAmount: 45,
+  TuitionShape.wholeProgrammeCost: 2,
+  TuitionShape.noAmount: 5,
+};
 
 void main() {
   final records = loadTuitionFixture();
 
-  final byCause = <TuitionCause, List<TuitionRecord>>{};
+  final byShape = <TuitionShape, List<TuitionRecord>>{};
   for (final record in records) {
-    byCause.putIfAbsent(classifyTuition(record.label), () => []).add(record);
+    byShape.putIfAbsent(classifyTuition(record.label), () => []).add(record);
   }
-  int programs(TuitionCause cause) =>
-      (byCause[cause] ?? const []).fold(0, (sum, r) => sum + r.programCount);
-  int labels(TuitionCause cause) => (byCause[cause] ?? const []).length;
+  int programs(TuitionShape shape) =>
+      (byShape[shape] ?? const []).fold(0, (sum, r) => sum + r.programCount);
 
   group('la fixture décrit bien la production', () {
-    test('les 7 familles de devises sont présentes', () {
+    test('146 étiquettes, 582 programmes, 7 familles de devises', () {
+      expect(records.length, 146);
+      expect(records.map((r) => r.label).toSet().length, records.length,
+          reason: 'Étiquette dupliquée dans la fixture.');
+      expect(records.fold(0, (sum, r) => sum + r.programCount), 582);
       final present = records
           .map((r) => declaredCurrency(r.label))
           .whereType<String>()
           .toSet();
-      expect(
-        present,
-        containsAll(const ['EUR', 'USD', 'MAD', 'AED', 'CAD', 'GBP', 'XOF']),
-        reason: 'Une famille disparue = un pan du défaut plus mesuré. '
-            'Familles trouvées : $present',
-      );
+      expect(present,
+          containsAll(const ['EUR', 'USD', 'MAD', 'AED', 'CAD', 'GBP', 'XOF']));
     });
 
-    test('au moins 140 étiquettes distinctes', () {
-      expect(records.length, greaterThanOrEqualTo(140));
-      expect(records.length, tuitionFixtureLabelCount,
-          reason: 'La fixture a été régénérée : recalculez les budgets de '
-              'tuition_defect_budget.dart dans le même commit.');
-      expect(records.map((r) => r.label).toSet().length, records.length,
-          reason: 'Étiquette dupliquée dans la fixture.');
-    });
-
-    test('582 programmes de production couverts', () {
-      final total = records.fold(0, (sum, r) => sum + r.programCount);
-      expect(total, tuitionFixtureProgramCount);
-    });
-
-    test('au moins 40 % des étiquettes produisent un montant', () {
-      // Sans cette garde, un parseur qui rendrait `null` partout ferait passer
-      // toutes les assertions « le montant affiché est faux » : plus de montant,
-      // plus de faute. Le harnais serait devenu aveugle en restant vert.
-      final yielding = records
-          .where(
-              (r) => TuitionUtils.displayFromTuition(r.label, 'XOF').isNotEmpty)
-          .length;
-      expect(
-        yielding / records.length,
-        greaterThanOrEqualTo(0.40),
-        reason: 'Seules $yielding/${records.length} étiquettes produisent un '
-            'montant : le parseur rend du vide, donc ce test ne prouve plus '
-            "rien. Ce n'est pas un progrès, c'est un aveuglement.",
-      );
-    });
-
-    test('une seule devise déclarée par étiquette', () {
-      // La classification par cause suppose cette propriété ; si une étiquette
-      // portait « EUR » et « USD », son budget serait arbitraire.
-      final ambiguous = <String>[];
-      for (final record in records) {
-        final hits = const ['EUR', 'MAD', 'AED', 'CAD', 'GBP', 'USD', 'XOF']
-            .where(record.label.contains)
-            .toList();
-        if (record.label.contains('€') && !hits.contains('EUR')) {
-          hits.add('EUR');
-        }
-        if (hits.length > 1) ambiguous.add('${record.label} → $hits');
+    test('les comptes par forme d\'étiquette sont ceux du 14/08/2026', () {
+      for (final shape in TuitionShape.values) {
+        expect((byShape[shape] ?? const []).length, _shapeLabelCount[shape],
+            reason:
+                'Forme ${shape.name} : le nombre d\'étiquettes a changé. Si '
+                'la fixture a été régénérée, mettez _shapeLabelCount à jour dans '
+                'le même commit — et relisez les assertions qui en dépendent.');
+        expect(programs(shape), _shapeProgramCount[shape],
+            reason: 'Forme ${shape.name} : le nombre de programmes a changé.');
       }
-      expect(ambiguous, isEmpty);
     });
   });
 
   group('le formateur de référence de ce test est calibré', () {
     test('groupThousands reproduit le regroupement de CurrencyUtils', () {
-      // Trois littéraux figés : si `_group` change d'espace (fine insécable au
+      // Trois littéraux figés : si `group` change d'espace (fine insécable au
       // lieu d'ordinaire), ce test le dit AVANT que les assertions « valeur
       // interdite » ne deviennent silencieusement inoffensives.
       expect(groupThousands(22958495), '22 958 495');
       expect(groupThousands(5904), '5 904');
       expect(groupThousands(754350550), '754 350 550');
-
-      // Et la calibration croisée contre le vrai code, pour trois montants.
       for (final eur in const [9, 12990, 1150000]) {
         expect(
-          CurrencyUtils.formatEur(eur, 'XOF', approximate: true),
-          '~ ${groupThousands((eur * CurrencyUtils.xofPerEur).round())} FCFA/an',
+          CurrencyUtils.group((eur * CurrencyUtils.xofPerEur).round()),
+          groupThousands((eur * CurrencyUtils.xofPerEur).round()),
         );
       }
     });
   });
 
-  group('cliquet des prix faux', () {
-    test('aucune cause ne dépasse son budget', () {
-      final violations = <String>[];
-      for (final cause in tuitionDefectCauses) {
-        final labelBudget = tuitionLabelBudget[cause] ?? 0;
-        final programBudget = tuitionProgramBudget[cause] ?? 0;
-        if (labels(cause) > labelBudget) {
-          violations.add('  ${cause.name} : ${labels(cause)} étiquettes '
-              '(budget $labelBudget)');
-        }
-        if (programs(cause) > programBudget) {
-          violations.add('  ${cause.name} : ${programs(cause)} programmes '
-              '(budget $programBudget)');
+  group('le cliquet : aucun prix faux ne revient', () {
+    test('zéro étiquette n\'affiche le premier nombre traité comme des euros',
+        () {
+      // L'ancien défaut, formulé de la seule façon qui le rende détectable : la
+      // valeur mensongère est calculable pour CHAQUE étiquette, et aucune ne doit
+      // l'afficher — sauf celles qui sont réellement en euros, où ce calcul EST
+      // le bon.
+      final leaks = <String>[];
+      var checked = 0;
+      for (final record in records) {
+        // Sur une étiquette EN EUROS, « le premier nombre multiplié par la
+        // parité de l'euro » n'est pas la valeur mensongère : c'est la valeur
+        // JUSTE. L'interdiction n'a de sens que pour les autres devises — et
+        // pour les étiquettes qui n'en déclarent aucune, où l'ancien code
+        // supposait l'euro.
+        if (declaredCurrency(record.label) == 'EUR') continue;
+        final forbidden = euroTreatedFcfa(record.label);
+        if (forbidden == null) continue;
+        checked++;
+        final shown = TuitionUtils.tuitionForDisplay(record.label, 'XOF');
+        if (shown.contains(forbidden)) {
+          leaks
+              .add('  ${record.programCount}× « ${record.label} » → « $shown » '
+                  '(contient $forbidden)');
         }
       }
+      // Garde d'aveuglement. 146 étiquettes − 58 qui déclarent l'euro − 2 sans
+      // aucun chiffre = 86 valeurs mensongères calculables, donc 86 vérifiées.
+      // Si ce compte s'effondrait, l'assertion ci-dessous passerait au vert sans
+      // rien regarder.
+      expect(checked, 86,
+          reason: 'Seules $checked étiquettes ont été vérifiées : la '
+              'classification ou la fixture a changé sous ce test.');
       expect(
-        violations,
+        leaks,
         isEmpty,
-        reason: 'De nouveaux prix faux sont apparus. Corrigez la donnée ou le '
-            'code — ne relevez PAS le budget.\n${violations.join('\n')}',
+        reason: '${leaks.length} étiquette(s) affichent de nouveau le premier '
+            'nombre multiplié par la parité de l\'EURO. C\'est le défaut du '
+            '14/08/2026, revenu. Ne relevez aucun seuil : lisez la devise.\n'
+            '${leaks.join('\n')}',
       );
     });
 
-    test('les budgets ne peuvent que décroître (cliquet honnête)', () {
-      final stale = <String>[];
-      tuitionLabelBudget.forEach((cause, budget) {
-        final actual = labels(cause);
-        if (actual < budget) {
-          stale.add('  tuitionLabelBudget[${cause.name}] : $budget déclaré, '
-              '$actual réel → abaissez-le à $actual');
+    test('aucun équivalent pour une devise sans parité fixe', () {
+      final leaks = <String>[];
+      var converted = 0;
+      for (final record in records) {
+        final equivalent = TuitionUtils.equivalentFor(record.label, 'XOF');
+        if (expectsNoEquivalent(record.label)) {
+          if (equivalent != null) {
+            leaks.add('  « ${record.label} » → $equivalent');
+          }
+        } else if (equivalent != null) {
+          converted++;
         }
-      });
-      tuitionProgramBudget.forEach((cause, budget) {
-        final actual = programs(cause);
-        if (actual < budget) {
-          stale.add('  tuitionProgramBudget[${cause.name}] : $budget déclaré, '
-              '$actual réel → abaissez-le à $actual');
-        }
-      });
-      expect(
-        stale,
-        isEmpty,
-        reason:
-            'Progrès détecté : verrouillez-le en abaissant les budgets dans '
-            'test/core/utils/tuition_defect_budget.dart. Si un budget tombe à 0, '
-            "retirez aussi le tag `known-defect` du cas correspondant dans "
-            'tuition_defects_test.dart.\n${stale.join('\n')}',
-      );
+      }
+      expect(leaks, isEmpty,
+          reason: 'Un taux a été inventé pour une devise que le dépôt ne sait '
+              'pas convertir :\n${leaks.join('\n')}');
+      // Garde d'aveuglement, dans l'autre sens : si le code cessait de convertir
+      // QUOI QUE CE SOIT, l'assertion ci-dessus passerait vacuement au vert. Les
+      // 58 étiquettes en euros doivent bel et bien produire leur équivalent.
+      expect(converted, 58,
+          reason: 'Seules $converted étiquettes produisent un équivalent : la '
+              'conversion à parité fixe a disparu, et ce test ne prouve plus '
+              'rien.');
+    });
+
+    test('l\'étiquette d\'origine survit toujours à l\'affichage', () {
+      // La conversion COMPLÈTE, elle ne REMPLACE plus. C'est ce qui permet à un
+      // étudiant de s'apercevoir qu'un montant est faux.
+      for (final record in records) {
+        expect(
+          TuitionUtils.tuitionForDisplay(record.label, 'XOF'),
+          contains(record.label.trim()),
+          reason: '« ${record.label} » a été remplacée au lieu d\'être '
+              'complétée.',
+        );
+      }
     });
   });
 
-  group("ce qui est juste aujourd'hui doit le rester", () {
-    test('les 305 programmes en euros affichent la parité BCEAO exacte', () {
+  group('ce qui était juste doit le rester', () {
+    test('les 305 programmes en euros gardent la parité BCEAO exacte', () {
       final wrong = <String>[];
-      for (final record in byCause[TuitionCause.euroCorrect] ?? const []) {
+      for (final record in byShape[TuitionShape.euroSingleAmount] ?? const []) {
         final amount = naiveFirstAmount(record.label)!;
-        final expected =
-            '~ ${groupThousands((amount * CurrencyUtils.xofPerEur).round())} '
-            'FCFA/an';
-        final actual = TuitionUtils.displayFromTuition(record.label, 'XOF');
+        final expected = '${record.label.trim()} · '
+            '≈ ${groupThousands((amount * CurrencyUtils.xofPerEur).round())} '
+            'FCFA';
+        final actual = TuitionUtils.tuitionForDisplay(record.label, 'XOF');
         if (actual != expected) {
-          wrong.add('  ${record.label} → « $actual » (attendu « $expected »)');
+          wrong.add('  « ${record.label} » → « $actual » '
+              '(attendu « $expected »)');
         }
       }
       expect(
         wrong,
         isEmpty,
-        reason: 'Le seul cas que le code traite juste vient de casser. Un '
-            'correctif de devises ne doit pas dégrader les euros.\n'
-            '${wrong.join('\n')}',
+        reason: 'Le cas que le code traitait DÉJÀ juste vient de casser : '
+            '305 programmes, dont les 298 écoles partenaires françaises, la '
+            'partie la plus consultée de l\'app.\n${wrong.join('\n')}',
       );
-      expect(
-          programs(TuitionCause.euroCorrect) +
-              programs(TuitionCause.noAmountExpected),
-          tuitionCorrectProgramCount);
     });
 
-    test("une étiquette sans chiffre n'affiche aucun montant", () {
-      for (final record in byCause[TuitionCause.noAmountExpected] ?? const []) {
-        expect(
-          TuitionUtils.displayFromTuition(record.label, 'XOF'),
-          isEmpty,
-          reason: '« ${record.label} » ne contient aucun montant : en inventer '
-              'un serait pire que de ne rien afficher.',
-        );
+    test('une étiquette sans chiffre n\'affiche toujours aucun montant', () {
+      for (final record in byShape[TuitionShape.noAmount] ?? const []) {
+        expect(TuitionUtils.equivalentFor(record.label, 'XOF'), isNull);
+        expect(TuitionUtils.tuitionForDisplay(record.label, 'XOF'),
+            record.label.trim());
       }
-      // « Sur demande » contient des espaces : `[\d\s]+` y trouve une
-      // correspondance (l'espace), et seul le `int.tryParse('')` qui suit évite
-      // d'afficher un montant. La garde est donc fragile par construction — d'où
-      // ce test explicite.
-      expect(TuitionUtils.displayFromTuition('Sur demande', 'XOF'), isEmpty);
-      expect(TuitionUtils.displayFromTuition('', 'XOF'), isEmpty);
     });
   });
 }

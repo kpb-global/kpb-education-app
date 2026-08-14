@@ -302,11 +302,15 @@ class _ParentCaseViewScreenState extends State<ParentCaseViewScreen> {
     if (countryId.isEmpty) return null;
     final country = Get.find<AppController>().countryByIdOrNull(countryId);
     if (country == null) return null;
-    final suffix = TuitionUtils.displayFromTuition(
+    // La fourchette du pays, telle qu'elle est écrite, plus un équivalent quand
+    // il est calculable. Avant, « USD 15k–45k/an » (les États-Unis) devenait
+    // « ~ 9 839 FCFA/an » : le parseur lisait « 15 » et le traitait comme des
+    // euros. Un coût d'études américain annoncé à neuf mille francs.
+    final estimate = TuitionUtils.tuitionForDisplay(
       country.tuitionRange.resolve(locale),
       Get.find<AppController>().profile?.preferredCurrency,
     );
-    return suffix.isEmpty ? null : suffix;
+    return estimate.isEmpty ? null : estimate;
   }
 
   String? _nextDeadline() {

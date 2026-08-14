@@ -429,7 +429,10 @@ class _Body extends StatelessWidget {
         final city =
             institution != null ? controller.resolve(institution.location) : '';
         final tuition = controller.resolve(program.tuition);
-        final displayedTuition = TuitionUtils.displayFromTuition(
+        // L'étiquette d'origine, et son équivalent SÉPARÉMENT — deux lignes, pas
+        // une chaîne collée. Avant, la conversion REMPLAÇAIT l'étiquette et
+        // « MAD 40 000/an » s'affichait « ~ 26 238 280 FCFA/an ».
+        final tuitionEquivalent = TuitionUtils.equivalentFor(
           tuition,
           controller.profile?.preferredCurrency,
         );
@@ -440,7 +443,8 @@ class _Body extends StatelessWidget {
             flag: countryFlag(program.countryId),
             name: controller.resolve(program.name),
             subtitle: city.isNotEmpty ? '$level · $city' : level,
-            feesLabel: displayedTuition.isNotEmpty ? displayedTuition : tuition,
+            feesLabel: tuition,
+            feesEquivalent: tuitionEquivalent,
             score: controller.programMatch(program),
             saved: controller.isSaved(SavedItemType.program, program.id),
             onSave: () =>
@@ -612,6 +616,12 @@ class _FilterBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Le seuil de budget, dans la devise que l'utilisateur lit.
+    final budgetLabel = CurrencyUtils.formatEur(
+      filters.budgetMaxEur.round(),
+      controller.profile?.preferredCurrency,
+      perYear: false,
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Column(
@@ -659,9 +669,15 @@ class _FilterBlock extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
+            // Le seuil est stocké en euros parce que c'est l'unité de
+            // comparaison interne, mais il est AFFICHÉ dans la devise de
+            // l'utilisateur. Écrire « 30000 € » à quelqu'un qui lit en francs CFA
+            // — le défaut de TOUS les profils, `preferredCurrency` valant 'XOF'
+            // par défaut — c'est lui demander de faire la conversion de tête
+            // pendant qu'il compare des écoles. La parité EUR/XOF étant fixe, le
+            // montant affiché est exact.
             Text(
-              'm6_filter_budget'
-                  .trParams({'max': '${filters.budgetMaxEur.round()}'}),
+              'm6_filter_budget'.trParams({'max': budgetLabel}),
               style: KpbTextStyles.caption,
             ),
             Slider(
@@ -669,7 +685,7 @@ class _FilterBlock extends StatelessWidget {
               min: 1000,
               max: 30000,
               divisions: 29,
-              label: '${filters.budgetMaxEur.round()} €',
+              label: budgetLabel,
               onChanged: (value) =>
                   onFiltersChanged(filters.copyWith(budgetMaxEur: value)),
             ),
@@ -852,6 +868,7 @@ class _SchoolRow extends StatelessWidget {
     required this.name,
     required this.subtitle,
     required this.feesLabel,
+    this.feesEquivalent,
     required this.score,
     required this.saved,
     required this.onSave,
@@ -861,7 +878,19 @@ class _SchoolRow extends StatelessWidget {
   final String flag;
   final String name;
   final String subtitle;
+
+  /// L'étiquette de frais TELLE QU'ELLE EST ÉCRITE dans le catalogue.
   final String feesLabel;
+
+  /// L'équivalent dans la devise de l'utilisateur, sur SA PROPRE LIGNE — ou
+  /// `null` quand on ne sait pas le calculer sans taux à entretenir.
+  ///
+  /// Deux textes et non une chaîne concaténée : mesuré, « 11 490 € – 11 690 €/an
+  /// selon le campus · ≈ 7 536 946 – 7 668 137 FCFA » ne tient pas en une seule
+  /// ligne, ni même en deux, dans les ~200 pt de large de cette colonne. Coller
+  /// les deux moitiés forçait un ellipsis qui mangeait justement le prix ajouté.
+  final String? feesEquivalent;
+
   final int score;
   final bool saved;
   final VoidCallback onSave;
@@ -926,9 +955,27 @@ class _SchoolRow extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: KpbColors.actionPrimary,
                       ),
-                      maxLines: 1,
+                      // DEUX lignes, et c'est MESURÉ, pas estimé. La plus longue
+                      // étiquette réelle du catalogue — « 11 490 € – 11 690 €/an
+                      // selon le campus », les écoles multi-campus — ne tient pas
+                      // en une ligne dans les ~200 pt de cette colonne : elle
+                      // était coupée par un ellipsis, sans exception et sans
+                      // qu'aucun test du dépôt ne le voie. Une ligne de plus dans
+                      // une liste défilante ne coûte rien ; un demi-prix, si.
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (feesEquivalent != null)
+                      Text(
+                        feesEquivalent!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: context.kpb.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                   ],
                 ],
               ),

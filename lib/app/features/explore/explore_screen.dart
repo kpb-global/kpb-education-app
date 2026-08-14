@@ -637,7 +637,7 @@ class _ProgramCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayedTuition = TuitionUtils.displayFromTuition(
+    final displayedTuition = TuitionUtils.tuitionForDisplay(
       tuition,
       currencyCode,
     );
@@ -690,9 +690,7 @@ class _ProgramCard extends StatelessWidget {
                     KpbBadgeLight(label: duration),
                     KpbBadgeLight(label: language),
                     KpbBadgeLight(
-                      label: displayedTuition.isNotEmpty
-                          ? displayedTuition
-                          : tuition,
+                      label: displayedTuition,
                       bgColor: KpbColors.goldLight,
                       textColor: KpbColors.gold,
                     ),
