@@ -7,6 +7,7 @@ import {
   decidePublication,
   issuesByRecordIndex,
   parseArgs,
+  refuseSwitchReason,
 } from './scholarships-catalog.cli';
 
 /**
@@ -153,4 +154,49 @@ describe('scholarships-catalog CLI', () => {
     });
   });
 
+
+  describe('refuseSwitchReason', () => {
+    // Reproduit l'incident du 14/08/2026 : `switch` lancé sans `import`, aucune
+    // ligne portant le tag du catalogue, 0 fiche publiée, 11 fiches legacy
+    // dépubliées quand même, 0 bourse servie aux utilisateurs.
+    it('refuses a switch that would publish nothing and unpublish the legacy records', () => {
+      const reason = refuseSwitchReason([], true);
+
+      expect(reason).not.toBeNull();
+      expect(reason).toContain("laisserait l'onglet Bourses vide");
+      expect(reason).toContain('catalog:import --apply');
+    });
+
+    it('names the records it discarded when some were found but none eligible', () => {
+      const reason = refuseSwitchReason(
+        [
+          { id: 'a_2027', publish: false, reason: 'clôture passée', confidence: 'confirmed' },
+          { id: 'b_2027', publish: false, reason: 'porte de qualité', confidence: 'estimated' },
+        ],
+        true,
+      );
+
+      expect(reason).toContain('a_2027');
+      expect(reason).toContain('clôture passée');
+      expect(reason).toContain('b_2027');
+    });
+
+    it('lets a switch through as soon as one record is publishable', () => {
+      expect(
+        refuseSwitchReason(
+          [
+            { id: 'a_2027', publish: true, reason: 'éligible', confidence: 'confirmed' },
+            { id: 'b_2027', publish: false, reason: 'écartée', confidence: 'estimated' },
+          ],
+          true,
+        ),
+      ).toBeNull();
+    });
+
+    // `publish` seul ne dépublie rien : publier 0 fiche est alors sans effet
+    // visible, et refuser serait un faux positif.
+    it('never blocks a publish-only run, which unpublishes nothing', () => {
+      expect(refuseSwitchReason([], false)).toBeNull();
+    });
+  });
 });
