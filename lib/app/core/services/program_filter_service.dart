@@ -1,7 +1,7 @@
 import '../controllers/app_controller.dart';
 import '../models/app_models.dart';
 import '../utils/study_level.dart';
-import '../utils/tuition_utils.dart';
+import '../utils/tuition_reading.dart';
 
 /// M6 filter criteria for the university program catalog.
 class ProgramFilterState {
@@ -73,6 +73,44 @@ const programLanguageFilters = <({String key, String labelFr})>[
   (key: 'ar', labelFr: 'Arabe'),
 ];
 
+/// Taux INDICATIFS, en euros par unité — relevés le 14/08/2026.
+///
+/// ## Réservés à la COMPARAISON. Jamais affichés.
+///
+/// C'est la distinction qui tient tout ce fichier. « Ce programme est-il sous mon
+/// budget ? » tolère quelques pour cent d'erreur ; « ce programme coûte X » n'en
+/// tolère aucun. Alors le filtre a le droit d'approximer, et l'affichage ne
+/// convertit que sur des parités FIXES (`TuitionUtils`, qui ne connaît que
+/// l'euro et le franc CFA).
+///
+/// Deux garde-fous rendent cette promesse vérifiable plutôt que déclarative :
+/// `TuitionUtils` n'a structurellement pas accès à cette table, et
+/// `test/core/services/program_filter_service_test.dart` affirme qu'aucun de ces
+/// nombres ne peut apparaître dans une chaîne rendue.
+///
+/// La dérive est bornée par [_budgetTolerance] : même si un taux vieillit de
+/// 20 %, aucune formation abordable ne peut être RECACHÉE par le curseur.
+const _indicativeEurPerUnit = <TuitionCurrency, double>{
+  TuitionCurrency.eur: 1.0,
+  // Parité fixe BCEAO : celle-ci n'est pas indicative, elle est exacte.
+  TuitionCurrency.xof: 1 / 655.957,
+  TuitionCurrency.mad: 0.0930, // 1 € ≈ 10,75 MAD
+  TuitionCurrency.aed: 0.2350, // 1 € ≈ 4,26 AED
+  TuitionCurrency.cad: 0.6750, // 1 € ≈ 1,48 CAD
+  TuitionCurrency.gbp: 1.1700, // 1 € ≈ 0,855 GBP
+  TuitionCurrency.usd: 0.9260, // 1 € ≈ 1,08 USD
+  TuitionCurrency.cny: 0.1280, // 1 € ≈ 7,81 CNY
+};
+
+/// Marge accordée à l'utilisateur sur son propre plafond.
+///
+/// Le curseur dit « moins de 30 000 € » ; on garde jusqu'à 36 000 € d'équivalent
+/// estimé. Le sens de la marge est délibéré : une erreur de taux doit pouvoir
+/// faire apparaître une formation légèrement au-dessus du budget, jamais
+/// disparaître une formation en dessous. C'est le défaut qu'on vient de corriger,
+/// et on ne veut pas le reproduire par arrondi.
+const _budgetTolerance = 1.2;
+
 abstract final class ProgramFilterService {
   static List<ProgramModel> apply(
     List<ProgramModel> programs,
@@ -113,9 +151,17 @@ abstract final class ProgramFilterService {
         return false;
       }
 
-      final tuitionEur =
-          TuitionUtils.parseEurAnnual(controller.resolve(program.tuition));
-      if (tuitionEur != null && tuitionEur > filters.budgetMaxEur.round()) {
+      // Le budget se compare en euros, après lecture de la devise RÉELLEMENT
+      // écrite dans l'étiquette. Avant, le premier nombre était traité comme des
+      // euros : 40 000 dirhams étaient comparés à un budget de 30 000 €, donc
+      // les 50 programmes marocains disparaissaient de la vue par défaut — ceux
+      // qui coûtent en réalité ~3 700 €, parmi les moins chers du catalogue.
+      final comparable = _comparableEur(controller.resolve(program.tuition));
+      // Devise inconnue ou montant illisible : on GARDE. On ne filtre pas sur
+      // une donnée qu'on ne sait pas lire — la cacher serait décider à la place
+      // de l'étudiant, sur la base d'un aveu d'ignorance.
+      if (comparable != null &&
+          comparable > filters.budgetMaxEur * _budgetTolerance) {
         return false;
       }
 
@@ -137,16 +183,19 @@ abstract final class ProgramFilterService {
       final partnerCmp = (isPartner(a) ? 0 : 1).compareTo(isPartner(b) ? 0 : 1);
       if (partnerCmp != 0) return partnerCmp;
 
-      final tuitionA = TuitionUtils.parseEurAnnual(
-            controller.resolve(a.tuition),
-          ) ??
-          999999;
-      final tuitionB = TuitionUtils.parseEurAnnual(
-            controller.resolve(b.tuition),
-          ) ??
-          999999;
-      final budgetCmp = tuitionA.compareTo(tuitionB);
-      if (budgetCmp != 0) return budgetCmp;
+      // « Prix inconnu en dernier », sans nombre magique. La sentinelle
+      // `?? 999999` d'avant était un prix : un programme à 1 200 000 XOF lu comme
+      // 1 200 000 « euros » passait DERRIÈRE elle, et un vrai programme à plus de
+      // 999 999 € s'y serait mélangé. Un ordre n'a pas besoin d'un montant
+      // inventé pour exister.
+      final tuitionA = _comparableEur(controller.resolve(a.tuition));
+      final tuitionB = _comparableEur(controller.resolve(b.tuition));
+      if (tuitionA == null && tuitionB != null) return 1;
+      if (tuitionA != null && tuitionB == null) return -1;
+      if (tuitionA != null && tuitionB != null) {
+        final budgetCmp = tuitionA.compareTo(tuitionB);
+        if (budgetCmp != 0) return budgetCmp;
+      }
 
       return controller
           .resolve(a.name)
@@ -155,6 +204,20 @@ abstract final class ProgramFilterService {
     });
 
     return filtered;
+  }
+
+  /// Le montant de [label] ramené en euros pour être COMPARÉ, ou `null` si
+  /// l'étiquette est illisible ou libellée dans une devise qu'on ne sait pas
+  /// rapprocher de l'euro.
+  ///
+  /// Une fourchette est comparée sur sa borne BASSE : « ce programme commence à
+  /// combien ? » est la question que pose un curseur de budget.
+  static double? _comparableEur(String label) {
+    final reading = readTuition(label);
+    if (reading == null) return null;
+    final rate = _indicativeEurPerUnit[reading.currency];
+    if (rate == null) return null;
+    return reading.amount * rate;
   }
 
   /// Matches the selected filter family against the program's level using the

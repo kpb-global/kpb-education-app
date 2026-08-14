@@ -36,7 +36,7 @@ class ProgramCatalogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayedTuition = TuitionUtils.displayFromTuition(
+    final displayedTuition = TuitionUtils.tuitionForDisplay(
       tuition,
       Get.find<AppController>().profile?.preferredCurrency,
     );
@@ -82,9 +82,7 @@ class ProgramCatalogCard extends StatelessWidget {
                     KpbBadgeLight(label: duration),
                     KpbBadgeLight(label: language),
                     KpbBadgeLight(
-                      label: displayedTuition.isNotEmpty
-                          ? displayedTuition
-                          : tuition,
+                      label: displayedTuition,
                       bgColor: KpbColors.goldLight,
                       textColor: KpbColors.gold,
                     ),

@@ -40,6 +40,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+// `rendering.dart` pour `RenderParagraph` : material ne le réexporte pas, et
+// c'est lui qui porte `didExceedMaxLines`, le seul signal de troncature.
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -309,6 +312,30 @@ class KpbScreenReport {
       : '$label : ${overflows.length} débordement(s) '
           '(${overflowPixels.toStringAsFixed(1)} px)'
           '${otherErrors.isEmpty ? '' : ', ${otherErrors.length} autre(s) erreur(s)'}';
+}
+
+/// Les textes que la mise en page a VISUELLEMENT TRONQUÉS — coupés par un
+/// ellipsis ou débordant leur `maxLines`.
+///
+/// Le troisième mensonge de mise en page, après le viewport trop large et la
+/// police Ahem, et le plus discret des trois : un débordement lève une exception,
+/// une troncature ne fait rien. `tester.takeException()` n'en voit rien, la
+/// matrice d'écrans non plus. Un prix coupé à « 12 990 €/an · ≈ 8 5… » est
+/// pourtant exactement le genre d'information à moitié dite que ce chantier
+/// existe pour supprimer.
+///
+/// Rend le texte en clair de chaque paragraphe tronqué. Les widgets `Text`
+/// construisent un `RichText` en interne, donc chercher `RichText` couvre les
+/// deux.
+List<String> truncatedTexts(WidgetTester tester) {
+  final out = <String>[];
+  for (final element in find.byType(RichText).evaluate()) {
+    final renderObject = element.renderObject;
+    if (renderObject is RenderParagraph && renderObject.didExceedMaxLines) {
+      out.add(renderObject.text.toPlainText());
+    }
+  }
+  return out;
 }
 
 /// `pumpAndSettle` borné — qui tolère UNIQUEMENT son propre dépassement de délai.
