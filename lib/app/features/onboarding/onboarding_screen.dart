@@ -524,23 +524,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  /// Vrai pendant que « Créer mon compte » travaille.
+  ///
+  /// Ce bouton est le DERNIER du tunnel d'inscription : la toute première chose
+  /// que fait un testeur, et le dernier geste avant que l'app ait un utilisateur.
+  /// Il enchaînait une demande de permission de notification puis un PATCH de
+  /// profil plafonné à quinze secondes, sans rien changer à l'écran et sans
+  /// jamais se désactiver. Sur une connexion lente-mais-connectée — le cas
+  /// courant du public visé — l'utilisateur voyait donc un écran figé pendant
+  /// une quinzaine de secondes, et appuyait de nouveau. Chaque appui relançait
+  /// `requestPermission()` et un second PATCH.
+  ///
+  /// Un bouton principal qui n'accuse pas réception EST cassé, même quand tout
+  /// finit par marcher.
+  bool _submitting = false;
+
   Future<void> _submit() async {
-    // Ask for push permission via OneSignal; identity is linked in
-    // completeOnboarding() → syncOneSignalIdentity().
-    await OneSignalService.instance.requestPermission();
-    AnalyticsService.instance
-        .logOnboardingCompleted(accountType: _accountType.name);
-    final profile = _buildProfile();
-    if (_accountType == AccountType.student) {
-      // AHA moment (P0-D): await the profile PATCH so the server scores the
-      // answers just given, then reveal the matches. Guest/skip paths never
-      // reach _submit, so they keep landing on home.
-      await _ctrl.completeOnboardingSynced(profile);
-      if (!mounted) return;
-      Get.offAll(() => const AhaMomentScreen());
-    } else {
-      _ctrl.completeOnboarding(profile);
-      Get.offAllNamed(AppRoutes.home);
+    // Le garde-fou de la double soumission. `_next` reste câblé, mais un
+    // deuxième appui pendant l'attente ne relance rien : ni la permission, ni
+    // le PATCH.
+    if (_submitting) return;
+    setState(() => _submitting = true);
+    try {
+      // Ask for push permission via OneSignal; identity is linked in
+      // completeOnboarding() → syncOneSignalIdentity().
+      await OneSignalService.instance.requestPermission();
+      AnalyticsService.instance
+          .logOnboardingCompleted(accountType: _accountType.name);
+      final profile = _buildProfile();
+      if (_accountType == AccountType.student) {
+        // AHA moment (P0-D): await the profile PATCH so the server scores the
+        // answers just given, then reveal the matches. Guest/skip paths never
+        // reach _submit, so they keep landing on home.
+        await _ctrl.completeOnboardingSynced(profile);
+        if (!mounted) return;
+        Get.offAll(() => const AhaMomentScreen());
+      } else {
+        _ctrl.completeOnboarding(profile);
+        Get.offAllNamed(AppRoutes.home);
+      }
+    } finally {
+      // Dans un `finally`, et pas après le `await` : si la remontée échoue, un
+      // bouton resté grisé serait une impasse de plus — celle-là définitive,
+      // sur le dernier écran avant l'app.
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -689,6 +716,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page: _page,
             total: _totalPages,
             onNext: _next,
+            busy: _submitting,
           ),
         ],
       ),
@@ -846,9 +874,16 @@ class _BottomBar extends StatelessWidget {
     required this.page,
     required this.total,
     required this.onNext,
+    this.busy = false,
   });
   final int page, total;
   final VoidCallback onNext;
+
+  /// Vrai pendant l'envoi. `onPressed: null` — pas un bouton actif dont on
+  /// ignore les appuis : un bouton actif qui ne fait rien est indiscernable
+  /// d'une app plantée, et c'est exactement le rapport de bug que la 49
+  /// aurait reçu.
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -867,7 +902,7 @@ class _BottomBar extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: FilledButton(
-          onPressed: onNext,
+          onPressed: busy ? null : onNext,
           style: FilledButton.styleFrom(
             backgroundColor: KpbColors.actionPrimary,
             foregroundColor: Colors.white,
@@ -880,7 +915,16 @@ class _BottomBar extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          child: Text(isLast ? 'create_account'.tr : 'continue'.tr),
+          child: busy
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(isLast ? 'create_account'.tr : 'continue'.tr),
         ),
       ),
     );

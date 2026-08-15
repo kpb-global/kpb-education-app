@@ -38,7 +38,7 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 
 | Event | Parameters | Purpose |
 |-------|------------|---------|
-| `whatsapp_handoff` | `source` (call site, e.g. `program_detail`), `context_type` (e.g. `program`, `destination`, `case`, `case_documents`, `blocked_build`, `fraud_report`, `community_group`), `success` (0/1) | Lead→advisor-contact hand-off; `success = 0` means WhatsApp could not be opened (lost conversion) |
+| `whatsapp_handoff` | `source` (call site, e.g. `program_detail`, `scholarship_official_form_failed`), `context_type` (e.g. `program`, `destination`, `case`, `case_documents`, `blocked_build`, `fraud_report`, `community_group`), `success` (0/1) | Lead→advisor-contact hand-off; `success = 0` means WhatsApp could not be opened (lost conversion). `success = 0` is now **trustworthy on Android 11+**: the hand-off attempts the launch instead of asking `canLaunchUrl`, which package visibility could make lie. |
 | `referral_invite_shared` | — | Invite shared via WhatsApp (KPB-69) |
 | `referral_redeemed` | — | Referral code redeemed by a referee (KPB-69) |
 
@@ -47,7 +47,7 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 | Event | Parameters | Purpose |
 |-------|------------|---------|
 | `guest_mode_entered` | — | Visitor chose "Explore without an account" (KPB-156) |
-| `guest_to_signup` | `source` (gate: `cases_gate`, `profile`) | Guest headed to sign-up from a gated action (KPB-156) |
+| `guest_to_signup` | `source` (gate: `cases_gate`, `profile`, `scholarships_gate`, `case_create_gate`, `case_tunnel_gate`, `case_tunnel_profile`) | Guest headed to sign-up from a gated action (KPB-156). Every gate now routes through the shared `KpbGuestGate`, so the `source` breakdown finally shows **which** wall converts — `scholarships_gate` is the middle tab (previously a fake "connection problem" screen that converted nobody) and `case_tunnel_gate` covers all 19 tunnel entries at once. |
 | `onboarding_step_viewed` | `step` (1-based), `step_count`, `account_type` | A stepper page became visible (KPB-158) |
 | `onboarding_completed` | `account_type` | Finished the last onboarding step (KPB-158) |
 | `onboarding_skipped` | `step` (1-based, where skipped) | Left onboarding via Skip (KPB-158) |

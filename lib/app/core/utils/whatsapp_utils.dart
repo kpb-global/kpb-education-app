@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../config/app_config.dart';
 import '../services/analytics_service.dart';
+import 'external_link.dart';
 
 /// Builds a context-aware WhatsApp greeting for the KPB advisor line so the
 /// advisor immediately sees what the person is reaching out about. Each page
@@ -95,12 +95,19 @@ Future<void> openWhatsAppOrToast({
   String contextType = 'unknown',
 }) async {
   final uri = buildWhatsAppUri(phone: phone, prefill: prefill, group: group);
-  if (await canLaunchUrl(uri)) {
+  // On TENTE le lancement au lieu d'interroger `canLaunchUrl` d'abord.
+  //
+  // C'est le point d'étranglement de l'unique chemin de monétisation de l'app :
+  // il n'y a aucun paiement in-app, tout passe par ce renvoi. Sur Android 11+,
+  // `canLaunchUrl` est filtré par la visibilité des paquets et pouvait renvoyer
+  // faux avec WhatsApp installé — le renvoi devenait alors un « impossible
+  // d'ouvrir WhatsApp » sur un téléphone parfaitement capable de l'ouvrir.
+  // Voir lib/app/core/utils/external_link.dart.
+  if (await kpbOpenExternalUrl(uri)) {
     unawaited(
       AnalyticsService.instance
           .logWhatsAppHandoff(source: source, contextType: contextType),
     );
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
     return;
   }
   // A failed hand-off is a lost conversion — surface it in the funnel instead

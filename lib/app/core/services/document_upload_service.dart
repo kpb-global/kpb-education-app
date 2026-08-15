@@ -103,6 +103,24 @@ class FileTooLargeException implements Exception {
   double get sizeMb => sizeInBytes / (1024 * 1024);
   double get maxSizeMb => maxSizeInBytes / (1024 * 1024);
 
+  /// Le message destiné à l'ÉCRAN, dans la langue de l'utilisateur.
+  ///
+  /// C'est le [toString] qui partait à l'écran avant : un bandeau au titre
+  /// traduit et au corps en anglais brut, sur une app dont tout le public est
+  /// francophone. Une phrase anglaise n'est ni fausse ni cassée — c'est un
+  /// défaut de crédibilité, et la crédibilité est précisément ce qu'un étudiant
+  /// méfiant évalue avant de confier son dossier.
+  ///
+  /// Les deux nombres passent par `trParams` plutôt que d'être interpolés ici :
+  /// une chaîne construite dans le modèle ne peut pas être traduite.
+  String localizedBody() => 'file_too_large_body'.trParams({
+        'size': sizeMb.toStringAsFixed(1),
+        'max': maxSizeMb.toStringAsFixed(0),
+      });
+
+  /// Reste en anglais, et c'est voulu : ce texte va aux journaux et à
+  /// Crashlytics, jamais à l'écran. Les deux publics n'ont pas les mêmes
+  /// besoins, et les confondre est l'origine du défaut.
   @override
   String toString() =>
       'File is too large (${sizeMb.toStringAsFixed(1)} MB). Maximum allowed: ${maxSizeMb.toStringAsFixed(0)} MB.';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/external_link.dart';
 
 /// Deferred in-app player: no YouTube platform view is created until the
 /// student explicitly opens a video from a scholarship detail.
@@ -70,9 +70,7 @@ class _ScholarshipVideoPlayerScreenState
             '/watch',
             {'v': video.youtubeVideoId},
           );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await kpbOpenExternalUrl(uri);
   }
 
   @override

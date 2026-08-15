@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/ui/kpb_components.dart';
@@ -9,6 +8,7 @@ import '../../core/repositories/app_api_client.dart';
 import '../../core/utils/user_facing_sync_error.dart';
 import 'airports_data.dart';
 import 'flight_models.dart';
+import '../../core/utils/external_link.dart';
 
 /// Best-effort mapping of a free-text country token (from the user's profile)
 /// to a default airport. Matches against IATA code, city and country name
@@ -152,9 +152,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
       return;
     }
     final uri = Uri.tryParse(url);
-    if (uri != null && await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    if (uri == null || !await kpbOpenExternalUrl(uri)) {
       await _launchKayakFallback();
     }
   }
@@ -166,9 +164,7 @@ class _FlightEstimatorScreenState extends State<FlightEstimatorScreen> {
     final urlStr =
         'https://www.kayak.fr/flights/${_origin!.code}-${_destination!.code}/$_dep?sort=price_a';
     final uri = Uri.parse(urlStr);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    if (!await kpbOpenExternalUrl(uri)) {
       Get.snackbar(
         'error'.tr,
         'flight_launch_failed'.tr,

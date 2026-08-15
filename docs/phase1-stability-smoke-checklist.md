@@ -10,6 +10,29 @@ Run on at least one physical Android device and one physical iOS device.
 - Ensure at least one test user has existing cases and one test user has no cases.
 - Prepare one push notification payload for `/cases/{id}` and one for `/search`.
 
+## ⚠️ Android package visibility — NOT substitutable by a test
+
+**Run this on a physical Android 13 or newer. No unit or widget test can stand
+in for it**, because package visibility only exists on a real device.
+
+Why it matters: `targetSdkVersion` is 36. From API 30, an app only "sees" the
+packages it declares, and `canLaunchUrl` returns false for anything undeclared —
+*even with a browser installed*. Neither our manifest nor `url_launcher_android`
+declared a VIEW intent. The `<queries>` block in
+`android/app/src/main/AndroidManifest.xml` fixes the cause and
+`lib/app/core/utils/external_link.dart` makes the failure visible instead of
+mute, but only a device proves it.
+
+- [ ] Open a scholarship whose `applicationUrl` is a valid `https://…` and tap
+      **« Formulaire officiel »** → the browser **must** open.
+- [ ] Tap any WhatsApp CTA → WhatsApp **must** open. This is the app's only
+      monetization path; there is deliberately no in-app payment.
+- [ ] Record the phone model and Android version in the ticket.
+
+If either is a silent no-op, or shows "impossible d'ouvrir WhatsApp" on a device
+that clearly has WhatsApp, the `<queries>` block did not take effect — stop and
+investigate before shipping.
+
 ## Critical flows
 
 ### 1) App bootstrap and onboarding

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/external_link.dart';
 
 class CityTarget {
   const CityTarget(this.name, this.urlSlug, this.country, this.minRent,
@@ -65,9 +65,7 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
         'https://www.studapart.com/fr/logement-etudiant-${_selectedCity!.urlSlug}';
     final uri = Uri.parse(urlStr);
 
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    if (!await kpbOpenExternalUrl(uri)) {
       Get.snackbar(
         'error'.tr,
         'housing_studapart_open_error'.tr,

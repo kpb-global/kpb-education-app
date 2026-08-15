@@ -64,5 +64,50 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+
+        <!--
+          Visibilité des paquets (Android 11+ / API 30).
+
+          POURQUOI CE BLOC EXISTE. `targetSdkVersion` vaut 36 : à partir d'API 30,
+          une app ne « voit » que les paquets qu'elle déclare, et
+          `canLaunchUrl` — qui repose sur `PackageManager.resolveActivity` —
+          renvoie FAUX pour tout ce qui n'est pas déclaré, même quand un
+          navigateur est installé. Ni ce manifeste ni celui d'url_launcher_android
+          (vérifié dans ~/.pub-cache : il n'a AUCUN bloc `<queries>`) ne
+          déclaraient d'intention VIEW.
+
+          Ce que cela mettait en jeu : le bouton « Formulaire officiel » de
+          chaque bourse, les liens de source officielle — l'affordance anti-fraude
+          du produit — et surtout le renvoi WhatsApp, c'est-à-dire l'UNIQUE
+          chemin de monétisation de l'app, puisqu'il n'y a délibérément aucun
+          paiement in-app.
+
+          INTERDIT ICI : `QUERY_ALL_PACKAGES`. C'est un motif de refus de
+          politique Play, et sur une app déjà publiée le refus porterait sur la
+          mise à jour elle-même. Les déclarations ci-dessous sont étroites et
+          suffisantes.
+
+          Le code ne dépend plus de `canLaunchUrl` (voir
+          lib/app/core/utils/external_link.dart) : ce bloc et ce changement se
+          couvrent mutuellement, l'un rendant la résolution possible, l'autre
+          rendant l'échec visible plutôt que muet.
+        -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="http"/>
+        </intent>
+        <!--
+          Le renvoi conseiller passe par une URL https://wa.me/… : les intentions
+          ci-dessus suffisent à la résoudre vers un navigateur. Ces deux paquets
+          sont déclarés en plus pour que le lien s'ouvre DIRECTEMENT dans
+          WhatsApp (et WhatsApp Business, très répandu chez les conseillers de
+          la région) au lieu de faire un détour par le navigateur.
+        -->
+        <package android:name="com.whatsapp"/>
+        <package android:name="com.whatsapp.w4b"/>
     </queries>
 </manifest>

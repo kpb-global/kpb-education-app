@@ -9,6 +9,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/document_upload_service.dart';
 import '../../core/services/speech_input_service.dart';
+import '../../core/ui/components/kpb_guest_gate.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
@@ -136,7 +137,18 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
         contactMethod: _contactMethod,
       );
       widget.onSubmitted?.call();
-    } catch (_) {
+    } on StateError {
+      // `submitCase` ne lève un StateError que pour UNE raison — onboarding
+      // inachevé ou profil absent — et c'est la seule que ce message décrit.
+      //
+      // Le `catch (_)` d'avant l'attrapait pour n'importe quoi : une panne de
+      // persistance, une exception de plugin, un `TypeError` dans le codec
+      // devenaient tous « Profil incomplet ». Un diagnostic faux affiché avec
+      // aplomb coûte plus cher qu'une absence de diagnostic — il envoie
+      // l'utilisateur ET le développeur chercher au mauvais endroit.
+      //
+      // Depuis que la garde est posée en tête de `build`, ce chemin est
+      // d'ailleurs devenu inatteignable dans l'app : un test l'exige.
       Get.snackbar(
         'case_tunnel_incomplete_profile_title'.tr,
         'case_tunnel_incomplete_profile_body'.tr,
@@ -188,7 +200,9 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
       if (mounted) {
         Get.snackbar(
           'case_tunnel_file_too_large_title'.tr,
-          error.toString(),
+          // `error.toString()` partait ici, en anglais brut, sous un titre
+          // traduit — sur une app dont tout le public est francophone.
+          error.localizedBody(),
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
         );
@@ -217,6 +231,42 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
 
   @override
   Widget build(BuildContext context) {
+    // ── LE point d'étranglement du tunnel ──────────────────────────────────
+    //
+    // Le mur invité vivait dans `case_create_screen.dart` et `cases_screen.dart`
+    // — deux surfaces — alors que le tunnel a DIX-NEUF entrées mesurées :
+    // 17 `CaseComposerSheet(`, plus `case_create_screen.dart` et
+    // `program_detail_screen.dart`. Le CTA de héros de l'accueil est de
+    // celles-là, il est AFFICHÉ à l'invité, et il ouvrait le tunnel sans
+    // rencontrer aucune garde : cinq étapes remplies, « Envoyer », puis un
+    // bandeau parlant d'un onboarding jamais commencé, sans bouton pour s'y
+    // rendre, et la saisie perdue. L'étape de conversion la plus précieuse de
+    // l'app se terminait en cul-de-sac.
+    //
+    // Poser la garde ICI, et non sur chaque hôte, est ce qui rend le correctif
+    // durable : les dix-neuf entrées passent toutes par ce `build`, donc une
+    // vingtième sera gardée sans que personne n'ait à y penser. C'est la leçon
+    // inverse de PARC-05 lui-même.
+    if (_controller.isGuestMode) {
+      return const KpbGuestGate(source: 'case_tunnel_gate');
+    }
+
+    // Compte réel, profil absent. Le bandeau d'origine lui parlait d'un profil
+    // incomplet sans jamais lui donner le chemin pour le compléter ; ici le
+    // chemin EST le bouton. On ne redirige pas d'autorité depuis un `build` :
+    // une navigation déclenchée par un rendu surprend l'utilisateur et se
+    // reproduit à chaque reconstruction.
+    if (_controller.profile == null) {
+      return KpbGuestGate(
+        source: 'case_tunnel_profile',
+        icon: Icons.assignment_ind_outlined,
+        titleKey: 'case_tunnel_incomplete_profile_title',
+        bodyKey: 'case_tunnel_incomplete_profile_body',
+        ctaKey: 'case_tunnel_incomplete_profile_cta',
+        onConverted: widget.onClose,
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

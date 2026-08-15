@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/config/app_config.dart';
@@ -12,6 +11,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/whatsapp_utils.dart';
+import '../../core/utils/external_link.dart';
 
 /// WhatsApp-native referral loop (KPB-69 + KPB-77): the student shares a tracked
 /// code, can redeem a friend's code, and spends earned credits (one per referred
@@ -148,9 +148,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
     final text = _inviteMessage();
     final waUri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
     unawaited(AnalyticsService.instance.logReferralInviteShared());
-    if (await canLaunchUrl(waUri)) {
-      await launchUrl(waUri, mode: LaunchMode.externalApplication);
-    } else {
+    if (!await kpbOpenExternalUrl(waUri)) {
       // WhatsApp not installed → OS share sheet with the same message.
       await SharePlus.instance.share(ShareParams(text: text));
     }

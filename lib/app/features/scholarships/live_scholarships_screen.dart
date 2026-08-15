@@ -8,6 +8,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/data/success_lab_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
+import '../../core/ui/components/kpb_guest_gate.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/ui/shell_chrome.dart';
 import '../../core/utils/whatsapp_utils.dart';
@@ -202,6 +203,11 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
   List<LiveScholarshipModel> get _items => _scholarshipsController.items;
   bool get _loading => _scholarshipsController.loading;
   String? get _error => _scholarshipsController.error;
+
+  /// Vrai quand le serveur a répondu 401 : l'index des bourses est réservé aux
+  /// comptes. Ce n'est PAS une panne de réseau, et le dire l'était.
+  bool get _authRequired =>
+      _scholarshipsController.failure == ScholarshipsFailure.authRequired;
   String get _fundingFilter => _scholarshipsController.fundingFilter;
   Set<String> get _alertedScholarshipIds =>
       _scholarshipsController.alertedScholarshipIds;
@@ -395,6 +401,24 @@ class _LiveScholarshipsScreenState extends State<LiveScholarshipsScreen> {
                       _buildShimmerCard,
                       childCount: 5,
                     ),
+                  ),
+                )
+              // ── 401 : il faut un compte, et « Réessayer » n'y changerait
+              // rien ────────────────────────────────────────────────────────
+              // C'est le cas de l'invité, celui que l'app met le plus en avant :
+              // il touche l'onglet du MILIEU depuis « Explorer sans compte ».
+              // L'écran lui disait « problème de connexion » avec un unique
+              // bouton « Réessayer » — un message faux ET une impasse, puisque
+              // aucun nombre de tentatives ne fabrique une session.
+              else if (_authRequired)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: KpbGuestGate(
+                    source: 'scholarships_gate',
+                    icon: Icons.workspace_premium_outlined,
+                    titleKey: 'scholarships_auth_required_title',
+                    bodyKey: 'scholarships_auth_required_body',
+                    ctaKey: 'scholarships_auth_required_cta',
                   ),
                 )
               else if (_error != null)

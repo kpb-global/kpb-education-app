@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
@@ -17,6 +16,8 @@ import '../cases/case_composer_sheet.dart';
 import 'scholarship_video_player_screen.dart';
 import 'widgets/how_to_apply_sheet.dart';
 import 'widgets/scholarship_alert_button.dart';
+import '../../core/utils/external_link.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 class ScholarshipDetailScreen extends StatefulWidget {
   const ScholarshipDetailScreen({
@@ -101,11 +102,41 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
     }
   }
 
+  /// Ouvre un lien externe, et DIT quand il ne s'ouvre pas.
+  ///
+  /// La version d'avant tenait en trois lignes sans branche d'échec : si
+  /// `canLaunchUrl` renvoyait faux — ce qu'il fait sur tout Android 11+ sans
+  /// intention VIEW déclarée — la fonction rendait la main en silence. Le bouton
+  /// bleu pleine largeur « Formulaire officiel », sur l'action même sans
+  /// laquelle l'étudiant rate la bourse, ne faisait alors strictement rien.
+  ///
+  /// Le repli n'est pas un message d'erreur : c'est un conseiller. L'étudiant
+  /// qui ne peut pas ouvrir le formulaire a toujours besoin de candidater.
   Future<void> _openUrl(String value) async {
-    final uri = Uri.tryParse(value);
-    if (uri != null && await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    if (await kpbOpenExternalUrlString(value)) return;
+    if (!mounted) return;
+    final scholarshipTitle = _scholarship?.title ?? '';
+    Get.snackbar(
+      'external_link_failed_title'.tr,
+      'external_link_failed_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 6),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+          openWhatsAppOrToast(
+            prefill: kpbWhatsAppPrefill(
+              custom: 'external_link_failed_prefill'
+                  .trParams({'title': scholarshipTitle}),
+            ),
+            source: 'scholarship_official_form_failed',
+            contextType: 'scholarship',
+          );
+        },
+        child: Text('external_link_failed_cta'.tr),
+      ),
+    );
   }
 
   void _setAlert(bool enabled) {
@@ -256,9 +287,10 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                       context,
                       scholarshipTitle: scholarship.title,
                       steps: scholarship.applicationSteps,
-                      onOpenOfficialForm: scholarship.applicationUrl.isEmpty
-                          ? null
-                          : () => _openUrl(scholarship.applicationUrl),
+                      onOpenOfficialForm:
+                          isOpenableWebUrl(scholarship.applicationUrl)
+                              ? () => _openUrl(scholarship.applicationUrl)
+                              : null,
                     ),
                     icon: const Icon(Icons.format_list_numbered_rounded),
                     label: Text(
@@ -320,7 +352,11 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                     ),
                   ],
                   const SizedBox(height: 18),
-                  if (scholarship.applicationUrl.isNotEmpty) ...[
+                  // `isNotEmpty` ne suffisait pas : le catalogue contient des
+                  // `applicationUrl` sans schéma (« exemple.org/apply »), que
+                  // rien ne peut ouvrir. Un bouton principal qui ne peut PAS
+                  // marcher est masqué, pas grisé et pas silencieux.
+                  if (isOpenableWebUrl(scholarship.applicationUrl)) ...[
                     FilledButton.icon(
                       onPressed: () => _openUrl(scholarship.applicationUrl),
                       icon: const Icon(Icons.open_in_new_rounded),
