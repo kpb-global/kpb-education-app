@@ -128,9 +128,9 @@ class KpbToolsDrawer extends StatelessWidget {
   /// Exposé pour que la matrice d'écrans (test/core/ui/screen_matrix_test.dart)
   /// se pilote sur CETTE liste et non sur une copie. Deux conséquences voulues :
   /// un outil ajouté ici est couvert automatiquement, et le compte reflète les
-  /// drapeaux — il y a 9 entrées littérales mais 8 à l'exécution, `tools_flight`
-  /// étant derrière `AppConfig.flightEstimatorEnabled`, un
-  /// `bool.fromEnvironment` qu'un test ne peut pas basculer. Une matrice qui
+  /// drapeaux — il y a 9 entrées littérales et 4 à l'exécution aujourd'hui, les
+  /// quatre outils IA étant masqués par `AppConfig.aiToolsEnabled` (M1) et
+  /// `tools_flight` par `AppConfig.flightEstimatorEnabled`. Une matrice qui
   /// écrirait « 9 » en dur échouerait pour cette seule raison.
   @visibleForTesting
   static List<({String labelKey, Widget Function() builder})>
@@ -138,65 +138,87 @@ class KpbToolsDrawer extends StatelessWidget {
           .map((tool) => (labelKey: tool.labelKey, builder: tool.builder))
           .toList(growable: false);
 
-  static final List<_ToolEntry> _tools = <_ToolEntry>[
-    _ToolEntry(
-      labelKey: 'tools_cv',
-      icon: Icons.description_outlined,
-      color: KpbColors.blue,
-      builder: () => const CvGeneratorScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_motivation_letter',
-      icon: Icons.edit_note_outlined,
-      color: KpbColors.blueMid,
-      builder: () => const MotivationLettersScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_interview',
-      icon: Icons.record_voice_over_outlined,
-      color: KpbColors.navy,
-      builder: () => const InterviewSimulatorScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_doc_scanner',
-      icon: Icons.document_scanner_outlined,
-      color: KpbColors.sky,
-      builder: () => const DocumentScannerScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_doc_review',
-      icon: Icons.auto_awesome_outlined,
-      color: KpbColors.gold,
-      builder: () => const DocumentReviewScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_budget',
-      icon: Icons.savings_outlined,
-      color: KpbColors.success,
-      builder: () => const BudgetCalculatorScreen(),
-    ),
-    // Hidden while the backend has no Kayak key: the estimator can only
-    // fail without it (revue vidéo du propriétaire — « ça ne sert à rien »).
-    if (AppConfig.flightEstimatorEnabled)
-      _ToolEntry(
-        labelKey: 'tools_flight',
-        icon: Icons.flight_takeoff_outlined,
-        color: KpbColors.sky,
-        builder: () => const FlightEstimatorScreen(),
-      ),
-    _ToolEntry(
-      labelKey: 'tools_housing',
-      icon: Icons.home_work_outlined,
-      color: KpbColors.warning,
-      builder: () => const HousingEstimatorScreen(),
-    ),
-    _ToolEntry(
-      labelKey: 'tools_impact',
-      icon: Icons.insights_outlined,
-      color: KpbColors.gold,
-      builder: () => const ImpactDashboardScreen(),
-    ),
-  ];
+  /// Un GETTER, et non plus un `static final`.
+  ///
+  /// Une liste `static final` est construite une seule fois, au premier accès,
+  /// et gèle donc la valeur des drapeaux au moment de cet accès. Tant que les
+  /// drapeaux étaient des `bool.fromEnvironment` purs — invariants pour toute
+  /// la durée du processus — c'était sans conséquence. `AppConfig.aiToolsEnabled`
+  /// porte un `_override` de test : sans ce getter, la contre-épreuve
+  /// « drapeau à VRAI ⇒ les quatre outils reviennent » dépendrait de l'ordre
+  /// des tests dans le fichier, ce qui est précisément le genre de garde-fou
+  /// qui reste vert pour de mauvaises raisons.
+  static List<_ToolEntry> get _tools => <_ToolEntry>[
+        // ── Les quatre outils IA masqués par M1 ────────────────────────────
+        // Ils postent le nom civil de l'étudiant à un fournisseur tiers, sur
+        // des routes que le serveur ne garde par aucun contrôle de
+        // consentement — pendant que l'écran de consentement promet
+        // « jamais ton nom ». Voir AppConfig.aiToolsEnabled pour le détail.
+        if (AppConfig.aiToolsEnabled) ...[
+          _ToolEntry(
+            labelKey: 'tools_cv',
+            icon: Icons.description_outlined,
+            color: KpbColors.blue,
+            builder: () => const CvGeneratorScreen(),
+          ),
+          _ToolEntry(
+            labelKey: 'tools_motivation_letter',
+            icon: Icons.edit_note_outlined,
+            color: KpbColors.blueMid,
+            builder: () => const MotivationLettersScreen(),
+          ),
+          _ToolEntry(
+            labelKey: 'tools_interview',
+            icon: Icons.record_voice_over_outlined,
+            color: KpbColors.navy,
+            builder: () => const InterviewSimulatorScreen(),
+          ),
+        ],
+        // Le scanner RESTE : capture locale et assemblage en PDF, aucun appel
+        // réseau, aucune donnée qui sort du téléphone. C'est même l'outil qui
+        // produit le fichier que l'étudiant envoie ensuite au conseiller,
+        // maintenant que l'envoi en app est masqué (M2).
+        _ToolEntry(
+          labelKey: 'tools_doc_scanner',
+          icon: Icons.document_scanner_outlined,
+          color: KpbColors.sky,
+          builder: () => const DocumentScannerScreen(),
+        ),
+        if (AppConfig.aiToolsEnabled)
+          _ToolEntry(
+            labelKey: 'tools_doc_review',
+            icon: Icons.auto_awesome_outlined,
+            color: KpbColors.gold,
+            builder: () => const DocumentReviewScreen(),
+          ),
+        _ToolEntry(
+          labelKey: 'tools_budget',
+          icon: Icons.savings_outlined,
+          color: KpbColors.success,
+          builder: () => const BudgetCalculatorScreen(),
+        ),
+        // Hidden while the backend has no Kayak key: the estimator can only
+        // fail without it (revue vidéo du propriétaire — « ça ne sert à rien »).
+        if (AppConfig.flightEstimatorEnabled)
+          _ToolEntry(
+            labelKey: 'tools_flight',
+            icon: Icons.flight_takeoff_outlined,
+            color: KpbColors.sky,
+            builder: () => const FlightEstimatorScreen(),
+          ),
+        _ToolEntry(
+          labelKey: 'tools_housing',
+          icon: Icons.home_work_outlined,
+          color: KpbColors.warning,
+          builder: () => const HousingEstimatorScreen(),
+        ),
+        _ToolEntry(
+          labelKey: 'tools_impact',
+          icon: Icons.insights_outlined,
+          color: KpbColors.gold,
+          builder: () => const ImpactDashboardScreen(),
+        ),
+      ];
 }
 
 class _ToolEntry {

@@ -1017,14 +1017,30 @@ abstract class _AppControllerBase extends GetxController {
           createdAt: now,
         ),
       ],
-      documentRequests: const [
-        DocumentRequest(
-          id: 'doc-profile',
-          title: LocalizedText(
-              fr: 'Profil académique complet', en: 'Complete academic profile'),
-          isProvided: false,
-        ),
-      ],
+      // Cette demande de document est FABRIQUÉE par le client : aucun
+      // conseiller ne l'a formulée, elle naît à la création du dossier. Tant que
+      // l'envoi en app est masqué (M2), la produire créerait une impasse à deux
+      // endroits — un jalon « document manquant » dans le calendrier
+      // d'échéances et un bloc « Documents » bloqué à 0 % dans « Mon plan » —
+      // pour une action que l'app n'offre plus. Demander un document qu'on ne
+      // sait pas recevoir, c'est le motif que ce lot est censé supprimer.
+      //
+      // Les demandes VENUES DU SERVEUR, elles, continuent d'arriver et de
+      // s'afficher : celles-là, un conseiller les a réellement formulées, et les
+      // masquer serait le mensonge inverse. L'écran de dossier leur offre
+      // désormais l'envoi par WhatsApp.
+      documentRequests: AppConfig.documentUploadEnabled
+          ? const [
+              DocumentRequest(
+                id: 'doc-profile',
+                title: LocalizedText(
+                  fr: 'Profil académique complet',
+                  en: 'Complete academic profile',
+                ),
+                isProvided: false,
+              ),
+            ]
+          : const <DocumentRequest>[],
     );
     _cases.insert(0, created);
     _persist();
@@ -1258,6 +1274,15 @@ abstract class _AppControllerBase extends GetxController {
   }
 
   void uploadDocument(String caseId, String documentId, String filePath) {
+    // Le point d'étranglement du masquage M2, et pas seulement l'interface.
+    // Cette méthode fait DEUX choses : cocher « fourni » localement, puis tenter
+    // l'envoi. La première réussit toujours, la seconde échoue en silence — le
+    // conteneur d'analyse antivirale est mort côté serveur. Laisser cette
+    // méthode faire son travail pendant que l'interface est masquée, c'est
+    // laisser un futur appelant remettre la coche mensongère sans le savoir ;
+    // la leçon PARC-05 de ce dépôt est qu'une garde posée sur l'écran seul ne
+    // tient pas.
+    if (!AppConfig.documentUploadEnabled) return;
     final index = _cases.indexWhere((item) => item.id == caseId);
     if (index < 0) return;
     final caseItem = _cases[index];

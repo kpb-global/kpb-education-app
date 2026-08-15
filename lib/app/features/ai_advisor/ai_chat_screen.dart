@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
@@ -605,24 +606,33 @@ class _AiChatScreenState extends State<AiChatScreen> {
       child: Row(
         children: [
           // Left round button → the real motivation-letter tool.
-          Semantics(
-            button: true,
-            label: 'coach_generate_letter'.tr,
-            child: GestureDetector(
-              onTap: () => Get.to(() => const MotivationLettersScreen()),
-              child: Container(
-                width: 46,
-                height: 46,
-                decoration: const BoxDecoration(
-                  color: KpbColors.surfaceMuted,
-                  shape: BoxShape.circle,
+          //
+          // Masqué par M1, et c'est le chemin le plus facile à oublier : ce
+          // raccourci part du COACH, la seule surface IA que le plan garde en
+          // ligne. Une garde posée sur le tiroir et la boîte à outils l'aurait
+          // laissé grand ouvert. Le coach lui-même continue de fonctionner —
+          // son consentement est vérifié côté serveur avant tout appel au
+          // fournisseur, contrairement à `/tools/personalize-letter`.
+          if (AppConfig.aiToolsEnabled) ...[
+            Semantics(
+              button: true,
+              label: 'coach_generate_letter'.tr,
+              child: GestureDetector(
+                onTap: () => Get.to(() => const MotivationLettersScreen()),
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: KpbColors.surfaceMuted,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.edit_note_rounded,
+                      color: KpbColors.textMuted, size: 22),
                 ),
-                child: const Icon(Icons.edit_note_rounded,
-                    color: KpbColors.textMuted, size: 22),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
+          ],
           Expanded(
             child: Container(
               height: 46,

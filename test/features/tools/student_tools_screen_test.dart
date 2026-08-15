@@ -13,10 +13,19 @@ void main() {
     setUp(resetGetxSingleton);
     tearDown(() {
       AppConfig.enableRemoteSyncOverride = null;
+      AppConfig.aiToolsEnabledOverride = null;
       resetGetxSingleton();
     });
 
-    testWidgets('hub lists the five tools', (tester) async {
+    // Ce test décrit le hub COMPLET, donc l'état du drapeau à vrai. Les trois
+    // outils IA sont masqués par défaut depuis M1 (`AppConfig.aiToolsEnabled`) :
+    // le fait qu'ils DISPARAISSENT drapeau à faux est vérifié dans
+    // test/core/masquage_ai_tools_test.dart, avec sa contre-épreuve. Ici on
+    // garde l'assertion d'origine — que les cinq cartes se rendent bien — sans
+    // laisser croire que l'app les propose aujourd'hui.
+    testWidgets('hub lists the five tools when the AI flag is on',
+        (tester) async {
+      AppConfig.aiToolsEnabledOverride = true;
       await pumpTestApp(
         tester,
         child: const StudentToolsScreen(),

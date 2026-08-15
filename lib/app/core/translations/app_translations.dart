@@ -1134,6 +1134,23 @@ class AppTranslations extends Translations {
           'case_section_documents': 'Documents',
           'case_document_send': 'Envoyer',
           'case_document_received': '✓ Reçu',
+          // ── M2 : les documents passent par le conseiller ──
+          // Tant que l'envoi en app est masqué, ces libellés remplacent
+          // « Envoyer ». Ils disent la destination réelle du document, ce qui
+          // est tout le point : l'ancien bouton cochait « fourni ✓ » sur un
+          // fichier que personne ne recevait.
+          'case_document_send_whatsapp': 'Envoyer sur WhatsApp',
+          'case_document_whatsapp_prefill':
+              'Bonjour KPB Education, je vous envoie « @document » pour mon dossier @reference.',
+          'case_documents_handoff_title':
+              'Tes documents passent par ton conseiller',
+          'case_documents_handoff_body':
+              'Pour l\'instant, les pièces jointes ne s\'envoient pas depuis l\'app : ton conseiller les reçoit sur WhatsApp et te confirme leur bonne réception. Prépare ton CV, tes relevés de notes et ton passeport — tu peux les scanner depuis la boîte à outils de l\'app.',
+          'case_documents_handoff_cta': 'Envoyer mes documents sur WhatsApp',
+          'case_documents_handoff_prefill':
+              'Bonjour KPB Education, je prépare ma demande « @title » et je souhaite vous transmettre mes documents.',
+          'case_documents_handoff_footnote':
+              'Tu peux continuer sans envoyer de document maintenant : ton conseiller te dira lesquels sont nécessaires.',
           'case_ai_review_cta': '✨ Relecture IA de mon dossier',
           'case_section_history': 'Historique',
           'case_continue_whatsapp': 'Continuer sur WhatsApp',
@@ -3772,6 +3789,19 @@ class AppTranslations extends Translations {
           'case_section_documents': 'Documents',
           'case_document_send': 'Send',
           'case_document_received': '✓ Received',
+          // ── M2: documents go through the advisor ──
+          'case_document_send_whatsapp': 'Send on WhatsApp',
+          'case_document_whatsapp_prefill':
+              'Hello KPB Education, here is "@document" for my case @reference.',
+          'case_documents_handoff_title':
+              'Your documents go through your advisor',
+          'case_documents_handoff_body':
+              'For now, attachments cannot be sent from the app: your advisor receives them on WhatsApp and confirms they arrived. Get your CV, transcripts and passport ready — you can scan them from the app\'s toolbox.',
+          'case_documents_handoff_cta': 'Send my documents on WhatsApp',
+          'case_documents_handoff_prefill':
+              'Hello KPB Education, I am preparing my "@title" request and would like to send you my documents.',
+          'case_documents_handoff_footnote':
+              'You can continue without sending anything now: your advisor will tell you which documents are needed.',
           'case_ai_review_cta': '✨ AI review of my documents',
           'case_section_history': 'History',
           'case_continue_whatsapp': 'Continue on WhatsApp',

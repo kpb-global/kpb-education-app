@@ -20,14 +20,14 @@ What the app collects and where it lives.
 
 | Data | Collected | Stored in | Notes |
 |---|---|---|---|
-| Name (full name) | Onboarding | Own backend (Postgres) | **Not** sent to Groq (pseudonymized — #58) |
+| Name (full name) | Onboarding | Own backend (Postgres) | **Not** sent to Groq — true for build 49 **because** the four AI tools that did send it are masked (`KPB_AI_TOOLS_ENABLED=false`, M1). See the warning under §2. |
 | Email | Onboarding / OAuth | Supabase Auth + Postgres | |
 | Phone + WhatsApp | Onboarding | Postgres | Not persisted to device storage |
 | Country of residence | Onboarding | Postgres + local | |
 | Birth date | Onboarding (students) | Postgres + local | Age gate (#60) |
 | Guardian name/contact + consent | Onboarding (declared minors) | Postgres (+ name/consent local) | Guardian **contact** not persisted on device |
 | Academic profile (level, field, target countries, grades, budget) | Onboarding | Postgres + local | Budget sent to Groq only as a **range** (#58) |
-| Cases: messages, uploaded documents (passport, transcripts), timeline | In-app | Postgres + file storage | Documents referenced by URL |
+| Cases: messages, timeline | In-app | Postgres + file storage | Document **upload from the app is masked** in build 49 (`KPB_DOCUMENT_UPLOAD_ENABLED=false`, M2): the app transmits no file, and documents reach the advisor over WhatsApp instead. Files uploaded by earlier builds remain in storage. |
 | Saved items, orientation answers, search history | In-app | Postgres + local | |
 | Coach (AI) messages | In-app | Postgres; **forwarded to Groq (US)** | Free text — see §2 |
 | Push token | Runtime | OneSignal | |
@@ -55,6 +55,19 @@ persisted across restarts).
 | **PostHog** | **United States** | Interaction events + screen views; backend user id (UUID) after login; **content-masked** session recordings (screenshots with all text/images obscured); device/OS | Product analytics, session replay | Yes (UUID after login) | No |
 | **Firebase Crashlytics** | Google | Crash stack traces, device model, OS, app version | Stability/diagnostics | Pseudonymous | No |
 | **Embedded web (WebView)** | external sites | Whatever the loaded site sees (e.g. Kayak flight search) | Price comparison, content | n/a (external) | per that site |
+
+> ⚠️ **The "no name" row above is true of build 49 only because of a client-side
+> mask, not because the server stopped.** `POST /tools/cv-summary` and
+> `POST /tools/personalize-letter` still accept a `name` field and still copy it
+> into the prompt sent to Groq (`tools.service.ts`: `Nom : ${dto.name}`), and
+> those routes carry no consent check at all — only `StudentAuthGuard`. Build 48,
+> already with testers, still reaches them. Two consequences to hold on to:
+>
+> 1. **This declaration stops being accurate the moment `KPB_AI_TOOLS_ENABLED`
+>    is flipped to `true`** without the server-side fix landing first.
+> 2. **The server-side fix is still owed** — strip the name from the two tool
+>    routes and extend the coach's consent guard to them. Until then the mask is
+>    a stopgap, not a remedy.
 
 > **Action before submission:** confirm the Supabase project region and the
 > backend deploy region, and confirm Firebase Analytics `logSearch` search
