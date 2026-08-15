@@ -597,7 +597,12 @@ class AppTranslations extends Translations {
           'france_step_housing_departure': 'Logement & préparation du départ',
           'france_step_arrival': 'Arrivée en France avec suivi KPB',
           'france_case_title': 'Procédure France — écoles privées',
-          'france_case_context_label': 'France · Septembre 2026',
+          // La campagne (@intake) est CALCULÉE par IntakeCalendar, jamais
+          // écrite en dur : ces chaînes vivaient dans le binaire et devenaient
+          // fausses le 1er octobre, sans qu'aucune mise à jour de contenu
+          // puisse les corriger. Un test statique interdit le retour du
+          // littéral « septembre 20xx » dans ce fichier.
+          'france_case_context_label': 'France · @intake',
           'privacy_s1_title': '1. Responsable du traitement',
           'privacy_s2_title': '2. Données collectées',
           'privacy_s3_title': '3. Finalités du traitement',
@@ -1688,10 +1693,10 @@ class AppTranslations extends Translations {
           'item_deleted': 'Élément supprimé',
           'documents_ready': 'documents prêts',
           'france_admission_title': 'Admission France — Écoles privées',
-          'france_sept_intake': 'Rentrée septembre 2026',
+          'france_sept_intake': 'Rentrée @intake',
           'programs_available': 'programmes disponibles',
           'france_public_unis_soon':
-              'Universités publiques — Bientôt disponible · Septembre 2026',
+              'Universités publiques — Bientôt disponible · @intake',
           'france_why_private': 'Pourquoi le privé au lancement ?',
           'france_private_intro':
               'Les écoles privées françaises partenaires KPB offrent un parcours d\'admission direct, avec des rentrées flexibles et un accompagnement personnalisé pour les étudiants africains.',
@@ -1715,7 +1720,7 @@ class AppTranslations extends Translations {
           'auth_failed': 'Authentification échouée.',
           'logout_title': 'Déconnexion',
           'private_schools_admission': 'Admission écoles privées',
-          'dedicated_path_sept_2026': 'Parcours dédié · Septembre 2026',
+          'dedicated_path_intake': 'Parcours dédié · @intake',
           'eligibility_simulator_title': 'Simulateur d\'éligibilité',
           'eligibility_hook': 'En 1 minute, découvre tes chances',
           'eligibility_intro':
@@ -3309,7 +3314,7 @@ class AppTranslations extends Translations {
           'france_step_housing_departure': 'Housing & departure preparation',
           'france_step_arrival': 'Arrival in France with KPB follow-up',
           'france_case_title': 'France procedure — private schools',
-          'france_case_context_label': 'France · September 2026',
+          'france_case_context_label': 'France · @intake',
           'privacy_s1_title': '1. Data controller',
           'privacy_s2_title': '2. Data collected',
           'privacy_s3_title': '3. Purposes of processing',
@@ -4345,10 +4350,10 @@ class AppTranslations extends Translations {
           'item_deleted': 'Item deleted',
           'documents_ready': 'documents ready',
           'france_admission_title': 'France admission — Private schools',
-          'france_sept_intake': 'September 2026 intake',
+          'france_sept_intake': '@intake intake',
           'programs_available': 'programs available',
           'france_public_unis_soon':
-              'Public universities — Coming soon · September 2026',
+              'Public universities — Coming soon · @intake',
           'france_why_private': 'Why private at launch?',
           'france_private_intro':
               'KPB partner French private schools offer a direct admission path, with flexible intakes and personalized support for African students.',
@@ -4372,7 +4377,7 @@ class AppTranslations extends Translations {
           'auth_failed': 'Authentication failed.',
           'logout_title': 'Sign out',
           'private_schools_admission': 'Private schools admission',
-          'dedicated_path_sept_2026': 'Dedicated path · September 2026',
+          'dedicated_path_intake': 'Dedicated path · @intake',
           'eligibility_simulator_title': 'Eligibility simulator',
           'eligibility_hook': 'In 1 minute, discover your chances',
           'eligibility_intro':

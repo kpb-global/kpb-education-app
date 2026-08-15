@@ -26,8 +26,17 @@ import 'onboarding_m2_constants.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 class _DialCode {
   const _DialCode(this.flag, this.code, this.country);
+
+  /// [code] est un INDICATIF, rien d'autre : il est concaténé tel quel dans
+  /// `profile.phone` et `profile.whatsApp`, que le backend accepte sans
+  /// validation de format. L'entrée États-Unis portait `'+1 🇺🇸'` — un
+  /// bricolage pour la distinguer du `+1` canadien dans le menu — et chaque
+  /// numéro américain était enregistré « +1 🇺🇸 5551234567 », emoji compris,
+  /// dans les deux champs. Un numéro corrompu ne se compose pas et ne s'ouvre
+  /// pas dans WhatsApp. La désambiguïsation vit dans [label], qui n'est
+  /// jamais persisté ; un test l'exige (onboarding_phone_code_test.dart).
   final String flag, code, country;
-  String get label => '$flag $code';
+  String get label => '$flag $code · $country';
 }
 
 const _dialCodes = <_DialCode>[
@@ -55,7 +64,7 @@ const _dialCodes = <_DialCode>[
   _DialCode('🇲🇦', '+212', 'Maroc'),
   _DialCode('🇹🇷', '+90', 'Turquie'),
   _DialCode('🇪🇸', '+34', 'Espagne'),
-  _DialCode('🇺🇸', '+1 🇺🇸', 'États-Unis'),
+  _DialCode('🇺🇸', '+1', 'États-Unis'),
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

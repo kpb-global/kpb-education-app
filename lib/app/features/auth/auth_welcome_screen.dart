@@ -214,8 +214,13 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                     child: Text(
                       'auth_intelligence_note'.tr,
                       textAlign: TextAlign.center,
+                      // textMuted, pas textFaint : ce texte est PORTEUR DE
+                      // SENS (il annonce KPB Intelligence) sur fond clair, où
+                      // textFaint rend 2,56:1 — sous le seuil AA de 4,5:1 — et
+                      // le FittedBox le rétrécit encore. Le token s'interdit
+                      // lui-même cet usage ; un test le calcule désormais.
                       style: const TextStyle(
-                        color: KpbColors.textFaint,
+                        color: KpbColors.textMuted,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),

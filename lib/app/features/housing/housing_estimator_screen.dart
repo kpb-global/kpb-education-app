@@ -151,12 +151,19 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(
-                            '${_selectedCity!.minRent} ${'to_range'.tr} ${_selectedCity!.maxRent}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 36,
-                              fontWeight: FontWeight.w800,
+                          // Flexible : à l'échelle 1,3 sur 360 px, la
+                          // fourchette en 36 px débordait de 4,8 px sur la
+                          // droite (FLU-08).
+                          Flexible(
+                            child: Text(
+                              '${_selectedCity!.minRent} ${'to_range'.tr} ${_selectedCity!.maxRent}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 36,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 4),
