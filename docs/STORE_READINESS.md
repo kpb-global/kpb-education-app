@@ -7,6 +7,11 @@
 > data export, minor/guardian consent). This document assumes those have
 > merged. Keep it updated whenever a data flow or third-party changes.
 
+The **code-derived** inventory of processors and data types lives in
+`[data-inventory.md](data-inventory.md)` (lot 9). This file remains the
+copy-paste source for the store forms. If the two diverge, the inventory
+(and the code it cites) wins.
+
 This is the source of truth for the **App Store Privacy "nutrition labels"**,
 the **Google Play Data Safety** form, the **age rating**, and the **measured
 performance budget**. Copy the relevant sections into App Store Connect / the
@@ -24,8 +29,10 @@ What the app collects and where it lives.
 | Email | Onboarding / OAuth | Supabase Auth + Postgres | |
 | Phone + WhatsApp | Onboarding | Postgres | Not persisted to device storage |
 | Country of residence | Onboarding | Postgres + local | |
-| Birth date | Onboarding (students) | Postgres + local | Age gate (#60) |
+| Birth date | Onboarding (students) | Postgres + local | Age gate 16+ (lot 9) + guardian if under 18 (#60) |
 | Guardian name/contact + consent | Onboarding (declared minors) | Postgres (+ name/consent local) | Guardian **contact** not persisted on device |
+| Profile photo | Profile | Backend storage (antivirus scan, no public URL) | Camera / photo library |
+| Voice dictation | Support / case request | Converted to text on device, then stored as a message | Microphone + speech recognition |
 | Academic profile (level, field, target countries, grades, budget) | Onboarding | Postgres + local | Budget sent to Groq only as a **range** (#58) |
 | Cases: messages, timeline | In-app | Postgres + file storage | Document **upload from the app is masked** in build 49 (`KPB_DOCUMENT_UPLOAD_ENABLED=false`, M2): the app transmits no file, and documents reach the advisor over WhatsApp instead. Files uploaded by earlier builds remain in storage. |
 | Saved items, orientation answers, search history | In-app | Postgres + local | |
@@ -54,6 +61,9 @@ persisted across restarts).
 | **Firebase Analytics** | Google | App-instance id, device/OS, coarse region, interaction events; **search terms** | Product analytics | Yes (app-instance) | No |
 | **PostHog** | **United States** | Interaction events + screen views; backend user id (UUID) after login; **content-masked** session recordings (screenshots with all text/images obscured); device/OS | Product analytics, session replay | Yes (UUID after login) | No |
 | **Firebase Crashlytics** | Google | Crash stack traces, device model, OS, app version | Stability/diagnostics | Pseudonymous | No |
+| **Resend** | **United States** | Email address + campaign content | Transactional / campaign email | Yes | No |
+| **Mautic** (self-hosted) | KPB VPS | Newsletter contact (email) after opt-in | Scholarship newsletter | Yes | No |
+| **PayDunya** / **CinetPay** | (provider regions) | Payment intents | Paid accompaniment | Yes | No |
 | **Embedded web (WebView)** | external sites | Whatever the loaded site sees (e.g. Kayak flight search) | Price comparison, content | n/a (external) | per that site |
 
 > ⚠️ **The "no name" row above is true of build 49 only because of a client-side
@@ -113,8 +123,8 @@ Tracking is **No** everywhere (no ad/attribution SDKs, no data sharing for ads).
 
 - **Does your app collect or share user data?** Yes (collect). **Share:** only
   with processors acting on our behalf (Groq, OneSignal, Firebase, Supabase,
-  **PostHog**) — Play treats processor transfers as collection, **not**
-  "sharing" for ads.
+  **PostHog**, Resend, Mautic, PayDunya, CinetPay) — Play treats processor
+  transfers as collection, **not** "sharing" for ads.
 - **Session replay (PostHog):** declare under **App activity → App
   interactions**. Content is masked (no text/images), users can opt out in-app,
   and it is never used for ads/tracking. No separate "screen recording" type
@@ -248,5 +258,5 @@ Wire both into the existing `Analyze & test` workflow.
 
 ---
 
-_Last updated: 2026-06-27. Owner: keep in sync with any new SDK, data flow, or
-third-party processor._
+_Last updated: 2026-08-15 (lot 9, aligned on `data-inventory.md`). Owner: keep
+in sync with any new SDK, data flow, or third-party processor._

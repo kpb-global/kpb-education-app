@@ -11,21 +11,28 @@
   <header><div class="wrap"><a class="brand" href="/">KPB <span>Education</span></a></div></header>
   <main>
     <h1>Politique de Confidentialité</h1>
-    <p class="updated">Dernière mise à jour : Avril 2026</p>
+    <p class="updated">Dernière mise à jour : août 2026</p>
 
     <h2>1. Responsable du traitement</h2>
+    <!-- TODO(owner-identity): forme juridique, adresse postale, pays d'établissement, autorité de contrôle — échéance 28/08/2026. -->
     <p>KPB Education (ci-après « nous », « notre », « KPB ») est responsable du traitement des données personnelles collectées via l'application mobile KPB Education.</p>
     <p>Contact : <a href="mailto:contact@kpbeducation.com">contact@kpbeducation.com</a></p>
+    <p>Site : <a href="https://kpbeducation.cloud">https://kpbeducation.cloud</a></p>
 
     <h2>2. Données collectées</h2>
     <p>Nous collectons les données suivantes :</p>
     <ul>
       <li>Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp</li>
+      <li>Date de naissance (étudiants) ; nom et contact du tuteur si vous avez moins de 18 ans</li>
+      <li>Photo de profil, si vous en ajoutez une (caméra ou photothèque)</li>
       <li>Profil académique : niveau d'études, niveau cible, compétences linguistiques, notes, filières d'intérêt, pays de destination</li>
+      <li>Messages de dossier et textes soumis au coach (KPB Intelligence)</li>
+      <li>Dictée vocale : le micro convertit votre voix en texte pour une demande d'accompagnement</li>
+      <li>Documents (passeport, relevés, pièces de dossier) : l'envoi depuis l'application est masqué. Ces pièces passent par WhatsApp vers votre conseiller, pas par un téléversement in-app</li>
       <li>Données d'utilisation : résultats d'orientation, éléments sauvegardés, historique de recherche</li>
-      <li>Données techniques : identifiant de l'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics et PostHog</li>
-      <li>Enregistrements de session (PostHog) : captures d'écran de votre navigation, utilisées pour analyser et améliorer l'expérience. Les textes et les images sont masqués automatiquement : aucun contenu personnel (documents, notes, coordonnées) n'est enregistré</li>
-      <li>Diagnostics : rapports d'incidents et erreurs techniques via Firebase Crashlytics ; métriques agrégées de synchronisation des contenus (succès ou échec, durée, source locale/cache)</li>
+      <li>Données techniques : identifiant de l'appareil (notifications), biométrie locale (verrouillage), localisation déclarée par le SDK OneSignal mais jamais demandée ni utilisée</li>
+      <li>Analytique : Firebase Analytics et PostHog ; enregistrements de session PostHog (textes et images masqués)</li>
+      <li>Diagnostics : Firebase Crashlytics ; métriques agrégées de synchronisation</li>
     </ul>
 
     <h2>3. Finalités du traitement</h2>
@@ -50,18 +57,27 @@
     <p>Vos données ne sont PAS vendues à des tiers.</p>
     <p>Elles peuvent être partagées avec :</p>
     <ul>
+      <li>Notre backend KPB (VPS Hostinger, api.kpbeducation.cloud) pour faire fonctionner l'application</li>
+      <li>Supabase (authentification : e-mail, session, Google)</li>
+      <li>Groq (États-Unis) : textes du coach et profil pseudonymisé — jamais vendus</li>
+      <li>OneSignal (États-Unis) : jeton de notifications</li>
+      <li>Firebase / Google (Analytics, Crashlytics) pour l'analytique et la stabilité</li>
+      <li>PostHog (États-Unis) : analytique produit et enregistrements de session au contenu masqué</li>
+      <li>Resend (États-Unis) : e-mails transactionnels et campagnes</li>
+      <li>Mautic (outil d'emailing auto-hébergé par KPB) pour la newsletter bourses, uniquement si vous y avez consenti</li>
+      <li>PayDunya et CinetPay : intentions de paiement si vous souscrivez un accompagnement payant</li>
       <li>Nos conseillers internes pour le suivi de vos dossiers</li>
       <li>Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d'un dossier</li>
-      <li>Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l'analytique, la stabilité et les notifications push</li>
-      <li>PostHog (analytique produit et enregistrements de session au contenu masqué) pour comprendre et améliorer l'usage de l'application</li>
-      <li>Mautic (outil d'emailing auto-hébergé par KPB) pour l'envoi de la newsletter bourses, uniquement si vous y avez consenti</li>
       <li>Les autorités compétentes si la loi l'exige</li>
     </ul>
+
+    <h2>Transferts hors de votre pays</h2>
+    <p>Certains destinataires sont établis aux États-Unis (Groq, PostHog, OneSignal, Resend, Firebase / Google). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l'analytique depuis Profil → « Analyse d'usage » et refuser KPB Intelligence : le reste de l'app reste utilisable.</p>
 
     <h2>6. Durée de conservation</h2>
     <ul>
       <li>Données de profil : conservées tant que votre compte est actif</li>
-      <li>Données de dossier : conservées 3 ans après la clôture du dossier</li>
+      <li>Données de dossier : conservées tant que le dossier est ouvert, puis supprimées avec le compte</li>
       <li>Données analytiques : agrégées et anonymisées, conservées indéfiniment</li>
       <li>En cas de suppression de compte : vos données personnelles sont supprimées sous 30 jours</li>
     </ul>

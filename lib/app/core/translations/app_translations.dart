@@ -614,6 +614,92 @@ class AppTranslations extends Translations {
           'privacy_s9_title':
               '9. Analytique produit & enregistrement de session',
           'privacy_s10_title': '10. Modifications',
+          'privacy_transfers_title': 'Transferts hors de votre pays',
+          'last_updated_august_2026': 'Dernière mise à jour : août 2026',
+          'privacy_s1_body':
+              'KPB Education (ci-après "nous", "notre", "KPB") est responsable du traitement des données personnelles collectées via l\'application mobile KPB Education.\n\n'
+                  // TODO(owner-identity): forme juridique, adresse postale, pays
+                  // d\'établissement, autorité de contrôle — échéance 28/08/2026.
+                  'Contact : contact@kpbeducation.com\n'
+                  'Site : https://kpbeducation.cloud',
+          'privacy_s2_body': 'Nous collectons les données suivantes :\n\n'
+              '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
+              '• Date de naissance (étudiants) ; nom et contact du tuteur si vous avez moins de 18 ans\n'
+              '• Photo de profil, si vous en ajoutez une (caméra ou photothèque)\n'
+              '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
+              '• Messages de dossier et textes soumis au coach (KPB Intelligence)\n'
+              '• Dictée vocale : le micro convertit votre voix en texte pour une demande d\'accompagnement\n'
+              '• Documents (passeport, relevés, pièces de dossier) : l\'envoi depuis l\'application est masqué. Ces pièces passent par WhatsApp vers votre conseiller, pas par un téléversement in-app\n'
+              '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
+              '• Données techniques : identifiant de l\'appareil (notifications), biométrie locale (verrouillage), localisation déclarée par le SDK OneSignal mais jamais demandée ni utilisée\n'
+              '• Analytique : Firebase Analytics et PostHog ; enregistrements de session PostHog (textes et images masqués)\n'
+              '• Diagnostics : Firebase Crashlytics ; métriques agrégées de synchronisation',
+          'privacy_s3_body': 'Vos données sont utilisées pour :\n\n'
+              '• Personnaliser vos recommandations de filières, pays et bourses\n'
+              '• Gérer vos dossiers de candidature et vos rendez-vous\n'
+              '• Vous envoyer des notifications pertinentes (mises à jour de dossier, deadlines)\n'
+              '• Vous envoyer par email les nouvelles bourses d\'études disponibles, uniquement si vous y avez consenti (case à cocher — désinscription possible à tout moment depuis votre profil ou le lien de désinscription des emails)\n'
+              '• Améliorer nos services via des statistiques agrégées et anonymisées\n'
+              '• Communiquer avec vous dans le cadre de vos démarches',
+          'privacy_s4_body':
+              '• Consentement : vous acceptez cette politique lors de la création de votre compte\n'
+                  '• Exécution du contrat : le traitement est nécessaire pour fournir nos services\n'
+                  '• Intérêt légitime : amélioration de nos services et sécurité de la plateforme',
+          'privacy_s5_body': 'Vos données ne sont PAS vendues à des tiers.\n\n'
+              'Elles peuvent être partagées avec :\n'
+              '• Notre backend KPB (VPS Hostinger, api.kpbeducation.cloud) pour faire fonctionner l\'application\n'
+              '• Supabase (authentification : e-mail, session, Google)\n'
+              '• Groq (États-Unis) : textes du coach et profil pseudonymisé — jamais vendus\n'
+              '• OneSignal (États-Unis) : jeton de notifications\n'
+              '• Firebase / Google (Analytics, Crashlytics) pour l\'analytique et la stabilité\n'
+              '• PostHog (États-Unis) : analytique produit et enregistrements de session au contenu masqué\n'
+              '• Resend (États-Unis) : e-mails transactionnels et campagnes\n'
+              '• Mautic (outil d\'emailing auto-hébergé par KPB) pour la newsletter bourses, uniquement si vous y avez consenti\n'
+              '• PayDunya et CinetPay : intentions de paiement si vous souscrivez un accompagnement payant\n'
+              '• Nos conseillers internes pour le suivi de vos dossiers\n'
+              '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
+              '• Les autorités compétentes si la loi l\'exige',
+          'privacy_transfers_body':
+              'Certains destinataires sont établis aux États-Unis (Groq, PostHog, OneSignal, Resend, Firebase / Google). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l\'analytique depuis Profil → « Analyse d\'usage » et refuser KPB Intelligence : le reste de l\'app reste utilisable.',
+          'privacy_s6_body':
+              '• Données de profil : conservées tant que votre compte est actif\n'
+                  '• Données de dossier : conservées tant que le dossier est ouvert, puis supprimées avec le compte\n'
+                  '• Données analytiques : agrégées et anonymisées, conservées indéfiniment\n'
+                  '• En cas de suppression de compte : vos données personnelles sont supprimées sous 30 jours',
+          'privacy_s7_body': '• Communication chiffrée via HTTPS/TLS\n'
+              '• Mots de passe hachés (bcrypt)\n'
+              '• Tokens d\'authentification sécurisés (JWT)\n'
+              '• Données sensibles (tokens) stockées dans le Keychain (iOS) / Keystore (Android)\n'
+              '• Accès restreint aux données de production',
+          'privacy_s8_body':
+              'Conformément au RGPD et aux lois applicables, vous avez le droit :\n\n'
+                  '• D\'accéder à vos données personnelles\n'
+                  '• De rectifier vos données\n'
+                  '• De supprimer votre compte et vos données\n'
+                  '• De limiter le traitement\n'
+                  '• De vous opposer au traitement\n'
+                  '• De portabilité de vos données\n\n'
+                  'Pour exercer ces droits, contactez-nous à : privacy@kpbeducation.com',
+          'privacy_s9_body': 'Nous utilisons Firebase Analytics (Google) et PostHog pour comprendre l\'usage de l\'application et l\'améliorer :\n\n'
+              '• Écrans consultés, actions effectuées (orientation, recherche, sauvegarde)\n'
+              '• PostHog enregistre également des sessions (captures d\'écran de votre navigation) ; les textes et les images sont masqués automatiquement, donc aucun document, note ou coordonnée n\'est visible dans l\'enregistrement\n'
+              '• Aucune donnée personnelle identifiable n\'est transmise à des fins publicitaires ; il n\'y a aucun SDK publicitaire ni suivi inter-applications\n'
+              '• Vous pouvez désactiver à tout moment l\'analyse d\'usage et les enregistrements depuis Profil → « Analyse d\'usage » : la collecte s\'arrête immédiatement',
+          'privacy_s10_body':
+              'Cette politique peut être mise à jour. Nous vous informerons de tout changement significatif via une notification dans l\'application.\n\n'
+                  'En continuant à utiliser l\'application après une mise à jour, vous acceptez la nouvelle politique.',
+          'terms_s10_body':
+              // TODO(owner-identity): nommer la loi et la juridiction
+              // (forme légale, pays d\'établissement) — échéance 28/08/2026.
+              'Les présentes CGU sont soumises au droit applicable à l\'entité éditrice, dont l\'identité juridique n\'est pas encore publiée.\n\n'
+                  'En cas de litige, les parties s\'engagent à chercher une résolution amiable avant tout recours judiciaire.',
+          'terms_s11_body':
+              'Pour toute question relative aux présentes CGU :\n\n'
+                  'Email : contact@kpbeducation.com\n'
+                  'Site web : https://kpbeducation.cloud',
+          'onboarding_under_16_title': 'Âge minimum : 16 ans',
+          'onboarding_under_16_body':
+              'Les CGU exigent 16 ans révolus pour créer un compte. La date indiquée correspond à moins de 16 ans.',
           'terms_of_use_2': 'Conditions d\'Utilisation',
           'terms_s1_title': '1. Objet',
           'terms_s2_title': '2. Acceptation',
@@ -3325,6 +3411,91 @@ class AppTranslations extends Translations {
           'privacy_s8_title': '8. Your rights',
           'privacy_s9_title': '9. Product analytics & session recording',
           'privacy_s10_title': '10. Changes',
+          'privacy_transfers_title': 'Transfers outside your country',
+          'last_updated_august_2026': 'Last updated: August 2026',
+          'privacy_s1_body':
+              'KPB Education (hereafter "we", "our", "KPB") is the controller of personal data collected through the KPB Education mobile app.\n\n'
+                  // TODO(owner-identity): legal form, postal address, country,
+                  // supervisory authority — due 28/08/2026.
+                  'Contact: contact@kpbeducation.com\n'
+                  'Website: https://kpbeducation.cloud',
+          'privacy_s2_body': 'We collect the following data:\n\n'
+              '• Identity: full name, email address, phone number, WhatsApp\n'
+              '• Date of birth (students); guardian name and contact if you are under 18\n'
+              '• Profile photo, if you add one (camera or photo library)\n'
+              '• Academic profile: current level, target level, language skills, grades, fields of interest, destination countries\n'
+              '• Case messages and texts submitted to the coach (KPB Intelligence)\n'
+              '• Voice dictation: the microphone turns your speech into text for a support request\n'
+              '• Documents (passport, transcripts, case files): in-app upload is masked. These files reach your advisor over WhatsApp, not through an in-app upload\n'
+              '• Usage data: orientation results, saved items, search history\n'
+              '• Technical data: device identifier (notifications), local biometrics (app lock), location declared by the OneSignal SDK but never requested or used\n'
+              '• Analytics: Firebase Analytics and PostHog; PostHog session recordings (text and images masked)\n'
+              '• Diagnostics: Firebase Crashlytics; aggregated sync metrics',
+          'privacy_s3_body': 'Your data is used to:\n\n'
+              '• Personalise programme, country and scholarship recommendations\n'
+              '• Manage your applications and appointments\n'
+              '• Send relevant notifications (case updates, deadlines)\n'
+              '• Email newly listed scholarships only if you opted in (checkbox — unsubscribe any time from your profile or the email footer)\n'
+              '• Improve our services through aggregated, anonymised statistics\n'
+              '• Communicate with you about your applications',
+          'privacy_s4_body':
+              '• Consent: you accept this policy when you create an account\n'
+                  '• Contract: processing is required to provide the service\n'
+                  '• Legitimate interest: improving the service and securing the platform',
+          'privacy_s5_body': 'Your data is NOT sold to third parties.\n\n'
+              'It may be shared with:\n'
+              '• Our KPB backend (Hostinger VPS, api.kpbeducation.cloud) to run the app\n'
+              '• Supabase (authentication: email, session, Google)\n'
+              '• Groq (United States): coach texts and a pseudonymised profile — never sold\n'
+              '• OneSignal (United States): push token\n'
+              '• Firebase / Google (Analytics, Crashlytics) for analytics and stability\n'
+              '• PostHog (United States): product analytics and content-masked session recordings\n'
+              '• Resend (United States): transactional and campaign email\n'
+              '• Mautic (email tool self-hosted by KPB) for the scholarship newsletter, only if you opted in\n'
+              '• PayDunya and CinetPay: payment intents if you buy paid accompaniment\n'
+              '• Our internal advisors for case follow-up\n'
+              '• Institutional partners (universities) only with your explicit agreement when you submit a case\n'
+              '• Competent authorities if the law requires it',
+          'privacy_transfers_body':
+              'Some recipients are established in the United States (Groq, PostHog, OneSignal, Resend, Firebase / Google). The transfer rests on your consent to this policy and, where applicable, the processor\'s standard contractual clauses. You can turn analytics off in Profile → "Usage analytics" and decline KPB Intelligence: the rest of the app stays usable.',
+          'privacy_s6_body': '• Profile data: kept while your account is active\n'
+              '• Case data: kept while the case is open, then deleted with the account\n'
+              '• Analytics data: aggregated and anonymised, kept indefinitely\n'
+              '• If you delete your account: personal data is erased within 30 days',
+          'privacy_s7_body': '• Encrypted transport via HTTPS/TLS\n'
+              '• Passwords hashed (bcrypt)\n'
+              '• Secured authentication tokens (JWT)\n'
+              '• Sensitive data (tokens) stored in the Keychain (iOS) / Keystore (Android)\n'
+              '• Restricted access to production data',
+          'privacy_s8_body':
+              'Under the GDPR and applicable law, you have the right to:\n\n'
+                  '• Access your personal data\n'
+                  '• Rectify your data\n'
+                  '• Delete your account and your data\n'
+                  '• Restrict processing\n'
+                  '• Object to processing\n'
+                  '• Data portability\n\n'
+                  'To exercise these rights, contact us at: privacy@kpbeducation.com',
+          'privacy_s9_body':
+              'We use Firebase Analytics (Google) and PostHog to understand and improve the app:\n\n'
+                  '• Screens viewed, actions taken (orientation, search, save)\n'
+                  '• PostHog also records sessions (screenshots of your navigation); text and images are masked automatically, so no document, note or contact detail is visible\n'
+                  '• No identifiable personal data is sent for advertising; there is no ad SDK and no cross-app tracking\n'
+                  '• You can turn usage analytics and recordings off at any time from Profile → "Usage analytics": collection stops immediately',
+          'privacy_s10_body':
+              'This policy may be updated. We will notify you of any material change via an in-app notification.\n\n'
+                  'By continuing to use the app after an update, you accept the new policy.',
+          'terms_s10_body':
+              // TODO(owner-identity): name the governing law and venue
+              // (legal form, country of establishment) — due 28/08/2026.
+              'These Terms are governed by the law applicable to the publishing entity, whose legal identity is not yet published.\n\n'
+                  'In case of dispute, the parties will first seek an amicable resolution.',
+          'terms_s11_body': 'For any question about these Terms:\n\n'
+              'Email: contact@kpbeducation.com\n'
+              'Website: https://kpbeducation.cloud',
+          'onboarding_under_16_title': 'Minimum age: 16',
+          'onboarding_under_16_body':
+              'The Terms require you to be at least 16 to create an account. The date you entered is under 16.',
           'terms_of_use_2': 'Terms of Use',
           'terms_s1_title': '1. Purpose',
           'terms_s2_title': '2. Acceptance',

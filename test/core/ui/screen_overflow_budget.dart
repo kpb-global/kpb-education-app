@@ -25,27 +25,13 @@
 //     second test : une oscillation de 3 à 2 due aux métriques de police ne doit
 //     pas rougir la CI.
 //
-// CE QUE CE BUDGET DIT, EN FRANÇAIS. Une seule surface déborde encore :
+// CE QUE CE BUDGET DIT, EN FRANÇAIS. Aucune surface ne déborde : les 20
+// surfaces × 2 téléphones × 3 échelles = 120 cas sont à zéro.
 //
-//   · AuthWelcomeScreen — TROUVAILLE DE CE HARNAIS, dans aucun audit : 44 px sur
-//     iPhone 14 et 38 px sur Android à l'échelle 1,3. C'est le PREMIER écran que
-//     voit un testeur, et il déborde pour tout utilisateur qui a grossi la police
-//     de son téléphone — une bonne part du public de cette app. Rattaché à aucun
-//     lot ; à trancher avant ou après l'archive.
-//
-// LES TROIS AUTRES ONT ÉTÉ CORRIGÉES par le lot 8 (15/08/2026), et leurs budgets
-// abaissés à zéro par le cliquet :
-//
-//   · FrancePrivateAdmissionScreen (FLU-07) — l'en-tête débordait de 41 à 64 px
-//     À TOUTES les échelles, y compris 1,0. La hauteur du SliverAppBar est
-//     désormais MESURÉE (TextPainter, style du thème fusionné) au lieu d'un
-//     `expandedHeight: 220` figé ; le `padding` haut de 96 px qui doublait
-//     l'encoche vient de MediaQuery.
-//   · UniversitiesScreen (FLU-06) — le carrousel `SizedBox(height: 126)` fixe
-//     grandit maintenant avec l'échelle de texte : base 126 mesurée-bonne à 1,0
-//     plus la croissance exacte des quatre lignes de texte.
-//   · HousingEstimatorScreen (FLU-08) — la fourchette de loyer est passée dans
-//     un `Flexible` avec ellipse.
+// AuthWelcomeScreen (trouvailles du harnais, 44 px / 38 px à l'échelle 1,3)
+// a été corrigé au lot 9 : colonne défilable, plus de Spacer dans une hauteur
+// non bornée. Les trois autres (France, Universités, Logement) l'avaient été
+// au lot 8.
 //
 // Les 19 autres surfaces — les 5 onglets, les 4 outils que le tiroir propose
 // aujourd'hui, les 4 écrans IA masqués par M1 (retirés de la navigation, gardés
@@ -62,23 +48,18 @@
 // rien n'aurait mesuré entre-temps.
 
 /// Nombre d'objets de rendu qui débordent, par cas. Absent = 0.
-const screenOverflowBudget = <String, int>{
-  // 44 px · 38 px — le premier écran de l'app
-  'AuthWelcomeScreen@iphone14@1.3': 1,
-  'AuthWelcomeScreen@android360@1.3': 1,
-};
+/// Lot 9 : AuthWelcomeScreen ne déborde plus (colonne défilable, plus de Spacer
+/// non borné). Le cliquet exige que ce tableau soit vide — un retour du
+/// débordement à l'échelle 1,3 ferait échouer la matrice, et un budget
+/// laissé à 1 après un zéro mesuré ferait échouer avec « abaissez le budget ».
+const screenOverflowBudget = <String, int>{};
 
 /// Les cas dont on sait pourquoi ils débordent, avec le constat d'audit
 /// correspondant. Sert au message d'échec : un développeur qui voit rougir un cas
 /// déjà connu doit le comprendre en une ligne, et un cas SANS entrée ici est une
 /// régression toute neuve.
-const screenOverflowKnownCauses = <String, String>{
-  'AuthWelcomeScreen':
-      "TROUVÉ PAR CE HARNAIS le 14/08/2026, dans aucun audit : l'écran d'entrée "
-          "déborde à l'échelle de texte 1,3 (44 px iPhone 14, 38 px Android). "
-          "C'est le premier écran d'un testeur.",
-};
+const screenOverflowKnownCauses = <String, String>{};
 
 /// Le total, pour que le message de synthèse ne puisse pas être approximatif.
-const screenOverflowCaseCount = 2;
+const screenOverflowCaseCount = 0;
 const screenMatrixCaseCount = 120;
