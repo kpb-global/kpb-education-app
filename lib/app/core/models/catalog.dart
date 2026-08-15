@@ -618,6 +618,7 @@ class ScholarshipModel {
     this.academyCourseId,
     this.eligibility = const [],
     this.deadlineAt,
+    this.deadlineIsEstimated = false,
   });
 
   final String id;
@@ -638,6 +639,15 @@ class ScholarshipModel {
 
   /// Application close date. Null = no fixed deadline (treated as open / rolling).
   final DateTime? deadlineAt;
+
+  /// Vrai quand [deadlineAt] est une PROJECTION (cycle `estimated`), pas une
+  /// date confirmée. 20 des 31 fiches publiées sont dans ce cas : leur
+  /// `deadlineAt` vient de `estimatedCloseAt` à l'import. Un compte à rebours
+  /// au jour près sur une date estimée serait un mensonge — l'onglet Bourses
+  /// se tait déjà dans ce cas, et le calendrier d'échéances doit en faire
+  /// autant. Faux par défaut : une fiche sans cycle est traitée comme
+  /// confirmée pour ne pas dégrader l'historique.
+  final bool deadlineIsEstimated;
 
   /// Ouvert / Bientôt clôturé / Clôturé, derived from [deadlineAt]. [now] is
   /// injectable for testing; [soonDays] is the "closing soon" window.
@@ -695,6 +705,7 @@ class ScholarshipModel {
       academyCourseId: json['academyCourseId'] as String?,
       eligibility: parseLocList('eligibility'),
       deadlineAt: DateTime.tryParse(json['deadlineAt'] as String? ?? ''),
+      deadlineIsEstimated: (json['dateConfidence'] as String?) == 'estimated',
     );
   }
 

@@ -1605,6 +1605,16 @@ abstract class _AppControllerBase extends GetxController {
     programs.retainWhere((p) => isMvpCountryId(p.countryId));
   }
 
+  /// Couture de test pour [_applyMvpCountryLock].
+  ///
+  /// La garantie qui compte — les BOURSES survivent au verrou — est vérifiée
+  /// sur les identifiants pays RÉELS du catalogue publié
+  /// (test/core/data/mvp_lock_scholarships_test.dart), et non sur une liste
+  /// recopiée : une version antérieure du verrou supprimait 23 fiches sur 34,
+  /// dont toutes les bourses africaines, et aucun test ne le voyait.
+  @visibleForTesting
+  void applyMvpCountryLockForTest() => _applyMvpCountryLock();
+
   List<StudentCase> casesByType(CaseType? filter) {
     if (filter == null) return cases;
     return cases.where((item) => item.type == filter).toList();

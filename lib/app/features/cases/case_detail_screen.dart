@@ -911,10 +911,13 @@ class _DossierHeader extends StatelessWidget {
               child: Text(
                 c.referenceCode,
                 overflow: TextOverflow.ellipsis,
+                // textMuted : la référence du dossier est ce que l'étudiant
+                // LIT au conseiller sur WhatsApp — à 11,5 px et 2,56:1 sur
+                // fond clair, elle était à peine déchiffrable.
                 style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: KpbColors.textFaint,
+                  color: KpbColors.textMuted,
                 ),
               ),
             ),
@@ -923,7 +926,7 @@ class _DossierHeader extends StatelessWidget {
               Text(
                 'case_reference_provisional'.tr,
                 style:
-                    const TextStyle(fontSize: 10.5, color: KpbColors.textFaint),
+                    const TextStyle(fontSize: 10.5, color: KpbColors.textMuted),
               ),
             ],
           ],

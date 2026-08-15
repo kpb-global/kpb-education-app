@@ -470,10 +470,30 @@ class _DestinationCarousel extends StatelessWidget {
     if (destinations.isEmpty) return const SizedBox.shrink();
     final controller = Get.find<AppController>();
 
+    // FLU-06 — la hauteur du carrousel GRANDIT avec l'échelle de texte.
+    //
+    // `height: 126` en dur contenait exactement le contenu à l'échelle 1,0…
+    // et rien d'autre : dès 1,1 — le PREMIER cran d'agrandissement d'Android —
+    // les trois cartes visibles débordaient de 3 px chacune, et de 19 px à
+    // 1,3.
+    //
+    // La formule part du 126 MESURÉ-BON à l'échelle 1,0 et lui ajoute
+    // exactement la croissance des quatre lignes de texte (drapeau 26, nom
+    // 12,5, sous-titre 9,5, CTA 9). Première tentative instructive : recalculer
+    // la hauteur entière depuis des hauteurs de ligne devinées donnait 17,7 px
+    // de débordement à l'échelle 1,0 — les glyphes émoji sont plus hauts que
+    // toute estimation raisonnable. On n'invente donc pas la base, on la
+    // reprend de la mesure ; seule la CROISSANCE est calculée, et elle ne
+    // dépend que des tailles de police, qui sont dans ce fichier.
+    final scaler = MediaQuery.textScalerOf(context);
+    double growth(double fontSize) => (scaler.scale(fontSize) - fontSize) * 1.4;
+    final cardHeight =
+        126 + growth(26) + growth(12.5) + growth(9.5) + growth(9);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 13),
       child: SizedBox(
-        height: 126,
+        height: cardHeight,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),

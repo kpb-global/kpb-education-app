@@ -150,6 +150,14 @@ export class CatalogService {
         // de filtre.
         where: publicScholarshipWhere(),
         orderBy: { nameFr: 'asc' },
+        // Les cycles voyagent avec la fiche pour que le client sache si
+        // `deadlineAt` est une date CONFIRMÉE ou une PROJECTION. 20 des 31
+        // fiches publiées ont un cycle `estimated` : sans cette information,
+        // le calendrier d'échéances posait un jalon ferme — « J-146 » — sur
+        // une date que personne n'a confirmée. L'onglet Bourses sait déjà se
+        // taire dans ce cas ; ce endpoint doit donner au calendrier le moyen
+        // d'en faire autant.
+        include: { cycles: { orderBy: { academicYear: 'desc' }, take: 5 } },
       }),
     );
     if (rows === null) return this.mockResponse(mockCatalog.scholarships);

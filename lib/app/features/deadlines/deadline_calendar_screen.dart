@@ -62,6 +62,7 @@ class _MilestoneEntry {
     required this.deadline,
     required this.isSaved,
     required this.route,
+    this.deadlineIsEstimated = false,
   });
 
   final String id;
@@ -71,6 +72,13 @@ class _MilestoneEntry {
   final DateTime? deadline;
   final bool isSaved;
   final String? route;
+
+  /// Vrai quand [deadline] est une PROJECTION (cycle « estimated » du
+  /// catalogue) : la date sert encore à trier, mais l'écran doit dire « date à
+  /// confirmer » au lieu d'un compte à rebours au jour près — 20 des 31
+  /// fiches publiées sont dans ce cas, et un « J-146 » ferme sur une date que
+  /// personne n'a confirmée est un mensonge.
+  final bool deadlineIsEstimated;
 }
 
 class DeadlineCalendarScreen extends StatefulWidget {
@@ -287,6 +295,7 @@ class _DeadlineCalendarScreenState extends State<DeadlineCalendarScreen> {
               '${countryFlag(scholarship.countryId)} ${controller.resolve(scholarship.typeOfFunding)}',
           kind: _MilestoneKind.scholarship,
           deadline: deadline,
+          deadlineIsEstimated: scholarship.deadlineIsEstimated,
           isSaved: isSaved,
           route: AppRoutes.deadlines,
         ),
@@ -687,7 +696,10 @@ class _MilestoneTile extends StatelessWidget {
 
   ({String label, Color color}) _status(BuildContext context) {
     final deadline = entry.deadline;
-    if (deadline == null) {
+    // Une date ESTIMÉE ne reçoit jamais de compte à rebours : la date sert au
+    // tri et au regroupement, mais le badge dit la seule chose qu'on sait —
+    // qu'elle reste à confirmer. Même règle que l'onglet Bourses.
+    if (deadline == null || entry.deadlineIsEstimated) {
       return (
         label: 'deadlines_date_to_confirm'.tr,
         color: context.kpb.textMuted
@@ -709,6 +721,11 @@ class _MilestoneTile extends StatelessWidget {
         color: KpbColors.warning
       );
     }
-    return (label: '$days jours', color: KpbColors.success);
+    // `'$days jours'` vivait ici en dur : un utilisateur anglophone lisait un
+    // badge français au-delà de 30 jours.
+    return (
+      label: 'deadlines_status_days'.trParams({'n': '$days'}),
+      color: KpbColors.success
+    );
   }
 }

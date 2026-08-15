@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/data/intake_calendar.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
@@ -648,7 +649,8 @@ class _FranceCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'dedicated_path_sept_2026'.tr,
+                      'dedicated_path_intake'.trParams(
+                          {'intake': IntakeCalendar.label(capitalized: true)}),
                       style: const TextStyle(
                           fontSize: 11.5, color: KpbColors.textMuted),
                     ),

@@ -4,6 +4,7 @@ import type {
   Institution,
   Program,
   Scholarship,
+  ScholarshipCycle,
 } from '@prisma/client';
 
 import { ORIENTATION_FIELDS } from '../orientation/orientation-fields.data';
@@ -174,7 +175,24 @@ export function mapProgram(row: Program) {
   };
 }
 
-export function mapScholarship(row: Scholarship) {
+/// Même règle de sélection que l'index public des bourses
+/// (scholarships-index.service.ts, `selectCurrentCycle`) : un cycle ouvert,
+/// sinon une prévision, sinon le plus récent. DUPLIQUÉE sciemment plutôt
+/// qu'importée — les deux modules ne partagent aucune dépendance aujourd'hui,
+/// et la règle tient en trois lignes ; si elle grossit, l'extraire.
+function selectCurrentCycle(cycles: ScholarshipCycle[] | undefined) {
+  if (!cycles?.length) return undefined;
+  return (
+    cycles.find((cycle) => cycle.status === 'open') ??
+    cycles.find((cycle) => cycle.status === 'forecast') ??
+    cycles[0]
+  );
+}
+
+export function mapScholarship(
+  row: Scholarship & { cycles?: ScholarshipCycle[] },
+) {
+  const cycle = selectCurrentCycle(row.cycles);
   return {
     id: row.id,
     name: localized(row.nameFr, row.nameEn),
@@ -190,6 +208,15 @@ export function mapScholarship(row: Scholarship) {
     relatedFieldIds: row.relatedFieldIds,
     baseMatch: row.baseMatch,
     deadlineAt: row.deadlineAt,
+    // La CONFIANCE de la date, pas seulement la date. Pour 20 des 31 fiches
+    // publiées, `deadlineAt` vient de `estimatedCloseAt` (import) : une
+    // projection, pas un jalon. Sans ce champ, le calendrier d'échéances
+    // affichait un compte à rebours au jour près sur une date que personne
+    // n'a confirmée — l'onglet Bourses, lui, sait déjà se taire dans ce cas.
+    // Absent de cycle ⇒ null : le client traite null comme « confirmé » pour
+    // ne pas dégrader les fiches historiques sans cycle.
+    dateConfidence: cycle?.dateConfidence ?? null,
+    cycleStatus: cycle?.status ?? null,
     lastVerifiedAt: row.lastVerifiedAt,
     sourceUrl: row.sourceUrl,
     verifiedById: row.verifiedById,
