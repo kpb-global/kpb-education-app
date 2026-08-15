@@ -13,6 +13,24 @@ Resolved in [`lib/app/core/config/app_config.dart`](../lib/app/core/config/app_c
 | `KPB_ENABLE_REMOTE_SYNC` | `true` / `false` — set `false` in widget/unit tests to avoid network during `hydrate()`. |
 | `KPB_REQUEST_TIMEOUT` | Optional override (seconds). |
 
+### Feature masking flags (build-time, default **off**)
+
+Two features are hidden from the shipped build because they cannot be made
+honest in time. Both are `--dart-define` booleans read through `AppConfig`, and
+both are covered by a masking test with a counter-proof, so flipping them back
+on is a one-line change whose effect is already measured.
+
+| `--dart-define` | Default | What it hides, and what has to be true before flipping it on |
+|-----------------|---------|--------------------------------------------------------------|
+| `KPB_AI_TOOLS_ENABLED` | **`false`** | **M1** — the CV generator, motivation letters, interview simulator and AI document review (10 entry points across 4 screens). They post the student's civil name to a third-party AI provider on routes the backend guards with `StudentAuthGuard` only — no consent check — while the consent screen promises "jamais ton nom". Flip on **only after** the server-side consent guard is deployed **and** the name stops being sent. The coach stays online: it is the one AI surface whose consent the server actually verifies. Guard: [`test/core/masquage_ai_tools_test.dart`](../test/core/masquage_ai_tools_test.dart). |
+| `KPB_DOCUMENT_UPLOAD_ENABLED` | **`false`** | **M2** — in-app document upload. The case tunnel never transmitted a byte (it kept a local file path and wrote its name into the case description), and the one real upload path ticked `isProvided: true` *before* the network call, then swallowed the failure — while the server's antivirus container is down and the route fails closed. While off, documents go to the advisor on WhatsApp and the app stops fabricating the `doc-profile` request. Flip on **only after** the upload chain works end to end: antivirus alive, failure visible on screen, and "provided" set by the server's answer rather than by local optimism. Guard: [`test/core/masquage_documents_test.dart`](../test/core/masquage_documents_test.dart). |
+
+```bash
+# Re-enable one of them for a local check (never for a store build
+# until its precondition above is actually met):
+flutter run --dart-define=KPB_AI_TOOLS_ENABLED=true
+```
+
 **Default API bases** (only when `KPB_API_BASE_URL` is empty):
 
 | `KPB_APP_ENV` | Base URL |

@@ -118,6 +118,88 @@ class AppConfig {
     defaultValue: false,
   );
 
+  // ── Les deux masquages du lot 7 ────────────────────────────────────────
+  //
+  // Masquer une fonctionnalité qu'on ne sait pas encore livrer honnêtement est
+  // un choix éditorial, pas un aveu d'échec. La livrer en affirmant « fourni ✓ »
+  // sur un document que personne n'a reçu, ou « jamais ton nom » pendant qu'on
+  // envoie le nom, ce serait l'inverse.
+  //
+  // Les deux drapeaux qui suivent portent un `_override` de test, contrairement
+  // à `ambassadorCashEnabled` et `flightEstimatorEnabled` au-dessus. Ce n'est
+  // pas de la coquetterie : un `bool.fromEnvironment` est une constante de
+  // compilation qu'aucun test ne peut basculer, donc un masquage bâti dessus
+  // n'a pas de contre-épreuve — rien ne prouverait que le drapeau à VRAI
+  // ramène bien les entrées, ni que le masquage tient à autre chose qu'à un
+  // écran cassé. Le patron est celui d'[enableRemoteSync].
+
+  /// **M1** — les quatre outils IA de la « boîte à outils » (générateur de CV,
+  /// lettres de motivation, simulateur d'entretien, relecture de document) sont
+  /// MASQUÉS par défaut.
+  ///
+  /// Motif, vérifié dans le code des deux côtés : l'écran de consentement
+  /// promet que KPB Intelligence envoie « une version pseudonymisée de ton
+  /// profil […] — jamais ton nom » (app_translations.dart, `ai_consent_body`),
+  /// et ces quatre écrans-là postent le nom civil en clair. `/tools/cv-summary`
+  /// et `/tools/personalize-letter` le reçoivent dans leur corps de requête et
+  /// le service le recopie tel quel dans l'invite envoyée au fournisseur
+  /// (backend `tools.service.ts` : `Nom : ${dto.name}`). Le contrôle de
+  /// consentement, lui, n'existe QUE dans le coach (`coach.service.ts`) :
+  /// `tools.controller.ts` et `document-review.controller.ts` ne posent qu'un
+  /// `@UseGuards(StudentAuthGuard)`.
+  ///
+  /// Le coach reste EN LIGNE : c'est la seule surface IA dont le serveur vérifie
+  /// réellement le consentement avant d'appeler le fournisseur.
+  ///
+  /// À basculer à `true` le jour où la garde de consentement serveur (IA-T1)
+  /// est déployée ET où le nom cesse d'être envoyé. Pas avant, et pas l'un sans
+  /// l'autre.
+  static bool get aiToolsEnabled =>
+      _aiToolsEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_AI_TOOLS_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _aiToolsEnabledOverride;
+
+  @visibleForTesting
+  static set aiToolsEnabledOverride(bool? value) =>
+      _aiToolsEnabledOverride = value;
+
+  /// **M2** — l'envoi de pièces jointes depuis l'app est MASQUÉ par défaut ; les
+  /// documents passent par le conseiller WhatsApp.
+  ///
+  /// Motif, mesuré : aucun octet n'arrive aujourd'hui. Le tunnel de création de
+  /// dossier ne garde qu'un CHEMIN LOCAL de fichier et écrit son nom dans la
+  /// description du dossier (« Documents joints: • CV: IMG_1234.jpg ») sans rien
+  /// téléverser — `submitCase` n'a aucun paramètre de pièce jointe. Et le seul
+  /// chemin d'envoi réel, celui de l'écran de dossier, coche `isProvided: true`
+  /// AVANT l'appel réseau, puis avale l'échec dans Crashlytics et fait
+  /// disparaître le bouton « Envoyer ». Côté serveur, le conteneur d'analyse
+  /// antivirale est en panne et la route échoue fermé : l'étudiant voit
+  /// « fourni ✓ » sur un document que le conseiller n'a jamais reçu.
+  ///
+  /// Ce qui RESTE ouvert pendant le masquage : le scanner de documents (capture
+  /// locale et assemblage en PDF, aucun appel réseau) — il produit précisément
+  /// le fichier que l'étudiant envoie ensuite sur WhatsApp.
+  ///
+  /// À basculer à `true` quand la chaîne d'envoi est réparée de bout en bout :
+  /// analyse antivirale vivante, échec visible à l'écran, et « fourni » coché
+  /// par la réponse du serveur et non par optimisme local.
+  static bool get documentUploadEnabled =>
+      _documentUploadEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_DOCUMENT_UPLOAD_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _documentUploadEnabledOverride;
+
+  @visibleForTesting
+  static set documentUploadEnabledOverride(bool? value) =>
+      _documentUploadEnabledOverride = value;
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(

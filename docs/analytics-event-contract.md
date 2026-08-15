@@ -38,7 +38,7 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 
 | Event | Parameters | Purpose |
 |-------|------------|---------|
-| `whatsapp_handoff` | `source` (call site, e.g. `program_detail`), `context_type` (e.g. `program`, `destination`, `case`, `fraud_report`, `community_group`), `success` (0/1) | Lead→advisor-contact hand-off; `success = 0` means WhatsApp could not be opened (lost conversion) |
+| `whatsapp_handoff` | `source` (call site, e.g. `program_detail`), `context_type` (e.g. `program`, `destination`, `case`, `case_documents`, `blocked_build`, `fraud_report`, `community_group`), `success` (0/1) | Lead→advisor-contact hand-off; `success = 0` means WhatsApp could not be opened (lost conversion) |
 | `referral_invite_shared` | — | Invite shared via WhatsApp (KPB-69) |
 | `referral_redeemed` | — | Referral code redeemed by a referee (KPB-69) |
 

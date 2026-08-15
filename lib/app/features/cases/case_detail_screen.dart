@@ -135,6 +135,26 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
     super.dispose();
   }
 
+  /// Le chemin d'envoi pendant le masquage M2 : le conseiller, sur WhatsApp,
+  /// avec le nom du document et la référence du dossier déjà écrits.
+  ///
+  /// Rien n'est coché « fourni » ici, et c'est volontaire. C'est le conseiller
+  /// qui marquera la demande satisfaite quand il aura réellement reçu le
+  /// fichier — l'inverse exact de ce que faisait l'écran avant, où la coche
+  /// partait AVANT l'appel réseau et survivait à son échec.
+  Future<void> _sendDocumentViaWhatsApp(
+    StudentCase caseItem,
+    DocumentRequest doc,
+  ) async {
+    await _openWhatsapp(
+      advisorName: caseItem.assignedAdvisorName,
+      prefill: 'case_document_whatsapp_prefill'.trParams({
+        'document': _ctrl.resolve(doc.title),
+        'reference': caseItem.referenceCode,
+      }),
+    );
+  }
+
   Future<void> _promptUpload(String caseId, DocumentRequest doc) async {
     showModalBottomSheet(
       context: context,
@@ -389,22 +409,29 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                 const SizedBox(height: 14),
 
                 // ── Photo / PDF tip (honest: app compresses, no OCR/scan) ────
-                _InfoTip(
-                  icon: Icons.photo_camera_rounded,
-                  text: 'case_document_photo_tip'.tr,
-                ),
-                const SizedBox(height: 14),
+                // Ce conseil décrit une compression que l'app n'applique plus à
+                // rien tant que l'envoi est masqué (M2) : il partirait donc
+                // décrire une mécanique inexistante.
+                if (AppConfig.documentUploadEnabled) ...[
+                  _InfoTip(
+                    icon: Icons.photo_camera_rounded,
+                    text: 'case_document_photo_tip'.tr,
+                  ),
+                  const SizedBox(height: 14),
+                ],
 
-                // ── Interview simulator (existing tool) ──────────────────────
-                _NavCard(
-                  icon: Icons.mic_rounded,
-                  iconColor: KpbColors.warning,
-                  iconBg: KpbColors.warningLight,
-                  title: 'case_interview_sim_title'.tr,
-                  subtitle: 'case_interview_sim_subtitle'.tr,
-                  onTap: () => Get.to(() => const InterviewSimulatorScreen()),
-                ),
-                const SizedBox(height: 14),
+                // ── Interview simulator (masqué par M1) ──────────────────────
+                if (AppConfig.aiToolsEnabled) ...[
+                  _NavCard(
+                    icon: Icons.mic_rounded,
+                    iconColor: KpbColors.warning,
+                    iconBg: KpbColors.warningLight,
+                    title: 'case_interview_sim_title'.tr,
+                    subtitle: 'case_interview_sim_subtitle'.tr,
+                    onTap: () => Get.to(() => const InterviewSimulatorScreen()),
+                  ),
+                  const SizedBox(height: 14),
+                ],
 
                 // ── Documents ────────────────────────────────────────────────
                 if (docs.isNotEmpty) ...[
@@ -428,21 +455,31 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   _DocumentsCard(
                     docs: docs,
                     ctrl: _ctrl,
-                    onUpload: (doc) => _promptUpload(c.id, doc),
+                    // M2 : tant que l'envoi en app est masqué, le bouton ne
+                    // disparaît pas — il change de destination. Un document
+                    // qu'un conseiller a réellement demandé doit rester
+                    // envoyable, sinon ce jalon devient l'impasse que ce lot est
+                    // censé supprimer.
+                    uploadEnabled: AppConfig.documentUploadEnabled,
+                    onUpload: (doc) => AppConfig.documentUploadEnabled
+                        ? _promptUpload(c.id, doc)
+                        : _sendDocumentViaWhatsApp(c, doc),
                   ),
                   const SizedBox(height: 12),
                 ],
 
-                // ── AI document review (existing tool) ───────────────────────
-                _NavCard(
-                  icon: Icons.auto_awesome_rounded,
-                  iconColor: KpbColors.actionPrimary,
-                  iconBg: KpbColors.actionPrimarySoft,
-                  title: 'case_ai_review_cta'.tr,
-                  subtitle: 'case_ai_review_subtitle'.tr,
-                  onTap: () => Get.to(() => const DocumentReviewScreen()),
-                ),
-                const SizedBox(height: 14),
+                // ── AI document review (masqué par M1) ───────────────────────
+                if (AppConfig.aiToolsEnabled) ...[
+                  _NavCard(
+                    icon: Icons.auto_awesome_rounded,
+                    iconColor: KpbColors.actionPrimary,
+                    iconBg: KpbColors.actionPrimarySoft,
+                    title: 'case_ai_review_cta'.tr,
+                    subtitle: 'case_ai_review_subtitle'.tr,
+                    onTap: () => Get.to(() => const DocumentReviewScreen()),
+                  ),
+                  const SizedBox(height: 14),
+                ],
 
                 // ── Advisor ──────────────────────────────────────────────────
                 if (c.assignedAdvisorName != null) ...[
@@ -1232,11 +1269,16 @@ class _DocumentsCard extends StatelessWidget {
     required this.docs,
     required this.ctrl,
     required this.onUpload,
+    required this.uploadEnabled,
   });
 
   final List<DocumentRequest> docs;
   final AppController ctrl;
   final void Function(DocumentRequest) onUpload;
+
+  /// Faux pendant le masquage M2 : l'action reste, sa destination devient le
+  /// conseiller WhatsApp et son libellé le dit.
+  final bool uploadEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -1292,15 +1334,21 @@ class _DocumentsCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: KpbColors.actionPrimarySoft,
+                          color: uploadEnabled
+                              ? KpbColors.actionPrimarySoft
+                              : KpbColors.successLight,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
-                          'case_document_send'.tr,
-                          style: const TextStyle(
+                          uploadEnabled
+                              ? 'case_document_send'.tr
+                              : 'case_document_send_whatsapp'.tr,
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: KpbColors.actionPrimary,
+                            color: uploadEnabled
+                                ? KpbColors.actionPrimary
+                                : KpbColors.success,
                           ),
                         ),
                       ),

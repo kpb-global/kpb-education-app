@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/ui/kpb_components.dart';
 import 'cv_generator_screen.dart';
 import 'document_scanner_screen.dart';
@@ -24,30 +25,37 @@ class StudentToolsScreen extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
           ),
           const SizedBox(height: KpbSpacing.lg),
-          _ToolCard(
-            icon: Icons.description_rounded,
-            color: KpbColors.blue,
-            title: 'cv_generator_title'.tr,
-            subtitle: 'student_tools_cv_subtitle'.tr,
-            onTap: () => Get.to(() => const CvGeneratorScreen()),
-          ),
-          const SizedBox(height: KpbSpacing.md),
-          _ToolCard(
-            icon: Icons.mail_outline_rounded,
-            color: KpbColors.success,
-            title: 'letters_title'.tr,
-            subtitle: 'student_tools_letters_subtitle'.tr,
-            onTap: () => Get.to(() => const MotivationLettersScreen()),
-          ),
-          const SizedBox(height: KpbSpacing.md),
-          _ToolCard(
-            icon: Icons.record_voice_over_rounded,
-            color: KpbColors.gold,
-            title: 'interview_title'.tr,
-            subtitle: 'student_tools_interview_subtitle'.tr,
-            onTap: () => Get.to(() => const InterviewSimulatorScreen()),
-          ),
-          const SizedBox(height: KpbSpacing.md),
+          // ── Les trois outils IA masqués par M1 ──────────────────────────
+          // Le tiroir n'est pas la seule porte : cet écran-ci est atteignable
+          // depuis l'accueil, et poser la garde sur le seul tiroir aurait rejoué
+          // à l'identique le défaut PARC-05 (dix-huit points d'entrée, un seul
+          // gardé). Voir AppConfig.aiToolsEnabled.
+          if (AppConfig.aiToolsEnabled) ...[
+            _ToolCard(
+              icon: Icons.description_rounded,
+              color: KpbColors.blue,
+              title: 'cv_generator_title'.tr,
+              subtitle: 'student_tools_cv_subtitle'.tr,
+              onTap: () => Get.to(() => const CvGeneratorScreen()),
+            ),
+            const SizedBox(height: KpbSpacing.md),
+            _ToolCard(
+              icon: Icons.mail_outline_rounded,
+              color: KpbColors.success,
+              title: 'letters_title'.tr,
+              subtitle: 'student_tools_letters_subtitle'.tr,
+              onTap: () => Get.to(() => const MotivationLettersScreen()),
+            ),
+            const SizedBox(height: KpbSpacing.md),
+            _ToolCard(
+              icon: Icons.record_voice_over_rounded,
+              color: KpbColors.gold,
+              title: 'interview_title'.tr,
+              subtitle: 'student_tools_interview_subtitle'.tr,
+              onTap: () => Get.to(() => const InterviewSimulatorScreen()),
+            ),
+            const SizedBox(height: KpbSpacing.md),
+          ],
           _ToolCard(
             icon: Icons.document_scanner_rounded,
             color: KpbColors.sky,

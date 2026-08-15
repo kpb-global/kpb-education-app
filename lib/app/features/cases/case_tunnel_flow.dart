@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/document_upload_service.dart';
 import '../../core/services/speech_input_service.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/whatsapp_utils.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 class CaseTunnelPrefill {
@@ -279,6 +281,20 @@ class _CaseTunnelFlowState extends State<CaseTunnelFlow> {
               : null,
         );
       case 2:
+        // M2 : l'étape « Documents » ne disparaît pas, elle dit la vérité.
+        //
+        // Ce que faisait la version à trois sélecteurs : elle gardait un CHEMIN
+        // LOCAL de fichier et écrivait son nom dans la description du dossier
+        // (« Documents joints: • CV: IMG_1234.jpg »). Pas un octet ne partait —
+        // `submitCase` n'a aucun paramètre de pièce jointe. L'étudiant croyait
+        // avoir joint son passeport, le conseiller lisait un nom de fichier.
+        //
+        // Supprimer l'étape aurait été plus simple et moins honnête : l'étudiant
+        // a bien des documents à transmettre, et il a droit à ce qu'on lui dise
+        // par où.
+        if (!AppConfig.documentUploadEnabled) {
+          return _DocumentsHandoffStep(caseTitle: widget.prefill.title);
+        }
         return _DocumentsStep(
           attached: _attachedDocs,
           sizes: _attachedDocSizes,
@@ -530,6 +546,74 @@ class _ContextRow extends StatelessWidget {
               Text(value, style: KpbTextStyles.bodySm),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// L'étape « Documents » pendant le masquage M2 : ce qu'il faut préparer, et le
+/// seul chemin qui amène réellement un fichier chez un conseiller.
+///
+/// Le bouton est TOUJOURS actionnable — il ne dépend d'aucune configuration
+/// serveur, le numéro du conseiller étant embarqué dans la build. C'est la même
+/// règle que celle appliquée à l'écran de mise à jour forcée : on ne laisse pas
+/// une étape avec une seule action, et jamais avec une action qui peut être
+/// désactivée.
+class _DocumentsHandoffStep extends StatelessWidget {
+  const _DocumentsHandoffStep({required this.caseTitle});
+
+  final String caseTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        KpbCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.folder_shared_outlined,
+                      color: KpbColors.success, size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'case_documents_handoff_title'.tr,
+                      style: KpbTextStyles.titleMd,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'case_documents_handoff_body'.tr,
+                style: KpbTextStyles.bodySm,
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => openWhatsAppOrToast(
+                    prefill: kpbWhatsAppPrefill(
+                      custom: 'case_documents_handoff_prefill'
+                          .trParams({'title': caseTitle}),
+                    ),
+                    source: 'case_tunnel_documents',
+                    contextType: 'case_documents',
+                  ),
+                  icon: const Icon(Icons.chat_outlined),
+                  label: Text('case_documents_handoff_cta'.tr),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'case_documents_handoff_footnote'.tr,
+          style: KpbTextStyles.caption,
         ),
       ],
     );

@@ -3,6 +3,8 @@
 // MESURÉ le 14/08/2026 sur Flutter 3.44.1, par
 // test/core/ui/screen_matrix_test.dart : 20 surfaces × 2 téléphones × 3 échelles
 // de texte = 120 cas. Les 108 cas absents de cette table valent zéro.
+// (Revérifié le 15/08/2026 après les masquages M1/M2 : mêmes 20 surfaces, mêmes
+// 14 cas budgétés.)
 //
 // La clé est `<écran>@<téléphone>@<échelle>`, la valeur est le NOMBRE d'objets de
 // rendu qui débordent — pas le nombre de pixels.
@@ -51,10 +53,18 @@
 //     sans `Flexible`). Compté deux fois ci-dessous parce que l'écran est
 //     atteignable par deux chemins et monté par les deux dans la matrice.
 //
-// Les 16 autres surfaces — les 5 onglets, les 8 outils du tiroir, le tiroir
-// lui-même, les deux écrans de lien magique, le chat — ne débordent à aucune
-// taille ni aucune échelle. Et aucune des 120 combinaisons n'affiche de clé de
-// traduction brute.
+// Les 16 autres surfaces — les 5 onglets, les 4 outils que le tiroir propose
+// aujourd'hui, les 4 écrans IA masqués par M1 (retirés de la navigation, gardés
+// sous mesure), le tiroir lui-même, les deux écrans de lien magique, le chat —
+// ne débordent à aucune taille ni aucune échelle. Et aucune des 120
+// combinaisons n'affiche de clé de traduction brute.
+//
+// LE COMPTE EST RESTÉ À 20 SURFACES À TRAVERS LE MASQUAGE, et ce n'est pas une
+// coïncidence : le lot 7 a retiré quatre outils du tiroir et la matrice les a
+// repris nommément (`ai:…` dans screen_matrix_test.dart). Sans ce rattrapage,
+// la couverture serait tombée à 16 surfaces le jour du masquage — et serait
+// remontée à 20 le jour où le drapeau rebascule, sur quatre écrans que plus
+// rien n'aurait mesuré entre-temps.
 
 /// Nombre d'objets de rendu qui débordent, par cas. Absent = 0.
 const screenOverflowBudget = <String, int>{
