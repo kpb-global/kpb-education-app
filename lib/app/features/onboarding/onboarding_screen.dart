@@ -216,6 +216,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// Declared minor. False when no birth date is set — we never assume.
   bool get _isMinor => (_age ?? 99) < 18;
 
+  /// Plancher des CGU : 16 ans révolus. Distinct du tuteur (< 18).
+  bool get _isUnderMinimumAge {
+    final age = _age;
+    return age != null && age < 16;
+  }
+
   /// Snap an arbitrary persisted budget to the nearest selectable range value
   /// so the dropdown never asserts on an off-grid value.
   int? _snapBudget(int? raw) {
@@ -454,6 +460,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Get.snackbar(
                 'onboarding_birthdate_required_title'.tr,
                 'onboarding_birthdate_required'.tr,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+                icon: const Icon(Icons.cake_outlined, color: KpbColors.error),
+              );
+              return false;
+            }
+            if (_isUnderMinimumAge) {
+              Get.snackbar(
+                'onboarding_under_16_title'.tr,
+                'onboarding_under_16_body'.tr,
                 snackPosition: SnackPosition.BOTTOM,
                 margin: const EdgeInsets.all(12),
                 duration: const Duration(seconds: 3),
@@ -1156,13 +1173,15 @@ class _PageIdentity extends StatelessWidget {
           InkWell(
             onTap: () async {
               final now = DateTime.now();
-              final initial =
+              final lastDate = DateTime(now.year - 16, now.month, now.day);
+              var initial =
                   birthDate ?? DateTime(now.year - 18, now.month, now.day);
+              if (initial.isAfter(lastDate)) initial = lastDate;
               final picked = await showDatePicker(
                 context: context,
                 initialDate: initial,
                 firstDate: DateTime(now.year - 80),
-                lastDate: now,
+                lastDate: lastDate,
                 helpText: 'birth_date'.tr,
               );
               if (picked != null) onBirthDate(picked);

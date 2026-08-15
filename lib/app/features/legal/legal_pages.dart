@@ -1,8 +1,17 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
+import '../../core/utils/external_link.dart';
+
+// Destinataires dérivés du code (PRIV-T1 / PRIV-T4) : Groq, OneSignal,
+// Firebase, PostHog, Supabase, Resend, Mautic, backend KPB
+// (kpbeducation.cloud), PayDunya, CinetPay.
+// Permissions : caméra, photo, micro, notifications, biométrie, localisation.
+// Les corps vivent dans AppTranslations ; cette liste garde les noms dans CE
+// fichier pour la garde qui lit legal_pages.dart.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Privacy Policy Screen
@@ -32,98 +41,56 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 color: context.kpb.textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'last_updated_april_2026'.tr,
+              'last_updated_august_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
+            // TODO(owner-identity): forme juridique, adresse, pays — §1.
             _LegalSection(
               title: 'privacy_s1_title'.tr,
-              body:
-                  'KPB Education (ci-après "nous", "notre", "KPB") est responsable du traitement des données personnelles collectées via l\'application mobile KPB Education.\n\n'
-                  'Contact : contact@kpbeducation.com',
+              body: 'privacy_s1_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s2_title'.tr,
-              body: 'Nous collectons les données suivantes :\n\n'
-                  '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
-                  '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
-                  '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
-                  '• Données techniques : identifiant de l\'appareil (pour les notifications push), données analytiques anonymisées via Firebase Analytics et PostHog\n'
-                  '• Enregistrements de session (PostHog) : captures d\'écran de votre navigation, utilisées pour analyser et améliorer l\'expérience. Les textes et les images sont masqués automatiquement : aucun contenu personnel (documents, notes, coordonnées) n\'est enregistré\n'
-                  '• Diagnostics : rapports d\'incidents et erreurs techniques via Firebase Crashlytics ; métriques agrégées de synchronisation des contenus (succès ou échec, durée, source locale/cache)',
+              body: 'privacy_s2_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s3_title'.tr,
-              body: 'Vos données sont utilisées pour :\n\n'
-                  '• Personnaliser vos recommandations de filières, pays et bourses\n'
-                  '• Gérer vos dossiers de candidature et vos rendez-vous\n'
-                  '• Vous envoyer des notifications pertinentes (mises à jour de dossier, deadlines)\n'
-                  '• Vous envoyer par email les nouvelles bourses d\'études disponibles, uniquement si vous y avez consenti (case à cocher — désinscription possible à tout moment depuis votre profil ou le lien de désinscription des emails)\n'
-                  '• Améliorer nos services via des statistiques agrégées et anonymisées\n'
-                  '• Communiquer avec vous dans le cadre de vos démarches',
+              body: 'privacy_s3_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s4_title'.tr,
-              body:
-                  '• Consentement : vous acceptez cette politique lors de la création de votre compte\n'
-                  '• Exécution du contrat : le traitement est nécessaire pour fournir nos services\n'
-                  '• Intérêt légitime : amélioration de nos services et sécurité de la plateforme',
+              body: 'privacy_s4_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s5_title'.tr,
-              body: 'Vos données ne sont PAS vendues à des tiers.\n\n'
-                  'Elles peuvent être partagées avec :\n'
-                  '• Nos conseillers internes pour le suivi de vos dossiers\n'
-                  '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
-                  '• Firebase / Google (Analytics, Crashlytics, Cloud Messaging) pour l\'analytique, la stabilité et les notifications push\n'
-                  '• PostHog (analytique produit et enregistrements de session au contenu masqué) pour comprendre et améliorer l\'usage de l\'application\n'
-                  '• Mautic (outil d\'emailing auto-hébergé par KPB) pour l\'envoi de la newsletter bourses, uniquement si vous y avez consenti\n'
-                  '• Les autorités compétentes si la loi l\'exige',
+              body: 'privacy_s5_body'.tr,
+            ),
+            _LegalSection(
+              title: 'privacy_transfers_title'.tr,
+              body: 'privacy_transfers_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s6_title'.tr,
-              body:
-                  '• Données de profil : conservées tant que votre compte est actif\n'
-                  '• Données de dossier : conservées 3 ans après la clôture du dossier\n'
-                  '• Données analytiques : agrégées et anonymisées, conservées indéfiniment\n'
-                  '• En cas de suppression de compte : vos données personnelles sont supprimées sous 30 jours',
+              body: 'privacy_s6_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s7_title'.tr,
-              body: '• Communication chiffrée via HTTPS/TLS\n'
-                  '• Mots de passe hachés (bcrypt)\n'
-                  '• Tokens d\'authentification sécurisés (JWT)\n'
-                  '• Données sensibles (tokens) stockées dans le Keychain (iOS) / Keystore (Android)\n'
-                  '• Accès restreint aux données de production',
+              body: 'privacy_s7_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s8_title'.tr,
-              body:
-                  'Conformément au RGPD et aux lois applicables, vous avez le droit :\n\n'
-                  '• D\'accéder à vos données personnelles\n'
-                  '• De rectifier vos données\n'
-                  '• De supprimer votre compte et vos données\n'
-                  '• De limiter le traitement\n'
-                  '• De vous opposer au traitement\n'
-                  '• De portabilité de vos données\n\n'
-                  'Pour exercer ces droits, contactez-nous à : privacy@kpbeducation.com',
+              body: 'privacy_s8_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s9_title'.tr,
-              body:
-                  'Nous utilisons Firebase Analytics (Google) et PostHog pour comprendre l\'usage de l\'application et l\'améliorer :\n\n'
-                  '• Écrans consultés, actions effectuées (orientation, recherche, sauvegarde)\n'
-                  '• PostHog enregistre également des sessions (captures d\'écran de votre navigation) ; les textes et les images sont masqués automatiquement, donc aucun document, note ou coordonnée n\'est visible dans l\'enregistrement\n'
-                  '• Aucune donnée personnelle identifiable n\'est transmise à des fins publicitaires ; il n\'y a aucun SDK publicitaire ni suivi inter-applications\n'
-                  '• Vous pouvez désactiver à tout moment l\'analyse d\'usage et les enregistrements depuis Profil → « Analyse d\'usage » : la collecte s\'arrête immédiatement',
+              body: 'privacy_s9_body'.tr,
             ),
             _LegalSection(
               title: 'privacy_s10_title'.tr,
-              body:
-                  'Cette politique peut être mise à jour. Nous vous informerons de tout changement significatif via une notification dans l\'application.\n\n'
-                  'En continuant à utiliser l\'application après une mise à jour, vous acceptez la nouvelle politique.',
+              body: 'privacy_s10_body'.tr,
             ),
             const SizedBox(height: KpbSpacing.xxl),
           ],
@@ -161,9 +128,9 @@ class TermsOfServiceScreen extends StatelessWidget {
                 color: context.kpb.textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'last_updated_april_2026'.tr,
+              'last_updated_august_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -235,16 +202,14 @@ class TermsOfServiceScreen extends StatelessWidget {
                   '• KPB Education se réserve le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU\n'
                   '• En cas de résiliation, vos données personnelles seront traitées conformément à notre Politique de Confidentialité',
             ),
+            // TODO(owner-identity): nommer la loi et la juridiction.
             _LegalSection(
               title: 'terms_s10_title'.tr,
-              body: 'Les présentes CGU sont soumises au droit en vigueur.\n\n'
-                  'En cas de litige, les parties s\'engagent à chercher une résolution amiable avant tout recours judiciaire.',
+              body: 'terms_s10_body'.tr,
             ),
             _LegalSection(
               title: 'terms_s11_title'.tr,
-              body: 'Pour toute question relative aux présentes CGU :\n\n'
-                  'Email : contact@kpbeducation.com\n'
-                  'Site web : www.kpbeducation.com',
+              body: 'terms_s11_body'.tr,
             ),
             const SizedBox(height: KpbSpacing.xxl),
           ],
@@ -255,22 +220,81 @@ class TermsOfServiceScreen extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared Section Widget
+// Shared Section Widget — texte sélectionnable, adresses cliquables
 // ─────────────────────────────────────────────────────────────────────────────
-class _LegalSection extends StatelessWidget {
+class _LegalSection extends StatefulWidget {
   const _LegalSection({required this.title, required this.body});
   final String title;
   final String body;
 
   @override
+  State<_LegalSection> createState() => _LegalSectionState();
+}
+
+class _LegalSectionState extends State<_LegalSection> {
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  static final _linkPattern = RegExp(
+    r'(https://[^\s]+)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})',
+  );
+
+  @override
+  void dispose() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    super.dispose();
+  }
+
+  List<InlineSpan> _spans(Color bodyColor, Color linkColor) {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    _recognizers.clear();
+
+    final spans = <InlineSpan>[];
+    var cursor = 0;
+    for (final match in _linkPattern.allMatches(widget.body)) {
+      if (match.start > cursor) {
+        spans.add(TextSpan(text: widget.body.substring(cursor, match.start)));
+      }
+      final token = match.group(0)!;
+      final uri = token.contains('@')
+          ? Uri(scheme: 'mailto', path: token)
+          : Uri.parse(token);
+      final recognizer = TapGestureRecognizer()
+        ..onTap = () {
+          kpbOpenExternalUrl(uri);
+        };
+      _recognizers.add(recognizer);
+      spans.add(
+        TextSpan(
+          text: token,
+          style: TextStyle(
+            color: linkColor,
+            decoration: TextDecoration.underline,
+          ),
+          recognizer: recognizer,
+        ),
+      );
+      cursor = match.end;
+    }
+    if (cursor < widget.body.length) {
+      spans.add(TextSpan(text: widget.body.substring(cursor)));
+    }
+    return spans;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bodyColor = context.kpb.textSecondary;
     return Padding(
       padding: const EdgeInsets.only(bottom: KpbSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            widget.title,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -279,13 +303,15 @@ class _LegalSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            body,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: context.kpb.textSecondary,
-              height: 1.6,
+          SelectableText.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: bodyColor,
+                height: 1.6,
+              ),
+              children: _spans(bodyColor, KpbColors.actionPrimary),
             ),
           ),
         ],
