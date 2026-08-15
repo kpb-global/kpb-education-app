@@ -28,6 +28,7 @@ import '../utils/country_utils.dart';
 import '../utils/user_facing_sync_error.dart';
 import '../data/case_api_codec.dart';
 import '../data/profile_api_codec.dart';
+import '../i18n/app_locale.dart';
 import '../data/saved_item_api_codec.dart';
 import '../services/app_search_service.dart';
 import '../data/content_api_codec.dart';
@@ -358,6 +359,11 @@ abstract class _AppControllerBase extends GetxController {
     _pendingOrientationAnswers = Map.of(snapshot.pendingOrientationAnswers);
     pendingOrientationQuestionIndex = snapshot.pendingOrientationQuestionIndex;
     _profileNeedsPush = snapshot.profileNeedsPush;
+    _clampShippedLocale();
+    if (snapshot.localeCode != localeCode ||
+        snapshot.profile?.preferredLanguage != profile?.preferredLanguage) {
+      _persist();
+    }
     if (CatalogCacheService.isInitialized) {
       final cache = CatalogCacheService.instance;
 
@@ -430,6 +436,19 @@ abstract class _AppControllerBase extends GetxController {
       await syncRemoteData(silent: true);
     }
     update();
+  }
+
+  /// Build 49 : toute préférence `en` (snapshot ou profil distant) redevient
+  /// `fr`. `switchLanguage` n'est pas touché — le test de parité s'en sert.
+  void _clampShippedLocale() {
+    localeCode = canonicalAppLocale(localeCode);
+    final p = profile;
+    if (p == null) return;
+    final shipped = canonicalAppLocale(p.preferredLanguage);
+    if (p.preferredLanguage != shipped) {
+      profile = p.copyWith(preferredLanguage: shipped);
+    }
+    localeCode = shipped;
   }
 
   /// Re-render every `.tr` string in [localeCode]. Guarded so it is a no-op in
@@ -1369,6 +1388,7 @@ abstract class _AppControllerBase extends GetxController {
               fallbackLocale: localeCode,
             );
             localeCode = profile?.preferredLanguage ?? localeCode;
+            _clampShippedLocale();
           } else {
             SyncTelemetry.profileSkippedRemotePull(
               reason: 'pending_local_patch',

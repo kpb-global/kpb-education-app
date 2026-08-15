@@ -147,7 +147,7 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'Bachelor - Computer Science', en: 'Bachelor - Computer Science'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '8.490 EUR/an', en: '8.490 EUR/an'),
+    tuition: LocalizedText(fr: '8 490 EUR/an', en: '8 490 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -164,7 +164,7 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'Bachelor - Informatique', en: 'Bachelor - Informatique'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '8.490 EUR/an', en: '8.490 EUR/an'),
+    tuition: LocalizedText(fr: '8 490 EUR/an', en: '8 490 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -182,7 +182,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Développeur Data et IA'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -200,7 +200,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Informatique - Cybersécurité et Réseaux'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -218,7 +218,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Informatique - Développeur Data et IA'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -236,7 +236,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Informatique - Développeur d\'Applications'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -254,7 +254,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Informatique - DevOps et Cloud'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -270,7 +270,7 @@ const kProgramsFrance = <ProgramModel>[
     name: LocalizedText(fr: 'M1 - Data Engineer', en: 'M1 - Data Engineer'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.890 EUR/an', en: '11.890 EUR/an'),
+    tuition: LocalizedText(fr: '11 890 EUR/an', en: '11 890 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -288,7 +288,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Systèmes d\'information ERP SAP pour les entreprises'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.890 EUR/an', en: '11.890 EUR/an'),
+    tuition: LocalizedText(fr: '11 890 EUR/an', en: '11 890 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -306,7 +306,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Artificial Intelligence (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -324,7 +324,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Cybersecurity Manager (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -341,7 +341,7 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'MSc - Data Management (CGE)', en: 'MSc - Data Management (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -359,7 +359,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Sustainable Energy Futures (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -377,7 +377,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Cybersecurity Management (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -395,7 +395,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Technology Management and International Entrepreneurship (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -413,7 +413,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Manager de la Cybersécurité (CGE)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.450 EUR/an', en: '12.450 EUR/an'),
+    tuition: LocalizedText(fr: '12 450 EUR/an', en: '12 450 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -431,7 +431,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - Cycle Préparatoire'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.150 EUR/an', en: '12.150 EUR/an'),
+    tuition: LocalizedText(fr: '12 150 EUR/an', en: '12 150 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -449,7 +449,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - International Bachelor'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuition: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -467,7 +467,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - International Business'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuition: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -485,7 +485,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Management des Organisations'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuition: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -503,7 +503,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - International business'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -521,7 +521,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Régions Amérique/Asie/Europe'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -539,7 +539,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Cursus expert America/Asia/Europe'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -557,7 +557,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - International business'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -575,7 +575,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - Régions Amérique/Asie/Europe'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -593,7 +593,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - International Business Development'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -611,7 +611,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Communication, Luxury and Prestige Marketing'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -629,7 +629,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Digital & Sustainable Supply Chain'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -647,7 +647,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - International Digital Marketing'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -665,7 +665,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - International Business Developement'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.650 EUR/an', en: '12.650 EUR/an'),
+    tuition: LocalizedText(fr: '12 650 EUR/an', en: '12 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -683,7 +683,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Bachelor of Arts in Humanities'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuition: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -701,7 +701,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Relations Internationales et Sciences Politiques'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuition: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -719,7 +719,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - ERCI - Diplomatie économique et développement international des entreprises'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -737,7 +737,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Manager des Institutions et des Affaires Publiques'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -755,7 +755,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - ERCI - Politiques de défense et de sécurité internationale'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -773,7 +773,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - ERCI - ERCI – Politiques de défense et de sécurité internationale'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -791,7 +791,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Manager in International Business Activities - Resp commercial activities'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -809,7 +809,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Business Développement & Start-up - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -827,7 +827,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Commerce à l\'international - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -845,7 +845,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Finance - Resp en gestion financière et contrôle de gestion'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -863,7 +863,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Luxe et services personnalisés – Resp. d\'activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -881,7 +881,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Management, Gestion - Chargé de Gestion et Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -899,7 +899,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Marketing Comm en Digital - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -917,7 +917,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Marketing Comm et Développement - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -935,7 +935,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Marketing Comm Evénementielle - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -953,7 +953,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Sport Business - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -971,7 +971,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Transac Immo, Marchands de biens - Resp en gestion financière et contrôle de gestion'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -989,7 +989,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Vins & Spiritueux - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1007,7 +1007,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Immobilier, Assurance - Resp en gestion financière et contrôle de gestion'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuition: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1025,7 +1025,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Vins Spiritueux, Distribution Export - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1043,7 +1043,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Vins Spiritueux, Oenotourisme - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1061,7 +1061,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Vins Spiritueux, Sommellerie Gastronomie - Resp des activités commerciales'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1079,7 +1079,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Digital - Web marketing - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1097,7 +1097,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Digital Business, IA et Data - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1115,7 +1115,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Digital, Community & Réseaux Sociaux - Resp de projet Marketing Communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1133,7 +1133,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Finance d\'entreprise - Responsable en gestion financière et contrôle de gestion'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1151,7 +1151,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Immobilier - Chargé de développement commercial et marketing'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1169,7 +1169,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Ressources Humaines - Chargé de gestion sociale et projet RSE'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '10.690 EUR/an', en: '10.690 EUR/an'),
+    tuition: LocalizedText(fr: '10 690 EUR/an', en: '10 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1187,7 +1187,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Responsable en gestion financière et contrôle de gestion'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '8.340 EUR/an', en: '8.340 EUR/an'),
+    tuition: LocalizedText(fr: '8 340 EUR/an', en: '8 340 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1204,7 +1204,7 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'Programme Grande Ecole', en: 'Programme Grande Ecole'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '13.650 EUR/an', en: '13.650 EUR/an'),
+    tuition: LocalizedText(fr: '13 650 EUR/an', en: '13 650 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1222,7 +1222,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Pre-specialisation in Finance'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1240,7 +1240,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Pre-spécialisation in Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1258,7 +1258,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Master in Management - Pre-specialisation in Marketing'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1276,7 +1276,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - Pré spécialisation Finance'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1294,7 +1294,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - Pré spécialisation Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1312,7 +1312,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Programme Grande Ecole - Pré spécialisation Marketing'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '14.090 EUR/an', en: '14.090 EUR/an'),
+    tuition: LocalizedText(fr: '14 090 EUR/an', en: '14 090 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1330,7 +1330,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - International Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.890 EUR/an', en: '12.890 EUR/an'),
+    tuition: LocalizedText(fr: '12 890 EUR/an', en: '12 890 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1348,7 +1348,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury and Fashion Marketing & Customer Experience'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.890 EUR/an', en: '12.890 EUR/an'),
+    tuition: LocalizedText(fr: '12 890 EUR/an', en: '12 890 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1366,7 +1366,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Marketing & Brand Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '12.890 EUR/an', en: '12.890 EUR/an'),
+    tuition: LocalizedText(fr: '12 890 EUR/an', en: '12 890 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1384,7 +1384,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Business Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.050 EUR/an', en: '15.050 EUR/an'),
+    tuition: LocalizedText(fr: '15 050 EUR/an', en: '15 050 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1402,7 +1402,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Communication & Event Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1420,7 +1420,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Global Business Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1438,7 +1438,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - International Finance'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1456,7 +1456,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Luxury Marketing, Sales and Services'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1474,7 +1474,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Management of Luxury Tourism and Hospitality'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1492,7 +1492,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor of Business Administration - Sport Business Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '15.350 EUR/an', en: '15.350 EUR/an'),
+    tuition: LocalizedText(fr: '15 350 EUR/an', en: '15 350 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1510,7 +1510,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Finance - Hedge Funds and Alternative Investments'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '27.590 EUR/an', en: '27.590 EUR/an'),
+    tuition: LocalizedText(fr: '27 590 EUR/an', en: '27 590 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1528,7 +1528,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Finance - Private Banking and Wealth Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '27.590 EUR/an', en: '27.590 EUR/an'),
+    tuition: LocalizedText(fr: '27 590 EUR/an', en: '27 590 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1546,7 +1546,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Finance - Private Equity and Investment Banking'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '31.950 EUR/an', en: '31.950 EUR/an'),
+    tuition: LocalizedText(fr: '31 950 EUR/an', en: '31 950 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1564,7 +1564,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - International Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '26.690 EUR/an', en: '26.690 EUR/an'),
+    tuition: LocalizedText(fr: '26 690 EUR/an', en: '26 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1582,7 +1582,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury Management - Brand Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '28.690 EUR/an', en: '28.690 EUR/an'),
+    tuition: LocalizedText(fr: '28 690 EUR/an', en: '28 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1600,7 +1600,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury Management - Fashion and Accessories'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '28.690 EUR/an', en: '28.690 EUR/an'),
+    tuition: LocalizedText(fr: '28 690 EUR/an', en: '28 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1618,7 +1618,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury Management - Hospitality and Events Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '28.690 EUR/an', en: '28.690 EUR/an'),
+    tuition: LocalizedText(fr: '28 690 EUR/an', en: '28 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1636,7 +1636,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury Management - Yachting Industry'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '28.690 EUR/an', en: '28.690 EUR/an'),
+    tuition: LocalizedText(fr: '28 690 EUR/an', en: '28 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1654,7 +1654,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Sport Business Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '26.690 EUR/an', en: '26.690 EUR/an'),
+    tuition: LocalizedText(fr: '26 690 EUR/an', en: '26 690 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1672,7 +1672,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Sustainability and Innovation Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '25.850 EUR/an', en: '25.850 EUR/an'),
+    tuition: LocalizedText(fr: '25 850 EUR/an', en: '25 850 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1690,7 +1690,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Communication and Digital marketing'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '8.850 EUR/an', en: '8.850 EUR/an'),
+    tuition: LocalizedText(fr: '8 850 EUR/an', en: '8 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1708,7 +1708,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Communication et création visuelle'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '8.850 EUR/an', en: '8.850 EUR/an'),
+    tuition: LocalizedText(fr: '8 850 EUR/an', en: '8 850 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1726,7 +1726,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Communication et stratégies des Marques'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.090 EUR/an', en: '9.090 EUR/an'),
+    tuition: LocalizedText(fr: '9 090 EUR/an', en: '9 090 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1744,7 +1744,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Communication événementielle'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1762,7 +1762,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'Bachelor - Stratégie de communication'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
     duration: LocalizedText(fr: '3 ans', en: '3 ans'),
-    tuition: LocalizedText(fr: '9.690 EUR/an', en: '9.690 EUR/an'),
+    tuition: LocalizedText(fr: '9 690 EUR/an', en: '9 690 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1780,7 +1780,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Creative strategies and strategic planning'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.550 EUR/an', en: '11.550 EUR/an'),
+    tuition: LocalizedText(fr: '11 550 EUR/an', en: '11 550 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1798,7 +1798,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Luxury and Fashion Communication'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.550 EUR/an', en: '11.550 EUR/an'),
+    tuition: LocalizedText(fr: '11 550 EUR/an', en: '11 550 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
@@ -1816,7 +1816,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Communication Corporate et Relations Publics'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1834,7 +1834,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Communication et Production visuelle'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1852,7 +1852,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Communication et Stratégie Média'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1870,7 +1870,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Stratégie Digitale et Social Media'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1888,7 +1888,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Stratégie et Production Evénementielle'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1906,7 +1906,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Communication des Industries Culturelles et Créatives'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1924,7 +1924,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Direction Artistique et Design Graphique'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.350 EUR/an', en: '11.350 EUR/an'),
+    tuition: LocalizedText(fr: '11 350 EUR/an', en: '11 350 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
@@ -1942,7 +1942,7 @@ const kProgramsFrance = <ProgramModel>[
         en: 'MSc - Communication du Luxe et de la Mode'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
     duration: LocalizedText(fr: '2 ans', en: '2 ans'),
-    tuition: LocalizedText(fr: '11.550 EUR/an', en: '11.550 EUR/an'),
+    tuition: LocalizedText(fr: '11 550 EUR/an', en: '11 550 EUR/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
