@@ -1,7 +1,31 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../core/models/app_models.dart';
 import '../../core/repositories/app_api_client.dart';
+
+/// Pourquoi la liste de bourses est vide, quand elle l'est.
+///
+/// Avant, il n'y avait qu'un `String? error` rempli par `exception.toString()`,
+/// et l'écran en déduisait « problème de connexion » quelle que soit la cause.
+/// Sur l'onglet du MILIEU — celui que l'app met en avant — un visiteur en mode
+/// invité recevait donc un 401 (l'index des bourses exige une session) affiché
+/// comme une panne de réseau, avec un unique bouton « Réessayer » qui ne pouvait
+/// par construction jamais aboutir. Message faux ET impasse, sur la surface la
+/// plus commerciale du produit.
+///
+/// Distinguer les deux causes est tout l'objet de ce type. Il n'en existe
+/// délibérément que deux : « il faut un compte » et « autre chose a échoué ».
+/// Tout le reste — 500, timeout, DNS, JSON illisible — relève honnêtement du
+/// second, parce que l'app ne peut rien en dire de plus utile à l'utilisateur.
+enum ScholarshipsFailure {
+  /// Le serveur a répondu 401 : l'index des bourses est réservé aux comptes.
+  /// Le seul remède est de créer un compte, pas de réessayer.
+  authRequired,
+
+  /// Panne réseau, erreur serveur, réponse illisible. « Réessayer » a un sens.
+  connection,
+}
 
 /// Feature-scoped state for the live scholarship acquisition surface.
 ///
@@ -35,6 +59,12 @@ class ScholarshipsController extends ChangeNotifier {
   bool loadingMore = false;
   bool hasMore = true;
   String? error;
+
+  /// La CAUSE de [error], quand il y en a une. Toujours posée en même temps que
+  /// [error] et remise à null en même temps qu'elle — les deux champs décrivent
+  /// le même événement, l'un pour la journalisation, l'autre pour l'écran.
+  ScholarshipsFailure? failure;
+
   String fundingFilter = 'all';
 
   /// True once the profile-derived criteria ([level], [fieldIds]) have been
@@ -67,6 +97,7 @@ class ScholarshipsController extends ChangeNotifier {
     loading = true;
     loadingMore = false;
     error = null;
+    failure = null;
     hasMore = true;
     _offset = 0;
     // Re-attempt the profile criteria on every reload so a pull-to-refresh
@@ -129,13 +160,30 @@ class ScholarshipsController extends ChangeNotifier {
         // unavailable during a staged backend rollout.
       }
     } catch (exception) {
-      if (generation == _requestGeneration) error = exception.toString();
+      if (generation == _requestGeneration) {
+        error = exception.toString();
+        failure = _classify(exception);
+      }
     } finally {
       if (generation == _requestGeneration) {
         loading = false;
         notifyListeners();
       }
     }
+  }
+
+  /// 401 ⇒ il faut un compte. Tout le reste ⇒ « réessayez ».
+  ///
+  /// La borne est étroite EXPRÈS. Ranger le 403 ici serait tentant — il ressemble
+  /// à un problème de compte — mais un 403 signifie « connecté et refusé »,
+  /// c'est-à-dire un compte existant, et proposer d'en créer un serait le
+  /// remplacement d'un mensonge par un autre. On ne classe donc que ce que le
+  /// serveur affirme sans ambiguïté.
+  static ScholarshipsFailure _classify(Object exception) {
+    if (exception is DioException && exception.response?.statusCode == 401) {
+      return ScholarshipsFailure.authRequired;
+    }
+    return ScholarshipsFailure.connection;
   }
 
   Future<void> loadMore() async {

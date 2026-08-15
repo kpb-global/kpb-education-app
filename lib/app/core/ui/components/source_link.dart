@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../utils/external_link.dart';
 import '../kpb_components.dart';
 
 /// A compact, tappable "official source" link shown next to a verified figure
@@ -17,19 +17,26 @@ class KpbSourceLink extends StatelessWidget {
   final String? url;
 
   Future<void> _open() async {
-    final raw = url?.trim() ?? '';
-    if (raw.isEmpty) return;
-    final uri = Uri.tryParse(raw);
-    if (uri == null) return;
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    if (await kpbOpenExternalUrlString(url)) return;
+    // Un lien de source qui ne s'ouvre pas doit le DIRE. C'est l'affordance
+    // anti-fraude du produit : un parent méfiant vient précisément vérifier que
+    // le chiffre n'est pas inventé, et un lien muet lui donne raison de douter.
+    Get.snackbar(
+      'view_official_source'.tr,
+      'external_link_failed_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 4),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final raw = url?.trim() ?? '';
-    if (raw.isEmpty) return const SizedBox.shrink();
+    // Masqué — et non affiché puis silencieux — quand l'URL n'est pas une
+    // adresse web ouvrable. Le catalogue contient des valeurs sans schéma
+    // (« exemple.org/apply ») que `Uri.parse` accepte volontiers avant que le
+    // lancement n'échoue.
+    if (!isOpenableWebUrl(url)) return const SizedBox.shrink();
     return Semantics(
       button: true,
       label: 'view_official_source'.tr,

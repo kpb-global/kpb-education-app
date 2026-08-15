@@ -435,9 +435,21 @@ abstract class _AppControllerBase extends GetxController {
   /// Re-render every `.tr` string in [localeCode]. Guarded so it is a no-op in
   /// pure unit tests (no live GetMaterialApp), where forcing a frame asserts.
   void _applyLocaleToUi() {
-    if (Get.context != null) {
-      Get.updateLocale(Locale(localeCode));
-    }
+    if (Get.context == null) return;
+    // Ne RIEN faire quand la langue n'a pas changé.
+    //
+    // `Get.updateLocale` déclenche un `forceAppUpdate`, c'est-à-dire un
+    // réassemblage complet de l'application. L'appeler à la fin de l'onboarding
+    // — où l'immense majorité des utilisateurs garde le français — reconstruisait
+    // tout l'arbre pour rien, en plein milieu de l'envoi du profil.
+    //
+    // C'est aussi ce qui rendait l'état occupé de « Créer mon compte »
+    // intestable : le réassemblage laisse l'ordonnanceur hors de son état de
+    // repos, et la frame suivante du test échoue sur
+    // `schedulerPhase == SchedulerPhase.idle`. Un correctif qu'on ne peut pas
+    // mesurer n'est pas un correctif.
+    if (Get.locale?.toString() == Locale(localeCode).toString()) return;
+    Get.updateLocale(Locale(localeCode));
   }
 
   void switchLanguage(String newLocaleCode) {

@@ -8,7 +8,9 @@ import '../../core/config/app_config.dart';
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/observability/crashlytics_observability.dart';
 import '../../core/services/connectivity_service.dart';
+import '../../core/services/safe_crashlytics.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
 import '../services/service_packages_screen.dart';
@@ -195,10 +197,27 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     if (file != null) {
                       _ctrl.uploadDocument(caseId, doc.id, file.path);
                     }
-                  } catch (e) {
+                  } on FileTooLargeException catch (error) {
+                    Get.snackbar(
+                      'case_tunnel_file_too_large_title'.tr,
+                      error.localizedBody(),
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  } catch (error, stack) {
+                    // `e.toString()` était peint à l'écran tel quel : sur ce
+                    // chemin, une DioException complète — URL, en-têtes, code —
+                    // pouvait s'afficher à un étudiant. Un message utile va à
+                    // l'écran, la trace va aux journaux.
+                    safeRecordError(
+                      error,
+                      stack,
+                      reason: 'caseDocumentPickPdf',
+                      domain: CrashlyticsObsDomain.cases,
+                      operation: 'pick_case_document_pdf',
+                    );
                     Get.snackbar(
                       'common_error'.tr,
-                      e.toString(),
+                      'case_tunnel_add_file_failed'.tr,
                       snackPosition: SnackPosition.BOTTOM,
                     );
                   }

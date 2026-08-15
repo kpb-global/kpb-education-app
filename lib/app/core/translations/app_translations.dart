@@ -38,6 +38,16 @@ class AppTranslations extends Translations {
           'guest_case_gate_body':
               'Un compte est nécessaire pour qu\'un conseiller KPB puisse traiter ta demande et te répondre.',
           'guest_case_gate_cta': 'Se connecter',
+          // ── Mur invité de l'onglet Bourses (PARC-04) ──
+          // L'index des bourses exige une session côté serveur. L'écran
+          // affichait « problème de connexion » et un bouton « Réessayer »
+          // qui ne pouvait jamais aboutir : on nomme la vraie cause, et on
+          // donne l'action qui la lève.
+          'scholarships_auth_required_title':
+              'Crée ton compte pour voir les bourses',
+          'scholarships_auth_required_body':
+              'Les bourses sont sélectionnées et vérifiées pour ton profil : ton niveau, tes pays visés, ton domaine. C\'est pour ça qu\'un compte est nécessaire. C\'est gratuit et ça prend deux minutes.',
+          'scholarships_auth_required_cta': 'Créer mon compte',
           'guest_cases_title': 'Tes dossiers en un seul endroit',
           'guest_cases_body':
               'Connecte-toi pour créer tes demandes et suivre leur progression avec un conseiller KPB.',
@@ -653,6 +663,16 @@ class AppTranslations extends Translations {
           'community_join_whatsapp_group': 'Rejoindre le groupe WhatsApp',
           'whatsapp_open_failed':
               'Impossible d\'ouvrir WhatsApp. Vérifiez que l\'app est installée.',
+          // ── Lien externe qui ne s'ouvre pas (PARC-15) ──
+          // Le bouton « Formulaire officiel » ne faisait RIEN quand le lien
+          // était irrécupérable : ni message, ni repli. Sur l'action même sans
+          // laquelle l'étudiant rate la bourse.
+          'external_link_failed_title': 'Impossible d\'ouvrir ce lien',
+          'external_link_failed_body':
+              'Ton téléphone n\'a pas pu ouvrir cette page. Un conseiller KPB peut t\'envoyer le lien directement.',
+          'external_link_failed_cta': 'Demander le lien',
+          'external_link_failed_prefill':
+              'Bonjour KPB Education, je n\'arrive pas à ouvrir le formulaire officiel de « @title ». Pouvez-vous me l\'envoyer ?',
           'kpb_prefill_case':
               'Bonjour KPB Education, je reviens vers vous au sujet du dossier @ref.',
           'kpb_prefill_program':
@@ -1200,12 +1220,21 @@ class AppTranslations extends Translations {
           'case_tunnel_step_context': 'Contexte',
           'case_tunnel_step_message': 'Message',
           'case_tunnel_step_confirmation': 'Confirmation',
+          // Ces trois clés ne servent plus de bandeau d'échec APRÈS cinq étapes
+          // remplies : elles sont affichées AVANT, avec un bouton qui mène
+          // réellement à l'onboarding (PARC-05).
           'case_tunnel_incomplete_profile_title': 'Profil incomplet',
           'case_tunnel_incomplete_profile_body':
-              'Complète ton onboarding avant de créer une demande.',
+              'Complète ton profil pour qu\'un conseiller KPB puisse traiter ta demande. Ça prend deux minutes, et tu retrouveras cette page ensuite.',
+          'case_tunnel_incomplete_profile_cta': 'Compléter mon profil',
           'case_tunnel_pick_photo': 'Photo',
           'case_tunnel_pick_gallery': 'Galerie',
           'case_tunnel_file_too_large_title': 'Fichier trop volumineux',
+          // Le corps du bandeau était en anglais brut, produit par le
+          // `toString()` de l'exception. Les deux nombres arrivent par
+          // paramètres : une chaîne assemblée dans le modèle ne se traduit pas.
+          'file_too_large_body':
+              'Ce fichier fait @size Mo, la limite est de @max Mo. Prends la photo en plus petit, ou envoie-le à ton conseiller sur WhatsApp.',
           'case_tunnel_add_file_failed':
               'Impossible d\'ajouter ce fichier. Réessaie.',
           'common_back': 'Retour',
@@ -2742,6 +2771,12 @@ class AppTranslations extends Translations {
           'guest_case_gate_body':
               'You need an account so a KPB advisor can process your request and reply to you.',
           'guest_case_gate_cta': 'Sign in',
+          // ── Guest wall on the Scholarships tab (PARC-04) ──
+          'scholarships_auth_required_title':
+              'Create your account to see the scholarships',
+          'scholarships_auth_required_body':
+              'Scholarships are selected and verified for your profile: your level, your target countries, your field. That is why an account is needed. It is free and takes two minutes.',
+          'scholarships_auth_required_cta': 'Create my account',
           'guest_cases_title': 'All your cases in one place',
           'guest_cases_body':
               'Sign in to create requests and track their progress with a KPB advisor.',
@@ -3339,6 +3374,13 @@ class AppTranslations extends Translations {
           'community_join_whatsapp_group': 'Join the WhatsApp group',
           'whatsapp_open_failed':
               'Could not open WhatsApp. Make sure the app is installed.',
+          // ── External link that will not open (PARC-15) ──
+          'external_link_failed_title': 'Could not open this link',
+          'external_link_failed_body':
+              'Your phone could not open this page. A KPB advisor can send you the link directly.',
+          'external_link_failed_cta': 'Ask for the link',
+          'external_link_failed_prefill':
+              'Hello KPB Education, I cannot open the official form for "@title". Could you send it to me?',
           'kpb_prefill_case':
               'Hello KPB Education, I\'m getting back to you about case @ref.',
           'kpb_prefill_program':
@@ -3852,10 +3894,13 @@ class AppTranslations extends Translations {
           'case_tunnel_step_confirmation': 'Confirmation',
           'case_tunnel_incomplete_profile_title': 'Incomplete profile',
           'case_tunnel_incomplete_profile_body':
-              'Complete your onboarding before creating a request.',
+              'Complete your profile so a KPB advisor can handle your request. It takes two minutes, and you will come back here afterwards.',
+          'case_tunnel_incomplete_profile_cta': 'Complete my profile',
           'case_tunnel_pick_photo': 'Photo',
           'case_tunnel_pick_gallery': 'Gallery',
           'case_tunnel_file_too_large_title': 'File too large',
+          'file_too_large_body':
+              'This file is @size MB; the limit is @max MB. Take a smaller photo, or send it to your advisor on WhatsApp.',
           'case_tunnel_add_file_failed': 'Couldn\'t add this file. Try again.',
           'common_back': 'Back',
           'common_next': 'Next',

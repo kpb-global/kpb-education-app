@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
@@ -18,6 +17,7 @@ import '../../core/utils/whatsapp_utils.dart';
 import '../cases/case_tunnel_flow.dart';
 import '../search/match_explanation_sheet.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/utils/external_link.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Palette (App-engagement handoff · Student App.dc.html · "Fiche université").
@@ -956,8 +956,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
   Future<void> _shareWhatsApp() async {
     final text = _shareText();
     final waUri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
-    if (await canLaunchUrl(waUri)) {
-      await launchUrl(waUri, mode: LaunchMode.externalApplication);
+    if (await kpbOpenExternalUrl(waUri)) {
       AnalyticsService.instance.logShareCard(
         source: ShareSource.match.wireName,
         withImage: false,

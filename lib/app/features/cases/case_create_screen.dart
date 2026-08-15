@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
-import '../../core/navigation/app_boot_screen.dart';
-import '../../core/ui/app_tokens.dart';
+import '../../core/ui/components/kpb_guest_gate.dart';
 import 'case_tunnel_flow.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
@@ -79,7 +78,17 @@ class CaseCreateScreen extends StatelessWidget {
 }
 
 /// Shown when a guest tries to enter the case-creation tunnel.
-/// Directs them to sign in instead of letting them fill 5 steps and fail at submit.
+///
+/// Ne reste ici que la CHROME — barre de titre et bouton de fermeture. Le mur
+/// lui-même est le composant partagé, pour deux raisons.
+///
+/// La première est qu'il y en avait deux copies dans le dépôt. La seconde est
+/// plus grave : **la version d'ici bouclait**. Son bouton faisait
+/// `Get.offAll(AppBootScreen)` SANS appeler `leaveGuestForSignup`, or le routeur
+/// de démarrage renvoie vers la coquille dès que `isGuestMode` est vrai — donc
+/// l'invité qui appuyait sur « Se connecter » retombait exactement d'où il
+/// venait, sans le moindre message. Le composant partagé quitte le mode invité
+/// AVANT de naviguer, et journalise la conversion.
 class _GuestCaseGate extends StatelessWidget {
   const _GuestCaseGate();
 
@@ -94,39 +103,7 @@ class _GuestCaseGate extends StatelessWidget {
           onPressed: () => Get.back<void>(),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: KpbSpacing.pagePad, vertical: KpbSpacing.lg),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.lock_person_outlined,
-                    size: 64, color: KpbColors.actionPrimary),
-                const SizedBox(height: KpbSpacing.lg),
-                Text(
-                  'guest_case_gate_title'.tr,
-                  style: KpbTextStyles.headline,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: KpbSpacing.sm),
-                Text(
-                  'guest_case_gate_body'.tr,
-                  style: KpbTextStyles.body,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: KpbSpacing.xl),
-                FilledButton.icon(
-                  icon: const Icon(Icons.login_rounded),
-                  label: Text('guest_case_gate_cta'.tr),
-                  onPressed: () => Get.offAll(() => const AppBootScreen()),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      body: const SafeArea(child: KpbGuestGate(source: 'case_create_gate')),
     );
   }
 }
