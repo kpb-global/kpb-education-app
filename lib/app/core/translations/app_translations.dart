@@ -2326,9 +2326,13 @@ class AppTranslations extends Translations {
           'coach_wa_prefill_topic': 'Mon dernier sujet : @topic',
           'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
-              'Pour te répondre, KPB Intelligence envoie une version pseudonymisée de ton profil (niveau, pays visés, tranche de budget — jamais ton nom) à un service d\'IA tiers hébergé hors de ton pays. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
+              'Pour te répondre, KPB Intelligence envoie tes messages et des faits de profil (niveau d\'études, pays visés, tranche de budget, domaine) à un service d\'IA tiers (Groq) hébergé hors de ton pays. Ton nom civil n\'est pas recopié dans l\'invite. Le texte que tu colles (lettre, CV, message) part tel quel — n\'y mets pas d\'information que tu ne veux pas transmettre. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
           'ai_consent_accept': 'J\'active KPB Intelligence',
           'ai_consent_decline': 'Plus tard',
+          'ai_tools_disclosure':
+              'Cet outil envoie le texte saisi et des faits de profil (niveau, pays, domaine) à Groq (États-Unis). Ton nom n\'est pas recopié dans l\'invite. Aucune décision importante ne repose sur l\'IA seule.',
+          'coach_load_error':
+              'Impossible de charger KPB Intelligence pour le moment.',
           // ── Mes données / RGPD ──
           'data_rights_section': 'Mes données',
           'export_data': 'Exporter mes données',
@@ -5047,9 +5051,12 @@ class AppTranslations extends Translations {
           'coach_wa_prefill_topic': 'My last topic: @topic',
           'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
-              'To answer you, KPB Intelligence sends a pseudonymized version of your profile (level, target countries, budget range — never your name) to a third-party AI service hosted outside your country. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
+              'To answer you, KPB Intelligence sends your messages and profile facts (study level, target countries, budget range, field) to a third-party AI service (Groq) hosted outside your country. Your civil name is not copied into the prompt. Text you paste (letter, CV, message) is sent as-is — do not include information you do not want transmitted. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
           'ai_consent_accept': 'Enable KPB Intelligence',
           'ai_consent_decline': 'Not now',
+          'ai_tools_disclosure':
+              'This tool sends the text you enter and profile facts (level, countries, field) to Groq (United States). Your name is not copied into the prompt. No important decision relies on AI alone.',
+          'coach_load_error': 'KPB Intelligence could not load right now.',
           // ── My data / GDPR ──
           'data_rights_section': 'My data',
           'export_data': 'Export my data',

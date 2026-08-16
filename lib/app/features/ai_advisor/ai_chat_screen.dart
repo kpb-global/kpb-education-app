@@ -40,10 +40,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isTyping = false;
-  int _remainingMessages = 5;
-  int _weeklyQuota = 5;
+  int? _remainingMessages;
+  int? _weeklyQuota;
   List<String> _suggestions = const [];
   String? _assistantDraft;
+  String? _bootstrapError;
+  bool _bootstrapping = true;
 
   @override
   void initState() {
@@ -54,38 +56,53 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Future<void> _bootstrap() async {
     final controller = Get.find<AppController>();
     final profile = controller.profile;
-    if (profile == null) return;
+    if (profile == null) {
+      if (mounted) setState(() => _bootstrapping = false);
+      return;
+    }
 
-    final quota = await _coach.fetchQuota(profile.id);
-    final suggestions = await _coach.fetchSuggestions(profile.id);
-    final conversationId =
-        await _coach.ensureConversation(userId: profile.id, profile: profile);
-    final history = await _coach.fetchHistory(conversationId);
+    try {
+      final quota = await _coach.fetchQuota(profile.id);
+      final suggestions = await _coach.fetchSuggestions(profile.id);
+      final conversationId =
+          await _coach.ensureConversation(userId: profile.id, profile: profile);
+      final history = await _coach.fetchHistory(conversationId);
 
-    if (!mounted) return;
-    setState(() {
-      _remainingMessages = quota.remaining;
-      _weeklyQuota = quota.limit;
-      _suggestions = suggestions;
-      if (history.isNotEmpty) {
-        // Rehydrate the persisted conversation (survives app restarts).
-        _messages.addAll(history.map(
-          (m) => AiMessage(
-            text: m.content,
-            isUser: m.isUser,
+      if (!mounted) return;
+      setState(() {
+        _bootstrapping = false;
+        _bootstrapError = null;
+        _remainingMessages = quota.remaining;
+        _weeklyQuota = quota.limit;
+        _suggestions = suggestions;
+        if (history.isNotEmpty) {
+          // Rehydrate the persisted conversation (survives app restarts).
+          _messages.addAll(history.map(
+            (m) => AiMessage(
+              text: m.content,
+              isUser: m.isUser,
+              timestamp: DateTime.now(),
+            ),
+          ));
+        } else {
+          _messages.add(AiMessage(
+            text: 'coach_welcome_message'
+                .trParams({'name': profile.fullName.split(' ').first}),
+            isUser: false,
             timestamp: DateTime.now(),
-          ),
-        ));
-      } else {
-        _messages.add(AiMessage(
-          text: 'coach_welcome_message'
-              .trParams({'name': profile.fullName.split(' ').first}),
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
-      }
-    });
-    _scrollToBottom();
+          ));
+        }
+      });
+      _scrollToBottom();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _bootstrapping = false;
+        _bootstrapError = 'coach_load_error';
+        _remainingMessages = null;
+        _weeklyQuota = null;
+      });
+    }
   }
 
   @override
@@ -114,15 +131,16 @@ class _AiChatScreenState extends State<AiChatScreen> {
     Get.snackbar(
       'coach_quota_info_title'.tr,
       'coach_quota_info_body'.trParams({
-        'rem': '$_remainingMessages',
-        'total': '$_weeklyQuota',
+        'rem': '${_remainingMessages ?? '—'}',
+        'total': '${_weeklyQuota ?? '—'}',
       }),
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 3),
     );
   }
 
-  bool get _quotaExhausted => _remainingMessages <= 0;
+  bool get _quotaExhausted =>
+      _remainingMessages != null && _remainingMessages! <= 0;
 
   /// The conversion the free AI exists for: the student just hit the paywall
   /// moment, hand them to a human KPB advisor with the conversation context.
@@ -233,8 +251,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
             if (event.quotaRemaining != null) {
               _remainingMessages = event.quotaRemaining!;
             } else {
-              _remainingMessages =
-                  (_remainingMessages - 1).clamp(0, _weeklyQuota);
+              final current = _remainingMessages ?? 0;
+              final cap = _weeklyQuota ?? current;
+              _remainingMessages = (current - 1).clamp(0, cap);
             }
           });
         }
@@ -266,21 +285,27 @@ class _AiChatScreenState extends State<AiChatScreen> {
           children: [
             _buildHeader(context),
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: _messages.length +
-                    (_isTyping && _assistantDraft == null ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _messages.length) {
-                    return _buildTypingIndicator();
-                  }
-                  final msg = _messages[index];
-                  return _buildMessageBubble(msg);
-                },
-              ),
+              child: _bootstrapError != null
+                  ? _buildBootstrapError()
+                  : _bootstrapping
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _messages.length +
+                              (_isTyping && _assistantDraft == null ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == _messages.length) {
+                              return _buildTypingIndicator();
+                            }
+                            final msg = _messages[index];
+                            return _buildMessageBubble(msg);
+                          },
+                        ),
             ),
-            if (!_quotaExhausted &&
+            if (_bootstrapError == null &&
+                !_bootstrapping &&
+                !_quotaExhausted &&
                 _messages.length <= 2 &&
                 !_isTyping &&
                 _suggestions.isNotEmpty)
@@ -288,10 +313,45 @@ class _AiChatScreenState extends State<AiChatScreen> {
             // Quota épuisé = LE moment de conversion : la zone de saisie cède
             // sa place à un bloc persistant de hand-off vers un conseiller
             // humain (jamais un toast, jamais une impasse).
-            if (_quotaExhausted)
+            if (_bootstrapError != null || _bootstrapping)
+              const SizedBox.shrink()
+            else if (_quotaExhausted)
               _buildQuotaHandoffPanel(context)
             else
               _buildInputBar(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBootstrapError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'coach_load_error'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.4,
+                color: KpbColors.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () {
+                setState(() {
+                  _bootstrapping = true;
+                  _bootstrapError = null;
+                });
+                unawaited(_bootstrap());
+              },
+              child: Text('retry'.tr),
+            ),
           ],
         ),
       ),
@@ -370,7 +430,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
-                '$_remainingMessages/$_weeklyQuota',
+                '${_remainingMessages ?? '—'}/${_weeklyQuota ?? '—'}',
                 style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,

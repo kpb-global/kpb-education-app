@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
+import '../ai_advisor/ai_consent.dart';
 import '../budget/budget_calculator_screen.dart';
 import '../cases/document_review_screen.dart';
 import '../housing/housing_estimator_screen.dart';
@@ -111,7 +112,11 @@ class KpbToolsDrawer extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     onTap: () {
                       Navigator.of(context).pop(); // close drawer
-                      Get.to<void>(t.builder);
+                      if (t.requiresAiConsent) {
+                        openAiToolIfConsented(context, t.builder);
+                      } else {
+                        Get.to<void>(t.builder);
+                      }
                     },
                   );
                 },
@@ -150,27 +155,30 @@ class KpbToolsDrawer extends StatelessWidget {
   /// qui reste vert pour de mauvaises raisons.
   static List<_ToolEntry> get _tools => <_ToolEntry>[
         // ── Les quatre outils IA masqués par M1 ────────────────────────────
-        // Ils postent le nom civil de l'étudiant à un fournisseur tiers, sur
-        // des routes que le serveur ne garde par aucun contrôle de
-        // consentement — pendant que l'écran de consentement promet
-        // « jamais ton nom ». Voir AppConfig.aiToolsEnabled pour le détail.
+        // Ils postaient le nom civil de l'étudiant à un fournisseur tiers,
+        // sans garde de consentement serveur. Lot 11 a fermé la fuite ; le
+        // masque reste jusqu'au déploiement couplé avec la build 49.
+        // Voir AppConfig.aiToolsEnabled.
         if (AppConfig.aiToolsEnabled) ...[
           _ToolEntry(
             labelKey: 'tools_cv',
             icon: Icons.description_outlined,
             color: KpbColors.blue,
+            requiresAiConsent: true,
             builder: () => const CvGeneratorScreen(),
           ),
           _ToolEntry(
             labelKey: 'tools_motivation_letter',
             icon: Icons.edit_note_outlined,
             color: KpbColors.blueMid,
+            requiresAiConsent: true,
             builder: () => const MotivationLettersScreen(),
           ),
           _ToolEntry(
             labelKey: 'tools_interview',
             icon: Icons.record_voice_over_outlined,
             color: KpbColors.navy,
+            requiresAiConsent: true,
             builder: () => const InterviewSimulatorScreen(),
           ),
         ],
@@ -189,6 +197,7 @@ class KpbToolsDrawer extends StatelessWidget {
             labelKey: 'tools_doc_review',
             icon: Icons.auto_awesome_outlined,
             color: KpbColors.gold,
+            requiresAiConsent: true,
             builder: () => const DocumentReviewScreen(),
           ),
         _ToolEntry(
@@ -227,10 +236,12 @@ class _ToolEntry {
     required this.icon,
     required this.color,
     required this.builder,
+    this.requiresAiConsent = false,
   });
 
   final String labelKey;
   final IconData icon;
   final Color color;
   final Widget Function() builder;
+  final bool requiresAiConsent;
 }

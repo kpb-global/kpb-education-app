@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { AiConsentGuard } from '../ai/ai-consent.guard';
 import {
   DocumentKind,
   DocumentReviewLanguage,
@@ -8,7 +9,7 @@ import {
 } from './document-review.service';
 
 @Controller('document-review')
-@UseGuards(StudentAuthGuard)
+@UseGuards(StudentAuthGuard, AiConsentGuard)
 export class DocumentReviewController {
   constructor(private readonly service: DocumentReviewService) {}
 

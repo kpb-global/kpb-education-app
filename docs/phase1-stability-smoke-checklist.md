@@ -72,6 +72,27 @@ investigate before shipping.
 - Verify app remains navigable and does not crash.
 - Re-enable network and verify sync recovers without app restart.
 
+### 7) Auth round-trip on a real device (LIV-T13)
+
+- [ ] Google OAuth: tap Continuer avec Google → complete the account picker →
+      land back in the app, signed in. A bounce to the browser that never
+      returns is a fail.
+- [ ] Magic link / OTP: request a code, wait for the mail/SMS, enter it.
+      (Custom SMTP — IRR-T6 — is a prerequisite if OTP 429s.)
+
+### 8) Push with the app killed (LIV-T13)
+
+- [ ] Force-quit the app. Send a test push to `/cases/{id}` from OneSignal.
+      Tapping the notification must cold-start the app on that case, not on
+      a blank home.
+
+### 9) Camera invite, accept and decline (LIV-T13)
+
+- [ ] Profile photo: tap to change, **Allow** camera → capture works.
+- [ ] On a second device (or after resetting the permission): tap to change,
+      **Don't Allow** → the app must show a visible failure, not a silent
+      no-op.
+
 ## Required evidence
 
 - Screenshot or screen recording per section.

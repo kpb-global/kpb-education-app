@@ -22,7 +22,7 @@ on is a one-line change whose effect is already measured.
 
 | `--dart-define` | Default | What it hides, and what has to be true before flipping it on |
 |-----------------|---------|--------------------------------------------------------------|
-| `KPB_AI_TOOLS_ENABLED` | **`false`** | **M1** — the CV generator, motivation letters, interview simulator and AI document review (10 entry points across 4 screens). They post the student's civil name to a third-party AI provider on routes the backend guards with `StudentAuthGuard` only — no consent check — while the consent screen promises "jamais ton nom". Flip on **only after** the server-side consent guard is deployed **and** the name stops being sent. The coach stays online: it is the one AI surface whose consent the server actually verifies. Guard: [`test/core/masquage_ai_tools_test.dart`](../test/core/masquage_ai_tools_test.dart). |
+| `KPB_AI_TOOLS_ENABLED` | **`false`** | **M1** — the CV generator, motivation letters, interview simulator and AI document review (10 entry points across 4 screens). Lot 11 stripped the civil name from Groq prompts and added `AiConsentGuard` on those routes. **Keep the flag off until that backend is deployed with build 49** — flipping it while 48 testers still hit prod would 403 them. Guard: [`test/core/masquage_ai_tools_test.dart`](../test/core/masquage_ai_tools_test.dart). |
 | `KPB_DOCUMENT_UPLOAD_ENABLED` | **`false`** | **M2** — in-app document upload. The case tunnel never transmitted a byte (it kept a local file path and wrote its name into the case description), and the one real upload path ticked `isProvided: true` *before* the network call, then swallowed the failure — while the server's antivirus container is down and the route fails closed. While off, documents go to the advisor on WhatsApp and the app stops fabricating the `doc-profile` request. Flip on **only after** the upload chain works end to end: antivirus alive, failure visible on screen, and "provided" set by the server's answer rather than by local optimism. Guard: [`test/core/masquage_documents_test.dart`](../test/core/masquage_documents_test.dart). |
 
 ```bash
@@ -138,3 +138,30 @@ Procédure, dans l'ordre :
 - [ ] iOS archive uses an Apple Distribution certificate, provisioning profile and `RunnerRelease.entitlements`.
 - [ ] Profile build smoke on **physical** Android + iOS (Phase 1 smoke + Phase 6 perf spot-check).  
 - [ ] Store consoles updated; privacy / data safety answers match shipping build.
+
+## 5. IRR-T6 — Custom SMTP on Supabase (prepare, do not execute)
+
+Supabase's built-in email hits a 429 under OTP load. Custom SMTP is the
+remedy (KPB-7). **Do not click Save in the dashboard from this lot.**
+
+Procedure, when ops is ready:
+
+1. Pick a transactional sender already in production (Resend is already a
+   processor — see `docs/data-inventory.md`). Create an SMTP credential
+   dedicated to auth mail, not campaign mail.
+2. Supabase Dashboard → **Authentication → SMTP Settings → Enable custom SMTP**.
+3. Fill host / port / user / password / sender name + address. Sender domain
+   must match the SPF/DKIM already published for that provider.
+4. Send a test magic-link / OTP to a throwaway inbox. Confirm the mail is
+   not still branded "Supabase" and that a second send within a minute does
+   **not** 429.
+5. Record the date and the sender address in the release ticket. Do not
+   paste the SMTP password anywhere in this repo.
+
+## 6. LIV-T14 — Delivery gate (four curls, after a backend deploy)
+
+`scripts/delivery-gate.sh` is the checklist. It talks to production; **do not
+run it from a lot PR**. CAT-T4 (`dateConfidence` on catalog scholarships)
+only becomes true after the backend that shipped that field is actually
+serving — a green unit test is not a substitute.
+

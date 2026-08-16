@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/ui/kpb_components.dart';
+import '../ai_advisor/ai_consent.dart';
 import 'cv_generator_screen.dart';
 import 'document_scanner_screen.dart';
 import 'impact_dashboard_screen.dart';
@@ -36,7 +37,10 @@ class StudentToolsScreen extends StatelessWidget {
               color: KpbColors.blue,
               title: 'cv_generator_title'.tr,
               subtitle: 'student_tools_cv_subtitle'.tr,
-              onTap: () => Get.to(() => const CvGeneratorScreen()),
+              onTap: () => openAiToolIfConsented(
+                context,
+                () => const CvGeneratorScreen(),
+              ),
             ),
             const SizedBox(height: KpbSpacing.md),
             _ToolCard(
@@ -44,7 +48,10 @@ class StudentToolsScreen extends StatelessWidget {
               color: KpbColors.success,
               title: 'letters_title'.tr,
               subtitle: 'student_tools_letters_subtitle'.tr,
-              onTap: () => Get.to(() => const MotivationLettersScreen()),
+              onTap: () => openAiToolIfConsented(
+                context,
+                () => const MotivationLettersScreen(),
+              ),
             ),
             const SizedBox(height: KpbSpacing.md),
             _ToolCard(
@@ -52,7 +59,10 @@ class StudentToolsScreen extends StatelessWidget {
               color: KpbColors.gold,
               title: 'interview_title'.tr,
               subtitle: 'student_tools_interview_subtitle'.tr,
-              onTap: () => Get.to(() => const InterviewSimulatorScreen()),
+              onTap: () => openAiToolIfConsented(
+                context,
+                () => const InterviewSimulatorScreen(),
+              ),
             ),
             const SizedBox(height: KpbSpacing.md),
           ],

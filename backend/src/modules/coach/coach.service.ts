@@ -1,6 +1,12 @@
-import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  MessageEvent,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 
+import { AiConsentService } from '../ai/ai-consent.service';
 import { LlmService } from '../ai/llm.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -32,12 +38,19 @@ export class CoachService {
    * and this map is bypassed.
    */
   private readonly conversations = new Map<string, Conversation>();
+  private readonly aiConsent: AiConsentService;
 
   constructor(
     private readonly llmService: LlmService,
     private readonly quotaService: CoachQuotaService,
     private readonly prisma: PrismaService,
-  ) {}
+    @Optional() aiConsent?: AiConsentService,
+  ) {
+    // Optional so the existing unit tests (`new CoachService(llm, quota, prisma)`)
+    // keep constructing without a fourth argument. Production injects the
+    // shared singleton from AppModule.
+    this.aiConsent = aiConsent ?? new AiConsentService(prisma);
+  }
 
   getQuota(userId: string) {
     return this.quotaService.getQuota(userId);
@@ -148,7 +161,9 @@ export class CoachService {
         // coach). When the DB is available and the authoritative profile has
         // not opted into AI processing — or is a minor without recorded
         // guardian consent — refuse before any PII reaches Groq.
-        const consentBlock = await this.consentBlockCode(params.userId);
+        const consentBlock = await this.aiConsent.consentBlockCode(
+          params.userId,
+        );
         if (consentBlock) {
           subscriber.next({
             data: {
@@ -325,45 +340,6 @@ export class CoachService {
       }
     }
     return lines.join('\n');
-  }
-
-  // ── Consent + output guardrail ──────────────────────────────────────────────
-
-  /// Consent checks against the authoritative profile: the user must have
-  /// opted into third-party AI processing, and a minor (under 18 by birthDate)
-  /// additionally needs a recorded guardian consent. Returns the blocking
-  /// error code, or null when the turn may proceed. When the DB is unavailable
-  /// (tryExecute → null) we cannot verify, so we allow and rely on the
-  /// client-side gate (local/dev mode) — same fail-open as aiConsentedAt.
-  private async consentBlockCode(
-    userId: string,
-  ): Promise<'ai_consent_required' | 'guardian_consent_required' | null> {
-    const profile = await this.prisma.tryExecute((client) =>
-      client.userProfile.findUnique({
-        where: { id: userId },
-        select: {
-          aiConsentedAt: true,
-          birthDate: true,
-          guardianConsentedAt: true,
-        },
-      }),
-    );
-    if (!profile) return null; // DB down or no row → don't hard-block.
-    if (profile.aiConsentedAt == null) return 'ai_consent_required';
-    if (this.isMinor(profile.birthDate) && profile.guardianConsentedAt == null) {
-      return 'guardian_consent_required';
-    }
-    return null;
-  }
-
-  /// Under 18 at the time of the message. An unknown birthDate is NOT treated
-  /// as minor — onboarding does not require it, so blocking on null would
-  /// lock out every adult who skipped the field.
-  private isMinor(birthDate: Date | null | undefined): boolean {
-    if (!birthDate) return false;
-    const eighteenthBirthday = new Date(birthDate);
-    eighteenthBirthday.setFullYear(eighteenthBirthday.getFullYear() + 18);
-    return eighteenthBirthday.getTime() > Date.now();
   }
 
   // ── Storage helpers ─────────────────────────────────────────────────────────

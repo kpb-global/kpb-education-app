@@ -231,6 +231,8 @@ UserProfile createTestProfile({
   String phone = '+22501020304',
   AccountType accountType = AccountType.student,
   String preferredLanguage = 'fr',
+  bool withAiConsent = true,
+  DateTime? aiConsentedAt,
 }) {
   return UserProfile(
     id: id,
@@ -249,6 +251,10 @@ UserProfile createTestProfile({
     gradeRange: '15-16',
     wantsScholarshipSupport: true,
     availableDocuments: const ['Passport', 'CV'],
+    // Default: already consented, so existing navigation tests do not grow
+    // a consent dialog. Pass `withAiConsent: false` to exercise the gate.
+    aiConsentedAt:
+        withAiConsent ? (aiConsentedAt ?? DateTime.utc(2026, 1, 1)) : null,
   );
 }
 

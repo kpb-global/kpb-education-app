@@ -1,17 +1,13 @@
-// M1 — les quatre outils IA non gardés ne doivent apparaître NULLE PART tant
-// que `AppConfig.aiToolsEnabled` est faux.
+// M1 — les quatre outils IA ne doivent apparaître NULLE PART tant que
+// `AppConfig.aiToolsEnabled` est faux.
 //
 // ## Ce que ce masquage retire, et pourquoi il fallait le mesurer
 //
-// L'écran de consentement de l'app promet, mot pour mot, que KPB Intelligence
-// envoie « une version pseudonymisée de ton profil (niveau, pays visés, tranche
-// de budget — jamais ton nom) ». Le générateur de CV poste
-// `'name': _nameCtrl.text.trim()` sur `/tools/cv-summary`, les lettres de
-// motivation postent `'name': p?.fullName` sur `/tools/personalize-letter`, et
-// le service serveur recopie ce champ dans l'invite envoyée au fournisseur
-// (`Nom : ${dto.name}`). Le contrôle de consentement, lui, n'existe QUE dans le
-// coach : `tools.controller.ts` et `document-review.controller.ts` ne posent
-// qu'un `@UseGuards(StudentAuthGuard)`.
+// Motif historique (lot 7) : le consentement promettait « jamais ton nom »
+// pendant que le serveur recopiait `Nom : ${dto.name}` vers Groq, sans garde.
+// Lot 11 a fermé la fuite côté serveur (`AiConsentGuard` + invites sans nom).
+// Le masque reste jusqu'au déploiement couplé avec la build 49 : basculer
+// le drapeau pendant que la 48 tape encore la prod ferait 403 les testeurs.
 //
 // ## Pourquoi ce fichier tient à DEUX assertions et pas une
 //

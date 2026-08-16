@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -1982,7 +1983,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       targetCountryIds: _countryIds.toList(),
       availableDocuments: _documents.toList(),
     );
-    widget.controller.updateProfile(updated);
+    unawaited(widget.controller.updateProfile(updated));
     Navigator.pop(context);
     Get.snackbar(
       'profile_updated_title'.tr,

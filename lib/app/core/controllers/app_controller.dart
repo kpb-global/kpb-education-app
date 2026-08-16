@@ -957,12 +957,12 @@ abstract class _AppControllerBase extends GetxController {
 
   // ── Profile update ──────────────────────────────────────────
 
-  void updateProfile(UserProfile newProfile) {
+  Future<void> updateProfile(UserProfile newProfile) async {
     profile = newProfile;
     _profileNeedsPush = true;
-    unawaited(_pushProfileUpdate());
     _persist();
     update();
+    await _pushProfileUpdate();
   }
 
   /// Profile switch: opt in/out of the scholarship newsletter. The backend
@@ -970,7 +970,8 @@ abstract class _AppControllerBase extends GetxController {
   void setNewsletterOptIn(bool optIn) {
     final current = profile;
     if (current == null) return;
-    updateProfile(current.copyWith(wantsScholarshipNewsletter: optIn));
+    unawaited(
+        updateProfile(current.copyWith(wantsScholarshipNewsletter: optIn)));
   }
 
   /// KPB-169: opt out of (or back into) ONE recurring notification family.
@@ -984,7 +985,7 @@ abstract class _AppControllerBase extends GetxController {
       type,
       optOut: optOut,
     );
-    updateProfile(current.copyWith(disabledNotificationTypes: next));
+    unawaited(updateProfile(current.copyWith(disabledNotificationTypes: next)));
   }
 
   // ── Search ──────────────────────────────────────────────────

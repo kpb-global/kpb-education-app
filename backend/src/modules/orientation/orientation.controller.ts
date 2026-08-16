@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { AiConsentGuard } from '../ai/ai-consent.guard';
 import { OrientationService } from './orientation.service';
 
 @Controller('orientation')
@@ -25,7 +26,7 @@ export class OrientationController {
   // an attacker could burn Groq quota and spam the DB at the global rate-limit
   // (60 req/min/IP in prod = ~86 400 paid completions/day per IP).
   @Post('sessions')
-  @UseGuards(StudentAuthGuard)
+  @UseGuards(StudentAuthGuard, AiConsentGuard)
   createSession(@Body() body: Record<string, unknown>, @Req() req: any) {
     return this.orientationService.createSession(
       this._withAuthenticatedUserId(body, req),
@@ -33,7 +34,7 @@ export class OrientationController {
   }
 
   @Post('submit')
-  @UseGuards(StudentAuthGuard)
+  @UseGuards(StudentAuthGuard, AiConsentGuard)
   submit(@Body() body: Record<string, unknown>, @Req() req: any) {
     return this.orientationService.createSession(
       this._withAuthenticatedUserId(body, req),

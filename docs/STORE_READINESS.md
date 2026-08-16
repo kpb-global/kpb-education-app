@@ -25,7 +25,7 @@ What the app collects and where it lives.
 
 | Data | Collected | Stored in | Notes |
 |---|---|---|---|
-| Name (full name) | Onboarding | Own backend (Postgres) | **Not** sent to Groq — true for build 49 **because** the four AI tools that did send it are masked (`KPB_AI_TOOLS_ENABLED=false`, M1). See the warning under §2. |
+| Name (full name) | Onboarding | Own backend (Postgres) | **Not** sent to Groq: the coach never forwarded it; `/tools/cv-summary` and `/tools/personalize-letter` no longer copy `name` into the prompt (lot 11). The four AI tool screens remain masked until `KPB_AI_TOOLS_ENABLED` is flipped after the coupled 49 deploy. |
 | Email | Onboarding / OAuth | Supabase Auth + Postgres | |
 | Phone + WhatsApp | Onboarding | Postgres | Not persisted to device storage |
 | Country of residence | Onboarding | Postgres + local | |
@@ -66,18 +66,15 @@ persisted across restarts).
 | **PayDunya** / **CinetPay** | (provider regions) | Payment intents | Paid accompaniment | Yes | No |
 | **Embedded web (WebView)** | external sites | Whatever the loaded site sees (e.g. Kayak flight search) | Price comparison, content | n/a (external) | per that site |
 
-> ⚠️ **The "no name" row above is true of build 49 only because of a client-side
-> mask, not because the server stopped.** `POST /tools/cv-summary` and
-> `POST /tools/personalize-letter` still accept a `name` field and still copy it
-> into the prompt sent to Groq (`tools.service.ts`: `Nom : ${dto.name}`), and
-> those routes carry no consent check at all — only `StudentAuthGuard`. Build 48,
-> already with testers, still reaches them. Two consequences to hold on to:
->
-> 1. **This declaration stops being accurate the moment `KPB_AI_TOOLS_ENABLED`
->    is flipped to `true`** without the server-side fix landing first.
-> 2. **The server-side fix is still owed** — strip the name from the two tool
->    routes and extend the coach's consent guard to them. Until then the mask is
->    a stopgap, not a remedy.
+> ✅ **Lot 11 — the server no longer copies the civil name into Groq prompts.**
+> `POST /tools/cv-summary` and `POST /tools/personalize-letter` still *accept* a
+> `name` field (the PDF prints it) but `tools.service.ts` no longer interpolates
+> `Nom : ${dto.name}`. Those routes, plus document-review and both orientation
+> POST aliases, now sit behind `AiConsentGuard` (403 `ai_consent_required` /
+> `guardian_consent_required`). **Do not deploy this backend to production
+> before build 49 is in testers' hands** — build 48 would 403 with "check your
+> connection". The client mask `KPB_AI_TOOLS_ENABLED=false` stays on until that
+> coupled cutover.
 
 > **Action before submission:** confirm the Supabase project region and the
 > backend deploy region, and confirm Firebase Analytics `logSearch` search
