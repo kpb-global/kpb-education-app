@@ -77,6 +77,25 @@ void _requireOneOf(
   }
 }
 
+/// Découpe une page web à la SECTION, pas au fichier.
+///
+/// Sans ça, la garde est bien plus faible qu'elle n'en a l'air : la première
+/// contre-épreuve de « conditions.html perd son for compétent » est restée
+/// VERTE, parce que le mot « Dubaï » subsistait dans l'adresse postale du §11.
+/// Une clause de juridiction vidée passait donc pour intacte. On exige
+/// désormais le fait DANS la section qui doit le porter.
+String _section(String html, String heading) {
+  final start = html.indexOf('<h2>$heading</h2>');
+  if (start < 0) {
+    // Titre renommé : on rend une chaîne qui échoue à tous les coups plutôt
+    // que la chaîne vide, qui rendrait la garde silencieusement inopérante.
+    return '<<section « $heading » introuvable>>';
+  }
+  final after = start + heading.length + 9;
+  final next = html.indexOf('<h2>', after);
+  return html.substring(after, next < 0 ? html.length : next);
+}
+
 /// Fichiers suivis par git qui ne doivent plus porter le trou.
 Iterable<File> _publishedSources() sync* {
   for (final root in ['lib', 'web/public', 'docs']) {
@@ -146,26 +165,32 @@ void main() {
   });
 
   group('les pages web publiées disent la même chose', () {
-    test('confidentialite.html', () {
+    test('confidentialite.html §1 — responsable du traitement', () {
       final html = File('web/public/confidentialite.html').readAsStringSync();
+      final section = _section(html, '1. Responsable du traitement');
       final failures = <String>[];
-      _requireAll(html, [_entity, _licence, _zone, _street],
-          'confidentialite.html', failures);
-      _requireOneOf(html, _uae, 'confidentialite.html', failures);
-      _requireOneOf(html, _law, 'confidentialite.html', failures);
-      _requireOneOf(html, _authority, 'confidentialite.html', failures);
+      const where = 'confidentialite.html §1';
+      _requireAll(
+          section, [_entity, _licence, _zone, _street], where, failures);
+      _requireOneOf(section, _uae, where, failures);
+      _requireOneOf(section, _law, where, failures);
+      _requireOneOf(section, _authority, where, failures);
       expect(failures, isEmpty,
           reason: 'La page web est celle que les stores et les moteurs '
               'lisent ; elle ne peut pas être en retard sur l\'app :\n'
               '${failures.join('\n')}');
     });
 
-    test('conditions.html', () {
+    test('conditions.html §10 et §11 — loi, for, éditeur', () {
       final html = File('web/public/conditions.html').readAsStringSync();
+      final governing = _section(html, '10. Droit applicable');
+      final contact = _section(html, '11. Contact');
       final failures = <String>[];
-      _requireAll(html, [_entity, _licence], 'conditions.html', failures);
-      _requireOneOf(html, _uae, 'conditions.html', failures);
-      _requireOneOf(html, _dubai, 'conditions.html', failures);
+      _requireAll(governing, [_entity], 'conditions.html §10', failures);
+      _requireOneOf(governing, _uae, 'conditions.html §10', failures);
+      _requireOneOf(governing, _dubai, 'conditions.html §10', failures);
+      _requireAll(
+          contact, [_entity, _licence], 'conditions.html §11', failures);
       expect(failures, isEmpty, reason: failures.join('\n'));
     });
   });
