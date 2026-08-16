@@ -62,7 +62,14 @@ Paiements (hors liste historique des 8, mais présents dans le code) :
 
 ## 4. Ce que ce fichier n’est pas
 
-- L’identité juridique de l’entité (forme, adresse, pays, autorité) est
-  introuvable dans le dépôt. `TODO(owner-identity)` — échéance 28/08/2026.
+- ~~L’identité juridique de l’entité~~ — **résolue le 16/08/2026.** Le
+  responsable du traitement est **KPB Global L.L.C-FZ**, société de zone
+  franche (Meydan Free Zone, Meydan City Corporation, Émirat de Dubaï),
+  licence n° 2537631.01, siège Meydan Grandstand, 6th floor, Meydan Road,
+  Nad Al Sheba, Dubaï, Émirats arabes unis. **KPB Education en est un
+  service, pas une personne morale distincte.** Régime applicable :
+  décret-loi fédéral n° 45 de 2021 (EAU) ; autorité de recours : UAE Data
+  Office. Licence à renouveler avant le **21/09/2027**.
+  Garde exécutable : `test/core/legal_identity_test.dart`.
 - La région exacte du projet Supabase et du VPS reste à confirmer par le
   propriétaire (déjà noté dans `STORE_READINESS.md`).

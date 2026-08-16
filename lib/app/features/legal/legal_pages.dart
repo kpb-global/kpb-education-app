@@ -47,7 +47,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
-            // TODO(owner-identity): forme juridique, adresse, pays — §1.
+            // §1 nomme l'éditeur : KPB Global L.L.C-FZ, Meydan Free Zone,
+            // licence 2537631.01 — voir 'privacy_s1_body'. Le corps vit dans
+            // AppTranslations, la garde legal_identity_test lit les deux.
             _LegalSection(
               title: 'privacy_s1_title'.tr,
               body: 'privacy_s1_body'.tr,
@@ -137,7 +139,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             _LegalSection(
               title: 'terms_s1_title'.tr,
               body:
-                  'Les présentes Conditions Générales d\'Utilisation (ci-après "CGU") régissent l\'accès et l\'utilisation de l\'application mobile KPB Education, éditée par KPB Education.\n\n'
+                  'Les présentes Conditions Générales d\'Utilisation (ci-après "CGU") régissent l\'accès et l\'utilisation de l\'application mobile KPB Education, éditée par KPB Global L.L.C-FZ (Meydan Free Zone, Dubaï, Émirats arabes unis).\n\n'
                   'L\'application fournit des services d\'orientation, d\'information et d\'accompagnement pour les étudiants souhaitant poursuivre leurs études à l\'étranger.',
             ),
             _LegalSection(
@@ -202,7 +204,8 @@ class TermsOfServiceScreen extends StatelessWidget {
                   '• KPB Education se réserve le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU\n'
                   '• En cas de résiliation, vos données personnelles seront traitées conformément à notre Politique de Confidentialité',
             ),
-            // TODO(owner-identity): nommer la loi et la juridiction.
+            // §10 nomme la loi (Émirats arabes unis) et la juridiction
+            // (Dubaï) — voir 'terms_s10_body'.
             _LegalSection(
               title: 'terms_s10_title'.tr,
               body: 'terms_s10_body'.tr,
