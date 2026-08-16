@@ -71,6 +71,8 @@ import { KayakService } from './modules/kayak/kayak.service';
 import { MatchesController } from './modules/matches/matches.controller';
 import { MatchesService } from './modules/matches/matches.service';
 import { MatchRecomputeService } from './modules/matches/match-recompute.service';
+import { AiConsentGuard } from './modules/ai/ai-consent.guard';
+import { AiConsentService } from './modules/ai/ai-consent.service';
 import { LlmService } from './modules/ai/llm.service';
 import { OrientationController } from './modules/orientation/orientation.controller';
 import { OrientationService } from './modules/orientation/orientation.service';
@@ -254,6 +256,8 @@ import { SalonService } from './modules/salon/salon.service';
     NotificationsService,
     OrientationService,
     LlmService,
+    AiConsentService,
+    AiConsentGuard,
     DocumentReviewService,
     CoachService,
     CoachQuotaService,

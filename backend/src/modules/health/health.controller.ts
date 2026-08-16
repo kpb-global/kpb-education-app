@@ -1,5 +1,6 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 
+import { LlmService } from '../ai/llm.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /** Captured at import time, so it is the process start and not the call time. */
@@ -7,12 +8,20 @@ const PROCESS_STARTED_AT = new Date().toISOString();
 
 @Controller('health')
 export class HealthController {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly llmService: LlmService,
+  ) {}
 
   /** Backwards-compatible liveness endpoint: process is able to receive HTTP. */
   @Get()
   check() {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      // Boolean only — never the Groq key, never the model name.
+      ai: { configured: this.llmService.isConfigured },
+    };
   }
 
   @Get('live')

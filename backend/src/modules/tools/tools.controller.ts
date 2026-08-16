@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import { AiConsentGuard } from '../ai/ai-consent.guard';
 import {
   CvSummaryDto,
   InterviewFeedbackDto,
@@ -9,7 +10,7 @@ import {
 } from './tools.service';
 
 @Controller('tools')
-@UseGuards(StudentAuthGuard)
+@UseGuards(StudentAuthGuard, AiConsentGuard)
 export class ToolsController {
   constructor(private readonly toolsService: ToolsService) {}
 

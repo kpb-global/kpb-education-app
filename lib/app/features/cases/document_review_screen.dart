@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/ai_error_message.dart';
+import '../ai_advisor/ai_consent.dart';
+import '../ai_advisor/ai_disclosure_banner.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 /// What kind of document the student is submitting for AI review.
@@ -131,8 +135,17 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
         return;
       }
       setState(() => _review = _DocumentReview.fromApi(review));
-    } catch (_) {
-      setState(() => _error = 'doc_review_unavailable'.tr);
+    } catch (error) {
+      if (!mounted) return;
+      if (isAiConsentRequiredError(error)) {
+        final granted =
+            await ensureAiConsent(context, Get.find<AppController>());
+        if (granted && mounted) {
+          return _analyze();
+        }
+        return;
+      }
+      setState(() => _error = aiErrorMessage(error));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -156,6 +169,8 @@ class _DocumentReviewScreenState extends State<DocumentReviewScreen> {
             style:
                 KpbTextStyles.bodySm.copyWith(color: context.kpb.textSecondary),
           ),
+          const SizedBox(height: KpbSpacing.md),
+          const AiDisclosureBanner(),
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Kind selector ──────────────────────────────────────────────

@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/utils/ai_error_message.dart';
+import '../ai_advisor/ai_consent.dart';
+import '../ai_advisor/ai_disclosure_banner.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
@@ -108,11 +111,20 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         });
         _scrollToBottom();
       }
-    } catch (_) {
+    } catch (error) {
+      if (!mounted) return;
+      if (isAiConsentRequiredError(error)) {
+        final granted = await ensureAiConsent(context, _ctrl);
+        if (granted && mounted) {
+          return _start(type);
+        }
+        if (mounted) setState(() => _stage = _Stage.pickType);
+        return;
+      }
       if (mounted) {
         setState(() => _stage = _Stage.pickType);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
+          SnackBar(content: Text(aiErrorMessage(error))),
         );
       }
     }
@@ -138,10 +150,18 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         _answerCtrl.clear();
         _scrollToBottom();
       }
-    } catch (_) {
+    } catch (error) {
+      if (!mounted) return;
+      if (isAiConsentRequiredError(error)) {
+        final granted = await ensureAiConsent(context, _ctrl);
+        if (granted && mounted) {
+          return _submitAnswer();
+        }
+        return;
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
+          SnackBar(content: Text(aiErrorMessage(error))),
         );
       }
     } finally {
@@ -180,6 +200,10 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
         child: Column(
           children: [
             _buildHeader(),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: AiDisclosureBanner(),
+            ),
             Expanded(
               child: switch (_stage) {
                 _Stage.pickType => _buildPicker(),

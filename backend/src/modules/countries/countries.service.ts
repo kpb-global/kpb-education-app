@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Country, CountryEligibilityQuiz, Prisma } from '@prisma/client';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import type { Country, CountryEligibilityQuiz, Prisma, PrismaClient } from '@prisma/client';
 
+import {
+  CATALOG_SOURCE_DATABASE,
+  CATALOG_SOURCE_MOCK,
+  degradedServiceUnavailable,
+  isMockCatalogFallbackAllowed,
+  type CatalogSource,
+} from '../../common/degraded-mode';
 import { PrismaService } from '../prisma/prisma.service';
 import { M5_COUNTRY_SEEDS } from './data/m5-countries.seed';
 
@@ -89,7 +96,13 @@ function mapCountry(
   };
 }
 
-function seedToCountry(seed: (typeof M5_COUNTRY_SEEDS)[number]): CountryWithQuiz {
+/**
+ * Bundled M5 fixtures. lastVerifiedAt and sourceUrl stay null on purpose:
+ * a seed must never look like a counsellor-verified fiche (TST-T10).
+ */
+export function seedToCountry(
+  seed: (typeof M5_COUNTRY_SEEDS)[number],
+): CountryWithQuiz {
   const now = new Date();
   return {
     id: seed.id,
@@ -153,28 +166,37 @@ function seedToCountry(seed: (typeof M5_COUNTRY_SEEDS)[number]): CountryWithQuiz
 
 @Injectable()
 export class CountriesService {
+  private readonly logger = new Logger(CountriesService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
-  async listCountries(activeOnly = true) {
-    const items = await this.prismaService.tryExecute((prisma) =>
+  async listCountries(activeOnly = true): Promise<{
+    items: ReturnType<typeof mapCountry>[];
+    source: CatalogSource;
+  }> {
+    const items = await this.readOrDegrade('countries', (prisma) =>
       prisma.country.findMany({
         where: activeOnly ? { isActive: true } : undefined,
         orderBy: { displayOrder: 'asc' },
       }),
     );
 
-    if (!items?.length) {
+    if (items === null) {
       return {
         items: M5_COUNTRY_SEEDS.map((seed) => mapCountry(seedToCountry(seed))),
+        source: CATALOG_SOURCE_MOCK,
       };
     }
 
-    return { items: items.map((row) => mapCountry(row)) };
+    return {
+      items: items.map((row) => mapCountry(row)),
+      source: CATALOG_SOURCE_DATABASE,
+    };
   }
 
   async getCountryDetail(countryKey: string) {
     const normalized = countryKey.trim().toLowerCase();
-    const row = await this.prismaService.tryExecute((prisma) =>
+    const row = await this.readOrDegrade('country-detail', (prisma) =>
       prisma.country.findFirst({
         where: {
           OR: [{ id: normalized }, { code: normalized.toUpperCase() }],
@@ -184,7 +206,17 @@ export class CountriesService {
     );
 
     if (row) {
-      return mapCountry(row, row.eligibilityQuiz);
+      return {
+        ...mapCountry(row, row.eligibilityQuiz),
+        source: CATALOG_SOURCE_DATABASE,
+      };
+    }
+
+    // `null` here is either "DB down / not configured" (already thrown in
+    // production by readOrDegrade) or "row not in Postgres". Serving an M5
+    // seed as a live fiche is only allowed outside production.
+    if (!isMockCatalogFallbackAllowed()) {
+      throw new NotFoundException('Country not found.');
     }
 
     const fallbackSeed = M5_COUNTRY_SEEDS.find(
@@ -196,7 +228,49 @@ export class CountriesService {
     }
 
     const fallback = seedToCountry(fallbackSeed);
-    return mapCountry(fallback, fallback.eligibilityQuiz);
+    return {
+      ...mapCountry(fallback, fallback.eligibilityQuiz),
+      source: CATALOG_SOURCE_MOCK,
+    };
+  }
+
+  /**
+   * Same policy as CatalogService: production never answers with fixtures.
+   * `null` means the caller may serve M5 seeds tagged `source: mock`.
+   */
+  private async readOrDegrade<T>(
+    resource: string,
+    operation: (prisma: PrismaClient) => Promise<T>,
+  ): Promise<T | null> {
+    if (!this.prismaService.isEnabled) {
+      return this.degrade(resource, 'DATABASE_NOT_CONFIGURED');
+    }
+    try {
+      // `execute` rethrows on query errors. A `null` return here is the
+      // operation's own result (e.g. findFirst miss), not "DB down".
+      return await this.prismaService.execute(operation);
+    } catch {
+      return this.degrade(resource, 'DATABASE_ERROR');
+    }
+  }
+
+  private degrade(resource: string, reason: string): null {
+    if (!isMockCatalogFallbackAllowed()) {
+      this.logger.error(
+        `Countries "${resource}" is unavailable (${reason}). Refusing to serve ` +
+          'M5 seeds; answering 503 COUNTRIES_UNAVAILABLE.',
+      );
+      throw degradedServiceUnavailable(
+        'COUNTRIES_UNAVAILABLE',
+        'The countries catalog is temporarily unavailable.',
+        resource,
+      );
+    }
+    this.logger.warn(
+      `Countries "${resource}" is unavailable (${reason}). Serving M5 seeds ` +
+        'tagged source="mock" (non-production only).',
+    );
+    return null;
   }
 
   // submitQuiz + scoreCountryQuiz removed (KPB-62): the per-country eligibility

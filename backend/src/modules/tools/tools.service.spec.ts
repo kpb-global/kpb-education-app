@@ -43,12 +43,16 @@ describe('ToolsService.generateCvSummary', () => {
     );
   });
 
-  it('forwards every profile fact it receives into the prompt context', async () => {
+  it('forwards every profile fact it receives into the prompt context except the civil name', async () => {
     const { service, completeJson } = buildService(true);
     await service.generateCvSummary(dto);
 
     const { user } = completeJson.mock.calls[0][0];
-    expect(user).toContain('Awa Traoré');
+    // IA-T2: the previous assertion `toContain('Awa Traoré')` required the
+    // leak. Inverting it is the harness repair, not a behaviour change we
+    // forgot to test — the name must not reach Groq.
+    expect(user).not.toContain('Awa Traoré');
+    expect(user).not.toContain('Nom :');
     expect(user).toContain('Bachelor 3');
     expect(user).toContain('Informatique');
     expect(user).toContain('Burkina Faso');
@@ -92,5 +96,24 @@ describe('ToolsService.generateCvSummary', () => {
       fr: 'Résumé FR',
       en: 'Summary EN',
     });
+  });
+});
+
+describe('ToolsService.personalizeLetters', () => {
+  it('does not forward the student name into the Groq prompt', async () => {
+    const { service, completeJson } = buildService(true);
+    await service.personalizeLetters({
+      templateKey: 'visa',
+      templateBody: 'Madame, Monsieur,',
+      name: 'Awa Traoré',
+      fieldOfStudy: 'Informatique',
+      targetCountry: 'France',
+    });
+
+    const { user } = completeJson.mock.calls[0][0];
+    expect(user).not.toContain('Awa Traoré');
+    expect(user).not.toContain('Nom :');
+    expect(user).toContain('Informatique');
+    expect(user).toContain('France');
   });
 });

@@ -70,8 +70,10 @@ export class ToolsService {
       throw new ServiceUnavailableException('AI not configured.');
     }
 
+    // The student's civil name is intentionally omitted. The DTO still
+    // accepts `name` (the client form has a name field for the PDF) but it
+    // must not reach Groq — that was the leak the consent copy used to deny.
     const context = [
-      `Nom : ${dto.name}`,
       `Niveau d'études : ${dto.studyLevel}`,
       `Domaine : ${dto.fieldOfStudy}`,
       dto.countryOfResidence
@@ -121,8 +123,9 @@ export class ToolsService {
       throw new ServiceUnavailableException('AI not configured.');
     }
 
+    // Civil name is accepted on the DTO (the letter PDF prints it) but must
+    // not be copied into the Groq prompt — same IA-T2 rule as cv-summary.
     const context = [
-      `Nom : ${dto.name}`,
       `Domaine : ${dto.fieldOfStudy}`,
       dto.targetCountry ? `Pays cible : ${dto.targetCountry}` : '',
       dto.targetInstitution ? `Établissement : ${dto.targetInstitution}` : '',

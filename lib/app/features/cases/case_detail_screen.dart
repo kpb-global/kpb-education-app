@@ -13,6 +13,7 @@ import '../../core/services/connectivity_service.dart';
 import '../../core/services/safe_crashlytics.dart';
 import '../../core/ui/kpb_components.dart';
 import '../../core/services/document_upload_service.dart';
+import '../ai_advisor/ai_consent.dart';
 import '../services/service_packages_screen.dart';
 import '../tools/interview_simulator_screen.dart';
 import 'case_status_timeline.dart';
@@ -447,7 +448,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     iconBg: KpbColors.warningLight,
                     title: 'case_interview_sim_title'.tr,
                     subtitle: 'case_interview_sim_subtitle'.tr,
-                    onTap: () => Get.to(() => const InterviewSimulatorScreen()),
+                    onTap: () => openAiToolIfConsented(
+                      context,
+                      () => const InterviewSimulatorScreen(),
+                    ),
                   ),
                   const SizedBox(height: 14),
                 ],
@@ -495,7 +499,10 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                     iconBg: KpbColors.actionPrimarySoft,
                     title: 'case_ai_review_cta'.tr,
                     subtitle: 'case_ai_review_subtitle'.tr,
-                    onTap: () => Get.to(() => const DocumentReviewScreen()),
+                    onTap: () => openAiToolIfConsented(
+                      context,
+                      () => const DocumentReviewScreen(),
+                    ),
                   ),
                   const SizedBox(height: 14),
                 ],

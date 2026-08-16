@@ -137,23 +137,15 @@ class AppConfig {
   /// lettres de motivation, simulateur d'entretien, relecture de document) sont
   /// MASQUÉS par défaut.
   ///
-  /// Motif, vérifié dans le code des deux côtés : l'écran de consentement
-  /// promet que KPB Intelligence envoie « une version pseudonymisée de ton
-  /// profil […] — jamais ton nom » (app_translations.dart, `ai_consent_body`),
-  /// et ces quatre écrans-là postent le nom civil en clair. `/tools/cv-summary`
-  /// et `/tools/personalize-letter` le reçoivent dans leur corps de requête et
-  /// le service le recopie tel quel dans l'invite envoyée au fournisseur
-  /// (backend `tools.service.ts` : `Nom : ${dto.name}`). Le contrôle de
-  /// consentement, lui, n'existe QUE dans le coach (`coach.service.ts`) :
-  /// `tools.controller.ts` et `document-review.controller.ts` ne posent qu'un
-  /// `@UseGuards(StudentAuthGuard)`.
+  /// Motif historique (lot 7) : l'écran de consentement promettait « jamais
+  /// ton nom » pendant que `/tools/cv-summary` et `/tools/personalize-letter`
+  /// recopiaient `Nom : ${dto.name}` vers Groq, sans garde de consentement.
+  /// Lot 11 a retiré le nom des invites et posé `AiConsentGuard` sur ces
+  /// routes. Le masque reste **off** jusqu'à ce que la garde soit déployée
+  /// **avec** la build 49 — la basculer avant ferait 403 les testeurs 48.
   ///
-  /// Le coach reste EN LIGNE : c'est la seule surface IA dont le serveur vérifie
-  /// réellement le consentement avant d'appeler le fournisseur.
-  ///
-  /// À basculer à `true` le jour où la garde de consentement serveur (IA-T1)
-  /// est déployée ET où le nom cesse d'être envoyé. Pas avant, et pas l'un sans
-  /// l'autre.
+  /// À basculer à `true` le jour où IA-T1 est en prod ET la 49 est chez les
+  /// testeurs. Pas avant, et pas l'un sans l'autre.
   static bool get aiToolsEnabled =>
       _aiToolsEnabledOverride ??
       const bool.fromEnvironment(

@@ -15,7 +15,7 @@ import '../cases/case_detail_screen.dart';
 import '../community/community_screen.dart';
 import '../destinations/destinations_screen.dart';
 import '../orientation/orientation_screen.dart';
-import '../ai_advisor/ai_chat_screen.dart';
+import '../ai_advisor/ai_consent.dart';
 import '../explore/country_detail_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../onboarding/onboarding_screen.dart';
@@ -165,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: _HomeCopilotButton(
-                        onTap: () => Get.to(() => const AiChatScreen()),
+                        onTap: () => openAiChatIfConsented(context, controller),
                       ),
                     ),
                     Padding(
@@ -1324,7 +1324,10 @@ class _AiAdvisorBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 GestureDetector(
-                  onTap: () => Get.to(() => const AiChatScreen()),
+                  onTap: () => openAiChatIfConsented(
+                    context,
+                    Get.find<AppController>(),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

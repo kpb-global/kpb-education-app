@@ -3,6 +3,22 @@ import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+// `import * as`, PAS un import par défaut — et ce n'est pas un détail de style.
+//
+// Ce tsconfig a `allowSyntheticDefaultImports: true` mais PAS `esModuleInterop`.
+// La combinaison est un mensonge de type : TypeScript ACCEPTE
+// `import compression from 'compression'` à la compilation, mais n'émet aucun
+// helper d'interop — le JS produit appelle `compression_1.default()`, et
+// `compression` est un module CommonJS pur dont `.default` vaut `undefined`.
+// Résultat mesuré : « TypeError: (0, compression_1.default) is not a function »
+// au bootstrap, l'API ne démarre plus DU TOUT. `tsc --noEmit` et les 400+ tests
+// jest passaient tous ; seul le boot smoke de la CI l'a vu.
+//
+// `helmet` survit à la même écriture uniquement parce que helmet v7 pose
+// lui-même `module.exports.default` — ce n'est pas une règle générale, c'est une
+// politesse de ce paquet-là. Pour tout module CJS, on écrit `import * as`,
+// comme `express` juste en dessous.
+import * as compression from 'compression';
 import * as express from 'express';
 
 import { AppModule } from './app.module';
@@ -37,6 +53,10 @@ async function bootstrap() {
   );
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  // TST-T13: gzip JSON above the default threshold (~1 KB). The uncompressed
+  // catalog is ~721 KB; gzip brings it to ~46 KB. Verify locally with
+  // `scripts/delivery-gate.sh` after a backend deploy — do not run it here.
+  app.use(compression());
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));

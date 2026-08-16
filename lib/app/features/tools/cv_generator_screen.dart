@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
@@ -7,7 +6,10 @@ import 'package:printing/printing.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/ai_error_message.dart';
 import '../../core/utils/study_level.dart';
+import '../ai_advisor/ai_consent.dart';
+import '../ai_advisor/ai_disclosure_banner.dart';
 import 'pdf_text.dart';
 
 /// CV Generator — pre-filled from profile, AI-enhanced summary, PDF export.
@@ -209,9 +211,17 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
         });
       }
     } catch (error) {
+      if (!mounted) return;
+      if (isAiConsentRequiredError(error)) {
+        final granted = await ensureAiConsent(context, _ctrl);
+        if (granted && mounted) {
+          return _generateSummary();
+        }
+        return;
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_aiErrorMessage(error))),
+          SnackBar(content: Text(aiErrorMessage(error))),
         );
       }
     } finally {
@@ -224,36 +234,6 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
       .map((s) => s.trim())
       .where((s) => s.isNotEmpty)
       .toList(growable: false);
-
-  /// Honest failure copy. "Check your connection" used to be shown for every
-  /// cause, including a 404/503 coming from a perfectly healthy network — which
-  /// is what made this bug so hard to report.
-  String _aiErrorMessage(Object error) {
-    const fallback = 'tools_ai_error_check_connection';
-    if (error is! DioException) {
-      return _trOrNull('tools_ai_error_unavailable') ?? fallback.tr;
-    }
-    switch (error.type) {
-      case DioExceptionType.connectionError:
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        // The only case where blaming the network is truthful.
-        return fallback.tr;
-      default:
-        break;
-    }
-    final status = error.response?.statusCode;
-    if (status == 401 || status == 403) {
-      return _trOrNull('tools_ai_error_signin_required') ?? fallback.tr;
-    }
-    if (status == 429) {
-      return _trOrNull('tools_ai_error_rate_limited') ?? fallback.tr;
-    }
-    // 404 (route missing / misdeployed), 503 (AI not configured on the server)
-    // and every 5xx are server-side: say so instead of pointing at the phone.
-    return _trOrNull('tools_ai_error_unavailable') ?? fallback.tr;
-  }
 
   // ── KPB brand colours for the PDF ──────────────────────────────────────────
   static const _kpbBlue = PdfColor.fromInt(0xFF004AAD);
@@ -656,6 +636,8 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
               color: context.kpb.textMuted,
             ),
           ),
+          const SizedBox(height: KpbSpacing.md),
+          const AiDisclosureBanner(),
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Form fields ────────────────────────────────────────────────────

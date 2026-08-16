@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/utils/ai_error_message.dart';
+import '../ai_advisor/ai_consent.dart';
+import '../ai_advisor/ai_disclosure_banner.dart';
 import 'motivation_letter_templates.dart';
 import '../../core/ui/app_tokens.dart';
 
@@ -80,6 +83,11 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
                   ),
                 ],
               ),
+            ),
+
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: AiDisclosureBanner(),
             ),
 
             // ── Category chips ────────────────────────────────────────────────
@@ -227,10 +235,18 @@ class _LetterCardState extends State<_LetterCard> {
           _personalizedEn = result['en'] as String? ?? '';
         });
       }
-    } catch (_) {
+    } catch (error) {
+      if (!mounted) return;
+      if (isAiConsentRequiredError(error)) {
+        final granted = await ensureAiConsent(context, _ctrl);
+        if (granted && mounted) {
+          return _personalize();
+        }
+        return;
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('tools_ai_error_check_connection'.tr)),
+          SnackBar(content: Text(aiErrorMessage(error))),
         );
       }
     } finally {
