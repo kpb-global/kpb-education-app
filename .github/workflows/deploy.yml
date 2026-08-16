@@ -15,6 +15,24 @@ name: Deploy backend (VPS)
 # Note on rollback: migrations are forward-only, so the rollback restores the
 # previous IMAGE, not the schema. That is safe because every migration in this
 # repo is additive (new nullable/defaulted columns), which older code ignores.
+#
+# TWO SCOPES, and the reason there are two (2026-08-16). Publishing a corrected
+# legal page used to require the FULL deploy: build, migrate, replace api and
+# admin. That coupling has a real cost — on 16/08 the legal identity of the
+# publisher had to reach kpbeducation.cloud, while the backend on `main` carried
+# a change (IA-T1) that must not reach production before the matching mobile
+# build ships, or the build already in testers' hands starts answering 403 to
+# its AI tools. A page of HTML should never be hostage to that.
+#
+#   scope: full  — the runbook above, unchanged. The default.
+#   scope: web   — rsync web/ only, validate nginx.conf in a throwaway
+#                  container, recreate kpb_web. No build, no migration, the API
+#                  and admin containers are not touched.
+#
+# Both scopes end on the same gate: every file under web/public must be served
+# BYTE FOR BYTE as it exists in the deployed ref. "Something answered 200" is
+# not evidence that the deploy took — that lesson is already written into the
+# release assertion below, and this is its web-layer twin.
 
 on:
   workflow_dispatch:
@@ -23,6 +41,14 @@ on:
         description: 'Git ref to deploy (branch, tag or SHA)'
         required: false
         default: 'main'
+      scope:
+        description: 'full = build+migrate+api+admin+web · web = static pages only'
+        type: choice
+        required: false
+        default: 'full'
+        options:
+          - full
+          - web
       run_seed:
         description: 'Run prisma:seed after migrating (first install only)'
         type: boolean
@@ -89,8 +115,21 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PATH: ${{ secrets.VPS_PATH }}
+          SCOPE: ${{ inputs.scope }}
         run: |
           set -euo pipefail
+          # In `web` scope, only the static layer travels. docker-compose.yml
+          # comes along because `docker compose up web` reads it — and shipping
+          # it is harmless: compose only acts on the services you name, so an
+          # updated `api` definition sits inert until a full deploy applies it.
+          if [ "${SCOPE:-full}" = "web" ]; then
+            rsync -az --info=stats1 \
+              -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
+              web docker-compose.yml \
+              "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
+            echo "web scope: backend/ and admin/ were NOT synced."
+            exit 0
+          fi
           # Only what the compose build contexts need. `.env`, `backups/` and
           # `node_modules` live only on the VPS and are never touched (no
           # --delete, and git does not track them).
@@ -105,7 +144,58 @@ jobs:
             backend admin web docker-compose.yml \
             "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
 
+      - name: Publish the web layer only (no build, no migration)
+        if: inputs.scope == 'web'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+          IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          BUILD_SHA: ${{ steps.meta.outputs.sha }}
+        run: |
+          set -euo pipefail
+
+          # Copied then run with stdin closed, for the same reason as the full
+          # path: a script fed on stdin gets eaten by the first docker command
+          # that reads stdin, and bash then exits 0 on a deploy that did nothing.
+          cat > /tmp/kpb-deploy-web.sh <<'REMOTE'
+          set -euo pipefail
+          cd "$VPS_PATH"
+          # Only so compose stops warning about unset variables while parsing
+          # service definitions it will not act on.
+          export KPB_IMAGE_TAG="$IMAGE_TAG" KPB_BUILD_SHA="$BUILD_SHA"
+
+          # The NEW config is validated in a throwaway container before anything
+          # in production is touched: a bad file stops the deploy and the live
+          # site keeps serving the old one. Testing inside the running container
+          # would prove nothing — it would read the file it already has.
+          echo "── validate nginx.conf ──"
+          docker run --rm -v "$PWD/web/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:1.27-alpine nginx -t < /dev/null
+
+          # --force-recreate is not optional. web/nginx.conf is bind-mounted file
+          # to file and Docker resolves that mount by inode; rsync writes a temp
+          # file and renames it, so the host path holds the new bytes under a NEW
+          # inode while the container keeps reading the old, now-nameless one. A
+          # plain `nginx -s reload` succeeds, prints "syntax is ok", and changes
+          # nothing. Measured on 13/08/2026.
+          echo "── recreate kpb_web ──"
+          docker compose up -d --no-deps --force-recreate web < /dev/null
+
+          docker compose ps web
+          echo "WEB PUBLISH OK ✅ (ref tag $IMAGE_TAG)"
+          rm -f /tmp/kpb-deploy-web.sh
+          REMOTE
+
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            /tmp/kpb-deploy-web.sh "${VPS_USER}@${VPS_HOST}:/tmp/kpb-deploy-web.sh"
+
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            IMAGE_TAG="$IMAGE_TAG" BUILD_SHA="$BUILD_SHA" VPS_PATH="$VPS_PATH" \
+            bash /tmp/kpb-deploy-web.sh
+
       - name: Build, migrate, release (health-gated, auto-rollback)
+        if: inputs.scope != 'web'
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -256,6 +346,7 @@ jobs:
             bash /tmp/kpb-deploy.sh
 
       - name: Verify from the outside
+        if: inputs.scope != 'web'
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
           WEB_URL: ${{ secrets.VPS_WEB_URL }}
@@ -294,6 +385,56 @@ jobs:
             echo "::error::VPS_WEB_URL is not set — /app was NOT verified."
             exit 1
           fi
+
+      - name: Assert the served pages are the ones in this ref
+        env:
+          WEB_URL: ${{ secrets.VPS_WEB_URL }}
+        run: |
+          set -euo pipefail
+
+          # The web-layer twin of the release assertion. A 200 proves that
+          # something answered; it does not prove that THIS ref is what gets
+          # served. Comparing bytes does, and it needs no knowledge of what the
+          # pages happen to say today — so it keeps working when the content
+          # changes, which a title or keyword check does not.
+          #
+          # Scoped to what rsync actually sent. Files present on the VPS but
+          # absent from the repo are NOT checked: rsync runs without --delete
+          # (see the sync step), so they linger by design.
+          if [ -z "${WEB_URL:-}" ]; then
+            echo "::error::VPS_WEB_URL is not set — the published pages were NOT verified."
+            exit 1
+          fi
+
+          stale=0
+          checked=0
+          while IFS= read -r file; do
+            rel="${file#web/public/}"
+            # Fetched to a FILE, never piped: in `curl … | sha256sum` the pipe
+            # exit status is sha256sum's, so a host that never answered would be
+            # reported as a content mismatch. uptime.yml had exactly that bug.
+            if ! curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
+                 -o /tmp/served.bin "${WEB_URL}/${rel}"; then
+              echo "::error::${WEB_URL}/${rel} did not answer. This is reachability, NOT content."
+              stale=1
+              continue
+            fi
+            if [ "$(sha256sum < /tmp/served.bin | cut -d' ' -f1)" \
+               != "$(sha256sum < "$file" | cut -d' ' -f1)" ]; then
+              echo "::error::/${rel} is served with DIFFERENT bytes than this ref — kpb_web is stale."
+              stale=1
+            fi
+            checked=$((checked + 1))
+          done < <(find web/public -type f | sort)
+
+          # A loop that matched nothing would pass silently; that is how a gate
+          # dies without anyone noticing.
+          if [ "$checked" -lt 5 ]; then
+            echo "::error::only $checked file(s) compared — the scan is broken, not the site."
+            exit 1
+          fi
+          [ "$stale" = "0" ] || exit 1
+          echo "$checked published files served byte-for-byte from this ref ✅"
 
       - name: Scrub the key
         if: always()
