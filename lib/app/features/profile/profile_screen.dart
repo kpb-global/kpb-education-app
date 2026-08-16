@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/i18n/app_locale.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/country_utils.dart';
@@ -767,18 +768,21 @@ class _PreferencesCard extends StatelessWidget {
               onChanged: controller.toggleAppLock,
             ),
           ),
-          const _RowDivider(),
-          _SettingRow(
-            icon: Icons.translate_rounded,
-            color: KpbColors.decorSky,
-            title: 'app_language'.tr,
-            subtitle:
-                controller.localeCode.startsWith('en') ? 'English' : 'Français',
-            trailing: _LanguageToggle(
-              current: controller.localeCode,
-              onChanged: controller.switchLanguage,
+          if (kLanguageSwitchVisible) ...[
+            const _RowDivider(),
+            _SettingRow(
+              icon: Icons.translate_rounded,
+              color: KpbColors.decorSky,
+              title: 'app_language'.tr,
+              subtitle: controller.localeCode.startsWith('en')
+                  ? 'English'
+                  : 'Français',
+              trailing: _LanguageToggle(
+                current: controller.localeCode,
+                onChanged: controller.switchLanguage,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

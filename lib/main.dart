@@ -24,6 +24,7 @@ import 'app/core/services/catalog_cache_service.dart';
 import 'app/core/services/connectivity_service.dart';
 import 'app/core/translations/app_translations.dart';
 import 'app/core/ui/app_theme.dart';
+import 'app/core/ui/portrait_lock.dart';
 import 'app/core/navigation/app_boot_screen.dart';
 import 'app/core/services/auth_service.dart';
 import 'app/core/navigation/shell_tabs.dart';
@@ -35,6 +36,7 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await lockPortraitOrientation();
 
   bool firebaseInitialized = false;
 

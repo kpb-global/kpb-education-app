@@ -436,9 +436,45 @@ via `app_config.dart` (ne pas hardcoder `KPB_API_BASE_URL`). Assurez-vous que le
 certificat TLS nginx couvre bien `api.kpbeducation.cloud`.
 
 **⚠️ Attention pour iOS :**
-Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Cependant, pour l'envoyer sur l'App Store Connect, il te faudra soit :
-A) Compiler manuellement avec `Xcode` sur ton Mac (Plus simple pour les V1).
-B) Configurer `Fastlane match` et injecter tes Certificats Apple dans les GitHub Secrets pour que le Runner puisse signer le `.ipa` (Nécessite le compte Apple Developer actif).
+Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Il ne produit pas d'IPA signé.
+
+### Livraison TestFlight (build 49) — jour J
+
+La ligne complète, pour le *build* (pas l'export IPA) :
+
+```bash
+flutter build ios --release \
+  --dart-define=KPB_APP_ENV=prod \
+  --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
+  --dart-define=POSTHOG_API_KEY=phc_…
+```
+
+`flutter build ipa --release` avec les mêmes defines **échoue à l'export sur
+cette machine** (espace dans le chemin du dépôt, « Copy failed »). La voie
+réelle est donc : `flutter build ios` ci-dessus, puis **Xcode → Product →
+Archive → Organizer → Distribute**.
+
+Avant d'ouvrir Organizer, lancer le préflight sur l'artefact (il ne construit
+rien) :
+
+```bash
+scripts/preflight-ios-archive.sh \
+  --xcconfig ios/Flutter/Generated.xcconfig \
+  --archive-plist <Archive>.xcarchive/Products/Applications/Runner.app/Info.plist
+```
+
+Cinq assertions : `FLUTTER_BUILD_NUMBER` / `CFBundleVersion` = 49 ;
+`DART_DEFINES` décodés contiennent `POSTHOG_API_KEY`, `KPB_APP_ENV=prod`,
+`KPB_WHATSAPP_NUMBER` ; orientations = portrait ; `UIBackgroundModes` =
+`remote-notification` ; `CFBundleLocalizations` = `fr`.
+
+**dSYM → Crashlytics (LIV-T11).** Le `pbxproj` n'a aucune phase
+`upload-symbols`. Après l'archive, téléverser manuellement les dSYM depuis
+Organizer (ou `FirebaseCrashlytics/upload-symbols`) avant de Distribuer.
+Sans ça, les crashes TestFlight restent illisibles.
+
+Ne pas retirer l'iPad (`TARGETED_DEVICE_FAMILY` reste `1,2`) : retirer une
+famille d'une app déjà publiée est un refus.
 
 ---
 

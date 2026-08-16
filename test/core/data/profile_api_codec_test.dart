@@ -32,5 +32,30 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test('une devise inconnue est refusée à la frontière (repli XOF)', () {
+      final profile = ProfileApiCodec.userProfileFromApi(
+        {'id': 'user-123', 'preferredCurrency': 'GBP'},
+        fallbackLocale: 'fr',
+      );
+      expect(profile.preferredCurrency, 'XOF');
+    });
+
+    test('EUR et USD passent', () {
+      expect(
+        ProfileApiCodec.userProfileFromApi(
+          {'id': 'user-123', 'preferredCurrency': 'eur'},
+          fallbackLocale: 'fr',
+        ).preferredCurrency,
+        'EUR',
+      );
+      expect(
+        ProfileApiCodec.userProfileFromApi(
+          {'id': 'user-123', 'preferredCurrency': 'USD'},
+          fallbackLocale: 'fr',
+        ).preferredCurrency,
+        'USD',
+      );
+    });
   });
 }

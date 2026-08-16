@@ -36,7 +36,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview:
         LocalizedText(fr: 'OMNES - ECE — France', en: 'OMNES - ECE — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '8.490 EUR/an', en: '8.490 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '8 490 EUR/an', en: '8 490 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Anglais', en: 'English'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [
@@ -68,7 +68,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview:
         LocalizedText(fr: 'OMNES - ESCE — France', en: 'OMNES - ESCE — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Anglais', en: 'English'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [
@@ -96,7 +96,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview:
         LocalizedText(fr: 'OMNES - HEIP — France', en: 'OMNES - HEIP — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '9.650 EUR/an', en: '9.650 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '9 650 EUR/an', en: '9 650 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Anglais', en: 'English'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [
@@ -117,7 +117,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview: LocalizedText(
         fr: 'OMNES - INSEEC — France', en: 'OMNES - INSEEC — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '9.850 EUR/an', en: '9.850 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '9 850 EUR/an', en: '9 850 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Anglais', en: 'English'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [
@@ -165,7 +165,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview:
         LocalizedText(fr: 'OMNES - IUM — France', en: 'OMNES - IUM — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '15.050 EUR/an', en: '15.050 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '15 050 EUR/an', en: '15 050 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Anglais', en: 'English'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [
@@ -197,7 +197,7 @@ const kInstitutionsFrance = <InstitutionModel>[
     overview: LocalizedText(
         fr: 'OMNES - Sup de Pub — France', en: 'OMNES - Sup de Pub — France'),
     studyLevels: ['Bac+3', 'Bac+5'],
-    tuitionLabel: LocalizedText(fr: '8.850 EUR/an', en: '8.850 EUR/an'),
+    tuitionLabel: LocalizedText(fr: '8 850 EUR/an', en: '8 850 EUR/an'),
     languageRequirements: LocalizedText(fr: 'Français', en: 'French'),
     intakePeriods: ['Bachelor 1ère année'],
     programIds: [

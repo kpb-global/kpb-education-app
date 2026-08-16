@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/i18n/app_locale.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/models/app_models.dart';
@@ -295,12 +296,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// Rehydrate the form from any persisted (partial) profile so a user who
   /// left mid-onboarding resumes where they stopped.
   void _restoreFromProfile() {
-    _language = _ctrl.localeCode;
+    _language = kShippedLocale;
     final profile = _ctrl.profile;
     if (profile == null) return;
 
     _accountType = profile.accountType;
-    if (profile.preferredLanguage.isNotEmpty) {
+    if (kLanguageSwitchVisible && profile.preferredLanguage.isNotEmpty) {
       _language = profile.preferredLanguage;
     }
     // Only restore dropdown-backed values when they exist in the current
@@ -1075,25 +1076,26 @@ class _PageIdentity extends StatelessWidget {
         ),
         const SizedBox(height: KpbSpacing.lg),
 
-        // Langue
-        Text('preferred_language'.tr, style: KpbTextStyles.titleMd),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            _LangBtn(
-              label: 'lang_name_french'.tr,
-              selected: language == 'fr',
-              onTap: () => onLanguage('fr'),
-            ),
-            const SizedBox(width: 10),
-            _LangBtn(
-              label: 'lang_name_english'.tr,
-              selected: language == 'en',
-              onTap: () => onLanguage('en'),
-            ),
-          ],
-        ),
-        const SizedBox(height: KpbSpacing.lg),
+        if (kLanguageSwitchVisible) ...[
+          Text('preferred_language'.tr, style: KpbTextStyles.titleMd),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _LangBtn(
+                label: 'lang_name_french'.tr,
+                selected: language == 'fr',
+                onTap: () => onLanguage('fr'),
+              ),
+              const SizedBox(width: 10),
+              _LangBtn(
+                label: 'lang_name_english'.tr,
+                selected: language == 'en',
+                onTap: () => onLanguage('en'),
+              ),
+            ],
+          ),
+          const SizedBox(height: KpbSpacing.lg),
+        ],
 
         // Nom / Prénom
         Row(

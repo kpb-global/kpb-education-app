@@ -14,6 +14,13 @@ void main() {
       expect(CurrencyUtils.formatEur(5000, 'invalid'), '3 279 785 FCFA/an');
     });
 
+    test('fromCode ne plante pas sur une devise inconnue (pas d\'assert)', () {
+      expect(DisplayCurrency.fromCode('GBP'), DisplayCurrency.xof);
+      expect(DisplayCurrency.fromCode(null), DisplayCurrency.xof);
+      expect(DisplayCurrency.tryParse('EUR'), DisplayCurrency.eur);
+      expect(DisplayCurrency.tryParse('gbp'), isNull);
+    });
+
     test('keeps filter labels compact in the selected currency', () {
       expect(CurrencyUtils.compactEur(4573, 'XOF'), '3 M FCFA');
       expect(CurrencyUtils.compactEur(4573, 'EUR'), '5 K €');

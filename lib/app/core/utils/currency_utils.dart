@@ -9,11 +9,22 @@ enum DisplayCurrency {
 
   final String code;
 
+  /// Devise reconnue, ou `null`. C'est la frontière d'entrée : le codec
+  /// refuse (en repliant sur XOF) ce que cette méthode ne connaît pas.
+  static DisplayCurrency? tryParse(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    final upper = value.toUpperCase();
+    for (final currency in values) {
+      if (currency.code == upper) return currency;
+    }
+    return null;
+  }
+
+  /// Repli d'affichage. Ne JAMAIS `assert` ici : le serveur peut envoyer une
+  /// devise inconnue, et un assert planterait les builds debug. La validation
+  /// d'entrée est dans `ProfileApiCodec`.
   static DisplayCurrency fromCode(String? value) {
-    return DisplayCurrency.values.firstWhere(
-      (currency) => currency.code == value?.toUpperCase(),
-      orElse: () => DisplayCurrency.xof,
-    );
+    return tryParse(value) ?? DisplayCurrency.xof;
   }
 }
 

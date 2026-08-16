@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../models/app_models.dart';
+import '../utils/currency_utils.dart';
 import 'json_parse_utils.dart';
 import 'notification_opt_out.dart';
 
@@ -44,7 +45,10 @@ abstract final class ProfileApiCodec {
               ? (json['monthlyBudgetEur'] as int) * 12
               : null),
       monthlyBudgetEur: json['monthlyBudgetEur'] as int?,
-      preferredCurrency: json['preferredCurrency'] as String? ?? 'XOF',
+      preferredCurrency: DisplayCurrency.tryParse(
+            json['preferredCurrency'] as String?,
+          )?.code ??
+          'XOF',
       wantsScholarshipSupport: json['wantsScholarshipSupport'] as bool? ??
           json['wantsScholarship'] as bool? ??
           false,
