@@ -149,6 +149,35 @@ export class OrientationService {
       this.buildRecommendation(entry.fieldId, entry.score, answers, profile),
     );
 
+    // Ce qui part chez le tiers est une PROJECTION EXPLICITE, jamais l'objet
+    // `profile` du client.
+    //
+    // Il l'était, et l'écran de consentement affiché juste avant affirmait le
+    // contraire, mot pour mot : « Ton nom civil n'est pas recopié dans l'invite »
+    // (app_translations.dart). Le lot 11 avait retiré `Nom : ${dto.name}` des
+    // routes /tools et manqué celle-ci — or c'est ici que passe le questionnaire
+    // d'orientation, la surface la plus utilisée de l'app. Le consentement était
+    // donc recueilli sur une phrase fausse.
+    //
+    // La liste est CLOSE et le test la verrouille : un champ ajouté au corps de
+    // la requête ne peut plus atteindre l'invite sans qu'une garde rougisse.
+    // Les types sont contraints ici même, pour qu'un client ne puisse pas faire
+    // passer un objet imbriqué dans un champ annoncé comme une chaîne.
+    const promptProfile = {
+      currentLevel:
+        typeof profile.currentLevel === 'string' ? profile.currentLevel : null,
+      targetCountryIds: Array.isArray(profile.targetCountryIds)
+        ? profile.targetCountryIds.filter(
+            (id): id is string => typeof id === 'string',
+          )
+        : [],
+      fieldIds: readFieldIds(profile.fieldIds),
+      preferredLanguage:
+        typeof profile.preferredLanguage === 'string'
+          ? profile.preferredLanguage
+          : null,
+    };
+
     const llmPayload = await this.llmService.completeJson<{
       recommendations?: Array<{
         fieldId: string;
@@ -160,7 +189,7 @@ export class OrientationService {
         'Tu es l\'orientation IA KPB. Réponds UNIQUEMENT en JSON valide avec recommendations[].fieldId (d01-d12), explanationFr, explanationEn (2 phrases max, personnalisées).',
       user: JSON.stringify({
         answers,
-        profile,
+        profile: promptProfile,
         topFields: ranked.slice(0, 5),
       }),
       fallback: { recommendations: [] },
