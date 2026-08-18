@@ -9,6 +9,20 @@ name: Release preflight (backend before mobile)
 # every WhatsApp recipient. Prose does not run. This does.
 #
 # Read-only: it curls two public URLs and reads git. It changes nothing.
+#
+# THE ORDER IS NOT ALWAYS THE SAME, and assuming it is nearly cost this project a
+# tester-visible outage (18/08/2026). The default case is the one above: a build
+# that talks to an API it needs must not reach users before that API. But the
+# build 49 cutover is the mirror image — the backend on `main` puts AiConsentGuard
+# in front of the AI tool routes, and build 48, already in testers' hands, does
+# not send consent: deploying it first turns those tools into a 403 rendered as
+# « vérifiez votre connexion ». Build 49 masks those same routes client-side, so
+# it runs happily against the OLD backend, and the deploy must FOLLOW it.
+#
+# So the coupling direction is declared per release. `tolerates-old` is NOT
+# « skip the check »: production may be BEHIND, but it must be behind on this
+# ref's own history — a production running code that is not an ancestor of the
+# mobile build is unknown territory and still fails.
 
 on:
   workflow_dispatch:
@@ -17,6 +31,14 @@ on:
         description: 'Git ref the mobile build is cut from (branch, tag or SHA)'
         required: false
         default: 'main'
+      backend_coupling:
+        description: 'requires-new = the build needs this backend live first · tolerates-old = it does not (new routes masked client-side)'
+        type: choice
+        required: false
+        default: 'requires-new'
+        options:
+          - requires-new
+          - tolerates-old
 
 concurrency:
   group: release-preflight
@@ -39,6 +61,7 @@ jobs:
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
           REF: ${{ inputs.ref }}
+          COUPLING: ${{ inputs.backend_coupling }}
         run: |
           set -euo pipefail
           if [ -z "${HEALTH_URL:-}" ]; then
@@ -62,13 +85,38 @@ jobs:
             exit 1
           fi
 
-          if [ "$DEPLOYED" != "$EXPECTED" ]; then
+          if [ "$DEPLOYED" = "$EXPECTED" ]; then
+            echo "backend is on $EXPECTED ✅"
+            exit 0
+          fi
+
+          if [ "$COUPLING" = "requires-new" ]; then
             echo "::error::production runs $DEPLOYED but the mobile build is cut from $EXPECTED."
             echo "::error::Run « Deploy backend (VPS) » on $REF first. A build that talks to an"
             echo "::error::older API reaches users before the API it needs does."
+            echo "::error::If this build does NOT need the new backend — its new routes are"
+            echo "::error::masked client-side — re-run with backend_coupling=tolerates-old."
             exit 1
           fi
-          echo "backend is on $EXPECTED ✅"
+
+          # tolerates-old. Production may lag, but not into code we cannot place.
+          if ! git cat-file -e "${DEPLOYED}^{commit}" 2>/dev/null; then
+            echo "::error::production reports $DEPLOYED, which is not a commit in this repository's"
+            echo "::error::fetched history. That is not « behind », that is unidentified — refuse."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$DEPLOYED" "$EXPECTED"; then
+            echo "::error::production ($DEPLOYED) is NOT an ancestor of the mobile build ($EXPECTED)."
+            echo "::error::Production is ahead, or on a divergent branch. « tolerates-old » covers a"
+            echo "::error::backend that lags on the SAME history, not one nobody can account for."
+            exit 1
+          fi
+          BEHIND="$(git rev-list --count "${DEPLOYED}..${EXPECTED}")"
+          echo "::warning::production is $BEHIND commit(s) BEHIND the mobile build, and that is the"
+          echo "::warning::declared intent for this release (backend_coupling=tolerates-old)."
+          echo "::warning::The coupled deploy is now OWED: run « Deploy backend (VPS) » with"
+          echo "::warning::scope=full on $REF once this build is in testers' hands — not before."
+          echo "backend intentionally behind by $BEHIND commit(s) ✅"
 
       - name: The store-redirect page is served, not 404-ed onto the home page
         env:
@@ -87,4 +135,12 @@ jobs:
           echo "${WEB_URL}/app serves the store-redirect page ✅"
 
       - name: Verdict
-        run: echo "Preflight green — the backend is ahead of the mobile build. Xcode Organizer is now safe to open."
+        env:
+          COUPLING: ${{ inputs.backend_coupling }}
+        run: |
+          if [ "$COUPLING" = "tolerates-old" ]; then
+            echo "Preflight green — production intentionally lags this build, which does not need it."
+            echo "Xcode Organizer is safe to open. The coupled backend deploy is OWED afterwards."
+          else
+            echo "Preflight green — the backend is ahead of the mobile build. Xcode Organizer is now safe to open."
+          fi
