@@ -406,16 +406,50 @@ jobs:
             exit 1
           fi
 
+          # READINESS FIRST, and this is not defensive padding. This step runs
+          # after a `--force-recreate` of kpb_web, and the edge needs a moment
+          # to route to the new container. Traefik answers 404 in that window —
+          # not 502, not a refused connection — so the first requests look
+          # exactly like missing files.
+          #
+          # Measured on run 32160463701 (18/08/2026): the five first files in
+          # alphabetical order 404'd and the last four passed, one second after
+          # « Container kpb_web Started ». Production was never down.
+          echo "── wait for the edge to route to the new container ──"
+          ready=0
+          for attempt in $(seq 1 24); do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "${WEB_URL}/index.html" || true)"
+            if [ "$code" = "200" ]; then ready=1; break; fi
+            echo "edge not routing yet (attempt $attempt, HTTP ${code})"
+            sleep 5
+          done
+          if [ "$ready" != "1" ]; then
+            echo "::error::${WEB_URL}/index.html never returned 200 in two minutes."
+            echo "::error::kpb_web was recreated and started, so this is the edge (Traefik) or DNS — NOT the page contents."
+            exit 1
+          fi
+
           stale=0
           checked=0
+          found=0
           while IFS= read -r file; do
+            found=$((found + 1))
             rel="${file#web/public/}"
-            # Fetched to a FILE, never piped: in `curl … | sha256sum` the pipe
-            # exit status is sha256sum's, so a host that never answered would be
-            # reported as a content mismatch. uptime.yml had exactly that bug.
-            if ! curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
-                 -o /tmp/served.bin "${WEB_URL}/${rel}"; then
-              echo "::error::${WEB_URL}/${rel} did not answer. This is reachability, NOT content."
+            # THREE outcomes, told apart — because a guard that merges them
+            # sends whoever reads it to the wrong place. Fetched to a file and
+            # never piped (in `curl | sha256sum` the exit status is
+            # sha256sum's, which is the bug uptime.yml carried); and the
+            # transport is distinguished from the STATUS, which is the bug the
+            # first version of THIS gate carried: it called an HTTP 404 "did
+            # not answer" and sent me hunting an outage that did not exist.
+            code="$(curl -sS -o /tmp/served.bin -w '%{http_code}' --max-time 20 "${WEB_URL}/${rel}" || true)"
+            if [ "$code" = "000" ]; then
+              echo "::error::/${rel} — no HTTP response at all. This is TRANSPORT, not content."
+              stale=1
+              continue
+            fi
+            if [ "$code" != "200" ]; then
+              echo "::error::/${rel} — the edge answered HTTP ${code}. The file exists in this ref and is NOT being served."
               stale=1
               continue
             fi
@@ -423,14 +457,16 @@ jobs:
                != "$(sha256sum < "$file" | cut -d' ' -f1)" ]; then
               echo "::error::/${rel} is served with DIFFERENT bytes than this ref — kpb_web is stale."
               stale=1
+              continue
             fi
             checked=$((checked + 1))
           done < <(find web/public -type f | sort)
 
           # A loop that matched nothing would pass silently; that is how a gate
-          # dies without anyone noticing.
-          if [ "$checked" -lt 5 ]; then
-            echo "::error::only $checked file(s) compared — the scan is broken, not the site."
+          # dies without anyone noticing. Counted on files FOUND, not on files
+          # that passed — otherwise real failures get reported as a broken scan.
+          if [ "$found" -lt 5 ]; then
+            echo "::error::only $found file(s) found under web/public — the scan is broken, not the site."
             exit 1
           fi
           [ "$stale" = "0" ] || exit 1
