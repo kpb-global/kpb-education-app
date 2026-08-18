@@ -453,6 +453,21 @@ jobs:
               stale=1
               continue
             fi
+            # A MISSING file does not 404 here: web/nginx.conf line 13 carries
+            # "error_page 404 /index.html", so nginx answers 200 with the HOME
+            # PAGE body for any path it cannot find. Without this check the
+            # comparison below would still fail — but it would blame a stale
+            # container for a file that was never deployed. Two different
+            # repairs, so two different messages.
+            #
+            # (This is also the proof that the 404s on run 32160463701 came from
+            # Traefik, upstream: nginx cannot produce a bare 404 for these
+            # paths.)
+            if [ "$rel" != "index.html" ] && cmp -s /tmp/served.bin web/public/index.html; then
+              echo "::error::/${rel} is served the HOME PAGE, not itself — nginx fell back through error_page. The file is NOT on the VPS."
+              stale=1
+              continue
+            fi
             if [ "$(sha256sum < /tmp/served.bin | cut -d' ' -f1)" \
                != "$(sha256sum < "$file" | cut -d' ' -f1)" ]; then
               echo "::error::/${rel} is served with DIFFERENT bytes than this ref — kpb_web is stale."
