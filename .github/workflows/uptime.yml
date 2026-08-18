@@ -122,9 +122,23 @@ jobs:
           # Apple and Play link these permanently; a 404 here is a compliance
           # problem, not a broken link. Each is matched on its OWN title, so the
           # home-page fallback cannot stand in for a missing one.
+          #
+          # The fetch is written to a FILE and its failure is reported on its
+          # own. It used to be `fetch "/$1" | grep -qF …`: in a pipeline the exit
+          # status is grep's, so curl failing left an empty stream and the guard
+          # announced « is not the expected page », naming a content defect for
+          # what was a host that never answered. That is what the 19:56 run of
+          # 16/08/2026 reported, twenty minutes after the same assertion passed.
+          # An alert that misnames the fault sends whoever reads it to the wrong
+          # place — and this VPS is known to flap (see the ssh-keyscan retries in
+          # deploy.yml). The two failures now read differently.
           legal_page() {
-            fetch "/$1" | grep -qF "<title>$2" \
-              || { echo "::error::${WEB_URL}/$1 is not the expected page (title '$2' absent) — the store listings link here."; exit 1; }
+            if ! fetch "/$1" > "/tmp/legal-$1"; then
+              echo "::error::${WEB_URL}/$1 did not answer. This is REACHABILITY, not content — the page itself is unproven, not disproven."
+              exit 1
+            fi
+            grep -qF "<title>$2" "/tmp/legal-$1" \
+              || { echo "::error::${WEB_URL}/$1 answered, but is not the expected page (title '$2' absent) — the store listings link here."; exit 1; }
             echo "/$1 ✅"
           }
           legal_page confidentialite.html 'Politique de confidentialité'

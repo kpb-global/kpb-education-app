@@ -616,12 +616,16 @@ class AppTranslations extends Translations {
           'privacy_s10_title': '10. Modifications',
           'privacy_transfers_title': 'Transferts hors de votre pays',
           'last_updated_august_2026': 'Dernière mise à jour : août 2026',
+          // L'éditeur. « KPB Education » est un SERVICE, pas une personne
+          // morale : le responsable du traitement est KPB Global L.L.C-FZ, et
+          // la politique doit le dire, sinon l'utilisateur consent au profit
+          // d'une entité qu'il ne peut pas nommer — ni assigner.
           'privacy_s1_body':
-              'KPB Education (ci-après "nous", "notre", "KPB") est responsable du traitement des données personnelles collectées via l\'application mobile KPB Education.\n\n'
-                  // TODO(owner-identity): forme juridique, adresse postale, pays
-                  // d\'établissement, autorité de contrôle — échéance 28/08/2026.
+              'KPB Education (ci-après "nous", "notre", "KPB") est un service de KPB Global L.L.C-FZ, société à responsabilité limitée de zone franche immatriculée auprès de la Meydan Free Zone (Meydan City Corporation, Émirat de Dubaï) sous la licence n° 2537631.01. KPB Global L.L.C-FZ est le responsable du traitement des données personnelles collectées via l\'application mobile KPB Education.\n\n'
+                  'Siège social : Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubaï, Émirats arabes unis\n'
                   'Contact : contact@kpbeducation.com\n'
-                  'Site : https://kpbeducation.cloud',
+                  'Site : https://kpbeducation.cloud\n\n'
+                  'Le traitement relève du décret-loi fédéral n° 45 de 2021 des Émirats arabes unis sur la protection des données personnelles. Vous pouvez adresser une réclamation au UAE Data Office. Si la loi de votre pays de résidence vous ouvre un recours devant une autorité locale de protection des données, ce recours reste entier.',
           'privacy_s2_body': 'Nous collectons les données suivantes :\n\n'
               '• Identité : nom complet, adresse e-mail, numéro de téléphone, WhatsApp\n'
               '• Date de naissance (étudiants) ; nom et contact du tuteur si vous avez moins de 18 ans\n'
@@ -672,7 +676,7 @@ class AppTranslations extends Translations {
               '• Données sensibles (tokens) stockées dans le Keychain (iOS) / Keystore (Android)\n'
               '• Accès restreint aux données de production',
           'privacy_s8_body':
-              'Conformément au RGPD et aux lois applicables, vous avez le droit :\n\n'
+              'Conformément au décret-loi fédéral n° 45 de 2021 des Émirats arabes unis, au RGPD lorsqu\'il s\'applique et aux lois de votre pays de résidence, vous avez le droit :\n\n'
                   '• D\'accéder à vos données personnelles\n'
                   '• De rectifier vos données\n'
                   '• De supprimer votre compte et vos données\n'
@@ -689,14 +693,14 @@ class AppTranslations extends Translations {
               'Cette politique peut être mise à jour. Nous vous informerons de tout changement significatif via une notification dans l\'application.\n\n'
                   'En continuant à utiliser l\'application après une mise à jour, vous acceptez la nouvelle politique.',
           'terms_s10_body':
-              // TODO(owner-identity): nommer la loi et la juridiction
-              // (forme légale, pays d\'établissement) — échéance 28/08/2026.
-              'Les présentes CGU sont soumises au droit applicable à l\'entité éditrice, dont l\'identité juridique n\'est pas encore publiée.\n\n'
-                  'En cas de litige, les parties s\'engagent à chercher une résolution amiable avant tout recours judiciaire.',
-          'terms_s11_body':
-              'Pour toute question relative aux présentes CGU :\n\n'
-                  'Email : contact@kpbeducation.com\n'
-                  'Site web : https://kpbeducation.cloud',
+              'Les présentes CGU sont régies par le droit des Émirats arabes unis et par la réglementation de la Meydan Free Zone (Émirat de Dubaï), lieu d\'établissement de KPB Global L.L.C-FZ, éditeur de KPB Education.\n\n'
+                  'En cas de litige, les parties s\'engagent à chercher une résolution amiable ; à défaut d\'accord, les tribunaux compétents de Dubaï le trancheront.\n\n'
+                  'Si la loi de votre pays de résidence vous accorde des protections impératives en tant que consommateur, celles-ci vous restent acquises.',
+          'terms_s11_body': 'Pour toute question relative aux présentes CGU :\n\n'
+              'Éditeur : KPB Global L.L.C-FZ (licence Meydan Free Zone n° 2537631.01)\n'
+              'Adresse : Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubaï, Émirats arabes unis\n'
+              'Email : contact@kpbeducation.com\n'
+              'Site web : https://kpbeducation.cloud',
           'onboarding_under_16_title': 'Âge minimum : 16 ans',
           'onboarding_under_16_body':
               'Les CGU exigent 16 ans révolus pour créer un compte. La date indiquée correspond à moins de 16 ans.',
@@ -3418,11 +3422,11 @@ class AppTranslations extends Translations {
           'privacy_transfers_title': 'Transfers outside your country',
           'last_updated_august_2026': 'Last updated: August 2026',
           'privacy_s1_body':
-              'KPB Education (hereafter "we", "our", "KPB") is the controller of personal data collected through the KPB Education mobile app.\n\n'
-                  // TODO(owner-identity): legal form, postal address, country,
-                  // supervisory authority — due 28/08/2026.
+              'KPB Education (hereafter "we", "our", "KPB") is a service of KPB Global L.L.C-FZ, a free-zone limited liability company registered with the Meydan Free Zone (Meydan City Corporation, Emirate of Dubai) under licence no. 2537631.01. KPB Global L.L.C-FZ is the controller of personal data collected through the KPB Education mobile app.\n\n'
+                  'Registered office: Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, United Arab Emirates\n'
                   'Contact: contact@kpbeducation.com\n'
-                  'Website: https://kpbeducation.cloud',
+                  'Website: https://kpbeducation.cloud\n\n'
+                  'Processing is governed by UAE Federal Decree-Law no. 45 of 2021 on the Protection of Personal Data. You may lodge a complaint with the UAE Data Office. Where the law of your country of residence gives you a remedy before a local data protection authority, that remedy remains available.',
           'privacy_s2_body': 'We collect the following data:\n\n'
               '• Identity: full name, email address, phone number, WhatsApp\n'
               '• Date of birth (students); guardian name and contact if you are under 18\n'
@@ -3472,7 +3476,7 @@ class AppTranslations extends Translations {
               '• Sensitive data (tokens) stored in the Keychain (iOS) / Keystore (Android)\n'
               '• Restricted access to production data',
           'privacy_s8_body':
-              'Under the GDPR and applicable law, you have the right to:\n\n'
+              'Under UAE Federal Decree-Law no. 45 of 2021, under the GDPR where it applies, and under the law of your country of residence, you have the right to:\n\n'
                   '• Access your personal data\n'
                   '• Rectify your data\n'
                   '• Delete your account and your data\n'
@@ -3490,11 +3494,12 @@ class AppTranslations extends Translations {
               'This policy may be updated. We will notify you of any material change via an in-app notification.\n\n'
                   'By continuing to use the app after an update, you accept the new policy.',
           'terms_s10_body':
-              // TODO(owner-identity): name the governing law and venue
-              // (legal form, country of establishment) — due 28/08/2026.
-              'These Terms are governed by the law applicable to the publishing entity, whose legal identity is not yet published.\n\n'
-                  'In case of dispute, the parties will first seek an amicable resolution.',
+              'These Terms are governed by the laws of the United Arab Emirates and by the regulations of the Meydan Free Zone (Emirate of Dubai), where KPB Global L.L.C-FZ, the publisher of KPB Education, is established.\n\n'
+                  'In case of dispute, the parties will first seek an amicable resolution; failing agreement, the competent courts of Dubai shall settle it.\n\n'
+                  'Where the law of your country of residence grants you mandatory consumer protections, those protections still apply.',
           'terms_s11_body': 'For any question about these Terms:\n\n'
+              'Publisher: KPB Global L.L.C-FZ (Meydan Free Zone licence no. 2537631.01)\n'
+              'Address: Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, United Arab Emirates\n'
               'Email: contact@kpbeducation.com\n'
               'Website: https://kpbeducation.cloud',
           'onboarding_under_16_title': 'Minimum age: 16',

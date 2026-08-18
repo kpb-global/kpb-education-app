@@ -60,7 +60,15 @@ Usage descriptions currently declared (do **not** claim they were removed):
 
 In-app policy screens (`[legal_pages.dart](../lib/app/features/legal/legal_pages.dart)`) and `web/public/confidentialite.html` must name every processor that the code talks to: Groq, OneSignal, Firebase, PostHog, Supabase, Resend, Mautic, the KPB backend, plus PayDunya / CinetPay. A static guard (`test/core/privacy_disclosure_parity_test.dart`) derives hosts and permissions from the git-tracked tree and fails if a disclosure is missing.
 
-`TODO(owner-identity)` — legal entity, postal address, country of establishment and supervisory authority are not in the repository (due 28/08/2026).
+## Controller identity
+
+Resolved on 16/08/2026. The controller is **KPB Global L.L.C-FZ**, a free-zone LLC registered with the Meydan Free Zone (Meydan City Corporation, Emirate of Dubai) under licence no. 2537631.01, registered office Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, United Arab Emirates. **KPB Education is a service of that company, not a separate legal person** — the policies must say so, otherwise the user consents to an entity they cannot name.
+
+Governing regime: UAE Federal Decree-Law no. 45 of 2021 on the Protection of Personal Data; supervisory authority: the UAE Data Office. Terms are governed by UAE law with venue in Dubai, without prejudice to mandatory consumer protections in the user's country of residence.
+
+A static guard (`test/core/legal_identity_test.dart`) fails if any of the four published surfaces — the FR and EN translation blocks, `web/public/confidentialite.html`, `web/public/conditions.html` — stops naming the entity, or if the pre-16/08/2026 placeholder wording comes back. (The guard scans for that wording, so this document deliberately does not quote it.)
+
+The Meydan licence expires **21/09/2027**; the identity block must be re-checked at renewal.
 
 ## Periodic review
 
