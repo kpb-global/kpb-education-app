@@ -632,7 +632,17 @@ class AppTranslations extends Translations {
               '• Photo de profil, si vous en ajoutez une (caméra ou photothèque)\n'
               '• Profil académique : niveau d\'études, niveau cible, compétences linguistiques, notes, filières d\'intérêt, pays de destination\n'
               '• Messages de dossier et textes soumis au coach (KPB Intelligence)\n'
-              '• Dictée vocale : le micro convertit votre voix en texte pour une demande d\'accompagnement\n'
+              // Le repli réseau est NOMMÉ parce qu'il subsiste dans le code.
+              // `SpeechInputService.startListening` demande bien la
+              // reconnaissance locale (`onDevice: true`), et sur iPhone c'est un
+              // contrat dur : sans reconnaissance locale la session est refusée,
+              // rien ne part. Sur Android ce n'est qu'une préférence
+              // (`EXTRA_PREFER_OFFLINE`) : le greffon retombe SILENCIEUSEMENT
+              // sur le reconnaisseur réseau quand le modèle local manque, et ce
+              // repli n'est visible depuis aucune API Dart. Écrire « converti en
+              // texte sur l'appareil » sans réserve serait donc faux sur une
+              // partie des Android — précisément le public de l'app.
+              '• Dictée vocale : le micro capte votre voix, l\'app demande à votre téléphone de la convertir en texte sur l\'appareil et n\'en garde que le texte ; l\'enregistrement audio ne nous est jamais transmis. Sur iPhone, si la reconnaissance locale est indisponible, la dictée ne démarre pas. Sur Android, la reconnaissance locale n\'est qu\'une préférence : sans modèle local installé, le service de reconnaissance de votre téléphone (Google) peut traiter votre voix hors de l\'appareil\n'
               '• Documents (passeport, relevés, pièces de dossier) : l\'envoi depuis l\'application est masqué. Ces pièces passent par WhatsApp vers votre conseiller, pas par un téléversement in-app\n'
               '• Données d\'utilisation : résultats d\'orientation, éléments sauvegardés, historique de recherche\n'
               '• Données techniques : identifiant de l\'appareil (notifications), biométrie locale (verrouillage), localisation déclarée par le SDK OneSignal mais jamais demandée ni utilisée\n'
@@ -654,7 +664,13 @@ class AppTranslations extends Translations {
               '• Notre backend KPB (VPS Hostinger, api.kpbeducation.cloud) pour faire fonctionner l\'application\n'
               '• Supabase (authentification : e-mail, session, Google)\n'
               '• Groq (États-Unis) : textes du coach et profil pseudonymisé — jamais vendus\n'
-              '• OneSignal (États-Unis) : jeton de notifications\n'
+              // Les quatre étiquettes partaient déjà sans être déclarées, et
+              // l'e-mail partait aussi — ce dernier a été retiré du code (voir
+              // `OneSignalService`), les étiquettes sont GARDÉES parce que le
+              // ciblage sert vraiment, donc elles sont nommées ici. Le « jamais
+              // votre adresse e-mail » est une promesse que le code tient
+              // maintenant, pas une intention.
+              '• OneSignal (États-Unis) : jeton de notifications, identifiant de compte et quatre étiquettes de ciblage (type de compte, niveau d\'études, pays visé, langue) — jamais votre adresse e-mail\n'
               '• Firebase / Google (Analytics, Crashlytics) pour l\'analytique et la stabilité\n'
               '• PostHog (États-Unis) : analytique produit et enregistrements de session au contenu masqué\n'
               '• Resend (États-Unis) : e-mails transactionnels et campagnes\n'
@@ -1351,9 +1367,20 @@ class AppTranslations extends Translations {
           'case_message_mic_required_title': 'Micro requis',
           'case_message_mic_required_body':
               'Autorise le micro pour dicter ton message.',
+          // `case_message_dictation_unavailable_*` reste le message des pannes
+          // ORDINAIRES (micro occupé, plateforme absente). Les trois clés
+          // suivantes servent le cas distinct où la plateforme refuse la
+          // reconnaissance LOCALE : là, la dictée n'est possible qu'en
+          // envoyant la voix au service d'Apple ou de Google, ce qui exige un
+          // accord explicite — d'où un dialogue, et non un snackbar.
           'case_message_dictation_unavailable_title': 'Dictée indisponible',
           'case_message_dictation_unavailable_body':
               'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+          'case_message_dictation_on_device_unavailable_title':
+              'Reconnaissance locale indisponible',
+          'case_message_dictation_on_device_unavailable_body':
+              'Votre téléphone ne peut pas convertir la voix en texte hors ligne. Pour dicter, votre voix serait envoyée au service de reconnaissance de votre téléphone (Apple ou Google) et traitée hors de l\'appareil. Vous pouvez aussi écrire votre message.',
+          'case_message_dictation_use_platform_service': 'Dicter quand même',
           'case_message_stop_dictation': 'Arrêter la dictée',
           'case_message_dictate': 'Dicter mon message',
           'case_contact_phone': 'Téléphone',
@@ -1518,8 +1545,13 @@ class AppTranslations extends Translations {
           'profile_data_saver_desc':
               'Economise la data (masque les images lourdes)',
           'profile_analytics': 'Analyse d\'usage',
+          // Les diagnostics de plantage sont nommés parce que l'interrupteur les
+          // coupe désormais réellement : `AnalyticsService.setCollectionEnabled`
+          // est l'entonnoir des TROIS collecteurs (Firebase Analytics,
+          // Crashlytics, PostHog). Avant, Crashlytics collectait quoi qu'on
+          // réponde — le libellé taisait donc moins qu'il ne mentait.
           'profile_analytics_desc':
-              'Autoriser l\'analyse anonyme de l\'usage et l\'enregistrement de session (contenu masqué) pour améliorer l\'app',
+              'Autoriser l\'analyse anonyme de l\'usage, les diagnostics de plantage et l\'enregistrement de session (contenu masqué) pour améliorer l\'app',
           'profile_newsletter': 'Newsletter bourses',
           'profile_newsletter_desc':
               'Recevoir les nouvelles bourses d\'études disponibles par email (désinscription à tout moment)',
@@ -1844,6 +1876,14 @@ class AppTranslations extends Translations {
           'case_context_prefilled':
               'Contexte pré-rempli depuis ta navigation. Tu peux continuer ou revenir en arrière pour modifier.',
           'listening_speak_clearly': 'Écoute en cours… parle clairement.',
+          // Remplace l'indicateur ci-dessus quand la voix est traitée HORS de
+          // l'appareil (`SpeechProcessingMode.platformService`). La clé est
+          // posée d'avance : le câblage vit dans `case_tunnel_flow.dart`, hors
+          // du périmètre de ce lot, et sans elle le prochain lot écrirait un
+          // littéral français en dur — le défaut que garde
+          // `no_hardcoded_french_test.dart`.
+          'listening_via_platform_service':
+              'Écoute en cours… ta voix est traitée par le service de reconnaissance de ton téléphone.',
           'review_before_send':
               'Vérifie le récapitulatif avant envoi. KPB te répond sous 24–48 h.',
           'upcoming': 'À venir',
@@ -2017,8 +2057,15 @@ class AppTranslations extends Translations {
               'Réponds à 12 questions et découvre tes chances réelles d’admission, université par université.',
           'auth_intelligence_benefit_probability':
               'Probabilité d’admission chiffrée par université',
+          // Ne nomme QUE le coach, seule surface KPB Intelligence en ligne en
+          // build 49. La version précédente promettait « lettre, entretien » :
+          // le générateur de lettres et le simulateur d'entretien sont masqués
+          // par `AppConfig.aiToolsEnabled` (faux par défaut), donc le premier
+          // écran vantait deux outils qu'un testeur ne peut pas atteindre.
+          // Les trois sujets cités sont ceux du coach lui-même
+          // (`coach_welcome_message`), pas une liste d'outils.
           'auth_intelligence_benefit_ai':
-              'KPB Intelligence en français : lettre, entretien, budget',
+              'KPB Intelligence répond en français : écoles, budget, filières',
           'auth_intelligence_benefit_support':
               'Accompagnement humain KPB via WhatsApp',
           'auth_receive_email_link': 'Recevoir un lien par email',
@@ -3433,7 +3480,9 @@ class AppTranslations extends Translations {
               '• Profile photo, if you add one (camera or photo library)\n'
               '• Academic profile: current level, target level, language skills, grades, fields of interest, destination countries\n'
               '• Case messages and texts submitted to the coach (KPB Intelligence)\n'
-              '• Voice dictation: the microphone turns your speech into text for a support request\n'
+              // Voir le commentaire du bloc `fr` : le repli réseau d'Android est
+              // nommé parce qu'il subsiste dans le greffon.
+              '• Voice dictation: the microphone captures your voice, the app asks your phone to turn it into text on the device and keeps only that text; the audio recording is never sent to us. On iPhone, if on-device recognition is unavailable, dictation does not start. On Android, on-device recognition is only a preference: without a local model installed, your phone\'s recognition service (Google) may process your voice off the device\n'
               '• Documents (passport, transcripts, case files): in-app upload is masked. These files reach your advisor over WhatsApp, not through an in-app upload\n'
               '• Usage data: orientation results, saved items, search history\n'
               '• Technical data: device identifier (notifications), local biometrics (app lock), location declared by the OneSignal SDK but never requested or used\n'
@@ -3455,7 +3504,8 @@ class AppTranslations extends Translations {
               '• Our KPB backend (Hostinger VPS, api.kpbeducation.cloud) to run the app\n'
               '• Supabase (authentication: email, session, Google)\n'
               '• Groq (United States): coach texts and a pseudonymised profile — never sold\n'
-              '• OneSignal (United States): push token\n'
+              // Voir le commentaire du bloc `fr`.
+              '• OneSignal (United States): push token, account identifier and four targeting tags (account type, study level, target country, language) — never your email address\n'
               '• Firebase / Google (Analytics, Crashlytics) for analytics and stability\n'
               '• PostHog (United States): product analytics and content-masked session recordings\n'
               '• Resend (United States): transactional and campaign email\n'
@@ -4106,9 +4156,16 @@ class AppTranslations extends Translations {
           'case_message_mic_required_title': 'Microphone required',
           'case_message_mic_required_body':
               'Allow microphone access to dictate your message.',
+          // Voir le commentaire du bloc `fr` : le refus de la reconnaissance
+          // LOCALE est un cas distinct d'une panne de dictée ordinaire.
           'case_message_dictation_unavailable_title': 'Dictation unavailable',
           'case_message_dictation_unavailable_body':
               'Speech recognition isn\'t available on this device.',
+          'case_message_dictation_on_device_unavailable_title':
+              'On-device recognition unavailable',
+          'case_message_dictation_on_device_unavailable_body':
+              'Your phone cannot turn speech into text offline. To dictate, your voice would be sent to your phone\'s recognition service (Apple or Google) and processed off the device. You can also type your message instead.',
+          'case_message_dictation_use_platform_service': 'Dictate anyway',
           'case_message_stop_dictation': 'Stop dictation',
           'case_message_dictate': 'Dictate my message',
           'case_contact_phone': 'Phone',
@@ -4270,8 +4327,9 @@ class AppTranslations extends Translations {
           'continue_action': 'Continue',
           'profile_data_saver_desc': 'Save data (hides heavy images)',
           'profile_analytics': 'Usage analytics',
+          // Voir le commentaire du bloc `fr`.
           'profile_analytics_desc':
-              'Allow anonymous usage analytics and session recording (content masked) to improve the app',
+              'Allow anonymous usage analytics, crash diagnostics and session recording (content masked) to improve the app',
           'profile_newsletter': 'Scholarship newsletter',
           'profile_newsletter_desc':
               'Receive newly available scholarships by email (unsubscribe anytime)',
@@ -4590,6 +4648,9 @@ class AppTranslations extends Translations {
           'case_context_prefilled':
               'Context pre-filled from your browsing. You can continue or go back to edit.',
           'listening_speak_clearly': 'Listening… speak clearly.',
+          // Voir le commentaire du bloc `fr`.
+          'listening_via_platform_service':
+              'Listening… your voice is being processed by your phone\'s recognition service.',
           'review_before_send':
               'Check the summary before sending. KPB replies within 24–48 h.',
           'upcoming': 'Upcoming',
@@ -4760,8 +4821,10 @@ class AppTranslations extends Translations {
               'Answer 12 questions and discover your real admission chances, university by university.',
           'auth_intelligence_benefit_probability':
               'A quantified admission probability for each university',
+          // Voir le commentaire du bloc `fr` : ne nomme que le coach, la seule
+          // surface KPB Intelligence atteignable en build 49.
           'auth_intelligence_benefit_ai':
-              'KPB Intelligence in French: letter, interview, budget',
+              'KPB Intelligence answers in French: schools, budget, programs',
           'auth_intelligence_benefit_support':
               'Human KPB guidance via WhatsApp',
           'auth_receive_email_link': 'Receive a link by email',

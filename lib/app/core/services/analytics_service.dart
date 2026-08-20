@@ -2,12 +2,24 @@ import 'dart:async';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/widgets.dart' show NavigatorObserver;
 import 'package:posthog_flutter/posthog_flutter.dart';
 
 import '../config/app_config.dart';
 import '../observability/analytics_event_contract.dart';
+import '../observability/crashlytics_observability.dart';
 import '../utils/app_logger.dart';
+
+/// Applies one consent decision to one collector. See
+/// [AnalyticsService.setCollectionEnabled].
+typedef ConsentApplier = Future<void> Function(bool enabled);
+
+Future<void> _applyFirebaseAnalyticsConsent(bool enabled) =>
+    FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(enabled);
+
+Future<void> _applyPosthogConsent(bool enabled) =>
+    enabled ? Posthog().enable() : Posthog().disable();
 
 /// Thin wrapper around FirebaseAnalytics with typed event helpers.
 /// All calls are fire-and-forget — never throw to the caller.
@@ -88,22 +100,62 @@ class AnalyticsService {
 
   // ── Consent ──────────────────────────────────────────────────────────────
 
-  /// Turns product analytics collection on/off at runtime for BOTH Firebase
-  /// Analytics and PostHog (events + session replay). Wired to the profile
-  /// opt-out toggle and re-applied on every boot from the persisted choice
-  /// (`AppController.applyAnalyticsConsent`). When [enabled] is false, PostHog
-  /// stops capturing and recording immediately. Never throws.
+  /// The three collectors the "Analyse d'usage" switch governs, as replaceable
+  /// fields rather than direct SDK calls.
+  ///
+  /// The seam exists because the SDK calls cannot be observed from a test: with
+  /// no default Firebase app they throw, and the per-collector catch in
+  /// [setCollectionEnabled] swallows the throw. A guard written against the
+  /// real SDKs would therefore stay green while a collector kept collecting —
+  /// which is exactly how crash diagnostics stayed on for months after the
+  /// switch shipped.
+  @visibleForTesting
+  ConsentApplier firebaseAnalyticsConsent = _applyFirebaseAnalyticsConsent;
+
+  @visibleForTesting
+  ConsentApplier crashlyticsConsent = applyCrashlyticsConsent;
+
+  @visibleForTesting
+  ConsentApplier posthogConsent = _applyPosthogConsent;
+
+  /// Whether the PostHog SDK is wired at all. A field, not a direct read of
+  /// [AppConfig.posthogEnabled], because no PostHog key is defined in a test
+  /// run: the PostHog branch below would be dead code under test and its
+  /// polarity unguarded.
+  @visibleForTesting
+  bool posthogWired = AppConfig.posthogEnabled;
+
+  /// Turns collection on/off at runtime for ALL THREE collectors the profile
+  /// switch claims to govern: Firebase Analytics, Firebase Crashlytics (crash
+  /// diagnostics) and PostHog (events + session replay).
+  ///
+  /// [enabled] false = the user REFUSED: every collector is cut, and pending
+  /// crash reports are dropped ([applyCrashlyticsConsent]). true = accepted:
+  /// every collector is turned back on.
+  ///
+  /// This is the single funnel: it is wired both to the profile toggle
+  /// (`AppController.setAnalyticsAllowed`) and to the boot-time re-application
+  /// of the persisted choice (`AppController.applyAnalyticsConsent`, called
+  /// from `main()`), so a refusal survives restarts instead of being forgotten
+  /// at the next launch. Never throws.
   Future<void> setCollectionEnabled(bool enabled) async {
+    // One try/catch per collector: an SDK that is absent or throws must not
+    // leave the remaining collectors still collecting after a refusal.
+    await _applyConsent('firebase', firebaseAnalyticsConsent, enabled);
+    await _applyConsent('crashlytics', crashlyticsConsent, enabled);
+    if (!posthogWired) return;
+    await _applyConsent('posthog', posthogConsent, enabled);
+  }
+
+  Future<void> _applyConsent(
+    String collector,
+    ConsentApplier apply,
+    bool enabled,
+  ) async {
     try {
-      await _analytics.setAnalyticsCollectionEnabled(enabled);
+      await apply(enabled);
     } catch (e, s) {
-      _logError('setCollectionEnabled.firebase', e, s);
-    }
-    if (!AppConfig.posthogEnabled) return;
-    try {
-      enabled ? await Posthog().enable() : await Posthog().disable();
-    } catch (e, s) {
-      _logError('setCollectionEnabled.posthog', e, s);
+      _logError('setCollectionEnabled.$collector', e, s);
     }
   }
 

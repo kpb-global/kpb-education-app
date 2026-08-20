@@ -30,6 +30,40 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<!-- Les deux collecteurs Firebase démarrent DÉSACTIVÉS.
+
+	     POURQUOI ICI ET PAS EN DART. L'interrupteur « Analyse d'usage » promet
+	     de couper les trois collecteurs, mais le choix persisté n'est lu qu'après
+	     `controller.hydrate()` dans lib/main.dart — après Firebase, PostHog,
+	     Supabase, Hive, le cache catalogue, l'outbox et le dépôt local. Tout ce
+	     qui est collecté dans cette fenêtre l'est sans consentement. Pour
+	     Crashlytics c'est structurellement pire : la file de rapports non
+	     envoyés survit aux lancements et le SDK natif peut la téléverser au
+	     démarrage du processus, avant la première ligne de Dart.
+
+	     CE N'EST PAS UNE COUPURE DÉFINITIVE : les deux SDK gardent en
+	     NSUserDefaults le dernier état posé à l'exécution, et cet état PRIME sur
+	     ces clés. Pour Crashlytics c'est explicite dans le pod installé
+	     (FIRCLSDataCollectionArbiter.m, `stickySetting` testé AVANT la lecture
+	     de l'Info.plist). Qui a accepté redémarre donc en collectant.
+
+	     Noms vérifiés dans les pods installés, pas recopiés de mémoire — une clé
+	     mal orthographiée est ignorée SANS erreur, et ce dépôt s'est déjà fait
+	     prendre exactement comme ça (clé inexistante dans la config des icônes,
+	     21 icônes livrées avec un canal alpha) :
+	       · FIREBASE_ANALYTICS_COLLECTION_ENABLED → chaîne présente dans
+	         GoogleAppMeasurement.xcframework (ios-arm64).
+	       · FirebaseCrashlyticsCollectionEnabled → constante
+	         FIRCLSCrashlyticsCollectionKey dans
+	         Pods/FirebaseCrashlytics/.../FIRCLSDataCollectionArbiter.m.
+
+	     À NE PAS CONFONDRE, et volontairement absente :
+	     FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED, qui est irréversible et
+	     casserait la collecte pour qui a accepté. -->
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

@@ -795,8 +795,98 @@ class _MessageStepState extends State<_MessageStep> {
     }
 
     _dictationBase = widget.controller.text.trim();
-    final started = await _speech.startListening(
+    final started = await _listen();
+
+    // Deux échecs qui se ressemblent et qui ne se traitent pas pareil.
+    //
+    // `SpeechInputService` demande la reconnaissance LOCALE : la voix de
+    // l'étudiant ne doit pas partir chez Apple ou Google, parce que c'est ce
+    // que la politique de confidentialité promet. Quand l'appareil ne sait pas
+    // le faire, le service refuse la session plutôt que de basculer en
+    // silence sur le réseau — et c'est à l'écran de dire pourquoi, puis de
+    // demander. Sans ce dialogue, la dictée échouerait sans un mot sur les
+    // téléphones sans modèle local, et l'étudiant conclurait que l'app est
+    // cassée.
+    //
+    // L'autre échec (micro occupé, greffon absent) n'arme pas
+    // `onDeviceUnavailable` : lui proposer un envoi réseau serait absurde,
+    // il garde son message d'origine.
+    if (!started && mounted && _speech.onDeviceUnavailable) {
+      final accepted = await _askForPlatformService();
+      if (accepted != true) return;
+      // L'étape a pu être quittée pendant que le dialogue était ouvert. On
+      // n'ouvre alors AUCUNE session : `dispose` a déjà appelé
+      // `stopListening`, un micro allumé après lui ne s'éteindrait plus.
+      if (!mounted) return;
+
+      final retried = await _listen(allowPlatformService: true);
+      if (!mounted) return;
+      setState(() => _listening = retried);
+
+      // La seconde tentative échoue elle aussi, parfois : micro occupé,
+      // service de la plateforme indisponible, session refusée. Sans ce
+      // retour, l'étudiant accepte, le dialogue se ferme… et rien ne se
+      // passe — le silence exact que ce dialogue venait d'éviter.
+      //
+      // On ne relit PAS `onDeviceUnavailable` pour choisir le message :
+      // `SpeechInputService` ne l'arme que sur un essai `onDevice` et ne le
+      // désarme qu'en cas de succès, donc après cet échec-ci il vaut encore
+      // `true`, hérité du premier essai. S'en servir reproposerait le dialogue
+      // en boucle. Le refus de la reconnaissance locale a déjà eu son message
+      // — c'était le dialogue ; ce qui reste est un échec de dictée ordinaire,
+      // et il garde le sien.
+      if (!retried) _reportDictationUnavailable();
+      return;
+    }
+
+    if (!started && mounted) {
+      _reportDictationUnavailable();
+      return;
+    }
+
+    if (mounted) setState(() => _listening = started);
+  }
+
+  /// Le message de l'échec de dictée ORDINAIRE — micro occupé, greffon absent,
+  /// session refusée par la plateforme.
+  ///
+  /// Partagé par le premier essai et par la tentative faite après accord :
+  /// les deux laissent l'étudiant devant un bouton qui n'a rien fait, et c'est
+  /// ce silence-là qui est le défaut. Le message du refus de reconnaissance
+  /// locale, lui, n'est pas ici : c'est le dialogue.
+  void _reportDictationUnavailable() {
+    if (!mounted) return;
+    Get.snackbar(
+      'case_message_dictation_unavailable_title'.tr,
+      'case_message_dictation_unavailable_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+    );
+  }
+
+  /// L'accord explicite, jamais présumé : le corps du dialogue nomme le
+  /// destinataire (le service du téléphone) et laisse écrire au clavier.
+  Future<bool?> _askForPlatformService() => Get.dialog<bool>(
+        AlertDialog(
+          title: Text('case_message_dictation_on_device_unavailable_title'.tr),
+          content: Text('case_message_dictation_on_device_unavailable_body'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back<bool>(result: false),
+              child: Text('cancel'.tr),
+            ),
+            TextButton(
+              onPressed: () => Get.back<bool>(result: true),
+              child: Text('case_message_dictation_use_platform_service'.tr),
+            ),
+          ],
+        ),
+      );
+
+  Future<bool> _listen({bool allowPlatformService = false}) {
+    return _speech.startListening(
       localeId: _speechLocale,
+      allowPlatformService: allowPlatformService,
       onResult: (text, isFinal) {
         if (!mounted || text.trim().isEmpty) return;
         final prefix = _dictationBase.isEmpty ? '' : '$_dictationBase ';
@@ -809,18 +899,6 @@ class _MessageStepState extends State<_MessageStep> {
         }
       },
     );
-
-    if (!started && mounted) {
-      Get.snackbar(
-        'case_message_dictation_unavailable_title'.tr,
-        'case_message_dictation_unavailable_body'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
-      return;
-    }
-
-    if (mounted) setState(() => _listening = started);
   }
 
   @override

@@ -73,7 +73,14 @@ export class MauticService {
       return;
     }
 
-    const contactId = await this.upsertContact(input);
+    // Unsubscribing needs the contact's identity only — Mautic answers the
+    // upsert with the id the segment/DNC calls address. The enrichment fields
+    // (name, phone, WhatsApp, country, locale) exist to make a SUBSCRIBED
+    // contact mailable and have no business leaving the server for someone
+    // being taken off the list. Second line of defence behind
+    // resolveNewsletterAction: should a caller ever mistake "never consented"
+    // for "consent withdrawn" again, only the e-mail can escape.
+    const contactId = await this.upsertContact(input, optIn);
     if (optIn) {
       await this.request(
         `/api/contacts/${contactId}/dnc/email/remove`,
@@ -96,23 +103,34 @@ export class MauticService {
   }
 
   /// Creates or updates (Mautic dedupes by email) the contact; returns its id.
-  private async upsertContact(input: MauticContactInput): Promise<number> {
+  /// `includeProfileFields` is false on the opt-out path — see syncContact.
+  /// Omitting them does not blank what Mautic already stores: /api/contacts/new
+  /// leaves untouched every field the body does not mention.
+  private async upsertContact(
+    input: MauticContactInput,
+    includeProfileFields: boolean,
+  ): Promise<number> {
     // Mautic splits names; keep it simple and lossless enough: first token as
     // firstname, the rest as lastname.
     const fullName = input.fullName?.trim() ?? '';
     const [firstname, ...rest] = fullName.split(/\s+/);
+    const profileFields: Record<string, string> = includeProfileFields
+      ? {
+          ...(firstname ? { firstname } : {}),
+          ...(rest.length > 0 ? { lastname: rest.join(' ') } : {}),
+          ...(input.phone?.trim() ? { phone: input.phone.trim() } : {}),
+          ...(input.whatsApp?.trim() ? { mobile: input.whatsApp.trim() } : {}),
+          ...(input.countryOfResidence?.trim()
+            ? { country: input.countryOfResidence.trim() }
+            : {}),
+          ...(input.preferredLanguage?.trim()
+            ? { preferred_locale: input.preferredLanguage.trim() }
+            : {}),
+        }
+      : {};
     const body: Record<string, string> = {
       email: input.email.trim(),
-      ...(firstname ? { firstname } : {}),
-      ...(rest.length > 0 ? { lastname: rest.join(' ') } : {}),
-      ...(input.phone?.trim() ? { phone: input.phone.trim() } : {}),
-      ...(input.whatsApp?.trim() ? { mobile: input.whatsApp.trim() } : {}),
-      ...(input.countryOfResidence?.trim()
-        ? { country: input.countryOfResidence.trim() }
-        : {}),
-      ...(input.preferredLanguage?.trim()
-        ? { preferred_locale: input.preferredLanguage.trim() }
-        : {}),
+      ...profileFields,
     };
 
     const json = await this.request('/api/contacts/new', 'upsert contact', {

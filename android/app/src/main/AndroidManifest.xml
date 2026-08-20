@@ -1,10 +1,52 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!-- Android 13+ runtime permission for FCM notification display -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <!--
+      Identifiant publicitaire : on le REFUSE, on ne le déclare pas.
+
+      POURQUOI CETTE LIGNE EXISTE. Ce manifeste-ci ne demandait pas l'AD_ID,
+      mais `firebase_analytics` le fait entrer dans le manifeste FUSIONNÉ :
+      play-services-measurement-api et -impl (23.2.0) déclarent tous deux
+      `com.google.android.gms.permission.AD_ID` — vérifié en dépaquetant les
+      AAR de ~/.gradle/caches. Ne rien écrire ici ne suffit donc pas : la
+      permission arrive quand même, et la Play Console impose alors de
+      répondre OUI au questionnaire « identifiant publicitaire », pour une app
+      qui n'embarque aucun SDK publicitaire et qui affirme ne faire aucun
+      suivi inter-apps. Une contradiction entre le manifeste et le
+      questionnaire, sur une app DÉJÀ publiée, se paie sur la mise à jour.
+
+      `tools:node="remove"` est l'instruction du fusionneur de manifestes (pas
+      une permission demandée) : elle retire la ligne héritée des dépendances.
+      C'est le mécanisme que Google documente pour ce cas précis.
+
+      Deuxième verrou côté SDK : la méta-donnée
+      `google_analytics_adid_collection_enabled` dans <application>. Un seul
+      des deux ne suffirait pas — sans la méta-donnée, une future dépendance
+      qui réintroduit la permission relance la collecte ; sans la suppression,
+      la permission reste visible de la Play Console même si rien n'est
+      collecté. C'est le manifeste fusionné, pas le comportement, que la
+      console lit.
+
+      Écarté : retirer `firebase_analytics`. La mesure produit est voulue et
+      déjà soumise au consentement ; seul l'identifiant publicitaire pose le
+      problème de déclaration.
+
+      Laissés en place, hors périmètre de ce lot :
+      `android.permission.ACCESS_ADSERVICES_ATTRIBUTION` et
+      `ACCESS_ADSERVICES_AD_ID`, déclarées par le même AAR. Google ne
+      documente `tools:node="remove"` que pour AD_ID, et c'est AD_ID que le
+      questionnaire Play interroge — les retirer sans référence documentée
+      serait plus risqué que le mal qu'on corrige.
+    -->
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove"/>
     <application
         android:label="KPB Education"
         android:name="${applicationName}"
@@ -48,6 +90,75 @@
                 <data android:scheme="io.supabase.kpbeducation" android:host="login-callback" />
             </intent-filter>
         </activity>
+        <!--
+          Coupe la collecte de l'identifiant publicitaire dans le SDK de mesure
+          Google (pendant de la suppression d'AD_ID plus haut : voir le
+          commentaire là-bas pour le pourquoi).
+
+          Le nom de la clé est vérifié dans le binaire, pas recopié de mémoire :
+          la chaîne exacte `google_analytics_adid_collection_enabled` figure dans
+          play-services-measurement-impl-23.2.0, classe
+          com.google.android.gms.measurement.internal.zzal, qui la lit par
+          `ApplicationInfo.metaData.getBoolean`. Une clé mal orthographiée serait
+          ignorée SANS erreur ni avertissement — ce dépôt s'est déjà fait prendre
+          exactement comme ça (clé inexistante dans la config des icônes, 21
+          icônes livrées avec un canal alpha). D'où `false` littéral et non une
+          référence `@bool/…` : c'est un booléen que le SDK attend, et aapt2
+          compile bien `"false"` en booléen.
+        -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <!--
+          Les deux collecteurs Firebase démarrent DÉSACTIVÉS.
+
+          POURQUOI ICI ET PAS EN DART. L'interrupteur « Analyse d'usage »
+          promet de couper les trois collecteurs, mais le choix persisté de
+          l'utilisateur n'est lu qu'après `controller.hydrate()` dans
+          lib/main.dart — après Firebase, PostHog, Supabase, Hive, le cache
+          catalogue, l'outbox et le dépôt local. Tout ce qui est collecté dans
+          cette fenêtre l'est sans consentement.
+
+          Pour Crashlytics c'est structurellement pire : la file de rapports
+          non envoyés survit aux lancements et le SDK NATIF peut la téléverser
+          au démarrage du processus, avant la première ligne de Dart. Un
+          `setCrashlyticsCollectionEnabled` côté Dart arrive toujours trop tard.
+          Seule la valeur par défaut lue par le SDK au démarrage arrive à temps.
+
+          CE N'EST PAS UNE COUPURE DÉFINITIVE. Les deux SDK gardent en
+          SharedPreferences le dernier état posé à l'exécution
+          (DataCollectionArbiter.storeDataCollectionValueInSharedPreferences
+          pour Crashlytics ; zzic pour la mesure), et cet état PRIME sur la
+          méta-donnée. Qui a accepté redémarre donc en collectant dès le
+          démarrage du processus.
+
+          À NE PAS CONFONDRE, et volontairement absent d'ici :
+          `firebase_analytics_collection_deactivated` (classe zzal). Celui-là
+          est irréversible — `setAnalyticsCollectionEnabled(true)` ne le rouvre
+          pas — donc il casserait la collecte pour qui a accepté. C'est bien la
+          variante `…_enabled` qu'il faut.
+
+          Noms vérifiés dans les binaires installés, pas recopiés de mémoire —
+          une clé mal orthographiée est ignorée SANS erreur, et ce dépôt s'est
+          déjà fait prendre exactement comme ça (clé inexistante dans la config
+          des icônes, 21 icônes livrées avec un canal alpha) :
+            · `firebase_analytics_collection_enabled` →
+              play-services-measurement-impl-23.2.0, classe
+              com.google.android.gms.measurement.internal.zzic (metaData
+              .getBoolean + SharedPreferences).
+            · `firebase_crashlytics_collection_enabled` →
+              firebase-crashlytics-20.0.5, classe
+              com.google.firebase.crashlytics.internal.common
+              .DataCollectionArbiter (méthode
+              readCrashlyticsDataCollectionEnabledFromManifest).
+          `false` littéral : c'est un booléen que les deux SDK lisent.
+        -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

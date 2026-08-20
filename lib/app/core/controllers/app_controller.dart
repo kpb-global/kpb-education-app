@@ -1906,8 +1906,11 @@ abstract class _AppControllerBase extends GetxController {
         ? current.targetCountryIds.first
         : current.countryOfResidence;
     await OneSignalService.instance.login(
+      // Pas d'`email:` — OneSignal ne recevait cette adresse que pour ses
+      // propres campagnes courriel, que nous n'utilisons pas (Resend et Mautic
+      // s'en chargent). Le service l'ignore désormais ; ne pas la lui donner
+      // non plus, sinon la prochaine lecture croira qu'elle part.
       userId: current.id,
-      email: current.email,
       tags: {
         'account_type': current.accountType.name,
         'level': current.currentLevel ?? '',

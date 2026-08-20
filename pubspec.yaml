@@ -69,7 +69,15 @@ dependencies:
   percent_indicator: ^4.2.3
   nb_utils: ^7.0.5
   video_player: ^2.9.2
-  webview_flutter: ^4.10.0
+  # webview_flutter RETIRÉ (correctif 5) : jamais importé dans lib/. Le seul
+  # lecteur embarqué de l'app est youtube_player_flutter, qui passe par
+  # flutter_inappwebview — pas par ce paquet. Sa déclaration en `direct main` a
+  # fait croire à la revue des fiches store que l'app embarquait une WebView de
+  # comparaison de prix ; c'est CE signal qu'on supprime.
+  # Honnêteté sur le gain : le paquet reste dans pubspec.lock en `transitive`,
+  # tiré par fwfh_webview ← flutter_widget_from_html. Le binaire ne maigrit donc
+  # pas tant que flutter_widget_from_html (lui aussi jamais importé) reste
+  # déclaré — arbitrage hors de ce lot, voir test/release/dead_dependency_budget_test.dart.
   file_picker: ^11.0.2
   speech_to_text: ^7.0.0
   change_app_package_name: ^1.4.0

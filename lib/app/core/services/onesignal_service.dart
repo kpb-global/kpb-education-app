@@ -13,6 +13,23 @@ import '../config/app_routes.dart';
 ///   OneSignal platform channel is ever touched before init.
 /// - We link the OneSignal "external id" to the KPB user id on login so the
 ///   backend can target a known user across devices, and clear it on logout.
+///
+/// Ce qui part vers OneSignal, et pourquoi (périmètre volontairement fermé) :
+/// - l'external id (identifiant de profil KPB) et le jeton de notification :
+///   sans eux il n'y a pas de notification adressée à un utilisateur connu ;
+/// - quatre étiquettes de ciblage — `account_type`, `level`, `target_country`,
+///   `locale`. On les GARDE parce que le ciblage des notifications est une
+///   fonctionnalité réellement utilisée (une alerte bourse n'a de sens que
+///   pour le bon niveau et le bon pays visé) ; le prix à payer est de les
+///   DÉCLARER dans le formulaire de confidentialité des boutiques plutôt que
+///   de prétendre qu'elles n'existent pas.
+///
+/// Ce qui NE part pas : l'adresse e-mail de l'étudiant. OneSignal ne s'en sert
+/// que pour ses propres campagnes courriel, et les nôtres passent par Resend
+/// (transactionnel) et Mautic (newsletter bourses). On perdait donc une donnée
+/// personnelle par la porte d'un canal qu'on n'utilise pas. Écarté : garder
+/// l'envoi derrière une case de consentement — cela aurait fait vivre une
+/// permission pour une capacité que personne ne réclame.
 class OneSignalService {
   OneSignalService._internal();
   static final OneSignalService instance = OneSignalService._internal();
@@ -51,6 +68,11 @@ class OneSignalService {
 
   /// Link this device to a known KPB user (external id = profile id) and attach
   /// targeting tags. Called on login / profile completion.
+  ///
+  /// [email] est accepté et VOLONTAIREMENT ignoré : aucun appel ne l'emporte
+  /// vers OneSignal (voir l'en-tête de classe). Le paramètre survit parce que
+  /// `AppController.syncOneSignalIdentity()` le passe encore ; le retirer ici
+  /// casserait cet appelant. À supprimer des deux côtés dans le même geste.
   Future<void> login({
     required String userId,
     String? email,
@@ -59,9 +81,6 @@ class OneSignalService {
     if (!_initialized || userId.trim().isEmpty) return;
     try {
       OneSignal.login(userId.trim());
-      if (email != null && email.trim().isNotEmpty) {
-        OneSignal.User.addEmail(email.trim());
-      }
       final cleaned = <String, String>{
         for (final entry in tags.entries)
           if (entry.value.trim().isNotEmpty) entry.key: entry.value.trim(),
