@@ -114,7 +114,15 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       // (19 août 2026, 16 h ET) mais n'annonce aucune date d'ouverture : le
       // portail est simplement déclaré ouvert. `opensAt` est donc omis plutôt
       // que deviné, ce que le validateur autorise pour un cycle confirmé.
-      status: 'open',
+      //
+      // CETTE FENÊTRE EST PASSÉE. 16 h ET le 19/08/2026 = 20 h UTC, donc le
+      // cycle est clos depuis le 19/08 au soir et `status: 'open'` devenait faux
+      // sans que personne ne touche au dépôt. C'est le contrôle de fraîcheur
+      // planifié qui l'a dit le 20/08 à 06h40 — il passait la veille.
+      // La date de clôture est INCHANGÉE : c'est un fait daté, pas une
+      // estimation. Aucune date du cycle suivant n'est inventée ici ; quand la
+      // source publiera 2028-2029, ce sera une vérification, pas une déduction.
+      status: 'closed',
       dateConfidence: 'confirmed',
       closesAt: '2026-08-19T20:00:00.000Z',
       sourceUrl: 'https://mccallmacbainscholars.org/apply/',
@@ -126,7 +134,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://apply.mccallmacbainscholars.org/apply/',
       cycle: 'https://mccallmacbainscholars.org/apply/',
     },
-    tags: ['master', 'canada', 'mcgill', 'open', 'fully-funded'],
+    tags: ['master', 'canada', 'mcgill', 'closed', 'fully-funded'],
     checkedAt: '2026-08-10T08:00:00.000Z',
   }),
   record({

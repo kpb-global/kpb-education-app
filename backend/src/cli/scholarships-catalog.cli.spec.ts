@@ -96,48 +96,96 @@ describe('scholarships-catalog CLI', () => {
   describe('decidePublication', () => {
     const now = new Date('2026-08-17T18:00:00.000Z');
 
-    // La valeur numérique est le critère : si quelqu'un annule la correction de
-    // la porte de qualité, ce compte tombe à 25 et McCall MacBain disparaît de
-    // la liste. « Les tests passent » ne l'aurait pas montré.
-    it('publishes exactly the 31 eligible records of catalog 1.3.0', () => {
+    // POURQUOI CES CHIFFRES ONT CHANGÉ LE 20/08/2026 — 31 → 30 et 11 → 10.
+    //
+    // Ce bloc était construit autour de McCall MacBain : `now` valait le 17 août
+    // PARCE QUE cette fiche était encore ouverte à cette date, deux tests
+    // exigeaient sa présence, et un troisième la refusait au 20 août. Sa clôture
+    // réelle — 19 août 2026, 16 h ET — est arrivée, le contrôle de fraîcheur l'a
+    // signalée, et la fiche est passée en `status: 'closed'`. Elle n'est donc
+    // plus publiable à AUCUNE date, y compris le 17 août.
+    //
+    // La leçon est sur le harnais, pas sur les données : un test qui emprunte à
+    // une donnée VIVANTE son état transitoire casse le jour où cette donnée est
+    // correctement mise à jour. La contre-preuve est nette — le validateur, qui
+    // lit l'horloge réelle, exigeait le changement pendant que ce spec, qui lit
+    // une date gelée, exigeait l'inverse. Deux gardes du même dépôt en
+    // désaccord sur le même fait.
+    //
+    // Le décor du troisième test est donc désormais FABRIQUÉ (voir plus bas) :
+    // l'état dont il a besoin — cycle ouvert ET date passée — est précisément
+    // celui que le validateur interdit maintenant dans les vraies données.
+    //
+    // La valeur numérique reste le critère : si quelqu'un annule la correction
+    // de la porte de qualité, ce compte tombe à 25. « Les tests passent » ne
+    // l'aurait pas montré.
+    it('publishes exactly the 30 eligible records of catalog 1.3.0', () => {
       const decisions = SCHOLARSHIP_CATALOG_V1.records.map((_, index) =>
         decidePublication(rowFromRecord(index), now, false),
       );
       const published = decisions.filter((item) => item.publish).map((i) => i.id);
 
-      expect(published).toHaveLength(31);
-      expect(published).toContain('mccall_macbain_2027');
+      expect(published).toHaveLength(30);
+      expect(published).not.toContain('mccall_macbain_2027');
       expect(decisions.filter((item) => !item.publish).map((i) => i.id).sort()).toEqual([
         'daad_helmut_schmidt_2027',
+        'mccall_macbain_2027',
         'rhodes_southern_africa_2027',
         'uct_international_refugee_2027',
       ]);
     });
 
-    it('publishes only the 11 confirmed-date records under --confirmed-only', () => {
+    it('publishes only the 10 confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(11);
+      expect(published).toHaveLength(10);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
-      // La fiche qui justifie la fenêtre du 17 août : sa clôture réelle est le
-      // 19 août 2026 à 20:00 UTC.
-      expect(published.map((item) => item.id)).toContain('mccall_macbain_2027');
+      expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });
 
     it('refuses a record whose closing date has already passed', () => {
-      const index = SCHOLARSHIP_CATALOG_V1.records.findIndex(
+      // Décor FABRIQUÉ, et il doit l'être : un cycle « ouvert » dont la date de
+      // clôture est passée est exactement ce que le validateur refuse
+      // (`open_cycle_already_closed`). Emprunter cet état à une vraie fiche du
+      // catalogue revenait à parier qu'une anomalie y subsiste — le pari a tenu
+      // jusqu'au 20/08/2026, puis il a coûté trois tests rouges pour une
+      // correction de données pourtant juste.
+      const template = SCHOLARSHIP_CATALOG_V1.records.findIndex(
         (record) => record.scholarship.id === 'mccall_macbain_2027',
       );
+      const row = rowFromRecord(template) as unknown as {
+        cycles: Array<{ status: string; closesAt: Date | string | null }>;
+      };
+      row.cycles[0].status = 'open';
+      row.cycles[0].closesAt = new Date('2026-08-19T20:00:00.000Z');
+
       const decision = decidePublication(
-        rowFromRecord(index),
+        row as never,
         new Date('2026-08-20T00:00:00.000Z'),
         false,
       );
 
       expect(decision.publish).toBe(false);
       expect(decision.reason).toContain('passée');
+    });
+
+    it('refuses a closed cycle even before its closing date', () => {
+      // Le pendant du test précédent, et ce qui manquait : la porte doit refuser
+      // sur le STATUT, pas seulement sur la date. Sans cette assertion, remettre
+      // McCall MacBain en `open` rendrait les deux comptes ci-dessus faux sans
+      // qu'aucun test ne dise pourquoi.
+      const index = SCHOLARSHIP_CATALOG_V1.records.findIndex(
+        (record) => record.scholarship.id === 'mccall_macbain_2027',
+      );
+      const decision = decidePublication(
+        rowFromRecord(index),
+        new Date('2026-08-17T18:00:00.000Z'),
+        false,
+      );
+
+      expect(decision.publish).toBe(false);
     });
   });
 
