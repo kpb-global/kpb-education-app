@@ -101,6 +101,36 @@ describe('MauticService', () => {
     );
   });
 
+  it('opt-out sends the e-mail alone, never the profile fields', async () => {
+    configure();
+    const fetchSpy = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ contact: { id: 42 } }),
+    });
+    global.fetch = fetchSpy as unknown as typeof fetch;
+
+    // A full profile is handed over on purpose: the caller passes whatever the
+    // row holds, so the redaction has to happen here.
+    await new MauticService().syncContact(
+      {
+        email: 'aissatou@example.test',
+        fullName: 'Aissatou Ibrahim Diallo',
+        phone: '+22790000000',
+        whatsApp: '+22790000001',
+        countryOfResidence: 'Niger',
+        preferredLanguage: 'fr',
+      },
+      false,
+    );
+
+    // toEqual, not toMatchObject: the assertion is about what is ABSENT.
+    // Unsubscribing only needs the id the upsert returns.
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0][1] as RequestInit).body as string,
+    ) as Record<string, string>;
+    expect(body).toEqual({ email: 'aissatou@example.test' });
+  });
+
   it('throws on a provider error so the reconciliation cron retries', async () => {
     configure();
     global.fetch = jest

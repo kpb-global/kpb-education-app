@@ -230,8 +230,18 @@ void main() {
 
   test('chaque permission OS est nommée dans legal_pages ET confidentialite',
       () {
-    final manifest =
-        File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+    // Le manifeste est lu SANS SES COMMENTAIRES. Un commentaire n'est pas une
+    // permission déclarée, et depuis que le manifeste documente pourquoi il
+    // LAISSE `android.permission.ACCESS_ADSERVICES_ATTRIBUTION` au fusionneur,
+    // le scan brut prenait cette explication pour une demande de permission et
+    // exigeait qu'elle soit divulguée dans les politiques. C'est le symétrique
+    // exact du défaut corrigé dans test/release/android_manifest_test.dart, où
+    // la garde se déclenchait sur `QUERY_ALL_PACKAGES` écrit dans son propre
+    // commentaire d'interdiction. Une garde qui lit les commentaires mesure la
+    // prose, pas la configuration.
+    final manifest = File('android/app/src/main/AndroidManifest.xml')
+        .readAsStringSync()
+        .replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '');
     final plist = File('ios/Runner/Info.plist').readAsStringSync();
     final inApp = '${_legalPages()}\n${_translations()}';
     final web = _confidentialite();

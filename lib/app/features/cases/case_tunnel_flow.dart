@@ -795,20 +795,29 @@ class _MessageStepState extends State<_MessageStep> {
     }
 
     _dictationBase = widget.controller.text.trim();
-    final started = await _speech.startListening(
-      localeId: _speechLocale,
-      onResult: (text, isFinal) {
-        if (!mounted || text.trim().isEmpty) return;
-        final prefix = _dictationBase.isEmpty ? '' : '$_dictationBase ';
-        widget.controller.text = '$prefix$text'.trim();
-        widget.controller.selection = TextSelection.collapsed(
-          offset: widget.controller.text.length,
-        );
-        if (isFinal && mounted) {
-          setState(() => _listening = false);
-        }
-      },
-    );
+    final started = await _listen();
+
+    // Deux échecs qui se ressemblent et qui ne se traitent pas pareil.
+    //
+    // `SpeechInputService` demande la reconnaissance LOCALE : la voix de
+    // l'étudiant ne doit pas partir chez Apple ou Google, parce que c'est ce
+    // que la politique de confidentialité promet. Quand l'appareil ne sait pas
+    // le faire, le service refuse la session plutôt que de basculer en
+    // silence sur le réseau — et c'est à l'écran de dire pourquoi, puis de
+    // demander. Sans ce dialogue, la dictée échouerait sans un mot sur les
+    // téléphones sans modèle local, et l'étudiant conclurait que l'app est
+    // cassée.
+    //
+    // L'autre échec (micro occupé, greffon absent) n'arme pas
+    // `onDeviceUnavailable` : lui proposer un envoi réseau serait absurde,
+    // il garde son message d'origine.
+    if (!started && mounted && _speech.onDeviceUnavailable) {
+      final accepted = await _askForPlatformService();
+      if (accepted != true) return;
+      final retried = await _listen(allowPlatformService: true);
+      if (mounted) setState(() => _listening = retried);
+      return;
+    }
 
     if (!started && mounted) {
       Get.snackbar(
@@ -821,6 +830,43 @@ class _MessageStepState extends State<_MessageStep> {
     }
 
     if (mounted) setState(() => _listening = started);
+  }
+
+  /// L'accord explicite, jamais présumé : le corps du dialogue nomme le
+  /// destinataire (le service du téléphone) et laisse écrire au clavier.
+  Future<bool?> _askForPlatformService() => Get.dialog<bool>(
+        AlertDialog(
+          title: Text('case_message_dictation_on_device_unavailable_title'.tr),
+          content: Text('case_message_dictation_on_device_unavailable_body'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back<bool>(result: false),
+              child: Text('cancel'.tr),
+            ),
+            TextButton(
+              onPressed: () => Get.back<bool>(result: true),
+              child: Text('case_message_dictation_use_platform_service'.tr),
+            ),
+          ],
+        ),
+      );
+
+  Future<bool> _listen({bool allowPlatformService = false}) {
+    return _speech.startListening(
+      localeId: _speechLocale,
+      allowPlatformService: allowPlatformService,
+      onResult: (text, isFinal) {
+        if (!mounted || text.trim().isEmpty) return;
+        final prefix = _dictationBase.isEmpty ? '' : '$_dictationBase ';
+        widget.controller.text = '$prefix$text'.trim();
+        widget.controller.selection = TextSelection.collapsed(
+          offset: widget.controller.text.length,
+        );
+        if (isFinal && mounted) {
+          setState(() => _listening = false);
+        }
+      },
+    );
   }
 
   @override
