@@ -37,6 +37,16 @@ abstract final class CrashlyticsObsDomain {
 ///
 /// Throws when Firebase is not initialized (tests, headless): the caller owns
 /// the catch, one per collector, so a failure here cannot leave the others on.
+///
+/// CE QUE CET APPEL NE PEUT PAS FAIRE, et qui est donc traité ailleurs : il ne
+/// couvre pas le démarrage. Il ne tourne qu'après `controller.hydrate()`, et le
+/// SDK NATIF peut téléverser la file de rapports non envoyés (elle survit aux
+/// lancements) dès le démarrage du processus, avant la première ligne de Dart.
+/// La valeur par défaut « désactivé » est donc posée dans la configuration
+/// native — méta-donnée `firebase_crashlytics_collection_enabled` du manifeste
+/// Android et clé `FirebaseCrashlyticsCollectionEnabled` de l'Info.plist — et
+/// cet appel-ci ne fait que poser l'état persistant qui prime dessus aux
+/// lancements suivants.
 Future<void> applyCrashlyticsConsent(bool enabled) async {
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics.setCrashlyticsCollectionEnabled(enabled);

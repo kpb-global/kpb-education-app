@@ -109,6 +109,56 @@
         <meta-data
             android:name="google_analytics_adid_collection_enabled"
             android:value="false" />
+        <!--
+          Les deux collecteurs Firebase démarrent DÉSACTIVÉS.
+
+          POURQUOI ICI ET PAS EN DART. L'interrupteur « Analyse d'usage »
+          promet de couper les trois collecteurs, mais le choix persisté de
+          l'utilisateur n'est lu qu'après `controller.hydrate()` dans
+          lib/main.dart — après Firebase, PostHog, Supabase, Hive, le cache
+          catalogue, l'outbox et le dépôt local. Tout ce qui est collecté dans
+          cette fenêtre l'est sans consentement.
+
+          Pour Crashlytics c'est structurellement pire : la file de rapports
+          non envoyés survit aux lancements et le SDK NATIF peut la téléverser
+          au démarrage du processus, avant la première ligne de Dart. Un
+          `setCrashlyticsCollectionEnabled` côté Dart arrive toujours trop tard.
+          Seule la valeur par défaut lue par le SDK au démarrage arrive à temps.
+
+          CE N'EST PAS UNE COUPURE DÉFINITIVE. Les deux SDK gardent en
+          SharedPreferences le dernier état posé à l'exécution
+          (DataCollectionArbiter.storeDataCollectionValueInSharedPreferences
+          pour Crashlytics ; zzic pour la mesure), et cet état PRIME sur la
+          méta-donnée. Qui a accepté redémarre donc en collectant dès le
+          démarrage du processus.
+
+          À NE PAS CONFONDRE, et volontairement absent d'ici :
+          `firebase_analytics_collection_deactivated` (classe zzal). Celui-là
+          est irréversible — `setAnalyticsCollectionEnabled(true)` ne le rouvre
+          pas — donc il casserait la collecte pour qui a accepté. C'est bien la
+          variante `…_enabled` qu'il faut.
+
+          Noms vérifiés dans les binaires installés, pas recopiés de mémoire —
+          une clé mal orthographiée est ignorée SANS erreur, et ce dépôt s'est
+          déjà fait prendre exactement comme ça (clé inexistante dans la config
+          des icônes, 21 icônes livrées avec un canal alpha) :
+            · `firebase_analytics_collection_enabled` →
+              play-services-measurement-impl-23.2.0, classe
+              com.google.android.gms.measurement.internal.zzic (metaData
+              .getBoolean + SharedPreferences).
+            · `firebase_crashlytics_collection_enabled` →
+              firebase-crashlytics-20.0.5, classe
+              com.google.firebase.crashlytics.internal.common
+              .DataCollectionArbiter (méthode
+              readCrashlyticsDataCollectionEnabledFromManifest).
+          `false` littéral : c'est un booléen que les deux SDK lisent.
+        -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

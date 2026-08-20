@@ -814,22 +814,54 @@ class _MessageStepState extends State<_MessageStep> {
     if (!started && mounted && _speech.onDeviceUnavailable) {
       final accepted = await _askForPlatformService();
       if (accepted != true) return;
+      // L'étape a pu être quittée pendant que le dialogue était ouvert. On
+      // n'ouvre alors AUCUNE session : `dispose` a déjà appelé
+      // `stopListening`, un micro allumé après lui ne s'éteindrait plus.
+      if (!mounted) return;
+
       final retried = await _listen(allowPlatformService: true);
-      if (mounted) setState(() => _listening = retried);
+      if (!mounted) return;
+      setState(() => _listening = retried);
+
+      // La seconde tentative échoue elle aussi, parfois : micro occupé,
+      // service de la plateforme indisponible, session refusée. Sans ce
+      // retour, l'étudiant accepte, le dialogue se ferme… et rien ne se
+      // passe — le silence exact que ce dialogue venait d'éviter.
+      //
+      // On ne relit PAS `onDeviceUnavailable` pour choisir le message :
+      // `SpeechInputService` ne l'arme que sur un essai `onDevice` et ne le
+      // désarme qu'en cas de succès, donc après cet échec-ci il vaut encore
+      // `true`, hérité du premier essai. S'en servir reproposerait le dialogue
+      // en boucle. Le refus de la reconnaissance locale a déjà eu son message
+      // — c'était le dialogue ; ce qui reste est un échec de dictée ordinaire,
+      // et il garde le sien.
+      if (!retried) _reportDictationUnavailable();
       return;
     }
 
     if (!started && mounted) {
-      Get.snackbar(
-        'case_message_dictation_unavailable_title'.tr,
-        'case_message_dictation_unavailable_body'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
+      _reportDictationUnavailable();
       return;
     }
 
     if (mounted) setState(() => _listening = started);
+  }
+
+  /// Le message de l'échec de dictée ORDINAIRE — micro occupé, greffon absent,
+  /// session refusée par la plateforme.
+  ///
+  /// Partagé par le premier essai et par la tentative faite après accord :
+  /// les deux laissent l'étudiant devant un bouton qui n'a rien fait, et c'est
+  /// ce silence-là qui est le défaut. Le message du refus de reconnaissance
+  /// locale, lui, n'est pas ici : c'est le dialogue.
+  void _reportDictationUnavailable() {
+    if (!mounted) return;
+    Get.snackbar(
+      'case_message_dictation_unavailable_title'.tr,
+      'case_message_dictation_unavailable_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+    );
   }
 
   /// L'accord explicite, jamais présumé : le corps du dialogue nomme le

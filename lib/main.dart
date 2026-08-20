@@ -42,10 +42,37 @@ Future<void> main() async {
 
   try {
     // ── Safe Firebase Booting ────────────────────────────────────────────────
+    // Les deux SDK Firebase démarrent DÉSACTIVÉS par défaut : la valeur par
+    // défaut est posée dans la configuration NATIVE, pas ici.
+    //   Android : méta-données `firebase_analytics_collection_enabled` et
+    //             `firebase_crashlytics_collection_enabled` à false.
+    //   iOS     : clés `FIREBASE_ANALYTICS_COLLECTION_ENABLED` et
+    //             `FirebaseCrashlyticsCollectionEnabled` à false.
+    // POURQUOI PAS EN DART. Le choix persisté de l'utilisateur n'est connu
+    // qu'après `controller.hydrate()`, une trentaine de lignes plus bas :
+    // Supabase, Hive, le cache catalogue, l'outbox et le dépôt local passent
+    // avant. Tout ce qui serait collecté dans cet intervalle le serait sans
+    // consentement. Et pour Crashlytics c'est structurellement pire : la file
+    // de rapports non envoyés survit aux lancements, et le SDK natif peut la
+    // téléverser au démarrage du processus, avant que la moindre ligne de Dart
+    // ne tourne — aucun `setCrashlyticsCollectionEnabled` côté Dart n'arrive
+    // à temps. Seule la valeur par défaut native est lue assez tôt.
+    //
+    // Ce n'est pas une coupure définitive : les deux SDK gardent en
+    // SharedPreferences / NSUserDefaults le dernier état posé par
+    // `AnalyticsService.setCollectionEnabled`, et cet état PRIME sur la valeur
+    // par défaut native. Qui a accepté redémarre donc en collectant, dès le
+    // démarrage du processus, sans rien perdre.
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      // Les gestionnaires sont posés tout de suite, avant que le consentement
+      // soit lu, et c'est volontaire : ce ne sont pas eux qui décident de la
+      // collecte. `recordError` passe par le DataCollectionArbiter du SDK, que
+      // la valeur par défaut native ci-dessus laisse à « désactivé ». Les
+      // retarder ne protégerait personne et laisserait au contraire les
+      // plantages de démarrage non capturés pour qui a accepté.
       FlutterError.onError =
           FirebaseCrashlytics.instance.recordFlutterFatalError;
       PlatformDispatcher.instance.onError = (error, stack) {
@@ -63,12 +90,35 @@ Future<void> main() async {
     // Inert unless POSTHOG_API_KEY is provided (--dart-define); never blocks
     // boot. Session replay masks all text and images by default — the app shows
     // passports, transcripts and personal data, which must never be recorded.
+    //
+    // Ce `setup` tourne AVANT `controller.hydrate()`, donc avant que le choix
+    // persisté soit connu : `optOut = true` est ce qui empêche la collecte dans
+    // cet intervalle (voir le commentaire sur le champ, plus bas).
     if (AppConfig.posthogEnabled) {
       try {
         final phConfig = PostHogConfig(AppConfig.posthogApiKey)
           ..host = AppConfig.posthogHost
           ..captureApplicationLifecycleEvents = true
           ..sessionReplay = true
+          // Le SDK démarre OPTÉ DEHORS. Nom vérifié dans le paquet installé
+          // (~/.pub-cache/…/posthog_flutter-5.32.0/lib/src/posthog_config.dart,
+          // champ `optOut`, transmis au natif par PosthogFlutterPlugin.kt et
+          // PosthogFlutterPlugin.swift) — pas recopié de mémoire : une clé
+          // inexistante serait ignorée sans erreur.
+          //
+          // POURQUOI CE CHAMP ET PAS UN DÉPLACEMENT DU `setup` APRÈS hydrate().
+          // C'est la solution la plus simple qui ferme VRAIMENT la fenêtre :
+          // dans PostHogSDK.setup, `installIntegrations()` (cycle de vie,
+          // rejeu de session, capture automatique) est sous `if (!config.optOut)`
+          // — rien n'est branché, donc rien n'est capté ni enregistré.
+          // Et l'état persisté (`posthog.optOut` dans le stockage du SDK, écrit
+          // par `Posthog().enable()/disable()` depuis notre entonnoir de
+          // consentement) PRIME sur cette valeur : `config.optOut = stocké ??
+          // config.optOut`. Qui a accepté repart donc en collectant dès le
+          // `setup`, y compris l'événement « Application Opened ».
+          // Déplacer le `setup` après hydrate() aurait au contraire fait perdre
+          // cet événement à TOUS les lancements, y compris pour qui a accepté.
+          ..optOut = true
           ..debug = kDebugMode;
         phConfig.sessionReplayConfig
           ..maskAllTexts = true
@@ -104,9 +154,20 @@ Future<void> main() async {
     );
     await controller.hydrate();
     Get.put(controller, permanent: true);
-    // Re-apply the persisted analytics/session-replay consent so a prior opt-out
-    // survives restarts (PostHog was just set up above; disable it now if the
-    // user had turned collection off).
+    // PREMIER point du démarrage où le choix persisté est connu — et donc le
+    // premier où un collecteur peut légitimement être allumé. Les trois
+    // démarrent désactivés (méta-données Android, clés Info.plist, `optOut`
+    // PostHog) ; cet appel est ce qui les rallume pour qui a accepté, et ce qui
+    // reconduit le refus pour qui a refusé.
+    //
+    // PAS ATTENDU, volontairement. `AppController.applyAnalyticsConsent` est
+    // `void` (elle fait elle-même `unawaited`) : l'attendre demanderait de
+    // changer sa signature dans app_controller.dart, hors du périmètre de ce
+    // lot. Et l'attendre n'apporterait rien : l'état au démarrage du processus
+    // est déjà le bon, puisque la valeur par défaut native est « désactivé » et
+    // que l'état persisté du SDK — écrit par ce même appel au lancement
+    // précédent — prime dessus. Attendre ne ferait que retarder la première
+    // image pour rejouer une décision déjà en vigueur.
     controller.applyAnalyticsConsent();
 
     final authService = await AuthService.create(apiClient);
