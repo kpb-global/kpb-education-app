@@ -23,6 +23,17 @@
 // était déjà correct AVANT correctif. C'est la PRÉSENCE DU MESSAGE qui est la
 // preuve, puisque c'est son absence qui était le bug.
 //
+// ## Quel message, et pas seulement « un » message
+//
+// Ce chemin-ci sert `case_message_dictation_not_started_*` — « la session n'a
+// pas démarré, réessaie ». Il ne sert PAS
+// `case_message_dictation_unavailable_*`, qui annonce une reconnaissance
+// vocale absente de l'appareil : ce serait une cause fausse, puisque
+// l'étudiant vient d'accepter l'envoi au service de la plateforme, donc la
+// reconnaissance existe. La distinction des deux messages est verrouillée par
+// `case_dictation_message_identity_test.dart`, qui les exerce chacun sur son
+// chemin ; ici on vérifie que c'est bien celui-ci qui arrive.
+//
 // ## Le piège à ne pas retomber dedans
 //
 // `SpeechInputService.onDeviceUnavailable` n'est armé que sur un essai
@@ -168,6 +179,22 @@ Future<void> _drainOverlays(WidgetTester tester) async {
   }
 }
 
+/// Vide la file de bandeaux de GetX à la fin du test, quoi qu'il arrive.
+///
+/// `Get.snackbar` passe par `SnackbarController._snackBarQueue`, une file
+/// STATIQUE que `Get.reset()` ne touche pas. Un bandeau laissé ouvert — ce qui
+/// arrive dès qu'une assertion échoue avant `_drainOverlays` — met celui du test
+/// SUIVANT en file d'attente, où il n'apparaîtra jamais. Mesuré : sans ce
+/// nettoyage, un seul défaut réintroduit faisait rougir neuf tests des deux
+/// fichiers de dictée, et surtout les assertions « aucun message affiché »
+/// passaient au vert pour la mauvaise raison.
+void _clearSnackbarQueueAfterTest(WidgetTester tester) {
+  addTearDown(() async {
+    Get.closeAllSnackbars();
+    await _drainOverlays(tester);
+  });
+}
+
 const _prefill = CaseTunnelPrefill(
   title: 'Master en France',
   contextLabel: 'France • master',
@@ -178,6 +205,7 @@ const _prefill = CaseTunnelPrefill(
 Future<void> _openMessageStep(WidgetTester tester) async {
   await _seedSignedInAccount();
   _tallPhone(tester);
+  _clearSnackbarQueueAfterTest(tester);
 
   await tester.pumpWidget(_wrap(
     const Scaffold(body: CaseTunnelFlow(prefill: _prefill)),
@@ -277,7 +305,7 @@ void main() {
       // L'assertion qui attrape le défaut. Avant correctif, la branche sortait
       // après `setState` sans rien dire.
       expect(
-        find.text('case_message_dictation_unavailable_title'.tr),
+        find.text('case_message_dictation_not_started_title'.tr),
         findsOneWidget,
         reason:
             'l\'étudiant a accepté, le dialogue s\'est fermé, la dictée n\'a '
@@ -285,8 +313,16 @@ void main() {
             'rien fait, et la conclusion que l\'app est cassée',
       );
       expect(
-        find.text('case_message_dictation_unavailable_body'.tr),
+        find.text('case_message_dictation_not_started_body'.tr),
         findsOneWidget,
+      );
+      expect(
+        find.text('case_message_dictation_unavailable_title'.tr),
+        findsNothing,
+        reason: 'l\'autre message accuse l\'appareil de ne pas savoir '
+            'reconnaître la voix ; l\'étudiant vient d\'accepter l\'envoi au '
+            'service de la plateforme, donc c\'est faux, et ça le dissuade du '
+            'nouvel essai qui peut suffire',
       );
 
       // La tentative réseau a bien eu lieu — sinon le message serait juste
@@ -308,8 +344,12 @@ void main() {
       await _dictateAndAcceptPlatformService(tester);
 
       expect(
-        find.text('case_message_dictation_unavailable_title'.tr),
+        find.text('case_message_dictation_not_started_title'.tr),
         findsOneWidget,
+      );
+      expect(
+        find.text('case_message_dictation_unavailable_title'.tr),
+        findsNothing,
       );
       expect(_networkListens, hasLength(1));
 
@@ -366,9 +406,13 @@ void main() {
       await _dictateAndAcceptPlatformService(tester);
 
       expect(
-        find.text('case_message_dictation_unavailable_title'.tr),
+        find.text('case_message_dictation_not_started_title'.tr),
         findsNothing,
         reason: 'la dictée a démarré : annoncer un échec serait un mensonge',
+      );
+      expect(
+        find.text('case_message_dictation_unavailable_title'.tr),
+        findsNothing,
       );
       expect(find.text('case_message_stop_dictation'.tr), findsOneWidget);
       expect(find.text('listening_speak_clearly'.tr), findsOneWidget);
@@ -396,10 +440,14 @@ void main() {
             'une session réseau ici serait une fuite',
       );
       expect(
-        find.text('case_message_dictation_unavailable_title'.tr),
+        find.text('case_message_dictation_not_started_title'.tr),
         findsNothing,
         reason: 'l\'étudiant vient de choisir d\'écrire au clavier : rien n\'a '
             'échoué, et un bandeau d\'échec le contredirait',
+      );
+      expect(
+        find.text('case_message_dictation_unavailable_title'.tr),
+        findsNothing,
       );
 
       await _drainOverlays(tester);
