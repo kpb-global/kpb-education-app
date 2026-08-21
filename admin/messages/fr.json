@@ -21,7 +21,8 @@
     "notifications": "Notifications",
     "users": "Utilisateurs",
     "reports": "Rapports",
-    "competitionReadiness": "Préparation concours"
+    "competitionReadiness": "Préparation concours",
+    "eef": "Études en France"
   },
   "login": {
     "eyebrow": "KPB Opérations",
@@ -1000,5 +1001,28 @@
     "notFoundTitle": "Page introuvable",
     "notFoundBody": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "backHome": "Retour au tableau de bord"
+  },
+  "eef": {
+    "title": "Études en France — intérêts",
+    "subtitle": "Qui veut être prévenu à l'ouverture de l'espace, et qui se dit intéressé par le Premium.",
+    "total": "Déclarations",
+    "wantsPremium": "Intéressés par le Premium",
+    "export": "Exporter en CSV",
+    "exporting": "Export en cours…",
+    "loading": "Chargement…",
+    "loadError": "Impossible de charger la liste.",
+    "exportError": "Impossible de générer l'export.",
+    "emptyTitle": "Aucune déclaration pour l'instant",
+    "emptyBody": "La vitrine vient peut-être d'être allumée. Vérifiez que /config/app répond features.eefTeaser: true.",
+    "colDate": "Date",
+    "colName": "Nom",
+    "colContact": "Contact",
+    "colCountry": "Pays",
+    "colLevels": "Niveaux",
+    "colPremium": "Premium",
+    "yes": "Oui",
+    "no": "Non",
+    "previous": "Précédent",
+    "next": "Suivant"
   }
 }

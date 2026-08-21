@@ -25,6 +25,8 @@ const ICON_PATHS: Record<string, string> = {
     'M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 20a2 2 0 0 0 4 0',
   users: 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.5-6 8-6s8 2 8 6',
   reports: 'M4 20V10M10 20V4M16 20v-7M21 20H3',
+  // Un globe : l'espace « Études en France ».
+  eef: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c2.5 2.4 2.5 15.6 0 18M12 3c-2.5 2.4-2.5 15.6 0 18',
   readiness:
     'M4 20V7l8-4 8 4v13M8 11h8M8 15h5M16 15l1.5 1.5L20 14',
   logout: 'M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h10',
@@ -72,6 +74,7 @@ const NAV_LINKS: readonly NavLinkDefinition[] = [
     labelKey: 'nav.scholarshipsModeration',
     icon: 'scholarships',
   },
+  { href: '/etudes-en-france', labelKey: 'nav.eef', icon: 'eef' },
   { href: '/service-sales', labelKey: 'nav.serviceSales', icon: 'serviceSales' },
   { href: '/community', labelKey: 'nav.community', icon: 'community' },
   {

@@ -57,6 +57,44 @@ export async function logoutAdmin(): Promise<void> {
   }
 }
 
+/**
+ * Comme [apiFetch], mais rend le corps BRUT.
+ *
+ * `apiFetch` termine par un `JSON.parse`, ce qui est exactement ce qu'il faut
+ * pour toutes les routes sauf une : l'export CSV de la liste d'intérêt. Le faire
+ * passer par le chemin JSON échouerait sur la première virgule.
+ *
+ * Pourquoi pas un simple `<a href>` vers l'endpoint : la session admin vit dans
+ * un cookie httpOnly, et un téléchargement déclenché par le navigateur
+ * l'emporterait — mais on perdrait la gestion d'erreur. Un 401 rendrait un
+ * fichier nommé `export.csv` contenant « Unauthorized », que quelqu'un ouvrirait
+ * dans Excel en croyant que la liste est vide. Ici l'échec est une exception que
+ * la page affiche.
+ */
+export async function apiFetchText(
+  path: string,
+  options: ApiOptions = {},
+): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: options.method ?? 'GET',
+    cache: 'no-store',
+    credentials: 'include',
+    headers: { ...options.headers },
+    signal: options.signal,
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    const error = new Error(
+      text || `Request failed with status ${response.status}`,
+    ) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.text();
+}
+
 export async function apiFetch<T>(
   path: string,
   options: ApiOptions = {},

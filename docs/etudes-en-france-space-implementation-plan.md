@@ -1,9 +1,28 @@
 # Espace « Études en France » — plan d'implémentation
 
-Statut : **plan arrêté**, décisions produit prises (§ 2). Aucune ligne de
-production n'a encore été écrite. Ce document dit ce qu'on construit, dans quel
-ordre, et surtout **ce que le code existant donne déjà gratuitement** — parce que
-la moitié de la demande est déjà dans le dépôt, éteinte derrière un drapeau.
+Statut : **Phase 0 livrée**, décisions produit prises (§ 2). Les phases 1 à 5
+restent à faire. Ce document dit ce qu'on construit, dans quel ordre, et surtout
+**ce que le code existant donne déjà gratuitement** — parce que la moitié de la
+demande est déjà dans le dépôt, éteinte derrière un drapeau.
+
+> **Phase 0 — état réel.** Livrée et validée : modèle `EefInterest` + migration,
+> module `etudes-en-france` (POST/GET authentifiés, échec fermé), drapeaux
+> `features.eefTeaser` / `features.eef` et fenêtre de campagne servis par
+> `/config/app`, back-office avec export CSV, `RemoteFeatureFlags` côté client,
+> `EefCalendar`, la vitrine, la coquille de l'espace, l'arbitrage `EefEntry`, la
+> route `/etudes-en-france` avec sa liste blanche de liens profonds, les quatre
+> points d'entrée, 57 clés FR/EN, et les trois événements analytiques.
+>
+> Validé : `prisma generate`, lint backend, `nest build`, **919 tests backend** ;
+> `flutter analyze` sans problème, `dart format`, **937 tests mobiles** sur
+> Flutter 3.44.1 (la version épinglée par la CI) ; lint admin, `next build`,
+> **50 tests admin**. Deux échecs mobiles subsistent
+> (`privacy_disclosure_parity`, `theme_gallery_golden`) : **préexistants**,
+> vérifiés en rejouant les deux fichiers sur l'arbre propre avant ce lot.
+>
+> Le numéro de build n'a **pas** été incrémenté : 49 est encore le courant et
+> n'a pas été livrée, donc ce lot monte dedans. La commande de bascule du jour J
+> est dans `docs/release-ledger.md`.
 
 Rédigé le 21/08/2026. Campagne annoncée à J+5 (≈ 26/08/2026).
 
