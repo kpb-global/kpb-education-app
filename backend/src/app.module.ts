@@ -34,6 +34,8 @@ import { ParcoursWeeklyService } from './modules/parcours/parcours-weekly.servic
 import { AppConfigController } from './modules/config/app-config.controller';
 import { EtudesEnFranceController } from './modules/etudes-en-france/etudes-en-france.controller';
 import { EtudesEnFranceService } from './modules/etudes-en-france/etudes-en-france.service';
+import { AdminEefInterestController } from './modules/etudes-en-france/admin-eef-interest.controller';
+import { AdminEefInterestService } from './modules/etudes-en-france/admin-eef-interest.service';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
@@ -188,6 +190,7 @@ import { SalonService } from './modules/salon/salon.service';
     DocumentReviewController,
     AppConfigController,
     EtudesEnFranceController,
+    AdminEefInterestController,
     HealthController,
     NotificationsController,
     OrientationController,
@@ -287,6 +290,7 @@ import { SalonService } from './modules/salon/salon.service';
     ParentLinksService,
     ReferralsService,
     EtudesEnFranceService,
+    AdminEefInterestService,
     AmbassadorService,
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,
