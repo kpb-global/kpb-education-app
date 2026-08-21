@@ -82,6 +82,34 @@ Split by `item_type` too: a video that stalls at 20 % and an interview read to t
 end are different problems. A drop in `feed` completion while `library` holds
 steady points at the feed itself, not at the content.
 
+## Espace « Études en France » (Phase 0 — vitrine)
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `eef_teaser_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | Portée de la vitrine, et par quelle porte |
+| `eef_interest_declared` | `wants_premium`, `field_count`, `current_level` | LA question posée par la vitrine : y a-t-il une demande, et pour le payant ? |
+| `eef_interest_failed` | `reason` (`network`/`unauthorized`/`server`) | Un envoi qui échoue |
+
+### Pourquoi `eef_interest_failed` existe
+
+Sans lui, un backend en panne le jour du lancement produit exactement la même
+courbe que « personne n'est intéressé » — et c'est la conclusion **inverse** de
+la vérité qu'on tirerait du tableau de bord. Le taux à surveiller est donc
+`eef_interest_failed ÷ (eef_interest_declared + eef_interest_failed)` : au-delà
+de quelques pourcents, ce n'est pas le produit qui déçoit, c'est la chaîne
+d'envoi qui casse.
+
+`field_count` et non la liste des filières : un compte suffit à segmenter, et
+n'expose pas le détail du profil d'un mineur dans une charge analytique.
+
+### Entonnoir de la Phase 0
+
+`eef_teaser_viewed` → `eef_interest_declared`, segmenté par `source`, dit
+quelle porte convertit. La part de `wants_premium = true` parmi les
+déclarations est le signal qui décide du modèle payant — c'est la seule mesure
+directe de la demande pour le Premium dont l'app dispose aujourd'hui, faute de
+tout produit payant existant.
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |

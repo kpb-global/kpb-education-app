@@ -134,6 +134,67 @@ Purpose:
 Purpose:
 - support lightweight partner acquisition outside the student case flow
 
+## Espace « Études en France » (Phase 0)
+
+- `GET /etudes-en-france/interest`
+- `POST /etudes-en-france/interest`
+
+Authentifiés (`StudentAuthGuard`) : une déclaration d'intérêt sans identité ne
+serait pas rappelable, et c'est le contact qu'on cherche à collecter.
+
+Purpose:
+- enregistrer qui veut être prévenu à l'ouverture de l'espace, et qui se déclare
+  intéressé par le Premium
+
+Réponse (les deux routes) :
+
+```json
+{
+  "declared": true,
+  "currentLevel": "terminale",
+  "targetLevel": "licence",
+  "fieldIds": ["info"],
+  "wantsPremium": true,
+  "consentedAt": "2026-08-21T10:00:00.000Z"
+}
+```
+
+Deux invariants que le client suppose, et sur lesquels des tests existent des
+deux côtés :
+
+- **`declared: true` est la seule preuve d'écriture.** Un 2xx dont le corps ne
+  l'affirme pas est traité par le client comme un ÉCHEC. Un 200 n'est pas une
+  preuve d'écriture ; le corps l'est.
+- **Le service échoue fermé.** Base indisponible ⇒ `503`, jamais un objet
+  d'apparence normale. Rendre un succès sans écriture ferait afficher « c'est
+  noté » pour une ligne qui n'existe nulle part.
+
+`consentedAt` est horodaté par le SERVEUR à la réception, donc non antidatable
+par un client, et rafraîchi à chaque redéclaration : la preuve qui compte est le
+dernier consentement donné.
+
+L'écriture est un `upsert` sur `userId` (unique) : une redéclaration corrige la
+ligne au lieu d'en créer une seconde.
+
+## Admin — liste d'intérêt « Études en France »
+
+- `GET /admin/etudes-en-france/interest/summary`
+- `GET /admin/etudes-en-france/interest?take=&skip=`
+- `GET /admin/etudes-en-france/interest/export.csv`
+
+Rôles : `admin`, `super_admin`, `commercial`, `counselor`. Volontairement PAS
+`moderator` ni `content_manager` — ce sont des noms, des e-mails et des numéros
+de téléphone, et la modération de forum n'a rien à en faire.
+
+Purpose:
+- lire et exporter la liste des prospects, sans quoi elle ne quitte jamais
+  Postgres et personne ne rappelle personne
+
+L'export est servi en `text/csv; charset=utf-8` avec
+`Content-Disposition: attachment`, un BOM UTF-8 (sans lui Excel sous Windows
+rend « Côte d'Ivoire » en « CÃ´te d'Ivoire »), et chaque cellule neutralisée
+contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
+
 ## Admin content operations
 
 - `GET /admin/service-offers`
