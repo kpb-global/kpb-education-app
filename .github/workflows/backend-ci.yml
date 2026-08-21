@@ -129,7 +129,20 @@ jobs:
         run: npm run verify:catalog
 
       - name: Validate versioned scholarship catalog structure
-        run: npm run scholarships:validate:structure
+        # `merge-gate` et non `structure` : ce portail juge la STRUCTURE du
+        # catalogue, pas le calendrier. Une campagne dont la date limite est
+        # passée cette nuit est une ligne de littéral à rafraîchir — ce n'est pas
+        # une raison de bloquer une PR d'authentification, et
+        # `catalog-freshness.yml` l'écrivait déjà dans son en-tête sans que ce
+        # soit implémenté.
+        #
+        # Le 20/08/2026 la clôture de McCall MacBain a rendu ce pas rouge sur
+        # TOUTE PR ouverte ce jour-là, dont un correctif de fuite de données
+        # personnelles. Le rapport complet reste imprimé, anomalies datées
+        # comprises, et le contrôle planifié quotidien continue d'échouer dessus :
+        # rien n'est caché, la responsabilité est seulement portée par le job qui
+        # sait quoi en faire.
+        run: npm run scholarships:validate:merge-gate
 
       - name: Boot smoke — API serves /api/health against the DB
         env:

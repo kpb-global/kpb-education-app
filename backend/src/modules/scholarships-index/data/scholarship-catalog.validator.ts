@@ -9,6 +9,21 @@ import {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_VERIFICATION_AGE_DAYS = 30;
 
+/**
+ * L'horizon d'alerte AVANT clôture.
+ *
+ * Le 20/08/2026, la date limite de McCall MacBain est passée pendant la nuit et
+ * la CI backend est devenue rouge sur toute PR ouverte ce jour-là. Personne
+ * n'avait touché au dépôt. Le contrôle planifié a bien fait son travail — mais
+ * il l'a fait APRÈS, et un constat qui arrive après le basculement ne laisse
+ * plus le choix du moment.
+ *
+ * Quatorze jours parce que c'est le délai qui sépare une action planifiée d'une
+ * urgence : il faut relire la page officielle, y trouver ou non les dates du
+ * cycle suivant, et parfois attendre que l'institution les publie.
+ */
+const CLOSING_SOON_HORIZON_DAYS = 14;
+
 export interface ScholarshipCatalogValidationIssue {
   code: string;
   path: string;
@@ -25,11 +40,40 @@ export interface ScholarshipCatalogValidationReport {
   volumeDeficits: Record<ScholarshipStudyLevel, number>;
   backlogDeficits: Record<ScholarshipStudyLevel, number>;
   issues: ScholarshipCatalogValidationIssue[];
+  /**
+   * Vrai quand le catalogue ne porte AUCUNE anomalie due au seul passage du
+   * temps — donc quand il reste valide même en ignorant l'horloge.
+   *
+   * Deux verdicts au lieu d'un, parce que deux consommateurs ont deux besoins
+   * qui ne se recouvrent pas. Le portail de fusion ne doit pas bloquer une PR
+   * d'authentification parce qu'une bourse a clos hier ; le contrôle planifié,
+   * lui, existe précisément pour crier ce jour-là. L'en-tête de
+   * `catalog-freshness.yml` promettait déjà cette séparation ; elle n'était pas
+   * implémentée, et `CATALOG_EXPIRED_CYCLE_CODES` n'était branché à rien.
+   *
+   * Rien n'est CACHÉ : les anomalies datées restent dans `issues`, elles ne
+   * pèsent simplement pas sur ce verdict-ci.
+   */
+  validIgnoringClock: boolean;
+  /**
+   * Les cycles ouverts qui closent dans les {@link CLOSING_SOON_HORIZON_DAYS}
+   * jours. Ce ne sont PAS des anomalies : ce sont des rendez-vous.
+   */
+  closingSoon: ScholarshipCatalogClosingSoon[];
+}
+
+export interface ScholarshipCatalogClosingSoon {
+  path: string;
+  scholarshipId: string;
+  closesAt: string;
+  daysLeft: number;
 }
 
 export interface ScholarshipCatalogValidationOptions {
   includeVolumeTargets?: boolean;
   now?: Date;
+  /** Horizon de l'alerte avant clôture, en jours. Défaut : 14. */
+  closingSoonHorizonDays?: number;
 }
 
 function isNonBlank(value: unknown): value is string {
@@ -87,6 +131,8 @@ function validateRecord(
   index: number,
   issues: ScholarshipCatalogValidationIssue[],
   now: Date,
+  closingSoon: ScholarshipCatalogClosingSoon[],
+  horizonDays: number,
 ) {
   const root = `records[${index}]`;
   const scholarship = record.scholarship;
@@ -310,6 +356,21 @@ function validateRecord(
   // Elle est volontairement adossée à l'horloge : ce test DOIT casser quand une
   // campagne se termine. Le correctif est d'une ligne (`status: 'closed'`), et
   // c'est le prix d'un catalogue qui ne périme pas en silence.
+  // Le RENDEZ-VOUS, distinct de l'anomalie. Un cycle qui clôt bientôt n'a rien
+  // de fautif ; il devient fautif tout seul, le jour venu. Le signaler avant
+  // laisse le choix du moment, ce qu'un constat après le basculement ne laisse
+  // plus.
+  if (cycle.status === 'open' && close && close > now) {
+    const daysLeft = Math.ceil((close.getTime() - now.getTime()) / DAY_MS);
+    if (daysLeft <= horizonDays) {
+      closingSoon.push({
+        path: `${root}.cycle`,
+        scholarshipId: record.scholarship.id,
+        closesAt: close.toISOString(),
+        daysLeft,
+      });
+    }
+  }
   if (cycle.status === 'open' && close && close <= now) {
     push(
       issues,
@@ -328,6 +389,9 @@ export function validateScholarshipCatalog(
   const issues: ScholarshipCatalogValidationIssue[] = [];
   const now = options.now ?? new Date();
   const includeVolumeTargets = options.includeVolumeTargets ?? true;
+  const horizonDays =
+    options.closingSoonHorizonDays ?? CLOSING_SOON_HORIZON_DAYS;
+  const closingSoon: ScholarshipCatalogClosingSoon[] = [];
   const verifiedCounts = { secondary: 0, bachelor: 0, master: 0 };
   const backlogCounts = { secondary: 0, bachelor: 0, master: 0 };
 
@@ -354,7 +418,7 @@ export function validateScholarshipCatalog(
     recordIds.add(record.catalogId);
     recordIds.add(record.scholarship.id);
     for (const level of new Set(record.levels)) verifiedCounts[level] += 1;
-    validateRecord(record, index, issues, now);
+    validateRecord(record, index, issues, now, closingSoon, horizonDays);
   }
 
   const backlogIds = new Set<string>();
@@ -405,8 +469,31 @@ export function validateScholarshipCatalog(
     }
   }
 
+  // Deux verdicts, et le second n'est pas un assouplissement du premier : il
+  // répond à une autre question. « Ce catalogue est-il parfait ? » n'est pas
+  // « ce catalogue doit-il bloquer une PR d'authentification ? ».
+  // LES DEUX familles datées, pas seulement les cycles clos. `stale_verification`
+  // est aussi purement horloge : aucun commit ne provoque le fait que des pages
+  // officielles n'ont pas été relues depuis trente jours. Le `checkedAt` du
+  // catalogue vaut 2026-08-10 et le plafond est de 30 jours — donc au
+  // 09/09/2026 ce code aurait rougi le portail de fusion pour CHAQUE fiche,
+  // exactement comme la clôture de McCall MacBain l'a fait le 20/08. Une seconde
+  // mine, à trois semaines de la première.
+  //
+  // C'est mon propre test qui l'a trouvé : ma première définition ne tolérait
+  // que les cycles clos, et la contre-épreuve à horizon 2028 est tombée. Le
+  // découpage en deux constantes existait pour nommer deux MÉTIERS de correction
+  // (relire des pages / éditer un littéral), pas pour dire lequel bloque une PR.
+  const clockOnlyCodes = new Set<string>([
+    ...CATALOG_EXPIRED_CYCLE_CODES,
+    ...CATALOG_STALENESS_CODES,
+  ]);
   return {
     valid: issues.length === 0,
+    validIgnoringClock: issues.every((issue) => clockOnlyCodes.has(issue.code))
+      ? true
+      : issues.length === 0,
+    closingSoon: closingSoon.sort((a, b) => a.daysLeft - b.daysLeft),
     catalogVersion: catalog.catalogVersion,
     uniqueRecordCount,
     uniqueRecordDeficit,

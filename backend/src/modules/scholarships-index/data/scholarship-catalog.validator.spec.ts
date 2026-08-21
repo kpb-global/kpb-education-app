@@ -394,6 +394,8 @@ describe('versioned scholarship catalog', () => {
     const diagnosis = buildCatalogDiagnosis(
       {
         valid: false,
+        validIgnoringClock: false,
+        closingSoon: [],
         catalogVersion: '1.3.0',
         uniqueRecordCount: 0,
         uniqueRecordDeficit: 0,
