@@ -20,6 +20,10 @@ describe('AppConfigController', () => {
     KPB_SUCCESS_LAB_ROLLOUT_PERCENT:
       process.env.KPB_SUCCESS_LAB_ROLLOUT_PERCENT,
     KPB_FEATURE_ROLLOUT_SECRET: process.env.KPB_FEATURE_ROLLOUT_SECRET,
+    KPB_EEF_ENABLED: process.env.KPB_EEF_ENABLED,
+    KPB_EEF_TEASER_ENABLED: process.env.KPB_EEF_TEASER_ENABLED,
+    KPB_EEF_CAMPAIGN_OPENS_AT: process.env.KPB_EEF_CAMPAIGN_OPENS_AT,
+    KPB_EEF_CAMPAIGN_CLOSES_AT: process.env.KPB_EEF_CAMPAIGN_CLOSES_AT,
   };
 
   beforeEach(() => {
@@ -58,7 +62,10 @@ describe('AppConfigController', () => {
       aiDiagnostic: false,
       outcomeEvidence: false,
       publicImpactStats: false,
+      eefTeaser: false,
+      eef: false,
     });
+    expect(config.eefCampaign).toEqual({ opensAt: null, closesAt: null });
     expect(config.successLabRollout).toEqual({
       countryCodes: [],
       percent: 0,
@@ -100,6 +107,51 @@ describe('AppConfigController', () => {
       percent: 100,
     });
     expect(JSON.stringify(config)).not.toContain('must-not-leak');
+  });
+
+  // Le jour du lancement, l'exploitation ne bascule QU'UNE variable. Si le
+  // teaser pouvait rester allumé à côté de l'espace réel, l'app afficherait
+  // « en préparation » et l'espace vivant en même temps — et personne ne le
+  // verrait depuis un tableau de bord.
+  it('retires the EEF teaser as soon as the real space opens', () => {
+    process.env.KPB_EEF_TEASER_ENABLED = 'true';
+    process.env.KPB_EEF_ENABLED = 'true';
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.features.eef).toBe(true);
+    expect(config.features.eefTeaser).toBe(false);
+  });
+
+  it('serves the EEF teaser while the real space is still closed', () => {
+    process.env.KPB_EEF_TEASER_ENABLED = 'true';
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.features.eefTeaser).toBe(true);
+    expect(config.features.eef).toBe(false);
+  });
+
+  // Une faute de frappe dans une variable de déploiement ne doit pas faire
+  // annoncer « Invalid Date », ni — pire — faire retomber sur maintenant, ce
+  // qui annoncerait une campagne s'ouvrant à l'instant où l'écran s'ouvre.
+  it('serves null rather than a guess for an unparseable campaign date', () => {
+    process.env.KPB_EEF_CAMPAIGN_OPENS_AT = 'pas-une-date';
+    process.env.KPB_EEF_CAMPAIGN_CLOSES_AT = '   ';
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.eefCampaign).toEqual({ opensAt: null, closesAt: null });
+  });
+
+  it('normalizes configured campaign dates to ISO instants', () => {
+    process.env.KPB_EEF_CAMPAIGN_OPENS_AT = ' 2026-08-26T00:00:00Z ';
+    process.env.KPB_EEF_CAMPAIGN_CLOSES_AT = '2026-12-15T23:59:00Z';
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.eefCampaign.opensAt).toBe('2026-08-26T00:00:00.000Z');
+    expect(config.eefCampaign.closesAt).toBe('2026-12-15T23:59:00.000Z');
   });
 
   it('cannot expose a child capability while the parent gate is disabled', () => {

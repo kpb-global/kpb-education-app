@@ -32,6 +32,8 @@ import { ParcoursController } from './modules/parcours/parcours.controller';
 import { ParcoursService } from './modules/parcours/parcours.service';
 import { ParcoursWeeklyService } from './modules/parcours/parcours-weekly.service';
 import { AppConfigController } from './modules/config/app-config.controller';
+import { EtudesEnFranceController } from './modules/etudes-en-france/etudes-en-france.controller';
+import { EtudesEnFranceService } from './modules/etudes-en-france/etudes-en-france.service';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
@@ -185,6 +187,7 @@ import { SalonService } from './modules/salon/salon.service';
     AdminPushController,
     DocumentReviewController,
     AppConfigController,
+    EtudesEnFranceController,
     HealthController,
     NotificationsController,
     OrientationController,
@@ -283,6 +286,7 @@ import { SalonService } from './modules/salon/salon.service';
     PaydunyaAdapter,
     ParentLinksService,
     ReferralsService,
+    EtudesEnFranceService,
     AmbassadorService,
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,

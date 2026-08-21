@@ -417,6 +417,9 @@ model UserProfile {
   parentLinksAsParent     ParentChildLink[]              @relation("parentLink_parent")
   parentLinksAsChild      ParentChildLink[]              @relation("parentLink_child")
   paymentIntents          PaymentIntent[]
+  // Espace « Études en France » — au plus une déclaration d'intérêt par
+  // profil (contrainte @unique portée par EefInterest.userId).
+  eefInterest             EefInterest?
   // ── Phase 3 — Alumni mentor layer ─────────────────────────────────────────
   // Students who got admitted become verified mentors with a badge in the
   // community. We keep the fields flat on UserProfile (rather than a separate
@@ -2870,4 +2873,39 @@ model ImpactDataRoomExport {
 
   @@index([pilotId, createdAt])
   @@index([snapshotId])
+}
+
+// ─── Espace « Études en France » — déclaration d'intérêt (Phase 0) ───────────
+//
+// La vitrine demande à l'étudiant s'il veut être rappelé quand l'espace ouvre.
+// C'est un ENREGISTREMENT, pas un événement analytique : l'objectif commercial
+// est de rappeler ces gens, et un compteur PostHog n'est pas un fichier de
+// prospects.
+//
+// `consentedAt` n'est pas décoratif et n'est pas nullable : « ça m'intéresse »
+// n'est pas en soi un consentement de prospection, donc l'écran le demande
+// explicitement et on horodate la preuve — même patron que
+// newsletterOptIn/newsletterConsentedAt ci-dessus, pour la même raison (RGPD).
+//
+// `userId` est unique : un étudiant qui redéclare son intérêt met à jour sa
+// ligne au lieu d'en créer une deuxième. Sans cette contrainte, un double tap
+// sur un réseau lent gonfle la liste d'appel de doublons que personne ne
+// dédoublonne ensuite.
+model EefInterest {
+  id           String      @id @default(cuid())
+  userId       String      @unique
+  // Niveau courant et niveau visé, tels que l'étudiant les déclare. Chaînes
+  // libres bornées côté DTO, pas des enums : la nomenclature scolaire diffère
+  // d'un pays à l'autre et une enum aurait figé celle d'un seul.
+  currentLevel String?
+  targetLevel  String?
+  fieldIds     String[]    @default([])
+  wantsPremium Boolean     @default(false)
+  consentedAt  DateTime
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  user         UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([wantsPremium])
 }
