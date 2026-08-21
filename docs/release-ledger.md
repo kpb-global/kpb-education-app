@@ -66,3 +66,22 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   Vérification après bascule : `GET /config/app` doit répondre
   `features.eefTeaser: true`. La liste des intéressés se lit sur
   `GET /admin/etudes-en-france/interest` (résumé, liste, `export.csv`).
+
+  **Où se pose réellement cette bascule** : `docs/cutover-build49.md`, étape
+  9 bis. Ce n'est pas une redondance — ce runbook est ce qu'on suit ligne à
+  ligne le soir de la livraison, et il dit AUSSI pourquoi ces variables ne se
+  posent qu'après le déploiement couplé, et non avant.
+
+  **Une migration s'applique désormais.** Ce lot ajoute
+  `backend/prisma/migrations/20260821120000_eef_interest`, appliquée par le
+  `prisma migrate deploy` du déploiement `scope=full`. Elle est additive — une
+  table neuve, trois index, une clé étrangère — donc sans effet sur les données
+  en place. Le runbook affirmait qu'il n'y avait rien à migrer : c'était vrai
+  quand il a été écrit, et l'étape 1 a été corrigée.
+
+  **Le sens du couplage ne change pas.** La 49 reste `tolerates-old` au
+  préflight : contre l'ancien backend, les clés `eefTeaser` / `eef` /
+  `eefCampaign` sont absentes, les drapeaux retombent sur `false`, et les quatre
+  points d'entrée se masquent — même mécanique que le masquage des outils IA. Le
+  déploiement couplé reste dû, maintenant pour deux raisons : `AiConsentGuard`
+  et la table `EefInterest`.
