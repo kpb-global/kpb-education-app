@@ -59,7 +59,7 @@ Trois questions bloquaient la Phase 0. Elles sont tranchées.
 | # | Décision | Retenu |
 |---|---|---|
 | 1 | **Nom de l'espace** | **« Études en France »** — on nomme la procédure, pas l'agence. Campus France n'apparaît que dans le corps du texte, comme la plateforme concernée. |
-| 2 | **Ligne gratuit / Premium** | **Catalogue gratuit, accompagnement payant.** Détail en § 7.2. |
+| 2 | **Ligne gratuit / Premium** | **Catalogue gratuit, accompagnement payant.** Détail en § 8.2. |
 | 3 | **Activation du Premium** | **`ServicePackage` + conseiller** : pack vendu par le tunnel CinetPay/PayDunya existant, droit accordé au webhook `paid`. |
 
 ### 2.1 Ce que la décision n° 1 règle, et ce qu'il reste à tenir
@@ -160,7 +160,7 @@ constantes de compilation quand l'appel échoue (fail closed).
 Nouveau dossier `lib/app/features/etudes_en_france/` :
 
 - `eef_teaser_screen.dart` — la vitrine. Ce qu'elle dit : ce que l'espace fera,
-  ce qui sera **gratuit**, ce qui sera **Premium** (§ 7.2, mot pour mot), la
+  ce qui sera **gratuit**, ce qui sera **Premium** (§ 8.2, mot pour mot), la
   fenêtre de campagne, la mention de non-affiliation, et **une** action :
   « Ça m'intéresse ».
 - `eef_home_screen.dart` — la coquille de l'espace réel, éteinte.
