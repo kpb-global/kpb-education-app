@@ -162,4 +162,29 @@ void main() {
       expect(EefCalendar.dayLabel(null), isNull);
     });
   });
+
+  // « 1er octobre », jamais « 1 octobre ». DateFormat français ne pose pas
+  // l'ordinal, et la date d'ouverture de la campagne EST un premier du mois :
+  // c'est donc la chaîne que tous les utilisateurs verront.
+  group('dayLabel — l\'ordinal du premier du mois', () {
+    test('rend « 1er » en français', () {
+      expect(EefCalendar.dayLabel(DateTime(2026, 10, 1)), '1er octobre 2026');
+    });
+
+    test('les autres jours restent cardinaux', () {
+      expect(EefCalendar.dayLabel(DateTime(2026, 10, 2)), '2 octobre 2026');
+      expect(EefCalendar.dayLabel(DateTime(2026, 11, 15)), '15 novembre 2026');
+    });
+
+    test('l\'anglais ne prend pas l\'ordinal français', () {
+      Get.locale = const Locale('en');
+      expect(EefCalendar.dayLabel(DateTime(2026, 10, 1)), '1 October 2026');
+    });
+
+    test('la fenêtre servie s\'écrit correctement de bout en bout', () {
+      EefCalendar.windowSource =
+          () => EefCampaignWindow(opensAt: DateTime(2026, 10, 1));
+      expect(EefCalendar.rangeLabel(), 'À partir du 1er octobre 2026');
+    });
+  });
 }

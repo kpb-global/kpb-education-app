@@ -66,6 +66,15 @@ abstract final class EefCalendar {
 
   static EefCampaignWindow get window => windowSource();
 
+  /// La procédure est-elle suspendue dans [country] ?
+  ///
+  /// Passe par la fenêtre servie, donc la liste se corrige côté exploitation.
+  /// Voir [EefCampaignWindow.isSuspendedForCountry] pour le sens de l'échec :
+  /// un pays inconnu rend `false`, donc l'app annonce la date nationale — qui
+  /// est exacte — plutôt qu'une suspension qui découragerait à tort.
+  static bool isSuspendedFor(String? country) =>
+      window.isSuspendedForCountry(country);
+
   /// Où en est la campagne.
   ///
   /// Une fenêtre incohérente (clôture avant ouverture) est traitée comme
@@ -129,6 +138,15 @@ abstract final class EefCalendar {
   static String? dayLabel(DateTime? date) {
     if (date == null) return null;
     try {
+      // « 1er octobre », jamais « 1 octobre ». `DateFormat` français ne pose pas
+      // l'ordinal du premier du mois : il rend « 1 octobre 2026 », qui est une
+      // faute de français. Or la date d'ouverture de la campagne EST un premier
+      // du mois, donc c'est la chaîne que tout le monde verra — et toutes les
+      // sources officielles écrivent « 1er octobre ». Un test l'a attrapée.
+      if (!_isEnglish && date.day == 1) {
+        final monthYear = DateFormat('MMMM yyyy', 'fr').format(date);
+        return '1er $monthYear';
+      }
       return DateFormat('d MMMM yyyy', _isEnglish ? 'en' : 'fr').format(date);
     } catch (_) {
       final day = date.day.toString().padLeft(2, '0');

@@ -231,6 +231,11 @@ UserProfile createTestProfile({
   String phone = '+22501020304',
   AccountType accountType = AccountType.student,
   String preferredLanguage = 'fr',
+  // Le pays de résidence est PARAMÉTRABLE : il décide de règles réelles (la
+  // suspension par pays de la procédure Études en France, par exemple), donc un
+  // test doit pouvoir le poser. Le défaut reste 'CI' pour ne rien changer aux
+  // tests existants.
+  String countryOfResidence = 'CI',
   bool withAiConsent = true,
   DateTime? aiConsentedAt,
 }) {
@@ -241,7 +246,7 @@ UserProfile createTestProfile({
     email: email,
     phone: phone,
     whatsApp: phone,
-    countryOfResidence: 'CI',
+    countryOfResidence: countryOfResidence,
     preferredLanguage: preferredLanguage,
     currentLevel: 'Licence',
     targetLevel: 'Master',

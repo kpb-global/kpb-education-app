@@ -24,6 +24,7 @@ describe('AppConfigController', () => {
     KPB_EEF_TEASER_ENABLED: process.env.KPB_EEF_TEASER_ENABLED,
     KPB_EEF_CAMPAIGN_OPENS_AT: process.env.KPB_EEF_CAMPAIGN_OPENS_AT,
     KPB_EEF_CAMPAIGN_CLOSES_AT: process.env.KPB_EEF_CAMPAIGN_CLOSES_AT,
+    KPB_EEF_SUSPENDED_COUNTRIES: process.env.KPB_EEF_SUSPENDED_COUNTRIES,
   };
 
   beforeEach(() => {
@@ -65,7 +66,11 @@ describe('AppConfigController', () => {
       eefTeaser: false,
       eef: false,
     });
-    expect(config.eefCampaign).toEqual({ opensAt: null, closesAt: null });
+    expect(config.eefCampaign).toEqual({
+      opensAt: null,
+      closesAt: null,
+      suspendedCountries: [],
+    });
     expect(config.successLabRollout).toEqual({
       countryCodes: [],
       percent: 0,
@@ -141,7 +146,31 @@ describe('AppConfigController', () => {
 
     const config = new AppConfigController().getAppConfig();
 
-    expect(config.eefCampaign).toEqual({ opensAt: null, closesAt: null });
+    expect(config.eefCampaign.opensAt).toBeNull();
+    expect(config.eefCampaign.closesAt).toBeNull();
+  });
+
+  // Le Niger : la source officielle de l'ambassade dit que le traitement des
+  // dossiers d'étudiants nigériens est impossible. Annoncer une ouverture leur
+  // ferait engager une démarche que l'État français déclare inopérante. La
+  // liste est SERVIE pour qu'une réouverture n'attende pas un passage au store.
+  it('serves the suspended-country list, trimmed and de-duplicated', () => {
+    process.env.KPB_EEF_SUSPENDED_COUNTRIES = ' Niger , NE ,, Niger ';
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.eefCampaign.suspendedCountries).toEqual(['Niger', 'NE']);
+  });
+
+  // PAS de mise en majuscules, contrairement aux codes pays du Success Lab : la
+  // liste est comparée à un `countryOfResidence` qui porte un nom français. La
+  // normalisation est le travail du client, qui sait ce qu'il compare.
+  it('keeps the operator spelling on the wire', () => {
+    process.env.KPB_EEF_SUSPENDED_COUNTRIES = "Côte d'Ivoire";
+
+    const config = new AppConfigController().getAppConfig();
+
+    expect(config.eefCampaign.suspendedCountries).toEqual(["Côte d'Ivoire"]);
   });
 
   it('normalizes configured campaign dates to ISO instants', () => {

@@ -12,14 +12,76 @@ import '../utils/app_logger.dart';
 /// l'exploitation à inventer la borne manquante.
 @immutable
 class EefCampaignWindow {
-  const EefCampaignWindow({this.opensAt, this.closesAt});
+  const EefCampaignWindow({
+    this.opensAt,
+    this.closesAt,
+    this.suspendedCountries = const <String>[],
+  });
 
   final DateTime? opensAt;
   final DateTime? closesAt;
 
+  /// Pays où la procédure est SUSPENDUE, tels que l'exploitation les a écrits.
+  ///
+  /// Ce ne sont ni des codes ISO garantis ni des noms garantis : le champ
+  /// `countryOfResidence` d'un profil porte un nom français, saisi au clavier
+  /// depuis l'écran de profil. La comparaison passe donc par
+  /// [isSuspendedForCountry], qui normalise les deux côtés.
+  final List<String> suspendedCountries;
+
   static const empty = EefCampaignWindow();
 
   bool get hasAnyDate => opensAt != null || closesAt != null;
+
+  /// La procédure est-elle suspendue pour [country] ?
+  ///
+  /// ## Pourquoi cette comparaison est tolérante, et pourquoi elle doit l'être
+  ///
+  /// `countryOfResidence` n'est pas un identifiant : l'onboarding le choisit
+  /// dans une liste de noms français (« Niger », « Côte d'Ivoire »), mais
+  /// l'écran de profil le laisse en TEXTE LIBRE. Une comparaison stricte aurait
+  /// donc raté « NIGER », « niger » et « Côte d’Ivoire » écrit avec l'apostrophe
+  /// typographique — c'est-à-dire précisément les cas réels.
+  ///
+  /// On normalise donc les deux côtés : minuscules, accents retirés,
+  /// apostrophes unifiées, espaces réduits. L'exploitation peut alors écrire
+  /// « Niger » ou « NE » indifféremment.
+  ///
+  /// **Le sens de l'échec est choisi.** Un pays vide, inconnu ou mal orthographié
+  /// rend `false` — donc l'app affiche la date d'ouverture nationale, qui est
+  /// exacte pour la plateforme. Le cas inverse (afficher une suspension à qui
+  /// n'est pas concerné) découragerait une candidature parfaitement possible.
+  bool isSuspendedForCountry(String? country) {
+    final needle = normalizeCountry(country);
+    if (needle.isEmpty || suspendedCountries.isEmpty) return false;
+    return suspendedCountries.any(
+      (entry) => normalizeCountry(entry) == needle,
+    );
+  }
+
+  /// Minuscules, sans accents, apostrophes unifiées, espaces réduits.
+  @visibleForTesting
+  static String normalizeCountry(String? raw) {
+    final trimmed = raw?.trim().toLowerCase() ?? '';
+    if (trimmed.isEmpty) return '';
+
+    const accents = 'àáâäãåèéêëìíîïòóôöõùúûüçñ';
+    const plain = 'aaaaaaeeeeiiiiooooouuuucn';
+
+    final buffer = StringBuffer();
+    for (final rune in trimmed.runes) {
+      final char = String.fromCharCode(rune);
+      // Les deux apostrophes que produisent les claviers réels.
+      if (char == '’' || char == "'") {
+        buffer.write("'");
+        continue;
+      }
+      final index = accents.indexOf(char);
+      buffer.write(index == -1 ? char : plain[index]);
+    }
+
+    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ');
+  }
 
   /// Décode `{ "opensAt": "...", "closesAt": "..." }`.
   ///
@@ -32,7 +94,17 @@ class EefCampaignWindow {
     return EefCampaignWindow(
       opensAt: _parseInstant(raw['opensAt']),
       closesAt: _parseInstant(raw['closesAt']),
+      suspendedCountries: _parseStringList(raw['suspendedCountries']),
     );
+  }
+
+  static List<String> _parseStringList(Object? value) {
+    if (value is! List) return const <String>[];
+    return value
+        .whereType<String>()
+        .map((entry) => entry.trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList(growable: false);
   }
 
   static DateTime? _parseInstant(Object? value) {

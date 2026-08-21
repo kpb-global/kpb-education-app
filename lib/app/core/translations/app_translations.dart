@@ -1715,6 +1715,20 @@ class AppTranslations extends Translations {
                   'faites pour ton profil, monter ton dossier, préparer ton '
                   'entretien. On le construit en ce moment.',
           'eef_opens_in_days': 'ouverture dans @days jours',
+          // Les clôtures divergent par pays et la plupart ne sont pas encore
+          // publiées : on dit qu'elles existent sans en inventer aucune.
+          'eef_deadline_varies_notice':
+              'Les dates de clôture varient selon ton pays et ta procédure. On '
+                  'te les confirmera dans l\'espace.',
+          // Suspension : elle REMPLACE la date d'ouverture. Le texte ne promet
+          // pas de débloquer une situation diplomatique — il dit ce qui est, et
+          // propose la seule chose utile, parler à quelqu'un.
+          'eef_suspended_notice':
+              'Dans ton pays, le traitement des dossiers Études en France est '
+                  'actuellement suspendu par les autorités françaises. '
+                  'L\'ouverture de la plateforme ne change rien à cela. '
+                  'Parles-en à un conseiller KPB : d\'autres destinations '
+                  'restent ouvertes.',
           'eef_pillars_heading': 'Ce que tu pourras faire',
           'eef_pillar_catalog_title': 'Un catalogue dense',
           'eef_pillar_catalog_body':
@@ -4588,6 +4602,14 @@ class AppTranslations extends Translations {
                   'that fit your profile, build your file, prepare your '
                   'interview. We are building it right now.',
           'eef_opens_in_days': 'opens in @days days',
+          'eef_deadline_varies_notice':
+              'Closing dates vary by country and by procedure. We will confirm '
+                  'yours inside the space.',
+          'eef_suspended_notice':
+              'In your country, processing of Études en France applications is '
+                  'currently suspended by the French authorities. The platform '
+                  'opening does not change that. Talk to a KPB counsellor: '
+                  'other destinations remain open.',
           'eef_pillars_heading': 'What you will be able to do',
           'eef_pillar_catalog_title': 'A dense catalogue',
           'eef_pillar_catalog_body':

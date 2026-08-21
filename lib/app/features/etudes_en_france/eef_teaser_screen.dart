@@ -52,11 +52,19 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
   late final EefInterestController _controller;
   late final bool _isGuest;
 
+  /// La procédure est suspendue dans le pays de résidence de l'étudiant.
+  ///
+  /// Lu une fois au montage plutôt qu'à chaque `build` : la valeur dépend du
+  /// profil et de la fenêtre servie, dont aucun ne change pendant que l'écran
+  /// est à l'affiche.
+  late final bool _suspended;
+
   @override
   void initState() {
     super.initState();
     final app = Get.find<AppController>();
     _isGuest = app.isGuestMode;
+    _suspended = EefCalendar.isSuspendedFor(app.profile?.countryOfResidence);
     // `AppApiClient` n'est PAS enregistré dans GetX : il vit sur AppController,
     // qui l'a construit. Un `Get.find<AppApiClient>()` aurait levé au premier
     // montage réel — et jamais dans un test qui l'aurait injecté à la main.
@@ -103,7 +111,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
             KpbSpacing.xl,
           ),
           children: [
-            const _EefHero(),
+            _EefHero(suspended: _suspended),
             const SizedBox(height: KpbSpacing.lg),
             const _EefWhatItWillDo(),
             const SizedBox(height: KpbSpacing.lg),
@@ -139,7 +147,10 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
 /// liste défilante, ne peut pas déborder : il n'y a plus de nombre à faire
 /// coïncider avec le rendu.
 class _EefHero extends StatelessWidget {
-  const _EefHero();
+  const _EefHero({required this.suspended});
+
+  /// La procédure est suspendue dans le pays de l'étudiant.
+  final bool suspended;
 
   @override
   Widget build(BuildContext context) {
@@ -186,10 +197,40 @@ class _EefHero extends StatelessWidget {
             style:
                 KpbTextStyles.body.copyWith(color: KpbColors.textOnDarkMuted),
           ),
+          // ── Suspension : elle REMPLACE les dates, elle ne s'y ajoute pas ──
+          //
+          // Une date d'ouverture affichée à côté d'un « le service ne traite
+          // pas les dossiers » laisse l'étudiant choisir laquelle croire, et il
+          // choisira la date. Au Niger, la source officielle de l'ambassade dit
+          // que la dénonciation de la convention du centre qui hébergeait
+          // Campus France rend le traitement des dossiers impossible :
+          // l'ouverture nationale de la plateforme est exacte et sans effet
+          // pour lui. On dit donc l'un OU l'autre.
+          if (suspended) ...[
+            const SizedBox(height: KpbSpacing.md),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.report_problem_outlined,
+                  size: 18,
+                  color: KpbColors.errorOnDark,
+                ),
+                const SizedBox(width: KpbSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'eef_suspended_notice'.tr,
+                    style: KpbTextStyles.bodySm
+                        .copyWith(color: KpbColors.errorOnDark),
+                  ),
+                ),
+              ],
+            ),
+          ]
           // Les dates n'apparaissent QUE si le serveur en a servi. Aucun repli,
           // aucune date calculée par une règle maison : une échéance inventée
           // est indistinguable d'une information pour qui la lit.
-          if (range != null) ...[
+          else if (range != null) ...[
             const SizedBox(height: KpbSpacing.md),
             Row(
               children: [
@@ -211,6 +252,18 @@ class _EefHero extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            // La borne SERVIE est l'ouverture, nationale et confirmée. Les
+            // clôtures divergent d'un pays à l'autre — 15 novembre au Maroc,
+            // « information à venir » en Algérie, non publiées dans la plupart
+            // des pays au moment d'écrire ceci. On ne les invente pas, et on
+            // dit qu'elles existent : sans cette ligne, un étudiant lirait
+            // « à partir du 1er octobre » comme « j'ai tout le temps ».
+            const SizedBox(height: KpbSpacing.xs),
+            Text(
+              'eef_deadline_varies_notice'.tr,
+              style: KpbTextStyles.caption
+                  .copyWith(color: KpbColors.textOnDarkMuted),
             ),
           ],
         ],
