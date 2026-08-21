@@ -11,10 +11,10 @@ demande est déjà dans le dépôt, éteinte derrière un drapeau.
 > `/config/app`, back-office avec export CSV, `RemoteFeatureFlags` côté client,
 > `EefCalendar`, la vitrine, la coquille de l'espace, l'arbitrage `EefEntry`, la
 > route `/etudes-en-france` avec sa liste blanche de liens profonds, les quatre
-> points d'entrée, 57 clés FR/EN, et les trois événements analytiques.
+> points d'entrée, 59 clés FR/EN, et les trois événements analytiques.
 >
-> Validé : `prisma generate`, lint backend, `nest build`, **919 tests backend** ;
-> `flutter analyze` sans problème, `dart format`, **937 tests mobiles** sur
+> Validé : `prisma generate`, lint backend, `nest build`, **926 tests backend** ;
+> `flutter analyze` sans problème, `dart format`, **963 tests mobiles** sur
 > Flutter 3.44.1 (la version épinglée par la CI) ; lint admin, `next build`,
 > **50 tests admin**. Deux échecs mobiles subsistent
 > (`privacy_disclosure_parity`, `theme_gallery_golden`) : **préexistants**,
@@ -24,7 +24,9 @@ demande est déjà dans le dépôt, éteinte derrière un drapeau.
 > n'a pas été livrée, donc ce lot monte dedans. La commande de bascule du jour J
 > est dans `docs/release-ledger.md`.
 
-Rédigé le 21/08/2026. Campagne annoncée à J+5 (≈ 26/08/2026).
+Rédigé le 21/08/2026. **Dates arrêtées depuis** : la campagne ouvre le
+**1er octobre 2026**, pas à J+5 — voir
+`docs/eef-campaign-calendar-2027-2028-research.md` et § 12.
 
 ---
 
@@ -117,9 +119,15 @@ l'exploitation lit et dans les événements analytiques :
 
 ---
 
-## 3. Le pari architectural : la mise à jour de J+5 ne doit pas passer par les stores
+## 3. Le pari architectural : l'ouverture ne doit pas passer par les stores
 
 C'est la décision qui structure tout le reste.
+
+> Écrit quand la campagne était annoncée à cinq jours. Les dates ont bougé —
+> l'ouverture est au 1er octobre 2026 — et le pari n'a pas seulement survécu :
+> **c'est ce déplacement qui l'a validé**. Une date d'ouverture compilée dans la
+> build 49 serait fausse aujourd'hui, et fausse sans recours, puisqu'elle vivrait
+> dans le binaire. Servie, elle a coûté une variable d'environnement.
 
 La build en attente est `2.1.0+49` (`pubspec.yaml:24`, `docs/release-ledger.md`).
 Une revue App Store prend 1 à 3 jours et peut refuser — le dépôt en porte les
@@ -280,7 +288,8 @@ lancement se lit dans les tableaux de bord comme « personne n'est intéressé �
 - Ligne dans `docs/release-ledger.md` pour le numéro de build consommé
   (`test/release/build_number_test.dart` lit ce fichier).
 
-**Charge Phase 0 : 4 à 6 jours.** C'est ce qui tient avant J+5.
+**Charge Phase 0 : 4 à 6 jours.** Mesurée : livrée en un jour de travail
+continu, ce qui laisse le calendrier au catalogue plutôt qu'à la coquille.
 
 ---
 
@@ -514,7 +523,7 @@ comme une panne.
 
 | # | Risque | Traitement | État |
 |---|---|---|---|
-| 1 | **J+5 ne suffit pas** pour l'espace complet | Phase 0 seule au store ; le reste s'allume par drapeau serveur | traité |
+| 1 | **Le délai ne suffit pas** pour l'espace complet | Phase 0 seule au store ; le reste s'allume par drapeau serveur | traité — et le report au 01/10 l'a confirmé |
 | 2 | **Volume du catalogue** vs listes mémoire de `AppController` | Recherche paginée serveur dès la Phase 1, pas après | à traiter en Phase 1 |
 | 3 | **Données IA non vérifiées publiées** | Pipeline d'import + modération admin, non négociable | traité par le pipeline |
 | 4 | `aiToolsEnabled` **séquencé derrière la build 49** | Pilier outils planifié après le cutover | contrainte acceptée |
@@ -524,24 +533,84 @@ comme une panne.
 
 ---
 
-## 11. Séquence
+## 11. Séquence — en dates réelles
+
+Les repères relatifs (« J+5 ») ont été remplacés par des dates : la campagne
+n'ouvre pas à J+5 mais le **1er octobre 2026**, et raisonner en jours relatifs
+dans un document qu'on relit trois semaines plus tard est exactement la faute
+que `IntakeCalendar` porte en commentaire.
 
 | Quand | Quoi | Store ? |
 |---|---|---|
-| J → J+4 | Phase 0 : vitrine + coquille + drapeaux + intérêt en base | **Oui**, une fois |
-| J+5 | `KPB_EEF_TEASER_ENABLED=true` | Non |
-| J+5 → J+25 | Phase 1 : catalogue dense (collecte, vérification, import) | Non |
+| **fait** | Phase 0 : vitrine + coquille + drapeaux + intérêt en base | — |
+| dès que possible | Publier la build 49, vitrine embarquée **éteinte** | **Oui**, une fois |
+| après déploiement | `prisma migrate deploy`, puis les 3 variables `KPB_EEF_*` (voir `docs/release-ledger.md`) | Non |
+| 21/08 → **23/09** | **Phase 1 : le catalogue dense** (collecte, vérification, import) | Non |
 | en parallèle | Rédaction du contenu : projet d'études, lettres par procédure, questions d'entretien | Non |
-| J+25 → J+35 | Phase 2 : matching et shortlist | Non si la coquille l'a prévu |
+| **01/10/2026** | Ouverture de la campagne → `KPB_EEF_ENABLED=true` | Non |
+| 01/10 → mi-oct | Phase 2 : matching et shortlist | Non si la coquille l'a prévu |
 | après cutover 49 | Phase 3 : bascule `aiToolsEnabled` + contenu spécifique | Non |
-| J+40 → J+60 | Phase 4 : `Entitlement` + pack Premium | Non (pack = prestation) |
+| mi-oct → fin oct | Phase 4 : `Entitlement` + pack Premium | Non (pack = prestation) |
+
+### 11.1 Ce que « opérationnel le 23 septembre » veut dire, exactement
+
+La date de 23/09 a été posée comme cible produit. Elle ne peut pas être une
+bascule de drapeau, et il vaut mieux l'écrire ici que de le découvrir ce jour-là :
+
+- **La vitrine, elle, peut s'allumer maintenant.** Elle est dans la build 49,
+  éteinte ; une variable suffit. Rien n'oblige à attendre le 23/09 pour
+  commencer à collecter les intérêts — au contraire, chaque jour d'avance est un
+  jour de liste.
+- **L'espace réel est une coquille vide.** `KPB_EEF_ENABLED=true` le 23/09
+  afficherait un espace sans catalogue, sans matching et sans contenu. Le
+  drapeau existe, la matière non.
+- Donc **le 23/09 est une date de livraison de la Phase 1**, pas une bascule.
+  C'est un engagement de production de données : ~4 semaines et demie pour
+  collecter, sourcer et faire vérifier le catalogue. Le § 12 dit ce qui manque
+  pour la démarrer.
+- **La bascule, elle, tombe le 01/10** — le jour où la campagne ouvre
+  réellement. Livrer la Phase 1 une semaine avant est la bonne marge : elle
+  laisse le temps de la vérification humaine, qui est le vrai goulot.
 
 ---
 
-## 12. Le seul point encore ouvert
+## 12. Ce qui reste ouvert
 
-**Les dates réelles de la campagne.** Non bloquant par construction — la fenêtre
-est servie par `/config/app` et calculée par `EefCalendar`, donc elle se corrige
-en une variable d'environnement, sans binaire neuf. Mais il faut la valeur pour
-la poser : date d'ouverture, date de clôture, et s'il y a plusieurs vagues
-(DAP et EEF n'ont pas le même calendrier).
+Les dates de campagne, qui étaient le seul point ouvert à la rédaction, sont
+**réglées** : ouverture globale au 1er octobre 2026, aucune clôture globale
+servie (les clôtures divergent trop — voir
+`docs/eef-campaign-calendar-2027-2028-research.md` et le registre de release).
+Ce qui reste :
+
+### 12.1 Bloquant pour démarrer la Phase 1
+
+**Le propriétaire nommé de la file de vérification du catalogue.** Une personne
+réelle, pas un rôle. Le pipeline des bourses impose un vérificateur nommé par
+affirmation publiée, et la SOP existante signale elle-même « Amina KPB » et
+« Fatou Admin » comme des personas de test. Sans ce nom, la Phase 1 produit des
+candidats que personne n'a le droit de publier — c'est-à-dire rien.
+
+### 12.2 Non bloquant, mais à trancher avant le 01/10
+
+- **La mention de non-affiliation** mérite une relecture juridique. Elle est
+  rédigée et un test verrouille ses deux moitiés (ne pas se présenter comme
+  Campus France, nommer Campus France dans l'avertissement), mais valider un
+  texte qui parle d'un établissement public français n'est pas une décision
+  d'ingénierie.
+- **Aucune notification push du jour J n'est construite.** La route
+  `/etudes-en-france` est joignable drapeaux éteints précisément pour pouvoir en
+  recevoir une, mais aucune campagne n'est planifiée. Prévenir la base le
+  1er octobre est un lot à part.
+- **Les clôtures par pays.** 91 couples pays × procédure ne sont pas publiés à
+  ce jour. Elles arrivent avec le catalogue de la Phase 1, déjà structuré par
+  pays ; en attendant l'app dit que les clôtures varient, ce qui est vrai.
+
+### 12.3 Une limite assumée de la vitrine
+
+La déclaration d'intérêt exige un **compte**. Un invité voit tout le contenu,
+mais son bouton devient « créer mon compte ». C'est délibéré — une déclaration
+sans identité n'est pas rappelable, et la liste sert à rappeler des gens. La
+conséquence à connaître avant de lire l'entonnoir : `eef_interest_declared`
+mesure aussi la friction d'inscription, pas seulement l'appétence. Capter les
+invités supposerait d'accepter des lignes sans contact, ce qui n'est plus la
+même liste.
