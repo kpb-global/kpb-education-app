@@ -34,19 +34,49 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # ── 17 DÉPENDANCES DIRECTES MORTES RETIRÉES (lot 2) ─────────────────────────
+  # Une dépendance déclarée est une DÉCLARATION, lue par des humains qui
+  # remplissent les formulaires de conformité store. `webview_flutter` déclaré à
+  # vide (retiré au correctif 5) avait fait croire à la revue que l'app
+  # embarquait une WebView de comparaison de prix. Les 17 paquets retirés ici
+  # étaient dans le même état : déclarés, importés nulle part — ni dans lib/, ni
+  # dans test/, ni depuis le natif iOS/Android.
+  #
+  # Retirés : readmore, logger, logging, http, flutter_expandable_fab,
+  # pin_code_fields, get_storage, flutter_screenutil, flutter_svg,
+  # country_picker, percent_indicator, timeago, flutter_speed_dial,
+  # flutter_staggered_grid_view, fl_chart, flutter_widget_from_html,
+  # video_player.
+  #
+  # `http` et `logging` RESTENT dans pubspec.lock en `transitive` — dio,
+  # supabase_flutter, printing, syncfusion et socket_io_client en dépendent.
+  # C'était bien la déclaration directe qui mentait, pas leur présence.
+  #
+  # `flutter_widget_from_html` était le dernier porteur de webview_flutter (via
+  # fwfh_webview). Son retrait sort enfin les 4 paquets webview_* du verrou, et
+  # avec eux video_player_*, chewie, just_audio et wakelock_plus : 46 paquets en
+  # moins dans pubspec.lock.
+  #
+  # GARDÉS malgré l'absence d'import, chacun avec son motif dans la table de
+  # test/release/dead_dependency_budget_test.dart : cupertino_icons (police),
+  # hive (réexporté par hive_flutter), flutter_launcher_icons et
+  # change_app_package_name (outils de release configurés par CE pubspec),
+  # fluttertoast et nb_utils (greffons enregistrés côté iOS/Android).
+  #
+  # Piste écartée : retirer aussi fluttertoast et nb_utils. Ils figurent
+  # nommément dans l'avertissement Swift Package Manager de `flutter pub get`,
+  # donc ils comptent dans le jeu de greffons compilés ; un `flutter build apk
+  # --debug` vert ne prouverait rien pour iOS. Ça demande un build device, hors
+  # de ce lot.
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   get: ^4.6.6
-  readmore: ^3.0.0
   intl: ^0.20.2
   dio: ^5.4.1
   crypto: ^3.0.6
-  logger: ^2.0.2+1
-  logging: ^1.2.0
-  http: ^1.2.2
   fluttertoast: ^9.0.0
-  flutter_expandable_fab: ^2.0.0
   uuid: ^4.3.3
   share_plus: ^12.0.2
   permission_handler: ^12.0.1
@@ -56,37 +86,22 @@ dependencies:
   # resolved transitively via supabase_flutter; pinned direct so we can import it.
   app_links: ^7.0.0
   cached_network_image: ^3.4.1
-  pin_code_fields: ^9.3.0
   flutter_localizations:
     sdk: flutter
-  get_storage: ^2.1.1
   image_picker: ^1.0.7
-  flutter_screenutil: ^5.9.1
-  flutter_svg: ^2.0.10+1
-  country_picker: ^2.0.26
   firebase_core: ^4.7.0
   flutter_launcher_icons: ^0.14.4
-  percent_indicator: ^4.2.3
   nb_utils: ^7.0.5
-  video_player: ^2.9.2
-  # webview_flutter RETIRÉ (correctif 5) : jamais importé dans lib/. Le seul
+  # webview_flutter RETIRÉ (correctif 5) puis SORTI DU VERROU (lot 2) : le seul
   # lecteur embarqué de l'app est youtube_player_flutter, qui passe par
-  # flutter_inappwebview — pas par ce paquet. Sa déclaration en `direct main` a
-  # fait croire à la revue des fiches store que l'app embarquait une WebView de
-  # comparaison de prix ; c'est CE signal qu'on supprime.
-  # Honnêteté sur le gain : le paquet reste dans pubspec.lock en `transitive`,
-  # tiré par fwfh_webview ← flutter_widget_from_html. Le binaire ne maigrit donc
-  # pas tant que flutter_widget_from_html (lui aussi jamais importé) reste
-  # déclaré — arbitrage hors de ce lot, voir test/release/dead_dependency_budget_test.dart.
+  # flutter_inappwebview — pas par ce paquet. Son dernier porteur transitif était
+  # flutter_widget_from_html (via fwfh_webview), retiré ci-dessus ; il ne figure
+  # donc plus du tout dans pubspec.lock. Garde : le groupe (3) de
+  # test/release/dead_dependency_budget_test.dart.
   file_picker: ^11.0.2
   speech_to_text: ^7.0.0
   change_app_package_name: ^1.4.0
-  flutter_widget_from_html: ^0.17.2
-  timeago: ^3.7.0
-  flutter_speed_dial: ^7.0.0
   font_awesome_flutter: ^11.0.0
-  flutter_staggered_grid_view: ^0.7.0
-  fl_chart: ^1.2.0
   youtube_player_flutter: ^9.1.1
   firebase_analytics: ^12.3.0
   firebase_crashlytics: ^5.2.0
