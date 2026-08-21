@@ -1,11 +1,11 @@
-# Espace Campus France — plan d'implémentation
+# Espace « Études en France » — plan d'implémentation
 
-Statut : **proposition**. Aucune ligne de production n'a été écrite. Ce document
-dit ce qu'on construit, dans quel ordre, et surtout **ce que le code existant
-donne déjà gratuitement** — parce que la moitié de la demande est déjà dans le
-dépôt, éteinte derrière un drapeau.
+Statut : **plan arrêté**, décisions produit prises (§ 2). Aucune ligne de
+production n'a encore été écrite. Ce document dit ce qu'on construit, dans quel
+ordre, et surtout **ce que le code existant donne déjà gratuitement** — parce que
+la moitié de la demande est déjà dans le dépôt, éteinte derrière un drapeau.
 
-Rédigé le 21/08/2026. Campagne Campus France annoncée à J+5 (≈ 26/08/2026).
+Rédigé le 21/08/2026. Campagne annoncée à J+5 (≈ 26/08/2026).
 
 ---
 
@@ -44,15 +44,61 @@ consistent à **allumer et contextualiser**, pas à écrire.
    testeurs. La basculer avant renvoie 403 aux testeurs de la 48.
 3. **Aucun mécanisme de déclaration d'intérêt.** Ni liste d'attente, ni
    « ça m'intéresse », ni sondage produit. À construire pour la vitrine.
-4. **Aucun espace Campus France.** Le module France existant traite les **écoles
-   privées partenaires** (procédure directe, dossier + entretien école). Campus
-   France, c'est la procédure **Études en France / DAP / Parcoursup** vers le
-   public et le privé conventionné. Ce sont deux produits, pas deux onglets du
-   même.
+4. **Aucun espace dédié à la procédure française publique.** Le module France
+   existant traite les **écoles privées partenaires** (procédure directe,
+   dossier + entretien école). La campagne visée ici, c'est **Études en France /
+   DAP / Parcoursup** vers le public et le privé conventionné. Ce sont deux
+   produits, pas deux onglets du même.
 
 ---
 
-## 2. Le pari architectural : la mise à jour de J+5 ne doit pas passer par les stores
+## 2. Décisions arrêtées
+
+Trois questions bloquaient la Phase 0. Elles sont tranchées.
+
+| # | Décision | Retenu |
+|---|---|---|
+| 1 | **Nom de l'espace** | **« Études en France »** — on nomme la procédure, pas l'agence. Campus France n'apparaît que dans le corps du texte, comme la plateforme concernée. |
+| 2 | **Ligne gratuit / Premium** | **Catalogue gratuit, accompagnement payant.** Détail en § 7.2. |
+| 3 | **Activation du Premium** | **`ServicePackage` + conseiller** : pack vendu par le tunnel CinetPay/PayDunya existant, droit accordé au webhook `paid`. |
+
+### 2.1 Ce que la décision n° 1 règle, et ce qu'il reste à tenir
+
+Elle écarte le risque principal : « Campus France » est un opérateur de l'État
+français, et **rien dans le dépôt n'atteste d'un partenariat** — le seul endroit
+qui le cite comme partenaire est un commentaire
+(`backend/src/modules/partners/partners.service.ts:12`). Nommer un espace
+commercial d'après l'agence laissait croire à l'étudiant qu'il est sur un canal
+officiel.
+
+Honnêteté sur le gain : « Études en France » est aussi le nom de la plateforme de
+candidature opérée par Campus France. Le risque baisse fortement — c'est une
+tournure descriptive, faiblement distinctive, et **on a le droit de nommer la
+procédure qu'on accompagne** — mais il ne tombe pas à zéro. Trois règles le
+tiennent, et elles coûtent peu :
+
+- **usage descriptif seulement** : on dit qu'on accompagne la procédure, jamais
+  qu'on est un guichet de la procédure ;
+- **aucun emprunt d'identité visuelle** : pas de logo, pas de bleu institutionnel
+  Campus France, pas de mise en page qui imite le portail ;
+- **mention de non-affiliation** visible dans l'espace, portée par le module
+  `legal` déjà présent.
+
+Identifiants techniques retenus, cohérents avec le nom public et sans exposition
+de marque nulle part — y compris dans les variables d'environnement que
+l'exploitation lit et dans les événements analytiques :
+
+| Objet | Valeur |
+|---|---|
+| Dossier Flutter | `lib/app/features/etudes_en_france/` |
+| Route | `/etudes-en-france` |
+| Module backend | `backend/src/modules/etudes-en-france/` |
+| Drapeaux serveur | `KPB_EEF_TEASER_ENABLED`, `KPB_EEF_ENABLED` |
+| Préfixe d'événements | `eef_*` |
+
+---
+
+## 3. Le pari architectural : la mise à jour de J+5 ne doit pas passer par les stores
 
 C'est la décision qui structure tout le reste.
 
@@ -70,22 +116,22 @@ variables d'environnement, avec kill switch et pourcentage de déploiement
 
 - La build qu'on publie bientôt embarque **la vitrine visible ET la coquille de
   l'espace, éteinte** (écrans, routes, décodeurs, entrées de navigation).
-- Le jour J : `KPB_CAMPUS_FRANCE_ENABLED=true` côté serveur. L'espace apparaît.
-  Aucun store, aucun délai, retour arrière en une variable.
+- Le jour J : `KPB_EEF_ENABLED=true` côté serveur. L'espace apparaît. Aucun
+  store, aucun délai, retour arrière en une variable.
 - Le contenu (catalogue, formations, dates) arrive par `/catalog/*` et
-  `/campus-france/*`, donc **sans binaire neuf** — c'est exactement ce que
+  `/etudes-en-france/*`, donc **sans binaire neuf** — c'est exactement ce que
   `catalog_remote_sync.dart` fait déjà pour le catalogue existant.
 
 Ce qui suit est découpé pour maximiser ce qui est basculable côté serveur.
 
 ---
 
-## 3. Phase 0 — La vitrine + la coquille (à embarquer dans la build imminente)
+## 4. Phase 0 — La vitrine + la coquille (à embarquer dans la build imminente)
 
 Objectif : mesurer la demande, constituer une liste de prospects réelle, et
 poser les rails pour que la suite s'allume sans store.
 
-### 3.1 Drapeaux
+### 4.1 Drapeaux
 
 `lib/app/core/config/app_config.dart` — ajouter, sur le patron exact de
 `aiToolsEnabled` (getter + `_override` `@visibleForTesting`, **pas** un
@@ -93,15 +139,15 @@ poser les rails pour que la suite s'allume sans store.
 `app_config.dart:120-133`) :
 
 ```dart
-static bool get campusFranceTeaserEnabled => …   // vitrine
-static bool get campusFranceEnabled => …         // espace réel
+static bool get eefTeaserEnabled => …   // vitrine
+static bool get eefEnabled => …         // espace réel
 ```
 
 `backend/src/modules/config/app-config.controller.ts` — ajouter à `features` :
 
 ```ts
-campusFranceTeaser: enabled(process.env.KPB_CAMPUS_FRANCE_TEASER_ENABLED),
-campusFrance: enabled(process.env.KPB_CAMPUS_FRANCE_ENABLED),
+eefTeaser: enabled(process.env.KPB_EEF_TEASER_ENABLED),
+eef: enabled(process.env.KPB_EEF_ENABLED),
 ```
 
 Le client doit **lire ces drapeaux serveur** — aujourd'hui `app_version_gate.dart`
@@ -109,54 +155,53 @@ ne lit que `minVersion`. C'est le petit chantier de plomberie qui rend tout le
 reste basculable : un `RemoteFeatureFlags` chargé au boot, avec repli sur les
 constantes de compilation quand l'appel échoue (fail closed).
 
-### 3.2 Écrans
+### 4.2 Écrans
 
-Nouveau dossier `lib/app/features/campus_france/` :
+Nouveau dossier `lib/app/features/etudes_en_france/` :
 
-- `campus_france_teaser_screen.dart` — la vitrine. Ce qu'elle dit :
-  ce que l'espace fera, ce qui sera **gratuit**, ce qui sera **Premium**, la
-  fenêtre de campagne, et **une** action : « Ça m'intéresse ».
-- `campus_france_home_screen.dart` — la coquille de l'espace réel, éteinte.
+- `eef_teaser_screen.dart` — la vitrine. Ce qu'elle dit : ce que l'espace fera,
+  ce qui sera **gratuit**, ce qui sera **Premium** (§ 7.2, mot pour mot), la
+  fenêtre de campagne, la mention de non-affiliation, et **une** action :
+  « Ça m'intéresse ».
+- `eef_home_screen.dart` — la coquille de l'espace réel, éteinte.
 
 Règles de contenu, non négociables dans ce dépôt :
 
 - **Aucune date en dur.** `IntakeCalendar`
   (`lib/app/core/data/intake_calendar.dart`) existe précisément parce que
   « rentrée septembre 2026 » écrit dans huit chaînes de traduction devenait un
-  mensonge le 1er octobre, incorrigible sans store. Créer
-  `CampusFranceCalendar` sur le même patron (horloge injectable
-  `@visibleForTesting`), et faire servir la fenêtre de campagne par
-  `/config/app` — la date du jour J est une variable d'environnement, pas une
-  constante de binaire.
+  mensonge le 1er octobre, incorrigible sans store. Créer `EefCalendar` sur le
+  même patron (horloge injectable `@visibleForTesting`), et faire servir la
+  fenêtre de campagne par `/config/app` — la date du jour J est une variable
+  d'environnement, pas une constante de binaire.
 - **Aucune promesse de fonctionnalité au présent.** « bientôt », « en
   préparation », jamais « disponible ».
 - **FR/EN**, comme tout le reste (`app_translations.dart`, 4 228 clés).
 
-### 3.3 La déclaration d'intérêt — un vrai enregistrement, pas un événement
+### 4.3 La déclaration d'intérêt — un vrai enregistrement, pas un événement
 
 Deux options ont été pesées :
 
 | Option | Ce qu'elle donne | Ce qu'elle ne donne pas |
 |---|---|---|
 | Sondage PostHog seul | un taux, en une heure de travail | **aucun nom à rappeler** |
-| `POST /campus-france/interest` en base | une liste exportable, segmentée | ~1 jour de travail |
+| `POST /etudes-en-france/interest` en base | une liste exportable, segmentée | ~1 jour de travail |
 
-**Recommandation : la base.** L'objectif commercial est de rappeler ces gens
-quand l'espace ouvre ; un événement analytique n'est pas un fichier de
-prospects. Modèle Prisma :
+**Retenu : la base.** L'objectif commercial est de rappeler ces gens quand
+l'espace ouvre ; un événement analytique n'est pas un fichier de prospects.
+Modèle Prisma :
 
 ```prisma
-model CampusFranceInterest {
-  id            String   @id @default(cuid())
-  userId        String
+model EefInterest {
+  id            String      @id @default(cuid())
+  userId        String      @unique
   currentLevel  String?     // terminale, L2, L3, M1…
   targetLevel   String?
-  fieldIds      String[]  @default([])
-  wantsPremium  Boolean  @default(false)
+  fieldIds      String[]    @default([])
+  wantsPremium  Boolean     @default(false)
   consentedAt   DateTime    // preuve horodatée, patron newsletterConsentedAt
-  createdAt     DateTime @default(now())
+  createdAt     DateTime    @default(now())
   user          UserProfile @relation(…)
-  @@unique([userId])
 }
 ```
 
@@ -170,38 +215,38 @@ Deux exigences tirées des cicatrices du dépôt :
   `newsletterConsentedAt` (`schema.prisma:366-373`). Un « ça m'intéresse » n'est
   pas un consentement de prospection : le libellé doit dire qu'on rappellera.
 
-Sortie admin : un écran `admin/app/campus-france/` listant les intéressés
+Sortie admin : un écran `admin/app/etudes-en-france/` listant les intéressés
 (niveau, filières, Premium oui/non) + export CSV. Sans ça la liste n'existe que
 dans Postgres et personne ne la rappelle.
 
-### 3.4 Analytique
+### 4.4 Analytique
 
 Ajouter à `lib/app/core/observability/analytics_event_contract.dart` **et** à
 `docs/analytics-event-contract.md` (les deux sont tenus en synchronisation) :
 
 | Événement | Paramètres | Ce qu'il mesure |
 |---|---|---|
-| `campus_france_teaser_viewed` | `source` | portée de la vitrine |
-| `campus_france_interest_declared` | `current_level`, `field_count`, `wants_premium` | **la question posée** : y a-t-il une demande, et pour le payant ? |
-| `campus_france_interest_failed` | `reason` | un envoi qui échoue silencieusement serait lu comme un désintérêt |
+| `eef_teaser_viewed` | `source` | portée de la vitrine |
+| `eef_interest_declared` | `current_level`, `field_count`, `wants_premium` | **la question posée** : y a-t-il une demande, et pour le payant ? |
+| `eef_interest_failed` | `reason` | un envoi qui échoue silencieusement serait lu comme un désintérêt |
 
 Le troisième n'est pas du zèle : sans lui, un backend en panne le jour du
 lancement se lit dans les tableaux de bord comme « personne n'est intéressé ».
 
-### 3.5 Points d'entrée
+### 4.5 Points d'entrée
 
 - Carte sur `home_screen.dart` (haut de page pendant la campagne).
 - Entrée dans `kpb_tools_drawer.dart` **et** `student_tools_screen.dart` — le
   tiroir n'est pas la seule porte, et ne garder qu'une porte rejoue le défaut
   PARC-05 déjà commenté dans `student_tools_screen.dart:30-34`.
-- Route `/campus-france` dans `AppRoutes.pages` **et** dans la liste blanche de
-  `normalizeExternalRoute` — sans quoi la notification push du jour J atterrit
-  sur l'accueil.
+- Route `/etudes-en-france` dans `AppRoutes.pages` **et** dans la liste blanche
+  de `normalizeExternalRoute` — sans quoi la notification push du jour J
+  atterrit sur l'accueil.
 - **Pas de sixième onglet.** Le shell étudiant en compte cinq
   (`shell_tabs.dart`) et le Success Lab a déjà tranché ce débat
   (`app_routes.dart:178-180`) : espace poussé et lien profond, pas onglet.
 
-### 3.6 Tests exigés par ce dépôt
+### 4.6 Tests exigés par ce dépôt
 
 - **Géométrie d'en-tête mesurée, pas estimée** — `test/features/france/france_header_geometry_test.dart`
   existe parce qu'un en-tête débordait de 88 px à l'échelle de texte 1,0, et
@@ -210,6 +255,9 @@ lancement se lit dans les tableaux de bord comme « personne n'est intéressé �
   pour la vitrine.
 - Drapeau à `false` → aucun point d'entrée nulle part ; à `true` → tous.
 - Échec d'envoi de l'intérêt → message visible, aucun état de succès local.
+- Le nom « Campus France » n'apparaît dans aucune clé de titre ni dans aucun
+  identifiant — un test de traduction le vérifie, parce que la décision § 2 se
+  perd sinon au premier ajout de chaîne.
 - Ligne dans `docs/release-ledger.md` pour le numéro de build consommé
   (`test/release/build_number_test.dart` lit ce fichier).
 
@@ -217,16 +265,16 @@ lancement se lit dans les tableaux de bord comme « personne n'est intéressé �
 
 ---
 
-## 4. Phase 1 — Le catalogue dense (le vrai travail)
+## 5. Phase 1 — Le catalogue dense (le vrai travail)
 
-### 4.1 La contrainte de volume, chiffrée
+### 5.1 La contrainte de volume, chiffrée
 
 Le catalogue actuel est du Dart `const` compilé dans le binaire. La France seule
 pèse 96 établissements (1 633 lignes) et 133 formations (2 438 lignes) ; tous
 pays confondus, `institutions/` + `programs/` font déjà **416 Ko de source
 const**.
 
-Un catalogue « ultra-dense » de l'offre Campus France est d'un autre ordre de
+Un catalogue « ultra-dense » de l'offre française est d'un autre ordre de
 grandeur (milliers d'établissements, dizaines de milliers de formations).
 **Il ne peut pas vivre dans le binaire** : poids, temps de démarrage, et surtout
 aucune correction possible sans passer par les stores.
@@ -240,11 +288,12 @@ Le `mock_catalog` du binaire reste ce qu'il est : un échantillon derrière
 
 **Risque principal à traiter dans cette phase :** `AppController` tient
 aujourd'hui la totalité du catalogue en listes mémoire. Un catalogue dense
-impose une **recherche paginée côté serveur** (`GET /campus-france/search` avec
-facettes + curseur) et un débounce côté client. C'est le point d'architecture à
-ne pas repousser — l'ignorer donne une app qui rame le jour de la campagne.
+impose une **recherche paginée côté serveur** (`GET /etudes-en-france/search`
+avec facettes + curseur) et un débounce côté client. C'est le point
+d'architecture à ne pas repousser — l'ignorer donne une app qui rame le jour de
+la campagne.
 
-### 4.2 Les recherches IA : elles produisent des *candidats*, jamais des lignes publiées
+### 5.2 Les recherches IA : elles produisent des *candidats*, jamais des lignes publiées
 
 Le dépôt a déjà mangé ce plat. `catalog_source.dart:1-9` raconte comment
 « Bourse McCall MacBain » et « Programme Mastercard Foundation Scholars » —
@@ -266,12 +315,12 @@ recherches IA  →  fichiers de données versionnés dans le dépôt
 
 Concrètement, en miroir de `backend/src/modules/scholarships-index/data/` :
 
-- `backend/src/modules/campus-france/data/` — enregistrements versionnés
-- `campus-france-catalog.importer.ts`, `.record-builder.ts`, `.types.ts`
-- `backend/src/cli/campus-france-catalog.cli.ts` — `--dry-run` / `--apply`
-  obligatoires, aucun mode par défaut
-- scripts `campus-france:validate:structure`, `verify:campus-france`,
-  `campus-france:import:dry-run`, `campus-france:import`
+- `backend/src/modules/etudes-en-france/data/` — enregistrements versionnés
+- `eef-catalog.importer.ts`, `.record-builder.ts`, `.types.ts`
+- `backend/src/cli/eef-catalog.cli.ts` — `--dry-run` / `--apply` obligatoires,
+  aucun mode par défaut
+- scripts `eef:validate:structure`, `verify:eef`, `eef:import:dry-run`,
+  `eef:import`
 
 Exigences par enregistrement, reprises du README des bourses :
 
@@ -287,38 +336,39 @@ Ce n'est pas de la paperasse : c'est la seule chose qui empêche une recherche I
 mal cadrée de publier une formation qui n'existe pas, à trois jours d'une
 campagne, dans une app qu'on ne peut pas corriger sans Apple.
 
-### 4.3 Modèle de données — l'écart Campus France
+### 5.3 Modèle de données — l'écart procédure
 
 `Institution` / `Program` couvrent le tronc commun. Champs à ajouter, propres à
 la procédure :
 
-- `campusFranceProcedure` : `eef` | `dap_blanche` | `dap_jaune` | `parcoursup` | `hors_eef`
+- `procedureType` : `eef` | `dap_blanche` | `dap_jaune` | `parcoursup` | `hors_eef`
 - `institutionType` : université publique, école d'ingénieurs, BUT/IUT, BTS,
   école de commerce, privé conventionné…
 - `applicationFeeEur`, `selectivity`, `admissionLevelAccepted`,
   `frenchLevelRequired` (B2/C1, TCF/DELF), `campusCity`, `formationCode`
 - `intakeWindow` (ouverture / clôture de la campagne) — **servi**, jamais compilé
 
-### 4.4 Client
+### 5.4 Client
 
-`campus_france_catalog_screen.dart` : recherche + facettes, en réutilisant
-`ProgramFilterService` / `ProgramFilterState` (à étendre des facettes CF),
-`KpbSampleDataBanner`, `SourceLink`, `VerifiedBadge`, `KpbEmptyState`.
-Une liste vide venue d'un serveur qui répond est un **fait**, pas une panne —
-`catalog_remote_sync.dart` en fait déjà la distinction, l'écran doit la dire.
+`eef_catalog_screen.dart` : recherche + facettes, en réutilisant
+`ProgramFilterService` / `ProgramFilterState` (à étendre des facettes de
+procédure), `KpbSampleDataBanner`, `SourceLink`, `VerifiedBadge`,
+`KpbEmptyState`. Une liste vide venue d'un serveur qui répond est un **fait**,
+pas une panne — `catalog_remote_sync.dart` en fait déjà la distinction, l'écran
+doit la dire.
 
 **Charge Phase 1 : 2 à 3 semaines** dont l'essentiel en collecte et
 vérification de données, pas en code.
 
 ---
 
-## 5. Phase 2 — « Les universités idéales pour mon profil »
+## 6. Phase 2 — « Les universités idéales pour mon profil »
 
 Réutilise `backend/src/modules/matches/matching.ts`,
 `match-recompute.service.ts` et `orientation-scorer.ts`. Ajouts :
 
-- **Un scoreur Campus France** : série et mention du bac, niveau visé, budget
-  (`annualTuitionBudgetEur`, déjà canonique en EUR), niveau de français,
+- **Un scoreur propre à la procédure** : série et mention du bac, niveau visé,
+  budget (`annualTuitionBudgetEur`, déjà canonique en EUR), niveau de français,
   filière, éligibilité à la procédure, sélectivité vs profil.
 - **Une liste à trois étages** — ambition / cible / sécurité. C'est la forme
   standard d'une shortlist d'admission, et c'est déjà ce que fait le skill
@@ -337,27 +387,27 @@ instrumentée par l'événement `share_card`.
 
 ---
 
-## 6. Phase 3 — Le dossier de A à Z
+## 7. Phase 3 — Le dossier de A à Z
 
-### 6.1 Ce qui n'est qu'à allumer
+### 7.1 Ce qui n'est qu'à allumer
 
 CV, lettres, entretiens : ~2 100 lignes déjà écrites et testées
 (`test/features/tools/`). **Dépendance dure :** `aiToolsEnabled` ne bascule
 qu'après le cutover de la build 49 (`docs/cutover-build49.md`) — garde
 `AiConsentGuard` en prod **et** 49 chez les testeurs. Le pilier « outils » de
-l'espace Campus France est donc **séquencé derrière cette bascule**, pas
-derrière notre propre calendrier.
+l'espace est donc **séquencé derrière cette bascule**, pas derrière notre propre
+calendrier.
 
-### 6.2 Ce qu'il faut vraiment écrire — le contenu spécifique
+### 7.2 Ce qu'il faut vraiment écrire — le contenu spécifique
 
 C'est là qu'est la valeur différenciante, et elle n'est pas dans le code :
 
 - **Modèles de lettres par procédure** (EEF, DAP, Parcoursup, école privée).
-- **Le « projet d'études »** — la pièce que l'entretien Campus France note
+- **Le « projet d'études »** — la pièce que l'entretien de la procédure note
   réellement. Aujourd'hui absente du dépôt. À traiter comme un artefact à part
   entière, pas comme une variante de lettre de motivation.
-- **Banque de questions d'entretien Campus France** pour
-  `interview_simulator_screen.dart`, distincte des entretiens d'école privée.
+- **Banque de questions d'entretien** propre à la procédure, distincte des
+  entretiens d'école privée, pour `interview_simulator_screen.dart`.
 - **Checklist et calendrier A→Z** : réutiliser `deadline_calendar_screen.dart`,
   `my_plan_engine.dart`, `roadmap_engine.dart`, et le domaine `Case` pour le
   relais conseiller.
@@ -367,123 +417,112 @@ travail éditorial KPB, à lancer dès maintenant en parallèle des phases 0-1).
 
 ---
 
-## 7. Phase 4 — Gratuit vs Premium
+## 8. Phase 4 — Gratuit vs Premium
 
-### 7.1 Ce qu'il faut construire
+### 8.1 Ce qu'il faut construire
 
 Un **droit d'accès serveur**, sur le patron déjà éprouvé de `SuccessLabAccess` :
 
 ```
-GET /campus-france/access
+GET /etudes-en-france/access
 → { enabled, reasons[], limits: {…}, features: { … } }
 ```
 
-décodé par un `CampusFranceApiCodec` copié sur
+décodé par un `EefApiCodec` copié sur
 `lib/app/core/data/success_lab_api_codec.dart` (valeurs inconnues tolérées,
 aller-retour de cache sûr). Prisma : un modèle `Entitlement`
-(`userId`, `plan`, `source`, `startsAt`, `endsAt`), alimenté par les
-`ServicePurchase` / `PaymentIntent` existants.
+(`userId`, `plan`, `source`, `startsAt`, `endsAt`).
 
 **Le verrou est serveur, jamais seulement client.** Un bouton caché n'est pas un
-paywall : `/campus-france/*` et `/tools/*` doivent refuser sans droit — c'est
+paywall : `/etudes-en-france/*` et `/tools/*` doivent refuser sans droit — c'est
 exactement ce que fait déjà `AiConsentGuard`.
 
-### 7.2 Découpage proposé (à valider)
+### 8.2 Le découpage — arrêté
+
+**Catalogue gratuit, accompagnement payant.** Le gratuit doit rester réellement
+utile : c'est le moteur d'acquisition, et un étudiant qui n'a rien goûté
+n'achète pas.
 
 | Gratuit | Premium |
 |---|---|
-| Vitrine, fenêtre de campagne, checklist en lecture | Shortlist complète à 3 étages, avec justification par établissement |
-| Catalogue : recherche et filtres de base | Filtres avancés + comparaison + export PDF |
+| Vitrine, fenêtre de campagne, mentions | Shortlist complète à 3 étages, **avec la justification par établissement** |
+| Catalogue : recherche + filtres de base | Filtres avancés, comparaison, export PDF |
 | **1** shortlist par profil, aperçu tronqué | Lettres, CV et projet d'études illimités |
 | **1** modèle de lettre en aperçu | Simulateur d'entretien avec retour |
 | Calendrier des échéances | Relecture de dossier par un conseiller + dossier suivi |
 
-Deux principes : le gratuit doit être **réellement utile** (c'est le moteur
-d'acquisition), et chaque verrou doit dire **pourquoi** il est là et **combien**
-il coûte.
+Chaque verrou doit dire **pourquoi** il est là et **combien** il coûte. Un cadenas
+muet est une fuite, pas une conversion.
 
-### 7.3 La décision qui bloque cette phase
+### 8.3 L'activation — arrêtée
 
-Comment un droit s'active :
+**`ServicePackage` + conseiller.** Un pack vendu par le tunnel de paiement déjà
+en place (CinetPay / PayDunya, XOF en unités mineures entières, webhooks), et le
+droit `Entitlement` accordé à la réception du webhook `paid`. Réutilise
+`PaymentIntent` / `ServicePurchase` / `ServicePackage` sans rien inventer.
 
-- **(a) Activation par conseiller** — un `ServicePackage` vendu par le tunnel
-  existant (CinetPay/PayDunya), droit accordé au webhook `paid`. Réutilise tout,
-  n'ouvre aucune surface de conformité store nouvelle. **Recommandé pour
-  démarrer.**
-- **(b) Abonnement encaissé dans l'app** par un prestataire tiers. **Risque
-  store réel** : Apple et Google exigent leur achat intégré pour un abonnement
-  *numérique*. Un abonnement Premium encaissé en CinetPay dans l'app est un
-  motif de refus classique. Le contournement usuel est l'achat **hors app**
-  (site web) ou la qualification en **prestation de service humaine**.
+Pourquoi c'est aussi le choix le plus sûr côté boutiques : Apple et Google
+exigent leur achat intégré pour un **abonnement numérique**. Un abonnement
+encaissé par un prestataire tiers *dans* l'app est un motif de refus classique.
+Le pack vendu comme **prestation d'accompagnement humaine**, avec relecture
+conseiller et dossier suivi, ne tombe pas dans cette case — et c'est de toute
+façon ce que KPB vend réellement. Vu l'historique de revue de ce dépôt, on ne
+s'approche pas de la ligne.
 
-Vu l'historique de revue de ce dépôt, (a) d'abord, (b) seulement après avis.
+Point à ne pas laisser filer : le droit doit être **révocable et daté**
+(`endsAt`), et sa perte doit se lire à l'écran comme une fin d'abonnement, pas
+comme une panne.
 
-**Charge : 2 à 3 semaines**, hors décision produit.
+**Charge : 2 à 3 semaines.**
 
 ---
 
-## 8. Phase 5 — Exploitation
+## 9. Phase 5 — Exploitation
 
-- Ajouter les lignes Campus France à `docs/catalog-verification-sop.md` avec un
-  **propriétaire réel nommé**. Le SOP signale lui-même que « Amina KPB » et
-  « Fatou Admin » sont des personnages de jeu de test : sans propriétaire, la
+- Ajouter les lignes « Études en France » à `docs/catalog-verification-sop.md`
+  avec un **propriétaire réel nommé**. Le SOP signale lui-même que « Amina KPB »
+  et « Fatou Admin » sont des personnages de jeu de test : sans propriétaire, la
   file de vérification reste verte sans que personne n'ait à la rouvrir.
-- Admin : file `/verification` étendue + écran catalogue Campus France + export
-  de la liste d'intérêt.
-- Entonnoir à suivre : `teaser_viewed` → `interest_declared` → `catalog_search`
-  → `shortlist_generated` → `premium_viewed` → `purchase`.
+- Admin : file `/verification` étendue + écran catalogue + export de la liste
+  d'intérêt.
+- Entonnoir à suivre : `eef_teaser_viewed` → `eef_interest_declared` →
+  `eef_catalog_search` → `eef_shortlist_generated` → `premium_viewed` →
+  `purchase`.
 
 ---
 
-## 9. Risques, classés par ce qu'ils coûtent
+## 10. Risques, classés par ce qu'ils coûtent
 
-| # | Risque | Traitement |
-|---|---|---|
-| 1 | **J+5 ne suffit pas** pour l'espace complet | Phase 0 seule au store ; le reste s'allume par drapeau serveur |
-| 2 | **Volume du catalogue** vs listes mémoire de `AppController` | Recherche paginée serveur dès la Phase 1, pas après |
-| 3 | **Données IA non vérifiées publiées** | Pipeline d'import + modération admin, non négociable |
-| 4 | `aiToolsEnabled` **séquencé derrière la build 49** | Pilier outils planifié après le cutover, pas avant |
-| 5 | **Conformité store** d'un abonnement numérique encaissé dans l'app | Activation par conseiller d'abord |
-| 6 | **Dates de campagne périmées dans le binaire** | `CampusFranceCalendar` + fenêtre servie par `/config/app` |
-| 7 | **Le nom « Campus France »** | voir ci-dessous |
-
-### Le point 7 mérite une phrase de plus
-
-Campus France est un opérateur de l'État français, pas un terme générique.
-`backend/src/modules/partners/partners.service.ts:12` le cite comme partenaire,
-mais **rien dans le dépôt n'atteste d'un partenariat**. Nommer un espace
-commercial « Espace Campus France » sans convention expose à une réclamation, et
-laisse croire à l'étudiant qu'il est sur un canal officiel.
-
-Deux sorties : faire vérifier le droit d'usage, ou nommer l'espace par la
-procédure et non par l'agence — « Études en France », « Campagne France
-2026-2027 » — avec une mention de non-affiliation. L'app a déjà un module
-`legal` et des mentions légales pour la porter. À trancher **avant** la build de
-la vitrine, parce que le nom part dans les traductions et dans les captures
-store.
+| # | Risque | Traitement | État |
+|---|---|---|---|
+| 1 | **J+5 ne suffit pas** pour l'espace complet | Phase 0 seule au store ; le reste s'allume par drapeau serveur | traité |
+| 2 | **Volume du catalogue** vs listes mémoire de `AppController` | Recherche paginée serveur dès la Phase 1, pas après | à traiter en Phase 1 |
+| 3 | **Données IA non vérifiées publiées** | Pipeline d'import + modération admin, non négociable | traité par le pipeline |
+| 4 | `aiToolsEnabled` **séquencé derrière la build 49** | Pilier outils planifié après le cutover | contrainte acceptée |
+| 5 | **Conformité store** d'un abonnement numérique | Pack d'accompagnement + activation conseiller (§ 8.3) | **arrêté** |
+| 6 | **Dates de campagne périmées dans le binaire** | `EefCalendar` + fenêtre servie par `/config/app` | traité |
+| 7 | **Marque « Campus France »** | Espace nommé d'après la procédure + non-affiliation + aucun emprunt visuel (§ 2.1) | **arrêté** |
 
 ---
 
-## 10. Séquence
+## 11. Séquence
 
 | Quand | Quoi | Store ? |
 |---|---|---|
 | J → J+4 | Phase 0 : vitrine + coquille + drapeaux + intérêt en base | **Oui**, une fois |
-| J+5 | `KPB_CAMPUS_FRANCE_TEASER_ENABLED=true` | Non |
+| J+5 | `KPB_EEF_TEASER_ENABLED=true` | Non |
 | J+5 → J+25 | Phase 1 : catalogue dense (collecte, vérification, import) | Non |
 | en parallèle | Rédaction du contenu : projet d'études, lettres par procédure, questions d'entretien | Non |
 | J+25 → J+35 | Phase 2 : matching et shortlist | Non si la coquille l'a prévu |
-| après cutover 49 | Phase 3 : bascule `aiToolsEnabled` + contenu CF | Non |
-| J+40 → J+60 | Phase 4 : droits d'accès + Premium | Selon (a) ou (b) |
+| après cutover 49 | Phase 3 : bascule `aiToolsEnabled` + contenu spécifique | Non |
+| J+40 → J+60 | Phase 4 : `Entitlement` + pack Premium | Non (pack = prestation) |
 
 ---
 
-## 11. Ce que j'attends comme décisions
+## 12. Le seul point encore ouvert
 
-1. **Le nom de l'espace** (risque n° 7) — bloquant pour la Phase 0.
-2. **Le découpage gratuit/Premium** (§ 7.2) — la vitrine l'annonce, donc
-   bloquant pour la Phase 0 aussi.
-3. **Le mode d'activation du Premium** (§ 7.3) — bloquant pour la Phase 4
-   seulement.
-4. **Les dates réelles de la campagne** — non bloquant par construction, la
-   fenêtre étant servie ; mais il faut la valeur pour la mettre en variable.
+**Les dates réelles de la campagne.** Non bloquant par construction — la fenêtre
+est servie par `/config/app` et calculée par `EefCalendar`, donc elle se corrige
+en une variable d'environnement, sans binaire neuf. Mais il faut la valeur pour
+la poser : date d'ouverture, date de clôture, et s'il y a plusieurs vagues
+(DAP et EEF n'ont pas le même calendrier).
