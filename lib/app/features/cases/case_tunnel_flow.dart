@@ -15,6 +15,70 @@ import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
+
+/// Les deux gestes que l'étape « Message » emprunte au SYSTÈME avant d'ouvrir
+/// une dictée : « faut-il demander la permission micro à l'exécution ? », puis
+/// « la demander ».
+///
+/// Pourquoi une couture. Le code appelait `Platform.isAndroid` et
+/// `Permission.microphone.request()` en ligne. Sous `flutter test` sur macOS
+/// `Platform.isAndroid` vaut FAUX : la branche « permission refusée », celle qui
+/// affiche `case_message_mic_required_*`, n'était jouée par aucun test — ni
+/// celui de la dictée, ni un autre. Elle pouvait casser sans qu'une seule
+/// assertion bouge.
+///
+/// Ce que la couture NE change pas. Les valeurs par défaut sont exactement le
+/// code qu'elles remplacent : `Platform.isAndroid` et
+/// `Permission.microphone.request().isGranted`. Rien n'est dévié tant qu'un test
+/// n'a pas posé de remplaçant, donc la production voit le comportement
+/// d'aujourd'hui, à l'identique.
+///
+/// Patron repris du dépôt plutôt qu'inventé : `AppConfig` (champ `_override`
+/// nullable + setter `@visibleForTesting`) et `IntakeCalendar.clock`.
+/// Piste écartée : injecter les deux fonctions par le constructeur de
+/// `_MessageStep` — il faudrait les faire traverser `CaseTunnelFlow` et son
+/// appelant, soit élargir l'API publique de l'écran pour les besoins du test.
+class CaseDictationPlatform {
+  CaseDictationPlatform._();
+
+  static bool Function()? _requiresMicrophonePermissionOverride;
+  static Future<bool> Function()? _requestMicrophonePermissionOverride;
+
+  /// Vrai là où la permission micro se demande à l'exécution — Android. Sur iOS
+  /// c'est le moteur de reconnaissance qui présente lui-même son dialogue
+  /// système, l'app n'a rien à demander avant.
+  static bool get requiresMicrophonePermission =>
+      _requiresMicrophonePermissionOverride?.call() ?? Platform.isAndroid;
+
+  /// Demande la permission micro. Rend `true` si, et seulement si, elle est
+  /// accordée — « refusée définitivement » et « refusée cette fois » se
+  /// traitent pareil côté écran : pas de dictée, et on le dit.
+  static Future<bool> requestMicrophonePermission() async {
+    final override = _requestMicrophonePermissionOverride;
+    if (override != null) return override();
+    final status = await Permission.microphone.request();
+    return status.isGranted;
+  }
+
+  @visibleForTesting
+  static set requiresMicrophonePermissionOverride(bool Function()? value) =>
+      _requiresMicrophonePermissionOverride = value;
+
+  @visibleForTesting
+  static set requestMicrophonePermissionOverride(
+    Future<bool> Function()? value,
+  ) =>
+      _requestMicrophonePermissionOverride = value;
+
+  /// À appeler en `tearDown`. Une couture laissée armée contaminerait le test
+  /// suivant, qui croirait mesurer le défaut de production.
+  @visibleForTesting
+  static void resetOverrides() {
+    _requiresMicrophonePermissionOverride = null;
+    _requestMicrophonePermissionOverride = null;
+  }
+}
+
 class CaseTunnelPrefill {
   const CaseTunnelPrefill({
     required this.title,
@@ -779,9 +843,11 @@ class _MessageStepState extends State<_MessageStep> {
       return;
     }
 
-    if (Platform.isAndroid) {
-      final status = await Permission.microphone.request();
-      if (!status.isGranted) {
+    // La permission micro passe par `CaseDictationPlatform` — même condition,
+    // même appel, mais interceptables par un test : voir la classe.
+    if (CaseDictationPlatform.requiresMicrophonePermission) {
+      final granted = await CaseDictationPlatform.requestMicrophonePermission();
+      if (!granted) {
         if (mounted) {
           Get.snackbar(
             'case_message_mic_required_title'.tr,
@@ -828,14 +894,20 @@ class _MessageStepState extends State<_MessageStep> {
       // retour, l'étudiant accepte, le dialogue se ferme… et rien ne se
       // passe — le silence exact que ce dialogue venait d'éviter.
       //
+      // Le message est celui de la SESSION, pas celui de l'appareil. Dire ici
+      // « la reconnaissance vocale n'est pas disponible sur cet appareil »
+      // serait une cause fausse : l'étudiant vient d'accepter l'envoi au
+      // service de la plateforme, la reconnaissance est donc bien disponible,
+      // et ce qui a échoué est cet essai-là. Un nouvel essai peut suffire,
+      // encore faut-il le lui dire.
+      //
       // On ne relit PAS `onDeviceUnavailable` pour choisir le message :
       // `SpeechInputService` ne l'arme que sur un essai `onDevice` et ne le
       // désarme qu'en cas de succès, donc après cet échec-ci il vaut encore
       // `true`, hérité du premier essai. S'en servir reproposerait le dialogue
       // en boucle. Le refus de la reconnaissance locale a déjà eu son message
-      // — c'était le dialogue ; ce qui reste est un échec de dictée ordinaire,
-      // et il garde le sien.
-      if (!retried) _reportDictationUnavailable();
+      // — c'était le dialogue.
+      if (!retried) _reportDictationNotStarted();
       return;
     }
 
@@ -847,18 +919,35 @@ class _MessageStepState extends State<_MessageStep> {
     if (mounted) setState(() => _listening = started);
   }
 
-  /// Le message de l'échec de dictée ORDINAIRE — micro occupé, greffon absent,
-  /// session refusée par la plateforme.
+  /// L'appareil ne sait pas reconnaître la voix : greffon absent, plateforme
+  /// qui n'initialise pas, aucun moteur. Rien à réessayer, et c'est pour ça que
+  /// ce message-là ne propose pas de réessayer.
   ///
-  /// Partagé par le premier essai et par la tentative faite après accord :
-  /// les deux laissent l'étudiant devant un bouton qui n'a rien fait, et c'est
-  /// ce silence-là qui est le défaut. Le message du refus de reconnaissance
-  /// locale, lui, n'est pas ici : c'est le dialogue.
+  /// Réservé au PREMIER essai. Le message du refus de reconnaissance locale
+  /// n'est pas ici : c'est le dialogue.
   void _reportDictationUnavailable() {
     if (!mounted) return;
     Get.snackbar(
       'case_message_dictation_unavailable_title'.tr,
       'case_message_dictation_unavailable_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+    );
+  }
+
+  /// La reconnaissance est disponible, la SESSION n'a pas démarré — micro
+  /// occupé, service de la plateforme qui refuse à cet instant.
+  ///
+  /// Séparé de [_reportDictationUnavailable] parce que les deux causes
+  /// n'appellent pas la même conduite : là, un nouvel essai peut suffire. Les
+  /// confondre disait à l'étudiant que son téléphone ne savait pas faire, ce
+  /// qu'il venait précisément de démentir en acceptant l'envoi au service de la
+  /// plateforme.
+  void _reportDictationNotStarted() {
+    if (!mounted) return;
+    Get.snackbar(
+      'case_message_dictation_not_started_title'.tr,
+      'case_message_dictation_not_started_body'.tr,
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(12),
     );
