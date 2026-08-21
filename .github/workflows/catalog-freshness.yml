@@ -67,11 +67,23 @@ jobs:
             const lines = report.issues
               .map((i) => '- \`' + i.code + '\` — ' + i.path + ' : ' + i.message)
               .join('\n');
+            // Les échéances PROCHES sortent aussi, et séparément des anomalies.
+            // Le 20/08/2026 ce job a bien crié — mais après le basculement, ce
+            // qui ne laissait plus le choix du moment. Une alerte qui arrive le
+            // jour où c'est déjà rouge n'est plus une alerte, c'est un constat.
+            const soon = (report.closingSoon || [])
+              .map((c) => '- \`' + c.scholarshipId + '\` clôt le ' +
+                c.closesAt.slice(0, 10) + ' — dans ' + c.daysLeft + ' jour(s)')
+              .join('\n');
             fs.writeFileSync(process.env.GITHUB_OUTPUT, [
               'valid=' + report.valid,
+              'soon_count=' + (report.closingSoon || []).length,
               'summary=' + JSON.stringify(codes),
               'body<<KPBEOF',
               lines || 'Aucune anomalie.',
+              'KPBEOF',
+              'soon<<KPBEOF',
+              soon || 'Aucune clôture dans les 14 jours.',
               'KPBEOF',
             ].join('\n') + '\n', { flag: 'a' });
           "
@@ -86,6 +98,7 @@ jobs:
         env:
           CATALOG_SUMMARY: ${{ steps.validate.outputs.summary }}
           CATALOG_BODY: ${{ steps.validate.outputs.body }}
+          CATALOG_SOON: ${{ steps.validate.outputs.soon }}
         with:
           script: |
             const title = 'Catalogue de bourses : anomalies datées à traiter';
@@ -95,6 +108,11 @@ jobs:
               '**Anomalies par code :** `' + process.env.CATALOG_SUMMARY + '`',
               '',
               process.env.CATALOG_BODY,
+              '',
+              '**Clôtures dans les 14 jours — à traiter AVANT qu\'elles ne',
+              'deviennent des anomalies :**',
+              '',
+              process.env.CATALOG_SOON,
               '',
               '---',
               'Deux métiers, deux gestes :',
@@ -134,6 +152,28 @@ jobs:
                 labels: ['catalog-freshness'],
               });
             }
+
+      - name: Annoncer les clôtures à venir, même quand tout est vert
+        # Le pas le plus utile du job, et le seul qui tourne un jour NORMAL.
+        # Il n'échoue jamais : une échéance qui approche n'est pas une faute, et
+        # la transformer en échec apprendrait à ignorer ce job.
+        env:
+          CATALOG_SOON: ${{ steps.validate.outputs.soon }}
+          SOON_COUNT: ${{ steps.validate.outputs.soon_count }}
+        run: |
+          if [ "${SOON_COUNT:-0}" = "0" ]; then
+            echo "Aucune clôture dans les 14 jours."
+            exit 0
+          fi
+          echo "::warning::${SOON_COUNT} campagne(s) closent dans les 14 jours — passez leur cycle en « closed » le jour venu, ou publiez les dates du cycle suivant si la source les donne."
+          printf '%s\n' "$CATALOG_SOON"
+          {
+            echo "## Clôtures dans les 14 jours"
+            echo
+            printf '%s\n' "$CATALOG_SOON"
+            echo
+            echo "Sans geste, la validation datée deviendra rouge le jour de la clôture."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Refermer l'issue quand le catalogue est de nouveau propre
         if: steps.validate.outputs.valid == 'true'

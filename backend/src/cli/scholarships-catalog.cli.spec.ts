@@ -66,6 +66,8 @@ describe('scholarships-catalog CLI', () => {
     it('attributes each issue to the record it belongs to', () => {
       const map = issuesByRecordIndex({
         valid: false,
+        validIgnoringClock: false,
+        closingSoon: [],
         catalogVersion: '1.3.0',
         uniqueRecordCount: 0,
         uniqueRecordDeficit: 0,

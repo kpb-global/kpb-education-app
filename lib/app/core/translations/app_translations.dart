@@ -1376,6 +1376,21 @@ class AppTranslations extends Translations {
           'case_message_dictation_unavailable_title': 'Dictée indisponible',
           'case_message_dictation_unavailable_body':
               'La reconnaissance vocale n\'est pas disponible sur cet appareil.',
+          // La cause n'est pas la même, donc le message non plus.
+          //
+          // `..._unavailable_body` dit « pas disponible sur cet appareil » : vrai
+          // quand le greffon manque ou que la plateforme ne sait pas reconnaître
+          // la voix, faux dans le cas ci-dessous. Après l'accord d'envoi au
+          // service de la plateforme, la reconnaissance EST disponible — c'est la
+          // SESSION qui n'a pas démarré (micro occupé par un appel, service
+          // refusé à cet instant). Servir l'autre message accuserait l'appareil
+          // et découragerait le nouvel essai qui peut suffire.
+          //
+          // Le texte invite à réessayer sans promettre que ça marchera : ni
+          // « ça va marcher », ni « dans quelques instants ».
+          'case_message_dictation_not_started_title': 'Dictée non démarrée',
+          'case_message_dictation_not_started_body':
+              'La session de dictée n\'a pas pu démarrer maintenant. Vérifie qu\'aucune autre application n\'utilise le micro, puis réessaie.',
           'case_message_dictation_on_device_unavailable_title':
               'Reconnaissance locale indisponible',
           'case_message_dictation_on_device_unavailable_body':
@@ -4283,6 +4298,12 @@ class AppTranslations extends Translations {
           'case_message_dictation_unavailable_title': 'Dictation unavailable',
           'case_message_dictation_unavailable_body':
               'Speech recognition isn\'t available on this device.',
+          // Voir le commentaire du bloc `fr` : après l'accord d'envoi au service
+          // de la plateforme, la reconnaissance est disponible et c'est la
+          // session qui n'a pas démarré — deux causes, deux messages.
+          'case_message_dictation_not_started_title': 'Dictation didn\'t start',
+          'case_message_dictation_not_started_body':
+              'The dictation session couldn\'t start right now. Check that no other app is using the microphone, then try again.',
           'case_message_dictation_on_device_unavailable_title':
               'On-device recognition unavailable',
           'case_message_dictation_on_device_unavailable_body':
