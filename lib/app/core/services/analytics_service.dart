@@ -328,6 +328,70 @@ class AnalyticsService {
     }
   }
 
+  // ── Espace « Études en France » ─────────────────────────────────────────────
+
+  /// La vitrine a été vue. [source] dit par quelle porte (accueil, tiroir,
+  /// boîte à outils, lien profond), pour qu'on sache laquelle amène du monde.
+  Future<void> logEefTeaserViewed(String source) async {
+    final params = {AnalyticsParamKey.source: source};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefTeaserViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefTeaserViewed, params);
+    } catch (e, s) {
+      _logError('logEefTeaserViewed', e, s);
+    }
+  }
+
+  /// Un étudiant a déclaré son intérêt — et dit s'il l'était pour le payant.
+  ///
+  /// `fieldCount` et non la liste des filières : un compte suffit à segmenter,
+  /// et n'expose pas le détail du profil d'un mineur dans une charge analytique.
+  Future<void> logEefInterestDeclared({
+    required bool wantsPremium,
+    required int fieldCount,
+    String? currentLevel,
+  }) async {
+    final params = <String, Object>{
+      AnalyticsParamKey.wantsPremium: wantsPremium,
+      AnalyticsParamKey.fieldCount: fieldCount,
+      if (currentLevel != null && currentLevel.isNotEmpty)
+        AnalyticsParamKey.currentLevel: currentLevel,
+    };
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefInterestDeclared,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefInterestDeclared, params);
+    } catch (e, s) {
+      _logError('logEefInterestDeclared', e, s);
+    }
+  }
+
+  /// Une déclaration d'intérêt a ÉCHOUÉ.
+  ///
+  /// Cet événement est la moitié qui manque toujours. Sans lui, un backend en
+  /// panne le jour du lancement produit exactement la même courbe que
+  /// « personne n'est intéressé » — et c'est la conclusion inverse de la
+  /// vérité qu'on tirerait du tableau de bord. [reason] reste grossier
+  /// (`network`, `unauthorized`, `server`) : on cherche à distinguer une panne
+  /// d'un désintérêt, pas à journaliser des messages d'erreur.
+  Future<void> logEefInterestFailed(String reason) async {
+    final params = {AnalyticsParamKey.reason: reason};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefInterestFailed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefInterestFailed, params);
+    } catch (e, s) {
+      _logError('logEefInterestFailed', e, s);
+    }
+  }
+
   // ── Shared result cards (KPB-165) ───────────────────────────────────────────
 
   /// A result card was shared. [withImage] is false when the PNG could not be

@@ -193,6 +193,43 @@ class AppApiClient {
     await _dio.delete<void>('/profiles/me/avatar');
   }
 
+  // ── Espace « Études en France » ────────────────────────────────────────
+
+  /// La déclaration d'intérêt du profil authentifié, ou l'état « pas déclaré ».
+  Future<Map<String, dynamic>> getEefInterest() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/etudes-en-france/interest',
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Déclare l'intérêt du profil authentifié pour l'espace.
+  ///
+  /// Aucun `try`/`catch` ici, volontairement : l'appelant DOIT voir l'échec.
+  /// Une erreur avalée à ce niveau ferait afficher « c'est noté » pour une ligne
+  /// que le serveur n'a jamais écrite — le défaut exact que le masquage
+  /// `documentUploadEnabled` documente, où « fourni ✓ » était coché avant
+  /// l'appel réseau et l'échec disparaissait dans Crashlytics.
+  Future<Map<String, dynamic>> declareEefInterest({
+    String? currentLevel,
+    String? targetLevel,
+    List<String> fieldIds = const <String>[],
+    bool wantsPremium = false,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/etudes-en-france/interest',
+      data: <String, dynamic>{
+        if (currentLevel != null && currentLevel.isNotEmpty)
+          'currentLevel': currentLevel,
+        if (targetLevel != null && targetLevel.isNotEmpty)
+          'targetLevel': targetLevel,
+        if (fieldIds.isNotEmpty) 'fieldIds': fieldIds,
+        'wantsPremium': wantsPremium,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   // ── Success Lab / competition readiness ────────────────────────────────
 
   /// Effective server-owned access decision for the authenticated student.

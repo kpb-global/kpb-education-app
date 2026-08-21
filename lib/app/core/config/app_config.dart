@@ -192,6 +192,55 @@ class AppConfig {
   static set documentUploadEnabledOverride(bool? value) =>
       _documentUploadEnabledOverride = value;
 
+  // ── Espace « Études en France » ────────────────────────────────────────
+  //
+  // Deux surfaces, un seul module : la VITRINE (« voilà ce que ça fera, dis-nous
+  // si ça t'intéresse ») et l'ESPACE réel. Les deux sont masquées par défaut.
+  //
+  // Ces constantes ne sont que le REPLI. La vérité vient du serveur
+  // (`/config/app` → `features.eefTeaser` / `features.eef`), lue par
+  // [RemoteFeatureFlags] : c'est ce qui permet d'ouvrir l'espace le jour de la
+  // campagne en basculant une variable d'environnement, sans soumission App
+  // Store. Une revue prend un à trois jours et peut refuser ; faire dépendre
+  // une date de campagne d'Apple, c'est parier la campagne sur Apple.
+  //
+  // Le repli est donc `false` et non `true` : quand `/config/app` est
+  // injoignable, on ne montre rien plutôt que de montrer une vitrine qu'on ne
+  // saurait plus éteindre à distance.
+  //
+  // Le patron avec `_override` de test est celui d'[aiToolsEnabled], pour la
+  // raison écrite plus haut : un `bool.fromEnvironment` nu est une constante de
+  // compilation qu'aucun test ne peut basculer, donc un masquage bâti dessus n'a
+  // pas de contre-épreuve — rien ne prouverait que le drapeau à VRAI ramène bien
+  // les entrées de navigation.
+
+  /// Repli local pour la vitrine « Études en France ».
+  static bool get eefTeaserEnabled =>
+      _eefTeaserEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_EEF_TEASER_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _eefTeaserEnabledOverride;
+
+  @visibleForTesting
+  static set eefTeaserEnabledOverride(bool? value) =>
+      _eefTeaserEnabledOverride = value;
+
+  /// Repli local pour l'espace « Études en France » réel.
+  static bool get eefEnabled =>
+      _eefEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_EEF_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _eefEnabledOverride;
+
+  @visibleForTesting
+  static set eefEnabledOverride(bool? value) => _eefEnabledOverride = value;
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/ui/kpb_components.dart';
 import '../ai_advisor/ai_consent.dart';
+import '../etudes_en_france/eef_entry.dart';
 import 'cv_generator_screen.dart';
 import 'document_scanner_screen.dart';
 import 'impact_dashboard_screen.dart';
@@ -26,6 +27,22 @@ class StudentToolsScreen extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: context.kpb.textMuted),
           ),
           const SizedBox(height: KpbSpacing.lg),
+          // ── Espace « Études en France » ─────────────────────────────────
+          // La deuxième porte. Le tiroir n'est pas la seule : cet écran est
+          // atteignable depuis l'accueil, et ne poser l'entrée que dans le
+          // tiroir rejouerait le défaut PARC-05 déjà nommé plus bas.
+          if (EefEntry.isVisible) ...[
+            _ToolCard(
+              icon: Icons.public_rounded,
+              color: KpbColors.actionPrimary,
+              title: 'eef_title'.tr,
+              subtitle: 'eef_tools_subtitle'.tr,
+              onTap: () => Get.to<void>(
+                () => const EefEntry(source: 'student_tools'),
+              ),
+            ),
+            const SizedBox(height: KpbSpacing.md),
+          ],
           // ── Les trois outils IA masqués par M1 ──────────────────────────
           // Le tiroir n'est pas la seule porte : cet écran-ci est atteignable
           // depuis l'accueil, et poser la garde sur le seul tiroir aurait rejoué

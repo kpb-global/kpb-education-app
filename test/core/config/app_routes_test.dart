@@ -188,7 +188,13 @@ void main() {
       ]) {
         expect(names, contains(route));
       }
-      expect(names.length, equals(21));
+      // Espace « Études en France » : la route est enregistrée MÊME drapeaux
+      // éteints, et c'est le point du test. La notification push du jour J
+      // arrive avant que le drapeau serveur soit lu ; une route absente en
+      // ferait un cul-de-sac silencieux, alors qu'`EefEntry` sait retomber sur
+      // « bientôt disponible ».
+      expect(names, contains(AppRoutes.etudesEnFrance));
+      expect(names.length, equals(22));
     });
   });
 }

@@ -28,6 +28,7 @@ import 'app/core/ui/portrait_lock.dart';
 import 'app/core/navigation/app_boot_screen.dart';
 import 'app/core/services/auth_service.dart';
 import 'app/core/navigation/shell_tabs.dart';
+import 'app/core/services/remote_feature_flags.dart';
 import 'app/core/services/security_service.dart';
 import 'app/core/services/onesignal_service.dart';
 import 'app/core/services/deep_link_service.dart';
@@ -190,6 +191,13 @@ Future<void> main() async {
     // Force-update gate: async so an unreachable backend never delays boot;
     // replaces the stack with the update screen once the app has mounted.
     unawaited(AppVersionGate.check(apiClient));
+
+    // Drapeaux de fonctionnalité pilotés serveur. Sans attente, comme la garde
+    // de version : un backend injoignable ne doit pas retarder le démarrage, et
+    // le service échoue fermé sur les constantes de compilation. C'est ce qui
+    // permet d'ouvrir l'espace « Études en France » le jour de la campagne en
+    // basculant une variable d'environnement, sans soumission App Store.
+    unawaited(RemoteFeatureFlags.instance.refresh(apiClient));
 
     ConnectivityService.instance.startMonitoring();
     ConnectivityService.instance.bindReconnectSync(() async {

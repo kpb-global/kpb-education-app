@@ -1,0 +1,144 @@
+import 'package:flutter/foundation.dart';
+
+import '../config/app_config.dart';
+import '../repositories/app_api_client.dart';
+import '../utils/app_logger.dart';
+
+/// Une fenêtre de campagne telle que `/config/app` la sert.
+///
+/// Les deux bornes sont indépendamment nullables : une campagne peut avoir une
+/// date d'ouverture annoncée sans date de clôture connue, et l'inverse arrive
+/// aussi. Un modèle qui aurait exigé les deux pour être valide aurait forcé
+/// l'exploitation à inventer la borne manquante.
+@immutable
+class EefCampaignWindow {
+  const EefCampaignWindow({this.opensAt, this.closesAt});
+
+  final DateTime? opensAt;
+  final DateTime? closesAt;
+
+  static const empty = EefCampaignWindow();
+
+  bool get hasAnyDate => opensAt != null || closesAt != null;
+
+  /// Décode `{ "opensAt": "...", "closesAt": "..." }`.
+  ///
+  /// Toute valeur illisible devient `null` — jamais une date de repli. Le
+  /// serveur envoie déjà `null` pour une variable mal configurée ; ceci est la
+  /// bretelle à cette ceinture, pour le cas d'un backend plus ancien ou d'une
+  /// charge inattendue.
+  factory EefCampaignWindow.fromJson(Object? raw) {
+    if (raw is! Map) return empty;
+    return EefCampaignWindow(
+      opensAt: _parseInstant(raw['opensAt']),
+      closesAt: _parseInstant(raw['closesAt']),
+    );
+  }
+
+  static DateTime? _parseInstant(Object? value) {
+    if (value is! String) return null;
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    return DateTime.tryParse(trimmed)?.toLocal();
+  }
+}
+
+/// Les drapeaux de fonctionnalité servis par `/config/app`.
+///
+/// ## Pourquoi ce service existe
+///
+/// Parce que sans lui, ouvrir l'espace « Études en France » le jour de la
+/// campagne exigerait une nouvelle build au store. Une revue App Store prend un
+/// à trois jours et peut refuser ; adosser une date de campagne à ce calendrier,
+/// c'est parier la campagne sur Apple. Le backend sert déjà des drapeaux pilotés
+/// par variables d'environnement — il ne manquait que le côté client pour les
+/// lire.
+///
+/// ## Comment il échoue
+///
+/// **Fermé, toujours.** Réseau injoignable, charge malformée, backend plus
+/// ancien qui ne connaît pas la clé : on retombe sur les constantes de
+/// compilation d'[AppConfig], qui valent `false` par défaut. Le raisonnement
+/// n'est pas symétrique dans les deux sens : montrer par défaut une vitrine
+/// qu'on ne saurait plus éteindre à distance est un mauvais échec, ne rien
+/// montrer est un échec réparable.
+///
+/// ## Ce qu'il ne fait pas
+///
+/// Il ne bloque pas le démarrage. [refresh] est lancé sans attente au boot, et
+/// tant qu'il n'a pas répondu, [eefTeaserEnabled] rend le repli local. Un écran
+/// qui dépend d'un drapeau doit donc se reconstruire quand il arrive — d'où
+/// [flagsVersion], un compteur qu'un `ValueListenableBuilder` peut écouter.
+class RemoteFeatureFlags {
+  RemoteFeatureFlags._();
+
+  static final instance = RemoteFeatureFlags._();
+
+  /// Remis à zéro entre les tests.
+  @visibleForTesting
+  static void resetForTest() {
+    instance._features = const <String, bool>{};
+    instance._campaign = EefCampaignWindow.empty;
+    instance._loaded = false;
+    instance.flagsVersion.value = 0;
+  }
+
+  Map<String, bool> _features = const <String, bool>{};
+  EefCampaignWindow _campaign = EefCampaignWindow.empty;
+  bool _loaded = false;
+
+  /// Incrémenté à chaque rafraîchissement réussi. Les écrans qui dépendent d'un
+  /// drapeau écoutent ce compteur pour se reconstruire une fois la réponse
+  /// arrivée, au lieu de rester sur le repli jusqu'au prochain démarrage.
+  final flagsVersion = ValueNotifier<int>(0);
+
+  /// True quand une réponse serveur a été lue avec succès au moins une fois.
+  bool get loaded => _loaded;
+
+  /// La fenêtre de campagne servie, ou [EefCampaignWindow.empty].
+  EefCampaignWindow get eefCampaign => _campaign;
+
+  /// La vitrine « Études en France » est-elle visible ?
+  bool get eefTeaserEnabled => _flag('eefTeaser', AppConfig.eefTeaserEnabled);
+
+  /// L'espace « Études en France » réel est-il ouvert ?
+  bool get eefEnabled => _flag('eef', AppConfig.eefEnabled);
+
+  /// La valeur servie, ou le repli de compilation quand elle est absente.
+  bool _flag(String key, bool fallback) => _features[key] ?? fallback;
+
+  /// Lit `/config/app` et mémorise les drapeaux. Ne lève jamais.
+  Future<void> refresh(AppApiClient apiClient) async {
+    try {
+      final config = await apiClient.getAppConfig();
+      _features = _readFeatures(config['features']);
+      _campaign = EefCampaignWindow.fromJson(config['eefCampaign']);
+      _loaded = true;
+      flagsVersion.value++;
+    } catch (error) {
+      // Fail closed : on garde les replis de compilation. Volontairement pas
+      // remonté à Crashlytics — un téléphone hors réseau n'est pas un incident,
+      // et cette route est appelée à chaque démarrage.
+      AppLogger.warning(
+        'Remote feature flags unavailable: $error',
+        tag: 'RemoteFeatureFlags',
+      );
+    }
+  }
+
+  /// Ne retient que les entrées booléennes.
+  ///
+  /// `features` est une charge que l'app ne contrôle pas : une clé dont la
+  /// valeur n'est pas un booléen (un objet `{enabled: true}` d'une version
+  /// future, une chaîne « true » d'un mauvais sérialiseur) est IGNORÉE plutôt
+  /// que devinée. Une lecture laxiste ici allumerait une fonctionnalité sur la
+  /// foi d'une chaîne non vide — c'est-à-dire sur rien.
+  static Map<String, bool> _readFeatures(Object? raw) {
+    if (raw is! Map) return const <String, bool>{};
+    final parsed = <String, bool>{};
+    raw.forEach((key, value) {
+      if (key is String && value is bool) parsed[key] = value;
+    });
+    return parsed;
+  }
+}

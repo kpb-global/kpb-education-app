@@ -6,6 +6,7 @@ import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
 import '../../features/deadlines/deadline_calendar_screen.dart';
 import '../../features/eligibility/eligibility_simulator_screen.dart';
+import '../../features/etudes_en_france/eef_entry.dart';
 import '../../features/orientation/orientation_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/salon/salon_screen.dart';
@@ -70,6 +71,12 @@ class AppRoutes {
   // land on the right screen instead of dumping the user on Home.
   static const String orientation = '/orientation';
   static const String eligibility = '/eligibility';
+
+  /// Espace « Études en France ». Nommé d'après la PROCÉDURE et non d'après
+  /// Campus France, qui est un opérateur de l'État français : la route part dans
+  /// les liens profonds et les charges de notification, donc elle porte le même
+  /// choix de nom que l'écran.
+  static const String etudesEnFrance = '/etudes-en-france';
   static const String saved = '/saved';
   static const String deadlines = '/deadlines';
   static const String alumni = '/alumni';
@@ -132,6 +139,11 @@ class AppRoutes {
       caseCreate,
       orientation,
       eligibility,
+      // La notification push du jour J atterrit ici. Sans cette entrée,
+      // `normalizeExternalRoute` la rejette et l'utilisateur est déposé sur
+      // l'accueil — c'est-à-dire que la campagne s'ouvre sans que personne ne
+      // trouve la porte.
+      etudesEnFrance,
       saved,
       deadlines,
       alumni,
@@ -246,6 +258,13 @@ class AppRoutes {
     // pushable screen with its own app bar.
     GetPage(name: orientation, page: () => const OrientationScreen()),
     GetPage(name: eligibility, page: () => const EligibilitySimulatorScreen()),
+    // Toujours joignable, même drapeaux éteints : [EefEntry] arbitre entre la
+    // vitrine, l'espace réel et `ComingSoonScreen`. Une route absente ferait
+    // d'un lien profond un cul-de-sac silencieux.
+    GetPage(
+      name: etudesEnFrance,
+      page: () => const EefEntry(source: 'deep_link'),
+    ),
     GetPage(name: saved, page: () => const SavedScreen()),
     GetPage(name: deadlines, page: () => const DeadlineCalendarScreen()),
     GetPage(name: alumni, page: () => const AlumniDirectoryScreen()),

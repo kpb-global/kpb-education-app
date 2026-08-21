@@ -6,6 +6,7 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../budget/budget_calculator_screen.dart';
+import '../etudes_en_france/eef_entry.dart';
 import '../cases/document_review_screen.dart';
 import '../housing/housing_estimator_screen.dart';
 import '../tools/cv_generator_screen.dart';
@@ -154,6 +155,18 @@ class KpbToolsDrawer extends StatelessWidget {
   /// des tests dans le fichier, ce qui est précisément le genre de garde-fou
   /// qui reste vert pour de mauvaises raisons.
   static List<_ToolEntry> get _tools => <_ToolEntry>[
+        // ── Espace « Études en France » ────────────────────────────────────
+        // Placé EN TÊTE pendant la campagne : c'est le module que la vitrine
+        // pousse, et un tiroir où il serait huitième ne le ferait pas trouver.
+        // La visibilité passe par `EefEntry.isVisible`, qui lit le drapeau
+        // SERVEUR — donc l'entrée apparaît le jour J sans binaire neuf.
+        if (EefEntry.isVisible)
+          _ToolEntry(
+            labelKey: 'eef_title',
+            icon: Icons.public_outlined,
+            color: KpbColors.actionPrimary,
+            builder: () => const EefEntry(source: 'tools_drawer'),
+          ),
         // ── Les quatre outils IA masqués par M1 ────────────────────────────
         // Ils postaient le nom civil de l'étudiant à un fournisseur tiers,
         // sans garde de consentement serveur. Lot 11 a fermé la fuite ; le

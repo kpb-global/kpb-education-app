@@ -70,6 +70,18 @@ abstract final class AnalyticsEventName {
   static const referralInviteShared = 'referral_invite_shared';
   static const referralRedeemed = 'referral_redeemed';
 
+  /// Espace « Études en France » — vitrine de Phase 0. `eef_teaser_viewed`
+  /// donne la portée ; `eef_interest_declared` est LA question posée par la
+  /// vitrine (y a-t-il une demande, et pour le payant ?).
+  ///
+  /// `eef_interest_failed` n'est pas du zèle : sans lui, un backend en panne le
+  /// jour du lancement se lit dans les tableaux de bord exactement comme
+  /// « personne n'est intéressé » — et on en tirerait la conclusion inverse de
+  /// la vérité.
+  static const eefTeaserViewed = 'eef_teaser_viewed';
+  static const eefInterestDeclared = 'eef_interest_declared';
+  static const eefInterestFailed = 'eef_interest_failed';
+
   /// Sync / catalog observability (paired with [AnalyticsService] helpers).
   static const syncFullComplete = 'sync_full_complete';
   static const syncConflictResolved = 'sync_conflict_resolved';
@@ -113,6 +125,18 @@ abstract final class AnalyticsParamKey {
   /// tells apart the feed, the library list and the Home card, so a completion
   /// rate can be read per surface.
   static const slug = 'slug';
+
+  /// Espace « Études en France ». `field_count` plutôt que la liste des
+  /// filières : un compte suffit à segmenter, et n'expose pas le détail du
+  /// profil d'un mineur dans une charge analytique.
+  /// `reason` n'est pas redéclaré ici : la clé existe déjà plus bas, pour
+  /// l'attribution d'échec d'authentification. Les échecs de déclaration
+  /// d'intérêt la réutilisent — une seconde constante de même valeur aurait été
+  /// un doublon de compilation, et deux noms pour une même clé de tableau de
+  /// bord.
+  static const currentLevel = 'current_level';
+  static const fieldCount = 'field_count';
+  static const wantsPremium = 'wants_premium';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';

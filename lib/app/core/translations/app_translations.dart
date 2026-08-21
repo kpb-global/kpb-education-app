@@ -1697,6 +1697,114 @@ class AppTranslations extends Translations {
           // apprend à ignorer la bannière qui compte.
           'stale_catalog_notice':
               'Serveur injoignable — données réelles du dernier chargement',
+          // ── Espace « Études en France » (Phase 0 — vitrine) ──
+          //
+          // Le nom : « Études en France », jamais « Campus France ». Campus
+          // France est un opérateur de l'État français et rien n'atteste d'un
+          // partenariat ; on nomme la procédure qu'on accompagne. Un test de
+          // traduction vérifie qu'aucune clé de titre ne porte l'enseigne —
+          // sinon la décision se perd au premier ajout de chaîne.
+          //
+          // Le temps des verbes : futur ou « en préparation », jamais le
+          // présent. Rien de tout ça n'existe encore.
+          'eef_title': 'Études en France',
+          'eef_status_preparing': 'En préparation',
+          'eef_hero_title': 'Ton dossier Études en France,\nde A à Z',
+          'eef_hero_body':
+              'Un espace dédié à la campagne française : trouver les formations '
+                  'faites pour ton profil, monter ton dossier, préparer ton '
+                  'entretien. On le construit en ce moment.',
+          'eef_opens_in_days': 'ouverture dans @days jours',
+          'eef_pillars_heading': 'Ce que tu pourras faire',
+          'eef_pillar_catalog_title': 'Un catalogue dense',
+          'eef_pillar_catalog_body':
+              'Universités publiques, écoles d\'ingénieurs, BUT, BTS, écoles de '
+                  'commerce : chercher par ville, filière, niveau, budget et '
+                  'procédure.',
+          'eef_pillar_shortlist_title': 'Les formations faites pour toi',
+          'eef_pillar_shortlist_body':
+              'Une sélection classée en trois étages — ambition, cible, '
+                  'sécurité — avec, pour chaque formation, la raison pour '
+                  'laquelle elle est là.',
+          'eef_pillar_documents_title': 'Lettres, CV, projet d\'études',
+          'eef_pillar_documents_body':
+              'Des modèles par procédure et de l\'aide à la rédaction, y compris '
+                  'pour le projet d\'études — la pièce sur laquelle l\'entretien '
+                  'te jugera.',
+          'eef_pillar_endtoend_title': 'Ta candidature suivie',
+          'eef_pillar_endtoend_body':
+              'Les échéances, les pièces à fournir, l\'avancement de ton '
+                  'dossier, et un conseiller KPB quand tu bloques.',
+          'eef_plans_heading': 'Gratuit et Premium',
+          'eef_plan_free_label': 'Gratuit',
+          'eef_plan_premium_label': 'Avec KPB Premium',
+          'eef_free_catalog': 'Le catalogue et les filtres de base',
+          'eef_free_shortlist_preview': 'Un aperçu de ta sélection',
+          'eef_free_letter_preview': 'Un modèle de lettre en aperçu',
+          'eef_free_deadlines': 'Le calendrier des échéances',
+          'eef_premium_shortlist_full':
+              'La sélection complète, justifiée formation par formation',
+          'eef_premium_documents':
+              'Lettres, CV et projet d\'études sans limite',
+          'eef_premium_interview': 'Le simulateur d\'entretien et son retour',
+          'eef_premium_review': 'La relecture de ton dossier par un conseiller',
+          'eef_plan_premium_footnote':
+              'Les tarifs et les modalités seront annoncés à l\'ouverture. '
+                  'Aucun paiement n\'est demandé aujourd\'hui.',
+          'eef_cta_heading': 'Ça t\'intéresse ?',
+          'eef_cta_body':
+              'Dis-le-nous : on te préviendra dès l\'ouverture, et ta réponse '
+                  'nous dit par quoi commencer.',
+          'eef_cta_declare': 'Ça m\'intéresse',
+          'eef_guest_body':
+              'Crée ton compte pour qu\'on puisse te prévenir à l\'ouverture.',
+          'eef_guest_cta': 'Créer mon compte',
+          'eef_interest_recorded_title': 'C\'est noté',
+          'eef_interest_recorded_body':
+              'On te préviendra dès l\'ouverture de l\'espace.',
+          'eef_interest_edit_cta': 'Modifier ma réponse',
+          'eef_sheet_title': 'Dis-nous où tu en es',
+          'eef_sheet_body':
+              'Tout est optionnel — un seul tap suffit. Ces réponses nous '
+                  'servent seulement à te rappeler avec les bonnes '
+                  'informations.',
+          'eef_field_current_level': 'Ton niveau actuel',
+          'eef_field_target_level': 'Le niveau que tu veux préparer',
+          'eef_field_wants_premium':
+              'La version Premium m\'intéresserait aussi',
+          'eef_consent_notice':
+              'En validant, tu acceptes qu\'un conseiller KPB te contacte au '
+                  'sujet de cet espace. Tu peux nous demander de te retirer à '
+                  'tout moment.',
+          'eef_sheet_confirm': 'Valider',
+          'eef_sheet_retry': 'Réessayer',
+          'eef_sheet_cancel': 'Annuler',
+          'eef_error_network':
+              'Envoi impossible : vérifie ta connexion, puis réessaie. Rien '
+                  'n\'a été enregistré.',
+          'eef_error_unauthorized':
+              'Ta session a expiré. Reconnecte-toi, puis réessaie. Rien n\'a '
+                  'été enregistré.',
+          'eef_error_server':
+              'Envoi impossible pour le moment. Rien n\'a été enregistré — '
+                  'réessaie dans un instant.',
+          'eef_level_unspecified': 'Je préfère ne pas dire',
+          'eef_level_terminale': 'Terminale',
+          'eef_level_bac': 'Baccalauréat obtenu',
+          'eef_level_licence': 'Licence',
+          'eef_level_master': 'Master',
+          'eef_level_doctorat': 'Doctorat',
+          'eef_level_autre': 'Autre',
+          'eef_tools_subtitle':
+              'Trouver ta formation, monter ton dossier, préparer ton entretien',
+          'eef_home_card_subtitle':
+              'La campagne française, accompagnée de bout en bout',
+          'eef_modules_coming_heading': 'Les modules en cours d\'arrivée',
+          'eef_affiliation_notice':
+              'KPB Education est un organisme privé d\'accompagnement, sans '
+                  'lien ni affiliation avec Campus France ni avec aucune '
+                  'administration française. Les démarches officielles se font '
+                  'sur les plateformes de l\'État.',
           'coming_soon_title': 'Bientôt disponible',
           'coming_soon_body':
               'Ce module arrive dans une prochaine version de KPB. Reste connecté !',
@@ -4470,6 +4578,97 @@ class AppTranslations extends Translations {
           'freshness_date': 'data from @date',
           'stale_catalog_notice':
               'Server unreachable — real data from your last load',
+          // ── "Études en France" space (Phase 0 — teaser) ──
+          // The procedure is named, never the agency. See the FR block.
+          'eef_title': 'Studying in France',
+          'eef_status_preparing': 'In preparation',
+          'eef_hero_title': 'Your France application,\nend to end',
+          'eef_hero_body':
+              'A space dedicated to the French campaign: find the programmes '
+                  'that fit your profile, build your file, prepare your '
+                  'interview. We are building it right now.',
+          'eef_opens_in_days': 'opens in @days days',
+          'eef_pillars_heading': 'What you will be able to do',
+          'eef_pillar_catalog_title': 'A dense catalogue',
+          'eef_pillar_catalog_body':
+              'Public universities, engineering schools, BUT, BTS, business '
+                  'schools: search by city, field, level, budget and procedure.',
+          'eef_pillar_shortlist_title': 'The programmes that fit you',
+          'eef_pillar_shortlist_body':
+              'A shortlist ranked in three tiers — reach, target, safety — with '
+                  'the reason each programme is on it.',
+          'eef_pillar_documents_title': 'Letters, CV, study project',
+          'eef_pillar_documents_body':
+              'Templates per procedure and writing help, including for the '
+                  'study project — the piece your interview will judge.',
+          'eef_pillar_endtoend_title': 'Your application, tracked',
+          'eef_pillar_endtoend_body':
+              'Deadlines, required documents, your file\'s progress, and a KPB '
+                  'counsellor when you get stuck.',
+          'eef_plans_heading': 'Free and Premium',
+          'eef_plan_free_label': 'Free',
+          'eef_plan_premium_label': 'With KPB Premium',
+          'eef_free_catalog': 'The catalogue and basic filters',
+          'eef_free_shortlist_preview': 'A preview of your shortlist',
+          'eef_free_letter_preview': 'One letter template preview',
+          'eef_free_deadlines': 'The deadline calendar',
+          'eef_premium_shortlist_full':
+              'The full shortlist, justified programme by programme',
+          'eef_premium_documents': 'Unlimited letters, CV and study project',
+          'eef_premium_interview': 'The interview simulator and its feedback',
+          'eef_premium_review': 'A counsellor review of your file',
+          'eef_plan_premium_footnote':
+              'Pricing and terms will be announced at opening. No payment is '
+                  'requested today.',
+          'eef_cta_heading': 'Interested?',
+          'eef_cta_body':
+              'Tell us: we will let you know as soon as it opens, and your '
+                  'answer tells us where to start.',
+          'eef_cta_declare': 'I am interested',
+          'eef_guest_body':
+              'Create your account so we can tell you when it opens.',
+          'eef_guest_cta': 'Create my account',
+          'eef_interest_recorded_title': 'Noted',
+          'eef_interest_recorded_body':
+              'We will let you know as soon as the space opens.',
+          'eef_interest_edit_cta': 'Change my answer',
+          'eef_sheet_title': 'Tell us where you stand',
+          'eef_sheet_body':
+              'Everything is optional — one tap is enough. These answers only '
+                  'help us come back to you with the right information.',
+          'eef_field_current_level': 'Your current level',
+          'eef_field_target_level': 'The level you want to prepare',
+          'eef_field_wants_premium': 'I would also be interested in Premium',
+          'eef_consent_notice':
+              'By confirming, you agree that a KPB counsellor may contact you '
+                  'about this space. You can ask us to remove you at any time.',
+          'eef_sheet_confirm': 'Confirm',
+          'eef_sheet_retry': 'Try again',
+          'eef_sheet_cancel': 'Cancel',
+          'eef_error_network':
+              'Could not send: check your connection, then try again. Nothing '
+                  'was saved.',
+          'eef_error_unauthorized':
+              'Your session expired. Sign in again, then try again. Nothing '
+                  'was saved.',
+          'eef_error_server':
+              'Could not send right now. Nothing was saved — try again in a '
+                  'moment.',
+          'eef_level_unspecified': 'I would rather not say',
+          'eef_level_terminale': 'Final year of secondary school',
+          'eef_level_bac': 'Secondary school diploma obtained',
+          'eef_level_licence': 'Bachelor',
+          'eef_level_master': 'Master',
+          'eef_level_doctorat': 'Doctorate',
+          'eef_level_autre': 'Other',
+          'eef_tools_subtitle':
+              'Find your programme, build your file, prepare your interview',
+          'eef_home_card_subtitle': 'The French campaign, guided end to end',
+          'eef_modules_coming_heading': 'Modules on the way',
+          'eef_affiliation_notice':
+              'KPB Education is a private guidance provider, with no link to or '
+                  'affiliation with Campus France or any French administration. '
+                  'Official steps are taken on the State platforms.',
           'coming_soon_title': 'Coming soon',
           'coming_soon_body':
               'This module is arriving in an upcoming KPB version. Stay tuned!',
