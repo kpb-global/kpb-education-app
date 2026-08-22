@@ -58,13 +58,15 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
   /// profil et de la fenêtre servie, dont aucun ne change pendant que l'écran
   /// est à l'affiche.
   late final bool _suspended;
+  String? _country;
 
   @override
   void initState() {
     super.initState();
     final app = Get.find<AppController>();
     _isGuest = app.isGuestMode;
-    _suspended = EefCalendar.isSuspendedFor(app.profile?.countryOfResidence);
+    _country = app.profile?.countryOfResidence;
+    _suspended = EefCalendar.isSuspendedFor(_country);
     // `AppApiClient` n'est PAS enregistré dans GetX : il vit sur AppController,
     // qui l'a construit. Un `Get.find<AppApiClient>()` aurait levé au premier
     // montage réel — et jamais dans un test qui l'aurait injecté à la main.
@@ -111,7 +113,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
             KpbSpacing.xl,
           ),
           children: [
-            _EefHero(suspended: _suspended),
+            _EefHero(suspended: _suspended, country: _country),
             const SizedBox(height: KpbSpacing.lg),
             const _EefWhatItWillDo(),
             const SizedBox(height: KpbSpacing.lg),
@@ -147,15 +149,26 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
 /// liste défilante, ne peut pas déborder : il n'y a plus de nombre à faire
 /// coïncider avec le rendu.
 class _EefHero extends StatelessWidget {
-  const _EefHero({required this.suspended});
+  const _EefHero({required this.suspended, required this.country});
 
   /// La procédure est suspendue dans le pays de l'étudiant.
   final bool suspended;
 
+  /// Le pays de résidence tel qu'il est saisi, passé à [EefCalendar.timingLabel]
+  /// pour que la décision « dire une date ou se taire » soit prise au même
+  /// endroit pour toutes les surfaces.
+  final String? country;
+
   @override
   Widget build(BuildContext context) {
-    final range = EefCalendar.rangeLabel();
-    final days = EefCalendar.daysUntilOpening();
+    // Le même point unique que la carte d'accueil. La vitrine portait la règle
+    // « la suspension remplace les dates » dans son propre corps ; la carte ne
+    // l'avait pas. Elle vit maintenant dans `EefCalendar.timingLabel`, donc une
+    // troisième surface ne peut plus l'oublier.
+    //
+    // `suspended` reste passé séparément parce que cet écran, lui, a quelque
+    // chose à afficher À LA PLACE : la mise en garde. La carte, elle, se tait.
+    final timing = EefCalendar.timingLabel(country: country);
 
     return Container(
       width: double.infinity,
@@ -230,7 +243,7 @@ class _EefHero extends StatelessWidget {
           // Les dates n'apparaissent QUE si le serveur en a servi. Aucun repli,
           // aucune date calculée par une règle maison : une échéance inventée
           // est indistinguable d'une information pour qui la lit.
-          else if (range != null) ...[
+          else if (timing != null) ...[
             const SizedBox(height: KpbSpacing.md),
             Row(
               children: [
@@ -242,11 +255,7 @@ class _EefHero extends StatelessWidget {
                 const SizedBox(width: KpbSpacing.sm),
                 Expanded(
                   child: Text(
-                    days != null && days > 0
-                        ? '$range · ${'eef_opens_in_days'.trParams({
-                                'days': '$days',
-                              })}'
-                        : range,
+                    timing,
                     style: KpbTextStyles.bodySm
                         .copyWith(color: KpbColors.actionOnDark),
                   ),

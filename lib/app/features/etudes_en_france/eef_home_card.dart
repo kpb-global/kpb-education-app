@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/data/eef_calendar.dart';
 import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/kpb_components.dart';
@@ -26,14 +27,22 @@ class EefHomeCard extends StatelessWidget {
       builder: (context, _, __) {
         if (!EefEntry.isVisible) return const SizedBox.shrink();
 
-        final days = EefCalendar.daysUntilOpening();
-        final range = EefCalendar.rangeLabel();
-        // La ligne de contexte : le compte à rebours s'il y en a un, sinon la
-        // fenêtre, sinon RIEN. Pas de repli inventé — la carte se contente
-        // alors du sous-titre, qui ne parle pas de dates.
-        final timing = days != null && days > 0
-            ? 'eef_opens_in_days'.trParams({'days': '$days'})
-            : range;
+        // La ligne de contexte passe par le point unique d'EefCalendar, jamais
+        // par un calcul local.
+        //
+        // Elle le faisait avant, et c'était un défaut : la carte lisait
+        // `daysUntilOpening()` et `rangeLabel()` sans consulter la suspension.
+        // Un étudiant nigérien lisait donc « ouverture dans 41 jours » ICI —
+        // l'écran le plus vu de l'app — alors que la vitrine refuse
+        // délibérément de lui donner une date, la source officielle disant que
+        // son dossier ne sera pas traité. Une garde sur une porte, pas sur
+        // l'autre, et c'est la mieux fréquentée qui n'en avait pas.
+        //
+        // `timingLabel` rend `null` quand il n'y a rien d'honnête à dire : la
+        // carte se contente alors du sous-titre, qui ne parle pas de dates.
+        final timing = EefCalendar.timingLabel(
+          country: Get.find<AppController>().profile?.countryOfResidence,
+        );
 
         return Padding(
           padding: const EdgeInsets.only(bottom: KpbSpacing.lg),

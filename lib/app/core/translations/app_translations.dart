@@ -1730,6 +1730,7 @@ class AppTranslations extends Translations {
                   'faites pour ton profil, monter ton dossier, préparer ton '
                   'entretien. On le construit en ce moment.',
           'eef_opens_in_days': 'ouverture dans @days jours',
+          'eef_opens_tomorrow': 'ouverture demain',
           // Les clôtures divergent par pays et la plupart ne sont pas encore
           // publiées : on dit qu'elles existent sans en inventer aucune.
           'eef_deadline_varies_notice':
@@ -4623,6 +4624,7 @@ class AppTranslations extends Translations {
                   'that fit your profile, build your file, prepare your '
                   'interview. We are building it right now.',
           'eef_opens_in_days': 'opens in @days days',
+          'eef_opens_tomorrow': 'opens tomorrow',
           'eef_deadline_varies_notice':
               'Closing dates vary by country and by procedure. We will confirm '
                   'yours inside the space.',

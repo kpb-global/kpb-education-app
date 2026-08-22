@@ -355,7 +355,14 @@ class AnalyticsService {
     String? currentLevel,
   }) async {
     final params = <String, Object>{
-      AnalyticsParamKey.wantsPremium: wantsPremium,
+      // `? 1 : 0` et NON le booléen brut. `FirebaseAnalytics.logEvent` assert
+      // `value is String || value is num` : un `bool` fait lever en debug,
+      // l'exception est attrapée par le `try` plus bas, et c'est TOUT
+      // l'événement qui disparaît — celui dont le contrat dit qu'il est « la
+      // seule mesure directe de la demande pour le Premium ». Les six autres
+      // booléens de ce fichier passent déjà par cette conversion ; celui-ci ne
+      // le faisait pas.
+      AnalyticsParamKey.wantsPremium: wantsPremium ? 1 : 0,
       AnalyticsParamKey.fieldCount: fieldCount,
       if (currentLevel != null && currentLevel.isNotEmpty)
         AnalyticsParamKey.currentLevel: currentLevel,

@@ -160,6 +160,13 @@ abstract final class EefCalendar {
   /// Les trois formes correspondent aux trois configurations réellement
   /// possibles : deux bornes, une ouverture seule, une clôture seule.
   static String? rangeLabel() {
+    // Une fenêtre incohérente est TAIRE, pas imprimée. `phase()` la traite
+    // déjà comme inconnue — mais rendre malgré tout « du 15 décembre au
+    // 26 août » annulait cette garde : la classe se donnait pour règle de ne
+    // rien dire, et disait quand même. Deux variables inversées dans un `.env`
+    // suffisaient à l'obtenir.
+    if (phase() == EefCampaignPhase.unknown) return null;
+
     final opens = dayLabel(window.opensAt);
     final closes = dayLabel(window.closesAt);
 
@@ -173,5 +180,41 @@ abstract final class EefCalendar {
       return _isEnglish ? 'Until $closes' : "Jusqu'au $closes";
     }
     return null;
+  }
+
+  /// La ligne temporelle à afficher, ou `null` quand il n'y a rien d'honnête à
+  /// dire.
+  ///
+  /// ## Pourquoi ce point unique existe
+  ///
+  /// Parce que la règle « la suspension REMPLACE les dates » n'était appliquée
+  /// que par la vitrine. La carte d'accueil, elle, calculait le compte à rebours
+  /// et l'affichait sans consulter la suspension : un étudiant nigérien lisait
+  /// donc « ouverture dans 41 jours » sur l'écran le plus vu de l'app, alors que
+  /// la vitrine refuse précisément de lui donner une date — parce que la source
+  /// officielle dit que son dossier ne sera pas traité.
+  ///
+  /// C'est le défaut PARC-05 : une garde sur certaines portes. Le correctif
+  /// n'est pas de la recopier sur la carte — c'est de faire en sorte qu'une
+  /// troisième surface ne puisse pas l'oublier. Toute surface qui parle de
+  /// temps passe désormais par ici.
+  ///
+  /// [country] est le pays de résidence du profil, tel qu'il est saisi — la
+  /// normalisation est faite par [EefCampaignWindow.isSuspendedForCountry].
+  static String? timingLabel({String? country}) {
+    if (isSuspendedFor(country)) return null;
+
+    final range = rangeLabel();
+    if (range == null) return null;
+
+    final days = daysUntilOpening();
+    if (days == null || days <= 0) return range;
+
+    // « dans 1 jours » était affiché à tout le monde la veille de l'ouverture —
+    // le seul jour où cette ligne est lue avec attention.
+    final suffix = days == 1
+        ? 'eef_opens_tomorrow'.tr
+        : 'eef_opens_in_days'.trParams({'days': '$days'});
+    return '$range · $suffix';
   }
 }
