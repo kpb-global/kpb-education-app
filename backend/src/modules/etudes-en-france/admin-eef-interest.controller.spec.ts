@@ -1,3 +1,4 @@
+import { ServiceUnavailableException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 import { ROLES_KEY } from '../../common/decorators/roles.decorator';
@@ -129,6 +130,53 @@ describe('AdminEefInterestController — périmètre de lecture', () => {
       expect(rolesFor(h).length).toBeGreaterThan(0);
     },
   );
+
+  describe("l'export ne livre jamais une erreur déguisée en fichier", () => {
+    /// Un faux `Response` qui note les en-têtes posés.
+    const fakeRes = () => {
+      const headers: Record<string, string> = {};
+      return {
+        headers,
+        setHeader: (k: string, v: string) => {
+          headers[k] = v;
+        },
+      };
+    };
+
+    it('pose les en-têtes de fichier APRÈS avoir obtenu les données', async () => {
+      const service = { exportCsv: async () => 'a,b\r\n1,2\r\n' };
+      const ctrl = new AdminEefInterestController(service as never);
+      const res = fakeRes();
+
+      const csv = await ctrl.exportCsv(res as never);
+
+      expect(csv).toContain('a,b');
+      expect(res.headers['Content-Type']).toBe('text/csv; charset=utf-8');
+      expect(res.headers['Content-Disposition']).toContain('eef-interest.csv');
+      expect(res.headers['Cache-Control']).toBe('private, no-store');
+    });
+
+    it("sur ÉCHEC, AUCUN en-tête de fichier n'est posé", async () => {
+      // LE test. Avec des `@Header`, Nest les posait avant d'exécuter le
+      // handler : le filtre d'exception renvoyait alors son JSON dans un
+      // `Content-Type: text/csv` et un `Content-Disposition: attachment` déjà
+      // en place, donc un fichier `eef-interest.csv` contenant
+      // `{"statusCode":503,...}`. Ouvert dans Excel : une cellule, et l'on
+      // conclut que personne ne s'est déclaré.
+      const service = {
+        exportCsv: async () => {
+          throw new ServiceUnavailableException('down');
+        },
+      };
+      const ctrl = new AdminEefInterestController(service as never);
+      const res = fakeRes();
+
+      await expect(ctrl.exportCsv(res as never)).rejects.toBeInstanceOf(
+        ServiceUnavailableException,
+      );
+      expect(Object.keys(res.headers)).toEqual([]);
+    });
+  });
 
   it("l'export est strictement plus restreint que la lecture", () => {
     // Formulé comme une relation et non comme deux listes : si demain on élargit

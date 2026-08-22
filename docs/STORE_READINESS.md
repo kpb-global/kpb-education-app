@@ -906,12 +906,19 @@ form wording.
 > The only processor signal the client does send is `OneSignal.logout()`
 > (`app_controller.dart:682`), which unlinks the **device**, not the contact.
 
+> **`EefInterest` EST exporté** depuis que la déclaration d'intérêt « Études en
+> France » a été branchée dans `exportMe` (niveaux, `wantsPremium`,
+> `consentVersion`, `consentedAt`). La suppression l'était déjà par la cascade.
+> Elle a figuré un temps dans la liste ci-dessous des enregistrements absents :
+> documenter une omission n'est pas la réparer quand le champ manquant est la
+> preuve de consentement.
+>
 > **Export scope — the honest wording for the forms.** `GET /profiles/me/export`
 > returns 15 top-level keys (`profiles.service.ts:1213-1228`) and is **not
 > exhaustive of the caller's own records**. Absent although the same user owns
 > them, and although the purge explicitly deletes them: `PaymentIntent` (`:565`),
 > `Referral` (`:577-580`), `CreditTransaction` (`:581`), `DeviceToken` (`:729`),
-> `PartnerLead` (`:730`), `StudentCredential` (`:731`), **`EefInterest`** (la déclaration d'intérêt « Études en France » : niveaux, souhait d'accompagnement payant, et le `consentedAt` qu'on lui opposerait — `grep -rn eefInterest backend/src` ne rend rien hors du module) — plus the cascade-owned
+> `PartnerLead` (`:730`), `StudentCredential` (`:731`) — plus the cascade-owned
 > `Match`, `ScholarshipAlertSubscription` and `UserNotification`
 > (`schema.prisma:1063-1077,1193-1206,1211-1240`) — and `CounsellorReview`, which
 > is neither exported nor deleted. And it is **not a file**: the client hands the

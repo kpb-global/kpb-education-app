@@ -193,6 +193,42 @@ une ligne de prospection.
 un ÉCHEC. Afficher « tu es retiré » sur une ligne toujours en base est le même
 mensonge que « c'est noté » sur une ligne jamais écrite.
 
+### Les bornes de campagne sont des JOURS, pas des instants
+
+`/config/app` sert `opensAt` / `closesAt` en ISO — c'est le format, pas la
+sémantique. **Le client ne lit que les composantes `AAAA-MM-JJ`, telles
+qu'écrites**, et ignore l'heure et le décalage.
+
+Ce n'est pas une simplification, c'est une correction. La borne était parsée en
+instant puis reprojetée dans le fuseau de l'appareil, ce qui produisait deux
+mensonges :
+
+| Valeur servie | Fuseau du téléphone | Ce qui s'affichait |
+|---|---|---|
+| `2026-10-01T00:00:00Z` | UTC+0/+1 (Dakar, Niamey) | 1er octobre ✓ |
+| `2026-10-01T00:00:00Z` | UTC−1/−4 (Cabo Verde, diaspora) | **30 septembre** ✗ |
+| `2026-10-01T00:00:00+02:00` (heure de Paris) | UTC+0/+1 | **30 septembre** ✗ |
+
+La dernière ligne est celle qui compte : le serveur accepte un décalage
+explicite, donc un opérateur qui écrit l'heure de Paris — le réflexe naturel
+pour une procédure française — ferait lire la mauvaise date à **l'essentiel du
+public**.
+
+Deux conséquences pour qui pose ces variables :
+
+- **L'heure n'a aucun effet.** `2026-10-01T00:00:00Z` et
+  `2026-10-01T23:30:00-05:00` désignent le même jour de campagne. Écrire une
+  heure n'est pas une erreur, c'est seulement inutile.
+- **Les deux bornes sont INCLUSIVES.** « Jusqu'au 15 novembre » inclut le 15
+  entier. La comparaison était auparavant faite sur l'instant, donc la campagne
+  passait « close » à la première seconde du jour de clôture — un étudiant
+  ouvrant l'app le matin de sa date limite lisait que c'était terminé.
+
+Une valeur illisible, un mois 13 ou un 30 février rendent `null`, et l'app
+n'annonce alors AUCUNE date. `DateTime` normalise silencieusement un 32 janvier
+en 1er février ; ce serait une date inventée à partir d'une faute de frappe, donc
+elle est refusée.
+
 ### Le consentement, sur le fil
 
 `POST /etudes-en-france/interest` exige deux champs, et les refuse absents :

@@ -87,12 +87,84 @@ print('eefCampaign.opensAt=', campaign['opensAt'])
 print('eefCampaign.suspendedCountries=', campaign['suspendedCountries'])
 "
 
-code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE}/etudes-en-france/interest")"
-case "$code" in
-  401|403) echo "route d'intérêt montée et gardée (HTTP $code)" ;;
-  404)     echo "HTTP 404 — le module etudes-en-france n'est PAS monté : l'ancienne image tourne encore" >&2; exit 1 ;;
-  200)     echo "HTTP 200 sans jeton — la route n'est PAS gardée, c'est une fuite" >&2; exit 1 ;;
-  *)       echo "HTTP $code inattendu sur la route d'intérêt" >&2; exit 1 ;;
-esac
+# Une sonde de route, avec les trois pièges nommés.
+#
+# ## Ce que 401 prouve, et pourquoi 403 ne prouve rien
+#
+# `StudentAuthGuard` et `AdminAuthGuard` lèvent tous deux une
+# `UnauthorizedException` — donc **401**. Un 403 ne vient PAS de l'application
+# sur ces routes : il viendrait d'un WAF ou d'un proxy inverse répondant 403 à
+# toute requête sans cookie. Or un tel intermédiaire répond 403 pour un chemin
+# INEXISTANT aussi, ce qui détruit la logique « 404 = pas monté ». Accepter 403
+# revenait donc à accepter la réponse qui ne distingue rien.
+#
+# ## 429 n'est pas un échec
+#
+# `ThrottlerGuard` est global (60/min en production) et s'évalue avant tout. Un
+# 429 dit « on n'a pas pu conclure », pas « le module n'est pas déployé ».
+# L'ancienne version tombait dans la branche d'erreur et annonçait un
+# déploiement manquant alors que tout allait bien.
+probe_route() {
+  local label="$1" path="$2" attempt code
+  for attempt in 1 2 3; do
+    code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE}${path}")"
+    case "$code" in
+      401)
+        echo "  ${label} : montée et gardée (HTTP 401)"
+        return 0
+        ;;
+      404)
+        echo "MANQUE : ${label} rend 404 — le module n'est PAS monté, l'ancienne image tourne encore" >&2
+        return 1
+        ;;
+      200)
+        echo "FUITE : ${label} rend 200 SANS jeton — la route n'est pas gardée" >&2
+        return 1
+        ;;
+      403)
+        echo "REFUS : ${label} rend 403. L'application lève 401 sur ces routes ; un 403" >&2
+        echo "        vient d'un WAF ou d'un proxy, qui répondrait 403 pour un chemin" >&2
+        echo "        inexistant aussi — donc cette sonde ne prouverait plus rien." >&2
+        return 1
+        ;;
+      429)
+        # Non concluant, pas un échec. On laisse la fenêtre du limiteur s'écouler.
+        echo "  ${label} : HTTP 429 (limiteur), tentative ${attempt}/3 — on patiente"
+        sleep 20
+        ;;
+      *)
+        echo "MANQUE : ${label} rend HTTP ${code}, inattendu" >&2
+        return 1
+        ;;
+    esac
+  done
+  echo "NON CONCLUANT : ${label} a rendu 429 trois fois. Le limiteur masque la" >&2
+  echo "                réponse ; relancer plus tard plutôt que conclure." >&2
+  return 1
+}
+
+# La route étudiante ET une route admin. Les deux contrôleurs sont enregistrés
+# sur deux lignes distinctes d'app.module.ts : perdre la seconde dans une
+# résolution de merge laisserait la première verte et la page du back-office
+# en 404.
+probe_route "route d'intérêt" "/etudes-en-france/interest"
+probe_route "route admin"     "/admin/etudes-en-france/interest"
+
+# ── Ce que le contrôle 5 NE prouve PAS, et où c'est prouvé ────────────────
+#
+# Que la table `EefInterest` existe. Les gardes s'exécutent AVANT le handler,
+# donc un 401 n'atteint aucun code de service et aucune requête SQL : si
+# `prisma migrate deploy` n'avait pas tourné, cette sonde passerait quand même
+# et la première déclaration d'un étudiant partirait en 500 de schéma.
+#
+# On ne comble pas ce trou ici, et c'est délibéré : `deploy.yml` lance lui-même
+# `prisma migrate deploy` PUIS `prisma migrate status` dans le même job. C'est
+# la preuve autoritaire, faite au bon endroit et par le processus qui applique
+# la migration. Ajouter ici une sonde plus faible pour la même question
+# donnerait deux réponses dont une moins fiable — et c'est la moins fiable
+# qu'on lirait, puisqu'elle est dans le portail.
+#
+# Ce que ce contrôle prouve exactement : l'image DÉPLOYÉE sert les clés EEF de
+# /config/app, et les deux contrôleurs du module sont montés et gardés.
 
 echo "LIV-T14 OK"

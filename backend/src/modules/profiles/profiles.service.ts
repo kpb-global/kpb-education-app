@@ -852,6 +852,7 @@ export class ProfilesService {
         consentReceipts,
         aiQuotaBuckets,
         impactCohortMemberships,
+        eefInterest,
       ] = await Promise.all([
         prisma.case.findMany({
           where: { userId: id },
@@ -1178,6 +1179,29 @@ export class ProfilesService {
           },
           orderBy: { enrolledAt: 'asc' },
         }),
+        // La déclaration d'intérêt « Études en France ».
+        //
+        // Elle manquait. La SUPPRESSION la couvrait déjà par la cascade, mais
+        // l'export non : un étudiant qui demandait ses données ne recevait ni sa
+        // déclaration, ni son `consentedAt` — c'est-à-dire précisément la preuve
+        // qu'on lui opposerait s'il demandait sur quelle base on l'a rappelé.
+        //
+        // Le doc de release la listait honnêtement comme absente ; documenter une
+        // omission n'est pas la réparer quand le champ est le consentement.
+        prisma.eefInterest.findMany({
+          where: { userId: id },
+          select: {
+            id: true,
+            currentLevel: true,
+            targetLevel: true,
+            fieldIds: true,
+            wantsPremium: true,
+            consentVersion: true,
+            consentedAt: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
       ]);
 
       const workspaceIds = scholarshipWorkspaces.map(
@@ -1225,6 +1249,10 @@ export class ProfilesService {
         aiQuotaBuckets,
         analyticsEvents,
         impactCohortMemberships,
+        // `findMany` puis premier élément : la contrainte unique sur `userId`
+        // garantit zéro ou une ligne, et rendre un objet plutôt qu'un tableau
+        // d'un élément dit au lecteur ce que la donnée est réellement.
+        eefInterest: eefInterest[0] ?? null,
       };
     });
 
