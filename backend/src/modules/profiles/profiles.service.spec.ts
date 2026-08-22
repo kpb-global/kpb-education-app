@@ -48,6 +48,7 @@ describe('ProfilesService — account deletion & export', () => {
     'aiBudgetTransaction',
     'aiQuotaBucket',
     'impactCohortMembership',
+    'eefInterest',
     'analyticsEvent',
     'domainEventOutbox',
     'idempotencyRecord',
@@ -294,6 +295,19 @@ describe('ProfilesService — account deletion & export', () => {
     expect((out as { consentReceipts?: unknown }).consentReceipts).toEqual([]);
     expect((out as { aiQuotaBuckets?: unknown }).aiQuotaBuckets).toEqual([]);
     expect((out as { analyticsEvents?: unknown }).analyticsEvents).toEqual([]);
+
+    // La déclaration d'intérêt « Études en France » DOIT figurer dans l'export.
+    //
+    // Elle manquait : la suppression la couvrait par la cascade, l'export non.
+    // Un étudiant qui demandait ses données ne recevait ni sa déclaration, ni
+    // son `consentedAt` — c'est-à-dire la preuve qu'on lui opposerait s'il
+    // demandait sur quelle base on l'a rappelé.
+    //
+    // La clé doit être PRÉSENTE même à `null` : une clé absente ne se distingue
+    // pas d'une relation qu'on aurait oublié de brancher, et c'est exactement
+    // l'erreur qu'on répare ici.
+    expect(out).toHaveProperty('eefInterest');
+    expect((out as { eefInterest?: unknown }).eefInterest).toBeNull();
   });
 
   it('never puts the avatar storage key in the GDPR export', async () => {

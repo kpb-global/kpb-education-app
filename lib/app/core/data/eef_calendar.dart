@@ -90,13 +90,33 @@ abstract final class EefCalendar {
       return EefCampaignPhase.unknown;
     }
 
+    // Comparaison de JOURS, pas d'instants — et la clôture est INCLUSIVE.
+    //
+    // Deux défauts réparés d'un coup :
+    //
+    // **1. Le fuseau.** Comparer `clock()` (local) à une borne reprojetée
+    // faisait basculer la phase à un moment qui dépendait du fuseau de
+    // l'appareil. Les bornes sont désormais des jours naïfs
+    // (`EefCampaignWindow._parseCampaignDay`) et « aujourd'hui » est réduit au
+    // jour local : deux dates nues, aucune arithmétique de fuseau, donc le même
+    // verdict partout dans le monde.
+    //
+    // **2. La clôture excluait son propre jour.** `now.isAfter(closesAt)` avec
+    // `closesAt = 15 novembre 00:00` rendait la campagne CLOSE dès la première
+    // seconde du 15 — alors que « jusqu'au 15 novembre » inclut le 15. Un
+    // étudiant marocain ouvrant l'app le matin de sa date limite aurait lu que
+    // la campagne était terminée, et il aurait renoncé. On compare donc
+    // strictement après le jour de clôture.
     final now = clock();
+    final today = DateTime(now.year, now.month, now.day);
 
-    if (closesAt != null && now.isAfter(closesAt)) {
-      return EefCampaignPhase.closed;
+    if (closesAt != null) {
+      final closeDay = DateTime(closesAt.year, closesAt.month, closesAt.day);
+      if (today.isAfter(closeDay)) return EefCampaignPhase.closed;
     }
-    if (opensAt != null && now.isBefore(opensAt)) {
-      return EefCampaignPhase.beforeOpening;
+    if (opensAt != null) {
+      final openDay = DateTime(opensAt.year, opensAt.month, opensAt.day);
+      if (today.isBefore(openDay)) return EefCampaignPhase.beforeOpening;
     }
     return EefCampaignPhase.open;
   }

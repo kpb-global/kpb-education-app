@@ -173,14 +173,73 @@ describe('AppConfigController', () => {
     expect(config.eefCampaign.suspendedCountries).toEqual(["Côte d'Ivoire"]);
   });
 
-  it('normalizes configured campaign dates to ISO instants', () => {
-    process.env.KPB_EEF_CAMPAIGN_OPENS_AT = ' 2026-08-26T00:00:00Z ';
-    process.env.KPB_EEF_CAMPAIGN_CLOSES_AT = '2026-12-15T23:59:00Z';
+  // ## Le fil porte des JOURS, pas des instants
+  //
+  // Ce bloc remplace un test intitulé « normalizes configured campaign dates to
+  // ISO instants », qui figeait exactement la faute : la normalisation en
+  // instant était le défaut, et un test la déclarait contrat.
+  //
+  // Une date de campagne est une date d'HORLOGE MURALE. Servir un instant le
+  // laisse reprojeter dans le fuseau du lecteur, et « le 1er octobre » devient
+  // « le 30 septembre » pour une partie du public — ou pour la totalité, selon
+  // ce que l'exploitation a tapé.
+  describe('la fenêtre de campagne est servie en jours d\'horloge murale', () => {
+    // LE test. Ces quatre écritures désignent des instants différents et le
+    // MÊME jour administratif ; le fil doit porter « 2026-10-01 » pour les
+    // quatre. La troisième est le cas de production : l'heure de Paris, réflexe
+    // naturel pour une procédure française, faisait servir
+    // « 2026-09-30T22:00:00.000Z » — donc le 30 septembre pour TOUT LE MONDE,
+    // Dakar, Bamako, Abidjan, Niamey et Douala compris.
+    it.each([
+      '2026-10-01',
+      '2026-10-01T00:00:00Z',
+      '2026-10-01T00:00:00+02:00',
+      '2026-10-01T23:30:00-05:00',
+    ])('« %s » est servi « 2026-10-01 »', (written) => {
+      process.env.KPB_EEF_CAMPAIGN_OPENS_AT = ` ${written} `;
 
-    const config = new AppConfigController().getAppConfig();
+      const config = new AppConfigController().getAppConfig();
 
-    expect(config.eefCampaign.opensAt).toBe('2026-08-26T00:00:00.000Z');
-    expect(config.eefCampaign.closesAt).toBe('2026-12-15T23:59:00.000Z');
+      expect(config.eefCampaign.opensAt).toBe('2026-10-01');
+    });
+
+    it('ne laisse aucune heure sur le fil', () => {
+      // Une heure survivante réintroduirait la possibilité d'un décalage dès
+      // qu'un lecteur — client mobile d'aujourd'hui ou d'ailleurs — la parserait
+      // en instant.
+      process.env.KPB_EEF_CAMPAIGN_OPENS_AT = '2026-10-01T00:00:00Z';
+      process.env.KPB_EEF_CAMPAIGN_CLOSES_AT = '2026-12-15T23:59:00Z';
+
+      const config = new AppConfigController().getAppConfig();
+
+      expect(config.eefCampaign.opensAt).toBe('2026-10-01');
+      expect(config.eefCampaign.closesAt).toBe('2026-12-15');
+      for (const served of [
+        config.eefCampaign.opensAt,
+        config.eefCampaign.closesAt,
+      ]) {
+        expect(served).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      }
+    });
+
+    // `new Date(Date.UTC(2026, 12, 1))` vaut janvier 2027 et un 30 février
+    // devient le 2 mars : servir une date normalisée, c'est servir une date que
+    // personne n'a écrite, indistinguable d'une information pour qui la lit.
+    it.each([
+      '2026-13-01',
+      '2026-02-30',
+      '2026-00-10',
+      '2026-10-32',
+      '26-10-01',
+      '2026-1-5',
+      'demain',
+    ])('« %s » ne produit aucune date', (written) => {
+      process.env.KPB_EEF_CAMPAIGN_OPENS_AT = written;
+
+      const config = new AppConfigController().getAppConfig();
+
+      expect(config.eefCampaign.opensAt).toBeNull();
+    });
   });
 
   it('cannot expose a child capability while the parent gate is disabled', () => {

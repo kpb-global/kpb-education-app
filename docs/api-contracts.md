@@ -193,6 +193,54 @@ une ligne de prospection.
 un ÉCHEC. Afficher « tu es retiré » sur une ligne toujours en base est le même
 mensonge que « c'est noté » sur une ligne jamais écrite.
 
+### Les bornes de campagne sont des JOURS, pas des instants
+
+**Format du fil : `AAAA-MM-JJ`, un jour nu.** `/config/app` sert `opensAt` /
+`closesAt` sans heure ni décalage, quoi que l'exploitation ait écrit dans la
+variable d'environnement. Le client relit les composantes du texte reçu, ce qui
+en fait une seconde ligne de défense et non le mécanisme principal.
+
+Ce format est une correction, et elle a deux moitiés parce que le défaut en avait
+deux. La borne était sérialisée en instant UTC par le serveur, puis reprojetée
+dans le fuseau de l'appareil par le client :
+
+| Valeur écrite par l'exploitation | Servie autrefois | Fuseau du téléphone | Ce qui s'affichait |
+|---|---|---|---|
+| `2026-10-01T00:00:00Z` | `2026-10-01T00:00:00.000Z` | UTC+0/+1 (Dakar, Niamey) | 1er octobre ✓ |
+| `2026-10-01T00:00:00Z` | `2026-10-01T00:00:00.000Z` | UTC−1/−4 (Cabo Verde, diaspora) | **30 septembre** ✗ |
+| `2026-10-01T00:00:00+02:00` (heure de Paris) | **`2026-09-30T22:00:00.000Z`** | **tous** | **30 septembre** ✗ |
+
+La dernière ligne est celle qui compte, et elle explique pourquoi le correctif
+client ne suffisait pas : `new Date(raw).toISOString()` avait déjà détruit le
+jour côté serveur. Aucune lecture du fil ne pouvait le retrouver — et écrire
+l'heure de Paris est le réflexe naturel pour une procédure française, donc ce
+n'était pas un cas de bord mais le cas de production, donnant la mauvaise date à
+**tout le public d'un coup**.
+
+Deux conséquences pour qui pose ces variables :
+
+- **N'écrivez pas d'heure.** `2026-10-01` est la forme attendue. Une heure
+  écrite est ignorée — `2026-10-01T23:30:00-05:00` désigne bien le 1er octobre —
+  mais elle laisse croire qu'elle compte, et c'est cette croyance qui a produit
+  le défaut.
+- **Les deux bornes sont INCLUSIVES.** « Jusqu'au 15 novembre » inclut le 15
+  entier. La comparaison était auparavant faite sur l'instant, donc la campagne
+  passait « close » à la première seconde du jour de clôture — un étudiant
+  ouvrant l'app le matin de sa date limite lisait que c'était terminé.
+
+Une valeur illisible, un mois 13 ou un 30 février rendent `null` **des deux
+côtés**, et l'app n'annonce alors AUCUNE date. `new Date(Date.UTC(2026, 12, 1))`
+vaut janvier 2027 et `DateTime(2026, 1, 32)` vaut le 1er février : normaliser
+une faute de frappe fabriquerait une échéance que personne n'a écrite, et
+qu'un étudiant lirait comme une information.
+
+Gardé par `test/release/campaign_wire_day_test.dart` (le format du fil) et
+`test/features/etudes_en_france/eef_campaign_day_test.dart` (le décodage). Le
+premier existe parce que les deux côtés étaient verts pendant que le défaut
+vivait dans la couture : les tests mobiles décodaient la valeur d'exploitation
+directement, contournant la normalisation serveur, et un test backend figeait
+cette normalisation comme contrat.
+
 ### Le consentement, sur le fil
 
 `POST /etudes-en-france/interest` exige deux champs, et les refuse absents :

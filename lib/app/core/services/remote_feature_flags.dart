@@ -92,8 +92,8 @@ class EefCampaignWindow {
   factory EefCampaignWindow.fromJson(Object? raw) {
     if (raw is! Map) return empty;
     return EefCampaignWindow(
-      opensAt: _parseInstant(raw['opensAt']),
-      closesAt: _parseInstant(raw['closesAt']),
+      opensAt: _parseCampaignDay(raw['opensAt']),
+      closesAt: _parseCampaignDay(raw['closesAt']),
       suspendedCountries: _parseStringList(raw['suspendedCountries']),
     );
   }
@@ -107,11 +107,67 @@ class EefCampaignWindow {
         .toList(growable: false);
   }
 
-  static DateTime? _parseInstant(Object? value) {
+  /// Le JOUR CALENDAIRE que l'exploitation a écrit, jamais un instant reprojeté.
+  ///
+  /// ## Pourquoi ce n'est pas `DateTime.tryParse(...).toLocal()`
+  ///
+  /// Parce que « la campagne ouvre le 1er octobre » est une date d'HORLOGE
+  /// MURALE, pas un instant. C'était pourtant un instant, et le reprojeter dans
+  /// le fuseau de l'appareil produisait deux mensonges symétriques — le second
+  /// bien pire que le premier :
+  ///
+  /// | Valeur servie | Fuseau du téléphone | Ce qui s'affichait |
+  /// |---|---|---|
+  /// | `2026-10-01T00:00:00Z` | UTC+0 / +1 (Dakar, Niamey) | 1er octobre ✓ |
+  /// | `2026-10-01T00:00:00Z` | UTC−1 / −4 (Cabo Verde, diaspora) | **30 septembre** ✗ |
+  /// | `2026-10-01T00:00:00+02:00` (heure de Paris) | UTC+0 / +1 | **30 septembre** ✗ |
+  ///
+  /// On extrait donc les composantes `AAAA-MM-JJ` **telles qu'écrites**, avant
+  /// toute conversion, et on en fait un `DateTime` naïf. Plus de fuseau ici,
+  /// donc plus de décalage introduit ici.
+  ///
+  /// ## Ce que ce décodage ne peut PAS réparer, et où c'est réparé
+  ///
+  /// La troisième ligne du tableau — l'heure de Paris, réflexe naturel pour une
+  /// procédure française — ne se corrige pas de ce côté. Le serveur faisait
+  /// `new Date(raw).toISOString()` : `2026-10-01T00:00:00+02:00` arrivait ici
+  /// déjà transformé en `2026-09-30T22:00:00.000Z`, et lire les composantes de
+  /// ce texte donne correctement le 30 septembre d'une valeur déjà fausse. Le
+  /// jour était perdu sur le fil.
+  ///
+  /// `/config/app` sert donc désormais un JOUR NU `AAAA-MM-JJ`
+  /// (`app-config.controller.ts`, `campaignDay`). Ce décodage-ci reste, comme
+  /// seconde ligne : il neutralise le fuseau de l'appareil, et il tolère un
+  /// ancien serveur qui servirait encore un instant.
+  ///
+  /// L'heure du jour est délibérément ignorée. Une échéance administrative se
+  /// compte en jours — « à partir du 1er octobre » veut dire « dès le 1er
+  /// octobre », pas « à partir de minuit UTC ce jour-là ». Voir
+  /// [EefCalendar.phase], qui compare donc des jours et non des instants.
+  static DateTime? _parseCampaignDay(Object? value) {
     if (value is! String) return null;
     final trimmed = value.trim();
     if (trimmed.isEmpty) return null;
-    return DateTime.tryParse(trimmed)?.toLocal();
+
+    // On valide par le parseur standard — une chaîne illisible doit rester
+    // `null`, jamais une date devinée — puis on lit les composantes du TEXTE.
+    if (DateTime.tryParse(trimmed) == null) return null;
+
+    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(trimmed);
+    if (match == null) return null;
+
+    final year = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final day = int.parse(match.group(3)!);
+
+    // `DateTime` normalise silencieusement un 32 janvier en 1er février. Ce
+    // serait une date inventée à partir d'une saisie fautive — exactement ce que
+    // ce module refuse de faire — donc on rend `null` et l'app n'annonce rien.
+    final parsed = DateTime(year, month, day);
+    if (parsed.year != year || parsed.month != month || parsed.day != day) {
+      return null;
+    }
+    return parsed;
   }
 }
 
