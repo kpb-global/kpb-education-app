@@ -63,7 +63,7 @@ consoles (`lib/main.dart:238` — `fallbackLocale: const Locale('fr')`).
 | Test d'orientation | `lib/app/features/orientation/orientation_screen.dart:288` ; entrées `lib/app/features/home/home_screen.dart:1092,1178`, `lib/app/features/profile/profile_screen.dart:1239` |
 | Espace parent, en lecture seule, visibilité choisie par l'étudiant | `lib/app/features/profile/profile_screen.dart:1291-1296` ; `lib/app/features/parent/parent_case_view_screen.dart:33` (« read-only — parent can't post ») ; interrupteur `lib/app/features/cases/case_detail_screen.dart:560` |
 | Hors ligne : catalogue en cache + bandeaux d'honnêteté | `lib/app/features/shell/app_shell.dart:105-112` (bandeaux échantillon / données datées) ; `lib/app/core/services/catalog_cache_service.dart:26` |
-| Verrou biométrique de l'app | `lib/app/features/profile/profile_screen.dart:764-770` ; `lib/app/core/services/security_service.dart:68` |
+| Verrou biométrique de l'app | `lib/app/features/profile/profile_screen.dart:764-770` ; `lib/app/core/services/security_service.dart:123` (`authenticate`) |
 | Âge minimum 16 ans + accord du tuteur < 18 ans | `lib/app/features/onboarding/onboarding_screen.dart:459-497` ; libellés `lib/app/core/translations/app_translations.dart:704-706` |
 | Export des données + suppression du compte depuis l'app | `lib/app/features/profile/profile_screen.dart:159-163` (`_DataRightsCard`) ; `lib/app/core/repositories/app_api_client.dart:112-114` (`DELETE /profiles/me`) ; serveur `backend/src/modules/profiles/profiles.controller.ts:105-117` |
 | Refus de l'analyse d'usage | `lib/app/core/services/analytics_service.dart:88-101` ; libellé `lib/app/core/translations/app_translations.dart:1520-1521` |

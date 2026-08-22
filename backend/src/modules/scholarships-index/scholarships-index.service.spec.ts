@@ -158,7 +158,14 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
    * gap indistinguishable from an outage. The profile fields must rank, never
    * exclude everything.
    */
-  describe('listForProfile — profile field filter degrades gracefully', () => {
+  // Les centres d'intérêt du profil CLASSENT la liste, ils ne la filtrent pas.
+  //
+  // L'état mesuré en production le 21/08/2026 : 10 fiches publiées, UNE SEULE
+  // avec un `relatedFieldIds` non vide. Le filtre dur `hasSome` rendait donc les
+  // neuf autres invisibles à tout étudiant ayant renseigné un domaine, et le
+  // repli ne s'armait qu'à ZÉRO résultat — avec une fiche qui passait, l'écran
+  // affichait « 1 bourse trouvée » sans un mot d'explication.
+  describe('listForProfile — profile fields rank, they never exclude', () => {
     function makeFilteringService(rows: Array<Record<string, unknown>>) {
       const wheres: Array<Record<string, unknown>> = [];
       const client = {
@@ -196,7 +203,9 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
       return { service, wheres };
     }
 
-    it('falls back to the unfiltered catalog when the profile fields match nothing', async () => {
+    it('serves a scholarship whose relatedFieldIds is empty, and queries once', async () => {
+      // Tous les chemins d'écriture créent la ligne avec un tableau VIDE : c'est
+      // le cas NORMAL, pas le cas limite.
       const { service, wheres } = makeFilteringService([
         { ...baseRow, relatedFieldIds: [] },
       ]);
@@ -207,45 +216,76 @@ describe('ScholarshipsIndexService — application requirement & steps', () => {
       });
 
       expect(result.items).toHaveLength(1);
-      expect(result.fieldFilterRelaxed).toBe(true);
-      // First attempt filtered, retry dropped only the field criterion.
-      expect(wheres[0].relatedFieldIds).toEqual({ hasSome: ['d01', 'd05'] });
-      expect(wheres[1].relatedFieldIds).toBeUndefined();
-      expect(wheres[1]).toMatchObject({
-        isActive: true,
-        moderationStatus: 'approved',
-      });
+      // Plus de premier essai perdu puis de reprise : une seule requête suffit.
+      expect(wheres).toHaveLength(1);
+      // Rien n'a été restreint, donc il n'y a rien à annoncer au client.
+      expect(result.fieldFilterRelaxed).toBe(false);
     });
 
-    it('keeps the field filter when it actually matches, and reports no relaxation', async () => {
+    it('never puts relatedFieldIds in the query, whatever the profile asks', async () => {
+      // La garde structurelle : elle tombe à la seconde où quelqu'un remet un
+      // filtre dur, sans dépendre du contenu des fiches de test.
       const { service, wheres } = makeFilteringService([
-        { ...baseRow, id: 'sch-match', relatedFieldIds: ['d01'] },
-        { ...baseRow, id: 'sch-other', relatedFieldIds: ['d09'] },
+        { ...baseRow, id: 'a', relatedFieldIds: ['d01'] },
+        { ...baseRow, id: 'b', relatedFieldIds: [] },
       ]);
+
+      await service.listForProfile({
+        lang: 'fr',
+        level: 'Master',
+        fieldIds: ['d01', 'd02', 'd03'],
+      });
+
+      for (const where of wheres) {
+        expect(where.relatedFieldIds).toBeUndefined();
+      }
+    });
+
+    it('ranks the curated scholarship first without hiding the other nine', async () => {
+      // La forme exacte de la production : une fiche curée, neuf vides.
+      const rows = [
+        { ...baseRow, id: 'curated', relatedFieldIds: ['d02', 'd03'] },
+        ...Array.from({ length: 9 }, (_, i) => ({
+          ...baseRow,
+          id: `uncurated-${i}`,
+          relatedFieldIds: [],
+        })),
+      ];
+      const { service } = makeFilteringService(rows);
 
       const result = await service.listForProfile({
         lang: 'fr',
-        fieldIds: ['d01'],
+        fieldIds: ['d02'],
       });
 
-      expect(result.items.map((item) => item.id)).toEqual(['sch-match']);
-      expect(result.fieldFilterRelaxed).toBe(false);
-      expect(wheres).toHaveLength(1);
+      // Les DIX sont servies — c'est le constat que ce test ferme.
+      expect(result.items).toHaveLength(10);
+      // Et le recouvrement de domaine se paie en rang, pas en visibilité.
+      expect(result.items[0].id).toBe('curated');
+      expect(result.items[0].matchScore).toBeGreaterThan(
+        result.items[1].matchScore,
+      );
     });
 
-    it('keeps a student-chosen funding filter through the relaxation', async () => {
+    it('keeps a student-chosen funding filter hard', async () => {
+      // Le correctif ne doit pas emporter les filtres que l'étudiant VOIT et
+      // peut retirer lui-même : ceux-là restent des exclusions.
       const { service, wheres } = makeFilteringService([
         { ...baseRow, relatedFieldIds: [] },
       ]);
 
-      const result = await service.listForProfile({
+      await service.listForProfile({
         lang: 'fr',
         fieldIds: ['d01'],
         fundingType: 'fully_funded',
       });
 
-      expect(result.fieldFilterRelaxed).toBe(true);
-      expect(wheres[1]).toMatchObject({ fundingType: 'fully_funded' });
+      expect(wheres).toHaveLength(1);
+      expect(wheres[0]).toMatchObject({
+        fundingType: 'fully_funded',
+        isActive: true,
+        moderationStatus: 'approved',
+      });
     });
 
     it('flags an unconfigured database instead of reporting an empty catalog', async () => {

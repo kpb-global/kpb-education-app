@@ -234,9 +234,32 @@ export class ScholarshipsIndexService {
         : {}),
       ...(params.countryId ? { countryId: params.countryId } : {}),
     };
-    const fieldWhere = params.fieldIds?.length
-      ? { relatedFieldIds: { hasSome: params.fieldIds } }
-      : null;
+    // `fieldIds` n'apparaît DÉLIBÉRÉMENT pas dans le `where`.
+    //
+    // Il y était, en filtre dur (`relatedFieldIds: { hasSome: fieldIds }`), et
+    // l'effet mesuré en production le 21/08/2026 était celui-ci : sur les 10
+    // fiches publiées, UNE SEULE portait un `relatedFieldIds` non vide
+    // (`up_mastercard_scholars_2027`). Les neuf autres, créées avec un tableau
+    // VIDE par tous les chemins d'écriture (seed héritée, import du catalogue
+    // vérifié, upsert du collecteur), ne peuvent par construction jamais
+    // satisfaire `hasSome` : elles étaient donc invisibles pour tout étudiant
+    // ayant renseigné ses centres d'intérêt. L'écran affirmait « Classées selon
+    // ton profil » en masquant 90 % du catalogue.
+    //
+    // Le repli existant ne rattrapait rien, parce qu'il ne se déclenchait qu'à
+    // ZÉRO résultat : avec une fiche qui passait, il ne s'armait pas, aucun
+    // bandeau n'était posé, et l'étudiant n'apprenait rien.
+    //
+    // Les centres d'intérêt redeviennent donc ce que le commentaire d'origine
+    // annonçait déjà — « une préférence de classement, pas une raison de ne
+    // rien montrer » — et ce que `level` a TOUJOURS été ici : un terme de
+    // `matchScore` (+10 par domaine commun, plus bas), jamais une exclusion.
+    // « Classées » redevient vrai au sens propre : rien n'est caché, tout est
+    // ordonné.
+    //
+    // Conséquence assumée : une curation de `relatedFieldIds` améliore le
+    // CLASSEMENT au lieu de décider de la visibilité. C'est le bon levier — une
+    // lacune de curation ne doit plus se lire comme une panne.
 
     // matchScore is computed in memory, so we must score the full candidate
     // set before sorting/paginating — fetching only `limit + offset` rows (as
@@ -261,26 +284,19 @@ export class ScholarshipsIndexService {
         }),
       );
 
-    let where: Prisma.ScholarshipWhereInput = {
-      ...baseWhere,
-      ...(fieldWhere ?? {}),
-    };
-    let items = await findCandidates(where);
+    const where: Prisma.ScholarshipWhereInput = baseWhere;
+    const items = await findCandidates(where);
 
-    // Graceful degradation instead of a bare "no scholarships found".
-    // `relatedFieldIds` is populated only by admin curation: every write path
-    // (legacy seed, verified-catalog import, scraper upsert) creates the row
-    // with an EMPTY array. Left as an exclusion, the profile's fields of
-    // interest therefore hide the entire published catalog from any student who
-    // picked a field — a curation gap rendered as an outage. Fall back to the
-    // unfiltered set and tell the client the profile filter was dropped, so the
-    // UI can say the list is not narrowed to their fields.
-    let fieldFilterRelaxed = false;
-    if (fieldWhere && items !== null && items.length === 0) {
-      where = baseWhere;
-      fieldFilterRelaxed = true;
-      items = await findCandidates(where);
-    }
+    // Toujours `false` désormais : plus rien n'est retiré de la liste au nom du
+    // profil, donc il n'y a plus de relâchement à annoncer.
+    //
+    // Le champ reste sur le fil, mais pas parce qu'un client le lirait — vérifié,
+    // AUCUN ne le lit : `fetchLiveScholarships` rend une `List` et jette
+    // l'enveloppe (app_api_client.dart:1150), et le bandeau de l'app est piloté
+    // par un `profileFiltersRelaxed` purement local. Il reste par stabilité de
+    // contrat : retirer un champ d'une réponse publique est une rupture, et sa
+    // valeur est maintenant simplement toujours fausse.
+    const fieldFilterRelaxed = false;
 
     if (!items) {
       // Reached only when no DATABASE_URL is configured (PrismaService.execute
