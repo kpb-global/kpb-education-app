@@ -122,17 +122,23 @@ class EefCampaignWindow {
   /// | `2026-10-01T00:00:00Z` | UTC−1 / −4 (Cabo Verde, diaspora) | **30 septembre** ✗ |
   /// | `2026-10-01T00:00:00+02:00` (heure de Paris) | UTC+0 / +1 | **30 septembre** ✗ |
   ///
-  /// La dernière ligne est celle qui compte : `isoInstant` côté serveur accepte
-  /// un décalage explicite, donc un opérateur qui écrit l'heure de Paris — le
-  /// réflexe naturel pour une procédure française — ferait lire « 30 septembre »
-  /// à **Dakar, Bamako, Abidjan, Niamey et Douala**, c'est-à-dire à l'essentiel
-  /// du public. Une seule variable mal saisie, et tout le monde a la mauvaise
-  /// date.
-  ///
   /// On extrait donc les composantes `AAAA-MM-JJ` **telles qu'écrites**, avant
-  /// toute conversion, et on en fait un `DateTime` naïf. Plus de fuseau, donc
-  /// plus de décalage possible : la date affichée est celle que l'opérateur a
-  /// tapée, sur tous les appareils du monde.
+  /// toute conversion, et on en fait un `DateTime` naïf. Plus de fuseau ici,
+  /// donc plus de décalage introduit ici.
+  ///
+  /// ## Ce que ce décodage ne peut PAS réparer, et où c'est réparé
+  ///
+  /// La troisième ligne du tableau — l'heure de Paris, réflexe naturel pour une
+  /// procédure française — ne se corrige pas de ce côté. Le serveur faisait
+  /// `new Date(raw).toISOString()` : `2026-10-01T00:00:00+02:00` arrivait ici
+  /// déjà transformé en `2026-09-30T22:00:00.000Z`, et lire les composantes de
+  /// ce texte donne correctement le 30 septembre d'une valeur déjà fausse. Le
+  /// jour était perdu sur le fil.
+  ///
+  /// `/config/app` sert donc désormais un JOUR NU `AAAA-MM-JJ`
+  /// (`app-config.controller.ts`, `campaignDay`). Ce décodage-ci reste, comme
+  /// seconde ligne : il neutralise le fuseau de l'appareil, et il tolère un
+  /// ancien serveur qui servirait encore un instant.
   ///
   /// L'heure du jour est délibérément ignorée. Une échéance administrative se
   /// compte en jours — « à partir du 1er octobre » veut dire « dès le 1er

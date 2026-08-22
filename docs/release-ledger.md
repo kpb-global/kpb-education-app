@@ -27,7 +27,7 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
   ```bash
   KPB_EEF_TEASER_ENABLED=true
-  KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01T00:00:00Z
+  KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01
   KPB_EEF_SUSPENDED_COUNTRIES=Niger,NE
   # KPB_EEF_CAMPAIGN_CLOSES_AT — DÉLIBÉRÉMENT NON POSÉE (voir plus bas)
   ```

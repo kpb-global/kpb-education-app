@@ -12,15 +12,6 @@ function rolloutPercent(value: string | undefined): number {
 }
 
 /**
- * An env-provided instant, or null when it is absent or unparseable.
- *
- * Null rather than a best guess, on purpose. This value drives the campaign
- * window the « Études en France » teaser prints, and a typo in a deploy
- * variable must make the app say nothing about dates — not print
- * "Invalid Date", and not silently fall back to today, which would announce a
- * campaign opening the moment anyone opens the screen.
- */
-/**
  * A comma-separated env list, trimmed, de-duplicated, blanks dropped.
  *
  * Deliberately NOT upper-cased, unlike the Success Lab country codes just
@@ -39,12 +30,67 @@ function nameList(value: string | undefined): string[] {
   return [...seen];
 }
 
-function isoInstant(value: string | undefined): string | null {
+/**
+ * Le JOUR de campagne écrit par l'exploitation, servi tel quel — jamais un
+ * instant.
+ *
+ * ## Le défaut que cette fonction remplace
+ *
+ * Elle s'appelait `isoInstant` et faisait `new Date(raw).toISOString()`. Sur
+ * une valeur portant un décalage explicite, cette seule ligne détruisait le
+ * jour :
+ *
+ * ```
+ * KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01T00:00:00+02:00   (l'heure de Paris)
+ *   → servi « 2026-09-30T22:00:00.000Z »
+ *   → tout client lit le 30 septembre, quel que soit son fuseau
+ * ```
+ *
+ * Écrire l'heure de Paris est le réflexe naturel pour une procédure française,
+ * et le client ne pouvait rien y faire : l'information était déjà perdue sur le
+ * fil. Un correctif côté mobile — extraire `AAAA-MM-JJ` du texte reçu — ne
+ * réparait donc que la moitié du problème, celle du fuseau de l'appareil.
+ *
+ * ## Ce qu'elle fait
+ *
+ * « La campagne ouvre le 1er octobre » est une date d'HORLOGE MURALE, pas un
+ * instant : elle ne désigne pas le même moment à Dakar et à Montréal, et c'est
+ * voulu. On lit donc les composantes du TEXTE, avant toute conversion, et on
+ * sert un jour nu `AAAA-MM-JJ`. Aucun fuseau n'entre dans l'équation, donc
+ * aucun décalage n'en sort.
+ *
+ * L'heure éventuellement écrite par l'exploitation est ignorée, pas honorée :
+ * une échéance administrative se compte en jours. Voir `EefCalendar.phase`
+ * côté mobile, qui compare des jours avec des bornes inclusives.
+ *
+ * Null plutôt qu'une approximation, sur une valeur illisible : ce jour pilote
+ * la fenêtre qu'imprime la vitrine « Études en France », et une faute de frappe
+ * dans une variable de déploiement doit faire taire l'app — pas afficher
+ * « Invalid Date », pas retomber sur aujourd'hui, ce qui annoncerait une
+ * campagne s'ouvrant à l'instant où l'écran s'ouvre.
+ */
+function campaignDay(value: string | undefined): string | null {
   const raw = value?.trim();
   if (!raw) return null;
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed.toISOString();
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
+  if (!match) return null;
+
+  const [year, month, day] = match.slice(1).map(Number);
+
+  // `new Date(Date.UTC(2026, 12, 1))` vaut janvier 2027, et un 30 février
+  // devient le 2 mars : normaliser une saisie fautive fabriquerait une date que
+  // personne n'a écrite. On la refuse, et l'app n'annonce rien.
+  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() !== month - 1 ||
+    probe.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return match[0];
 }
 
 /**
@@ -118,8 +164,12 @@ export class AppConfigController {
       // Null quand ce n'est pas configuré : le client n'annonce alors aucune
       // date, plutôt qu'une date inventée.
       eefCampaign: {
-        opensAt: isoInstant(process.env.KPB_EEF_CAMPAIGN_OPENS_AT),
-        closesAt: isoInstant(process.env.KPB_EEF_CAMPAIGN_CLOSES_AT),
+        // Des JOURS nus `AAAA-MM-JJ`, pas des instants — voir [campaignDay].
+        // Un instant sur le fil se reprojette dans le fuseau du lecteur, et
+        // « le 1er octobre » devient « le 30 septembre » pour une moitié du
+        // public.
+        opensAt: campaignDay(process.env.KPB_EEF_CAMPAIGN_OPENS_AT),
+        closesAt: campaignDay(process.env.KPB_EEF_CAMPAIGN_CLOSES_AT),
         // Pays où la procédure est SUSPENDUE — le service ne traite pas les
         // dossiers, quelle que soit la date d'ouverture de la plateforme.
         //

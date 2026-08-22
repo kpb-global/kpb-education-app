@@ -579,7 +579,7 @@ Sur le VPS, dans le `.env` du service `api` :
 
 ```bash
 KPB_EEF_TEASER_ENABLED=true
-KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01T00:00:00Z
+KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01
 KPB_EEF_SUSPENDED_COUNTRIES=Niger,NE
 # KPB_EEF_CAMPAIGN_CLOSES_AT : NE PAS POSER — les clôtures divergent par pays
 # (Maroc 15/11, Rwanda et Maurice 15/12). Une clôture globale ferait manquer la
@@ -599,11 +599,18 @@ curl -fsS "https://api.kpbeducation.cloud/api/config/app" | jq '.features, .eefC
 ```
 
 - `features.eefTeaser` → `true` ;
-- `eefCampaign.opensAt` → `"2026-10-01T00:00:00.000Z"`. **Si cette clé rend
-  `null`, la variable est mal écrite** : `isoInstant` rend `null` sur une date
-  illisible plutôt qu'une date de repli, et l'app n'annoncera alors AUCUNE date
-  au lieu d'en annoncer une fausse. C'est le comportement voulu, mais ici c'est
-  le signe qu'il faut relire la ligne du `.env` ;
+- `eefCampaign.opensAt` → `"2026-10-01"`, **un jour nu, sans heure**. Deux
+  lectures à faire de cette ligne :
+  - **si elle rend `null`, la variable est mal écrite.** `campaignDay` rend
+    `null` sur une valeur illisible plutôt qu'une date de repli, et l'app
+    n'annoncera alors AUCUNE date au lieu d'en annoncer une fausse. C'est le
+    comportement voulu ; ici c'est le signe qu'il faut relire la ligne du
+    `.env` ;
+  - **si elle porte une heure**, le déploiement est antérieur au correctif de
+    format. Un instant sur le fil se reprojette dans le fuseau du lecteur : une
+    valeur écrite en heure de Paris ferait afficher « 30 septembre » à Dakar,
+    Bamako, Abidjan, Niamey et Douala. Ne pas basculer : déployer d'abord une
+    image portant `campaignDay` ;
 - `eefCampaign.suspendedCountries` → `["Niger","NE"]` ;
 - `eefCampaign.closesAt` → `null`, et c'est voulu (voir plus haut) ;
 - `features.eef` → `false`. **Il doit rester à `false`** : c'est le drapeau de

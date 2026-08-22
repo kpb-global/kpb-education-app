@@ -19,6 +19,19 @@
 //
 // Les deux se corrigent au même endroit : les bornes deviennent des jours nus,
 // et `phase()` compare des jours.
+//
+// ## Ce que ce fichier ne prouve PAS
+//
+// Il décode la charge JSON directement, donc il ne traverse pas le serveur — et
+// c'est là que le défaut n° 1 survivait à sa correction. `/config/app` faisait
+// `new Date(raw).toISOString()` : la valeur « heure de Paris » n'atteignait
+// jamais ce décodage sous sa forme écrite, elle arrivait déjà réduite à
+// `2026-09-30T22:00:00.000Z`. Les tests d'ici passaient en contournant
+// précisément la normalisation fautive.
+//
+// Le format du fil est donc gardé ailleurs : `test/release/campaign_wire_day_test.dart`
+// (la couture) et `backend/.../app-config.controller.spec.ts` (les quatre
+// écritures d'exploitation qui doivent servir le même jour).
 
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
@@ -59,6 +72,10 @@ void main() {
     // différents et le MÊME jour administratif ; l'app doit dire « 1er octobre »
     // pour les quatre.
     for (final served in const [
+      // La forme réellement servie depuis le correctif de format : un jour nu.
+      '2026-10-01',
+      // Et les formes d'instant, tolérées — un serveur plus ancien, ou une
+      // charge en cache sur l'appareil, ne doit pas faire taire la date.
       '2026-10-01T00:00:00Z',
       '2026-10-01T00:00:00.000Z',
       '2026-10-01T00:00:00+02:00',
