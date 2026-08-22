@@ -98,6 +98,24 @@ services:
       - KPB_STUDY_REVIEW_SLA_HOURS=${KPB_STUDY_REVIEW_SLA_HOURS:-48}
       - KPB_EVIDENCE_ACCESS_TTL_SECONDS=${KPB_EVIDENCE_ACCESS_TTL_SECONDS:-60}
       - KPB_EVIDENCE_ACCESS_SECRET=${KPB_EVIDENCE_ACCESS_SECRET:-}
+      # Espace « Études en France ». Relayées ICI et pas seulement posées dans
+      # le .env : compose n'utilise le .env que pour l'INTERPOLATION — une
+      # variable absente de ce bloc n'entre jamais dans le conteneur. Le défaut
+      # a été commis : les quatre variables étaient documentées dans
+      # .env.example et dans le runbook de bascule, et l'étape d'activation ne
+      # pouvait pas fonctionner. test/release/config_env_relay_test.dart garde
+      # désormais l'invariant.
+      #
+      # Les deux drapeaux sont FERMÉS par défaut : une vitrine qu'on ne saurait
+      # plus éteindre à distance est un plus mauvais échec que rien du tout.
+      - KPB_EEF_TEASER_ENABLED=${KPB_EEF_TEASER_ENABLED:-false}
+      - KPB_EEF_ENABLED=${KPB_EEF_ENABLED:-false}
+      # Dates VIDES par défaut, jamais une date de repli : le client n'annonce
+      # alors aucune date, plutôt qu'une date inventée qu'un étudiant
+      # utiliserait pour organiser son dossier.
+      - KPB_EEF_CAMPAIGN_OPENS_AT=${KPB_EEF_CAMPAIGN_OPENS_AT:-}
+      - KPB_EEF_CAMPAIGN_CLOSES_AT=${KPB_EEF_CAMPAIGN_CLOSES_AT:-}
+      - KPB_EEF_SUSPENDED_COUNTRIES=${KPB_EEF_SUSPENDED_COUNTRIES:-}
       - KPB_AI_DIAGNOSTIC_MIN_AGE=${KPB_AI_DIAGNOSTIC_MIN_AGE:-13}
       - KPB_AI_DIAGNOSTIC_PROMPT_VERSION=${KPB_AI_DIAGNOSTIC_PROMPT_VERSION:-success-lab-v1}
       - KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS=${KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS:-8000}

@@ -65,7 +65,26 @@ export class AdminEefInterestController {
    * n'a aucun besoin. `text/csv` avec `charset=utf-8` va de pair avec le BOM
    * écrit par le sérialiseur.
    */
+  /**
+   * ADMIN SEULEMENT — plus restreint que la liste, délibérément.
+   *
+   * Lire cinquante lignes dans une session de back-office et faire sortir la
+   * table entière dans un fichier qui quitte le périmètre ne sont pas le même
+   * acte. Le dépôt modélise déjà cette distinction :
+   * `AdminCapability.ExportPersonalData` n'est accordée qu'à `Admin` et
+   * `SuperAdmin` (`admin/lib/admin-capabilities.ts`), et
+   * `admin-capabilities.test.ts` fige cette liste à l'identique.
+   *
+   * Le `@Roles` de classe couvrait la liste ET l'export : un `counselor`
+   * pouvait donc télécharger nom, e-mail, téléphone et WhatsApp de vingt mille
+   * étudiants, dont des mineurs, alors que la même capacité lui est refusée
+   * partout ailleurs dans le produit. Un `@Roles` de méthode l'emporte sur
+   * celui de la classe (`RolesGuard` passe par `getAllAndOverride` avec le
+   * handler en tête) — même motif que `commercial.controller.ts`, route
+   * `performance`.
+   */
   @Get('export.csv')
+  @Roles(InternalRole.Admin, InternalRole.SuperAdmin)
   @Header('Content-Type', 'text/csv; charset=utf-8')
   @Header(
     'Content-Disposition',
