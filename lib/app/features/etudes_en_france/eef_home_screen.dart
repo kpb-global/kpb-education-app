@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/data/eef_calendar.dart';
 import '../../core/ui/kpb_components.dart';
 
@@ -50,7 +51,20 @@ class EefHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final range = EefCalendar.rangeLabel();
+    // Le MÊME point unique que la vitrine et la carte d'accueil.
+    //
+    // Cet écran appelait `rangeLabel()` en direct, donc sans consulter la
+    // suspension : le jour où `KPB_EEF_ENABLED` passe à true, un étudiant
+    // nigérien y aurait relu la date d'ouverture nationale que la vitrine
+    // refuse justement de lui donner. Le défaut était dormant en build 49
+    // (drapeau éteint) et se serait réveillé exactement le jour du lancement de
+    // l'espace réel — c'est-à-dire au pire moment.
+    //
+    // Troisième surface, troisième oubli possible : c'est pour ça que la règle
+    // vit dans `EefCalendar.timingLabel` et nulle part ailleurs.
+    final range = EefCalendar.timingLabel(
+      country: Get.find<AppController>().profile?.countryOfResidence,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text('eef_title'.tr)),

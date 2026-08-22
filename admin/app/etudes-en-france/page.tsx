@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAdminAuth } from '../../components/admin-auth-provider';
 import { DashboardShell } from '../../components/dashboard-shell';
 import { useLocale } from '../../components/locale-provider';
+import { AdminCapability, hasAdminCapability } from '../../lib/admin-capabilities';
 import { apiFetch, apiFetchText } from '../../lib/api-client';
 import {
   AdminTable,
@@ -63,6 +64,23 @@ const PAGE_SIZE = 50;
  */
 export default function EtudesEnFrancePage() {
   const { session } = useAdminAuth();
+
+  /**
+   * Le bouton d'export n'apparaît que pour qui peut réellement exporter.
+   *
+   * `export.csv` est restreint à Admin et SuperAdmin — plus étroit que la
+   * lecture, parce que faire sortir la table dans un fichier n'est pas le même
+   * acte que lire une page. Le bouton, lui, était affiché aux quatre rôles de
+   * lecture : un conseiller cliquait et recevait un 403, systématiquement.
+   *
+   * Un bouton qui échoue toujours n'est pas une restriction, c'est un piège :
+   * il apprend à ses utilisateurs que les erreurs de cette page sont normales,
+   * et le jour où l'export échoue pour une vraie raison, personne ne le lit.
+   */
+  const canExport = hasAdminCapability(
+    session?.user.role,
+    AdminCapability.ExportPersonalData,
+  );
   const { t, locale } = useLocale();
   const [rows, setRows] = useState<InterestRow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -202,12 +220,14 @@ export default function EtudesEnFrancePage() {
             {t('eef.wantsPremium')}: {summary?.wantsPremium ?? '—'}
             {summary && summary.total > 0 ? ` (${premiumShare} %)` : ''}
           </Badge>
-          <Button
-            onClick={downloadCsv}
-            disabled={exporting || (summary?.total ?? 0) === 0}
-          >
-            {exporting ? t('eef.exporting') : t('eef.export')}
-          </Button>
+          {canExport ? (
+            <Button
+              onClick={downloadCsv}
+              disabled={exporting || (summary?.total ?? 0) === 0}
+            >
+              {exporting ? t('eef.exporting') : t('eef.export')}
+            </Button>
+          ) : null}
         </div>
 
         {loading ? (

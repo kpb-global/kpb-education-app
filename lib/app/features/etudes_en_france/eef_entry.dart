@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
+import '../../core/models/app_models.dart';
 import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/components/coming_soon_screen.dart';
 import 'eef_home_screen.dart';
@@ -45,7 +48,30 @@ class EefEntry extends StatelessWidget {
   /// choix éditorial, casser un lien profond est un cul-de-sac.
   static bool get isVisible {
     final flags = RemoteFeatureFlags.instance;
-    return flags.eefEnabled || flags.eefTeaserEnabled;
+    if (!flags.eefEnabled && !flags.eefTeaserEnabled) return false;
+
+    // ── Comptes étudiants SEULEMENT ──────────────────────────────────────
+    //
+    // `StudentAuthGuard` authentifie aussi les comptes parent et partenaire —
+    // son propre commentaire le dit — et la déclaration d'intérêt écrit les
+    // coordonnées du profil appelant. Un parent qui tape « ça m'intéresse »
+    // ferait donc entrer SES nom, e-mail et téléphone dans la liste d'appel
+    // des étudiants, et le conseiller rappellerait la mauvaise personne.
+    //
+    // Le refus vit AUSSI côté serveur (`etudes-en-france.controller.ts`), et
+    // c'est lui qui protège la donnée. Ceci est l'autre moitié : sans elle, un
+    // parent verrait le bouton, taperait, et recevrait un 403 traduit en
+    // « reconnecte-toi » — un message faux qui l'enverrait se déconnecter.
+    //
+    // Le compte non résolu (`profile == null`) passe : c'est l'invité, que la
+    // vitrine accueille exprès avec un bouton « créer mon compte ».
+    final profile = Get.isRegistered<AppController>()
+        ? Get.find<AppController>().profile
+        : null;
+    if (profile != null && profile.accountType != AccountType.student) {
+      return false;
+    }
+    return true;
   }
 
   @override

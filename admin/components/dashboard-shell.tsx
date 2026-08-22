@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { AdminCapability, hasAdminCapability } from '../lib/admin-capabilities';
 import { canAccessCompetitionReadiness } from '../lib/competition-readiness-tabs';
 import { useAdminAuth } from './admin-auth-provider';
 import { useLocale } from './locale-provider';
@@ -74,7 +75,18 @@ const NAV_LINKS: readonly NavLinkDefinition[] = [
     labelKey: 'nav.scholarshipsModeration',
     icon: 'scholarships',
   },
-  { href: '/etudes-en-france', labelKey: 'nav.eef', icon: 'eef' },
+  {
+    href: '/etudes-en-france',
+    labelKey: 'nav.eef',
+    icon: 'eef',
+    // Masqué pour `moderator` et `content_manager`, que le contrôleur refuse.
+    // Sans ce prédicat, ils voyaient l'entrée, cliquaient, et tombaient sur une
+    // erreur 403 rendue dans une alerte : une invitation vers une porte fermée.
+    // Aucune donnée n'était exposée — la garde backend tient — mais un menu qui
+    // propose ce qu'il refuse apprend à ses utilisateurs à ignorer les erreurs.
+    visibleForRole: (role) =>
+      hasAdminCapability(role, AdminCapability.ViewInterestList),
+  },
   { href: '/service-sales', labelKey: 'nav.serviceSales', icon: 'serviceSales' },
   { href: '/community', labelKey: 'nav.community', icon: 'community' },
   {

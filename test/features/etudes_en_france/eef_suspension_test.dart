@@ -20,6 +20,7 @@ import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/data/eef_calendar.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/services/remote_feature_flags.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_home_screen.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_teaser_screen.dart';
 
 import '../../support/screen_harness.dart';
@@ -115,6 +116,51 @@ void main() {
       expect(byCode.isSuspendedForCountry('Niger'), isFalse,
           reason: 'un code ne vaut pas un nom — les deux doivent être listés '
               'si les deux écritures circulent');
+    });
+  });
+
+  // La COQUILLE de l'espace réel, celle qui s'affiche quand `KPB_EEF_ENABLED`
+  // passe à true.
+  //
+  // Elle appelait `rangeLabel()` en direct, donc sans consulter la suspension :
+  // le défaut était DORMANT en build 49 (drapeau éteint) et se serait réveillé
+  // exactement le jour du lancement de l'espace — c'est-à-dire au pire moment,
+  // et sur l'écran principal. Troisième surface, troisième oubli possible.
+  group('la coquille de l\'espace', () {
+    Future<void> pumpHome(WidgetTester tester, String country,
+        {List<String> suspended = const <String>[]}) async {
+      EefCalendar.clock = () => DateTime(2026, 8, 21);
+      EefCalendar.windowSource = () => EefCampaignWindow(
+            opensAt: DateTime(2026, 10, 1),
+            suspendedCountries: suspended,
+          );
+      await seedKpbController(
+        snapshot: AppSnapshot(
+          localeCode: 'fr',
+          hasCompletedOnboarding: true,
+          profile: createTestProfile(countryOfResidence: country),
+        ),
+      );
+      await pumpKpbScreen(
+        tester,
+        screen: const EefHomeScreen(),
+        viewport: iphone14,
+      );
+    }
+
+    testWidgets('un étudiant nigérien n\'y lit AUCUNE date', (tester) async {
+      await pumpHome(tester, 'Niger', suspended: ['Niger']);
+
+      expect(find.textContaining('1er octobre 2026'), findsNothing);
+      expect(find.textContaining('À partir du'), findsNothing);
+    });
+
+    testWidgets('un étudiant sénégalais y lit bien la date', (tester) async {
+      // La contre-épreuve : sans elle, un écran vide passerait le test ci-dessus
+      // pour la mauvaise raison.
+      await pumpHome(tester, 'Sénégal', suspended: ['Niger']);
+
+      expect(find.textContaining('1er octobre 2026'), findsWidgets);
     });
   });
 
