@@ -41,6 +41,16 @@ export enum AdminCapability {
   ManageAiPrompt = 'manage_ai_prompt',
   ManageFeatureFlags = 'manage_feature_flags',
   ExportPersonalData = 'export_personal_data',
+  /**
+   * Lire la liste d'intérêt « Études en France ».
+   *
+   * Distincte de [ExportPersonalData], et c'est le point : lire une page à
+   * l'écran et faire sortir la table entière dans un fichier qui quitte le
+   * périmètre ne sont pas le même acte. Le contrôleur backend applique
+   * exactement la même distinction — cette capacité correspond à son `@Roles`
+   * de classe, l'export à celui de sa méthode.
+   */
+  ViewInterestList = 'view_interest_list',
 }
 
 const ALL_ROLES = Object.freeze([
@@ -54,6 +64,7 @@ const ALL_ROLES = Object.freeze([
 
 const ROLE_CAPABILITIES = {
   [InternalRole.Counselor]: Object.freeze([
+    AdminCapability.ViewInterestList,
     AdminCapability.ViewReviewRequestMetadata,
     AdminCapability.ViewAssignedReviewRequests,
     AdminCapability.ViewSharedReviewDocuments,
@@ -66,6 +77,7 @@ const ROLE_CAPABILITIES = {
     AdminCapability.ViewAiAggregateCosts,
   ]),
   [InternalRole.Commercial]: Object.freeze([
+    AdminCapability.ViewInterestList,
     AdminCapability.ViewReviewRequestMetadata,
     AdminCapability.ConvertReviewToCase,
     AdminCapability.ViewScholarshipContent,
@@ -83,6 +95,7 @@ const ROLE_CAPABILITIES = {
     AdminCapability.ViewAiQualityAggregates,
   ]),
   [InternalRole.Admin]: Object.freeze([
+    AdminCapability.ViewInterestList,
     AdminCapability.ViewReviewRequestMetadata,
     AdminCapability.ViewAssignedReviewRequests,
     AdminCapability.ViewSharedReviewDocuments,

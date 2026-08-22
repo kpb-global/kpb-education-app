@@ -126,11 +126,48 @@ garde.
 une build 50.** Ce n'est pas un oubli du plan, c'est son cadre. Ne promettre à
 personne un « on rallumera demain sans rien redéployer ».
 
+### 1 bis. Ce que la 49 embarque en plus depuis que ce runbook a été écrit
+
+La **Phase 0 de l'espace « Études en France »** : la vitrine, la coquille de
+l'espace, la route `/etudes-en-france`, `POST/GET /etudes-en-france/interest`, le
+back-office avec export CSV, et une migration (étape 1).
+
+**Cela ne change pas le sens du couplage, et voici pourquoi — c'est la seule
+question qui compte pour l'étape 3.** La 49 lit `/config/app` au démarrage. Sur
+l'ANCIEN backend, les clés `features.eefTeaser`, `features.eef` et `eefCampaign`
+sont **absentes** :
+
+- `RemoteFeatureFlags._readFeatures` ne retient que les entrées booléennes et
+  ignore ce qu'elle ne trouve pas ; `_flag` retombe alors sur la constante de
+  compilation, qui vaut `false` ;
+- `EefCampaignWindow.fromJson(null)` rend la fenêtre vide ;
+- `EefEntry.isVisible` rend donc `false`, et **trois** des quatre points
+  d'entrée se masquent (carte d'accueil, tiroir, boîte à outils). Le quatrième
+  est la route elle-même, qui reste joignable par construction —
+  cf. la phrase suivante. La route reste joignable — elle doit l'être pour une notification —
+  mais elle rend `ComingSoonScreen`.
+
+La 49 tourne donc **sans erreur visible** contre le backend d'avant, exactement
+comme elle le fait pour les outils IA. `tolerates-old` reste la bonne
+déclaration, et le déploiement couplé reste **dû** — désormais pour deux raisons
+au lieu d'une : `AiConsentGuard`, et la table `EefInterest` sans laquelle une
+déclaration d'intérêt échoue.
+Le code exact dépend de ce qui manque, et le savoir évite de chercher au mauvais
+endroit à l'étape 10 : **404** contre l'ancienne image, qui n'a pas la route ;
+**500** de schéma si l'image est neuve mais la migration non appliquée ; le
+**503** est réservé au cas où `DATABASE_URL` est absente.
+
+Ce que ça ajoute au plan : l'**étape 9 bis**, plus les amendements de l'étape 1,
+du § 3, de l'étape 10 et du résumé — chacun signalé là où il se trouve.
+
 ---
 
 ## 2. Feux verts du propriétaire — la liste courte
 
-Quatre étapes ne se lancent **pas** sans accord explicite du propriétaire :
+**Cinq** étapes ne se lancent **pas** sans accord explicite du propriétaire.
+Le tableau en liste quatre ; la cinquième est l'étape 12, marquée « feu vert
+propriétaire » dans le corps et dans le résumé. Un décompte qui ne correspond
+pas au corps fait douter de la liste entière :
 
 | Étape | Pourquoi |
 |---|---|
@@ -153,7 +190,7 @@ admin et du contenu de démo.
 |---|---|---|
 | Image Docker `api` / `admin` | **RÉVERSIBLE** | ré-épingler le tag précédent (étape 8, retour arrière) — l'image est déjà sur le VPS |
 | Conteneur `kpb_web` / `nginx.conf` | **RÉVERSIBLE** | redéployer le ref précédent ; le fichier neuf est validé dans un conteneur jetable avant qu'on y touche (`deploy.yml:172-174`, `:323-325`) |
-| Migration Prisma | **IRRÉVERSIBLE** (forward-only) | aucun retour de schéma. `docs/DEPLOYMENT.md:120-124`. Le dump pré-déploiement (`deploy.yml:237-247`) ne se restaure qu'en cas de corruption avérée. **Étape 1 mesure s'il y a une migration à appliquer** ; s'il n'y en a pas, cette ligne du tableau ne s'applique pas à cette bascule |
+| Migration Prisma | **IRRÉVERSIBLE** (forward-only) — **et elle s'applique** | aucun retour de schéma. `docs/DEPLOYMENT.md:120-124`. Le dump pré-déploiement (`deploy.yml:237-247`) ne se restaure qu'en cas de corruption avérée. Cette bascule porte `20260821120000_eef_interest` : additive, une table neuve, rien à défaire (voir étape 1) |
 | Build 49 distribuée | **IRRÉVERSIBLE** | un téléphone mis à jour ne redescend pas. Le seul retour est une build 50. Play : suspendre le déploiement n'a jamais désinstallé personne |
 | Numéro de build 49 | **IRRÉVERSIBLE** | consommé à vie une fois téléversé (`docs/release-ledger.md:3-5`, `:7-10`) |
 | `KPB_MIN_APP_VERSION` | réversible mais **piégé** | hors périmètre de cette soirée — voir étape 12 |
@@ -214,13 +251,29 @@ une image `:local` absente ou périmée. C'est le « piège du tag perdu » de
 
 **On observe** :
 
-- `Database schema is up to date!` → **le `migrate deploy` de l'étape 8 sera un
-  no-op** : la bascule ne comporte alors **aucune** étape irréversible côté base.
-  C'est l'issue attendue : la migration la plus récente du dépôt est
-  `backend/prisma/migrations/20260814120000_scholarship_fail_closed_defaults`,
-  posée par #204 (`ae02909`), et rien n'en a été ajouté depuis ;
-- une liste de migrations `pending` → **les nommer, les lire, et seulement
-  ensuite continuer.** C'est le seul point irréversible du plan.
+> **⚠ Cette étape a changé de sens.** Le runbook a été écrit quand il n'y avait
+> rien à migrer. Ce n'est plus vrai : la Phase 0 de l'espace « Études en France »
+> ajoute `backend/prisma/migrations/20260821120000_eef_interest`. **Le
+> `migrate deploy` de l'étape 8 n'est donc PLUS un no-op**, et la ligne
+> « Migration Prisma » du § 3 s'applique désormais pleinement.
+
+**On observe** — issue attendue aujourd'hui :
+
+- **exactement une migration `pending`, `20260821120000_eef_interest`.** Lue
+  avant d'être appliquée, elle est **purement additive** : `CREATE TABLE
+  "EefInterest"`, trois index, une clé étrangère vers `UserProfile` en
+  `ON DELETE CASCADE`. Aucun `ALTER` sur une table existante, aucun backfill,
+  aucune colonne ajoutée ailleurs — donc rien qui puisse échouer sur les
+  données en place. Le seul verrou pris hors de la table neuve est celui que
+  Postgres prend brièvement sur `UserProfile` pour valider la clé étrangère.
+  Forward-only comme toutes les autres : il n'y a pas de retour de schéma, mais
+  il n'y a rien à défaire — une table vide ne dérange personne ;
+- `Database schema is up to date!` → alors la prod a **déjà** cette migration, ce
+  qui n'est possible que si un déploiement l'a précédée. Vérifier lequel avant de
+  continuer ;
+- **toute autre** migration `pending` que celle nommée ci-dessus → **la nommer,
+  la lire, et seulement ensuite continuer.** C'est un point irréversible que ce
+  runbook n'a pas prévu.
 
 **Retour arrière** : aucun. `migrate status` n'applique rien ; `run --rm` détruit
 le conteneur.
@@ -228,6 +281,23 @@ le conteneur.
 ---
 
 ### Étape 2 — Geler le ref et le ledger  *(feu vert propriétaire)*
+
+> **⚠ AVANT de geler quoi que ce soit : le travail « Études en France » doit
+> être SUR le ref.** Il vit sur `claude/campus-france-space-98orw9` et aucune
+> étape de ce runbook ne fusionne rien. Geler `main` sans lui produirait le pire
+> désalignement possible : la build 49 construite à l'étape 4 porte le client
+> EEF, le backend déployé à l'étape 8 l'ignore, le contrôle 5 du portail échoue
+> à l'étape 9, l'étape 9 bis n'a aucun effet — et on découvre tout cela après
+> l'étape 6, qui est le point de non-retour.
+>
+> Vérification, avant de lire la commande ci-dessous :
+>
+> ```bash
+> git rev-parse --short=12 main
+> git ls-tree -r main --name-only | grep -c etudes.en.france   # doit être > 0
+> ```
+>
+> Un `0` signifie que la fusion n'a pas eu lieu. **S'arrêter là.**
 
 ```bash
 git rev-parse --short=12 main     # → RELEASE_SHA, à geler
@@ -460,7 +530,9 @@ bash scripts/delivery-gate.sh
 ```
 
 **On observe** : `sha` == `RELEASE_SHA`, les deux `merge-base` réussissent, et
-`delivery-gate.sh` imprime `LIV-T14 OK` après ses quatre `curl` de production
+`delivery-gate.sh` imprime `LIV-T14 OK` après ses **cinq** contrôles de
+production (six appels `curl`) — le cinquième étant celui qui prouve que le
+module EEF est monté, donc tout l'intérêt de l'étape 9 bis
 (`scripts/delivery-gate.sh:1-6`, `:11-54`).
 
 **NON PROUVÉ de l'extérieur, et il ne faut pas prétendre le contraire :**
@@ -483,6 +555,73 @@ pendant un incident PostgreSQL ne prouve donc pas que la garde est absente.
 
 ---
 
+### Étape 9 bis — Allumer la vitrine « Études en France »  *(après le déploiement, jamais avant)*
+
+La build 49 embarque la vitrine **éteinte**. Elle ne s'allume pas toute seule :
+c'est `/config/app` qui la déclare, et seule l'image déployée à l'étape 8 sait
+lire ces variables. Les poser avant le déploiement n'aurait aucun effet — pas un
+effet dangereux, un effet nul, ce qui est plus traître : on croit avoir agi.
+
+**Pourquoi c'est une étape séparée et pas une ligne de l'étape 8.** Parce que
+l'étape 8 fait déjà commencer les 403 pour les testeurs restés en 48. Ajouter au
+même instant une surface neuve chez ceux qui sont en 49, c'est se priver du
+moyen de dire lequel des deux changements a produit ce qu'on observe. Une chose,
+puis on regarde, puis la suivante.
+
+**L'étape 9 a déjà fait la moitié du travail.** Le contrôle 5 de
+`scripts/delivery-gate.sh` prouve que le module est monté : les clés EEF
+présentes dans `/config/app`, et `GET /etudes-en-france/interest` qui répond
+**401 et non 404** — la seule façon de distinguer « route gardée » de « module
+absent » sans détenir de session étudiante. Si l'étape 9 est passée, il ne reste
+ici qu'à poser les variables.
+
+Sur le VPS, dans le `.env` du service `api` :
+
+```bash
+KPB_EEF_TEASER_ENABLED=true
+KPB_EEF_CAMPAIGN_OPENS_AT=2026-10-01T00:00:00Z
+KPB_EEF_SUSPENDED_COUNTRIES=Niger,NE
+# KPB_EEF_CAMPAIGN_CLOSES_AT : NE PAS POSER — les clôtures divergent par pays
+# (Maroc 15/11, Rwanda et Maurice 15/12). Une clôture globale ferait manquer la
+# campagne à un étudiant marocain. Voir docs/release-ledger.md.
+```
+
+puis redémarrer le seul service concerné :
+
+```bash
+ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && docker compose up -d --no-deps api"
+```
+
+**On observe** :
+
+```bash
+curl -fsS "https://api.kpbeducation.cloud/api/config/app" | jq '.features, .eefCampaign'
+```
+
+- `features.eefTeaser` → `true` ;
+- `eefCampaign.opensAt` → `"2026-10-01T00:00:00.000Z"`. **Si cette clé rend
+  `null`, la variable est mal écrite** : `isoInstant` rend `null` sur une date
+  illisible plutôt qu'une date de repli, et l'app n'annoncera alors AUCUNE date
+  au lieu d'en annoncer une fausse. C'est le comportement voulu, mais ici c'est
+  le signe qu'il faut relire la ligne du `.env` ;
+- `eefCampaign.suspendedCountries` → `["Niger","NE"]` ;
+- `eefCampaign.closesAt` → `null`, et c'est voulu (voir plus haut) ;
+- `features.eef` → `false`. **Il doit rester à `false`** : c'est le drapeau de
+  l'espace RÉEL, dont le catalogue n'existe pas encore. Le poser à `true`
+  retirerait la vitrine tout seul (`app-config.controller.ts` : `eefTeaser` vaut
+  `!eef && …`) et afficherait un espace vide.
+
+**Retour arrière** : total et immédiat. Retirer `KPB_EEF_TEASER_ENABLED` ou la
+passer à `false`, redémarrer `api`. Aucun store, aucune build. C'est précisément
+ce que cette architecture achète.
+
+**Ce qui n'est PAS prouvé par ce `curl`** : qu'un étudiant puisse déclarer son
+intérêt. Le `POST /api/etudes-en-france/interest` exige une session étudiant et
+la table créée à l'étape 8 — ça se vérifie à l'étape 10, sur un appareil, et
+c'est la seule preuve qui compte.
+
+---
+
 ### Étape 10 — Vérifier sur un appareil réel en 49
 
 **On observe** :
@@ -496,9 +635,25 @@ pendant un incident PostgreSQL ne prouve donc pas que la garde est absente.
   `reason: 'submitOrientation'` apparaît dans Crashlytics. **C'est le
   comportement attendu, pas une panne.** Si les recommandations n'apparaissent
   pas du tout, ce n'est pas la garde : lire l'erreur ;
-- coach IA : inchangé (§1, « Ce que la bascule ne change PAS »).
+- coach IA : inchangé (§1, « Ce que la bascule ne change PAS ») ;
+- **vitrine « Études en France »** — la seule preuve qui vaille, parce qu'elle
+  traverse toute la chaîne (drapeau servi → écran → session étudiant → table
+  créée à l'étape 8) :
+  - la carte apparaît sur l'accueil et l'entrée est **en première position** dans
+    le tiroir des outils ;
+  - elle annonce « À partir du 1er octobre 2026 », suivi de la ligne disant que
+    les clôtures varient selon le pays. Si aucune date n'apparaît, c'est
+    `KPB_EEF_CAMPAIGN_OPENS_AT` qu'il faut relire, pas l'app ;
+  - **déclarer un intérêt, pour de vrai, avec un compte de test.** Le bouton doit
+    confirmer, et la ligne doit apparaître dans le back-office
+    (`/etudes-en-france`). Un 2xx ne suffit pas : le client traite une réponse
+    dont le corps ne dit pas `declared: true` comme un ÉCHEC, donc une
+    confirmation à l'écran prouve l'écriture en base ;
+  - avec un profil dont le pays de résidence est **le Niger** : la mise en garde
+    de suspension **remplace** la date, et ne s'affiche pas à côté d'elle.
 
-**Retour arrière** : celui de l'étape 8 si le constat est mauvais.
+**Retour arrière** : celui de l'étape 8 si le constat est mauvais. Pour la seule
+vitrine, celui de l'étape 9 bis — une variable, sans toucher au reste.
 
 ---
 
@@ -534,7 +689,7 @@ seulement ensuite relever la version.
 | # | Étape | Feu vert | Retour arrière |
 |---|---|---|---|
 | 0 | `/api/health/version` → `PREV_SHA` ; la garde est-elle déjà en prod ? | — | lecture seule |
-| 1 | `prisma migrate status` (avec `KPB_IMAGE_TAG`) | — | lecture seule |
+| 1 | `prisma migrate status` (avec `KPB_IMAGE_TAG`) — **une migration attendue**, `20260821120000_eef_interest` | — | lecture seule |
 | 2 | geler `RELEASE_SHA` + ledger + `build_number_test` | **oui** | édition de dépôt |
 | 3 | préflight `backend_coupling=tolerates-old` | **oui** | lecture seule |
 | 4 | `flutter build ios` + `preflight-ios-archive.sh` | — | total |
@@ -543,6 +698,7 @@ seulement ensuite relever la version.
 | 7 | attendre la 49 sur un appareil réel | — | sans objet |
 | 8 | `Deploy backend (VPS)` · `scope=full` · `run_seed=false` | **oui** | image (auto + manuel) |
 | 9 | prouver la garde par le SHA + `delivery-gate.sh` | — | lecture seule |
-| 10 | vérifier sur appareil 49 | — | celui de l'étape 8 |
+| 9 bis | poser les 3 `KPB_EEF_*` + `up -d --no-deps api` | — | **total** (une variable) |
+| 10 | vérifier sur appareil 49 — outils IA absents ET vitrine EEF vivante | — | celui de l'étape 8 |
 | 11 | préflight de nouveau `requires-new` | — | sans objet |
 | 12 | `KPB_MIN_APP_VERSION` — séance séparée | **oui** | hors périmètre |

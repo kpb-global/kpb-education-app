@@ -17,6 +17,7 @@ import '../destinations/destinations_screen.dart';
 import '../orientation/orientation_screen.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../explore/country_detail_screen.dart';
+import '../etudes_en_france/eef_home_card.dart';
 import '../notifications/notifications_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../parcours/parcours_screen.dart';
@@ -211,6 +212,17 @@ class HomeScreen extends StatelessWidget {
                             index: 2,
                             child: MyPlanCard(),
                           ),
+
+                        // ── 1.8 Espace « Études en France » ─────────
+                        // S'auto-masque quand le module est éteint (drapeau
+                        // SERVEUR), donc l'accueil ne porte aucune condition et
+                        // la bascule du jour J n'a pas besoin d'un binaire neuf.
+                        // Espacement du bas dans la carte : pas de trou quand
+                        // elle se masque.
+                        const StaggeredSlide(
+                          index: 2,
+                          child: EefHomeCard(),
+                        ),
 
                         // ── 2. Prochaine étape ──────────────────────
                         if (controller.isStudent) ...[

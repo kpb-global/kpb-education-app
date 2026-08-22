@@ -82,6 +82,53 @@ Split by `item_type` too: a video that stalls at 20 % and an interview read to t
 end are different problems. A drop in `feed` completion while `library` holds
 steady points at the feed itself, not at the content.
 
+## Espace « Études en France » (Phase 0 — vitrine)
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `eef_teaser_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | Portée de la vitrine, et par quelle porte |
+| `eef_interest_declared` | `wants_premium`, `field_count`, `current_level` | LA question posée par la vitrine : y a-t-il une demande, et pour le payant ? |
+| `eef_interest_failed` | `reason` (`network`/`unauthorized`/`server`) | Un envoi qui échoue |
+
+### Pourquoi `eef_interest_failed` existe
+
+Sans lui, un backend en panne le jour du lancement produit exactement la même
+courbe que « personne n'est intéressé » — et c'est la conclusion **inverse** de
+la vérité qu'on tirerait du tableau de bord. Le taux à surveiller est donc
+`eef_interest_failed ÷ (eef_interest_declared + eef_interest_failed)` : au-delà
+de quelques pourcents, ce n'est pas le produit qui déçoit, c'est la chaîne
+d'envoi qui casse.
+
+`field_count` et non la liste des filières : un compte suffit à segmenter, et
+n'expose pas le détail du profil d'un mineur dans une charge analytique.
+
+### Entonnoir de la Phase 0
+
+`eef_teaser_viewed` → `eef_interest_declared`, segmenté par `source`, dit
+quelle porte convertit. La part de `wants_premium = true` parmi les
+déclarations est le signal qui décide du modèle payant — c'est la seule mesure
+directe de la demande pour le Premium dont l'app dispose aujourd'hui, faute de
+tout produit payant existant.
+
+> **`field_count` vaut structurellement 0, et ce n'est pas une panne.** La
+> feuille de déclaration ne comporte aucun sélecteur de filière : le champ
+> existe dans le DTO, en base et dans le CSV, mais l'écran ne l'envoie jamais.
+> Ne pas lire ce paramètre comme un axe de segmentation tant que le sélecteur
+> n'existe pas — il arrive avec le catalogue de la Phase 1. Écrit ici parce que
+> c'est le document qu'on ouvre pour interpréter l'entonnoir, et qu'un zéro
+> constant se lit autrement comme « personne ne choisit de filière ».
+>
+> **`wants_premium` part en `1`/`0`, pas en booléen.**
+> `FirebaseAnalytics.logEvent` assert `value is String || value is num` : le
+> booléen brut faisait lever en debug, l'exception était attrapée, et c'est
+> l'événement ENTIER qui disparaissait — celui-là même dont ce document dit
+> qu'il décide du modèle payant.
+>
+> **Une « modification » réussie réémet `eef_interest_declared`.** Le ratio
+> `wants_premium` calculé sur les ÉVÉNEMENTS est donc biaisé par les étudiants
+> qui cochent Premium dans un second temps. Compter sur les utilisateurs
+> distincts, ou lire le compteur du back-office, qui compte des lignes.
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |

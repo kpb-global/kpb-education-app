@@ -134,6 +134,110 @@ Purpose:
 Purpose:
 - support lightweight partner acquisition outside the student case flow
 
+## Espace « Études en France » (Phase 0)
+
+- `GET /etudes-en-france/interest`
+- `POST /etudes-en-france/interest`
+
+Authentifiés (`StudentAuthGuard`) : une déclaration d'intérêt sans identité ne
+serait pas rappelable, et c'est le contact qu'on cherche à collecter.
+
+Purpose:
+- enregistrer qui veut être prévenu à l'ouverture de l'espace, et qui se déclare
+  intéressé par le Premium
+
+Réponse (les deux routes) :
+
+```json
+{
+  "declared": true,
+  "currentLevel": "terminale",
+  "targetLevel": "licence",
+  "fieldIds": ["info"],
+  "wantsPremium": true,
+  "consentedAt": "2026-08-21T10:00:00.000Z"
+}
+```
+
+Deux invariants que le client suppose, et sur lesquels des tests existent des
+deux côtés :
+
+- **`declared: true` est la seule preuve d'écriture.** Un 2xx dont le corps ne
+  l'affirme pas est traité par le client comme un ÉCHEC. Un 200 n'est pas une
+  preuve d'écriture ; le corps l'est.
+- **Le service échoue fermé.** Base indisponible ⇒ `503`, jamais un objet
+  d'apparence normale. Rendre un succès sans écriture ferait afficher « c'est
+  noté » pour une ligne qui n'existe nulle part.
+
+`consentedAt` est horodaté par le SERVEUR à la réception, donc non antidatable
+par un client, et rafraîchi à chaque redéclaration : la preuve qui compte est le
+dernier consentement donné.
+
+L'écriture est un `upsert` sur `userId` (unique) : une redéclaration corrige la
+ligne au lieu d'en créer une seconde.
+
+### `DELETE /etudes-en-france/interest`
+
+Retire la déclaration du profil authentifié. **Idempotente** : retirer une
+déclaration absente rend le même corps que retirer celle qui existait
+(`declared: false`), parce que le résultat qui compte est « cette personne n'est
+plus dans la liste » et qu'un 404 obligerait l'écran à distinguer deux cas pour
+afficher la même chose.
+
+Cette route existe parce que le texte de consentement promet un retrait. Elle a
+manqué : la promesse a précédé le mécanisme, et les seules issues réelles étaient
+d'écrire à une adresse générique ou de supprimer le compte entier pour retirer
+une ligne de prospection.
+
+**Invariant client** : un corps qui dit encore `declared: true` est traité comme
+un ÉCHEC. Afficher « tu es retiré » sur une ligne toujours en base est le même
+mensonge que « c'est noté » sur une ligne jamais écrite.
+
+### Le consentement, sur le fil
+
+`POST /etudes-en-france/interest` exige deux champs, et les refuse absents :
+
+| Champ | Règle |
+|---|---|
+| `consent` | doit valoir exactement `true`. Un `false` explicite est refusé, pas enregistré |
+| `consentVersion` | l'identifiant du texte affiché à l'écran, borné à 64 caractères |
+
+`consentedAt` reste horodaté **par le serveur** : le client ne l'envoie pas et ne
+peut donc pas l'antidater. Mais l'horodatage seul ne prouvait que « non
+antidatable » — sans `consent`, un `POST` au corps vide fabriquait une preuve de
+consentement, le `now()` ayant simplement déménagé de Postgres vers Node. Et sans
+`consentVersion`, on ne pourrait produire qu'une date, jamais la phrase acceptée.
+
+`test/features/etudes_en_france/eef_consent_version_test.dart` apparie la
+constante client à une empreinte des textes FR et EN : le texte ne peut plus
+changer sans que la version bouge.
+
+### `DELETE /admin/etudes-en-france/interest/:id`
+
+Le même retrait, exécuté par l'équipe pour une demande reçue par e-mail ou
+WhatsApp. Ouvert aux mêmes rôles que la LECTURE — pas restreint à
+l'administration comme l'export : l'export fait sortir des données du périmètre,
+ce retrait les fait disparaître, et un droit qu'on exerce lentement s'exerce mal.
+
+## Admin — liste d'intérêt « Études en France »
+
+- `GET /admin/etudes-en-france/interest/summary`
+- `GET /admin/etudes-en-france/interest?take=&skip=`
+- `GET /admin/etudes-en-france/interest/export.csv`
+
+Rôles : `admin`, `super_admin`, `commercial`, `counselor`. Volontairement PAS
+`moderator` ni `content_manager` — ce sont des noms, des e-mails et des numéros
+de téléphone, et la modération de forum n'a rien à en faire.
+
+Purpose:
+- lire et exporter la liste des prospects, sans quoi elle ne quitte jamais
+  Postgres et personne ne rappelle personne
+
+L'export est servi en `text/csv; charset=utf-8` avec
+`Content-Disposition: attachment`, un BOM UTF-8 (sans lui Excel sous Windows
+rend « Côte d'Ivoire » en « CÃ´te d'Ivoire »), et chaque cellule neutralisée
+contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
+
 ## Admin content operations
 
 - `GET /admin/service-offers`

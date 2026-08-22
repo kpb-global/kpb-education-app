@@ -103,6 +103,42 @@ describe('admin capability presentation matrix', () => {
     ).toBe(true);
   });
 
+  it('grants the interest list to the four roles that call prospects', () => {
+    const allowed = Object.values(InternalRole).filter((role) =>
+      hasAdminCapability(role, AdminCapability.ViewInterestList),
+    );
+
+    // Exactement le `@Roles` de classe d'AdminEefInterestController. Les deux
+    // côtés doivent dire la même chose : le menu du back-office proposait cette
+    // page à `moderator` et `content_manager`, que le contrôleur refuse — un
+    // menu qui invite vers une porte fermée apprend à ignorer les erreurs.
+    expect(allowed.sort()).toEqual(
+      [
+        InternalRole.Admin,
+        InternalRole.SuperAdmin,
+        InternalRole.Commercial,
+        InternalRole.Counselor,
+      ].sort(),
+    );
+  });
+
+  it('keeps the personal-data export strictly narrower than the interest list', () => {
+    // Formulé comme une RELATION et non comme deux listes : si demain on élargit
+    // la lecture, cette assertion continue de dire ce qui compte — faire sortir
+    // la table dans un fichier n'est pas le même acte que lire une page.
+    const canView = Object.values(InternalRole).filter((r) =>
+      hasAdminCapability(r, AdminCapability.ViewInterestList),
+    );
+    const canExport = Object.values(InternalRole).filter((r) =>
+      hasAdminCapability(r, AdminCapability.ExportPersonalData),
+    );
+
+    expect(canExport.length).toBeLessThan(canView.length);
+    for (const role of canExport) {
+      expect(canView).toContain(role);
+    }
+  });
+
   it('requires an administrator role before showing personal-data export', () => {
     const allowed = Object.values(InternalRole).filter((role) =>
       hasAdminCapability(role, AdminCapability.ExportPersonalData),

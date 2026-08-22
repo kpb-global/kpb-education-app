@@ -328,6 +328,77 @@ class AnalyticsService {
     }
   }
 
+  // ── Espace « Études en France » ─────────────────────────────────────────────
+
+  /// La vitrine a été vue. [source] dit par quelle porte (accueil, tiroir,
+  /// boîte à outils, lien profond), pour qu'on sache laquelle amène du monde.
+  Future<void> logEefTeaserViewed(String source) async {
+    final params = {AnalyticsParamKey.source: source};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefTeaserViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefTeaserViewed, params);
+    } catch (e, s) {
+      _logError('logEefTeaserViewed', e, s);
+    }
+  }
+
+  /// Un étudiant a déclaré son intérêt — et dit s'il l'était pour le payant.
+  ///
+  /// `fieldCount` et non la liste des filières : un compte suffit à segmenter,
+  /// et n'expose pas le détail du profil d'un mineur dans une charge analytique.
+  Future<void> logEefInterestDeclared({
+    required bool wantsPremium,
+    required int fieldCount,
+    String? currentLevel,
+  }) async {
+    final params = <String, Object>{
+      // `? 1 : 0` et NON le booléen brut. `FirebaseAnalytics.logEvent` assert
+      // `value is String || value is num` : un `bool` fait lever en debug,
+      // l'exception est attrapée par le `try` plus bas, et c'est TOUT
+      // l'événement qui disparaît — celui dont le contrat dit qu'il est « la
+      // seule mesure directe de la demande pour le Premium ». Les six autres
+      // booléens de ce fichier passent déjà par cette conversion ; celui-ci ne
+      // le faisait pas.
+      AnalyticsParamKey.wantsPremium: wantsPremium ? 1 : 0,
+      AnalyticsParamKey.fieldCount: fieldCount,
+      if (currentLevel != null && currentLevel.isNotEmpty)
+        AnalyticsParamKey.currentLevel: currentLevel,
+    };
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefInterestDeclared,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefInterestDeclared, params);
+    } catch (e, s) {
+      _logError('logEefInterestDeclared', e, s);
+    }
+  }
+
+  /// Une déclaration d'intérêt a ÉCHOUÉ.
+  ///
+  /// Cet événement est la moitié qui manque toujours. Sans lui, un backend en
+  /// panne le jour du lancement produit exactement la même courbe que
+  /// « personne n'est intéressé » — et c'est la conclusion inverse de la
+  /// vérité qu'on tirerait du tableau de bord. [reason] reste grossier
+  /// (`network`, `unauthorized`, `server`) : on cherche à distinguer une panne
+  /// d'un désintérêt, pas à journaliser des messages d'erreur.
+  Future<void> logEefInterestFailed(String reason) async {
+    final params = {AnalyticsParamKey.reason: reason};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefInterestFailed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefInterestFailed, params);
+    } catch (e, s) {
+      _logError('logEefInterestFailed', e, s);
+    }
+  }
+
   // ── Shared result cards (KPB-165) ───────────────────────────────────────────
 
   /// A result card was shared. [withImage] is false when the PNG could not be

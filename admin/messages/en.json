@@ -21,7 +21,8 @@
     "notifications": "Notifications",
     "users": "Users",
     "reports": "Reports",
-    "competitionReadiness": "Competition readiness"
+    "competitionReadiness": "Competition readiness",
+    "eef": "Studying in France"
   },
   "login": {
     "eyebrow": "KPB Operations",
@@ -1000,5 +1001,36 @@
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist or has moved.",
     "backHome": "Back to overview"
+  },
+  "eef": {
+    "title": "Studying in France — interest",
+    "subtitle": "Who wants to be notified when the space opens, and who says they are interested in Premium.",
+    "total": "Declarations",
+    "wantsPremium": "Interested in Premium",
+    "export": "Export as CSV",
+    "exporting": "Exporting…",
+    "loading": "Loading…",
+    "loadError": "Could not load the list.",
+    "exportError": "Could not generate the export.",
+    "emptyTitle": "No declarations yet",
+    "emptyBody": "The teaser may have just been switched on. Check that /config/app returns features.eefTeaser: true.",
+    "colDate": "Date",
+    "colName": "Name",
+    "colContact": "Contact",
+    "colCountry": "Country",
+    "colLevels": "Levels",
+    "colPremium": "Premium",
+    "yes": "Yes",
+    "no": "No",
+    "previous": "Previous",
+    "next": "Next",
+    "colMinor": "Minor",
+    "colActions": "Actions",
+    "minorYes": "Yes",
+    "minorNo": "No",
+    "minorUnknown": "Unknown",
+    "withdraw": "Remove",
+    "withdrawConfirm": "Remove {name} from the interest list? The row will be permanently deleted.",
+    "withdrawError": "Could not remove. Try again."
   }
 }
