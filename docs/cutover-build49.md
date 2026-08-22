@@ -539,6 +539,13 @@ même instant une surface neuve chez ceux qui sont en 49, c'est se priver du
 moyen de dire lequel des deux changements a produit ce qu'on observe. Une chose,
 puis on regarde, puis la suivante.
 
+**L'étape 9 a déjà fait la moitié du travail.** Le contrôle 5 de
+`scripts/delivery-gate.sh` prouve que le module est monté : les clés EEF
+présentes dans `/config/app`, et `GET /etudes-en-france/interest` qui répond
+**401 et non 404** — la seule façon de distinguer « route gardée » de « module
+absent » sans détenir de session étudiante. Si l'étape 9 est passée, il ne reste
+ici qu'à poser les variables.
+
 Sur le VPS, dans le `.env` du service `api` :
 
 ```bash
@@ -569,6 +576,7 @@ curl -fsS "$VPS_HEALTH_URL/api/config/app" | jq '.features.eefTeaser, .eefCampai
   au lieu d'en annoncer une fausse. C'est le comportement voulu, mais ici c'est
   le signe qu'il faut relire la ligne du `.env` ;
 - `eefCampaign.suspendedCountries` → `["Niger","NE"]` ;
+- `eefCampaign.closesAt` → `null`, et c'est voulu (voir plus haut) ;
 - `features.eef` → `false`. **Il doit rester à `false`** : c'est le drapeau de
   l'espace RÉEL, dont le catalogue n'existe pas encore. Le poser à `true`
   retirerait la vitrine tout seul (`app-config.controller.ts` : `eefTeaser` vaut
