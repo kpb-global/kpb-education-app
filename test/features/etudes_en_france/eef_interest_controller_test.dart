@@ -52,9 +52,88 @@ void main() {
 
   tearDown(() => controller.dispose());
 
+  group('consentement — il part, et il est versionné', () {
+    test('la déclaration envoie la version du texte affiché', () async {
+      when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
+            currentLevel: any(named: 'currentLevel'),
+            targetLevel: any(named: 'targetLevel'),
+            fieldIds: any(named: 'fieldIds'),
+            wantsPremium: any(named: 'wantsPremium'),
+          )).thenAnswer((_) async => _declaredBody);
+
+      await controller.submit(wantsPremium: true);
+
+      // Sans version, la colonne en base ne désignerait aucun texte et l'on ne
+      // pourrait produire qu'une date. `eef_consent_version_test.dart` verrouille
+      // l'appariement entre cette constante et le texte réellement affiché.
+      verify(() => api.declareEefInterest(
+            consentVersion: kEefConsentVersion,
+            currentLevel: any(named: 'currentLevel'),
+            targetLevel: any(named: 'targetLevel'),
+            fieldIds: any(named: 'fieldIds'),
+            wantsPremium: any(named: 'wantsPremium'),
+          )).called(1);
+    });
+  });
+
+  group('withdraw — le pendant du consentement', () {
+    test('un retrait confirmé remet l\'état à « pas déclaré »', () async {
+      when(() => api.withdrawEefInterest())
+          .thenAnswer((_) async => <String, dynamic>{'declared': false});
+
+      final ok = await controller.withdraw();
+
+      expect(ok, isTrue);
+      expect(controller.declared, isFalse);
+      expect(controller.phase, EefInterestPhase.ready);
+    });
+
+    test('un corps qui dit encore « déclaré » est un ÉCHEC', () async {
+      // Le symétrique exact de la règle de ce fichier. Une réponse 2xx dont le
+      // corps affirme que la ligne existe toujours signifie que la suppression
+      // n'a pas eu lieu : afficher « tu es retiré » serait le même mensonge que
+      // « c'est noté » sur une ligne jamais écrite, dans l'autre sens.
+      when(() => api.withdrawEefInterest())
+          .thenAnswer((_) async => _declaredBody);
+
+      final ok = await controller.withdraw();
+
+      expect(ok, isFalse);
+      expect(controller.phase, EefInterestPhase.failed);
+      expect(controller.failure, EefInterestFailure.server);
+    });
+
+    test('un échec réseau ne prétend pas avoir retiré', () async {
+      when(() => api.withdrawEefInterest())
+          .thenThrow(_dio(type: DioExceptionType.connectionError));
+
+      final ok = await controller.withdraw();
+
+      expect(ok, isFalse);
+      expect(controller.phase, EefInterestPhase.failed);
+      expect(controller.failure, EefInterestFailure.network);
+    });
+
+    test('un double tap ne lance pas deux retraits', () async {
+      when(() => api.withdrawEefInterest())
+          .thenAnswer((_) async => <String, dynamic>{'declared': false});
+
+      // Le premier appel n'est pas attendu : on simule le second tap pendant
+      // que le premier vole encore.
+      final first = controller.withdraw();
+      final second = await controller.withdraw();
+      await first;
+
+      expect(second, isFalse);
+      verify(() => api.withdrawEefInterest()).called(1);
+    });
+  });
+
   group('submit — le chemin nominal', () {
     test('ne marque « déclaré » qu\'après confirmation du serveur', () async {
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),
@@ -79,6 +158,7 @@ void main() {
     // l'enregistrement non. Un 200 n'est pas une preuve d'écriture.
     test('une réponse 2xx sans « declared: true » est un ÉCHEC', () async {
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),
@@ -95,6 +175,7 @@ void main() {
 
     test('un corps vide est un échec, pas un succès silencieux', () async {
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),
@@ -107,6 +188,7 @@ void main() {
 
     test('une exception réseau laisse « pas déclaré »', () async {
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),
@@ -124,6 +206,7 @@ void main() {
     test('un échec de MODIFICATION ne détruit pas la déclaration acquise',
         () async {
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),
@@ -133,6 +216,7 @@ void main() {
       expect(controller.declared, isTrue);
 
       when(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
             currentLevel: any(named: 'currentLevel'),
             targetLevel: any(named: 'targetLevel'),
             fieldIds: any(named: 'fieldIds'),

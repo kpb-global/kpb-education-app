@@ -2901,6 +2901,19 @@ model EefInterest {
   targetLevel  String?
   fieldIds     String[]    @default([])
   wantsPremium Boolean     @default(false)
+  // La preuve de consentement, en DEUX morceaux qui ne se remplacent pas.
+  //
+  // `consentedAt` est horodaté par le serveur : le client ne l'envoie pas et ne
+  // peut donc pas l'antidater. Mais une date seule ne prouve que le MOMENT ;
+  // elle ne dit pas ce que l'étudiant a lu. `consentVersion` porte l'identifiant
+  // du texte affiché à l'écran, pour qu'on puisse produire la phrase exacte
+  // qu'il a acceptée et non seulement l'instant où il a tapé.
+  //
+  // Sans obligation côté DTO, `consentedAt` n'était qu'un `now()` déplacé de
+  // Postgres vers Node : un POST au corps vide produisait une preuve de
+  // consentement. Le champ `consent` du DTO est ce qui fait de cette colonne
+  // une preuve plutôt qu'un horodatage.
+  consentVersion String
   consentedAt  DateTime
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt

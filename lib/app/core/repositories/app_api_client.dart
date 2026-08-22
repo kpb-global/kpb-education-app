@@ -211,6 +211,7 @@ class AppApiClient {
   /// `documentUploadEnabled` documente, où « fourni ✓ » était coché avant
   /// l'appel réseau et l'échec disparaissait dans Crashlytics.
   Future<Map<String, dynamic>> declareEefInterest({
+    required String consentVersion,
     String? currentLevel,
     String? targetLevel,
     List<String> fieldIds = const <String>[],
@@ -219,6 +220,14 @@ class AppApiClient {
     final response = await _dio.post<Map<String, dynamic>>(
       '/etudes-en-france/interest',
       data: <String, dynamic>{
+        // Le consentement est envoyé EXPLICITEMENT, et le serveur refuse la
+        // requête sans lui. Ce n'est pas une formalité : avant ce champ, le
+        // serveur horodatait chaque écriture, donc n'importe quelle requête —
+        // un rejeu, un retry automatique — fabriquait une preuve de
+        // consentement. `consentVersion` dit QUEL texte a été affiché, sans
+        // quoi on ne pourrait produire qu'une date.
+        'consent': true,
+        'consentVersion': consentVersion,
         if (currentLevel != null && currentLevel.isNotEmpty)
           'currentLevel': currentLevel,
         if (targetLevel != null && targetLevel.isNotEmpty)
@@ -226,6 +235,18 @@ class AppApiClient {
         if (fieldIds.isNotEmpty) 'fieldIds': fieldIds,
         'wantsPremium': wantsPremium,
       },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Retire la déclaration d'intérêt du profil authentifié.
+  ///
+  /// Pas de `try`/`catch`, comme la déclaration : l'appelant DOIT voir l'échec.
+  /// Afficher « tu es retiré » sur une ligne toujours en base serait le même
+  /// mensonge que « c'est noté » sur une ligne jamais écrite.
+  Future<Map<String, dynamic>> withdrawEefInterest() async {
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/etudes-en-france/interest',
     );
     return response.data ?? <String, dynamic>{};
   }

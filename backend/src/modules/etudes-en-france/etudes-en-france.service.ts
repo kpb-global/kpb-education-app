@@ -67,12 +67,17 @@ export class EtudesEnFranceService {
   ): Promise<EefInterestView> {
     this.assertDb();
 
+    // Horodaté ICI, jamais reçu du client. Mais ce n'est une PREUVE que parce que
+    // le DTO exige `consent: true` et une version : sans eux, ce `new Date()`
+    // n'était qu'un `now()` déplacé de Postgres vers Node, et un corps vide
+    // fabriquait un consentement que personne n'avait donné.
     const consentedAt = new Date();
     const data = {
       currentLevel: dto.currentLevel?.trim() || null,
       targetLevel: dto.targetLevel?.trim() || null,
       fieldIds: this.normalizeFieldIds(dto.fieldIds),
       wantsPremium: dto.wantsPremium ?? false,
+      consentVersion: dto.consentVersion.trim(),
     };
 
     const saved = await this.prismaService.execute((prisma) =>
@@ -107,6 +112,46 @@ export class EtudesEnFranceService {
     );
 
     return found ? this.toView(found) : NOT_DECLARED;
+  }
+
+  /**
+   * Retire la déclaration du profil appelant.
+   *
+   * ## Pourquoi cette route existe
+   *
+   * Parce que le texte de consentement dit « tu peux te retirer à tout moment ».
+   * Il le disait déjà avant que cette méthode existe, et c'était une promesse
+   * sans mécanisme : les seules issues réelles étaient d'écrire à une adresse
+   * générique ou de supprimer le compte ENTIER pour retirer une ligne de
+   * prospection. Une collecte fondée sur le consentement a besoin d'un outil
+   * d'exécution du retrait, sinon le consentement n'est pas révocable et n'en
+   * est pas un.
+   *
+   * **Idempotente.** Retirer une déclaration qui n'existe pas rend le même état
+   * que retirer celle qui existait : `NOT_DECLARED`. Un 404 sur un retrait
+   * obligerait l'écran à distinguer « rien à retirer » de « échec du retrait »
+   * pour aboutir au même affichage, et un double tap sur un réseau lent
+   * produirait une erreur pour une action qui a réussi.
+   *
+   * `deleteMany` et non `delete` : `delete` lève P2025 quand la ligne est
+   * absente, ce qui remonterait en erreur pour le cas ci-dessus.
+   */
+  async withdraw(userId: string): Promise<EefInterestView> {
+    this.assertDb();
+
+    const result = await this.prismaService.execute((prisma) =>
+      prisma.eefInterest.deleteMany({ where: { userId } }),
+    );
+
+    // Échec fermé, comme partout ici : un `null` après `assertDb()` ne peut
+    // plus vouloir dire « pas de base », donc il signale une panne réelle. Sans
+    // ce contrôle, l'écran afficherait « tu es retiré » sur une ligne toujours
+    // en base — c'est-à-dire le mensonge exact que ce module refuse.
+    if (!result) {
+      throw new ServiceUnavailableException('Failed to withdraw interest.');
+    }
+
+    return NOT_DECLARED;
   }
 
   /**

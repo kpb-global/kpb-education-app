@@ -110,6 +110,25 @@ déclarations est le signal qui décide du modèle payant — c'est la seule mes
 directe de la demande pour le Premium dont l'app dispose aujourd'hui, faute de
 tout produit payant existant.
 
+> **`field_count` vaut structurellement 0, et ce n'est pas une panne.** La
+> feuille de déclaration ne comporte aucun sélecteur de filière : le champ
+> existe dans le DTO, en base et dans le CSV, mais l'écran ne l'envoie jamais.
+> Ne pas lire ce paramètre comme un axe de segmentation tant que le sélecteur
+> n'existe pas — il arrive avec le catalogue de la Phase 1. Écrit ici parce que
+> c'est le document qu'on ouvre pour interpréter l'entonnoir, et qu'un zéro
+> constant se lit autrement comme « personne ne choisit de filière ».
+>
+> **`wants_premium` part en `1`/`0`, pas en booléen.**
+> `FirebaseAnalytics.logEvent` assert `value is String || value is num` : le
+> booléen brut faisait lever en debug, l'exception était attrapée, et c'est
+> l'événement ENTIER qui disparaissait — celui-là même dont ce document dit
+> qu'il décide du modèle payant.
+>
+> **Une « modification » réussie réémet `eef_interest_declared`.** Le ratio
+> `wants_premium` calculé sur les ÉVÉNEMENTS est donc biaisé par les étudiants
+> qui cochent Premium dans un second temps. Compter sur les utilisateurs
+> distincts, ou lire le compteur du back-office, qui compte des lignes.
+
 ## Sync & reliability (observability)
 
 | Event | Parameters | Purpose |

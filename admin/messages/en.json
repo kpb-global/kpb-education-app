@@ -1023,6 +1023,14 @@
     "yes": "Yes",
     "no": "No",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "colMinor": "Minor",
+    "colActions": "Actions",
+    "minorYes": "Yes",
+    "minorNo": "No",
+    "minorUnknown": "Unknown",
+    "withdraw": "Remove",
+    "withdrawConfirm": "Remove {name} from the interest list? The row will be permanently deleted.",
+    "withdrawError": "Could not remove. Try again."
   }
 }

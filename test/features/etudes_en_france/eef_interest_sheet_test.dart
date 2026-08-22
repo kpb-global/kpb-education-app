@@ -75,6 +75,7 @@ void main() {
 
   void stubDeclare(dynamic Function() answer) {
     when(() => api.declareEefInterest(
+          consentVersion: any(named: 'consentVersion'),
           currentLevel: any(named: 'currentLevel'),
           targetLevel: any(named: 'targetLevel'),
           fieldIds: any(named: 'fieldIds'),
@@ -85,6 +86,7 @@ void main() {
   testWidgets('sur ÉCHEC : la feuille reste ouverte et affiche la raison',
       (tester) async {
     when(() => api.declareEefInterest(
+          consentVersion: any(named: 'consentVersion'),
           currentLevel: any(named: 'currentLevel'),
           targetLevel: any(named: 'targetLevel'),
           fieldIds: any(named: 'fieldIds'),
@@ -179,6 +181,7 @@ void main() {
     expect(closedWith, isFalse);
     expect(controller.declared, isFalse);
     verifyNever(() => api.declareEefInterest(
+          consentVersion: any(named: 'consentVersion'),
           currentLevel: any(named: 'currentLevel'),
           targetLevel: any(named: 'targetLevel'),
           fieldIds: any(named: 'fieldIds'),

@@ -141,23 +141,33 @@ sont **absentes** :
   ignore ce qu'elle ne trouve pas ; `_flag` retombe alors sur la constante de
   compilation, qui vaut `false` ;
 - `EefCampaignWindow.fromJson(null)` rend la fenêtre vide ;
-- `EefEntry.isVisible` rend donc `false`, et les quatre points d'entrée se
-  masquent. La route reste joignable — elle doit l'être pour une notification —
+- `EefEntry.isVisible` rend donc `false`, et **trois** des quatre points
+  d'entrée se masquent (carte d'accueil, tiroir, boîte à outils). Le quatrième
+  est la route elle-même, qui reste joignable par construction —
+  cf. la phrase suivante. La route reste joignable — elle doit l'être pour une notification —
   mais elle rend `ComingSoonScreen`.
 
 La 49 tourne donc **sans erreur visible** contre le backend d'avant, exactement
 comme elle le fait pour les outils IA. `tolerates-old` reste la bonne
 déclaration, et le déploiement couplé reste **dû** — désormais pour deux raisons
 au lieu d'une : `AiConsentGuard`, et la table `EefInterest` sans laquelle une
-déclaration d'intérêt répond 503.
+déclaration d'intérêt échoue.
+Le code exact dépend de ce qui manque, et le savoir évite de chercher au mauvais
+endroit à l'étape 10 : **404** contre l'ancienne image, qui n'a pas la route ;
+**500** de schéma si l'image est neuve mais la migration non appliquée ; le
+**503** est réservé au cas où `DATABASE_URL` est absente.
 
-Ce que ça ajoute au plan : l'**étape 9 bis**. Rien d'autre.
+Ce que ça ajoute au plan : l'**étape 9 bis**, plus les amendements de l'étape 1,
+du § 3, de l'étape 10 et du résumé — chacun signalé là où il se trouve.
 
 ---
 
 ## 2. Feux verts du propriétaire — la liste courte
 
-Quatre étapes ne se lancent **pas** sans accord explicite du propriétaire :
+**Cinq** étapes ne se lancent **pas** sans accord explicite du propriétaire.
+Le tableau en liste quatre ; la cinquième est l'étape 12, marquée « feu vert
+propriétaire » dans le corps et dans le résumé. Un décompte qui ne correspond
+pas au corps fait douter de la liste entière :
 
 | Étape | Pourquoi |
 |---|---|
@@ -271,6 +281,23 @@ le conteneur.
 ---
 
 ### Étape 2 — Geler le ref et le ledger  *(feu vert propriétaire)*
+
+> **⚠ AVANT de geler quoi que ce soit : le travail « Études en France » doit
+> être SUR le ref.** Il vit sur `claude/campus-france-space-98orw9` et aucune
+> étape de ce runbook ne fusionne rien. Geler `main` sans lui produirait le pire
+> désalignement possible : la build 49 construite à l'étape 4 porte le client
+> EEF, le backend déployé à l'étape 8 l'ignore, le contrôle 5 du portail échoue
+> à l'étape 9, l'étape 9 bis n'a aucun effet — et on découvre tout cela après
+> l'étape 6, qui est le point de non-retour.
+>
+> Vérification, avant de lire la commande ci-dessous :
+>
+> ```bash
+> git rev-parse --short=12 main
+> git ls-tree -r main --name-only | grep -c etudes.en.france   # doit être > 0
+> ```
+>
+> Un `0` signifie que la fusion n'a pas eu lieu. **S'arrêter là.**
 
 ```bash
 git rev-parse --short=12 main     # → RELEASE_SHA, à geler
@@ -503,7 +530,9 @@ bash scripts/delivery-gate.sh
 ```
 
 **On observe** : `sha` == `RELEASE_SHA`, les deux `merge-base` réussissent, et
-`delivery-gate.sh` imprime `LIV-T14 OK` après ses quatre `curl` de production
+`delivery-gate.sh` imprime `LIV-T14 OK` après ses **cinq** contrôles de
+production (six appels `curl`) — le cinquième étant celui qui prouve que le
+module EEF est monté, donc tout l'intérêt de l'étape 9 bis
 (`scripts/delivery-gate.sh:1-6`, `:11-54`).
 
 **NON PROUVÉ de l'extérieur, et il ne faut pas prétendre le contraire :**
@@ -566,7 +595,7 @@ ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && docker compose up -d --no-deps api"
 **On observe** :
 
 ```bash
-curl -fsS "$VPS_HEALTH_URL/api/config/app" | jq '.features.eefTeaser, .eefCampaign'
+curl -fsS "https://api.kpbeducation.cloud/api/config/app" | jq '.features, .eefCampaign'
 ```
 
 - `features.eefTeaser` → `true` ;

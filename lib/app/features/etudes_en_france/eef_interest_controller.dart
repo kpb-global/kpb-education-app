@@ -5,6 +5,21 @@ import '../../core/models/eef.dart';
 import '../../core/repositories/app_api_client.dart';
 import '../../core/services/analytics_service.dart';
 
+/// L'identifiant du texte de consentement actuellement affiché.
+///
+/// ## À incrémenter dès que le texte change
+///
+/// Cette chaîne est enregistrée avec chaque déclaration. Elle répond à la seule
+/// question qu'un horodatage laisse ouverte : **qu'est-ce que l'étudiant a
+/// accepté ?** Le jour où quelqu'un demande sur quelle base on l'a rappelé, une
+/// date ne suffit pas — il faut la phrase.
+///
+/// `eef_consent_version_test.dart` verrouille l'appariement : il calcule une
+/// empreinte des textes FR et EN de `eef_consent_notice` et rougit si l'un
+/// change sans que cette constante bouge. Sans ce cliquet, la version aurait
+/// désigné un texte qui n'existe plus — c'est-à-dire rien.
+const kEefConsentVersion = 'eef-consent-v1';
+
 /// Où en est la déclaration d'intérêt, du point de vue de l'écran.
 enum EefInterestPhase { initial, loading, ready, submitting, failed }
 
@@ -90,6 +105,7 @@ class EefInterestController extends ChangeNotifier {
 
     try {
       final raw = await _apiClient.declareEefInterest(
+        consentVersion: kEefConsentVersion,
         currentLevel: currentLevel,
         targetLevel: targetLevel,
         fieldIds: fieldIds,
@@ -125,6 +141,49 @@ class EefInterestController extends ChangeNotifier {
       _phase = EefInterestPhase.failed;
       notifyListeners();
       _analytics.logEefInterestFailed(_failure!.name);
+      return false;
+    }
+  }
+
+  /// Retire la déclaration. Rend `true` seulement si le SERVEUR a confirmé.
+  ///
+  /// Symétrique de [submit], et pour la même raison : afficher « tu es retiré »
+  /// sur une ligne toujours en base est le même mensonge que « c'est noté » sur
+  /// une ligne jamais écrite. Le corps de la réponse doit dire `declared: false`.
+  ///
+  /// Aucun événement analytique n'est émis ici, volontairement. Mesurer les
+  /// retraits demanderait de conserver une trace de quelqu'un qui vient de
+  /// demander à ne plus en avoir — et le taux ne changerait aucune décision que
+  /// le compteur de déclarations ne montre déjà.
+  Future<bool> withdraw() async {
+    if (_phase == EefInterestPhase.submitting) return false;
+
+    _phase = EefInterestPhase.submitting;
+    _failure = null;
+    notifyListeners();
+
+    try {
+      final raw = await _apiClient.withdrawEefInterest();
+      final after = EefInterest.fromJson(raw);
+
+      // Le serveur rend l'état APRÈS retrait. S'il dit encore `declared: true`,
+      // la suppression n'a pas eu lieu et l'écran ne doit pas prétendre le
+      // contraire.
+      if (after.declared) {
+        _failure = EefInterestFailure.server;
+        _phase = EefInterestPhase.failed;
+        notifyListeners();
+        return false;
+      }
+
+      _interest = EefInterest.notDeclared;
+      _phase = EefInterestPhase.ready;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _failure = classifyFailure(error);
+      _phase = EefInterestPhase.failed;
+      notifyListeners();
       return false;
     }
   }

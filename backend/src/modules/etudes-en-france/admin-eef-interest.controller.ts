@@ -1,7 +1,9 @@
 import {
   Controller,
+  Delete,
   Get,
   Header,
+  Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -83,6 +85,21 @@ export class AdminEefInterestController {
    * handler en tête) — même motif que `commercial.controller.ts`, route
    * `performance`.
    */
+  /**
+   * Retire une déclaration, à la demande de l'étudiant.
+   *
+   * Ouvert aux MÊMES rôles que la lecture, et non restreint à l'administration —
+   * à l'inverse de l'export. Ce n'est pas une incohérence : l'export fait SORTIR
+   * des données du périmètre, ce retrait les fait DISPARAÎTRE. C'est l'acte qui
+   * protège l'étudiant, et le réserver à deux comptes signifierait qu'une demande
+   * reçue par le conseiller qui suit la personne attend qu'un administrateur soit
+   * disponible. Un droit qu'on exerce lentement s'exerce mal.
+   */
+  @Delete(':id')
+  withdraw(@Param('id') id: string) {
+    return this.adminEefInterestService.withdraw(id);
+  }
+
   @Get('export.csv')
   @Roles(InternalRole.Admin, InternalRole.SuperAdmin)
   @Header('Content-Type', 'text/csv; charset=utf-8')

@@ -22,6 +22,16 @@ interface InterestUser {
   phone: string;
   whatsApp: string | null;
   countryOfResidence: string;
+  /**
+   * Mineur, majeur, ou inconnu — et le troisième n'est PAS « majeur ».
+   *
+   * Le serveur dérive ce champ de `birthDate` et ne rend jamais la date
+   * elle-même : la personne qui décroche a besoin de savoir à qui elle parle,
+   * pas de connaître l'âge exact. `unknown` est fréquent et signifiant — un
+   * profil créé à la première connexion Supabase n'a pas de date de naissance,
+   * seul l'onboarding la pose.
+   */
+  minority: 'minor' | 'adult' | 'unknown';
 }
 
 interface InterestRow {
@@ -59,6 +69,7 @@ export default function EtudesEnFrancePage() {
   const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function formatDate(value: string) {
@@ -95,6 +106,44 @@ export default function EtudesEnFrancePage() {
     if (!session) return;
     void load(skip);
   }, [load, session, skip]);
+
+  /**
+   * Retire une déclaration, à la demande de l'étudiant.
+   *
+   * L'équipe recevait ces demandes par e-mail ou WhatsApp — le texte de
+   * consentement les y invite — et n'avait aucun moyen de les exécuter : les
+   * seules issues étaient de supprimer le compte ENTIER ou de faire du SQL à la
+   * main en production. Un droit qu'on ne peut pas exercer n'existe pas.
+   *
+   * Confirmation demandée : la ligne est supprimée, pas archivée, et un clic
+   * accidentel sur un tableau dense n'aurait aucun retour possible.
+   */
+  async function withdraw(row: InterestRow) {
+    const name = row.user?.fullName ?? row.userId;
+    // Substitution à la main : le `t()` de ce dépôt ne prend pas de paramètres,
+    // et en ajouter un pour une seule chaîne serait un détour.
+    if (!window.confirm(t('eef.withdrawConfirm').replace('{name}', name))) {
+      return;
+    }
+
+    setWithdrawingId(row.id);
+    setErrorMessage(null);
+    try {
+      await apiFetch(`/admin/etudes-en-france/interest/${row.id}`, {
+        method: 'DELETE',
+      });
+      // On recharge plutôt que de retirer la ligne localement : les compteurs de
+      // tête viennent du serveur, et les laisser périmés ferait douter de la
+      // suppression qu'on vient d'exécuter.
+      await load(skip);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : t('eef.withdrawError'),
+      );
+    } finally {
+      setWithdrawingId(null);
+    }
+  }
 
   /**
    * Télécharge le CSV.
@@ -173,7 +222,7 @@ export default function EtudesEnFrancePage() {
         ) : (
           <>
             <AdminTable
-              cols="0.7fr 1fr 1.4fr 0.8fr 1fr 0.6fr"
+              cols="0.7fr 1fr 1.3fr 0.8fr 0.9fr 0.6fr 0.6fr 0.6fr"
               columns={[
                 t('eef.colDate'),
                 t('eef.colName'),
@@ -181,6 +230,8 @@ export default function EtudesEnFrancePage() {
                 t('eef.colCountry'),
                 t('eef.colLevels'),
                 t('eef.colPremium'),
+                t('eef.colMinor'),
+                t('eef.colActions'),
               ]}
             >
               {rows.map((row) => (
@@ -205,6 +256,33 @@ export default function EtudesEnFrancePage() {
                     ) : (
                       <Badge variant="neutral">{t('eef.no')}</Badge>
                     )}
+                  </div>
+                  {/*
+                    La colonne « mineur », visible AVANT l'appel.
+                    Sans elle, la personne qui décroche ne pouvait pas
+                    distinguer un élève de terminale de 16 ans d'un doctorant de
+                    30 ans. « inconnu » est en `warning` et non en `neutral` :
+                    c'est une invitation à vérifier, pas une absence
+                    d'information.
+                  */}
+                  <div>
+                    {row.user?.minority === 'minor' ? (
+                      <Badge variant="warning">{t('eef.minorYes')}</Badge>
+                    ) : row.user?.minority === 'adult' ? (
+                      <Badge variant="neutral">{t('eef.minorNo')}</Badge>
+                    ) : (
+                      <Badge variant="warning">{t('eef.minorUnknown')}</Badge>
+                    )}
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => withdraw(row)}
+                      disabled={withdrawingId === row.id}
+                      className="text-xs text-red-600 underline disabled:opacity-50"
+                    >
+                      {t('eef.withdraw')}
+                    </button>
                   </div>
                 </AdminTableRow>
               ))}

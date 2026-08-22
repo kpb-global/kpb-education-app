@@ -8,6 +8,7 @@ function row(overrides: Partial<EefInterestCsvRow> = {}): EefInterestCsvRow {
   return {
     createdAt: new Date('2026-08-21T10:00:00Z'),
     consentedAt: new Date('2026-08-21T10:00:00Z'),
+    consentVersion: 'eef-consent-v1',
     userId: 'user-1',
     currentLevel: 'terminale',
     targetLevel: 'licence',
@@ -19,10 +20,64 @@ function row(overrides: Partial<EefInterestCsvRow> = {}): EefInterestCsvRow {
       phone: '+22790000000',
       whatsApp: null,
       countryOfResidence: "Côte d'Ivoire",
+      minority: 'adult',
     },
     ...overrides,
   };
 }
+
+describe('is_minor — trois états, et « inconnu » n\'est pas « non »', () => {
+  const cellsOf = (csv: string, line = 1) =>
+    csv.replace(/^\ufeff/, '').trimEnd().split('\r\n')[line].split(',');
+
+  it.each([
+    ['minor', '"oui"'],
+    ['adult', '"non"'],
+    ['unknown', '"inconnu"'],
+  ] as const)('rend %s comme %s', (minority, expected) => {
+    const csv = buildEefInterestCsv([
+      row({ user: { ...row().user!, minority } }),
+    ]);
+    expect(cellsOf(csv)).toContain(expected);
+  });
+
+  it('un utilisateur absent est « inconnu », jamais « non »', () => {
+    // Le sens de l'échec : faire passer pour majeur un profil dont on ignore la
+    // date, c'est retirer à la personne qui appelle l'information dont elle a
+    // besoin. « inconnu » lui dit de vérifier.
+    const csv = buildEefInterestCsv([row({ user: null })]);
+    expect(cellsOf(csv)).toContain('"inconnu"');
+    expect(cellsOf(csv)).not.toContain('"non"');
+  });
+});
+
+describe('troncature — elle s\'écrit dans le fichier', () => {
+  it('ajoute une ligne d\'avertissement quand le plafond a coupé', () => {
+    const csv = buildEefInterestCsv([row()], { totalRows: 25000, limit: 20000 });
+    expect(csv).toContain('EXPORT TRONQUÉ');
+    expect(csv).toContain('25000');
+    expect(csv).toContain('ANCIENNES');
+  });
+
+  it('n\'ajoute RIEN quand rien n\'a été coupé', () => {
+    // Un avertissement qui apparaît toujours ne se lit plus.
+    expect(buildEefInterestCsv([row()], { totalRows: 1 })).not.toContain(
+      'TRONQUÉ',
+    );
+    expect(buildEefInterestCsv([row()])).not.toContain('TRONQUÉ');
+  });
+});
+
+describe('fieldIds nul — la colonne est nullable en SQL', () => {
+  it('ne fait pas lever l\'extraction', () => {
+    // Inatteignable par le code applicatif, atteignable par un backfill. Un
+    // `.join` sur `null` aurait levé en pleine génération, et l'erreur aurait
+    // été livrée comme un fichier .csv que quelqu'un ouvre dans Excel.
+    expect(() =>
+      buildEefInterestCsv([row({ fieldIds: null })]),
+    ).not.toThrow();
+  });
+});
 
 describe('csvCell', () => {
   it('quotes every cell and doubles inner quotes (RFC 4180)', () => {

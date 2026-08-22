@@ -1023,6 +1023,14 @@
     "yes": "Oui",
     "no": "Non",
     "previous": "Précédent",
-    "next": "Suivant"
+    "next": "Suivant",
+    "colMinor": "Mineur",
+    "colActions": "Actions",
+    "minorYes": "Oui",
+    "minorNo": "Non",
+    "minorUnknown": "Inconnu",
+    "withdraw": "Retirer",
+    "withdrawConfirm": "Retirer {name} de la liste d'intérêt ? La ligne sera supprimée définitivement.",
+    "withdrawError": "Retrait impossible. Réessayez."
   }
 }

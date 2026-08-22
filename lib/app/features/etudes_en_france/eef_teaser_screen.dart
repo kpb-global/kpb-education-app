@@ -86,6 +86,52 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
     await showEefInterestSheet(context, controller: _controller);
   }
 
+  /// Confirme puis exécute le retrait.
+  ///
+  /// La confirmation n'est pas un réflexe : sans elle, un tap accidentel sur un
+  /// bouton pleine largeur effacerait une déclaration, et rien n'annulerait le
+  /// geste — la ligne est supprimée, pas archivée.
+  ///
+  /// Le retour est dit à l'écran dans les DEUX sens. Un retrait qui échoue en
+  /// silence laisserait l'étudiant croire qu'il n'est plus dans la liste alors
+  /// qu'il y est : c'est le même mensonge que « c'est noté » sur une ligne
+  /// jamais écrite, dans l'autre direction. Le message d'échec nomme donc
+  /// l'adresse de recours, parce qu'un « réessaie » seul n'aide pas quelqu'un
+  /// qui veut exercer un droit.
+  Future<void> _confirmWithdraw() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('eef_withdraw_confirm_title'.tr),
+        content: Text('eef_withdraw_confirm_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('eef_withdraw_cancel'.tr),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: KpbColors.error),
+            child: Text('eef_withdraw_confirm_cta'.tr),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final ok = await _controller.withdraw();
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok ? 'eef_withdraw_done'.tr : 'eef_withdraw_failed'.tr,
+        ),
+      ),
+    );
+  }
+
   /// La conversion invité.
   ///
   /// L'ACTION est celle de [KpbGuestGate] — `leaveGuestForSignup` puis retour au
@@ -123,6 +169,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
               controller: _controller,
               isGuest: _isGuest,
               onDeclare: _openSheet,
+              onWithdraw: _confirmWithdraw,
               onSignUp: _convertGuest,
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -488,12 +535,14 @@ class _EefCallToAction extends StatelessWidget {
     required this.controller,
     required this.isGuest,
     required this.onDeclare,
+    required this.onWithdraw,
     required this.onSignUp,
   });
 
   final EefInterestController controller;
   final bool isGuest;
   final VoidCallback onDeclare;
+  final VoidCallback onWithdraw;
   final VoidCallback onSignUp;
 
   @override
@@ -560,6 +609,25 @@ class _EefCallToAction extends StatelessWidget {
               variant: KpbButtonVariant.secondary,
               fullWidth: true,
               onTap: onDeclare,
+            ),
+            // Le retrait, à l'endroit où l'étudiant se trouve quand il y pense.
+            //
+            // Le texte de consentement disait déjà « tu peux te retirer à tout
+            // moment » avant que ce bouton existe : c'était une promesse sans
+            // mécanisme, et les seules issues réelles étaient d'écrire à une
+            // adresse générique ou de supprimer son compte ENTIER pour retirer
+            // une ligne de prospection. Un consentement qu'on ne peut pas
+            // révoquer n'en est pas un.
+            //
+            // En `tertiary` et non en `danger` : se retirer d'une liste
+            // d'intérêt n'est pas une suppression de compte, et un bouton rouge
+            // pleine largeur dramatiserait un geste banal. La confirmation
+            // suffit à éviter le tap accidentel.
+            KpbButton(
+              label: 'eef_withdraw_cta'.tr,
+              variant: KpbButtonVariant.tertiary,
+              fullWidth: true,
+              onTap: onWithdraw,
             ),
           ],
         ),

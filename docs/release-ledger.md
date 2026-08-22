@@ -67,6 +67,13 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   `features.eefTeaser: true`. La liste des intéressés se lit sur
   `GET /admin/etudes-en-france/interest` (résumé, liste, `export.csv`).
 
+  **Les variables atteignent bien le conteneur, désormais.** Elles étaient
+  documentées ici et dans le runbook, et absentes du bloc `environment:` de
+  `docker-compose.yml` : le `.env` ne sert qu'à l'interpolation, donc les poser
+  n'avait AUCUN effet. Corrigé, et `test/release/config_env_relay_test.dart`
+  interdit la répétition — il compare les variables lues par `/config/app` au
+  relais compose et à `.env.example`.
+
   **Où se pose réellement cette bascule** : `docs/cutover-build49.md`, étape
   9 bis. Ce n'est pas une redondance — ce runbook est ce qu'on suit ligne à
   ligne le soir de la livraison, et il dit AUSSI pourquoi ces variables ne se

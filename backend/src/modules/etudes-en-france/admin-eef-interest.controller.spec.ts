@@ -81,6 +81,11 @@ describe('AdminEefInterestController — périmètre de lecture', () => {
     getSummary: READ_ROLES,
     list: READ_ROLES,
     exportCsv: EXPORT_ROLES,
+    // Le retrait est ouvert comme la LECTURE, pas comme l'export. L'export fait
+    // sortir des données du périmètre ; le retrait les fait disparaître. C'est
+    // l'acte qui protège l'étudiant, et l'attacher à deux comptes ferait attendre
+    // une demande reçue par le conseiller qui suit la personne.
+    withdraw: READ_ROLES,
   };
 
   it("exige l'authentification admin ET la garde de rôles", () => {

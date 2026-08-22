@@ -654,7 +654,8 @@ class AppTranslations extends Translations {
               '• Vous envoyer des notifications pertinentes (mises à jour de dossier, deadlines)\n'
               '• Vous envoyer par email les nouvelles bourses d\'études disponibles, uniquement si vous y avez consenti (case à cocher — désinscription possible à tout moment depuis votre profil ou le lien de désinscription des emails)\n'
               '• Améliorer nos services via des statistiques agrégées et anonymisées\n'
-              '• Communiquer avec vous dans le cadre de vos démarches',
+              '• Communiquer avec vous dans le cadre de vos démarches\n'
+              '• Vous rappeler au sujet d\'un espace ou d\'un accompagnement pour lequel vous avez déclaré votre intérêt, si vous l\'avez accepté au moment de le déclarer. Cette déclaration est lisible par nos conseillers et notre équipe commerciale, et vous pouvez la retirer à tout moment depuis l\'écran où vous l\'avez faite',
           'privacy_s4_body':
               '• Consentement : vous acceptez cette politique lors de la création de votre compte\n'
                   '• Exécution du contrat : le traitement est nécessaire pour fournir nos services\n'
@@ -676,7 +677,7 @@ class AppTranslations extends Translations {
               '• Resend (États-Unis) : e-mails transactionnels et campagnes\n'
               '• Mautic (outil d\'emailing auto-hébergé par KPB) pour la newsletter bourses, uniquement si vous y avez consenti\n'
               '• PayDunya et CinetPay : intentions de paiement si vous souscrivez un accompagnement payant\n'
-              '• Nos conseillers internes pour le suivi de vos dossiers\n'
+              '• Nos conseillers internes pour le suivi de vos dossiers, et nos conseillers et notre équipe commerciale pour les déclarations d\'intérêt que vous avez faites\n'
               '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
               '• Les autorités compétentes si la loi l\'exige',
           'privacy_transfers_body':
@@ -1795,17 +1796,29 @@ class AppTranslations extends Translations {
           'eef_interest_edit_cta': 'Modifier ma réponse',
           'eef_sheet_title': 'Dis-nous où tu en es',
           'eef_sheet_body':
-              'Tout est optionnel — un seul tap suffit. Ces réponses nous '
-                  'servent seulement à te rappeler avec les bonnes '
-                  'informations.',
+              'Tout est optionnel — un seul tap suffit. Ces réponses servent à '
+                  'te rappeler avec les bonnes informations, et à mesurer ce '
+                  'que nous devons préparer.',
           'eef_field_current_level': 'Ton niveau actuel',
           'eef_field_target_level': 'Le niveau que tu veux préparer',
           'eef_field_wants_premium':
               'La version Premium m\'intéresserait aussi',
           'eef_consent_notice':
               'En validant, tu acceptes qu\'un conseiller KPB te contacte au '
-                  'sujet de cet espace. Tu peux nous demander de te retirer à '
-                  'tout moment.',
+                  'sujet de cet espace, et que ta réponse serve à préparer '
+                  'notre accompagnement. Tu peux te retirer à tout moment, '
+                  'depuis cet écran.',
+          'eef_withdraw_cta': 'Me retirer de la liste',
+          'eef_withdraw_confirm_title': 'Te retirer de la liste ?',
+          'eef_withdraw_confirm_body':
+              'Ta déclaration sera supprimée et personne ne te rappellera au '
+                  'sujet de cet espace. Tu pourras revenir quand tu veux.',
+          'eef_withdraw_confirm_cta': 'Me retirer',
+          'eef_withdraw_cancel': 'Annuler',
+          'eef_withdraw_done': 'Tu es retiré de la liste.',
+          'eef_withdraw_failed':
+              'Retrait impossible pour le moment. Réessaie, ou écris-nous à '
+                  'privacy@kpbeducation.com.',
           'eef_sheet_confirm': 'Valider',
           'eef_sheet_retry': 'Réessayer',
           'eef_sheet_cancel': 'Annuler',
@@ -3632,7 +3645,8 @@ class AppTranslations extends Translations {
               '• Send relevant notifications (case updates, deadlines)\n'
               '• Email newly listed scholarships only if you opted in (checkbox — unsubscribe any time from your profile or the email footer)\n'
               '• Improve our services through aggregated, anonymised statistics\n'
-              '• Communicate with you about your applications',
+              '• Communicate with you about your applications\n'
+              '• Contact you about a space or a guidance offer you declared an interest in, where you agreed to it when declaring. That declaration is readable by our counsellors and our sales team, and you can withdraw it at any time from the screen where you made it',
           'privacy_s4_body':
               '• Consent: you accept this policy when you create an account\n'
                   '• Contract: processing is required to provide the service\n'
@@ -3649,7 +3663,7 @@ class AppTranslations extends Translations {
               '• Resend (United States): transactional and campaign email\n'
               '• Mautic (email tool self-hosted by KPB) for the scholarship newsletter, only if you opted in\n'
               '• PayDunya and CinetPay: payment intents if you buy paid accompaniment\n'
-              '• Our internal advisors for case follow-up\n'
+              '• Our internal advisors for case follow-up, and our counsellors and sales team for the interest declarations you made\n'
               '• Institutional partners (universities) only with your explicit agreement when you submit a case\n'
               '• Competent authorities if the law requires it',
           'privacy_transfers_body':
@@ -4679,14 +4693,28 @@ class AppTranslations extends Translations {
           'eef_interest_edit_cta': 'Change my answer',
           'eef_sheet_title': 'Tell us where you stand',
           'eef_sheet_body':
-              'Everything is optional — one tap is enough. These answers only '
-                  'help us come back to you with the right information.',
+              'Everything is optional — one tap is enough. These answers help '
+                  'us come back to you with the right information, and gauge '
+                  'what we need to prepare.',
           'eef_field_current_level': 'Your current level',
           'eef_field_target_level': 'The level you want to prepare',
           'eef_field_wants_premium': 'I would also be interested in Premium',
           'eef_consent_notice':
               'By confirming, you agree that a KPB counsellor may contact you '
-                  'about this space. You can ask us to remove you at any time.',
+                  'about this space, and that your answer helps us prepare our '
+                  'guidance. You can remove yourself at any time, from this '
+                  'screen.',
+          'eef_withdraw_cta': 'Remove me from the list',
+          'eef_withdraw_confirm_title': 'Remove yourself from the list?',
+          'eef_withdraw_confirm_body':
+              'Your declaration will be deleted and nobody will call you about '
+                  'this space. You can come back whenever you want.',
+          'eef_withdraw_confirm_cta': 'Remove me',
+          'eef_withdraw_cancel': 'Cancel',
+          'eef_withdraw_done': 'You have been removed from the list.',
+          'eef_withdraw_failed':
+              'We could not remove you right now. Try again, or write to '
+                  'privacy@kpbeducation.com.',
           'eef_sheet_confirm': 'Confirm',
           'eef_sheet_retry': 'Try again',
           'eef_sheet_cancel': 'Cancel',

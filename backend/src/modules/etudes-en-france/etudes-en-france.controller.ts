@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
@@ -39,5 +47,22 @@ export class EtudesEnFranceController {
       req.studentUser!.id,
       body,
     );
+  }
+
+  /**
+   * Retire la déclaration du profil appelant.
+   *
+   * Le pendant du consentement, et il n'existait pas. Le texte de la feuille
+   * promettait « tu peux te retirer à tout moment » alors que les seules issues
+   * réelles étaient d'écrire à une adresse générique ou de supprimer son compte
+   * entier. Un consentement qu'on ne peut pas révoquer n'en est pas un.
+   *
+   * Aucun paramètre d'identité : l'id vient du jeton vérifié, comme les deux
+   * routes au-dessus. Un `userId` accepté dans le corps ou l'URL laisserait un
+   * étudiant retirer la déclaration d'un autre.
+   */
+  @Delete('interest')
+  withdraw(@Req() req: AuthedReq) {
+    return this.etudesEnFranceService.withdraw(req.studentUser!.id);
   }
 }

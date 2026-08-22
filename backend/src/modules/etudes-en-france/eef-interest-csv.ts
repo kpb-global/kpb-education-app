@@ -81,15 +81,22 @@ export const EEF_INTEREST_CSV_HEADER = [
   'target_level',
   'field_ids',
   'wants_premium',
+  // Mineur, majeur, ou inconnu. Pas une date de naissance : la personne qui
+  // décroche a besoin de savoir à qui elle parle, pas de connaître son âge exact.
+  // Et « inconnu » est une valeur à part entière — l'écraser sur « non » ferait
+  // passer pour majeur un profil dont on ignore simplement la date.
+  'is_minor',
+  'consent_version',
 ] as const;
 
 export interface EefInterestCsvRow {
   createdAt: Date;
   consentedAt: Date;
+  consentVersion: string | null;
   userId: string;
   currentLevel: string | null;
   targetLevel: string | null;
-  fieldIds: string[];
+  fieldIds: string[] | null;
   wantsPremium: boolean;
   user: {
     fullName: string;
@@ -97,8 +104,16 @@ export interface EefInterestCsvRow {
     phone: string;
     whatsApp: string | null;
     countryOfResidence: string;
+    minority: 'minor' | 'adult' | 'unknown';
   } | null;
 }
+
+/** Ce que la colonne `is_minor` écrit, en français, pour un lecteur humain. */
+const MINORITY_LABEL: Record<string, string> = {
+  minor: 'oui',
+  adult: 'non',
+  unknown: 'inconnu',
+};
 
 /**
  * Le fichier complet, en-tête comprise.
@@ -108,7 +123,10 @@ export interface EefInterestCsvRow {
  * d'Ivoire ». Le public de cet export est francophone — les accents sont la
  * règle, pas le cas limite.
  */
-export function buildEefInterestCsv(rows: readonly EefInterestCsvRow[]): string {
+export function buildEefInterestCsv(
+  rows: readonly EefInterestCsvRow[],
+  options: { totalRows?: number | null; limit?: number } = {},
+): string {
   const lines = [csvRow(EEF_INTEREST_CSV_HEADER)];
 
   for (const row of rows) {
@@ -124,8 +142,33 @@ export function buildEefInterestCsv(rows: readonly EefInterestCsvRow[]): string 
         row.user?.countryOfResidence ?? '',
         row.currentLevel ?? '',
         row.targetLevel ?? '',
-        row.fieldIds.join(' | '),
+        // `?? []` : la colonne est un `TEXT[]` nullable au niveau SQL, comme
+        // tous les tableaux que Prisma génère. Inatteignable par le code
+        // applicatif, atteignable par un backfill — et un `.join` sur `null`
+        // aurait fait lever l'extraction en pleine génération, livrée ensuite
+        // comme un fichier `.csv` contenant une erreur.
+        (row.fieldIds ?? []).join(' | '),
         row.wantsPremium ? 'oui' : 'non',
+        MINORITY_LABEL[row.user?.minority ?? 'unknown'] ?? 'inconnu',
+        row.consentVersion ?? '',
+      ]),
+    );
+  }
+
+  // La troncature, ÉCRITE DANS LE FICHIER.
+  //
+  // Un plafond silencieux se lit comme une liste complète. À 25 000
+  // déclarations, l'export rendait les 20 000 plus récentes et le tableau de
+  // bord affichait 25 000 : les 5 000 plus anciens prospects disparaissaient
+  // sans un mot. La ligne va dans le fichier et non dans un en-tête HTTP, parce
+  // que c'est le fichier qu'on ouvre trois semaines plus tard.
+  const { totalRows, limit } = options;
+  if (typeof totalRows === 'number' && totalRows > rows.length) {
+    lines.push(
+      csvRow([
+        `EXPORT TRONQUÉ — ${rows.length} lignes sur ${totalRows}. ` +
+          `Plafond : ${limit ?? rows.length}. Les plus ANCIENNES manquent ` +
+          `(tri par date décroissante).`,
       ]),
     );
   }

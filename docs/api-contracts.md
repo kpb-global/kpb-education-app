@@ -176,6 +176,49 @@ dernier consentement donné.
 L'écriture est un `upsert` sur `userId` (unique) : une redéclaration corrige la
 ligne au lieu d'en créer une seconde.
 
+### `DELETE /etudes-en-france/interest`
+
+Retire la déclaration du profil authentifié. **Idempotente** : retirer une
+déclaration absente rend le même corps que retirer celle qui existait
+(`declared: false`), parce que le résultat qui compte est « cette personne n'est
+plus dans la liste » et qu'un 404 obligerait l'écran à distinguer deux cas pour
+afficher la même chose.
+
+Cette route existe parce que le texte de consentement promet un retrait. Elle a
+manqué : la promesse a précédé le mécanisme, et les seules issues réelles étaient
+d'écrire à une adresse générique ou de supprimer le compte entier pour retirer
+une ligne de prospection.
+
+**Invariant client** : un corps qui dit encore `declared: true` est traité comme
+un ÉCHEC. Afficher « tu es retiré » sur une ligne toujours en base est le même
+mensonge que « c'est noté » sur une ligne jamais écrite.
+
+### Le consentement, sur le fil
+
+`POST /etudes-en-france/interest` exige deux champs, et les refuse absents :
+
+| Champ | Règle |
+|---|---|
+| `consent` | doit valoir exactement `true`. Un `false` explicite est refusé, pas enregistré |
+| `consentVersion` | l'identifiant du texte affiché à l'écran, borné à 64 caractères |
+
+`consentedAt` reste horodaté **par le serveur** : le client ne l'envoie pas et ne
+peut donc pas l'antidater. Mais l'horodatage seul ne prouvait que « non
+antidatable » — sans `consent`, un `POST` au corps vide fabriquait une preuve de
+consentement, le `now()` ayant simplement déménagé de Postgres vers Node. Et sans
+`consentVersion`, on ne pourrait produire qu'une date, jamais la phrase acceptée.
+
+`test/features/etudes_en_france/eef_consent_version_test.dart` apparie la
+constante client à une empreinte des textes FR et EN : le texte ne peut plus
+changer sans que la version bouge.
+
+### `DELETE /admin/etudes-en-france/interest/:id`
+
+Le même retrait, exécuté par l'équipe pour une demande reçue par e-mail ou
+WhatsApp. Ouvert aux mêmes rôles que la LECTURE — pas restreint à
+l'administration comme l'export : l'export fait sortir des données du périmètre,
+ce retrait les fait disparaître, et un droit qu'on exerce lentement s'exerce mal.
+
 ## Admin — liste d'intérêt « Études en France »
 
 - `GET /admin/etudes-en-france/interest/summary`
