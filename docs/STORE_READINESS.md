@@ -155,9 +155,9 @@ coupe **Firebase Analytics + PostHog, et rien d'autre** : ni Crashlytics
 >   que l'app y envoie aussi un identifiant de compte, un e-mail et 4 attributs.
 > - Le même test range `youtube.com` parmi les **non-processeurs** (`:48-49`),
 >   ce qui a autorisé l'omission du lecteur embarqué.
-> - Rien ne garde le **manifeste fusionné** : `AD_ID` n'est vérifiable que sur le
->   binaire de release (`aapt2 dump xmltree --file AndroidManifest.xml <aab>`),
->   jamais sur le manifeste source.
+> - Le **manifeste fusionné** doit être vérifié dans le binaire de release avec
+>   `bundletool dump manifest --bundle <aab>`, jamais seulement dans le
+>   manifeste source.
 
 > **Divergence avec `data-inventory.md`, qui d'après l'en-tête de ce fichier
 > l'emporte (lignes 10-13).** Deux de ses lignes sont réfutées par le code et
@@ -661,7 +661,7 @@ sache pourquoi la case est cochée ainsi.
   mesure ; garde exécutable `test/release/android_manifest_test.dart`.
   **À REVÉRIFIER SUR L'AAB DE LA 49** avant de répondre — le manifeste source
   exprime une intention, seul le fusionné prouve le résultat :
-  `aapt2 dump xmltree --file AndroidManifest.xml <aab> | grep -i ad_id`.
+  `java -jar <bundletool>.jar dump manifest --bundle <aab> | grep -i ad_id`.
   Les deux permissions Privacy Sandbox du même AAR
   (`ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_ATTRIBUTION`) sont laissées en
   place délibérément : Google ne documente `tools:node="remove"` que pour AD_ID.
@@ -679,7 +679,7 @@ sache pourquoi la case est cochée ainsi.
   l'APK présents sur disque portent `android:versionCode="45"`
   (`build/app/intermediates/packaged_manifests/release/processReleaseManifestForPackage/AndroidManifest.xml:4,75-77`) —
   ils prouvent le mécanisme, pas le binaire 49. À revérifier sur l'AAB de la 49
-  (`aapt2 dump xmltree --file AndroidManifest.xml <aab>`) avant de répondre.
+  (`java -jar <bundletool>.jar dump manifest --bundle <aab>`) avant de répondre.
 - **Session replay (PostHog) :** à déclarer sous **App activity → App
   interactions** — **seulement si** la 49 livrée porte une `POSTHOG_API_KEY` non
   vide (même démonstration qu'en §3 : `app_config.dart:72-87`, `main.dart:66,176`,

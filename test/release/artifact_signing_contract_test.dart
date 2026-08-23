@@ -167,6 +167,8 @@ void main() {
       expect(preflight, contains('EXPECTED_TARGET_SDK="36"'));
       expect(preflight, contains('"\$JARSIGNER_BIN" -verify'));
       expect(preflight, contains('"\$KEYTOOL_BIN" -printcert -jarfile'));
+      expect(preflight, contains('bundletool'));
+      expect(preflight, contains('dump manifest --bundle'));
       expect(preflight, contains('com.google.android.gms.permission.AD_ID'));
       expect(preflight, contains('base/manifest/AndroidManifest.xml'));
     });
