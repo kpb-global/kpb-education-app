@@ -106,8 +106,19 @@ jobs:
           docker compose config --quiet
           echo 'Compose production configuration: renderable.'
 
-          find backend admin web scripts -xdev \( -type f -o -type l \) -print \
-            | LC_ALL=C sort > /tmp/kpb-remote-manifest
+          : > /tmp/kpb-remote-manifest
+          for tree in backend admin web scripts; do
+            if [ -L "$tree" ]; then
+              echo "::error::managed deployment tree is a symlink: $tree"
+              exit 1
+            fi
+            if [ -d "$tree" ]; then
+              find "$tree" -xdev \( -type f -o -type l \) -print >> /tmp/kpb-remote-manifest
+            else
+              echo "managed_tree_missing=$tree (a full deploy will create it)"
+            fi
+          done
+          LC_ALL=C sort -o /tmp/kpb-remote-manifest /tmp/kpb-remote-manifest
           comm -23 /tmp/kpb-remote-manifest /tmp/kpb-source-manifest > /tmp/kpb-prune-candidates
 
           is_protected() {
