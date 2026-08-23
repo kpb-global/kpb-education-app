@@ -110,9 +110,13 @@ fi
 
 # An AAB is not an APK: its base manifest is protobuf XML, which aapt2 cannot
 # read from the bundle archive. bundletool is the Android-supported decoder and
-# is already downloaded by the Android Gradle Plugin during the AAB build.
+# is already downloaded by the Android Gradle Plugin during the AAB build. That
+# Gradle artifact is a library JAR (not the standalone executable), so invoke
+# its CLI entry point explicitly instead of using `java -jar`.
 MANIFEST_DUMP="$TMP_DIR/manifest.xml"
-"$JAVA_RUNTIME_HOME/bin/java" -jar "$BUNDLETOOL_JAR" dump manifest --bundle="$AAB" >"$MANIFEST_DUMP" || \
+"$JAVA_RUNTIME_HOME/bin/java" -cp "$BUNDLETOOL_JAR" \
+  com.android.tools.build.bundletool.BundleToolMain \
+  dump manifest --bundle="$AAB" >"$MANIFEST_DUMP" || \
   fail "manifeste AAB illisible par bundletool"
 
 grep -Fq "package=\"$EXPECTED_PACKAGE\"" "$MANIFEST_DUMP" || \
