@@ -1,0 +1,157 @@
+name: Production deployment preflight
+
+# Read-only inspection before a full deploy. It proves the VPS can render the
+# new Compose contract and reports receiver-side paths a scoped rsync would
+# prune. It never copies application code, recreates a service, migrates, or
+# reads secret values into the workflow log.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    name: Verify production configuration and sync inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          for value in SSH_KEY VPS_HOST; do
+            [ -n "${!value:-}" ] || { echo "::error::${value} is missing"; exit 1; }
+          done
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          scanned=0
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              scanned=1
+              break
+            fi
+            echo "ssh-keyscan attempt $attempt failed"
+            sleep 10
+          done
+          [ "$scanned" = "1" ] || { echo '::error::VPS host key could not be read'; exit 1; }
+
+      - name: Generate current-source manifest
+        run: |
+          set -euo pipefail
+          find backend admin web scripts -xdev \( -type f -o -type l \) -print \
+            | LC_ALL=C sort > /tmp/kpb-source-manifest
+          test -s /tmp/kpb-source-manifest
+
+      - name: Inspect production configuration and prune candidates
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          for value in VPS_HOST VPS_USER VPS_PATH; do
+            [ -n "${!value:-}" ] || { echo "::error::${value} is missing"; exit 1; }
+          done
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes /tmp/kpb-source-manifest \
+            "${VPS_USER}@${VPS_HOST}:/tmp/kpb-source-manifest"
+          cat > /tmp/kpb-production-preflight.sh <<'REMOTE'
+          set -euo pipefail
+          cd "$VPS_PATH"
+          test -f .env && test ! -L .env || {
+            echo '::error::VPS root .env is missing or symlinked.'
+            exit 1
+          }
+
+          # Validate shape only. The secret is never echoed, stored, or passed
+          # to a subprocess that could log it.
+          service_key="$(sed -n 's/^SUPABASE_SERVICE_ROLE_KEY=//p' .env | head -n 1)"
+          case "$service_key" in
+            \"*\") service_key="${service_key#\"}"; service_key="${service_key%\"}" ;;
+            \'*\') service_key="${service_key#\'}"; service_key="${service_key%\'}" ;;
+          esac
+          [ -n "$service_key" ] || {
+            echo '::error::SUPABASE_SERVICE_ROLE_KEY is absent from the VPS .env.'
+            exit 1
+          }
+          case "$service_key" in
+            sb_secret_*) echo 'SUPABASE service key: server secret shape accepted (value withheld).' ;;
+            sb_publishable_*|sb_anon_*)
+              echo '::error::SUPABASE_SERVICE_ROLE_KEY is a public key shape.'
+              exit 1
+              ;;
+            *.*.*)
+              payload="$(printf '%s' "$service_key" | cut -d. -f2 | tr '_-' '/+')"
+              case $((${#payload} % 4)) in 2) payload="${payload}==" ;; 3) payload="${payload}=" ;; esac
+              role="$(printf '%s' "$payload" | base64 -d 2>/dev/null | sed -n 's/.*\"role\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p' | head -n 1)"
+              [ "$role" = 'service_role' ] || {
+                echo '::error::SUPABASE legacy JWT is not a service_role key.'
+                exit 1
+              }
+              echo 'SUPABASE service key: legacy service_role JWT shape accepted (value withheld).'
+              ;;
+            *)
+              echo '::error::SUPABASE_SERVICE_ROLE_KEY has an unsupported server-key shape.'
+              exit 1
+              ;;
+          esac
+          unset service_key payload role
+
+          docker compose config --quiet
+          echo 'Compose production configuration: renderable.'
+
+          find backend admin web scripts -xdev \( -type f -o -type l \) -print \
+            | LC_ALL=C sort > /tmp/kpb-remote-manifest
+          comm -23 /tmp/kpb-remote-manifest /tmp/kpb-source-manifest > /tmp/kpb-prune-candidates
+
+          is_protected() {
+            case "$1" in
+              backend/.env*|backend/node_modules/*|backend/.npm/*|backend/.cache/*|backend/.pnpm-store/*|backend/.yarn/*|backend/logs/*|backend/backups/*|backend/uploads/*|backend/storage/*) return 0 ;;
+              admin/.env*|admin/node_modules/*|admin/.npm/*|admin/.cache/*|admin/.pnpm-store/*|admin/.yarn/*|admin/logs/*|admin/.next/cache/*) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          count=0
+          while IFS= read -r candidate; do
+            [ -n "$candidate" ] || continue
+            if ! is_protected "$candidate"; then
+              printf '%s\n' "$candidate"
+              count=$((count + 1))
+            fi
+          done < /tmp/kpb-prune-candidates > /tmp/kpb-actionable-prune-candidates
+
+          echo "sync_prune_candidates=$count"
+          if [ "$count" -gt 0 ]; then
+            echo 'Paths below are remote-only and not protected by sync-deployment-tree.sh; review before full deploy:'
+            sed -n '1,250p' /tmp/kpb-actionable-prune-candidates
+            [ "$count" -le 250 ] || echo "... $((count - 250)) additional candidate(s) omitted from this log."
+          else
+            echo 'No unprotected remote-only file or symlink would be pruned.'
+          fi
+
+          rm -f /tmp/kpb-source-manifest /tmp/kpb-remote-manifest /tmp/kpb-prune-candidates /tmp/kpb-actionable-prune-candidates
+          REMOTE
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes /tmp/kpb-production-preflight.sh \
+            "${VPS_USER}@${VPS_HOST}:/tmp/kpb-production-preflight.sh"
+          printf -v remote_path '%q' "$VPS_PATH"
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "VPS_PATH=$remote_path bash /tmp/kpb-production-preflight.sh"
+
+      - name: Remove temporary source manifest and SSH key
+        if: always()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          if [ -f ~/.ssh/deploy_key ] && [ -n "${VPS_HOST:-}" ] && [ -n "${VPS_USER:-}" ]; then
+            ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+              'rm -f /tmp/kpb-source-manifest /tmp/kpb-production-preflight.sh' || true
+          fi
+          rm -f ~/.ssh/deploy_key
