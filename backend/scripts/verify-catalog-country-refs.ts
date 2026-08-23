@@ -1,8 +1,11 @@
+import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
 
 import { PrismaClient } from '@prisma/client';
 
-loadEnvFile?.('.env');
+// Compose supplies DATABASE_URL to the production verification container. Keep
+// local CLI convenience without requiring a .env file in the runtime image.
+if (existsSync('.env')) loadEnvFile?.('.env');
 
 const prisma = new PrismaClient();
 
