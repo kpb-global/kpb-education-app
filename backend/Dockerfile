@@ -39,6 +39,9 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma
 # `src`; include those sources and their compiler settings without copying any
 # test, lint, or build executables into the image.
 COPY --from=builder --chown=node:node /app/src ./src
+# The guarded release workflow executes the catalog verifier from this
+# directory before replacing the running services.
+COPY --from=builder --chown=node:node /app/scripts ./scripts
 COPY --from=builder --chown=node:node /app/tsconfig.json ./tsconfig.json
 
 USER node
