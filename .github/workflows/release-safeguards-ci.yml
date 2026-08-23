@@ -1,0 +1,133 @@
+name: Release safeguards CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-release-surfaces:
+    name: Validate release surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Parse shell scripts
+        run: |
+          set -euo pipefail
+          while IFS= read -r script; do
+            bash -n "$script"
+          done < <(find scripts -maxdepth 1 -type f -name '*.sh' | sort)
+
+      - name: Parse workflow YAML
+        run: |
+          ruby -e '
+            require "yaml"
+            Dir[".github/workflows/*.{yml,yaml}"].sort.each do |path|
+              YAML.safe_load(File.read(path), permitted_classes: [], permitted_symbols: [], aliases: true)
+              puts "parsed #{path}"
+            end
+          '
+
+      - name: Validate production Compose configuration
+        env:
+          POSTGRES_USER: release_ci
+          POSTGRES_PASSWORD: release-ci-not-a-secret
+          POSTGRES_DB: kpb_release_ci
+          SUPABASE_SERVICE_ROLE_KEY: sb_secret_release-ci-not-a-real-secret-00000000
+        run: docker compose --env-file .env.example config --quiet
+
+      - name: Exercise non-destructive backup guards
+        run: |
+          set -euo pipefail
+          fixture="$(mktemp -d)"
+          trap 'rm -rf "$fixture"' EXIT
+          # Large enough to pass the minimum-size guard; structurally valid gzip.
+          awk 'BEGIN { for (i=0; i<1000; i++) print "CREATE TABLE restore_fixture(id integer);" }' \
+            | gzip > "$fixture/kpb-ci-$(date -u +%Y%m%d-%H%M%SZ).sql.gz"
+          CHECK_BACKUP_SERVICE=false BACKUP_DIR="$fixture" MIN_BYTES=100 \
+            bash scripts/check-backup-freshness.sh
+          CHECK_BACKUP_SERVICE=false BACKUP_DIR="$fixture" MIN_BYTES=100 \
+            bash scripts/restore-drill.sh
+
+      - name: Verify scoped deployment-tree pruning contract
+        run: |
+          set -euo pipefail
+          fixture="$(mktemp -d)"
+          trap 'rm -rf "$fixture"' EXIT
+
+          mkdir -p \
+            "$fixture/source/backend/node_modules" \
+            "$fixture/source/backend/uploads" \
+            "$fixture/source/backend/backups" \
+            "$fixture/vps/backend/node_modules" \
+            "$fixture/vps/backend/uploads" \
+            "$fixture/vps/backend/backups" \
+            "$fixture/vps/backend/.cache" \
+            "$fixture/source/web/public" \
+            "$fixture/vps/web/public"
+
+          printf 'tracked-v2\n' > "$fixture/source/backend/app.ts"
+          printf 'example\n' > "$fixture/source/backend/.env.example"
+          printf 'must-not-travel\n' > "$fixture/source/backend/.env"
+          printf 'must-not-travel-production\n' > "$fixture/source/backend/.env.production"
+          printf 'local-dependency\n' > "$fixture/source/backend/node_modules/local.txt"
+          printf 'local-upload\n' > "$fixture/source/backend/uploads/local.txt"
+          printf 'local-backup\n' > "$fixture/source/backend/backups/local.dump"
+
+          printf 'tracked-v1\n' > "$fixture/vps/backend/app.ts"
+          printf 'deleted-from-git\n' > "$fixture/vps/backend/stale.ts"
+          printf 'production-secret\n' > "$fixture/vps/backend/.env"
+          printf 'production-variant-secret\n' > "$fixture/vps/backend/.env.production"
+          printf 'remote-dependency\n' > "$fixture/vps/backend/node_modules/remote.txt"
+          printf 'student-upload\n' > "$fixture/vps/backend/uploads/student.txt"
+          printf 'production-backup\n' > "$fixture/vps/backend/backups/production.dump"
+          printf 'dependency-cache\n' > "$fixture/vps/backend/.cache/cache.bin"
+          printf 'unrelated-vps-data\n' > "$fixture/vps/unrelated.txt"
+
+          scripts/sync-deployment-tree.sh backend \
+            "$fixture/source/backend" "$fixture/vps/backend/"
+
+          grep -Fxq 'tracked-v2' "$fixture/vps/backend/app.ts"
+          test ! -e "$fixture/vps/backend/stale.ts"
+          grep -Fxq 'example' "$fixture/vps/backend/.env.example"
+          grep -Fxq 'production-secret' "$fixture/vps/backend/.env"
+          grep -Fxq 'production-variant-secret' "$fixture/vps/backend/.env.production"
+          grep -Fxq 'remote-dependency' "$fixture/vps/backend/node_modules/remote.txt"
+          test ! -e "$fixture/vps/backend/node_modules/local.txt"
+          grep -Fxq 'student-upload' "$fixture/vps/backend/uploads/student.txt"
+          test ! -e "$fixture/vps/backend/uploads/local.txt"
+          grep -Fxq 'production-backup' "$fixture/vps/backend/backups/production.dump"
+          test ! -e "$fixture/vps/backend/backups/local.dump"
+          grep -Fxq 'dependency-cache' "$fixture/vps/backend/.cache/cache.bin"
+          grep -Fxq 'unrelated-vps-data' "$fixture/vps/unrelated.txt"
+
+          printf 'new-page\n' > "$fixture/source/web/public/index.html"
+          printf 'removed-page\n' > "$fixture/vps/web/public/removed.html"
+          scripts/sync-deployment-tree.sh web \
+            "$fixture/source/web" "$fixture/vps/web/"
+          grep -Fxq 'new-page' "$fixture/vps/web/public/index.html"
+          test ! -e "$fixture/vps/web/public/removed.html"
+
+          if scripts/sync-deployment-tree.sh web \
+            "$fixture/source/web" "$fixture/vps/"; then
+            echo 'unsafe broad destination unexpectedly accepted' >&2
+            exit 1
+          fi
+          if scripts/sync-deployment-tree.sh web \
+            "$fixture/source/web" "/web/"; then
+            echo 'filesystem-root deployment tree unexpectedly accepted' >&2
+            exit 1
+          fi
+          echo 'scoped prune removes stale tracked-tree files and preserves runtime/unrelated data'
+
+      - name: Assert restore drill defaults to no execution
+        run: |
+          grep -q 'EXECUTE=false' scripts/restore-drill.sh
+          grep -q 'DRY RUN' scripts/restore-drill.sh
+          echo 'restore drill is non-destructive by default'

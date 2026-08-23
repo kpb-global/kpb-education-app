@@ -144,9 +144,10 @@ abstract class _AppControllerBase extends GetxController {
   /// Data-saver mode — when on, the UI skips non-essential network images.
   bool dataSaverEnabled = false;
 
-  /// True when the user has opted OUT of product analytics + session replay.
-  /// Default false (analytics on). Exposed as an allow-toggle in the profile.
-  bool analyticsOptOut = false;
+  /// Product analytics, Crashlytics, and session replay remain off until the
+  /// user makes an explicit choice in the profile privacy setting.
+  bool analyticsOptOut = true;
+  bool analyticsConsentDecided = false;
   bool hasCompletedOnboarding = false;
   bool onboardingSkipped = false;
   int onboardingStep = 0;
@@ -314,7 +315,8 @@ abstract class _AppControllerBase extends GetxController {
     isGuestMode = snapshot.isGuestMode;
     isAppLockEnabled = snapshot.isAppLockEnabled;
     dataSaverEnabled = snapshot.dataSaverEnabled;
-    analyticsOptOut = snapshot.analyticsOptOut;
+    analyticsConsentDecided = snapshot.analyticsConsentDecided;
+    analyticsOptOut = analyticsConsentDecided ? snapshot.analyticsOptOut : true;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
     onboardingSkipped = snapshot.onboardingSkipped;
     onboardingStep = snapshot.onboardingStep;
@@ -501,6 +503,7 @@ abstract class _AppControllerBase extends GetxController {
   /// runtime immediately (no restart needed). Applied again on every boot from
   /// the persisted flag ([applyAnalyticsConsent]).
   void setAnalyticsAllowed(bool allowed) {
+    analyticsConsentDecided = true;
     analyticsOptOut = !allowed;
     _repository.saveSnapshot(_snapshot);
     unawaited(AnalyticsService.instance.setCollectionEnabled(allowed));
@@ -1712,6 +1715,7 @@ abstract class _AppControllerBase extends GetxController {
         isAppLockEnabled: isAppLockEnabled,
         dataSaverEnabled: dataSaverEnabled,
         analyticsOptOut: analyticsOptOut,
+        analyticsConsentDecided: analyticsConsentDecided,
         hasCompletedOnboarding: hasCompletedOnboarding,
         themeMode: themeMode,
         profile: profile,

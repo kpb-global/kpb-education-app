@@ -213,8 +213,11 @@ Bloquer immédiatement les traitements futurs et les liens courts. Exécuter
 l'export si demandé avant suppression, puis la purge applicative, stockage et
 identité Supabase. Vérifier les ledgers retenus pseudonymisés, sans contenu ni
 identifiant fournisseur. Conserver uniquement l'audit minimal légalement
-validé. Escalader si `SUPABASE_SERVICE_ROLE_KEY` manque : la suppression du
-profil applicatif seule ne supprime pas l'identité de connexion.
+validé. `SUPABASE_SERVICE_ROLE_KEY` est une condition de démarrage et de rendu
+Compose en production : son absence doit bloquer le déploiement, jamais être
+traitée comme un mode dégradé. Une suppression Auth réussie invalide les refresh
+tokens, mais le JWT d'accès déjà remis reste utilisable jusqu'à son expiration ;
+tenir cette fenêtre courte et la prendre en compte dans la réponse d'incident.
 
 ### Incident mineur/safeguarding
 

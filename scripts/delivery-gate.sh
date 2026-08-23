@@ -3,35 +3,42 @@
 # backend a réellement atterri. À lancer APRÈS un déploiement VPS, jamais
 # depuis la PR d'un lot.
 #
-# Cinq contrôles. Le 5e couvre l'espace « Études en France » : il est arrivé
+# Six contrôles. Le 5e couvre l'espace « Études en France » : il est arrivé
 # avec la build 49 et le déploiement couplé (docs/cutover-build49.md, étape 9).
+# Le 6e lie ces preuves publiques au SHA immuable choisi par le déploiement.
 #
 # CAT-T4 (`dateConfidence` on catalog scholarships) is a backend-deploy
 # check: unit tests going green on main do not prove prod is serving it.
 set -euo pipefail
 
 BASE="${KPB_API_BASE_URL:-https://api.kpbeducation.cloud/api}"
+EXPECTED_BUILD_SHA="${KPB_EXPECTED_BUILD_SHA:-}"
+CURL_ARGS=(--fail --silent --show-error --retry 2 --retry-delay 3 \
+  --retry-all-errors --connect-timeout 10 --max-time 30)
+
+fetch() {
+  curl "${CURL_ARGS[@]}" "$@"
+}
 
 echo "== 1. Catalogue legacy : source=database =="
-curl -fsS "${BASE}/catalog/scholarships" \
+fetch "${BASE}/catalog/scholarships" \
   | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('source')=='database', d.get('source'); print('source=', d['source'], 'n=', len(d.get('items') or []))"
 
 echo "== 2. Compression gzip (Accept-Encoding) =="
 headers="$(mktemp)"
-curl -fsS -D "$headers" -o /dev/null \
+trap 'rm -f "$headers"' EXIT
+fetch -D "$headers" -o /dev/null \
   -H 'Accept-Encoding: gzip' \
   "${BASE}/catalog/scholarships"
 if ! grep -qi '^content-encoding: gzip' "$headers"; then
   echo "MISSING content-encoding: gzip" >&2
   cat "$headers" >&2
-  rm -f "$headers"
   exit 1
 fi
 grep -i '^content-encoding:' "$headers"
-rm -f "$headers"
 
 echo "== 3. CAT-T4 dateConfidence (exige le backend déployé) =="
-curl -fsS "${BASE}/catalog/scholarships" \
+fetch "${BASE}/catalog/scholarships" \
   | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
@@ -47,7 +54,7 @@ print('dateConfidence present on first item')
 "
 
 echo "== 4. Health ai.configured (boolean, never the key) =="
-curl -fsS "${BASE}/health" \
+fetch "${BASE}/health" \
   | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
@@ -71,7 +78,7 @@ echo "== 5. Espace « Études en France » : le module est en ligne =="
 #     que le module est ENREGISTRÉ sans détenir de session étudiante : 404 = le
 #     module n'est pas monté (l'ancienne image tourne encore), 401 = il est
 #     monté et gardé. Un `curl -f` refuserait les deux ; on lit donc le code.
-curl -fsS "${BASE}/config/app" \
+fetch "${BASE}/config/app" \
   | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
@@ -107,7 +114,8 @@ print('eefCampaign.suspendedCountries=', campaign['suspendedCountries'])
 probe_route() {
   local label="$1" path="$2" attempt code
   for attempt in 1 2 3; do
-    code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE}${path}")"
+    code="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+      -o /dev/null -w '%{http_code}' "${BASE}${path}")"
     case "$code" in
       401)
         echo "  ${label} : montée et gardée (HTTP 401)"
@@ -166,5 +174,18 @@ probe_route "route admin"     "/admin/etudes-en-france/interest"
 #
 # Ce que ce contrôle prouve exactement : l'image DÉPLOYÉE sert les clés EEF de
 # /config/app, et les deux contrôleurs du module sont montés et gardés.
+
+echo "== 6. Empreinte immuable du build (/health/version) =="
+version="$(fetch "${BASE}/health/version")"
+deployed="$(printf '%s' "$version" | python3 -c "import json,sys; print(json.load(sys.stdin).get('sha',''))")"
+if [[ ! "$deployed" =~ ^[0-9a-f]{12}$ ]]; then
+  echo "build de production invalide ou non estampillé : '${deployed:-vide}'" >&2
+  exit 1
+fi
+if [ -n "$EXPECTED_BUILD_SHA" ] && [ "$deployed" != "${EXPECTED_BUILD_SHA:0:12}" ]; then
+  echo "production sert $deployed ; SHA attendu ${EXPECTED_BUILD_SHA:0:12}" >&2
+  exit 1
+fi
+echo "deployed sha=$deployed"
 
 echo "LIV-T14 OK"

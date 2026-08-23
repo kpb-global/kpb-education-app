@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
+import '../../core/services/ai_content_report_service.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
+import '../../core/ui/components/ai_content_report_sheet.dart';
 import '../tools/motivation_letters_screen.dart';
 import '../../core/ui/app_tokens.dart';
 import 'coach_quota_handoff.dart';
@@ -19,11 +21,13 @@ class AiMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
+  final bool reportable;
 
   const AiMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
+    this.reportable = false,
   });
 }
 
@@ -82,6 +86,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               text: m.content,
               isUser: m.isUser,
               timestamp: DateTime.now(),
+              reportable: !m.isUser,
             ),
           ));
         } else {
@@ -232,6 +237,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               text: _assistantDraft!,
               isUser: false,
               timestamp: DateTime.now(),
+              reportable: true,
             ));
             assistantIndex = _messages.length - 1;
           } else {
@@ -239,6 +245,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               text: _assistantDraft!,
               isUser: false,
               timestamp: _messages[assistantIndex].timestamp,
+              reportable: true,
             );
           }
           setState(() {});
@@ -470,15 +477,54 @@ class _AiChatScreenState extends State<AiChatScreen> {
           children: [
             _parseAndRichText(msg.text, isUser),
             const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                "${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}",
-                style: TextStyle(
-                  fontSize: 9.5,
-                  color: isUser ? Colors.white70 : KpbColors.textFaint,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (!isUser && msg.reportable) ...[
+                  InkWell(
+                    key: const ValueKey('coach_report_ai_output'),
+                    onTap: () => unawaited(showAiContentReportSheet(
+                      context: context,
+                      surface: AiContentSurface.coach,
+                      generatedText: msg.text,
+                      sourceReference: _coach.conversationId,
+                    )),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 3,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.flag_outlined,
+                            size: 12,
+                            color: KpbColors.textFaint,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            'ai_report_action'.tr,
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              color: KpbColors.textFaint,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  "${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}",
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    color: isUser ? Colors.white70 : KpbColors.textFaint,
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

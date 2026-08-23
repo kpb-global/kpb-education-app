@@ -8,7 +8,8 @@ name: Release preflight (backend before mobile)
 # added, and that line went unexecuted for 17 days while /app served a 404 to
 # every WhatsApp recipient. Prose does not run. This does.
 #
-# Read-only: it curls two public URLs and reads git. It changes nothing.
+# Read-only: it reads git/GitHub evidence and probes public production URLs. It
+# changes no repository, server, database, or store state.
 #
 # THE ORDER IS NOT ALWAYS THE SAME, and assuming it is nearly cost this project a
 # tester-visible outage (18/08/2026). The default case is the one above: a build
@@ -28,7 +29,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref the mobile build is cut from (branch, tag or SHA)'
+        description: 'Git ref resolved once to the mobile build immutable SHA'
         required: false
         default: 'main'
       backend_coupling:
@@ -39,16 +40,25 @@ on:
         options:
           - requires-new
           - tolerates-old
+      require_24h_stability:
+        description: 'Require 24h of continuous successful scheduled uptime evidence'
+        type: boolean
+        required: false
+        default: true
 
 concurrency:
   group: release-preflight
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   preflight:
     name: Is production ahead of the mobile build?
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -57,10 +67,35 @@ jobs:
           # just the tip of a shallow clone.
           fetch-depth: 0
 
+      - name: Resolve and authorize immutable release SHA
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUESTED_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          sha="$(git rev-parse HEAD^{commit})"
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::${sha} is not reachable from reviewed origin/main history."
+            exit 1
+          fi
+          if [ "$REQUESTED_REF" = "main" ] && [ "$sha" != "$(git rev-parse origin/main)" ]; then
+            echo "::error::main advanced during checkout; re-run preflight on the current tip."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${sha:0:12}" >> "$GITHUB_OUTPUT"
+          scripts/require-workflow-success.sh "$sha" \
+            backend-ci.yml admin-ci.yml flutter-ci.yml release-safeguards-ci.yml
+          echo "Release source is immutable and exact-SHA CI is green: $sha"
+
       - name: Backend first — production runs this ref
+        id: backend
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
-          REF: ${{ inputs.ref }}
+          EXPECTED: ${{ steps.meta.outputs.short_sha }}
           COUPLING: ${{ inputs.backend_coupling }}
         run: |
           set -euo pipefail
@@ -70,14 +105,16 @@ jobs:
             exit 1
           fi
 
-          EXPECTED="$(git rev-parse --short=12 "$REF")"
           RESPONSE="$(curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
             "${HEALTH_URL}/api/health/version")"
-          DEPLOYED="$(printf '%s' "$RESPONSE" | jq -r '.sha')"
+          DEPLOYED="$(printf '%s' "$RESPONSE" | jq -er '.sha')"
+          STARTED_AT="$(printf '%s' "$RESPONSE" | jq -er '.startedAt')"
+          echo "deployed_sha=$DEPLOYED" >> "$GITHUB_OUTPUT"
+          echo "started_at=$STARTED_AT" >> "$GITHUB_OUTPUT"
 
-          echo "ref $REF        → $EXPECTED"
+          echo "release SHA     → $EXPECTED"
           echo "production      → $DEPLOYED"
-          echo "started at      → $(printf '%s' "$RESPONSE" | jq -r '.startedAt')"
+          echo "started at      → $STARTED_AT"
 
           if [ "$DEPLOYED" = "unknown" ]; then
             echo "::error::production reports an unstamped build (sha=unknown)."
@@ -92,7 +129,7 @@ jobs:
 
           if [ "$COUPLING" = "requires-new" ]; then
             echo "::error::production runs $DEPLOYED but the mobile build is cut from $EXPECTED."
-            echo "::error::Run « Deploy backend (VPS) » on $REF first. A build that talks to an"
+            echo "::error::Run « Deploy backend (VPS) » on the immutable release SHA first. A build that talks to an"
             echo "::error::older API reaches users before the API it needs does."
             echo "::error::If this build does NOT need the new backend — its new routes are"
             echo "::error::masked client-side — re-run with backend_coupling=tolerates-old."
@@ -115,7 +152,7 @@ jobs:
           echo "::warning::production is $BEHIND commit(s) BEHIND the mobile build, and that is the"
           echo "::warning::declared intent for this release (backend_coupling=tolerates-old)."
           echo "::warning::The coupled deploy is now OWED: run « Deploy backend (VPS) » with"
-          echo "::warning::scope=full on $REF once this build is in testers' hands — not before."
+          echo "::warning::scope=full on the immutable release SHA once this build is in testers' hands — not before."
           echo "backend intentionally behind by $BEHIND commit(s) ✅"
 
       - name: The store-redirect page is served, not 404-ed onto the home page
@@ -134,10 +171,60 @@ jobs:
             | grep -q 'id1128659292'
           echo "${WEB_URL}/app serves the store-redirect page ✅"
 
+      - name: Run the public production delivery gate
+        env:
+          KPB_API_BASE_URL: ${{ secrets.VPS_HEALTH_URL }}/api
+          KPB_EXPECTED_BUILD_SHA: ${{ steps.backend.outputs.deployed_sha }}
+        run: scripts/delivery-gate.sh
+
+      - name: Require a recent backup heartbeat
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: scripts/verify-recent-workflow-success.sh backup-readiness.yml 8
+
+      - name: Require a recorded isolated restore drill
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_NAME_CONTAINS: 'isolated restore=true'
+        run: scripts/verify-recent-workflow-success.sh backup-restore-drill.yml 2160
+
+      - name: Require the 24-hour stability window
+        if: ${{ inputs.require_24h_stability }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          STABILITY_HOURS: '24'
+          STABILITY_MIN_SUCCESS: '80'
+          STABILITY_MAX_GAP_MINUTES: '30'
+        run: scripts/verify-uptime-window.sh
+
+      - name: Record explicit stability override
+        if: ${{ ! inputs.require_24h_stability }}
+        run: |
+          echo '::warning::24-hour uptime evidence was explicitly waived for this preflight.'
+          echo '### Warning: 24-hour stability gate explicitly waived' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Verdict
         env:
           COUPLING: ${{ inputs.backend_coupling }}
+          FULL_SHA: ${{ steps.meta.outputs.sha }}
+          DEPLOYED_SHA: ${{ steps.backend.outputs.deployed_sha }}
+          STARTED_AT: ${{ steps.backend.outputs.started_at }}
+          REQUIRE_STABILITY: ${{ inputs.require_24h_stability }}
         run: |
+          {
+            echo '## Store release preflight evidence'
+            echo
+            echo "- Immutable mobile source SHA: \`$FULL_SHA\`"
+            echo "- Production backend SHA: \`$DEPLOYED_SHA\`"
+            echo "- Production backend started: \`$STARTED_AT\`"
+            echo '- Exact-SHA backend, admin, Flutter, and release-safeguard CI: passed'
+            echo '- Public delivery gate, recent backup heartbeat, and <=90-day isolated restore drill: passed'
+            echo "- 24-hour uptime stability required: \`$REQUIRE_STABILITY\`"
+            echo '- Store redirect content: passed'
+          } >> "$GITHUB_STEP_SUMMARY"
           if [ "$COUPLING" = "tolerates-old" ]; then
             echo "Preflight green — production intentionally lags this build, which does not need it."
             echo "Xcode Organizer is safe to open. The coupled backend deploy is OWED afterwards."

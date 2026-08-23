@@ -36,7 +36,9 @@ export class AiConsentGuard implements CanActivate {
         message:
           block === 'guardian_consent_required'
             ? 'Guardian consent required for minors.'
-            : 'AI processing consent required.',
+            : block === 'age_verification_required'
+              ? 'Birth date verification is required before AI processing.'
+              : 'AI processing consent required.',
       });
     }
     return true;

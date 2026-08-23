@@ -1,0 +1,108 @@
+name: Backup restore drill
+run-name: Backup restore drill · isolated restore=${{ inputs.execute_restore_drill }}
+
+# Manual and production-environment protected. The default is validation-only;
+# execute=true still restores exclusively into a disposable container/volume.
+on:
+  workflow_dispatch:
+    inputs:
+      execute_restore_drill:
+        description: 'Restore newest backup into a disposable isolated container'
+        type: boolean
+        required: true
+        default: false
+      max_age_hours:
+        description: 'Reject a restore candidate older than this'
+        type: choice
+        required: true
+        default: '30'
+        options:
+          - '30'
+          - '168'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-restore-drill
+  cancel-in-progress: false
+
+jobs:
+  drill:
+    name: Validate or restore into disposable PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          for value in SSH_KEY VPS_HOST VPS_USER VPS_PATH; do
+            [ -n "${!value:-}" ] || { echo "::error::${value} is missing"; exit 1; }
+          done
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          scanned=0
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              scanned=1
+              break
+            fi
+            echo "ssh-keyscan attempt $attempt failed"
+            sleep 10
+          done
+          [ "$scanned" = "1" ] || { echo '::error::VPS host key could not be read'; exit 1; }
+
+      - name: Copy drill scripts
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            scripts/check-backup-freshness.sh scripts/restore-drill.sh \
+            "${VPS_USER}@${VPS_HOST}:/tmp/"
+
+      - name: Run recorded restore validation
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+          EXECUTE_RESTORE: ${{ inputs.execute_restore_drill }}
+          MAX_AGE_HOURS: ${{ inputs.max_age_hours }}
+        run: |
+          set -euo pipefail
+          printf -v remote_path '%q' "$VPS_PATH"
+          args=''
+          if [ "$EXECUTE_RESTORE" = 'true' ]; then args='--execute'; fi
+          output="$(ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "cd $remote_path && BACKUP_DIR=./backups MAX_AGE_SECONDS=$((MAX_AGE_HOURS * 3600)) bash /tmp/restore-drill.sh $args")"
+          printf '%s\n' "$output"
+          {
+            echo '## Backup restore drill evidence'
+            echo
+            echo "- Executed isolated restore: \`$EXECUTE_RESTORE\`"
+            echo "- Maximum candidate age: \`${MAX_AGE_HOURS}h\`"
+            echo '```text'
+            printf '%s\n' "$output"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove temporary scripts and SSH key
+        if: always()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          if [ -f ~/.ssh/deploy_key ] && [ -n "${VPS_HOST:-}" ] && [ -n "${VPS_USER:-}" ]; then
+            ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+              'rm -f /tmp/check-backup-freshness.sh /tmp/restore-drill.sh' || true
+          fi
+          rm -f ~/.ssh/deploy_key

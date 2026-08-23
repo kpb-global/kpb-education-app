@@ -30,10 +30,16 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
-def keystoreStoreFile = keystoreProperties['storeFile'] != null
-        ? file(keystoreProperties['storeFile'])
+def signingPropertyNames = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
+def signingPropertyIsUsable = { name ->
+    def value = keystoreProperties[name]?.toString()?.trim()
+    value && !value.contains('<') && !value.contains('>')
+}
+def hasReleaseSigningProperties = signingPropertyNames.every(signingPropertyIsUsable)
+def keystoreStoreFile = hasReleaseSigningProperties
+        ? file(keystoreProperties['storeFile'].toString().trim())
         : null
-def hasReleaseKeystore = keystoreStoreFile != null && keystoreStoreFile.exists()
+def hasReleaseKeystore = hasReleaseSigningProperties && keystoreStoreFile.exists()
 def requestedReleaseTask = gradle.startParameter.taskNames.any { taskName ->
     def normalized = taskName.toLowerCase()
     normalized.contains('release') || normalized in ['assemble', 'bundle', 'build']
@@ -42,10 +48,55 @@ def requestedReleaseTask = gradle.startParameter.taskNames.any { taskName ->
 // A production artifact must never silently fall back to the debug key. Keep
 // debug tasks usable without an upload key, but fail as soon as a release task
 // is requested (locally or in CI).
-if (requestedReleaseTask && !hasReleaseKeystore) {
-    throw new GradleException(
-        'Release signing configuration is missing. Provide android/key.properties and its upload keystore.'
-    )
+if (requestedReleaseTask) {
+    if (!hasReleaseSigningProperties) {
+        throw new GradleException(
+            'Release signing configuration is missing or still contains placeholders. ' +
+            'Provide all four values in the ignored android/key.properties file.'
+        )
+    }
+    if (!hasReleaseKeystore) {
+        throw new GradleException(
+            'The release keystore referenced by android/key.properties does not exist.'
+        )
+    }
+
+    // A file that exists is not necessarily a production upload key. Load the
+    // certificate during Gradle configuration and reject Android Studio's
+    // default debug identity before a release artifact can be produced. No
+    // password, private-key material, or certificate contents are logged.
+    try {
+        def storeType = keystoreStoreFile.name.toLowerCase().matches('.*\\.(p12|pfx)$')
+                ? 'PKCS12'
+                : 'JKS'
+        def storePassword = keystoreProperties['storePassword'].toString().toCharArray()
+        def keyStore = java.security.KeyStore.getInstance(storeType)
+        keystoreStoreFile.withInputStream { stream ->
+            keyStore.load(stream, storePassword)
+        }
+        def alias = keystoreProperties['keyAlias'].toString().trim()
+        if (!keyStore.containsAlias(alias) || !keyStore.isKeyEntry(alias)) {
+            throw new GradleException('The configured keyAlias is not a private-key entry in the release keystore.')
+        }
+        def certificate = keyStore.getCertificate(alias)
+        if (!(certificate instanceof java.security.cert.X509Certificate)) {
+            throw new GradleException('The release signing entry does not contain an X.509 certificate.')
+        }
+        certificate.checkValidity()
+        def normalizedSubject = certificate.subjectX500Principal.name.toLowerCase().replace(' ', '')
+        if (alias.equalsIgnoreCase('androiddebugkey') ||
+                normalizedSubject.contains('cn=androiddebug') ||
+                normalizedSubject.contains('o=android,c=us')) {
+            throw new GradleException('Android debug signing certificates are forbidden for release builds.')
+        }
+    } catch (GradleException error) {
+        throw error
+    } catch (Exception error) {
+        throw new GradleException(
+            'Release keystore validation failed. Check its type, passwords, alias, and certificate validity.',
+            error
+        )
+    }
 }
 
 android {

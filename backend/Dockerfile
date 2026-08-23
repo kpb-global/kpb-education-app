@@ -1,36 +1,50 @@
-# Stage 1: Build
+# Install the intentionally small runtime dependency set separately from the
+# compiler, linter, and test toolchain used by the builder.
+FROM node:20-alpine AS production-deps
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev --ignore-scripts \
+  && npm cache clean --force
+
+# Build and generate the platform-specific Prisma client.
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Install dependencies first (leverage Docker cache)
-COPY package*.json ./
-# prisma requires openssl
 RUN apk add --no-cache openssl
+COPY package*.json ./
 RUN npm ci
-
-# Copy source code and prisma schema
 COPY . .
-
-# Generate Prisma Client & Build NextJS app
 RUN npx prisma generate
 RUN npm run build
 
-# Stage 2: Production
-FROM node:20-alpine
+# Prisma and ts-node are deliberate runtime dependencies because deployment
+# runs `docker compose run --rm api npx prisma migrate deploy` and can execute
+# the existing TypeScript seed. All other development tooling stays behind.
+FROM node:20-alpine AS runtime
 
+ENV NODE_ENV=production
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache dumb-init openssl \
+  && mkdir -p /app/uploads \
+  && chown node:node /app/uploads
 
-# We only copy the `dist`, `prisma` schema (for migrations run), and node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=production-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=node:node /app/package*.json ./
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/prisma ./prisma
+# The explicit deployment seed imports canonical TypeScript seed data from
+# `src`; include those sources and their compiler settings without copying any
+# test, lint, or build executables into the image.
+COPY --from=builder --chown=node:node /app/src ./src
+COPY --from=builder --chown=node:node /app/tsconfig.json ./tsconfig.json
 
+USER node
 EXPOSE 3000
 
-# Migrations are an explicit release step (after backup, before replacement),
-# never an implicit side effect of restarting several API replicas.
-CMD ["npm", "run", "start"]
+# Migrations remain an explicit release step after backup and before replacing
+# the API. dumb-init forwards SIGTERM so Nest shutdown hooks can drain cleanly.
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/main.js"]

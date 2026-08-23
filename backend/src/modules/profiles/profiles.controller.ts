@@ -112,8 +112,8 @@ export class ProfilesController {
     return this.profilesService.exportMe(req.studentUser?.id);
   }
 
-  // GDPR / store-required account deletion — hard-deletes all of the caller's
-  // data and (best-effort) their Supabase auth identity.
+  // GDPR / store-required account deletion — hard-deletes the caller's Supabase
+  // identity and local data, failing closed if either deletion cannot complete.
   @Delete('me')
   deleteMe(@Req() req: any) {
     return this.profilesService.deleteMe(req.studentUser?.id);

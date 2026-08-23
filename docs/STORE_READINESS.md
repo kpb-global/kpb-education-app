@@ -761,36 +761,44 @@ decide, the row says **NON PROUVÉ** rather than guessing.
 | Unrestricted web access | **No** | The only embedded browser is the YouTube IFrame player, and it cannot navigate: `IgnorePointer(ignoring: true)` around the WebView, `pointer-events: none` on its document, player vars `controls: 0`, `fs: 0`, `rel: 0` (`youtube_player_flutter` 9.1.3 — `lib/src/player/raw_youtube_player.dart:70,245,265-271`; resolved version `pubspec.lock:2093-2100`). Every outbound link leaves through `LaunchMode.externalApplication` (`lib/app/core/utils/external_link.dart:38`; all 6 `launchUrl` call sites in `lib/` are external) |
 | Users interact with each other | **No** in build 49 | The three `CommunityScreen` entries sit behind `!AppConfig.mvpOnly`, default `true` (`home_screen.dart:388,405`, `home_screen.dart:1831`, `profile_screen.dart:1281-1287`; `app_config.dart:93-96`); the shell ships 5 tabs and no Community (`app_shell.dart:63-70`); the two public forum routes 404 under `MvpGuard` (`community.controller.ts:25-35`, `mvp.guard.ts:17-22`, deployed default `docker-compose.yml:48`) |
 | User-generated content | **Yes — staff-facing, never public** | Three writes ship; see the note below |
-| In-app content report / user block | **None exists** | `ForumModerationAction` has **zero writers** in `backend/src` (only `community.service.ts:269` and `reports.service.ts:228` read it); the single « Signaler » button opens WhatsApp with a prefilled *fraud* message (`anti_fraud_notice.dart:52-59`, `verified_advisor_sheet.dart:250-256`; strings `app_translations.dart:2072-2074` / `:4815-4817`) |
+| In-app content report / user block | **AI report: Yes. User block: Not applicable in build 49** | Every reportable coach reply exposes `coach_report_ai_output`; every generated orientation explanation exposes `orientation_report_ai_output_*`. Both open the native reason/note sheet and await an authenticated `POST /cases` receipt (`ai_content_report_sheet.dart`, `ai_content_report_service.dart`). The case is marked `TRUST_AND_SAFETY_REPORT`, bounded below the server's 2,000-character limit, and visible through the guarded staff case queue (`cases.controller.ts`, `admin-cases.controller.ts`). Blocking another user is not offered or claimed because no user-to-user surface ships (previous row). |
 | Generative AI, free text in and out | **Yes — two surfaces** | Coach chat, pill mounted on 4 of the 5 tabs (`app_shell.dart:141`, `coach_fab.dart:15-38`), and the orientation test (`orientation_screen.dart:288` → `POST /orientation/submit` → `orientation.service.ts:126,152` → `llm.service.ts:53`, `api.groq.com`) |
 | App shares the user's location | **No** | No location plugin in `pubspec.yaml`; no `OneSignal.Location` call anywhere in `lib/`; `ios/Runner/Info.plist:56-63` declares the string only because `onesignal_flutter` links `OSFlutterLocation.m` |
 | Gambling / wagering | **No** | Exhaustive absence over `lib/`: `casino|wager|gambl` → 0 hits, `lottery|loterie` → 0 hits |
 | In-app purchases (IARC asks) | **No** | No purchase SDK in `pubspec.yaml`; the client checkout method was removed (`app_api_client.dart:1555-1557`); paid packages route to WhatsApp (`service_packages_screen.dart:17-18`). **PayDunya / CinetPay belong in §2 (processors), never in this box** |
 | Editorial "mature content" | **NON PROUVÉ** | Parcours stories and scholarships are typed in the back office (`parcours.controller.ts:49-50`, behind `AdminAuthGuard`), so the answer rests on editorial review, not on the binary |
 
-> **The 16+ floor is a client-side form check, not an enforced rule.** The ToS
-> text says 16 and onboarding does refuse a younger declared birth date
-> (`onboarding_screen.dart:221-223` + `:471-481`, after requiring the date at
-> `:463-470`). Nothing else enforces it: `UpdateProfileDto` accepts any
-> `birthDate` with `@IsOptional() @IsDateString()` and **no age check**
-> (`backend/src/modules/profiles/dto/update-profile.dto.ts:112-115`), and the
-> first authenticated request auto-creates a `UserProfile` **with no birth date
-> at all** (`supabase-auth.service.ts:243-262`) — so an account can exist with no
-> declared age. A null birth date is then deliberately read as adult
-> (`ai-consent.service.ts:50-58`). Declare the 16 floor as a **terms-of-use
-> commitment**, not as a technical age gate.
+> **The declared-date bypass is closed server-side; the provision-before-age
+> product gap remains.** The ToS and onboarding both say 16. The backend now
+> applies the same calendar-age policy twice: `UpdateProfileDto` rejects an
+> under-16/future `birthDate`, and `ProfilesService.updateMe` repeats the check
+> for direct callers that bypass the global validation pipe
+> (`profile-age.policy.ts`, `update-profile.dto.ts`, `profiles.service.ts`). An
+> attacker can no longer PATCH a younger date past the mobile form. The first
+> valid Supabase token still provisions a shell `UserProfile` before onboarding,
+> however, and that row has a null birth date (`supabase-auth.service.ts`). Fully
+> preventing account creation below 16 therefore needs a product/auth change:
+> collect and validate DOB before Supabase signup, or introduce a server-side
+> provisional-account state/guard with an explicit allowlist for onboarding.
+> That decision is broader than a DTO fix and must be settled before claiming
+> that the 16 floor gates the whole app rather than declared profile completion.
 
-> **Guardian consent is self-declared, and its only server effect is a 403.** The
+> **Guardian consent is self-declared, and its server effect is a fail-closed
+> 403.** The
 > app collects a name, a contact and a checkbox (`onboarding_screen.dart:482-498`)
 > and pushes a `guardianConsentedAt` timestamp
 > (`app_controller.dart:2024-2025`). Server-side it is read only by
-> `AiConsentService.consentBlockCode` (`ai-consent.service.ts:43-47`), which 403s
-> the Groq routes — and that check **fails open** when the profile read returns
-> null (`:16-20,42`). The stronger record the schema offers,
+> `AiConsentService.consentBlockCode`, which now returns
+> `age_verification_required` when the profile read fails, the row is absent or
+> `birthDate` is null. The HTTP guard and streaming coach stop before any Groq
+> call; a known 16/17-year-old still receives `guardian_consent_required` until
+> the existing guardian timestamp is present. The stronger record the schema offers,
 > `GuardianAuthorization` (verified authorization + evidence), has **zero
 > writers** anywhere in `backend/src`: the only statements against it are deletes
 > (`profiles.service.ts:726-728`) and reads. So "under-18s require guardian
-> consent (#60)" is true of the *form*, not of a verified authorization.
+> consent (#60)" remains true of self-attestation, not of a verified
+> authorization. Making verified evidence mandatory is a separate product/legal
+> decision because build 49 has no issuance or review flow for that record.
 >
 > A second, **lower** AI floor exists in the repository — 13, from
 > `KPB_AI_DIAGNOSTIC_MIN_AGE` (`competition-readiness/diagnostics/ai-consent.service.ts:227-232`,
@@ -813,16 +821,23 @@ decide, the row says **NON PROUVÉ** rather than guessing.
 > No public feed, no profile-to-profile visibility, no comments. The only content
 > a stranger sees is editorial (`content/parcours`, catalog).
 
-> **⚠️ This is the section's open blocker, and the old action item is now
-> answered.** "Confirm a content-report path exists for the community" resolves
-> to: **there is none — for any surface.** Both consoles ask for it (Apple
-> reviews UGC for filtering + reporting + blocking; Play asks for an in-app way
-> to report objectionable output on apps with generative-AI features — verify the
-> current wording in each console). With the code as it stands, neither question
-> can be answered "yes", and the anti-fraud WhatsApp button is not a content
-> report: it is a fraud tip line whose prefilled text says so
-> (`app_translations.dart:2073-2074`). Decide before submission: ship a report /
-> block path, or submit knowing these two answers are "no".
+> **✅ The launch-visible content-report blocker is closed in the repository.**
+> Community/forum remains disabled on both sides of the API boundary, so there
+> is no other user to block and no public UGC to report in build 49. The two
+> surfaces that do produce generative output are covered at the content itself:
+> assistant bubbles in `ai_chat_screen.dart` and recommendation explanations in
+> `orientation_screen.dart` open `ai_content_report_sheet.dart`. Submission is
+> not a WhatsApp hand-off and does not optimistically claim success: the sheet
+> closes only after `AiContentReportService` receives both the durable case id
+> and reference code from authenticated `POST /cases`. Failure stays in-app and
+> offers retry. Staff can read and process the report in `admin/cases`, guarded
+> by `AdminAuthGuard` and the Counselor/Commercial/Admin/SuperAdmin roles.
+>
+> This closes the **app-path** requirement, not the operations evidence. Before
+> public submission, create one report from each surface on an internal-track
+> build and retain the two resulting case references plus a back-office capture
+> showing that staff can triage them. The anti-fraud WhatsApp button remains a
+> separate fraud tip line and must not be cited as the content-report control.
 
 > **The web-access bullet was wrong in both directions, and the fix is in §2.**
 > `webview_flutter` is declared (`pubspec.yaml:72`) with **zero call sites** in
@@ -843,9 +858,11 @@ decide, the row says **NON PROUVÉ** rather than guessing.
 **Recommended:** enter the answers above and let each questionnaire compute the
 band. Do **not** carry the old "Apple 12+ / Google Teen" pair forward: it was
 derived from a community module that does not ship and without the two
-generative-AI surfaces. Two answers must be settled first, because they are
-review-guideline requirements and not merely form fields — the missing
-report/block path, and the fact that the 16 floor lives only in a client form.
+generative-AI surfaces. The repository now provides the AI-report path and does
+not claim user blocking where no user-to-user interaction exists. The remaining
+questionnaire caveat is that the 16 floor lives only in a client form; the
+report path still needs the internal-track/back-office operational evidence
+described above.
 
 ---
 
@@ -858,12 +875,12 @@ form wording.
   données »** / **« Supprimer mon compte »** (`app_translations.dart:2341,2342,2346`
   / EN `:5066,5067,5071`; card `profile_screen.dart:1367-1396`, mounted
   `:159-163`). *The label is « Mes données » — there is no "/ RGPD" string in the
-  app; §4 already quotes it correctly.* Deletion is **immediate and hard**: one
-  Prisma transaction over an explicit table list plus schema cascades, ending in
-  `userProfile.delete` (`profiles.service.ts:547-733`), then best-effort erasure
-  of the objects in storage — case documents, artifact versions, outcome
-  evidence, guardian evidence and the avatar (`:758-773`). No soft-delete, no
-  grace period. It is **not** a blanket "purge of Postgres": what is not named
+  app; §4 already quotes it correctly.* Deletion is **immediate and hard**:
+  Supabase Auth hard deletion is confirmed first, then one Prisma transaction
+  runs an explicit table list plus schema cascades, ending in
+  `userProfile.delete`; object erasure follows for case documents, artifact
+  versions, outcome evidence, guardian evidence and the avatar. No soft-delete,
+  no grace period. It is **not** a blanket "purge of Postgres": what is not named
   and not reached by a cascade survives (see the table below).
 - **Account deletion URL — already shipped; only the console entry remains.**
   `web/public/suppression-compte.html` gives the in-app steps (`:16-24`) and a
@@ -879,20 +896,27 @@ form wording.
 | Play → *Can users request that their data be deleted?* | **Yes — in-app and via a web URL** | `profile_screen.dart:271-301` → `app_controller.dart:678-700` → `DELETE /profiles/me` (`profiles.controller.ts:116-120`) |
 | Play / Apple → **Account deletion URL** | `https://kpbeducation.cloud/suppression-compte.html` | page + router + uptime probe cited above |
 | Data export offered | **Yes — in-app, JSON shared from the app** | `GET /profiles/me/export` (`profiles.controller.ts:110-113` → `profiles.service.ts:823-1237`), handed to the OS share sheet as text (`profile_screen.dart:251-269`) |
-| Deletion is immediate (no retention window declared) | **Yes** | Single transaction, no soft-delete flag (`profiles.service.ts:547-733`); the web page's "sous 30 jours" is an outer bound, not the implementation |
+| Deletion is immediate (no retention window declared) | **Yes** | Supabase `should_soft_delete: false`, then the local purge transaction; the web page's "sous 30 jours" is an outer bound, not the implementation |
 
-> **Ops follow-up (required) — and its consequence is worse than "the login
-> record survives".** Without `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (the
-> key ships empty, `docker-compose.yml:54`), `deleteSupabaseAuthUser` logs and
-> returns false (`profiles.service.ts:786-799`). Because that identity still
-> authenticates, the **next authenticated request re-creates a profile** with the
-> same email (`supabase-auth.service.ts:216-262`) — a store reviewer who deletes
-> the account and reopens the app sees a working account. The app cannot even
-> tell: `deleteAccount()` is `Future<void>` over `_dio.delete<void>`
-> (`app_api_client.dart:112-114`), so the `authIdentityRemoved` flag the endpoint
-> returns (`profiles.service.ts:775-778`) is discarded and the UI reports success
-> either way (`profile_screen.dart:283-295`). Set both secrets before submission,
-> or the deletion claim is false on the reviewer's own device.
+> **The surviving-login configuration gap is closed in the repository.**
+> Production bootstrap validates `SUPABASE_URL` and the server-only
+> `SUPABASE_SERVICE_ROLE_KEY`; Compose uses required interpolation, the release
+> workflow renders the production configuration before build/backup/migration,
+> and CI proves the gate. At request time `deleteSupabaseAuthUser` sends an
+> explicit hard delete (`should_soft_delete: false`) **before any local write**.
+> A missing link/key, timeout or non-success provider response raises 503, so the
+> mobile's success path cannot run while the Auth identity survives; 404 is an
+> idempotent success because the identity is already absent.
+>
+> **Unavoidable JWT window:** Supabase hard deletion removes `auth.users`,
+> cascades sessions and invalidates refresh tokens, but an access JWT already
+> issued remains cryptographically valid until its `exp`. Because this backend
+> validates JWTs locally, that token can still reach authenticated code during
+> the remaining window (and profile provisioning can recreate a temporary local
+> shell). Keep the Supabase JWT lifetime short, clear the device session after
+> deletion, and validate `session_id` against `auth.sessions` for particularly
+> sensitive operations if immediate revocation is required. Do not represent
+> Auth deletion as retroactive revocation of already-issued JWTs.
 
 > **What survives `DELETE /profiles/me` today.** Three families — none of them a
 > cascade the schema will fix on its own.

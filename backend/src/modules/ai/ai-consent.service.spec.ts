@@ -29,16 +29,18 @@ describe('AiConsentService', () => {
     return date;
   }
 
-  it('fail-open: tryExecute → null does not block', async () => {
+  it('fails closed when the profile read is unavailable', async () => {
     const { service } = makeService({ tryExecuteResult: null });
-    await expect(service.consentBlockCode('user-a')).resolves.toBeNull();
+    await expect(service.consentBlockCode('user-a')).resolves.toBe(
+      'age_verification_required',
+    );
   });
 
   it('blocks when aiConsentedAt is absent', async () => {
     const { service } = makeService({
       tryExecuteResult: {
         aiConsentedAt: null,
-        birthDate: null,
+        birthDate: yearsAgo(20),
         guardianConsentedAt: null,
       },
     });
@@ -71,7 +73,7 @@ describe('AiConsentService', () => {
     await expect(service.consentBlockCode('user-a')).resolves.toBeNull();
   });
 
-  it('does not treat an unknown birthDate as minor', async () => {
+  it('fails closed when birthDate is unknown', async () => {
     const { service } = makeService({
       tryExecuteResult: {
         aiConsentedAt: new Date(),
@@ -79,6 +81,8 @@ describe('AiConsentService', () => {
         guardianConsentedAt: null,
       },
     });
-    await expect(service.consentBlockCode('user-a')).resolves.toBeNull();
+    await expect(service.consentBlockCode('user-a')).resolves.toBe(
+      'age_verification_required',
+    );
   });
 });

@@ -59,7 +59,7 @@ describe('AiConsentGuard + ToolsService (completeJson never called)', () => {
   it('does not call completeJson when AI consent is missing', async () => {
     const { completeJson, tools, guard } = setup({
       aiConsentedAt: null,
-      birthDate: null,
+      birthDate: new Date('2000-01-01T00:00:00.000Z'),
       guardianConsentedAt: null,
     });
 
@@ -90,20 +90,25 @@ describe('AiConsentGuard + ToolsService (completeJson never called)', () => {
     expect(completeJson).not.toHaveBeenCalled();
   });
 
-  it('fail-open: tryExecute → null lets completeJson run', async () => {
+  it('fails closed when the profile read is unavailable', async () => {
     const { completeJson, tools, guard } = setup(null);
 
-    await expect(invokeCvSummary(guard, tools, 'user-a')).resolves.toEqual({
-      fr: 'Résumé FR',
-      en: 'Summary EN',
-    });
-    expect(completeJson).toHaveBeenCalledTimes(1);
+    try {
+      await invokeCvSummary(guard, tools, 'user-a');
+      fail('expected ForbiddenException');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ForbiddenException);
+      expect((error as ForbiddenException).getResponse()).toMatchObject({
+        code: 'age_verification_required',
+      });
+    }
+    expect(completeJson).not.toHaveBeenCalled();
   });
 
   it('calls completeJson when consent is recorded', async () => {
     const { completeJson, tools, guard } = setup({
       aiConsentedAt: new Date(),
-      birthDate: null,
+      birthDate: new Date('2000-01-01T00:00:00.000Z'),
       guardianConsentedAt: null,
     });
 

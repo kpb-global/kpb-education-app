@@ -3,18 +3,13 @@ name: Backend CI
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'docker-compose.yml'
-      - '.env.example'
-      - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'docker-compose.yml'
-      - '.env.example'
-      - '.github/workflows/backend-ci.yml'
+
+# Intentionally no path filter. Production deploys are authorized by an exact
+# head-SHA workflow run. If this workflow is skipped on a docs/admin-only
+# commit, that commit has no backend evidence and cannot be deployed even when
+# its backend tree is byte-for-byte unchanged.
 
 jobs:
   build-and-test:
@@ -50,6 +45,7 @@ jobs:
       KPB_JWT_REFRESH_SECRET: ci-only-not-a-real-secret
       KPB_ADMIN_REFRESH_SECRET: ci-only-not-a-real-secret
       SUPABASE_URL: https://ci.example.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: sb_secret_ci-only-not-a-real-secret-000000000000
       CORS_ORIGINS: http://localhost:3000
       POSTGRES_USER: kpb
       POSTGRES_PASSWORD: kpb

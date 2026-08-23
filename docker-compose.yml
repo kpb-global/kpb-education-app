@@ -48,10 +48,11 @@ services:
       - KPB_MVP_ONLY=${KPB_MVP_ONLY:-true}
       # One Nginx proxy is trusted to provide the real client IP for throttling.
       - KPB_TRUST_PROXY_HOPS=${KPB_TRUST_PROXY_HOPS:-1}
-      # Needed so account deletion also removes the Supabase Auth identity
-      # (GDPR + Apple/Google account-deletion requirement). Without it, the
-      # Postgres data is purged but the login survives.
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      # Server-only credential for Supabase Auth hard deletion. This is a
+      # production invariant: Compose refuses to render without it, and the API
+      # also validates it before accepting traffic. Never use an anon/
+      # publishable key or expose this value to a client image.
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:?SUPABASE_SERVICE_ROLE_KEY is required for production account deletion}
       # ── Feature integrations (optional; leave blank to disable the feature) ──
       - GROQ_API_KEY=${GROQ_API_KEY:-}
       - GROQ_MODEL=${GROQ_MODEL:-}
@@ -234,6 +235,16 @@ services:
       - ./backend/scripts/backup-loop.sh:/usr/local/bin/backup-loop.sh:ro
       - ./backups:/backups
     entrypoint: ["sh", "/usr/local/bin/backup-loop.sh"]
+    # A running sleep loop is not proof of a backup. Healthy means a non-empty
+    # daily archive exists and is no older than 30 hours. The scheduled
+    # backup-readiness workflow additionally checks gzip integrity and records
+    # an optional isolated restore drill.
+    healthcheck:
+      test: ["CMD-SHELL", "find /backups -maxdepth 1 -type f -name 'kpb-*.sql.gz' -mmin -1800 -size +1023c | grep -q ."]
+      interval: 1h
+      timeout: 10s
+      retries: 2
+      start_period: 5m
 
   # Admin console (Next.js standalone). Routed by Traefik for
   # admin.kpbeducation.cloud. The API base URL is inlined at BUILD time

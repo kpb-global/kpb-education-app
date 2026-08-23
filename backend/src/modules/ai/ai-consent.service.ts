@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 export type AiConsentBlockCode =
   | 'ai_consent_required'
+  | 'age_verification_required'
   | 'guardian_consent_required';
 
 /**
@@ -13,11 +14,9 @@ export type AiConsentBlockCode =
  * the student must have opted in (`aiConsentedAt`), and a minor additionally
  * needs recorded guardian consent.
  *
- * Fail-open: when `tryExecute` returns null (no DATABASE_URL, or the query
- * failed) we cannot verify, so we allow the call and rely on the client-side
- * gate. Do not "fix" this to fail-closed without updating the dedicated test
- * and the product decision — a hard block on every DB blip would lock the
- * coach in local/dev and during a brief Postgres outage.
+ * Fail-closed: a missing profile, unknown birth date, or failed profile read
+ * blocks third-party AI processing. Availability cannot outrank consent and
+ * age verification; local development can seed a profile to exercise AI.
  *
  * Not to be confused with `competition-readiness/diagnostics/ai-consent.*`
  * (Success Lab, minimum diagnostic age 13).
@@ -39,7 +38,7 @@ export class AiConsentService {
         },
       }),
     );
-    if (!profile) return null; // DB down or no row → don't hard-block.
+    if (!profile?.birthDate) return 'age_verification_required';
     if (profile.aiConsentedAt == null) return 'ai_consent_required';
     if (this.isMinor(profile.birthDate) && profile.guardianConsentedAt == null) {
       return 'guardian_consent_required';
@@ -47,11 +46,10 @@ export class AiConsentService {
     return null;
   }
 
-  /// Under 18 at the time of the call. An unknown birthDate is NOT treated
-  /// as minor — onboarding does not require it, so blocking on null would
-  /// lock out every adult who skipped the field.
+  /// Under 18 at the time of the call. Callers must block an unknown birthDate
+  /// before invoking this helper; unknown age is never evidence of adulthood.
   isMinor(birthDate: Date | null | undefined): boolean {
-    if (!birthDate) return false;
+    if (!birthDate) return true;
     const eighteenthBirthday = new Date(birthDate);
     eighteenthBirthday.setFullYear(eighteenthBirthday.getFullYear() + 18);
     return eighteenthBirthday.getTime() > Date.now();

@@ -7,7 +7,10 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Validate,
 } from 'class-validator';
+
+import { MinimumAccountAgeConstraint } from '../profile-age.policy';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -112,6 +115,7 @@ export class UpdateProfileDto {
   // Age gate + self-attested guardian consent for declared minors (<18).
   @IsOptional()
   @IsDateString()
+  @Validate(MinimumAccountAgeConstraint)
   birthDate?: string;
 
   @IsOptional()

@@ -8,7 +8,9 @@ import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/orientation_engine.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/ai_content_report_service.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/ai_content_report_sheet.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/study_level.dart';
 import '../cases/case_composer_sheet.dart';
@@ -542,6 +544,7 @@ class _ResultsViewState extends State<_ResultsView>
                         controller: controller,
                         isBest: i == 0,
                         context: ctx,
+                        sourceReference: '${widget.result.id}:${rec.fieldId}',
                       ),
                     );
                   },
@@ -915,6 +918,7 @@ class _RecommendationCard extends StatelessWidget {
     required this.controller,
     required this.isBest,
     required this.context,
+    required this.sourceReference,
   });
 
   final dynamic rec;
@@ -929,6 +933,7 @@ class _RecommendationCard extends StatelessWidget {
   final AppController controller;
   final bool isBest;
   final BuildContext context;
+  final String sourceReference;
 
   @override
   Widget build(BuildContext ctx) {
@@ -1031,6 +1036,24 @@ class _RecommendationCard extends StatelessWidget {
           Text(
             controller.resolve(rec.explanation),
             style: KpbTextStyles.body,
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              key: ValueKey('orientation_report_ai_output_${field.id}'),
+              onPressed: () => showAiContentReportSheet(
+                context: ctx,
+                surface: AiContentSurface.orientation,
+                generatedText: controller.resolve(rec.explanation),
+                sourceReference: sourceReference,
+              ),
+              icon: const Icon(Icons.flag_outlined, size: 14),
+              label: Text('ai_report_action'.tr),
+              style: TextButton.styleFrom(
+                foregroundColor: context.kpb.textMuted,
+                textStyle: const TextStyle(fontSize: 11),
+              ),
+            ),
           ),
           if ((rec.jobs as List<String>).isNotEmpty) ...[
             const SizedBox(height: KpbSpacing.md),

@@ -2,6 +2,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { ProfilesService } from './profiles.service';
 
+const originalNodeEnv = process.env.NODE_ENV;
+
 // No files in these fixtures (caseDocument.findMany → []), so the stub is never
 // actually exercised; it only satisfies the constructor signature.
 const fakeStorage = {
@@ -12,8 +14,8 @@ const fakeStorage = {
 /**
  * Guards the GDPR / store-required account deletion (KPB-67): the purge must run
  * as one transaction in FK-safe order (case children → case-referencing rows →
- * cases → other user-owned rows → profile last), and must not delete the
- * Supabase auth identity unless the service-role secret is configured.
+ * cases → other user-owned rows → profile last). In production, Auth deletion
+ * must succeed before any local write or the request fails closed.
  */
 describe('ProfilesService — account deletion & export', () => {
   const MODELS = [
@@ -102,7 +104,13 @@ describe('ProfilesService — account deletion & export', () => {
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   });
 
-  it('purges all rows in FK-safe order, profile last, auth identity skipped without secret', async () => {
+  afterEach(() => {
+    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = originalNodeEnv;
+    jest.restoreAllMocks();
+  });
+
+  it('keeps local test ergonomics while purging all rows in FK-safe order', async () => {
     const { client, calls } = makeFakePrisma({
       email: 'a@b.com',
       supabaseUserId: 'sup-123',
@@ -154,6 +162,115 @@ describe('ProfilesService — account deletion & export', () => {
     expect(calls.indexOf('consentReceipt.deleteMany')).toBeLessThan(
       calls.indexOf('guardianAuthorization.deleteMany'),
     );
+  });
+
+  it('hard-deletes Supabase Auth before the local transaction', async () => {
+    process.env.SUPABASE_URL = 'https://unit-test.supabase.co/';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = `sb_secret_${'s'.repeat(32)}`;
+    const { client, calls } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: 'sup-123',
+    });
+    const fetchMock = jest.spyOn(global, 'fetch').mockImplementation(async () => {
+      calls.push('supabaseAuth.hardDelete');
+      return { ok: true, status: 200 } as Response;
+    });
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await expect(
+      new ProfilesService(prisma, fakeStorage).deleteMe('user-1'),
+    ).resolves.toEqual({ deleted: true, authIdentityRemoved: true });
+
+    expect(calls[0]).toBe('supabaseAuth.hardDelete');
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://unit-test.supabase.co/auth/v1/admin/users/sup-123',
+      expect.objectContaining({
+        method: 'DELETE',
+        body: JSON.stringify({ should_soft_delete: false }),
+        headers: expect.objectContaining({
+          'content-type': 'application/json',
+        }),
+      }),
+    );
+    expect(fetchMock.mock.calls[0][1]?.headers).not.toEqual(
+      expect.objectContaining({ apikey: '' }),
+    );
+  });
+
+  it('aborts before local writes when Supabase Auth deletion fails', async () => {
+    process.env.SUPABASE_URL = 'https://unit-test.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = `sb_secret_${'s'.repeat(32)}`;
+    const { client, calls } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: 'sup-123',
+    });
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue({ ok: false, status: 503 } as Response);
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await expect(
+      new ProfilesService(prisma, fakeStorage).deleteMe('user-1'),
+    ).rejects.toThrow('Account deletion is temporarily unavailable');
+    expect(calls).toEqual([]);
+  });
+
+  it('fails closed in production when the profile has no Auth link', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.SUPABASE_URL = 'https://unit-test.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = `sb_secret_${'s'.repeat(32)}`;
+    const { client, calls } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: null,
+    });
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await expect(
+      new ProfilesService(prisma, fakeStorage).deleteMe('user-1'),
+    ).rejects.toThrow('Account deletion is temporarily unavailable');
+    expect(calls).toEqual([]);
+  });
+
+  it('fails closed in production when the admin key is unavailable', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.SUPABASE_URL = 'https://unit-test.supabase.co';
+    const { client, calls } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: 'sup-123',
+    });
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await expect(
+      new ProfilesService(prisma, fakeStorage).deleteMe('user-1'),
+    ).rejects.toThrow('Account deletion is temporarily unavailable');
+    expect(calls).toEqual([]);
+  });
+
+  it('treats an already-absent Auth identity as an idempotent success', async () => {
+    process.env.SUPABASE_URL = 'https://unit-test.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = `sb_secret_${'s'.repeat(32)}`;
+    const { client } = makeFakePrisma({
+      email: 'a@b.com',
+      supabaseUserId: 'sup-123',
+    });
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue({ ok: false, status: 404 } as Response);
+    const prisma = {
+      execute: async (fn: (c: unknown) => unknown) => fn(client),
+    } as unknown as PrismaService;
+
+    await expect(
+      new ProfilesService(prisma, fakeStorage).deleteMe('user-1'),
+    ).resolves.toEqual({ deleted: true, authIdentityRemoved: true });
   });
 
   it('removes private artifact objects after the database purge', async () => {

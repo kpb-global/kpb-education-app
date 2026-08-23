@@ -486,6 +486,25 @@ class AppTranslations extends Translations {
               'Tu as atteint la limite de @quota messages cette semaine. Reviens la semaine prochaine ou contacte un conseiller humain.',
           'coach_online_status':
               'En ligne • @rem/@total restants cette semaine',
+          'ai_report_action': 'Signaler',
+          'ai_report_title': 'Signaler cette réponse IA',
+          'ai_report_body':
+              'Choisis un motif. La réponse et ta note seront transmises de façon sécurisée à l’équipe KPB pour examen.',
+          'ai_report_reason_label': 'Pourquoi la signales-tu ?',
+          'ai_report_reason_inaccurate': 'Inexacte ou trompeuse',
+          'ai_report_reason_unsafe': 'Dangereuse ou nuisible',
+          'ai_report_reason_offensive': 'Offensante ou biaisée',
+          'ai_report_reason_privacy': 'Problème de confidentialité',
+          'ai_report_reason_other': 'Autre',
+          'ai_report_note_label': 'Détails facultatifs',
+          'ai_report_note_hint': 'Explique ce qui pose problème…',
+          'ai_report_submit': 'Envoyer le signalement',
+          'ai_report_submitting': 'Envoi…',
+          'ai_report_submit_error':
+              'Le signalement n’a pas été enregistré. Vérifie ta connexion et réessaie.',
+          'ai_report_success_title': 'Signalement envoyé',
+          'ai_report_success_body':
+              'L’équipe KPB examinera le dossier @code. Merci de nous avoir prévenus.',
           // --- KPB-89 batch ---
           'commercial_my_profile': 'Mon profil',
           'commercial_refresh_stats': 'Actualiser les stats',
@@ -3498,6 +3517,25 @@ class AppTranslations extends Translations {
           'coach_quota_reached_body':
               'You\'ve reached the limit of @quota messages this week. Come back next week or contact a human advisor.',
           'coach_online_status': 'Online • @rem/@total left this week',
+          'ai_report_action': 'Report',
+          'ai_report_title': 'Report this AI response',
+          'ai_report_body':
+              'Choose a reason. The response and your note will be sent securely to the KPB team for review.',
+          'ai_report_reason_label': 'Why are you reporting it?',
+          'ai_report_reason_inaccurate': 'Inaccurate or misleading',
+          'ai_report_reason_unsafe': 'Unsafe or harmful',
+          'ai_report_reason_offensive': 'Offensive or biased',
+          'ai_report_reason_privacy': 'Privacy concern',
+          'ai_report_reason_other': 'Other',
+          'ai_report_note_label': 'Optional details',
+          'ai_report_note_hint': 'Explain what is wrong…',
+          'ai_report_submit': 'Send report',
+          'ai_report_submitting': 'Sending…',
+          'ai_report_submit_error':
+              'The report was not saved. Check your connection and try again.',
+          'ai_report_success_title': 'Report sent',
+          'ai_report_success_body':
+              'The KPB team will review case @code. Thank you for telling us.',
           // --- KPB-89 batch ---
           'commercial_my_profile': 'My profile',
           'commercial_refresh_stats': 'Refresh stats',

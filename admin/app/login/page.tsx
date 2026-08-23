@@ -30,10 +30,11 @@ export default function LoginPage() {
       await login(email, password);
       router.replace('/');
     } catch (submissionError) {
+      const status = (submissionError as { status?: number } | null)?.status;
       setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : t('login.error'),
+        status === 401 || status === 403
+          ? t('login.error')
+          : t('login.unavailable'),
       );
     } finally {
       setIsSubmitting(false);
@@ -108,6 +109,7 @@ export default function LoginPage() {
           </label>
           {error ? (
             <div
+              role="alert"
               style={{
                 borderRadius: 14,
                 background: 'var(--danger-bg)',
