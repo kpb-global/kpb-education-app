@@ -307,6 +307,11 @@ jobs:
         run: |
           set -euo pipefail
           AAB=build/app/outputs/bundle/release/app-release.aab
+          BUNDLETOOL_VERSION=1.18.1
+          BUNDLETOOL_JAR="$RUNNER_TEMP/bundletool-all-${BUNDLETOOL_VERSION}.jar"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output "$BUNDLETOOL_JAR" \
+            "https://github.com/google/bundletool/releases/download/${BUNDLETOOL_VERSION}/bundletool-all-${BUNDLETOOL_VERSION}.jar"
 
           # Derive the PUBLIC upload-certificate fingerprint from the keystore
           # already installed for this job. The password and key material are
@@ -325,7 +330,7 @@ jobs:
             exit 1
           fi
 
-          scripts/preflight-android-aab.sh \
+          BUNDLETOOL_JAR="$BUNDLETOOL_JAR" scripts/preflight-android-aab.sh \
             --aab "$AAB" \
             --expected-cert-sha256 "$EXPECTED_CERT_SHA256"
 

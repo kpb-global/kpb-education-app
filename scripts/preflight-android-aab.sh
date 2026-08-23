@@ -99,18 +99,14 @@ unzip -Z1 "$AAB" | grep -Fxq 'base/manifest/AndroidManifest.xml' || \
   fail "manifeste base absent de l'AAB"
 
 BUNDLETOOL_JAR="${BUNDLETOOL_JAR:-}"
-if [[ -z "$BUNDLETOOL_JAR" ]]; then
-  GRADLE_CACHE="${GRADLE_USER_HOME:-$HOME/.gradle}/caches/modules-2/files-2.1/com.android.tools.build/bundletool"
-  BUNDLETOOL_JAR=$(find "$GRADLE_CACHE" -type f -name 'bundletool-*.jar' -print -quit 2>/dev/null || true)
-fi
 [[ -n "$BUNDLETOOL_JAR" && -f "$BUNDLETOOL_JAR" ]] || {
-  echo "bundletool introuvable. Définissez BUNDLETOOL_JAR ou exécutez ce préflight après la construction Gradle de l'AAB." >&2
+  echo "bundletool-all introuvable. Définissez BUNDLETOOL_JAR vers le JAR CLI autonome." >&2
   exit 2
 }
 
 # An AAB is not an APK: its base manifest is protobuf XML, which aapt2 cannot
-# read from the bundle archive. bundletool is the Android-supported decoder and
-# is already downloaded by the Android Gradle Plugin during the AAB build.
+# read from the bundle archive. bundletool-all is the Android-supported,
+# standalone decoder supplied explicitly by the release workflow.
 MANIFEST_DUMP="$TMP_DIR/manifest.xml"
 "$JAVA_RUNTIME_HOME/bin/java" -jar "$BUNDLETOOL_JAR" dump manifest --bundle="$AAB" >"$MANIFEST_DUMP" || \
   fail "manifeste AAB illisible par bundletool"
