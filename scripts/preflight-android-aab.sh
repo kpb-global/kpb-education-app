@@ -98,29 +98,30 @@ unzip -tq "$AAB" >/dev/null || fail "conteneur AAB corrompu"
 unzip -Z1 "$AAB" | grep -Fxq 'base/manifest/AndroidManifest.xml' || \
   fail "manifeste base absent de l'AAB"
 
-if [[ -n "${AAPT2:-}" && -x "${AAPT2:-}" ]]; then
-  AAPT2_BIN="$AAPT2"
-else
-  SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
-  AAPT2_BIN=$(find "$SDK_ROOT/build-tools" -name aapt2 -type f 2>/dev/null | sort -V | tail -1)
+BUNDLETOOL_JAR="${BUNDLETOOL_JAR:-}"
+if [[ -z "$BUNDLETOOL_JAR" ]]; then
+  GRADLE_CACHE="${GRADLE_USER_HOME:-$HOME/.gradle}/caches/modules-2/files-2.1/com.android.tools.build/bundletool"
+  BUNDLETOOL_JAR=$(find "$GRADLE_CACHE" -type f -name 'bundletool-*.jar' -print -quit 2>/dev/null || true)
 fi
-[[ -n "${AAPT2_BIN:-}" && -x "$AAPT2_BIN" ]] || {
-  echo "aapt2 introuvable. Définissez AAPT2 ou installez Android build-tools." >&2
+[[ -n "$BUNDLETOOL_JAR" && -f "$BUNDLETOOL_JAR" ]] || {
+  echo "bundletool introuvable. Définissez BUNDLETOOL_JAR ou exécutez ce préflight après la construction Gradle de l'AAB." >&2
   exit 2
 }
 
-MANIFEST_DUMP="$TMP_DIR/manifest.txt"
-"$AAPT2_BIN" dump xmltree --file base/manifest/AndroidManifest.xml "$AAB" >"$MANIFEST_DUMP" || \
-  fail "manifeste AAB illisible par aapt2"
+# An AAB is not an APK: its base manifest is protobuf XML, which aapt2 cannot
+# read from the bundle archive. bundletool is the Android-supported decoder and
+# is already downloaded by the Android Gradle Plugin during the AAB build.
+MANIFEST_DUMP="$TMP_DIR/manifest.xml"
+"$JAVA_RUNTIME_HOME/bin/java" -jar "$BUNDLETOOL_JAR" dump manifest --bundle="$AAB" >"$MANIFEST_DUMP" || \
+  fail "manifeste AAB illisible par bundletool"
 
-grep -Fq "A: package=\"$EXPECTED_PACKAGE\"" "$MANIFEST_DUMP" || \
+grep -Fq "package=\"$EXPECTED_PACKAGE\"" "$MANIFEST_DUMP" || \
   fail "applicationId différent de $EXPECTED_PACKAGE"
-grep -Eq "versionCode[^=]*=$EXPECTED_VERSION_CODE([[:space:]]|$)" "$MANIFEST_DUMP" || \
+grep -Fq "android:versionCode=\"$EXPECTED_VERSION_CODE\"" "$MANIFEST_DUMP" || \
   fail "versionCode différent de $EXPECTED_VERSION_CODE"
-grep -Fq "versionName" "$MANIFEST_DUMP" || fail "versionName absent"
-grep -Fq "=\"$EXPECTED_VERSION_NAME\"" "$MANIFEST_DUMP" || \
+grep -Fq "android:versionName=\"$EXPECTED_VERSION_NAME\"" "$MANIFEST_DUMP" || \
   fail "versionName différent de $EXPECTED_VERSION_NAME"
-grep -Eq "targetSdkVersion[^=]*=$EXPECTED_TARGET_SDK([[:space:]]|$)" "$MANIFEST_DUMP" || \
+grep -Fq "android:targetSdkVersion=\"$EXPECTED_TARGET_SDK\"" "$MANIFEST_DUMP" || \
   fail "targetSdkVersion différent de $EXPECTED_TARGET_SDK"
 
 grep -Fq 'com.google.android.gms.permission.AD_ID' "$MANIFEST_DUMP" && \
@@ -129,20 +130,21 @@ grep -Fq 'android.permission.QUERY_ALL_PACKAGES' "$MANIFEST_DUMP" && \
   fail "permission QUERY_ALL_PACKAGES interdite présente"
 
 python3 - "$MANIFEST_DUMP" <<'PY' || fail "collecteurs natifs non désactivés par défaut"
-import pathlib
 import sys
+import xml.etree.ElementTree as ET
 
-lines = pathlib.Path(sys.argv[1]).read_text().splitlines()
+android = '{http://schemas.android.com/apk/res/android}'
+root = ET.parse(sys.argv[1]).getroot()
 for key in (
     "google_analytics_adid_collection_enabled",
     "firebase_analytics_collection_enabled",
     "firebase_crashlytics_collection_enabled",
 ):
-    positions = [index for index, line in enumerate(lines) if f'="{key}"' in line]
-    if len(positions) != 1:
-        raise SystemExit(1)
-    window = "\n".join(lines[positions[0]:positions[0] + 5])
-    if "android:value" not in window or not any(marker in window for marker in ("=false", "=0x0", "0xffffffff=0x0")):
+    entries = [
+        entry for entry in root.findall('.//meta-data')
+        if entry.get(android + 'name') == key
+    ]
+    if len(entries) != 1 or entries[0].get(android + 'value') != 'false':
         raise SystemExit(1)
 PY
 
