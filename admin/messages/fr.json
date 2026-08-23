@@ -32,7 +32,8 @@
     "passwordLabel": "Mot de passe",
     "submit": "Se connecter",
     "loading": "Connexion en cours…",
-    "error": "Email introuvable ou inactif."
+    "error": "Email introuvable ou inactif.",
+    "unavailable": "Le service de connexion est temporairement indisponible. Réessayez dans quelques instants."
   },
   "overview": {
     "title": "Tableau de bord",

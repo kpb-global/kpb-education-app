@@ -460,7 +460,8 @@ App Privacy et Play Data Safety reste `docs/data-inventory.md` (dérivé du code
 et `docs/STORE_READINESS.md`. Points que la fiche marketing ne doit surtout pas
 contredire : analyse d'usage **active par défaut** avec opt-out
 (`lib/app/core/repositories/app_snapshot.dart:50-53`), OneSignal reçoit
-l'adresse e-mail (`lib/app/core/services/onesignal_service.dart:61-69`),
+l'identifiant de profil et quatre étiquettes de ciblage mais **aucun e-mail**
+(`lib/app/core/services/onesignal_service.dart`),
 Crashlytics n'est pas coupé par le refus d'analytique
 (`lib/app/core/services/analytics_service.dart:96-108`).
 

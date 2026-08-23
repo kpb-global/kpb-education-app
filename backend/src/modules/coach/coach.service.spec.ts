@@ -93,7 +93,10 @@ describe('CoachService — AI consent gate', () => {
       userProfile: {
         findUnique: async () => ({
           aiConsentedAt,
-          birthDate: profileExtra.birthDate ?? null,
+          birthDate:
+            'birthDate' in profileExtra
+              ? (profileExtra.birthDate ?? null)
+              : new Date('2000-01-01T00:00:00.000Z'),
           guardianConsentedAt: profileExtra.guardianConsentedAt ?? null,
         }),
       },
@@ -206,7 +209,7 @@ describe('CoachService — AI consent gate', () => {
     expect(events.some((e) => e.code === 'guardian_consent_required')).toBe(false);
   });
 
-  it('does not treat an unknown birthDate as minor', async () => {
+  it('fails closed when birthDate is unknown', async () => {
     const service = makeService(new Date(), {
       birthDate: null,
       guardianConsentedAt: null,
@@ -220,7 +223,11 @@ describe('CoachService — AI consent gate', () => {
         profile: { preferredLanguage: 'fr' },
       }),
     );
-    expect(events.some((e) => e.type === 'token')).toBe(true);
-    expect(events.some((e) => e.code === 'guardian_consent_required')).toBe(false);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'error',
+      code: 'age_verification_required',
+    });
+    expect(events.some((e) => e.type === 'token')).toBe(false);
   });
 });

@@ -47,7 +47,7 @@ void main() {
         answers: {},
         recommendations: [
           OrientationRecommendation(
-            fieldId: 'engineering',
+            fieldId: 'd01',
             score: 95,
             explanation: const LocalizedText(
               fr: 'Vous aimez les maths et la logique.',
@@ -94,6 +94,17 @@ void main() {
       // Get.back()) rather than an app-bar arrow. Assert the primary action.
       // (The label now goes through `.tr`; the test harness renders the raw key.)
       expect(find.text('see_schools'), findsWidgets);
+
+      expect(
+        find.byKey(const ValueKey('orientation_report_ai_output_d01')),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('orientation_report_ai_output_d01')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('ai_report_title'), findsOneWidget);
+      expect(find.text('ai_report_submit'), findsOneWidget);
     });
 
     testWidgets('renders ConsultativeView with back button when user is parent',

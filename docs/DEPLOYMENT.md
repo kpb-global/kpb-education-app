@@ -1,5 +1,11 @@
 # KPB Education - Deployment Guide
 
+The authoritative executable go-live gates (immutable SHA, exact-SHA CI,
+backup/restore evidence and 24-hour stability) are collected in
+[`go-live-operations-gates.md`](go-live-operations-gates.md). This guide remains
+the infrastructure runbook; the linked gates decide whether a release may
+advance.
+
 Pour l'activation et les incidents du Success Lab, appliquer également le
 runbook `docs/kpb-competition-readiness-operations-runbook.md`. Un déploiement
 réussi ne vaut pas autorisation de pilote tant que sa checklist terrain n'est
@@ -123,10 +129,15 @@ Ce que le workflow ajoute par rapport au manuel :
 > additives (colonnes nullables ou avec défaut), qu'un code plus ancien ignore.
 > Ne restaurer la base qu'en cas de corruption avérée.
 
-**Limite connue, assumée** : le `rsync` du workflow n'utilise pas `--delete`,
-ce qui protège `.env` et `backups/` (présents seulement sur le VPS). Conséquence
-directe : un fichier **supprimé du dépôt reste servi en production**. Retirer une
-page de `web/public/` demande donc un `rm` à la main sur le VPS.
+**Synchronisation bornée** : le workflow ne lance jamais `rsync --delete` sur la
+racine du déploiement. Il synchronise séparément les quatre arbres autorisés
+`backend/`, `admin/`, `web/` et `scripts/`, et ne supprime que dans l'arbre en
+cours. Un fichier retiré du dépôt est donc retiré du VPS, y compris une ancienne
+page de `web/public/`. Des règles explicites protègent les `.env` d'exécution,
+`node_modules`, caches de dépendances/build, uploads, stockage et logs. Le `.env`
+racine, `backups/`, les volumes Docker et toutes les autres données du VPS sont
+hors des destinations de suppression. Le contrat est simulé sans SSH dans
+`release-safeguards-ci.yml` via `scripts/sync-deployment-tree.sh`.
 
 ## Ordre de livraison : le backend d'abord, le mobile ensuite
 
@@ -140,12 +151,20 @@ backend, si.
 lancer **Actions → « Release preflight (backend before mobile) » → Run workflow**
 avec le ref d'où la build est coupée. Il est rouge si :
 
+- le ref ne résout pas vers un commit de `origin/main`, ou si Backend/Admin/
+  Flutter/Release safeguards CI ne sont pas verts pour ce SHA exact ;
 - `GET /api/health/version` ne renvoie pas le même SHA court que
   `git rev-parse --short=12 <ref>` — donc la prod est en retard ;
 - il renvoie `sha: unknown` — la prod n'a pas été livrée par `deploy.yml` ;
-- `https://kpbeducation.cloud/app` ne contient pas l'identifiant App Store.
+- `https://kpbeducation.cloud/app` ne contient pas l'identifiant App Store ;
+- le delivery gate public ou le dernier heartbeat de sauvegarde échoue ;
+- la fenêtre de disponibilité de 24 heures contient un échec, moins de 80
+  sondes réussies ou un trou supérieur à 30 minutes.
 
-Il est en lecture seule : deux `curl` et un `git rev-parse`.
+Il est en lecture seule : lectures Git/GitHub et sondes HTTP, sans accès en
+écriture au VPS, à la base ou aux stores. La séquence complète et la dérogation
+de stabilité explicitement tracée sont décrites dans
+[`go-live-operations-gates.md`](go-live-operations-gates.md).
 
 > **Pourquoi un workflow et pas un paragraphe.** Ce document contient depuis des
 > semaines la phrase « Mise en service : `docker compose up -d web` ». Elle n'a
@@ -295,6 +314,7 @@ KPB_ADMIN_REFRESH_SECRET=another_long_random_secret
 # Auth Supabase (étudiants/parents) — SUPABASE_URL est obligatoire
 SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_JWT_SECRET=            # seulement pour les projets HS256 legacy
+SUPABASE_SERVICE_ROLE_KEY=      # secret serveur, obligatoire pour supprimer l'identité Auth
 
 # Origines CORS autorisées (app admin web), séparées par des virgules
 CORS_ORIGINS=https://admin.kpbeducation.cloud
@@ -302,6 +322,22 @@ CORS_ORIGINS=https://admin.kpbeducation.cloud
 # L'API est derrière exactement un proxy (Traefik) ; nécessaire au rate limiting
 KPB_TRUST_PROXY_HOPS=1
 ```
+
+`SUPABASE_SERVICE_ROLE_KEY` doit contenir la clé `service_role` historique ou
+la clé secrète serveur (`sb_secret_…`), jamais la clé anon/publishable. Compose
+refuse maintenant de rendre la configuration si elle manque et l'API refuse de
+démarrer en production si elle est absente ou manifestement publique. La
+suppression de compte appelle explicitement le hard delete Supabase
+(`should_soft_delete: false`) avant toute écriture de purge locale ; une erreur
+du fournisseur renvoie 503 et ne peut donc pas être affichée comme un succès.
+
+Supabase supprime alors les sessions et les refresh tokens, mais un JWT d'accès
+déjà émis reste cryptographiquement valable jusqu'à son `exp`. Garder une durée
+JWT courte dans le Dashboard Auth, faire effacer la session locale par le client
+et, pour une opération particulièrement sensible durant cette fenêtre, vérifier
+le `session_id` contre `auth.sessions`. Cette limite JWT doit être mentionnée
+dans la revue de lancement : aucune API de suppression ne peut révoquer un JWT
+autosuffisant déjà distribué.
 
 3. Construisez les images, sauvegardez la base, exécutez explicitement
    `npx prisma migrate deploy` avec la nouvelle image, puis remplacez les
@@ -383,6 +419,13 @@ gzippé par jour dans `./backups` sur le VPS (bind mount → les dumps survivent
 `docker-compose down -v`), avec une rétention de `BACKUP_KEEP_DAYS` jours (14 par
 défaut ; réglable dans `.env`).
 
+Le conteneur est marqué `unhealthy` si aucun dump quotidien non vide de moins de
+30 heures n'existe. Le workflow **Backup readiness** vérifie cet état et
+l'intégrité de l'archive toutes les six heures. Le workflow manuel **Backup
+restore drill** restaure dans un conteneur et un volume jetables, jamais dans
+`kpb_db`.
+Voir [`go-live-operations-gates.md`](go-live-operations-gates.md#3-backup-heartbeat-and-safe-restore-evidence).
+
 **Important — copie hors-site :** `./backups` est sur le même disque que la base.
 Pour protéger contre une perte totale du VPS, synchronisez ce dossier vers un
 stockage externe (les identifiants S3 `KPB_S3_*` existent déjà). Exemple de cron
@@ -403,6 +446,9 @@ docker-compose up -d api
 ```
 
 Testez une restauration complète sur un environnement jetable avant le lancement.
+La commande sûre par défaut est `BACKUP_DIR=./backups scripts/restore-drill.sh`;
+elle ne fait qu'afficher le plan. Utilisez le workflow avec
+`execute_restore_drill=true` pour obtenir une preuve Actions horodatée.
 
 ---
 

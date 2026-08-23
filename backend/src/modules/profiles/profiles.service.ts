@@ -1,6 +1,12 @@
 import { createHash, createHmac } from 'node:crypto';
 
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import type { UserProfile } from '@prisma/client';
 
 import { NewsletterSyncService } from '../newsletter/newsletter-sync.service';
@@ -35,6 +41,7 @@ import {
   AVATAR_ENDPOINT_PATH,
   AVATAR_STORAGE_LABEL,
 } from './profile-avatar.policy';
+import { isAtLeastAge, MINIMUM_ACCOUNT_AGE } from './profile-age.policy';
 
 /** The multipart file as produced by multer's memory storage. */
 export interface UploadedAvatarFile {
@@ -145,6 +152,19 @@ export class ProfilesService {
 
   async updateMe(input: UpdateProfileDto, userId?: string) {
     const id = userId ?? 'demo-user';
+
+    // Do not rely on the mobile onboarding form for the contractual 16+ floor.
+    // The DTO catches HTTP calls and this duplicate service-boundary check also
+    // covers internal/direct callers that bypass Nest's ValidationPipe.
+    if (
+      input.birthDate !== undefined &&
+      !isAtLeastAge(input.birthDate, MINIMUM_ACCOUNT_AGE)
+    ) {
+      throw new BadRequestException({
+        code: 'minimum_age_not_met',
+        message: `You must be at least ${MINIMUM_ACCOUNT_AGE} years old to create an account.`,
+      });
+    }
 
     // Newsletter consent transition: stamp the GDPR proof only when the flag
     // actually flips to true — re-sending true must not rewrite the original
@@ -423,10 +443,11 @@ export class ProfilesService {
       );
   }
 
-  /// GDPR / store-required account deletion. Hard-deletes every user-owned row
-  /// in one transaction (FK-safe order: case children → case-referencing rows →
-  /// cases → other user-owned rows → profile), then best-effort deletes the
-  /// Supabase auth identity. Returns flags so the client can report honestly.
+  /// GDPR / store-required account deletion. The Supabase identity is hard-
+  /// deleted first, then every user-owned row is hard-deleted in one transaction
+  /// (FK-safe order: case children → case-referencing rows → cases → other
+  /// user-owned rows → profile). A provider failure aborts before any local
+  /// write, so this endpoint can never report success while the login survives.
   async deleteMe(
     userId?: string,
   ): Promise<{ deleted: boolean; authIdentityRemoved: boolean }> {
@@ -443,6 +464,16 @@ export class ProfilesService {
         },
       });
       if (!profile) return null;
+
+      // Supabase Auth and Postgres cannot share a transaction. Delete Auth
+      // first so provider/configuration failures leave the local account intact
+      // and retriable instead of purging the only durable Supabase user id.
+      // A later Postgres failure is returned as an error (never as success) and
+      // needs operational cleanup; already-issued JWTs may remain valid only
+      // until their configured expiry, per Supabase's documented semantics.
+      const authIdentityRemoved = await this.deleteSupabaseAuthUser(
+        profile.supabaseUserId,
+      );
 
       const cases = await prisma.case.findMany({
         where: { userId: id },
@@ -734,6 +765,7 @@ export class ProfilesService {
       ]);
 
       return {
+        authIdentityRemoved,
         supabaseUserId: profile.supabaseUserId,
         fileUrls,
         artifactStorageKeys,
@@ -772,51 +804,80 @@ export class ProfilesService {
       await this.storageService.delete(key);
     }
 
-    const authIdentityRemoved = await this.deleteSupabaseAuthUser(
-      purged.supabaseUserId,
-    );
-    return { deleted: true, authIdentityRemoved };
+    return {
+      deleted: true,
+      authIdentityRemoved: purged.authIdentityRemoved,
+    };
   }
 
-  /// Best-effort deletion of the Supabase Auth identity via the Admin REST API.
-  /// Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the deploy env; if
-  /// they are absent we log loudly and return false (Postgres data is still
-  /// purged, but the auth identity survives — set the secret for full store
-  /// compliance). Never throws: a failure here must not abort the data purge.
+  /// Hard-delete the Supabase Auth identity via the Admin REST API. Production
+  /// bootstrap requires these credentials and a request failure is fail-closed.
+  /// Tests/development retain the no-key local-purge path for ergonomics.
   private async deleteSupabaseAuthUser(
     supabaseUserId: string | null,
   ): Promise<boolean> {
-    if (!supabaseUserId) return false;
+    if (!supabaseUserId) {
+      if (process.env.NODE_ENV === 'production') {
+        this.logger.error(
+          'Account deletion refused because the profile is not linked to a Supabase Auth identity.',
+        );
+        throw this.accountDeletionUnavailable();
+      }
+      return false;
+    }
     const url = process.env.SUPABASE_URL?.trim();
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
     if (!url || !key) {
+      if (process.env.NODE_ENV === 'production') {
+        this.logger.error(
+          'Account deletion refused because the Supabase admin configuration is unavailable.',
+        );
+        throw this.accountDeletionUnavailable();
+      }
       this.logger.warn(
-        'Account data purged but the Supabase auth identity was NOT removed: ' +
-          'set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY to fully satisfy store ' +
-          'account-deletion requirements.',
+        'Supabase Auth identity deletion skipped outside production because admin credentials are not configured.',
       );
       return false;
     }
+
+    let res: Response;
     try {
-      const res = await fetch(
-        `${url.replace(/\/$/, '')}/auth/v1/admin/users/${supabaseUserId}`,
+      res = await fetch(
+        `${url.replace(/\/+$/, '')}/auth/v1/admin/users/${encodeURIComponent(supabaseUserId)}`,
         {
           method: 'DELETE',
-          headers: { apikey: key, authorization: `Bearer ${key}` },
+          headers: {
+            apikey: key,
+            authorization: `Bearer ${key}`,
+            'content-type': 'application/json',
+          },
+          // Match auth.admin.deleteUser(id, false) explicitly. The false value
+          // is a hard delete; true would retain a soft-deleted auth.users row.
+          body: JSON.stringify({ should_soft_delete: false }),
+          signal: AbortSignal.timeout(10_000),
         },
       );
-      if (!res.ok) {
-        this.logger.error(
-          `Supabase admin deleteUser failed with status ${res.status}.`,
-        );
-        return false;
-      }
-      return true;
     } catch {
       // Provider error bodies and URLs can contain tokens or user identifiers.
       this.logger.error('Supabase admin deleteUser request failed.');
-      return false;
+      throw this.accountDeletionUnavailable();
     }
+
+    // Idempotent retry: 404 proves the identity is already absent (for example
+    // when the provider committed a previous request but its response was lost).
+    if (!res.ok && res.status !== 404) {
+      this.logger.error(
+        `Supabase admin deleteUser failed with status ${res.status}.`,
+      );
+      throw this.accountDeletionUnavailable();
+    }
+    return true;
+  }
+
+  private accountDeletionUnavailable(): ServiceUnavailableException {
+    return new ServiceUnavailableException(
+      'Account deletion is temporarily unavailable. Please retry.',
+    );
   }
 
   /// GDPR data export (portability): aggregate every user-owned record into one

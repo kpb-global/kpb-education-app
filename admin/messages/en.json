@@ -32,7 +32,8 @@
     "passwordLabel": "Password",
     "submit": "Sign in",
     "loading": "Signing in…",
-    "error": "Email not found or inactive."
+    "error": "Email not found or inactive.",
+    "unavailable": "The sign-in service is temporarily unavailable. Please try again shortly."
   },
   "overview": {
     "title": "Overview",

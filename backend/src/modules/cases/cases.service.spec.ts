@@ -1,6 +1,7 @@
 import { ModuleRef } from '@nestjs/core';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { InternalRole } from '../../common/enums/internal-role.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CasesService } from './cases.service';
@@ -10,6 +11,13 @@ function makeService(): CasesService {
     isEnabled: true,
     execute: async (fn: (p: any) => Promise<any>) => {
       return fn({
+        case: {
+          findUnique: async () => ({
+            id: 'case-1',
+            userId: 'user-1',
+            counsellor: null,
+          }),
+        },
         $transaction: async (fn2: (tx: any) => Promise<any>) => {
           const msg = { id: 'msg-1', senderName: '', senderRole: '', body: '', createdAt: new Date() };
           return fn2({
@@ -32,31 +40,130 @@ function makeService(): CasesService {
     sendToUser: async () => {},
   } as unknown as OneSignalSenderService;
 
-  // Stub requireDbCase to succeed for 'case-1' owned by 'user-1'
   const moduleRef = { get: () => null } as unknown as ModuleRef;
 
-  const svc = new CasesService(prisma, moduleRef, push);
-
-  // Patch requireDbCase so the test doesn't need a real Prisma setup
-  (svc as any).requireDbCase = async (_id: string, ownerUserId?: string) => {
-    if (ownerUserId && ownerUserId !== 'user-1') {
-      throw new Error('not found');
-    }
-    return { id: 'case-1', userId: 'user-1', status: 'submitted' };
-  };
-
-  return svc;
+  return new CasesService(prisma, moduleRef, push);
 }
 
 describe('CasesService — createMessage role enforcement', () => {
   it('stores senderRole as "student" regardless of input when called from the student path', async () => {
     const svc = makeService();
+    const spoofedInput = {
+      body: 'hello',
+      senderRole: 'advisor',
+      senderName: 'KPB Advisor',
+    };
     const result = await svc.createMessage(
       'case-1',
-      { body: 'hello', senderRole: 'advisor', senderName: 'KPB Advisor' },
-      'user-1',
+      spoofedInput,
+      { userId: 'user-1', role: 'student', fullName: 'Student' },
     );
-    expect(result.senderRole).toBe('student');
+    expect(result).toMatchObject({
+      senderRole: 'student',
+      senderName: 'Student',
+      body: 'hello',
+    });
+  });
+
+  it.each([
+    { body: '', label: 'empty' },
+    { body: '   ', label: 'whitespace-only' },
+    { body: 'x'.repeat(3001), label: 'oversized' },
+  ])('rejects $label message bodies at the service boundary', async ({ body }) => {
+    const svc = makeService();
+
+    await expect(
+      svc.createMessage('case-1', { body }, { userId: 'user-1', role: 'student' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+});
+
+describe('CasesService — realtime case authorization', () => {
+  function makeAuthorizationService(caseRecord: {
+    id: string;
+    userId: string;
+    counsellor: { adminUserId: string | null } | null;
+  }) {
+    const prisma = {
+      isEnabled: true,
+      execute: async (operation: (client: any) => Promise<any>) =>
+        operation({
+          case: { findUnique: async () => caseRecord },
+        }),
+    } as unknown as PrismaService;
+    return new CasesService(
+      prisma,
+      { get: () => null } as unknown as ModuleRef,
+      { sendToUser: async () => {} } as unknown as OneSignalSenderService,
+    );
+  }
+
+  const caseRecord = {
+    id: 'case-1',
+    userId: 'student-1',
+    counsellor: { adminUserId: 'counselor-1' },
+  };
+
+  it('allows only the student who owns the case', async () => {
+    const service = makeAuthorizationService(caseRecord);
+
+    await expect(
+      service.assertCanAccessMessaging('case-1', {
+        userId: 'student-1',
+        role: 'student',
+      }),
+    ).resolves.toMatchObject({ id: 'case-1' });
+    await expect(
+      service.assertCanAccessMessaging('case-1', {
+        userId: 'student-other',
+        role: 'student',
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('allows administrators and commercial staff', async () => {
+    const service = makeAuthorizationService(caseRecord);
+
+    for (const role of [
+      InternalRole.Admin,
+      InternalRole.SuperAdmin,
+      InternalRole.Commercial,
+    ]) {
+      await expect(
+        service.assertCanAccessMessaging('case-1', {
+          userId: `staff-${role}`,
+          role,
+        }),
+      ).resolves.toMatchObject({ id: 'case-1' });
+    }
+  });
+
+  it('allows only the counselor linked to the assigned counselor profile', async () => {
+    const service = makeAuthorizationService(caseRecord);
+
+    await expect(
+      service.assertCanAccessMessaging('case-1', {
+        userId: 'counselor-1',
+        role: InternalRole.Counselor,
+      }),
+    ).resolves.toMatchObject({ id: 'case-1' });
+    await expect(
+      service.assertCanAccessMessaging('case-1', {
+        userId: 'counselor-other',
+        role: InternalRole.Counselor,
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('denies staff roles outside case operations', async () => {
+    const service = makeAuthorizationService(caseRecord);
+
+    await expect(
+      service.assertCanAccessMessaging('case-1', {
+        userId: 'content-1',
+        role: InternalRole.ContentManager,
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });
 

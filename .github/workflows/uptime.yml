@@ -20,6 +20,16 @@ on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+    inputs:
+      verify_24h:
+        description: 'After probing now, verify the preceding 24h scheduled-run window'
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+  actions: read
 
 concurrency:
   group: uptime
@@ -55,6 +65,13 @@ jobs:
           curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
             "${HEALTH_URL}/api/health/ready" >/dev/null
           echo "ready ✅ (API + database)"
+          {
+            echo '## Uptime probe evidence'
+            echo
+            echo "- Probe time (UTC): \`$(date -u +%FT%TZ)\`"
+            echo '- API liveness: passed'
+            echo '- API + PostgreSQL readiness: passed'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # `!cancelled()` on the remaining probes: one run must report EVERY broken
       # surface, not just the first. Without it, a down API hides whether the
@@ -144,3 +161,29 @@ jobs:
           legal_page confidentialite.html 'Politique de confidentialité'
           legal_page conditions.html "Conditions générales d'utilisation"
           legal_page suppression-compte.html 'Suppression de compte'
+
+  stability-24h:
+    name: Prove 24-hour stability window
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.verify_24h }}
+    needs: probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Verify scheduled uptime history
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          STABILITY_HOURS: '24'
+          STABILITY_MIN_SUCCESS: '80'
+          STABILITY_MAX_GAP_MINUTES: '30'
+        run: |
+          result="$(scripts/verify-uptime-window.sh)"
+          printf '%s\n' "$result"
+          {
+            echo '## 24-hour stability gate'
+            echo '```text'
+            printf '%s\n' "$result"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

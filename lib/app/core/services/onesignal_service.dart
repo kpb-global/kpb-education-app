@@ -68,13 +68,10 @@ class OneSignalService {
 
   /// Link this device to a known KPB user (external id = profile id) and attach
   /// targeting tags. Called on login / profile completion.
-  ///
-  /// [email] est accepté et VOLONTAIREMENT ignoré : aucun appel ne l'emporte
-  /// vers OneSignal (voir l'en-tête de classe). Le paramètre survit parce que
-  /// `AppController.syncOneSignalIdentity()` le passe encore ; le retirer ici
-  /// casserait cet appelant. À supprimer des deux côtés dans le même geste.
   Future<void> login({
     required String userId,
+    // Retained for source compatibility only. Email is deliberately ignored
+    // and is never forwarded to the OneSignal SDK.
     String? email,
     Map<String, String> tags = const {},
   }) async {

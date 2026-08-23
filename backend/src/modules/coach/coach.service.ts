@@ -172,7 +172,9 @@ export class CoachService {
               message:
                 consentBlock === 'guardian_consent_required'
                   ? 'Guardian consent required for minors.'
-                  : 'AI processing consent required.',
+                  : consentBlock === 'age_verification_required'
+                    ? 'Birth date verification is required before AI processing.'
+                    : 'AI processing consent required.',
             },
           } as MessageEvent);
           subscriber.complete();

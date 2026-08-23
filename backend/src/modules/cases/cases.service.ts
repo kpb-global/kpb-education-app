@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -16,6 +17,7 @@ import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
 import { CreateCaseInternalNoteDto } from './dto/create-case-internal-note.dto';
+import { MAX_CASE_MESSAGE_LENGTH } from './dto/create-case-message.dto';
 import { CreateCaseTaskDto } from './dto/create-case-task.dto';
 import { CreateCaseTimelineEventDto } from './dto/create-case-timeline-event.dto';
 import { UpdateCaseDto } from './dto/update-case.dto';
@@ -29,6 +31,12 @@ const CASE_INCLUDE = {
   documents: { orderBy: { createdAt: 'desc' as const } },
   internalNotes: { orderBy: { createdAt: 'desc' as const } },
 };
+
+export interface CaseMessagingActor {
+  userId: string;
+  role: 'student' | InternalRole;
+  fullName?: string;
+}
 
 @Injectable()
 export class CasesService {
@@ -100,6 +108,40 @@ export class CasesService {
     const dbCase = await this.requireDbCase(id, ownerUserId);
     // Student-facing reads (ownerUserId set) must not expose counselor notes.
     return this.mapDbCase(dbCase, { includeInternal: !ownerUserId });
+  }
+
+  /**
+   * Shared authorization boundary for every realtime case operation. Returning
+   * NotFound for both missing and forbidden cases prevents cross-case probing.
+   */
+  async assertCanAccessMessaging(id: string, actor: CaseMessagingActor) {
+    this.assertDb();
+    const caseRecord = await this.prismaService.execute((prisma) =>
+      prisma.case.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          userId: true,
+          counsellor: { select: { adminUserId: true } },
+        },
+      }),
+    );
+
+    const isOwner =
+      actor.role === 'student' && caseRecord?.userId === actor.userId;
+    const isGlobalStaff =
+      actor.role === InternalRole.Admin ||
+      actor.role === InternalRole.SuperAdmin ||
+      actor.role === InternalRole.Commercial;
+    const isAssignedCounselor =
+      actor.role === InternalRole.Counselor &&
+      caseRecord?.counsellor?.adminUserId === actor.userId;
+
+    if (!caseRecord || (!isOwner && !isGlobalStaff && !isAssignedCounselor)) {
+      throw new NotFoundException(`Case ${id} not found.`);
+    }
+
+    return { id: caseRecord.id, userId: caseRecord.userId };
   }
 
   async create(input: CreateCaseDto, userId?: string) {
@@ -313,24 +355,40 @@ export class CasesService {
 
   async createMessage(
     id: string,
-    input: { body: string; senderName?: string; senderRole?: string },
-    ownerUserId?: string,
+    input: { body: string },
+    actorOrOwnerUserId: CaseMessagingActor | string,
   ) {
     this.assertDb();
-    await this.requireDbCase(id, ownerUserId);
+    if (
+      typeof input.body !== 'string' ||
+      input.body.length > MAX_CASE_MESSAGE_LENGTH ||
+      input.body.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        `Message body must contain between 1 and ${MAX_CASE_MESSAGE_LENGTH} characters.`,
+      );
+    }
+
+    const actor =
+      typeof actorOrOwnerUserId === 'string'
+        ? { userId: actorOrOwnerUserId, role: 'student' as const }
+        : actorOrOwnerUserId;
+    await this.assertCanAccessMessaging(id, actor);
+
+    const body = input.body.trim();
+    const effectiveRole = actor.role;
+    const effectiveName =
+      actor.fullName ??
+      (actor.role === 'student' ? 'Étudiant' : 'KPB Operations');
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
-        // When ownerUserId is set this is the student REST path — force role
-        // to 'student' regardless of the input to prevent impersonation.
-        const effectiveRole = ownerUserId ? 'student' : (input.senderRole ?? 'student');
-        const effectiveName = ownerUserId ? (input.senderName ?? 'Étudiant') : (input.senderName ?? 'KPB Operations');
         const msg = await tx.caseMessage.create({
           data: {
             caseId: id,
             senderName: effectiveName,
             senderRole: effectiveRole,
-            body: input.body,
+            body,
           },
         });
 
@@ -361,7 +419,7 @@ export class CasesService {
       body: created.body,
       createdAt: created.createdAt.toISOString(),
     };
-    if ((input.senderRole ?? 'student') !== 'student') {
+    if (effectiveRole !== 'student') {
       this.broadcastCaseMessage(id, payload);
     }
     return payload;

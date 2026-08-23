@@ -22,6 +22,7 @@ import * as compression from 'compression';
 import * as express from 'express';
 
 import { AppModule } from './app.module';
+import { validateAccountDeletionEnvironment } from './common/account-deletion-env';
 import { validateCompetitionReadinessEnvironment } from './common/competition-readiness-env';
 import { resolveCorsOrigins } from './common/cors-origins';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
@@ -32,6 +33,7 @@ async function bootstrap() {
   if (existsSync('.env')) {
     loadEnvFile('.env');
   }
+  validateAccountDeletionEnvironment();
   validateCompetitionReadinessEnvironment();
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');

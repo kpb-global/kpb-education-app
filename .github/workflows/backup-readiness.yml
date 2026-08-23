@@ -1,0 +1,89 @@
+name: Backup readiness
+run-name: Backup readiness heartbeat
+
+# Six-hourly evidence that the backup worker is running and the newest daily
+# archive is fresh/readable. A manual run can additionally restore that archive
+# into an isolated disposable PostgreSQL container. It never targets kpb_db.
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-readiness
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Backup heartbeat and freshness evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          test -n "${SSH_KEY:-}" || { echo '::error::VPS_SSH_KEY is missing'; exit 1; }
+          test -n "${VPS_HOST:-}" || { echo '::error::VPS_HOST is missing'; exit 1; }
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          scanned=0
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              scanned=1
+              break
+            fi
+            echo "ssh-keyscan attempt $attempt failed"
+            sleep 10
+          done
+          [ "$scanned" = "1" ] || { echo '::error::VPS host key could not be read'; exit 1; }
+
+      - name: Copy read-only freshness script
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          test -n "${VPS_USER:-}" || { echo '::error::VPS_USER is missing'; exit 1; }
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            scripts/check-backup-freshness.sh \
+            "${VPS_USER}@${VPS_HOST}:/tmp/"
+
+      - name: Verify backup service and archive freshness
+        id: freshness
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          test -n "${VPS_PATH:-}" || { echo '::error::VPS_PATH is missing'; exit 1; }
+          printf -v remote_path '%q' "$VPS_PATH"
+          output="$(ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "cd $remote_path && BACKUP_DIR=./backups COMPOSE_FILE=docker-compose.yml MAX_AGE_SECONDS=108000 bash /tmp/check-backup-freshness.sh")"
+          printf '%s\n' "$output"
+          {
+            echo '### Backup freshness'
+            echo '```text'
+            printf '%s\n' "$output"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove temporary script and SSH key
+        if: always()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          if [ -f ~/.ssh/deploy_key ] && [ -n "${VPS_HOST:-}" ] && [ -n "${VPS_USER:-}" ]; then
+            ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+              'rm -f /tmp/check-backup-freshness.sh' || true
+          fi
+          rm -f ~/.ssh/deploy_key

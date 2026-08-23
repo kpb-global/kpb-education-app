@@ -38,7 +38,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref to deploy (branch, tag or SHA)'
+        description: 'Git ref to resolve once to an immutable, CI-verified SHA'
         required: false
         default: 'main'
       scope:
@@ -59,23 +59,49 @@ concurrency:
   group: deploy-vps
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     environment: production
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
+          fetch-depth: 0
 
       - name: Resolve the image tag from the deployed commit
         id: meta
+        env:
+          REQUESTED_REF: ${{ inputs.ref }}
         run: |
           set -euo pipefail
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "tag=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+          git fetch --no-tags origin main
+          sha="$(git rev-parse HEAD^{commit})"
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::${sha} is not reachable from origin/main. Production accepts reviewed main history only."
+            exit 1
+          fi
+          if [ "$REQUESTED_REF" = "main" ] && [ "$sha" != "$(git rev-parse origin/main)" ]; then
+            echo "::error::main advanced during checkout; re-run so the resolved SHA is the current main tip."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "tag=${sha:0:12}" >> "$GITHUB_OUTPUT"
+          echo "Resolved '$REQUESTED_REF' once: ${sha}. Every later gate uses this immutable SHA."
+
+      - name: Require successful CI for this exact SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          scripts/require-workflow-success.sh "${{ steps.meta.outputs.sha }}" \
+            backend-ci.yml admin-ci.yml release-safeguards-ci.yml
 
       - name: Configure SSH
         env:
@@ -118,31 +144,89 @@ jobs:
           SCOPE: ${{ inputs.scope }}
         run: |
           set -euo pipefail
+          for value in VPS_HOST VPS_USER VPS_PATH; do
+            [ -n "${!value:-}" ] || { echo "::error::${value} is missing"; exit 1; }
+          done
+          case "${SCOPE:-full}" in
+            full) remote_trees='backend admin web scripts' ;;
+            web) remote_trees='web' ;;
+            *) echo "::error::Unsupported deployment scope: ${SCOPE}"; exit 1 ;;
+          esac
+          case "$VPS_USER" in
+            *[!A-Za-z0-9_.-]*) echo "::error::VPS_USER contains unsupported characters"; exit 1 ;;
+          esac
+          case "$VPS_HOST" in
+            *[!A-Za-z0-9.-]*) echo "::error::VPS_HOST must be a DNS name or IPv4 address"; exit 1 ;;
+          esac
+          case "$VPS_PATH" in
+            /*) ;;
+            *) echo "::error::VPS_PATH must be an absolute path"; exit 1 ;;
+          esac
+          case "$VPS_PATH" in
+            *[[:space:]]*) echo "::error::VPS_PATH may not contain whitespace"; exit 1 ;;
+          esac
+          case "$VPS_PATH" in
+            *[!A-Za-z0-9_./-]*) echo "::error::VPS_PATH contains unsupported characters"; exit 1 ;;
+          esac
+          case "$VPS_PATH" in
+            *//*) echo "::error::VPS_PATH may not contain empty path components"; exit 1 ;;
+          esac
+          case "/${VPS_PATH#/}/" in
+            */../*|*/./*) echo "::error::VPS_PATH may not contain '.' or '..' components"; exit 1 ;;
+          esac
+          remote_root="${VPS_PATH%/}"
+          [ -n "$remote_root" ] && [ "$remote_root" != "/" ] || {
+            echo "::error::VPS_PATH may not be filesystem root"
+            exit 1
+          }
+
+          printf -v remote_path '%q' "$remote_root"
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "set -eu; root=$remote_path; \
+             if [ -L \"\$root/docker-compose.yml\" ]; then echo 'refusing symlinked docker-compose.yml' >&2; exit 1; fi; \
+             for tree in $remote_trees; do \
+               target=\"\$root/\$tree\"; \
+               if [ -L \"\$target\" ]; then echo \"refusing symlinked deployment tree: \$target\" >&2; exit 1; fi; \
+               mkdir -p -- \"\$target\"; \
+             done"
+
+          remote_base="${VPS_USER}@${VPS_HOST}:${remote_root}"
+          export KPB_RSYNC_RSH='ssh -i ~/.ssh/deploy_key -o BatchMode=yes'
+
+          sync_tree() {
+            local tree="$1"
+            scripts/sync-deployment-tree.sh \
+              "$tree" "$tree" "${remote_base}/${tree}/"
+          }
+
+          # docker-compose.yml is copied as one file. There is deliberately no
+          # receiver-root --delete: root .env, backups/, volumes, and every
+          # unrelated VPS path remain outside all deletion scopes.
+          sync_compose() {
+            rsync -az --safe-links --itemize-changes \
+              -e "$KPB_RSYNC_RSH" docker-compose.yml "${remote_base}/docker-compose.yml"
+          }
+
           # In `web` scope, only the static layer travels. docker-compose.yml
           # comes along because `docker compose up web` reads it — and shipping
           # it is harmless: compose only acts on the services you name, so an
           # updated `api` definition sits inert until a full deploy applies it.
           if [ "${SCOPE:-full}" = "web" ]; then
-            rsync -az --info=stats1 \
-              -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
-              web docker-compose.yml \
-              "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
+            sync_tree web
+            sync_compose
             echo "web scope: backend/ and admin/ were NOT synced."
             exit 0
           fi
-          # Only what the compose build contexts need. `.env`, `backups/` and
-          # `node_modules` live only on the VPS and are never touched (no
-          # --delete, and git does not track them).
-          #
-          # KNOWN GAP, left as is on purpose: without --delete, a file removed
-          # from the repo survives on the VPS forever. That protects `.env` and
-          # `backups/`, but it also means a deleted page under web/public/ keeps
-          # being served. Deleting one requires an `rm` on the VPS by hand, or a
-          # narrower --delete scoped to web/ only.
-          rsync -az --info=stats1 \
-            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
-            backend admin web docker-compose.yml \
-            "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/"
+
+          # Each allowlisted deployment tree is mirrored independently. Files
+          # removed from git disappear from that tree, while the synchronizer's
+          # explicit protect rules preserve backend/admin env files, uploads,
+          # node_modules and dependency/build caches.
+          sync_tree backend
+          sync_tree admin
+          sync_tree web
+          sync_tree scripts
+          sync_compose
 
       - name: Publish the web layer only (no build, no migration)
         if: inputs.scope == 'web'
@@ -222,6 +306,12 @@ jobs:
           cd "$VPS_PATH"
           export KPB_IMAGE_TAG="$IMAGE_TAG" KPB_BUILD_SHA="$BUILD_SHA"
 
+          echo "── production configuration gate ──"
+          # docker-compose.yml uses ${VAR:?message} for the server-only Supabase
+          # admin key. This renders no secret; it aborts before build, backup or
+          # migration if production could not hard-delete Auth identities.
+          docker compose config --quiet
+
           # Remember what is running so we can put it back.
           PREV_IMAGE="$(docker inspect --format '{{.Config.Image}}' kpb_api 2>/dev/null || true)"
           PREV_TAG="${PREV_IMAGE##*:}"
@@ -244,15 +334,24 @@ jobs:
             echo "::error::pre-deploy dump is empty ($LATEST_DUMP) — aborting"
             exit 1
           fi
+          # pg_restore parses the full custom archive directory. This catches a
+          # truncated/corrupt dump before a migration or container is touched.
+          docker compose exec -T db pg_restore --list < "$LATEST_DUMP" > /dev/null
           echo "backup ok: $(du -h "$LATEST_DUMP" | cut -f1) $LATEST_DUMP"
 
           echo "── migrate ──"
           docker compose run --rm --no-deps api npx prisma migrate deploy < /dev/null
 
+          echo "── assert every repository migration is applied ──"
+          docker compose run --rm --no-deps api npx prisma migrate status < /dev/null
+
           if [ "$RUN_SEED" = "true" ]; then
             echo "── seed (explicitly requested) ──"
             docker compose exec -T api npm run prisma:seed < /dev/null
           fi
+
+          echo "── catalog database integrity ──"
+          docker compose run --rm --no-deps api npm run verify:catalog < /dev/null
 
           echo "── release ──"
           # `web` is in the list so a NEW image or a CHANGED service definition
@@ -345,15 +444,28 @@ jobs:
             VPS_PATH="$VPS_PATH" HEALTH_URL="$HEALTH_URL" RUN_SEED="$RUN_SEED" \
             bash /tmp/kpb-deploy.sh
 
-      - name: Verify from the outside
+      - name: Verify exact release from the outside
+        id: external
         if: inputs.scope != 'web'
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
           WEB_URL: ${{ secrets.VPS_WEB_URL }}
+          EXPECTED_SHA: ${{ steps.meta.outputs.sha }}
         run: |
           set -euo pipefail
           curl -fsS "${HEALTH_URL}/api/health/live"
           curl -fsS "${HEALTH_URL}/api/health/ready"
+          version="$(curl -fsS "${HEALTH_URL}/api/health/version")"
+          deployed_sha="$(printf '%s' "$version" | jq -er '.sha')"
+          started_at="$(printf '%s' "$version" | jq -er '.startedAt')"
+          expected_short="${EXPECTED_SHA:0:12}"
+          if [ "$deployed_sha" != "$expected_short" ]; then
+            echo "::error::version endpoint reports $deployed_sha; exact release is $expected_short"
+            exit 1
+          fi
+          echo "deployed_sha=$deployed_sha" >> "$GITHUB_OUTPUT"
+          echo "started_at=$started_at" >> "$GITHUB_OUTPUT"
+          echo "version evidence: sha=$deployed_sha startedAt=$started_at"
           # A 200 only proves something answers. This proves the catalogue is
           # served from PostgreSQL and not from the in-repo mock fallback — the
           # shortest external evidence that this build's code is the one running.
@@ -386,6 +498,30 @@ jobs:
             exit 1
           fi
 
+          KPB_API_BASE_URL="${HEALTH_URL}/api" KPB_EXPECTED_BUILD_SHA="$EXPECTED_SHA" \
+            bash scripts/delivery-gate.sh
+          echo "Delivery gate OK ✅"
+
+      - name: Record immutable release evidence
+        if: inputs.scope != 'web' && success()
+        env:
+          FULL_SHA: ${{ steps.meta.outputs.sha }}
+          DEPLOYED_SHA: ${{ steps.external.outputs.deployed_sha }}
+          STARTED_AT: ${{ steps.external.outputs.started_at }}
+        run: |
+          {
+            echo '## Production release evidence'
+            echo
+            echo "- Immutable source SHA: \`$FULL_SHA\`"
+            echo "- Version endpoint SHA: \`$DEPLOYED_SHA\`"
+            echo "- API process started: \`$STARTED_AT\`"
+            echo '- Exact-SHA Backend CI, Admin CI, and Release safeguards CI: passed'
+            echo '- Pre-deploy custom dump: parsed by `pg_restore --list`'
+            echo '- Prisma migration status: current'
+            echo '- Catalog country references: valid'
+            echo '- Public liveness, readiness, version, catalog, web redirect, and delivery gate: passed'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Assert the served pages are the ones in this ref
         env:
           WEB_URL: ${{ secrets.VPS_WEB_URL }}
@@ -398,9 +534,9 @@ jobs:
           # pages happen to say today — so it keeps working when the content
           # changes, which a title or keyword check does not.
           #
-          # Scoped to what rsync actually sent. Files present on the VPS but
-          # absent from the repo are NOT checked: rsync runs without --delete
-          # (see the sync step), so they linger by design.
+          # Scoped to what the allowlisted tree synchronizer sent. The sync step
+          # now prunes paths removed from web/ before this byte comparison; it
+          # never uses the VPS root as a delete target.
           if [ -z "${WEB_URL:-}" ]; then
             echo "::error::VPS_WEB_URL is not set — the published pages were NOT verified."
             exit 1

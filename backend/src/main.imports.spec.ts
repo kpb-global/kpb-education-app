@@ -55,7 +55,6 @@ describe('main.ts — les imports doivent survivre à l’exécution, pas seulem
   it.each(defaultImports.map(({ binding, moduleName }) => [binding, moduleName]))(
     'le module `%s` (%s) expose un `.default` appelable',
     (binding, moduleName) => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const loaded = require(moduleName);
       expect(loaded).toBeDefined();
       expect(typeof loaded.default).not.toBe('undefined');
@@ -65,7 +64,6 @@ describe('main.ts — les imports doivent survivre à l’exécution, pas seulem
   it('`compression` reste importé en `import * as` — il n’a pas de `.default`', () => {
     // Assertion nommée, parce que c'est CE paquet qui a cassé le démarrage et
     // que la règle générale ci-dessus ne le dirait pas aussi clairement.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     expect(typeof require('compression').default).toBe('undefined');
     expect(source).toContain("import * as compression from 'compression';");
     expect(source).not.toContain("import compression from 'compression';");

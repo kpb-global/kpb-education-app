@@ -132,6 +132,10 @@ Procédure, dans l'ordre :
 
 ## 4. Release checklist (minimal)
 
+- [ ] Exact full SHA recorded; Backend, Admin, Flutter and Release safeguards CI green for that SHA.
+- [ ] Production deploy summary proves the same `/api/health/version` SHA, current migrations, catalog integrity and delivery gate.
+- [ ] Backup heartbeat < 8 h and an executed isolated restore drill recorded (see [`go-live-operations-gates.md`](go-live-operations-gates.md)).
+- [ ] Uninterrupted 24-hour uptime gate green after the final backend deploy.
 - [ ] Version bump in `pubspec.yaml` (`version: x.y.z+build`).  
 - [ ] `flutter analyze` + `flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false` green.  
 - [ ] Android CI secrets verified; the `v*` tag produces and verifies a signed AAB (never debug-signed).
@@ -158,10 +162,9 @@ Procedure, when ops is ready:
 5. Record the date and the sender address in the release ticket. Do not
    paste the SMTP password anywhere in this repo.
 
-## 6. LIV-T14 — Delivery gate (four curls, after a backend deploy)
+## 6. LIV-T14 — Public delivery gate (after a backend deploy)
 
 `scripts/delivery-gate.sh` is the checklist. It talks to production; **do not
 run it from a lot PR**. CAT-T4 (`dateConfidence` on catalog scholarships)
 only becomes true after the backend that shipped that field is actually
 serving — a green unit test is not a substitute.
-

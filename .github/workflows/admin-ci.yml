@@ -3,12 +3,11 @@ name: Admin CI
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'admin/**'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'admin/**'
+
+# Intentionally no path filter: deploy.yml requires a successful Admin CI run
+# for the exact immutable SHA selected for production.
 
 jobs:
   lint-and-build:
