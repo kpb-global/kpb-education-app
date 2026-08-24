@@ -62,7 +62,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications',
     },
     tags: ['master', 'usa', 'stanford', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'rhodes_southern_africa_2027',
@@ -188,7 +188,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html',
     },
     tags: ['master', 'switzerland', 'eth-zurich', 'future-cycle', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'jj_wbgsp_2027_forecast',

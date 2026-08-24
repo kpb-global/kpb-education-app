@@ -233,6 +233,6 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['bachelor', 'master', 'south-africa', 'university-of-pretoria', 'mastercard-foundation', 'january-intake', 'fully-funded'],
     relatedFieldIds: ['d02', 'd03', 'd07', 'd08', 'd09'],
     baseMatch: 80,
-    checkedAt: '2026-08-10T00:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
 ];

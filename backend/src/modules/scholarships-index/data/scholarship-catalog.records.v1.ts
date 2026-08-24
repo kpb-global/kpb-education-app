@@ -15,6 +15,11 @@ import type {
  * fresh check for the other two.
  */
 const CHECKED_AT_UWC_2026_08_10 = '2026-08-10T08:00:00.000Z';
+// Re-vérification aux sources officielles du 24/08/2026 (bf.uwc.org et
+// ke.uwc.org relues, dates confirmées). uwc_tanzania garde l'ancienne
+// constante : sa page n'a PAS été relue ce jour-là, et avancer sa date
+// affirmerait une vérification qui n'a pas eu lieu.
+const CHECKED_AT_UWC_2026_08_24 = '2026-08-24T18:45:00.000Z';
 const VERIFIED_BY = 'KPB Education official-source review';
 
 function officialSource(
@@ -177,34 +182,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://bf.uwc.org/',
         'UWC Burkina Faso — official home page',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'eligibility',
         'https://bf.uwc.org/eligibility-criteria/',
         'UWC Burkina Faso — official eligibility criteria',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'benefits',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official nomination and funding description',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'application',
         'https://apply.uwc.org/',
         'UWC official application platform',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'cycle',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official 2027-entry application dates (1 Nov 2026 – 3 Jan 2027)',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_10,
+    verifiedAt: CHECKED_AT_UWC_2026_08_24,
     verifiedBy: VERIFIED_BY,
   },
   {
@@ -338,34 +343,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://ke.uwc.org/',
         'UWC Kenya — official home page',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'eligibility',
         'https://ke.uwc.org/eligibility-criteria/',
         'UWC Kenya — official entry 2027 eligibility criteria',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'benefits',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official nomination and needs-based funding description',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'application',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official application instructions',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'cycle',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — confirmed entry 2027 application window (1 Jul – 31 Dec 2026)',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_10,
+    verifiedAt: CHECKED_AT_UWC_2026_08_24,
     verifiedBy: VERIFIED_BY,
   },
   {

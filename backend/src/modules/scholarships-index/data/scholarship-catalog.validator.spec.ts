@@ -28,6 +28,14 @@ import {
 // vérification réelle » en fin de fichier, qui interroge l'horloge du système.
 const NOW = new Date('2026-08-10T12:00:00.000Z');
 
+// Le catalogue REEL porte deux vagues de vérification : l'initiale du
+// 10/08/2026 et la re-vérification aux sources du 24/08/2026 (les 10 fiches
+// publiées). Les tests qui valident SCHOLARSHIP_CATALOG_V1 entier ont besoin
+// d'une horloge postérieure à la vague la plus récente — sous [NOW], la
+// seconde vague serait « dans le futur » et le validateur la signalerait.
+// [NOW] reste l'horloge des fixtures synthétiques, qui datent du 10/08.
+const CATALOG_NOW = new Date('2026-08-25T12:00:00.000Z');
+
 function validRecord(): VerifiedScholarshipCatalogRecord {
   const checkedAt = '2026-07-15T12:00:00.000Z';
   return {
@@ -105,7 +113,7 @@ function validRecord(): VerifiedScholarshipCatalogRecord {
 describe('versioned scholarship catalog', () => {
   it('meets every target with official-source records while keeping unverified legacy rows in backlog', () => {
     const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
-      now: NOW,
+      now: CATALOG_NOW,
     });
 
     expect(report.valid).toBe(true);
@@ -147,7 +155,7 @@ describe('versioned scholarship catalog', () => {
   it('passes structure-only validation for the progressive verified catalog', () => {
     const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
       includeVolumeTargets: false,
-      now: NOW,
+      now: CATALOG_NOW,
     });
     expect(report.valid).toBe(true);
   });
@@ -422,9 +430,12 @@ describe('versioned scholarship catalog', () => {
   // Preuve que la règle de fraîcheur peut encore échouer : si quelqu'un la
   // neutralise, ce compte tombe à zéro et ce test rougit.
   it('expire en entier une fois le plafond de 30 jours dépassé', () => {
+    // 30 jours après la vague la PLUS RÉCENTE (24/08, re-vérification des 10
+    // publiées), pas après la première : au 11/09 les 10 re-vérifiées étaient
+    // encore fraîches et ce compte serait 24, pas 34.
     const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
       includeVolumeTargets: false,
-      now: new Date('2026-09-11T00:00:00.000Z'),
+      now: new Date('2026-09-25T00:00:00.000Z'),
     });
 
     expect(report.valid).toBe(false);

@@ -62,7 +62,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.chevening.org/scholarships/application-timeline/',
     },
     tags: ['master', 'uk', 'government', 'open', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'mccall_macbain_2027',
@@ -195,7 +195,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.schwarzmanscholars.org/admissions/application-instructions/',
     },
     tags: ['master', 'china', 'tsinghua', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'si_global_professionals_2027_forecast',

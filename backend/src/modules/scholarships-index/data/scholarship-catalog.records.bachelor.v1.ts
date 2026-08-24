@@ -192,6 +192,6 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
       cycle: 'https://future.utoronto.ca/pearson-scholarships',
     },
     tags: ['bachelor', 'canada', 'toronto', 'open', 'school-nomination', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
 ];

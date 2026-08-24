@@ -96,7 +96,14 @@ describe('scholarships-catalog CLI', () => {
   });
 
   describe('decidePublication', () => {
-    const now = new Date('2026-08-17T18:00:00.000Z');
+    // 25/08 et non plus 17/08 : le catalogue porte depuis le 24/08 une seconde
+    // vague de vérification (re-lecture aux sources des 10 fiches publiées), et
+    // une horloge antérieure placerait leur `verifiedAt` dans le futur — la
+    // porte les écartait toutes, 30 tombait à 20 et 10 à 0. Aucune clôture ne
+    // tombe entre les deux horloges (seule McCall clôt en août, le 19, et son
+    // exclusion ne vient plus de l'horloge : son cycle est `closed` depuis la
+    // correction du 20/08), donc les comptes attendus ne changent pas de sens.
+    const now = new Date('2026-08-25T18:00:00.000Z');
 
     // POURQUOI CES CHIFFRES ONT CHANGÉ LE 20/08/2026 — 31 → 30 et 11 → 10.
     //
