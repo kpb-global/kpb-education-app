@@ -65,7 +65,7 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
       cycle: 'https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/scholarships-timeline.aspx',
     },
     tags: ['bachelor', 'qatar', 'university', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'york_pise_2027_forecast',
@@ -76,12 +76,12 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
     fundingLabel: ['180 000 CAD sur quatre ans ; dépenses restantes possibles', 'CAD 180,000 over four years; remaining costs may apply'],
     fundingType: 'partially_funded',
     deadlineLabel: [
-      'Prévision 2027-2028 — clôture étudiante estimée fin janvier 2027, nomination début février, à reconfirmer',
-      '2027-2028 forecast — student deadline estimated late January 2027, nomination early February, to be reconfirmed',
+      'Prévision 2027-2028 — clôture étudiante le 27 janvier 2027 à 23 h 59, heure de l’Est ; nomination le 4 février 2027',
+      '2027-2028 forecast — student deadline 27 January 2027, 11:59 p.m. ET; nomination 4 February 2027',
     ],
     description: [
-      'Grande bourse d’entrée de York University pour lycéens internationaux démontrant excellence scolaire, leadership et engagement bénévole ou parascolaire. York n’a pas encore publié son cycle 2027 : le site annonce toujours l’entrée d’automne 2026, dont la candidature est close. Les dates affichées sont estimées à partir de ce cycle (clôture étudiante le 26 janvier 2026, nomination le 4 février 2026) ; aucune date d’ouverture n’est publiée.',
-      'Major York University entrance award for international high-school students demonstrating academic excellence, leadership and volunteer or extracurricular engagement. York has not yet published its 2027 cycle: the site still advertises Fall 2026 entry, whose application is closed. The dates shown are estimated from that cycle (student deadline 26 January 2026, nomination 4 February 2026); no opening date is published.',
+      'Grande bourse d’entrée de York University pour lycéens internationaux démontrant excellence scolaire, leadership et engagement bénévole ou parascolaire. York publie désormais son cycle d’entrée d’automne 2027 (relevé le 24/08/2026) : clôture étudiante le 27 janvier 2027 à 23 h 59, heure de l’Est, et nomination par l’école le 4 février 2027. Le formulaire n’est pas encore rouvert et aucune date d’ouverture n’est publiée.',
+      'Major York University entrance award for international high-school students demonstrating academic excellence, leadership and volunteer or extracurricular engagement. York now publishes its Fall 2027 entry cycle (checked 24/08/2026): student deadline 27 January 2027 at 11:59 p.m. Eastern Time, school nomination 4 February 2027. The form has not reopened yet and no opening date is published.',
     ],
     advantages: [
       ['45 000 CAD par année sur quatre ans', 'CAD 45,000 per year over four years'],
@@ -118,9 +118,13 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
     cycle: {
       academicYear: '2027-2028',
       status: 'forecast',
-      dateConfidence: 'estimated',
-      estimatedOpenAt: '2026-11-01T00:00:00.000Z',
-      estimatedCloseAt: '2027-01-26T23:59:59.000Z',
+      dateConfidence: 'confirmed',
+      // 27/01/2027 à 23 h 59, heure de l'Est (UTC-5) : la page York publie
+      // désormais le cycle Fall 2027 en dates fermes. Aucune date d'ouverture
+      // n'est publiée et le formulaire n'est pas rouvert — `opensAt` reste
+      // absent, ce qu'un cycle confirmé autorise (validator: « opensAt is
+      // optional »).
+      closesAt: '2027-01-28T04:59:00.000Z',
       sourceUrl: 'https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides',
     },
     sources: {
@@ -131,7 +135,7 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
       cycle: 'https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides',
     },
     tags: ['bachelor', 'canada', 'york', 'leadership', 'forecast', 'school-nomination'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'uoft_lester_b_pearson_2027',

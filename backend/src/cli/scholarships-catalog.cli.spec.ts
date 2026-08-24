@@ -144,12 +144,15 @@ describe('scholarships-catalog CLI', () => {
       ]);
     });
 
-    it('publishes only the 10 confirmed-date records under --confirmed-only', () => {
+    // 12 et non plus 10 : la re-vérification du 24/08 a promu york_pise et
+    // jj_wbgsp en dates confirmées (leurs sources publient désormais le cycle
+    // 2027 ferme).
+    it('publishes only the 12 confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(10);
+      expect(published).toHaveLength(12);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
       expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });
@@ -165,10 +168,23 @@ describe('scholarships-catalog CLI', () => {
         (record) => record.scholarship.id === 'mccall_macbain_2027',
       );
       const row = rowFromRecord(template) as unknown as {
-        cycles: Array<{ status: string; closesAt: Date | string | null }>;
+        cycles: Array<{
+          status: string;
+          closesAt: Date | string | null;
+          verifiedAt: Date;
+        }>;
+        lastVerifiedAt: Date;
       };
       row.cycles[0].status = 'open';
       row.cycles[0].closesAt = new Date('2026-08-19T20:00:00.000Z');
+      // Le décor a sa propre horloge (20/08) : la re-vérification RÉELLE de la
+      // fiche empruntée date du 24/08, donc « du futur » pour lui, et la porte
+      // recent_verification parlerait avant celle qu'on teste — elle lit
+      // cycle.verifiedAt d'abord, lastVerifiedAt sinon
+      // (scholarship-content-quality.service.ts). Un décor fabriqué se
+      // fabrique en entier : les DEUX tampons sont épinglés dans son passé.
+      row.lastVerifiedAt = new Date('2026-08-10T08:00:00.000Z');
+      row.cycles[0].verifiedAt = new Date('2026-08-10T08:00:00.000Z');
 
       const decision = decidePublication(
         row as never,

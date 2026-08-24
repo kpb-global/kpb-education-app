@@ -59,7 +59,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.turkiyeburslari.gov.tr/calendar',
     },
     tags: ['bachelor', 'master', 'turkiye', 'government', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'turkiye_isdb_joint_2027_forecast',
@@ -115,7 +115,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
     },
     tags: ['bachelor', 'master', 'turkiye', 'isdb', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'stipendium_hungaricum_2027_forecast',
@@ -173,7 +173,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://stipendiumhungaricum.hu/apply/',
     },
     tags: ['bachelor', 'master', 'hungary', 'government', 'sending-partner'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'romania_mfa_scholarship_2027_forecast',
@@ -230,7 +230,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://scholarships.studyinromania.gov.ro/scholarship-about',
     },
     tags: ['bachelor', 'master', 'romania', 'government', 'romanian-language'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'brunei_government_scholarship_2027_forecast',
@@ -288,7 +288,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.mfa.gov.bn/pages/online-bdgs.aspx',
     },
     tags: ['bachelor', 'master', 'brunei', 'government', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'kazakhstan_foreign_students_2027_forecast',
@@ -346,7 +346,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://oq.gov.kz/en/news/1504',
     },
     tags: ['bachelor', 'master', 'kazakhstan', 'government', 'tuition'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'heydar_aliyev_grant_2027_forecast',
@@ -404,7 +404,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf',
     },
     tags: ['bachelor', 'master', 'azerbaijan', 'government', 'nomination', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'taiwan_icdf_2027',

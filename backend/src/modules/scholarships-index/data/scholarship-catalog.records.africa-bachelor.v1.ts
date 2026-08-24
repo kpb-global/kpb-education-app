@@ -172,7 +172,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-10T00:00:00.000Z',
+      checkedAt: '2026-08-24T19:15:00.000Z',
     }),
     record({
       id: 'alu_scholarship_2027',
@@ -333,7 +333,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-10T00:00:00.000Z',
+      checkedAt: '2026-08-24T19:15:00.000Z',
     }),
     record({
       id: 'auc_excellence_2027',
@@ -501,6 +501,6 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'd11',
       ],
       baseMatch: 79,
-      checkedAt: '2026-08-10T00:00:00.000Z',
+      checkedAt: '2026-08-24T19:15:00.000Z',
     }),
   ];
