@@ -41,13 +41,20 @@ const _processorSuffixToToken = <String, String>{
   'firebaseio.com': 'Firebase',
   'paydunya.com': 'PayDunya',
   'cinetpay.com': 'CinetPay',
+  // YouTube a longtemps vécu dans la liste des NON-processeurs, et c'est
+  // précisément ce classement qui a autorisé l'omission du lecteur embarqué
+  // dans les deux politiques : le lecteur (youtube-nocookie.com) et les
+  // vignettes (img.youtube.com, rendues dès l'accueil, connexion ou pas)
+  // envoient l'adresse IP et le user-agent de l'étudiant à Google à chaque
+  // affichage. Un destinataire de données techniques est un destinataire :
+  // il se nomme.
+  'youtube.com': 'YouTube',
+  'youtu.be': 'YouTube',
 };
 
 /// Sites que le code cite sans leur envoyer les données personnelles de
 /// l'étudiant (catalogue, scrapers, WebView, stores, médias).
 const _nonProcessorSuffixes = <String>[
-  'youtube.com',
-  'youtu.be',
   'googleapis.com',
   'unsplash.com',
   'wa.me',
@@ -122,7 +129,10 @@ const _permissionToToken = <String, String>{
   'NSCameraUsageDescription': 'caméra',
   'NSPhotoLibraryUsageDescription': 'photo',
   'NSMicrophoneUsageDescription': 'micro',
-  'NSSpeechRecognitionUsageDescription': 'micro',
+  // « micro » ne suffit pas pour celle-ci : la permission couvre la
+  // reconnaissance VOCALE, et une politique qui parle du micro sans dire que
+  // la voix peut être reconnue (et par qui) ne dit pas ce que l'OS demande.
+  'NSSpeechRecognitionUsageDescription': 'reconnaissance',
   'NSLocationWhenInUseUsageDescription': 'localisation',
 };
 

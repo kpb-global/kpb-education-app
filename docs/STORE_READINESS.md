@@ -132,11 +132,11 @@ drapeau) : c'est la ligne « Push identity » qui le couvre.
 >    service de la plateforme exige un accord explicite dans le flux
 >    (`case_tunnel_flow.dart:881-888`). La garantie reste INÉGALE — iOS contrat
 >    dur, Android préférence au repli invisible — donc jamais « converted to
->    text on device » sec. **Reste dû, hors de ce fichier** : la politique
->    publiée ne nomme toujours pas le service de reconnaissance de la
->    plateforme parmi les destinataires (`app_translations.dart`,
->    `confidentialite.html`) — c'est une correction de POLITIQUE, pas de
->    formulaire.
+>    text on device » sec. **Fait le 24/08/2026** : les trois politiques (in-app
+>    FR/EN et web) nomment le service de reconnaissance de la plateforme et
+>    l'embed YouTube parmi les destinataires, et la garde de parité exige
+>    désormais le mot « reconnaissance » pour la permission iOS
+>    correspondante.
 > 3. **Taille du binaire** : non mesurable ici, `flutter build apk --release`
 >    refuse sans `android/key.properties` (garde volontaire). Les cases de §7
 >    restent _TBD_ — ne rien y inventer.
@@ -147,14 +147,15 @@ drapeau) : c'est la ligne « Push identity » qui le couvre.
 > - ~~Aucun test n'assert `SpeechListenOptions.onDevice`~~ — **corrigé le
 >   18/08** : `test/core/services/speech_input_on_device_test.dart` et trois
 >   autres fichiers l'exercent.
-> - `test/core/privacy_disclosure_parity_test.dart:35-44` ne compare que des
->   **noms** de sous-traitants, jamais la charge déclarée : il est vert alors que
->   la politique dit « OneSignal : jeton de notifications »
->   (`app_translations.dart:657`, EN `:3458`, `confidentialite.html:64`) pendant
->   que l'app y envoie aussi un identifiant de compte et 4 attributs de ciblage
->   (l'e-mail, lui, ne part plus — correctif 2).
-> - Le même test range `youtube.com` parmi les **non-processeurs** (`:48-49`),
->   ce qui a autorisé l'omission du lecteur embarqué.
+> - `test/core/privacy_disclosure_parity_test.dart` ne compare que des
+>   **noms** de sous-traitants, jamais la charge déclarée — limite toujours
+>   vraie. Son exemple historique est clos : les trois politiques décrivent
+>   désormais la charge OneSignal réelle (identifiant de compte + 4 attributs,
+>   jamais l'e-mail — la page web a été alignée le 24/08).
+> - ~~Le même test rangeait `youtube.com` parmi les non-processeurs~~ —
+>   **corrigé le 24/08** : `youtube.com`/`youtu.be` sont mappés processeur
+>   (jeton « YouTube » exigé dans les deux politiques), et la garde a été vue
+>   ROUGE sur l'état d'avant le correctif.
 > - Le **manifeste fusionné** doit être vérifié dans le binaire de release avec
 >   `bundletool dump manifest --bundle <aab>`, jamais seulement dans le
 >   manifeste source.
@@ -297,7 +298,10 @@ drapeau) : c'est la ligne « Push identity » qui le couvre.
 > ou sans modèle local (`SpeechToTextPlugin.kt:623-637`) : la phrase devrait alors
 > dire « sur l'appareil quand l'appareil le permet », pas « on device » sec.
 
-> 📣 **OneSignal — la ligne « jeton de notifications » est fausse par omission.**
+> 📣 **OneSignal — ce qu'il reçoit est désormais NOMMÉ dans les trois
+> politiques** (identifiant de compte + 4 étiquettes, jamais l'e-mail — la page
+> web, dernière en retard, a été alignée le 24/08). Le mécanisme, pour les
+> formulaires :
 > Le chemin est actif par défaut dans la 49 : App ID compilé non vide
 > (`app_config.dart:58-64`), `initialize()` inconditionnel (`main.dart:120`), puis
 > `syncOneSignalIdentity()` déclenché en trois points — `main.dart:125-126`
