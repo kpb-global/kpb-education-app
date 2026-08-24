@@ -85,6 +85,11 @@ const _nonProcessorSuffixes = <String>[
   'mastercardfdn.org',
   'yok.gov.tr',
   'dfat.gov.au',
+  // Le site officiel du programme Australia Awards Africa : la fiche du
+  // catalogue pointait un PDF DFAT devenu injoignable, re-pointé le 24/08/2026
+  // vers la page réellement consultée. Même nature que dfat.gov.au — un lien
+  // que l'étudiant OUVRE, jamais un destinataire de ses données.
+  'australiaawardsafrica.org',
   'globaluni.ru',
   'gov.kz',
   'campusfrance.org',
