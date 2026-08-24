@@ -384,59 +384,86 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
   afterAll(async () => {
     // Production deliberately makes pilot records append-only. The temporary
     // integration fixture must therefore bypass triggers only while cleaning
-    // its uniquely-prefixed rows, then immediately restore normal semantics.
-    await prisma.$executeRawUnsafe("SET session_replication_role = replica");
+    // its uniquely-prefixed rows.
+    //
+    // UNE TRANSACTION, ET `SET LOCAL` — PAS UN `SET` DE SESSION. La version
+    // précédente posait `SET session_replication_role = replica` via le client
+    // du pool, puis enchaînait les deleteMany : or chaque requête Prisma peut
+    // prendre N'IMPORTE QUELLE connexion du pool, et le SET n'en couvrait
+    // qu'une. Le 24/08/2026 la CI l'a payé sur la PR #237 : le nettoyage est
+    // tombé sur une connexion restée en `origin` et le déclencheur
+    // « ImpactPilot records cannot be deleted » a tué la suite — dont les
+    // tests, eux, étaient verts. Reproduit hors CI avec un pool de 2 : après
+    // un SET de session, `SHOW session_replication_role` rend `origin` OU
+    // `replica` selon la connexion servie. Le restore `= origin` du `finally`
+    // avait le défaut symétrique : posé sur la mauvaise connexion, il laissait
+    // l'autre en `replica` — déclencheurs éteints — pour toute la suite du
+    // processus.
+    //
+    // La transaction interactive épingle UNE connexion pour toutes les
+    // instructions, et `SET LOCAL` meurt avec elle : rien à restaurer, rien à
+    // empoisonner.
     try {
-      await prisma.idempotencyRecord.deleteMany({
-        where: { id: { in: pilotIdempotencyIds } },
-      });
-      await prisma.impactCohortMembership.deleteMany({
-        where: { id: membershipId },
-      });
-      await prisma.impactCohort.deleteMany({ where: { id: cohortId } });
-      await prisma.impactPilot.deleteMany({ where: { id: pilotId } });
-      await prisma.outcomeEvidenceLink.deleteMany({
-        where: { linkedByUserId: userId },
-      });
-      await prisma.fundingDecisionRecord.updateMany({
-        where: { workspaceId },
-        data: { supersedesId: null, admissionDecisionId: null },
-      });
-      await prisma.fundingDecisionRecord.deleteMany({ where: { workspaceId } });
-      await prisma.applicationDecisionRecord.updateMany({
-        where: { workspaceId },
-        data: { supersedesId: null },
-      });
-      await prisma.applicationDecisionRecord.deleteMany({
-        where: { workspaceId },
-      });
-      await prisma.applicationSubmission.deleteMany({ where: { workspaceId } });
-      await prisma.outcomeEvidenceAsset.deleteMany({ where: { workspaceId } });
-      await prisma.aiUsageAttempt.updateMany({
-        where: { diagnosticId },
-        data: { diagnosticId: null, actorKey: null, providerRequestId: null },
-      });
-      await prisma.aiBudgetTransaction.updateMany({
-        where: { diagnosticId },
-        data: { diagnosticId: null },
-      });
-      await prisma.analyticsEvent.deleteMany({ where: { workspaceId } });
-      await prisma.scholarshipWorkspace.deleteMany({
-        where: { id: workspaceId },
-      });
-      await prisma.consentReceipt.deleteMany({ where: { id: consentId } });
-      await prisma.userProfile.deleteMany({ where: { id: userId } });
-      await prisma.aiBudgetTransaction.deleteMany({
-        where: { budgetPeriodId },
-      });
-      await prisma.aiBudgetPeriod.deleteMany({ where: { id: budgetPeriodId } });
-      await prisma.aiUsageAttempt.deleteMany({
-        where: { attemptKey: `privacy-attempt-${suffix}` },
-      });
-      await prisma.scholarship.deleteMany({ where: { id: scholarshipId } });
-      await prisma.consentNotice.deleteMany({ where: { id: noticeId } });
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRawUnsafe(
+            "SET LOCAL session_replication_role = replica",
+          );
+
+        await tx.idempotencyRecord.deleteMany({
+          where: { id: { in: pilotIdempotencyIds } },
+        });
+        await tx.impactCohortMembership.deleteMany({
+          where: { id: membershipId },
+        });
+        await tx.impactCohort.deleteMany({ where: { id: cohortId } });
+        await tx.impactPilot.deleteMany({ where: { id: pilotId } });
+        await tx.outcomeEvidenceLink.deleteMany({
+          where: { linkedByUserId: userId },
+        });
+        await tx.fundingDecisionRecord.updateMany({
+          where: { workspaceId },
+          data: { supersedesId: null, admissionDecisionId: null },
+        });
+        await tx.fundingDecisionRecord.deleteMany({ where: { workspaceId } });
+        await tx.applicationDecisionRecord.updateMany({
+          where: { workspaceId },
+          data: { supersedesId: null },
+        });
+        await tx.applicationDecisionRecord.deleteMany({
+          where: { workspaceId },
+        });
+        await tx.applicationSubmission.deleteMany({ where: { workspaceId } });
+        await tx.outcomeEvidenceAsset.deleteMany({ where: { workspaceId } });
+        await tx.aiUsageAttempt.updateMany({
+          where: { diagnosticId },
+          data: { diagnosticId: null, actorKey: null, providerRequestId: null },
+        });
+        await tx.aiBudgetTransaction.updateMany({
+          where: { diagnosticId },
+          data: { diagnosticId: null },
+        });
+        await tx.analyticsEvent.deleteMany({ where: { workspaceId } });
+        await tx.scholarshipWorkspace.deleteMany({
+          where: { id: workspaceId },
+        });
+        await tx.consentReceipt.deleteMany({ where: { id: consentId } });
+        await tx.userProfile.deleteMany({ where: { id: userId } });
+        await tx.aiBudgetTransaction.deleteMany({
+          where: { budgetPeriodId },
+        });
+        await tx.aiBudgetPeriod.deleteMany({ where: { id: budgetPeriodId } });
+        await tx.aiUsageAttempt.deleteMany({
+          where: { attemptKey: `privacy-attempt-${suffix}` },
+        });
+        await tx.scholarship.deleteMany({ where: { id: scholarshipId } });
+        await tx.consentNotice.deleteMany({ where: { id: noticeId } });
+        },
+        // Une vingtaine d'instructions sur un Postgres de CI : le plafond par
+        // défaut (5 s) est trop juste un jour de runner lent.
+        { timeout: 30_000 },
+      );
     } finally {
-      await prisma.$executeRawUnsafe("SET session_replication_role = origin");
       await prisma.$disconnect();
     }
   });
