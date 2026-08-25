@@ -62,7 +62,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.chevening.org/scholarships/application-timeline/',
     },
     tags: ['master', 'uk', 'government', 'open', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'mccall_macbain_2027',
@@ -135,7 +135,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://mccallmacbainscholars.org/apply/',
     },
     tags: ['master', 'canada', 'mcgill', 'closed', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'schwarzman_scholars_2027',
@@ -195,7 +195,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.schwarzmanscholars.org/admissions/application-instructions/',
     },
     tags: ['master', 'china', 'tsinghua', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'si_global_professionals_2027_forecast',
@@ -257,7 +257,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/',
     },
     tags: ['master', 'sweden', 'government', 'leadership', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'daad_helmut_schmidt_2027',
@@ -328,7 +328,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf',
     },
     tags: ['master', 'germany', 'daad', 'closed', 'governance', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'australia_awards_africa_2028_forecast',
@@ -385,16 +385,16 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       dateConfidence: 'estimated',
       estimatedOpenAt: '2027-02-01T00:00:00.000Z',
       estimatedCloseAt: '2027-04-30T23:59:59.000Z',
-      sourceUrl: 'https://www.dfat.gov.au/sites/default/files/australia-awards-africa-information-for-intake.pdf',
+      sourceUrl: 'https://australiaawardsafrica.org/awards/apply/',
     },
     sources: {
       overview: 'https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa',
-      eligibility: 'https://www.dfat.gov.au/sites/default/files/australia-awards-africa-information-for-intake.pdf',
+      eligibility: 'https://australiaawardsafrica.org/awards/apply/',
       benefits: 'https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa',
       application: 'https://oasis.dfat.gov.au/',
-      cycle: 'https://www.dfat.gov.au/sites/default/files/australia-awards-africa-information-for-intake.pdf',
+      cycle: 'https://australiaawardsafrica.org/awards/apply/',
     },
     tags: ['master', 'australia', 'africa', 'government', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
 ];

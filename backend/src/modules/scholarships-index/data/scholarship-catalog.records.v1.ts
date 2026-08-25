@@ -14,7 +14,14 @@ import type {
  * later wave that re-reads only one committee's pages cannot silently claim a
  * fresh check for the other two.
  */
-const CHECKED_AT_UWC_2026_08_10 = '2026-08-10T08:00:00.000Z';
+// Re-vérification aux sources officielles du 24/08/2026, en deux temps :
+// bf.uwc.org et ke.uwc.org relues à 18:45 (dates confirmées), tz.uwc.org
+// relue à 19:15 — au navigateur, la page rendant 403 au fetch direct — le
+// nouveau cycle n'y est pas encore annoncé, le forecast tient. Chaque
+// constante porte l'heure de SA relecture : une seule affirmerait pour l'une
+// une lecture faite pour l'autre.
+const CHECKED_AT_UWC_2026_08_24 = '2026-08-24T18:45:00.000Z';
+const CHECKED_AT_UWC_TZ_2026_08_24 = '2026-08-24T19:15:00.000Z';
 const VERIFIED_BY = 'KPB Education official-source review';
 
 function officialSource(
@@ -177,34 +184,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://bf.uwc.org/',
         'UWC Burkina Faso — official home page',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'eligibility',
         'https://bf.uwc.org/eligibility-criteria/',
         'UWC Burkina Faso — official eligibility criteria',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'benefits',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official nomination and funding description',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'application',
         'https://apply.uwc.org/',
         'UWC official application platform',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'cycle',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official 2027-entry application dates (1 Nov 2026 – 3 Jan 2027)',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_10,
+    verifiedAt: CHECKED_AT_UWC_2026_08_24,
     verifiedBy: VERIFIED_BY,
   },
   {
@@ -338,34 +345,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://ke.uwc.org/',
         'UWC Kenya — official home page',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'eligibility',
         'https://ke.uwc.org/eligibility-criteria/',
         'UWC Kenya — official entry 2027 eligibility criteria',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'benefits',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official nomination and needs-based funding description',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'application',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official application instructions',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
       officialSource(
         'cycle',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — confirmed entry 2027 application window (1 Jul – 31 Dec 2026)',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_2026_08_24,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_10,
+    verifiedAt: CHECKED_AT_UWC_2026_08_24,
     verifiedBy: VERIFIED_BY,
   },
   {
@@ -515,34 +522,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://tz.uwc.org/',
         'Tanzania UWC National Committee — official home page (states applications are currently closed)',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_TZ_2026_08_24,
       ),
       officialSource(
         'eligibility',
         'https://tz.uwc.org/eligibility-criteria/',
         'Tanzania UWC National Committee — official eligibility criteria',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_TZ_2026_08_24,
       ),
       officialSource(
         'benefits',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — nomination and funding description',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_TZ_2026_08_24,
       ),
       officialSource(
         'application',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — official application instructions',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_TZ_2026_08_24,
       ),
       officialSource(
         'cycle',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — previous-cycle dates only (8 Dec 2025 – 16 Jan 2026); no 2027-entry dates published',
-        CHECKED_AT_UWC_2026_08_10,
+        CHECKED_AT_UWC_TZ_2026_08_24,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_10,
+    verifiedAt: CHECKED_AT_UWC_TZ_2026_08_24,
     verifiedBy: VERIFIED_BY,
   },
 ];

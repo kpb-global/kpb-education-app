@@ -62,7 +62,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications',
     },
     tags: ['master', 'usa', 'stanford', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'rhodes_southern_africa_2027',
@@ -128,7 +128,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf',
     },
     tags: ['master', 'uk', 'oxford', 'southern-africa', 'closed', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
   record({
     id: 'eth_zurich_esop_2027',
@@ -188,7 +188,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html',
     },
     tags: ['master', 'switzerland', 'eth-zurich', 'future-cycle', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T18:45:00.000Z',
   }),
   record({
     id: 'jj_wbgsp_2027_forecast',
@@ -198,10 +198,10 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     levelLabel: ['Masters participants liés au développement', 'Participating development-related Master programmes'],
     fundingLabel: ['Financement complet avec exclusions publiées', 'Comprehensive funding with published exclusions'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Prévision fenêtre 1 — environ du 15 janvier au 27 février 2027, à reconfirmer', 'Window 1 forecast — approximately 15 January to 27 February 2027, to be reconfirmed'],
+    deadlineLabel: ['Fenêtre 1 : du 18 janvier au 26 février 2027 (fenêtre 2 : du 29 mars au 21 mai 2027)', 'Window 1: 18 January – 26 February 2027 (Window 2: 29 March – 21 May 2027)'],
     description: [
-      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026 ; en revanche les dates des deux fenêtres 2027, la liste des programmes participants et les critères détaillés restent à reconfirmer, la fenêtre étant estimée depuis l’appel officiel 2026.',
-      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026; the two 2027 window dates, the participating-programme list and the detailed criteria still need reconfirming, so the window is estimated from the official 2026 call.',
+      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026, et la source annonce désormais les deux fenêtres 2027 (relevé le 24/08/2026) : du 18 janvier au 26 février, puis du 29 mars au 21 mai. La liste des programmes participants et les critères détaillés restent à reconfirmer à l’ouverture.',
+      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026, and the source now announces both 2027 windows (checked 24/08/2026): 18 January – 26 February, then 29 March – 21 May. The participating-programme list and the detailed criteria remain to be reconfirmed at opening.',
     ],
     advantages: [
       ['Frais de scolarité du Master participant', 'Tuition for the participating Master programme'],
@@ -230,7 +230,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['Traductions anglaises des documents non anglophones', 'English translations of non-English documents'],
     ],
     steps: [
-      ['Vérifier la liste des pays puis attendre les fenêtres', 'Check the country list, then wait for the windows', 'La liste des pays éligibles 2027 est déjà publiée : vérifier son pays. Activer ensuite l’alerte pour reconfirmer les dates des deux fenêtres, les programmes participants et les critères dès publication.', 'The 2027 eligible-country list is already published: check your country. Then enable the alert to reconfirm the two window dates, the participating programmes and the criteria once published.'],
+      ['Vérifier la liste des pays puis attendre les fenêtres', 'Check the country list, then wait for the windows', 'La liste des pays éligibles 2027 est déjà publiée : vérifier son pays. Les deux fenêtres 2027 sont annoncées ; activer l’alerte pour reconfirmer les programmes participants et les critères dès l’ouverture.', 'The 2027 eligible-country list is already published: check your country. Both 2027 windows are announced; enable the alert to reconfirm the participating programmes and the criteria once applications open.'],
       ['Postuler au Master', 'Apply to the Master', 'Candidater suffisamment tôt à un programme participant et obtenir une admission inconditionnelle.', 'Apply early to a participating programme and secure unconditional admission.'],
       ['Obtenir la présélection', 'Obtain shortlisting', 'L’université vérifie l’éligibilité et transmet le lien privé aux candidats retenus.', 'The university checks eligibility and sends the private link to shortlisted candidates.'],
       ['Préparer les preuves', 'Prepare evidence', 'Rassembler diplôme, CV, emploi admissible, admission et deux recommandations professionnelles.', 'Gather diploma, CV, eligible employment evidence, admission and two professional recommendations.'],
@@ -239,9 +239,12 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     cycle: {
       academicYear: '2027-2028',
       status: 'forecast',
-      dateConfidence: 'estimated',
-      estimatedOpenAt: '2027-01-15T00:00:00.000Z',
-      estimatedCloseAt: '2027-02-27T23:59:59.000Z',
+      dateConfidence: 'confirmed',
+      // Fenêtre 1 annoncée par la source (relevé du 24/08/2026) :
+      // 18/01 → 26/02/2027. L'heure de clôture n'est pas publiée — fin de
+      // journée UTC retenue, jamais plus précis que la source.
+      opensAt: '2027-01-18T00:00:00.000Z',
+      closesAt: '2027-02-26T23:59:59.000Z',
       sourceUrl: 'https://www.worldbank.org/en/programs/scholarships/jj-wbgsp',
     },
     sources: {
@@ -252,6 +255,6 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://www.worldbank.org/en/programs/scholarships/jj-wbgsp',
     },
     tags: ['master', 'development', 'world-bank', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-10T08:00:00.000Z',
+    checkedAt: '2026-08-24T19:15:00.000Z',
   }),
 ];
