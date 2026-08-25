@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// ToolsService — student productivity tools powered by Groq via LlmService.
+// ToolsService — student productivity tools powered by the LLM provider via LlmService.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
@@ -72,7 +72,8 @@ export class ToolsService {
 
     // The student's civil name is intentionally omitted. The DTO still
     // accepts `name` (the client form has a name field for the PDF) but it
-    // must not reach Groq — that was the leak the consent copy used to deny.
+    // must not reach the LLM provider — that was the leak the consent copy
+    // used to deny.
     const context = [
       `Niveau d'études : ${dto.studyLevel}`,
       `Domaine : ${dto.fieldOfStudy}`,
@@ -124,7 +125,7 @@ export class ToolsService {
     }
 
     // Civil name is accepted on the DTO (the letter PDF prints it) but must
-    // not be copied into the Groq prompt — same IA-T2 rule as cv-summary.
+    // not be copied into the LLM prompt — same IA-T2 rule as cv-summary.
     const context = [
       `Domaine : ${dto.fieldOfStudy}`,
       dto.targetCountry ? `Pays cible : ${dto.targetCountry}` : '',

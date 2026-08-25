@@ -6,7 +6,16 @@ export type LlmMessage = {
 };
 type Lang = 'fr' | 'en';
 
-type GroqChatResponse = {
+export type LlmProviderName = 'openrouter' | 'groq';
+
+type ProviderConfig = {
+  name: LlmProviderName;
+  chatUrl: string;
+  apiKey: string;
+  model: string;
+};
+
+type ProviderChatResponse = {
   id?: string;
   choices?: Array<{
     message?: { content?: string; refusal?: string | null };
@@ -38,7 +47,7 @@ export type StructuredCompletionRequest<T> = {
 
 export type StructuredCompletionResult<T> = {
   data: T;
-  provider: 'groq' | 'local';
+  provider: LlmProviderName | 'local';
   model: string;
   providerRequestId?: string;
   inputTokens?: number;
@@ -50,7 +59,9 @@ export type StructuredCompletionResult<T> = {
   fallbackReason?: string;
 };
 
+const OPENROUTER_CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const GROQ_CHAT_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const DEFAULT_OPENROUTER_MODEL = 'deepseek/deepseek-v4-flash';
 const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
 const DEFAULT_TIMEOUT_MS = 18000;
 
@@ -59,21 +70,69 @@ export class LlmService {
   private readonly logger = new Logger(LlmService.name);
 
   get isConfigured(): boolean {
-    return Boolean(this.apiKey);
+    return Boolean(this.provider);
   }
 
-  private get apiKey(): string | undefined {
-    return process.env.GROQ_API_KEY?.trim();
+  /** Ledger/analytics label of the active provider ('openrouter' when unset). */
+  get providerName(): LlmProviderName {
+    return this.provider?.name ?? 'openrouter';
   }
 
-  private get model(): string {
-    return process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL;
+  /**
+   * Active provider, resolved from the environment on every call so ops can
+   * rotate keys without a restart. LLM_* (OpenRouter by default) wins; the
+   * legacy GROQ_* variables keep working until ops finishes the migration.
+   */
+  private get provider(): ProviderConfig | undefined {
+    const llmKey = process.env.LLM_API_KEY?.trim();
+    if (llmKey) {
+      const name: LlmProviderName =
+        process.env.LLM_PROVIDER?.trim().toLowerCase() === 'groq'
+          ? 'groq'
+          : 'openrouter';
+      return {
+        name,
+        chatUrl:
+          process.env.LLM_CHAT_COMPLETIONS_URL?.trim() ||
+          (name === 'groq' ? GROQ_CHAT_URL : OPENROUTER_CHAT_URL),
+        apiKey: llmKey,
+        model:
+          process.env.LLM_MODEL?.trim() ||
+          (name === 'groq' ? DEFAULT_GROQ_MODEL : DEFAULT_OPENROUTER_MODEL),
+      };
+    }
+    const groqKey = process.env.GROQ_API_KEY?.trim();
+    if (groqKey) {
+      return {
+        name: 'groq',
+        chatUrl: GROQ_CHAT_URL,
+        apiKey: groqKey,
+        model: process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL,
+      };
+    }
+    return undefined;
   }
 
-  /// Per-request upper bound so a stalled Groq connection can never hang the
-  /// SSE response (or a JSON call) indefinitely. Configurable via env.
+  /**
+   * OpenRouter fans requests out to third-party clouds; student prompts must
+   * never be retained there (IA-T2 posture, same promise as the consent copy).
+   * `data_collection: 'deny'` pins routing to no-retention providers and
+   * `require_parameters` keeps requests off providers that would silently drop
+   * `response_format`. The key collision is intentional: OpenRouter's routing
+   * field is literally named `provider`.
+   */
+  private routingPolicy(name: LlmProviderName): Record<string, unknown> {
+    return name === 'openrouter'
+      ? { provider: { data_collection: 'deny', require_parameters: true } }
+      : {};
+  }
+
+  /// Per-request upper bound so a stalled provider connection can never hang
+  /// the SSE response (or a JSON call) indefinitely. Configurable via env.
   private get timeoutMs(): number {
-    const raw = Number(process.env.GROQ_TIMEOUT_MS);
+    const raw = Number(
+      process.env.LLM_TIMEOUT_MS ?? process.env.GROQ_TIMEOUT_MS,
+    );
     return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_TIMEOUT_MS;
   }
 
@@ -98,15 +157,17 @@ export class LlmService {
     maxTokens?: number;
     fallback: T;
   }): Promise<{ data: T; model: string }> {
-    if (!this.apiKey) {
+    const config = this.provider;
+    if (!config) {
       return { data: params.fallback, model: 'local-fallback' };
     }
 
     const body = JSON.stringify({
-      model: this.model,
+      model: config.model,
       max_tokens: params.maxTokens ?? 1200,
       temperature: 0.4,
       response_format: { type: 'json_object' },
+      ...this.routingPolicy(config.name),
       messages: [
         {
           role: 'system',
@@ -120,11 +181,11 @@ export class LlmService {
     // local fallback, so a single blip doesn't drop the feature.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const response = await this.fetchWithTimeout(GROQ_CHAT_URL, {
+        const response = await this.fetchWithTimeout(config.chatUrl, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
-            authorization: `Bearer ${this.apiKey}`,
+            authorization: `Bearer ${config.apiKey}`,
           },
           body,
         });
@@ -134,22 +195,22 @@ export class LlmService {
           // echo prompts, document excerpts or provider diagnostics.
           await response.text();
           this.logger.warn(
-            `Groq error ${response.status} (attempt ${attempt + 1}).`,
+            `${config.name} error ${response.status} (attempt ${attempt + 1}).`,
           );
           if (response.status >= 500 && attempt === 0) continue;
           return { data: params.fallback, model: 'local-fallback' };
         }
 
-        const payload = (await response.json()) as GroqChatResponse;
+        const payload = (await response.json()) as ProviderChatResponse;
         const text = payload.choices?.[0]?.message?.content ?? '';
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
           return { data: params.fallback, model: 'local-fallback' };
         }
-        return { data: JSON.parse(jsonMatch[0]) as T, model: this.model };
+        return { data: JSON.parse(jsonMatch[0]) as T, model: config.model };
       } catch {
         this.logger.warn(
-          `Groq call failed (attempt ${attempt + 1}).`,
+          `${config.name} call failed (attempt ${attempt + 1}).`,
         );
         if (attempt === 0) continue;
         return { data: params.fallback, model: 'local-fallback' };
@@ -168,7 +229,8 @@ export class LlmService {
   ): Promise<StructuredCompletionResult<T>> {
     const startedAt = Date.now();
     const model = params.model.trim();
-    if (!this.apiKey || !model) {
+    const config = this.provider;
+    if (!config || !model) {
       return this.structuredFallback(
         params.fallback,
         startedAt,
@@ -176,7 +238,11 @@ export class LlmService {
       );
     }
 
-    const strict = /^openai\/gpt-oss-(?:20b|120b)$/.test(model);
+    // OpenRouter routing already excludes providers that cannot honor a strict
+    // schema; on Groq only the gpt-oss models accept strict mode.
+    const strict =
+      config.name === 'openrouter' ||
+      /^openai\/gpt-oss-(?:20b|120b)$/.test(model);
     const body = JSON.stringify({
       model,
       max_tokens: params.maxTokens,
@@ -189,6 +255,7 @@ export class LlmService {
           schema: params.responseSchema,
         },
       },
+      ...this.routingPolicy(config.name),
       messages: [
         {
           role: 'system',
@@ -199,11 +266,11 @@ export class LlmService {
     });
 
     try {
-      const response = await this.fetchWithTimeout(GROQ_CHAT_URL, {
+      const response = await this.fetchWithTimeout(config.chatUrl, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          authorization: `Bearer ${this.apiKey}`,
+          authorization: `Bearer ${config.apiKey}`,
           'x-client-request-id': params.attemptKey,
         },
         body,
@@ -211,11 +278,11 @@ export class LlmService {
       const latencyMs = Date.now() - startedAt;
       if (!response.ok) {
         this.logger.warn(
-          `Groq structured request failed (${response.status}, feature=${params.feature}, prompt=${params.promptVersion}).`,
+          `${config.name} structured request failed (${response.status}, feature=${params.feature}, prompt=${params.promptVersion}).`,
         );
         return {
           data: params.fallback,
-          provider: 'groq',
+          provider: config.name,
           model,
           latencyMs,
           outcome: 'error',
@@ -228,13 +295,13 @@ export class LlmService {
         };
       }
 
-      const payload = (await response.json()) as GroqChatResponse;
+      const payload = (await response.json()) as ProviderChatResponse;
       const usage = payload.usage;
       const refusal = payload.choices?.[0]?.message?.refusal;
       if (refusal) {
         return {
           data: params.fallback,
-          provider: 'groq',
+          provider: config.name,
           model,
           providerRequestId: payload.id,
           inputTokens: usage?.prompt_tokens,
@@ -251,6 +318,7 @@ export class LlmService {
       if (!raw) {
         return this.invalidStructuredResponse(
           params,
+          config.name,
           payload,
           latencyMs,
           'provider_empty_response',
@@ -262,6 +330,7 @@ export class LlmService {
       } catch {
         return this.invalidStructuredResponse(
           params,
+          config.name,
           payload,
           latencyMs,
           'provider_invalid_json',
@@ -270,6 +339,7 @@ export class LlmService {
       if (!params.validate(parsed)) {
         return this.invalidStructuredResponse(
           params,
+          config.name,
           payload,
           latencyMs,
           'provider_schema_mismatch',
@@ -278,7 +348,7 @@ export class LlmService {
 
       return {
         data: parsed,
-        provider: 'groq',
+        provider: config.name,
         model,
         providerRequestId: payload.id,
         inputTokens: usage?.prompt_tokens,
@@ -291,11 +361,11 @@ export class LlmService {
     } catch (error) {
       const timedOut = error instanceof Error && error.name === 'AbortError';
       this.logger.warn(
-        `Groq structured request failed (feature=${params.feature}, prompt=${params.promptVersion}, error=${timedOut ? 'timeout' : 'network'}).`,
+        `${config.name} structured request failed (feature=${params.feature}, prompt=${params.promptVersion}, error=${timedOut ? 'timeout' : 'network'}).`,
       );
       return {
         data: params.fallback,
-        provider: 'groq',
+        provider: config.name,
         model,
         latencyMs: Date.now() - startedAt,
         outcome: 'error',
@@ -324,13 +394,14 @@ export class LlmService {
 
   private invalidStructuredResponse<T>(
     params: StructuredCompletionRequest<T>,
-    payload: GroqChatResponse,
+    provider: LlmProviderName,
+    payload: ProviderChatResponse,
     latencyMs: number,
     reason: string,
   ): StructuredCompletionResult<T> {
     return {
       data: params.fallback,
-      provider: 'groq',
+      provider,
       model: params.model,
       providerRequestId: payload.id,
       inputTokens: payload.usage?.prompt_tokens,
@@ -351,7 +422,8 @@ export class LlmService {
   }): AsyncGenerator<string> {
     const lang: Lang = params.lang === 'en' ? 'en' : 'fr';
 
-    if (!this.apiKey) {
+    const config = this.provider;
+    if (!config) {
       yield* this.fallbackWords(this.noKeyFallback(lang));
       return;
     }
@@ -360,10 +432,11 @@ export class LlmService {
       (item) => item.role !== 'system',
     );
     const body = JSON.stringify({
-      model: this.model,
+      model: config.model,
       max_tokens: params.maxTokens ?? 600,
       temperature: 0.6,
       stream: true,
+      ...this.routingPolicy(config.name),
       messages: [
         { role: 'system', content: params.system },
         ...conversationMessages,
@@ -375,18 +448,18 @@ export class LlmService {
     let response: Response | null = null;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        response = await this.fetchWithTimeout(GROQ_CHAT_URL, {
+        response = await this.fetchWithTimeout(config.chatUrl, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
-            authorization: `Bearer ${this.apiKey}`,
+            authorization: `Bearer ${config.apiKey}`,
           },
           body,
         });
         if (response.ok && response.body) break;
         if (!response.ok) await response.text();
         this.logger.warn(
-          `Groq stream error ${response.status} (attempt ${attempt + 1}).`,
+          `${config.name} stream error ${response.status} (attempt ${attempt + 1}).`,
         );
         if (response.status >= 500 && attempt === 0) {
           response = null;
@@ -396,7 +469,7 @@ export class LlmService {
         break;
       } catch {
         this.logger.warn(
-          `Groq stream failed (attempt ${attempt + 1}).`,
+          `${config.name} stream failed (attempt ${attempt + 1}).`,
         );
         response = null;
         if (attempt === 0) continue;
@@ -425,7 +498,7 @@ export class LlmService {
         const payload = trimmed.slice(5).trim();
         if (!payload || payload === '[DONE]') continue;
         try {
-          const event = JSON.parse(payload) as GroqChatResponse;
+          const event = JSON.parse(payload) as ProviderChatResponse;
           const chunk = event.choices?.[0]?.delta?.content;
           if (chunk) {
             yield chunk;

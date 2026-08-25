@@ -9,7 +9,7 @@ import {
 import { AiConsentService } from './ai-consent.service';
 
 /**
- * HTTP gate for Groq-backed routes (tools, document-review, orientation).
+ * HTTP gate for LLM-backed routes (tools, document-review, orientation).
  *
  * Must sit AFTER `StudentAuthGuard` so `request.studentUser.id` is set.
  *

@@ -68,8 +68,8 @@ export class CoachService {
 
   async createConversation(userId: string, profile: Record<string, unknown>) {
     const lang = resolveCoachLanguage(profile.preferredLanguage as string);
-    // No name in the greeting: it is persisted and later replayed to Groq as
-    // conversation history, so personalizing it here would leak the identity
+    // No name in the greeting: it is persisted and later replayed to the LLM
+    // provider as conversation history, so personalizing it here would leak the identity
     // we deliberately keep out of the prompt. The client shows a name locally.
     const greetingContent =
       lang === 'en'
@@ -160,7 +160,7 @@ export class CoachService {
         // Consent gates (defense-in-depth; the client also gates entry to the
         // coach). When the DB is available and the authoritative profile has
         // not opted into AI processing — or is a minor without recorded
-        // guardian consent — refuse before any PII reaches Groq.
+        // guardian consent — refuse before any PII reaches the LLM provider.
         const consentBlock = await this.aiConsent.consentBlockCode(
           params.userId,
         );

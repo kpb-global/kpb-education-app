@@ -148,6 +148,14 @@ résumé) pour borner les tokens.
 
 ## 5. Couche LLM — agnostique du fournisseur (`llm.service.ts`)
 
+> **Mise à jour 2026-08-25** — implémenté avec la précédence inverse :
+> **OpenRouter en primaire** (`LLM_API_KEY`, `LLM_MODEL=deepseek/deepseek-v4-flash`,
+> routage épinglé `data_collection=deny` + `require_parameters`) et **Groq en
+> repli legacy** (`GROQ_API_KEY`, lu seulement quand `LLM_API_KEY` est vide).
+> Pas de bascule dynamique sur budget : un seul provider actif à la fois,
+> repli local déterministe en cas d'échec. Le reste de cette section décrit
+> le design d'origine.
+
 Groq **et** OpenRouter exposent une API **compatible OpenAI** → un seul client,
 configurable par env. Cela permet : Groq `llama-3.3-70b-versatile` en primaire,
 et **repli OpenRouter** (modèle gratuit ou meilleur rapport qualité-prix) quand le

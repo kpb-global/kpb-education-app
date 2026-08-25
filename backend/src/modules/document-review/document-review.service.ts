@@ -25,7 +25,7 @@ const FALLBACK: DocumentReview = {
 /**
  * Sprint 10 — AI review of a student's motivation letter / CV. Productizes the
  * "Dossier prêt" service as instant, structured, on-rubric feedback. Reuses the
- * grounded JSON LLM helper; degrades gracefully when Groq is unconfigured.
+ * grounded JSON LLM helper; degrades gracefully when no provider is configured.
  */
 @Injectable()
 export class DocumentReviewService {
