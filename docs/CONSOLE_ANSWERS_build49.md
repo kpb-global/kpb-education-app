@@ -18,11 +18,11 @@
 
 ---
 
-## 0. ⚠️ À TRANCHER AVANT DE SOUMETTRE (6 points — dont #3, un vrai gap backend)
+## 0. ⚠️ À TRANCHER AVANT DE SOUMETTRE (5 points — dont #3, un vrai gap backend)
 
 | # | Point | Décision requise | Comment trancher |
 |---|---|---|---|
-| 1 | **Clé PostHog** | Déclarer *replay + analytique PostHog* **seulement si** le binaire 49 embarque une `POSTHOG_API_KEY` non vide | Décoder le `DART_DEFINES` de l'archive : `scripts/preflight-ios-archive.sh` le fait déjà en mémoire ; ou lire la valeur du secret CI utilisé pour la 49. Défaut compilé = **vide** (`app_config.dart:72-87`). Clé vide → **ne pas** déclarer PostHog. |
+| 1 | **Clé PostHog — ✅ RÉSOLU (clé posée)** | **Déclarer** replay + analytique PostHog | Clé publique `phc_…` fournie et posée comme secret CI `POSTHOG_API_KEY` (26/08) + à passer en `--dart-define` de l'archive manuelle. PostHog est donc **actif** dans la 49 → **déclarer** le *session replay* (Apple : Usage Data → Product Interaction ; Play : App activity → App interactions) + l'analytique. Contenu masqué, désactivable via l'interrupteur. **À faire côté PostHog** : project settings → activer « Record user sessions » (sinon le replay reste éteint côté serveur, même avec le flag). |
 | 2 | **AD_ID sur l'AAB réel** | Confirmer que `com.google.android.gms.permission.AD_ID` est **absent du manifeste fusionné** | `scripts/preflight-android-aab.sh --aab <app-release.aab> --expected-cert-sha256 <SHA>` **échoue** si AD_ID revient (`:123`). Le manifeste *source* est correct (vérifié), seul le *fusionné* fait foi. |
 | 3 | **Suppression — ⚠️ GAP BACKEND, ne rien déclarer de « complet »** | Corriger `deleteMe`, OU garder l'avertissement | Le compte et les données actives sont supprimés **immédiatement** (`profiles.controller.ts:115`), mais des résidus **survivent indéfiniment** — `CounsellorReview` (nom civil), registre ambassadeur, contact Mautic : `deleteMe` ne les supprime ni ne les planifie (`STORE_READINESS.md` §6). Donc **ni « immédiat et complet » ni « ≤ 30 jours » n'est vrai** pour ces utilisateurs. Deux voies : **(a)** corriger `deleteMe` pour purger/anonymiser ces enregistrements → alors « ≤ 30 jours » devient exact ; **(b)** d'ici là, **fermer ce gap avant la soumission publique** — ne pas recopier « ≤ 30 j » comme une vérité propre. |
 | 4 | **SDK d'attribution embarqué (iOS)** | Répondre juste si un formulaire demande « SDK tiers d'attribution/pub présent ? » | `GoogleAdsOnDeviceConversion 3.4.2` **est** dans le binaire (transitif via `firebase_analytics`, `ios/Podfile.lock:124`). **Aucun suivi** (ATT absent, `NSPrivacyTracking=false`) — mais le SDK est *présent*. Le commentaire « no advertising SDK » de `PrivacyInfo.xcprivacy:5` est donc inexact sur ce qui *ship*. Ne pas cocher « Used to Track », mais lister le SDK si le formulaire demande la liste. |
@@ -113,8 +113,9 @@
 | Diagnostics — **Crash, Performance** | Oui | **Non (non lié)** | Non | Stabilité | aucun `setUserIdentifier` ; désactivable |
 | Santé, Finances, Localisation, Navigation, Contacts | **Non** | — | — | — | absence exhaustive vérifiée |
 
-> **Session replay (PostHog) :** ⚠️ **Point 1** — déclarer sous *Usage Data →
-> Product Interaction*, Lié Oui, Suivi Non, **seulement si** la clé est posée.
+> **Session replay (PostHog) — ✅ clé posée, à déclarer :** sous *Usage Data →
+> Product Interaction*, Lié Oui, Suivi Non. Contenu masqué (`maskAllTexts` +
+> `maskAllImages`) → pas « User Content ». Désactivable via l'interrupteur.
 > Contenu masqué (`main.dart` `maskAllTexts`+`maskAllImages`) → pas « User Content ».
 >
 > **Contenu tiers embarqué (YouTube/Google) :** le lecteur transmet IP + user-agent
@@ -182,7 +183,7 @@ trois se cumulent.
 | Groq (LLM) | **US** | profil pseudonymisé (sans nom), budget en tranche, messages | Réponses IA | collecte |
 | **OneSignal** | US | **ID utilisateur + 4 étiquettes** (pas d'e-mail) | Push + segmentation | **PARTAGÉ** |
 | Firebase Analytics | US | ID instance, événements, **terme de recherche** | Analyses | collecte |
-| PostHog | **US** | événements, replay masqué, UUID | Analyses, replay | collecte — ⚠️ Point 1 |
+| PostHog | **US** | événements, replay masqué, UUID | Analyses, replay | collecte — **actif (clé posée)** |
 | Firebase Crashlytics | US | traces, modèle, OS (aucun `setUserIdentifier`) | Stabilité | collecte |
 | **Reconnaissance vocale Apple/Google** | US/global | audio dicté (si repli accepté) ; texte seul rendu | Dictée | **destinataire** — ⚠️ nommer en politique |
 | Resend | **US** | e-mail + objet + corps | E-mail transactionnel | collecte |
