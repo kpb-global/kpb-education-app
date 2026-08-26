@@ -26,7 +26,7 @@ VALUES
   (
     'counsellor-jojo',
     'Jojo',
-    'jojo@kpb-education.com',
+    'josphindieuaimeagbessi@gmail.com',
     '+22790000001',
     '+22790000001',
     'NE',
@@ -45,7 +45,7 @@ VALUES
   (
     'counsellor-donald',
     'Donald',
-    'donald@kpb-education.com',
+    'bokod246@gmail.com',
     '+22790000002',
     '+22790000002',
     'NE',
@@ -64,7 +64,7 @@ VALUES
   (
     'counsellor-richard',
     'Richard',
-    'richard@kpb-education.com',
+    'richardahogle@gmail.com',
     '+22790000003',
     '+22790000003',
     'NE',
