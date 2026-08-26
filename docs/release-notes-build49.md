@@ -68,10 +68,14 @@ d'archiver dans Xcode, le régénérer avec l'ensemble complet — étape 4 de
 `docs/cutover-build49.md` :
 
 ```bash
+# POSTHOG_API_KEY : phc_… réel, ou VIDE = PostHog désactivé. Jamais « phc_… »
+# littéral (il passe le préflight mais livre une clé morte). Décision : point 1
+# de CONSOLE_ANSWERS_build49.md.
+export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
 flutter build ios --release --no-codesign \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY=phc_…            # ou vide, décision assumée (point 1 de CONSOLE_ANSWERS_build49.md)
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
 Puis, **sur l'archive** (ne construit rien) :

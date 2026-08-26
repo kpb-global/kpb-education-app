@@ -359,10 +359,15 @@ Trois issues qui **arrêtent** la bascule :
 ### Étape 4 — Construire la 49, sans rien distribuer
 
 ```bash
+# POSTHOG_API_KEY : clé publique phc_… réelle, ou VIDE = PostHog désactivé (état
+# valide et documenté). Ne collez JAMAIS « phc_… » littéral : il passe le préflight
+# (qui n'exige que le préfixe phc_) mais livre une clé morte — télémétrie de prod
+# perdue en silence. L'expansion retombe sur « vide = désactivé », jamais un faux positif.
+export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
 flutter build ios --release \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY=phc_…
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
 (`docs/DEPLOYMENT.md:441-451`.) **Ne pas** ajouter

@@ -489,10 +489,14 @@ Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d
 La ligne complète, pour le *build* (pas l'export IPA) :
 
 ```bash
+# POSTHOG_API_KEY : clé publique phc_… réelle, ou VIDE = PostHog désactivé (état
+# valide). Ne collez JAMAIS « phc_… » littéral : il passe le préflight (préfixe
+# phc_) mais livre une clé morte — télémétrie de prod perdue en silence.
+export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
 flutter build ios --release \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY=phc_…
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
 `flutter build ipa --release` avec les mêmes defines **échoue à l'export sur
