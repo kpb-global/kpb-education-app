@@ -54,6 +54,7 @@ void main() {
     await _scrollToBottom(tester);
 
     for (final needle in [
+      'OpenRouter',
       'Groq',
       'OneSignal',
       'Resend',
@@ -75,6 +76,7 @@ void main() {
     await _scrollToBottom(tester);
 
     for (final needle in [
+      'OpenRouter',
       'Groq',
       'OneSignal',
       'Resend',

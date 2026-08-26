@@ -334,7 +334,7 @@ export class AiBudgetService {
         await tx.aiUsageAttempt.update({
           where: { attemptKey: reservation.attemptKey },
           data: {
-            usageSource: result.provider === 'groq' ? 'provider' : 'fallback',
+            usageSource: result.provider !== 'local' ? 'provider' : 'fallback',
             inputTokens: result.inputTokens,
             cachedInputTokens: result.cachedInputTokens,
             outputTokens: result.outputTokens,

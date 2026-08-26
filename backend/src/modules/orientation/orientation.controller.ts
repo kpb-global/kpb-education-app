@@ -22,8 +22,8 @@ export class OrientationController {
     return this.orientationService.getQuestions();
   }
 
-  // Authenticated: calls Groq + writes OrientationSession. Without the guard,
-  // an attacker could burn Groq quota and spam the DB at the global rate-limit
+  // Authenticated: calls the LLM provider + writes OrientationSession. Without
+  // the guard, an attacker could burn AI quota and spam the DB at the global rate-limit
   // (60 req/min/IP in prod = ~86 400 paid completions/day per IP).
   @Post('sessions')
   @UseGuards(StudentAuthGuard, AiConsentGuard)

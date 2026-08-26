@@ -683,7 +683,7 @@ class AppTranslations extends Translations {
               'Elles peuvent être partagées avec :\n'
               '• Notre backend KPB (VPS Hostinger, api.kpbeducation.cloud) pour faire fonctionner l\'application\n'
               '• Supabase (authentification : e-mail, session, Google)\n'
-              '• Groq (États-Unis) : textes du coach et profil pseudonymisé — jamais vendus\n'
+              '• OpenRouter et Groq (États-Unis) : textes du coach et profil pseudonymisé — le routage OpenRouter est limité à des services d\'IA sans conservation des données ; jamais vendus\n'
               // Les quatre étiquettes partaient déjà sans être déclarées, et
               // l'e-mail partait aussi — ce dernier a été retiré du code (voir
               // `OneSignalService`), les étiquettes sont GARDÉES parce que le
@@ -707,7 +707,7 @@ class AppTranslations extends Translations {
               '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
               '• Les autorités compétentes si la loi l\'exige',
           'privacy_transfers_body':
-              'Certains destinataires sont établis aux États-Unis (Groq, PostHog, OneSignal, Resend, Firebase / Google — YouTube et les services de reconnaissance vocale compris). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l\'analytique depuis Profil → « Analyse d\'usage » et refuser KPB Intelligence : le reste de l\'app reste utilisable.',
+              'Certains destinataires sont établis aux États-Unis (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — YouTube et les services de reconnaissance vocale compris). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l\'analytique depuis Profil → « Analyse d\'usage » et refuser KPB Intelligence : le reste de l\'app reste utilisable.',
           'privacy_s6_body':
               '• Données de profil : conservées tant que votre compte est actif\n'
                   '• Données de dossier : conservées tant que le dossier est ouvert, puis supprimées avec le compte\n'
@@ -2554,11 +2554,11 @@ class AppTranslations extends Translations {
           'coach_wa_prefill_topic': 'Mon dernier sujet : @topic',
           'ai_consent_title': 'Activer KPB Intelligence',
           'ai_consent_body':
-              'Pour te répondre, KPB Intelligence envoie tes messages et des faits de profil (niveau d\'études, pays visés, tranche de budget, domaine) à un service d\'IA tiers (Groq) hébergé hors de ton pays. Ton nom civil n\'est pas recopié dans l\'invite. Le texte que tu colles (lettre, CV, message) part tel quel — n\'y mets pas d\'information que tu ne veux pas transmettre. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
+              'Pour te répondre, KPB Intelligence envoie tes messages et des faits de profil (niveau d\'études, pays visés, tranche de budget, domaine) à un service d\'IA tiers (OpenRouter ou Groq) hébergé hors de ton pays. Ton nom civil n\'est pas recopié dans l\'invite. Le texte que tu colles (lettre, CV, message) part tel quel — n\'y mets pas d\'information que tu ne veux pas transmettre. Aucune décision importante ne repose sur l\'IA seule. Tu peux refuser et continuer à utiliser le reste de l\'app.',
           'ai_consent_accept': 'J\'active KPB Intelligence',
           'ai_consent_decline': 'Plus tard',
           'ai_tools_disclosure':
-              'Cet outil envoie le texte saisi et des faits de profil (niveau, pays, domaine) à Groq (États-Unis). Ton nom n\'est pas recopié dans l\'invite. Aucune décision importante ne repose sur l\'IA seule.',
+              'Cet outil envoie le texte saisi et des faits de profil (niveau, pays, domaine) à OpenRouter ou Groq (États-Unis). Ton nom n\'est pas recopié dans l\'invite. Aucune décision importante ne repose sur l\'IA seule.',
           'coach_load_error':
               'Impossible de charger KPB Intelligence pour le moment.',
           // ── Mes données / RGPD ──
@@ -3700,7 +3700,7 @@ class AppTranslations extends Translations {
               'It may be shared with:\n'
               '• Our KPB backend (Hostinger VPS, api.kpbeducation.cloud) to run the app\n'
               '• Supabase (authentication: email, session, Google)\n'
-              '• Groq (United States): coach texts and a pseudonymised profile — never sold\n'
+              '• OpenRouter and Groq (United States): coach texts and a pseudonymised profile — OpenRouter routing is limited to AI services with zero data retention; never sold\n'
               // Voir le commentaire du bloc `fr`.
               '• OneSignal (United States): push token, account identifier and four targeting tags (account type, study level, target country, language) — never your email address\n'
               '• Firebase / Google (Analytics, Crashlytics) for analytics and stability\n'
@@ -3716,7 +3716,7 @@ class AppTranslations extends Translations {
               '• Institutional partners (universities) only with your explicit agreement when you submit a case\n'
               '• Competent authorities if the law requires it',
           'privacy_transfers_body':
-              'Some recipients are established in the United States (Groq, PostHog, OneSignal, Resend, Firebase / Google — including YouTube and the speech recognition services). The transfer rests on your consent to this policy and, where applicable, the processor\'s standard contractual clauses. You can turn analytics off in Profile → "Usage analytics" and decline KPB Intelligence: the rest of the app stays usable.',
+              'Some recipients are established in the United States (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — including YouTube and the speech recognition services). The transfer rests on your consent to this policy and, where applicable, the processor\'s standard contractual clauses. You can turn analytics off in Profile → "Usage analytics" and decline KPB Intelligence: the rest of the app stays usable.',
           'privacy_s6_body': '• Profile data: kept while your account is active\n'
               '• Case data: kept while the case is open, then deleted with the account\n'
               '• Analytics data: aggregated and anonymised, kept indefinitely\n'
@@ -5440,11 +5440,11 @@ class AppTranslations extends Translations {
           'coach_wa_prefill_topic': 'My last topic: @topic',
           'ai_consent_title': 'Enable KPB Intelligence',
           'ai_consent_body':
-              'To answer you, KPB Intelligence sends your messages and profile facts (study level, target countries, budget range, field) to a third-party AI service (Groq) hosted outside your country. Your civil name is not copied into the prompt. Text you paste (letter, CV, message) is sent as-is — do not include information you do not want transmitted. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
+              'To answer you, KPB Intelligence sends your messages and profile facts (study level, target countries, budget range, field) to a third-party AI service (OpenRouter or Groq) hosted outside your country. Your civil name is not copied into the prompt. Text you paste (letter, CV, message) is sent as-is — do not include information you do not want transmitted. No important decision relies on AI alone. You can decline and keep using the rest of the app.',
           'ai_consent_accept': 'Enable KPB Intelligence',
           'ai_consent_decline': 'Not now',
           'ai_tools_disclosure':
-              'This tool sends the text you enter and profile facts (level, countries, field) to Groq (United States). Your name is not copied into the prompt. No important decision relies on AI alone.',
+              'This tool sends the text you enter and profile facts (level, countries, field) to OpenRouter or Groq (United States). Your name is not copied into the prompt. No important decision relies on AI alone.',
           'coach_load_error': 'KPB Intelligence could not load right now.',
           // ── My data / GDPR ──
           'data_rights_section': 'My data',

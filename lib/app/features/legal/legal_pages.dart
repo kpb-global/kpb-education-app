@@ -6,8 +6,8 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/ui/kpb_theme_ext.dart';
 import '../../core/utils/external_link.dart';
 
-// Destinataires dérivés du code (PRIV-T1 / PRIV-T4) : Groq, OneSignal,
-// Firebase, PostHog, Supabase, Resend, Mautic, backend KPB
+// Destinataires dérivés du code (PRIV-T1 / PRIV-T4) : OpenRouter, Groq,
+// OneSignal, Firebase, PostHog, Supabase, Resend, Mautic, backend KPB
 // (kpbeducation.cloud), PayDunya, CinetPay.
 // Permissions : caméra, photo, micro, notifications, biométrie, localisation.
 // Les corps vivent dans AppTranslations ; cette liste garde les noms dans CE

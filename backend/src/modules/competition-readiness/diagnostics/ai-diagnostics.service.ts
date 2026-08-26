@@ -34,7 +34,6 @@ import { buildDiagnosticPrompt } from "./diagnostic-prompt.builder";
 import type { CreateAiDiagnosticDto } from "./dto/create-ai-diagnostic.dto";
 
 const PROMPT_VERSION_FALLBACK = "success-lab-v1";
-const PROVIDER = "groq";
 const ALLOWED_DOCUMENT_KINDS = new Set<ApplicationArtifactKind>([
   "cv",
   "motivation_letter",
@@ -292,7 +291,7 @@ export class AiDiagnosticsService {
       diagnosticId: diagnostic.id,
       attemptKey,
       attemptNumber: 1,
-      provider: PROVIDER,
+      provider: this.llm.providerName,
       model,
       promptVersion,
     });
@@ -310,7 +309,7 @@ export class AiDiagnosticsService {
         where: { id: diagnostic.id },
         data: {
           status: "running",
-          provider: PROVIDER,
+          provider: this.llm.providerName,
           model,
           startedAt: new Date(),
         },

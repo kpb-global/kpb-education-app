@@ -19,7 +19,7 @@ export class HealthController {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      // Boolean only — never the Groq key, never the model name.
+      // Boolean only — never the provider key, never the model name.
       ai: { configured: this.llmService.isConfigured },
     };
   }
