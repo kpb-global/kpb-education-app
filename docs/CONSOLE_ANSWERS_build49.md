@@ -18,13 +18,13 @@
 
 ---
 
-## 0. ⚠️ À TRANCHER AVANT DE SOUMETTRE (6 points)
+## 0. ⚠️ À TRANCHER AVANT DE SOUMETTRE (6 points — dont #3, un vrai gap backend)
 
 | # | Point | Décision requise | Comment trancher |
 |---|---|---|---|
 | 1 | **Clé PostHog** | Déclarer *replay + analytique PostHog* **seulement si** le binaire 49 embarque une `POSTHOG_API_KEY` non vide | Décoder le `DART_DEFINES` de l'archive : `scripts/preflight-ios-archive.sh` le fait déjà en mémoire ; ou lire la valeur du secret CI utilisé pour la 49. Défaut compilé = **vide** (`app_config.dart:72-87`). Clé vide → **ne pas** déclarer PostHog. |
 | 2 | **AD_ID sur l'AAB réel** | Confirmer que `com.google.android.gms.permission.AD_ID` est **absent du manifeste fusionné** | `scripts/preflight-android-aab.sh --aab <app-release.aab> --expected-cert-sha256 <SHA>` **échoue** si AD_ID revient (`:123`). Le manifeste *source* est correct (vérifié), seul le *fusionné* fait foi. |
-| 3 | **Suppression : « immédiate » vs « sous 30 jours »** | Aligner le libellé | Le code supprime **immédiatement et en dur** (`profiles.controller.ts:115`), mais `web/public/suppression-compte.html:40` dit « supprimées sous 30 jours ». Un examinateur qui suit l'URL de suppression voit 30 jours. Choisir : cocher « immédiat » **et** corriger la page, ou déclarer une fenêtre de 30 j. |
+| 3 | **Suppression — ⚠️ GAP BACKEND, ne rien déclarer de « complet »** | Corriger `deleteMe`, OU garder l'avertissement | Le compte et les données actives sont supprimés **immédiatement** (`profiles.controller.ts:115`), mais des résidus **survivent indéfiniment** — `CounsellorReview` (nom civil), registre ambassadeur, contact Mautic : `deleteMe` ne les supprime ni ne les planifie (`STORE_READINESS.md` §6). Donc **ni « immédiat et complet » ni « ≤ 30 jours » n'est vrai** pour ces utilisateurs. Deux voies : **(a)** corriger `deleteMe` pour purger/anonymiser ces enregistrements → alors « ≤ 30 jours » devient exact ; **(b)** d'ici là, **fermer ce gap avant la soumission publique** — ne pas recopier « ≤ 30 j » comme une vérité propre. |
 | 4 | **SDK d'attribution embarqué (iOS)** | Répondre juste si un formulaire demande « SDK tiers d'attribution/pub présent ? » | `GoogleAdsOnDeviceConversion 3.4.2` **est** dans le binaire (transitif via `firebase_analytics`, `ios/Podfile.lock:124`). **Aucun suivi** (ATT absent, `NSPrivacyTracking=false`) — mais le SDK est *présent*. Le commentaire « no advertising SDK » de `PrivacyInfo.xcprivacy:5` est donc inexact sur ce qui *ship*. Ne pas cocher « Used to Track », mais lister le SDK si le formulaire demande la liste. |
 | 5 | **Régions d'hébergement** | Confirmé hors dépôt — recopier tel quel | Supabase **eu-west-3 (Paris)**, VPS **France** (Hostinger), Mautic même VPS. Non prouvé par le code (`STORE_READINESS.md` §1) — vérifié console Supabase / whois. |
 | 6 | **Fichiers Success Lab (Apple : User Content → Documents)** | Yes **seulement si** Success Lab est ouvert en prod ; sinon No | Défaut : accès fermé côté serveur (`live_scholarships_screen.dart` échoue fermé). En 49 masquée → **No**. |
@@ -154,9 +154,13 @@
 | Export proposé | **Oui — en app, JSON partagé depuis l'app** (pas une archive téléchargeable) | `GET /profiles/me/export` (`profiles.controller.ts:110`) |
 | Suppression immédiate | **Oui dans le code** (hard-delete Supabase puis purge locale) | `profiles.controller.ts:115` |
 
-> ⚠️ **Point 3** : la page publique dit « supprimées **sous 30 jours** »
-> (`suppression-compte.html:40`) alors que le code supprime **immédiatement**.
-> Réconcilier avant de cocher « immédiat » à côté de cette URL.
+> ⚠️ **Point 3 — GAP BACKEND, non résolu.** Le compte et les données actives sont
+> supprimés **immédiatement** (`profiles.controller.ts:115`), mais des résidus
+> **survivent indéfiniment** — `CounsellorReview` (nom civil), registre
+> ambassadeur, contact Mautic (`STORE_READINESS.md` §6). Tant que `deleteMe` ne les
+> purge pas, **ni « ≤ 30 jours » ni « complet » n'est exact** pour ces utilisateurs :
+> fermer le gap côté backend avant la soumission publique, ou déclarer honnêtement
+> la survivance. (Signalé par la revue automatique P1 sur #244.)
 >
 > **Fenêtre JWT inévitable :** un access-token déjà émis reste valide jusqu'à son
 > `exp` après suppression Supabase — ne pas présenter la suppression comme une
