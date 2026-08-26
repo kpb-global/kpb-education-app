@@ -5,6 +5,13 @@
 **Périmètre :** application Flutter, API NestJS/PostgreSQL, administration Next.js, infrastructure et stores  
 **Budget de taille accepté :** environ **50 MB téléchargés/installés** pour la version Android destinée aux utilisateurs
 
+> ⚠️ **Ce plan est GÉNÉRIQUE.** Pour la **build 49** en cours, les runbooks qui
+> font autorité sont [`docs/cutover-build49.md`](cutover-build49.md) et
+> [`docs/release-ledger.md`](release-ledger.md) — ils fixent la version, le SHA,
+> les `--dart-define`, le domaine de production (`kpbeducation.cloud`) et une
+> **séquence inversée** (couplage `tolerates-old` : distribuer la build, déployer
+> le backend ensuite). En cas de divergence avec ce plan, le cutover l'emporte.
+
 ## 1. Objectif
 
 Préparer une version de KPB Education suffisamment sécurisée, stable et exploitable pour :
@@ -65,7 +72,7 @@ poste local sans accès aux comptes et à l’infrastructure.
 - [ ] Examiner les cinq commits locaux de cette branche et ne réintégrer que ceux encore utiles.
 - [ ] Vérifier que les correctifs déjà intégrés dans `main` ne sont pas écrasés.
 - [ ] Verrouiller le périmètre avec `KPB_MVP_ONLY=true`.
-- [ ] Définir la version de la release, par exemple `1.0.0+46`.
+- [ ] Définir la version de la release. **Version courante : `2.1.0+49`** — `docs/release-ledger.md` fait foi.
 - [ ] Créer un tag uniquement après validation finale, par exemple `v1.0.0-rc.1`.
 
 ### Validation
@@ -133,9 +140,9 @@ git diff --stat origin/main...HEAD
 
 ### 2.1 DNS et HTTPS
 
-- [ ] Configurer `api.kpb-education.com`.
-- [ ] Configurer `admin.kpb-education.com`.
-- [ ] Configurer `kpb-education.com`.
+- [ ] Configurer `api.kpbeducation.cloud`.
+- [ ] Configurer `admin.kpbeducation.cloud`.
+- [ ] Configurer `kpbeducation.cloud`.
 - [ ] Créer des domaines distincts pour staging.
 - [ ] Installer TLS/HTTPS avec renouvellement automatique.
 - [ ] Vérifier les redirections HTTP vers HTTPS.
@@ -272,6 +279,10 @@ git diff --stat origin/main...HEAD
   ref d’où la build est coupée : la production tourne déjà ce commit. Une build
   mobile ne part jamais devant son backend — un téléphone mis à jour ne revient
   pas en arrière, un backend si.
+  > ⚠️ **Exception build 49.** [`docs/cutover-build49.md`](cutover-build49.md)
+  > **inverse** cette séquence (couplage `tolerates-old` : distribuer la build,
+  > déployer le backend ensuite). Pour la 49, le cutover fait autorité, pas cette
+  > règle générique backend-d’abord.
 
 ---
 
@@ -464,8 +475,16 @@ Le lancement public est autorisé uniquement si :
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
-flutter build appbundle --release --dart-define=KPB_APP_ENV=prod
-flutter build apk --release --split-per-abi --dart-define=KPB_APP_ENV=prod
+# Le build de prod exige l'ensemble COMPLET des --dart-define (docs/cutover-build49.md §4
+# fait autorité) — un build avec le seul KPB_APP_ENV échoue le préflight iOS.
+flutter build appbundle --release \
+  --dart-define=KPB_APP_ENV=prod \
+  --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
+  --dart-define=POSTHOG_API_KEY=phc_…
+flutter build apk --release --split-per-abi \
+  --dart-define=KPB_APP_ENV=prod \
+  --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
+  --dart-define=POSTHOG_API_KEY=phc_…
 ```
 
 ### Backend
@@ -492,8 +511,8 @@ npm audit --omit=dev
 ### Contrôles production
 
 ```bash
-curl -fsS https://api.kpb-education.com/api/health/live
-curl -fsS https://api.kpb-education.com/api/health/ready
+curl -fsS https://api.kpbeducation.cloud/api/health/live
+curl -fsS https://api.kpbeducation.cloud/api/health/ready
 ```
 
 ---
