@@ -116,6 +116,12 @@ monitor for API liveness/readiness, admin, legal pages, and the backup heartbeat
    direction and the stability gate enabled.
 9. Only then promote signed artifacts to TestFlight/Play internal testing.
 
+> ⚠️ **Build 49 exception.** [`docs/cutover-build49.md`](cutover-build49.md)
+> intentionally **inverts** steps 4 and 9 for this release (`tolerates-old`
+> coupling: distribute the build first, deploy the backend afterwards). For
+> build 49 the cutover runbook is authoritative over this generic
+> backend-first sequence.
+
 Steps requiring VPS access, GitHub production-environment approval, external
 monitor configuration, store consoles, or real devices cannot be completed by
 repository code alone.
