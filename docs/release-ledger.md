@@ -11,7 +11,7 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 ## Courant
 
-- `49` — SHA de la branche release, à remplir le jour J
+- `49` — `8f5d71ce2f57` (gelé le 26/08/2026 ; backend déployé sur ce SHA)
 
 ### Ce que 49 embarque en plus
 
