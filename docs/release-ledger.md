@@ -15,6 +15,14 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 ### Ce que 49 embarque en plus
 
+- **Notice IA : OpenRouter nommé (PR #239, 26/08/2026).** Le consentement
+  KPB Intelligence et la divulgation des outils (FR/EN) nomment désormais
+  OpenRouter aux côtés de Groq, en cohérence avec la bascule du provider LLM
+  (deepseek-v4-flash, routage épinglé zdr + data_collection=deny). Le backend
+  et la politique web sont déjà en prod avec ce texte ; la 49 aligne l'app.
+  Le numéro de build n'est PAS incrémenté : ce lot monte dans la 49, comme
+  le lot EEF ci-dessous.
+
 - **Espace « Études en France » — Phase 0.** La vitrine ET la coquille de
   l'espace, toutes deux **éteintes à la compilation**. Rien n'apparaît tant que
   `/config/app` ne les allume pas.
