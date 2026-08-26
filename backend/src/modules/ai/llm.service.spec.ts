@@ -170,6 +170,7 @@ describe('LlmService.completeStructured', () => {
     expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
     const body = JSON.parse(init.body as string) as Record<string, unknown>;
     expect(body.provider).toEqual({
+      zdr: true,
       data_collection: 'deny',
       require_parameters: true,
     });

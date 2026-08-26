@@ -33,6 +33,10 @@ const _firstPartySuffixes = <String>[
 
 /// Hôte → jeton qui doit figurer dans les deux politiques.
 const _processorSuffixToToken = <String, String>{
+  // Provider IA primaire depuis le 25/08/2026 (deepseek-v4-flash), routage
+  // épinglé zdr + data_collection=deny côté backend ; Groq reste le repli
+  // legacy tant que le chemin GROQ_* existe dans llm.service.ts.
+  'openrouter.ai': 'OpenRouter',
   'groq.com': 'Groq',
   'onesignal.com': 'OneSignal',
   'posthog.com': 'PostHog',

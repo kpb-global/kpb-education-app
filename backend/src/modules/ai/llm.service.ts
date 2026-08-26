@@ -116,14 +116,21 @@ export class LlmService {
   /**
    * OpenRouter fans requests out to third-party clouds; student prompts must
    * never be retained there (IA-T2 posture, same promise as the consent copy).
-   * `data_collection: 'deny'` pins routing to no-retention providers and
-   * `require_parameters` keeps requests off providers that would silently drop
-   * `response_format`. The key collision is intentional: OpenRouter's routing
-   * field is literally named `provider`.
+   * `zdr: true` pins routing to zero-data-retention endpoints — the actual
+   * guarantee; `data_collection: 'deny'` alone only filters on the provider's
+   * declared collection policy. `require_parameters` keeps requests off
+   * providers that would silently drop `response_format`. The key collision is
+   * intentional: OpenRouter's routing field is literally named `provider`.
    */
   private routingPolicy(name: LlmProviderName): Record<string, unknown> {
     return name === 'openrouter'
-      ? { provider: { data_collection: 'deny', require_parameters: true } }
+      ? {
+          provider: {
+            zdr: true,
+            data_collection: 'deny',
+            require_parameters: true,
+          },
+        }
       : {};
   }
 
