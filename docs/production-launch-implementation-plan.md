@@ -477,14 +477,21 @@ flutter analyze
 flutter test --dart-define=KPB_ENABLE_REMOTE_SYNC=false
 # Le build de prod exige l'ensemble COMPLET des --dart-define (docs/cutover-build49.md §4
 # fait autorité) — un build avec le seul KPB_APP_ENV échoue le préflight iOS.
+# POSTHOG_API_KEY : exportez la clé publique phc_… réelle du projet, OU laissez la
+# variable VIDE pour livrer sans PostHog (état valide et documenté). Ne collez
+# JAMAIS un placeholder « phc_… » littéral : il passe le préflight (qui n'exige que
+# le préfixe phc_) mais envoie la télémétrie de prod vers une clé morte — perdue en
+# silence. L'expansion ci-dessous retombe sur « vide = désactivé », jamais sur un
+# faux positif.
+export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"   # clé phc_… réelle, ou vide pour désactiver
 flutter build appbundle --release \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY=phc_…
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 flutter build apk --release --split-per-abi \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY=phc_…
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
 ### Backend
