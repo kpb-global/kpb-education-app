@@ -151,4 +151,59 @@ describe('MauticService', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it('deleteContact is a no-op when not configured', async () => {
+    delete process.env.MAUTIC_BASE_URL;
+    const fetchSpy = jest.fn();
+    global.fetch = fetchSpy as unknown as typeof fetch;
+
+    await new MauticService().deleteContact('a@example.test');
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('deleteContact looks the contact up by email, then DELETEs it', async () => {
+    configure();
+    const fetchSpy = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ contacts: { '42': { id: 42 } }, total: 1 }),
+      })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    global.fetch = fetchSpy as unknown as typeof fetch;
+
+    await new MauticService().deleteContact('aissatou@example.test');
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    const [lookupUrl, lookupInit] = fetchSpy.mock.calls[0] as [
+      string,
+      RequestInit,
+    ];
+    // Exact email match, URL-encoded; GET, not POST.
+    expect(lookupUrl).toBe(
+      'https://mautic.example.test/api/contacts?search=email%3Aaissatou%40example.test&limit=1&minimal=true',
+    );
+    expect(lookupInit.method).toBe('GET');
+    const [deleteUrl, deleteInit] = fetchSpy.mock.calls[1] as [
+      string,
+      RequestInit,
+    ];
+    expect(deleteUrl).toBe('https://mautic.example.test/api/contacts/42/delete');
+    expect(deleteInit.method).toBe('DELETE');
+  });
+
+  it('deleteContact is idempotent — no DELETE when no contact matches', async () => {
+    configure();
+    const fetchSpy = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ contacts: {}, total: 0 }),
+    });
+    global.fetch = fetchSpy as unknown as typeof fetch;
+
+    await new MauticService().deleteContact('ghost@example.test');
+
+    // Lookup only; a missing contact is a success, not a DELETE.
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
 });

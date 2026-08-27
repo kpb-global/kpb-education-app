@@ -610,6 +610,27 @@ export class ProfilesService {
         }),
         // Referral-reward ledger (KPB-77) — FK is ON DELETE RESTRICT.
         prisma.creditTransaction.deleteMany({ where: { profileId: id } }),
+        // ── Résidus à référence « plate » : ces tables pointent le profil par un
+        // String SANS `@relation`, donc AUCUNE cascade ne les atteint. Sans ces
+        // trois lignes, un nom civil et un compte de paiement survivent à la
+        // suppression de compte — droit à l'effacement (RGPD), STORE_READINESS §6,
+        // revue P1 sur #244. Gardés par profiles.postgres.spec.ts.
+        //
+        // (1) Avis conseiller rédigé PAR l'utilisateur : porte `reviewerName`
+        // (nom civil) + `body`. `reviewerUserId` est `String?` sans relation.
+        prisma.counsellorReview.deleteMany({ where: { reviewerUserId: id } }),
+        // (2) L'utilisateur EN TANT QU'ambassadeur : la ligne `Ambassador` porte le
+        // `payoutAccount`. Ses `referrals` / `commissions` / `withdrawals` ont
+        // `ambassador … onDelete: Cascade` (relationMode foreignKeys), donc
+        // supprimer l'`Ambassador` les emporte au niveau base — ne pas les lister.
+        prisma.ambassador.deleteMany({ where: { userProfileId: id } }),
+        // (3) L'utilisateur EN TANT QUE filleul d'un AUTRE ambassadeur : cette ligne
+        // (`refereeName` = son nom) appartient à l'ambassadeur parrain, donc aucune
+        // cascade partant de cet utilisateur ne l'atteint. À purger nommément —
+        // sans toucher l'ambassadeur parrain lui-même.
+        prisma.ambassadorReferral.deleteMany({
+          where: { refereeProfileId: id },
+        }),
         // Competition Readiness technical records do not all have an FK to the
         // profile. Purge them explicitly before the workspace/profile cascade.
         prisma.analyticsEvent.deleteMany({
@@ -767,6 +788,9 @@ export class ProfilesService {
       return {
         authIdentityRemoved,
         supabaseUserId: profile.supabaseUserId,
+        // Carried out of the transaction so the newsletter processor (Mautic)
+        // can be asked to forget the contact after the local purge succeeds.
+        email: profile.email,
         fileUrls,
         artifactStorageKeys,
         outcomeStorageKeys,
@@ -803,6 +827,12 @@ export class ProfilesService {
     for (const key of purged.avatarStorageKeys) {
       await this.storageService.delete(key);
     }
+
+    // Ask the newsletter processor (Mautic) to forget the contact too. Outside
+    // the transaction and best-effort: Postgres and an external marketing system
+    // cannot share one, and the local deletion must stand even if Mautic is
+    // unreachable. No-op when Mautic is unconfigured (the case in build 49).
+    await this.newsletterSync?.forgetContact(purged.email);
 
     return {
       deleted: true,

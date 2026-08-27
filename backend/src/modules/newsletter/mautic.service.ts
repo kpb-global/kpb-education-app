@@ -102,6 +102,45 @@ export class MauticService {
     }
   }
 
+  /**
+   * Erases a contact from Mautic on account deletion (GDPR right to erasure).
+   * No-op when unconfigured. Looks the contact up by exact email, then deletes
+   * it (idempotent: a missing contact is a success). Throws on a configured
+   * provider failure so the caller can surface it — but there is NO
+   * reconciliation cron for deletes (the local profile is already gone), so
+   * callers treat this best-effort. A durable deletion queue is the robust
+   * follow-up; see docs/STORE_READINESS.md §6.
+   */
+  async deleteContact(email: string): Promise<void> {
+    if (!this.isConfigured) {
+      this.logger.warn('Mautic not configured — contact deletion skipped.');
+      return;
+    }
+    if (!email?.trim()) return;
+    const contactId = await this.findContactIdByEmail(email.trim());
+    if (contactId === null) return; // already absent — nothing to erase.
+    await this.request(`/api/contacts/${contactId}/delete`, 'delete contact', {
+      method: 'DELETE',
+    });
+  }
+
+  /// Resolves a Mautic contact id from an exact email, or null when none match.
+  private async findContactIdByEmail(email: string): Promise<number | null> {
+    const search = encodeURIComponent(`email:${email}`);
+    const json = await this.request(
+      `/api/contacts?search=${search}&limit=1&minimal=true`,
+      'find contact by email',
+      { method: 'GET' },
+    );
+    const contacts = (json as { contacts?: Record<string, { id?: number }> })
+      ?.contacts;
+    if (!contacts) return null;
+    for (const entry of Object.values(contacts)) {
+      if (typeof entry?.id === 'number') return entry.id;
+    }
+    return null;
+  }
+
   /// Creates or updates (Mautic dedupes by email) the contact; returns its id.
   /// `includeProfileFields` is false on the opt-out path — see syncContact.
   /// Omitting them does not blank what Mautic already stores: /api/contacts/new
@@ -146,7 +185,10 @@ export class MauticService {
   private async request(
     path: string,
     operation: string,
-    options?: { body?: Record<string, string> },
+    options?: {
+      method?: 'GET' | 'POST' | 'DELETE';
+      body?: Record<string, string>;
+    },
   ): Promise<unknown> {
     const credentials = Buffer.from(
       `${this.username}:${this.password}`,
@@ -156,7 +198,7 @@ export class MauticService {
     const timeout = setTimeout(() => controller.abort(), 10_000);
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'POST',
+        method: options?.method ?? 'POST',
         headers: {
           'content-type': 'application/json; charset=utf-8',
           authorization: `Basic ${credentials}`,
