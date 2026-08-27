@@ -461,6 +461,11 @@ export class ProfilesService {
           email: true,
           supabaseUserId: true,
           avatarStorageKey: true,
+          // Whether this contact was ever pushed to Mautic. `null` = never
+          // synced: deletion must NOT look it up, because the lookup itself would
+          // newly disclose the email to the processor — the never-consented
+          // invariant newsletter-sync.service.ts guarantees. Revue P1 #246.
+          newsletterSyncedOptIn: true,
         },
       });
       if (!profile) return null;
@@ -575,6 +580,17 @@ export class ProfilesService {
         .map((d: { fileUrl: string | null }) => d.fileUrl)
         .filter((u: string | null): u is string => !!u);
 
+      // Counsellors this user reviewed — collected BEFORE the delete so their
+      // denormalized avgRating/reviewCount can be recomputed AFTER it. Deleting
+      // a published review would otherwise leave those counters inflated. P2 #246.
+      const authoredReviews = await prisma.counsellorReview.findMany({
+        where: { reviewerUserId: id },
+        select: { counsellorId: true },
+      });
+      const affectedCounsellorIds = [
+        ...new Set(authoredReviews.map((r) => r.counsellorId)),
+      ];
+
       await prisma.$transaction([
         // Children of Case (no cascade defined).
         prisma.caseMessage.deleteMany({ where: { caseId: { in: caseIds } } }),
@@ -610,6 +626,27 @@ export class ProfilesService {
         }),
         // Referral-reward ledger (KPB-77) — FK is ON DELETE RESTRICT.
         prisma.creditTransaction.deleteMany({ where: { profileId: id } }),
+        // ── Résidus à référence « plate » : ces tables pointent le profil par un
+        // String SANS `@relation`, donc AUCUNE cascade ne les atteint. Sans ces
+        // trois lignes, un nom civil et un compte de paiement survivent à la
+        // suppression de compte — droit à l'effacement (RGPD), STORE_READINESS §6,
+        // revue P1 sur #244. Gardés par profiles.postgres.spec.ts.
+        //
+        // (1) Avis conseiller rédigé PAR l'utilisateur : porte `reviewerName`
+        // (nom civil) + `body`. `reviewerUserId` est `String?` sans relation.
+        prisma.counsellorReview.deleteMany({ where: { reviewerUserId: id } }),
+        // (2) L'utilisateur EN TANT QU'ambassadeur : la ligne `Ambassador` porte le
+        // `payoutAccount`. Ses `referrals` / `commissions` / `withdrawals` ont
+        // `ambassador … onDelete: Cascade` (relationMode foreignKeys), donc
+        // supprimer l'`Ambassador` les emporte au niveau base — ne pas les lister.
+        prisma.ambassador.deleteMany({ where: { userProfileId: id } }),
+        // (3) L'utilisateur EN TANT QUE filleul d'un AUTRE ambassadeur : cette ligne
+        // (`refereeName` = son nom) appartient à l'ambassadeur parrain, donc aucune
+        // cascade partant de cet utilisateur ne l'atteint. À purger nommément —
+        // sans toucher l'ambassadeur parrain lui-même.
+        prisma.ambassadorReferral.deleteMany({
+          where: { refereeProfileId: id },
+        }),
         // Competition Readiness technical records do not all have an FK to the
         // profile. Purge them explicitly before the workspace/profile cascade.
         prisma.analyticsEvent.deleteMany({
@@ -764,9 +801,34 @@ export class ProfilesService {
         prisma.userProfile.delete({ where: { id } }),
       ]);
 
+      // Recompute each affected counsellor's published-review counters, mirroring
+      // CounsellorsService (avgRating/reviewCount over isPublished reviews).
+      // updateMany, not update: no throw if a counsellor was removed meanwhile.
+      // P2 #246.
+      for (const counsellorId of affectedCounsellorIds) {
+        const published = await prisma.counsellorReview.findMany({
+          where: { counsellorId, isPublished: true },
+          select: { rating: true },
+        });
+        const count = published.length;
+        const avg =
+          count === 0
+            ? 0
+            : published.reduce((sum, r) => sum + r.rating, 0) / count;
+        await prisma.counsellor.updateMany({
+          where: { id: counsellorId },
+          data: { avgRating: avg, reviewCount: count },
+        });
+      }
+
       return {
         authIdentityRemoved,
         supabaseUserId: profile.supabaseUserId,
+        // Carried out of the transaction so the newsletter processor (Mautic)
+        // can be asked to forget the contact after the local purge succeeds —
+        // but ONLY when it was ever synced (the gate at the call site).
+        email: profile.email,
+        newsletterSyncedOptIn: profile.newsletterSyncedOptIn,
         fileUrls,
         artifactStorageKeys,
         outcomeStorageKeys,
@@ -803,6 +865,17 @@ export class ProfilesService {
     for (const key of purged.avatarStorageKeys) {
       await this.storageService.delete(key);
     }
+
+    // Ask the newsletter processor (Mautic) to forget the contact too. Outside
+    // the transaction and best-effort: Postgres and an external marketing system
+    // cannot share one, and the local deletion must stand even if Mautic is
+    // unreachable. Gated on `newsletterSyncedOptIn` being non-null: a
+    // never-consented account holds nothing at Mautic, and even the lookup would
+    // newly disclose its email — the leak newsletter-sync guards against (P1 #246).
+    await this.newsletterSync?.forgetContact(
+      purged.email,
+      purged.newsletterSyncedOptIn,
+    );
 
     return {
       deleted: true,

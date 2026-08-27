@@ -33,16 +33,23 @@ function makePrisma(profile: typeof PROFILE | null) {
   return { prisma, updates };
 }
 
-function makeMautic(options: { configured?: boolean; fail?: boolean } = {}) {
+function makeMautic(
+  options: { configured?: boolean; fail?: boolean; deleteFail?: boolean } = {},
+) {
   const syncCalls: Array<{ email: string; optIn: boolean }> = [];
+  const deleteCalls: string[] = [];
   const mautic = {
     isConfigured: options.configured ?? true,
     syncContact: async (input: { email: string }, optIn: boolean) => {
       if (options.fail) throw new Error('Mautic down');
       syncCalls.push({ email: input.email, optIn });
     },
+    deleteContact: async (email: string) => {
+      if (options.deleteFail) throw new Error('Mautic delete down');
+      deleteCalls.push(email);
+    },
   } as unknown as MauticService;
-  return { mautic, syncCalls };
+  return { mautic, syncCalls, deleteCalls };
 }
 
 describe('NewsletterSyncService', () => {
@@ -121,6 +128,67 @@ describe('NewsletterSyncService', () => {
 
     expect(result).toEqual({ pending: 1, synced: 1 });
     expect(syncCalls).toHaveLength(1);
+  });
+
+  it('forgetContact deletes a synced contact on account deletion (opt-in)', async () => {
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic, deleteCalls } = makeMautic();
+
+    await new NewsletterSyncService(prisma, mautic).forgetContact(
+      'aissatou@example.test',
+      true,
+    );
+
+    expect(deleteCalls).toEqual(['aissatou@example.test']);
+  });
+
+  it('forgetContact deletes a withdrawn contact too (synced=false — the row still lives in Mautic)', async () => {
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic, deleteCalls } = makeMautic();
+
+    await new NewsletterSyncService(prisma, mautic).forgetContact(
+      'aissatou@example.test',
+      false,
+    );
+
+    expect(deleteCalls).toEqual(['aissatou@example.test']);
+  });
+
+  it('forgetContact does NOT touch Mautic for a never-synced account (synced=null)', async () => {
+    // The P1 guard: a lookup would newly disclose the email of someone who never
+    // consented — the exact leak resolveNewsletterAction exists to prevent.
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic, deleteCalls } = makeMautic();
+
+    await new NewsletterSyncService(prisma, mautic).forgetContact(
+      'aissatou@example.test',
+      null,
+    );
+
+    expect(deleteCalls).toHaveLength(0);
+  });
+
+  it('forgetContact is a no-op for an empty email', async () => {
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic, deleteCalls } = makeMautic();
+
+    await new NewsletterSyncService(prisma, mautic).forgetContact('  ', true);
+
+    expect(deleteCalls).toHaveLength(0);
+  });
+
+  it('forgetContact never throws — a deleted account has no retry path', async () => {
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic } = makeMautic({ deleteFail: true });
+
+    // Best-effort: a Mautic failure must not surface, since the local account
+    // is already gone and the reconciliation cron cannot see it any more.
+    await expect(
+      new NewsletterSyncService(prisma, mautic).forgetContact(
+        'aissatou@example.test',
+        true,
+      ),
+    ).resolves.toBeUndefined();
   });
 });
 

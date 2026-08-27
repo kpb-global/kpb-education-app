@@ -59,6 +59,11 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
   ];
   // Profile photo: a private object like any other user upload.
   const avatarStorageKey = `2026-08-12/${randomUUID()}.jpg`;
+  // Flat-reference residues that no cascade reaches (see the deleteMe fix).
+  const counsellorId = `privacy-counsellor-${suffix}`;
+  const ownAmbassadorId = `privacy-ambassador-own-${suffix}`;
+  const referrerAmbassadorId = `privacy-ambassador-referrer-${suffix}`;
+  const ownRefereeProfileId = `privacy-own-referee-${suffix}`;
 
   const deleteObject = jest.fn().mockResolvedValue(undefined);
   const storage = {
@@ -83,6 +88,80 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
         phone: "+22790000000",
         countryOfResidence: "Niger",
         avatarStorageKey,
+      },
+    });
+    // ── Résidus à référence « plate » que deleteMe doit purger (RGPD, droit à
+    // l'effacement). Le harnais historique n'en seedait AUCUN, donc il ne pouvait
+    // pas rougir sur ce gap (STORE_READINESS §6, revue P1 #244) — on les pose ici.
+    await prisma.counsellor.create({
+      data: {
+        id: counsellorId,
+        fullName: "Privacy Test Counsellor",
+        email: `counsellor-${suffix}@example.test`,
+        phone: "+22790000010",
+        countryOfResidence: "Niger",
+        bioFr: "Bio",
+        bioEn: "Bio",
+        // Compteurs cohérents avec l'unique avis publié ci-dessous : deleteMe doit
+        // les ramener à 0/0 quand l'avis part (P2 #246).
+        avgRating: 5,
+        reviewCount: 1,
+      },
+    });
+    // (1) Avis rédigé PAR l'utilisateur : porte son nom civil + son texte.
+    await prisma.counsellorReview.create({
+      data: {
+        counsellorId,
+        reviewerName: "Privacy Integration Student",
+        reviewerUserId: userId,
+        rating: 5,
+        body: "Suivi impeccable — merci.",
+        // Publié : sa suppression doit recalculer les compteurs du conseiller.
+        isPublished: true,
+      },
+    });
+    // (2) L'utilisateur EN TANT QU'ambassadeur : sa ligne porte le payoutAccount,
+    // et son ledger (referral/commission/withdrawal) doit tomber par cascade FK.
+    await prisma.ambassador.create({
+      data: {
+        id: ownAmbassadorId,
+        userProfileId: userId,
+        code: `AMB-OWN-${suffix}`,
+        payoutAccount: "+22790000000",
+      },
+    });
+    await prisma.ambassadorReferral.create({
+      data: {
+        ambassadorId: ownAmbassadorId,
+        refereeProfileId: ownRefereeProfileId,
+        refereeName: "Filleul de test",
+      },
+    });
+    await prisma.commission.create({
+      data: {
+        ambassadorId: ownAmbassadorId,
+        amountFCFA: 1000,
+        reason: "referral_signup",
+      },
+    });
+    await prisma.withdrawal.create({
+      data: { ambassadorId: ownAmbassadorId, amountFCFA: 5000 },
+    });
+    // (3) L'utilisateur EN TANT QUE filleul d'un AUTRE ambassadeur (le parrain) :
+    // son nom vit dans une ligne appartenant au parrain, hors de toute cascade
+    // partant de lui. Le parrain, lui, doit SURVIVRE (garde anti-sur-suppression).
+    await prisma.ambassador.create({
+      data: {
+        id: referrerAmbassadorId,
+        userProfileId: `privacy-referrer-${suffix}`,
+        code: `AMB-REF-${suffix}`,
+      },
+    });
+    await prisma.ambassadorReferral.create({
+      data: {
+        ambassadorId: referrerAmbassadorId,
+        refereeProfileId: userId,
+        refereeName: "Privacy Integration Student",
       },
     });
     await prisma.scholarship.create({
@@ -458,6 +537,23 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
         });
         await tx.scholarship.deleteMany({ where: { id: scholarshipId } });
         await tx.consentNotice.deleteMany({ where: { id: noticeId } });
+        // Résidus seedés pour ce test. Les triggers/FK sont coupés ici
+        // (session_replication_role = replica), donc on efface chaque enfant
+        // explicitement — y compris quand deleteMe n'a pas été atteint.
+        await tx.commission.deleteMany({
+          where: { ambassadorId: { in: [ownAmbassadorId, referrerAmbassadorId] } },
+        });
+        await tx.withdrawal.deleteMany({
+          where: { ambassadorId: { in: [ownAmbassadorId, referrerAmbassadorId] } },
+        });
+        await tx.ambassadorReferral.deleteMany({
+          where: { ambassadorId: { in: [ownAmbassadorId, referrerAmbassadorId] } },
+        });
+        await tx.ambassador.deleteMany({
+          where: { id: { in: [ownAmbassadorId, referrerAmbassadorId] } },
+        });
+        await tx.counsellorReview.deleteMany({ where: { counsellorId } });
+        await tx.counsellor.deleteMany({ where: { id: counsellorId } });
         },
         // Une vingtaine d'instructions sur un Postgres de CI : le plafond par
         // défaut (5 s) est trop juste un jour de runner lent.
@@ -544,5 +640,52 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
     expect(deleteObject.mock.calls.map(([key]) => key).sort()).toEqual(
       [...storageKeys, avatarStorageKey].sort(),
     );
+
+    // ── Résidus effacés (chaque count === 0 rougit si l'on retire sa purge).
+    // (1) L'avis (nom civil + texte) rédigé par l'utilisateur.
+    expect(
+      await prisma.counsellorReview.count({
+        where: { reviewerUserId: userId },
+      }),
+    ).toBe(0);
+    // (2) Sa ligne ambassadeur ET tout son ledger, emporté par la cascade FK.
+    expect(
+      await prisma.ambassador.count({ where: { userProfileId: userId } }),
+    ).toBe(0);
+    expect(
+      await prisma.ambassadorReferral.count({
+        where: { ambassadorId: ownAmbassadorId },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.commission.count({
+        where: { ambassadorId: ownAmbassadorId },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.withdrawal.count({
+        where: { ambassadorId: ownAmbassadorId },
+      }),
+    ).toBe(0);
+    // (3) Son nom en tant que filleul, dans la ligne du parrain.
+    expect(
+      await prisma.ambassadorReferral.count({
+        where: { refereeProfileId: userId },
+      }),
+    ).toBe(0);
+
+    // ── Non-sur-suppression : ce qui n'appartient PAS à l'utilisateur survit.
+    // Le conseiller survit, MAIS ses compteurs dénormalisés sont recalculés :
+    // l'unique avis publié (celui de l'utilisateur) est parti → 0/0. Sans le
+    // recalcul, reviewCount resterait à 1 (P2 #246).
+    const counsellorAfter = await prisma.counsellor.findUnique({
+      where: { id: counsellorId },
+      select: { avgRating: true, reviewCount: true },
+    });
+    expect(counsellorAfter).toMatchObject({ avgRating: 0, reviewCount: 0 });
+    // L'ambassadeur PARRAIN, qui n'est pas cet utilisateur.
+    expect(
+      await prisma.ambassador.count({ where: { id: referrerAmbassadorId } }),
+    ).toBe(1);
   });
 });
