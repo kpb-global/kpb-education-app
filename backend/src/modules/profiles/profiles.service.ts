@@ -461,6 +461,11 @@ export class ProfilesService {
           email: true,
           supabaseUserId: true,
           avatarStorageKey: true,
+          // Whether this contact was ever pushed to Mautic. `null` = never
+          // synced: deletion must NOT look it up, because the lookup itself would
+          // newly disclose the email to the processor — the never-consented
+          // invariant newsletter-sync.service.ts guarantees. Revue P1 #246.
+          newsletterSyncedOptIn: true,
         },
       });
       if (!profile) return null;
@@ -574,6 +579,17 @@ export class ProfilesService {
       const fileUrls = documents
         .map((d: { fileUrl: string | null }) => d.fileUrl)
         .filter((u: string | null): u is string => !!u);
+
+      // Counsellors this user reviewed — collected BEFORE the delete so their
+      // denormalized avgRating/reviewCount can be recomputed AFTER it. Deleting
+      // a published review would otherwise leave those counters inflated. P2 #246.
+      const authoredReviews = await prisma.counsellorReview.findMany({
+        where: { reviewerUserId: id },
+        select: { counsellorId: true },
+      });
+      const affectedCounsellorIds = [
+        ...new Set(authoredReviews.map((r) => r.counsellorId)),
+      ];
 
       await prisma.$transaction([
         // Children of Case (no cascade defined).
@@ -785,12 +801,34 @@ export class ProfilesService {
         prisma.userProfile.delete({ where: { id } }),
       ]);
 
+      // Recompute each affected counsellor's published-review counters, mirroring
+      // CounsellorsService (avgRating/reviewCount over isPublished reviews).
+      // updateMany, not update: no throw if a counsellor was removed meanwhile.
+      // P2 #246.
+      for (const counsellorId of affectedCounsellorIds) {
+        const published = await prisma.counsellorReview.findMany({
+          where: { counsellorId, isPublished: true },
+          select: { rating: true },
+        });
+        const count = published.length;
+        const avg =
+          count === 0
+            ? 0
+            : published.reduce((sum, r) => sum + r.rating, 0) / count;
+        await prisma.counsellor.updateMany({
+          where: { id: counsellorId },
+          data: { avgRating: avg, reviewCount: count },
+        });
+      }
+
       return {
         authIdentityRemoved,
         supabaseUserId: profile.supabaseUserId,
         // Carried out of the transaction so the newsletter processor (Mautic)
-        // can be asked to forget the contact after the local purge succeeds.
+        // can be asked to forget the contact after the local purge succeeds —
+        // but ONLY when it was ever synced (the gate at the call site).
         email: profile.email,
+        newsletterSyncedOptIn: profile.newsletterSyncedOptIn,
         fileUrls,
         artifactStorageKeys,
         outcomeStorageKeys,
@@ -831,8 +869,13 @@ export class ProfilesService {
     // Ask the newsletter processor (Mautic) to forget the contact too. Outside
     // the transaction and best-effort: Postgres and an external marketing system
     // cannot share one, and the local deletion must stand even if Mautic is
-    // unreachable. No-op when Mautic is unconfigured (the case in build 49).
-    await this.newsletterSync?.forgetContact(purged.email);
+    // unreachable. Gated on `newsletterSyncedOptIn` being non-null: a
+    // never-consented account holds nothing at Mautic, and even the lookup would
+    // newly disclose its email — the leak newsletter-sync guards against (P1 #246).
+    await this.newsletterSync?.forgetContact(
+      purged.email,
+      purged.newsletterSyncedOptIn,
+    );
 
     return {
       deleted: true,

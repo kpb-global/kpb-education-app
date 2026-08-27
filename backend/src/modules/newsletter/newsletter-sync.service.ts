@@ -116,11 +116,22 @@ export class NewsletterSyncService {
    * Best-effort and NEVER throws: the local account is already gone, so there is
    * no profile left for the reconciliation cron to retry against — a failure
    * here is logged, not surfaced (a durable deletion queue is the robust
-   * follow-up, see docs/STORE_READINESS.md §6). No-op when Mautic is
-   * unconfigured (build 49) or the email is empty.
+   * follow-up, see docs/STORE_READINESS.md §6).
+   *
+   * `syncedOptIn` is the profile's last-known Mautic state. `null` means the
+   * contact was NEVER pushed: Mautic holds nothing, and even the lookup inside
+   * deleteContact would newly disclose the email — the never-consented invariant
+   * of resolveNewsletterAction. So `null` is a hard skip (revue P1 #246). `true`
+   * (subscribed) and `false` (subscribed then unsubscribed — the contact row
+   * still exists in Mautic) both warrant deletion. The credentials-only reach
+   * check lives in MauticService.deleteContact (canReachApi), NOT isConfigured,
+   * so a segment-less config still erases (revue P2 #246).
    */
-  async forgetContact(email: string | null | undefined): Promise<void> {
-    if (!this.mautic.isConfigured || !email?.trim()) return;
+  async forgetContact(
+    email: string | null | undefined,
+    syncedOptIn: boolean | null,
+  ): Promise<void> {
+    if (syncedOptIn === null || !email?.trim()) return;
     try {
       await this.mautic.deleteContact(email.trim());
     } catch (error) {

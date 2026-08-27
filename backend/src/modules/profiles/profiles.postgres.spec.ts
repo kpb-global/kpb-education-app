@@ -102,6 +102,10 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
         countryOfResidence: "Niger",
         bioFr: "Bio",
         bioEn: "Bio",
+        // Compteurs cohérents avec l'unique avis publié ci-dessous : deleteMe doit
+        // les ramener à 0/0 quand l'avis part (P2 #246).
+        avgRating: 5,
+        reviewCount: 1,
       },
     });
     // (1) Avis rédigé PAR l'utilisateur : porte son nom civil + son texte.
@@ -112,6 +116,8 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
         reviewerUserId: userId,
         rating: 5,
         body: "Suivi impeccable — merci.",
+        // Publié : sa suppression doit recalculer les compteurs du conseiller.
+        isPublished: true,
       },
     });
     // (2) L'utilisateur EN TANT QU'ambassadeur : sa ligne porte le payoutAccount,
@@ -669,10 +675,14 @@ describePostgres("ProfilesService — PostgreSQL privacy integration", () => {
     ).toBe(0);
 
     // ── Non-sur-suppression : ce qui n'appartient PAS à l'utilisateur survit.
-    // Le conseiller (l'avis est à l'utilisateur, pas le conseiller lui-même).
-    expect(await prisma.counsellor.count({ where: { id: counsellorId } })).toBe(
-      1,
-    );
+    // Le conseiller survit, MAIS ses compteurs dénormalisés sont recalculés :
+    // l'unique avis publié (celui de l'utilisateur) est parti → 0/0. Sans le
+    // recalcul, reviewCount resterait à 1 (P2 #246).
+    const counsellorAfter = await prisma.counsellor.findUnique({
+      where: { id: counsellorId },
+      select: { avgRating: true, reviewCount: true },
+    });
+    expect(counsellorAfter).toMatchObject({ avgRating: 0, reviewCount: 0 });
     // L'ambassadeur PARRAIN, qui n'est pas cet utilisateur.
     expect(
       await prisma.ambassador.count({ where: { id: referrerAmbassadorId } }),

@@ -130,23 +130,39 @@ describe('NewsletterSyncService', () => {
     expect(syncCalls).toHaveLength(1);
   });
 
-  it('forgetContact tells Mautic to delete the contact on account deletion', async () => {
+  it('forgetContact deletes a synced contact on account deletion (opt-in)', async () => {
     const { prisma } = makePrisma({ ...PROFILE });
     const { mautic, deleteCalls } = makeMautic();
 
     await new NewsletterSyncService(prisma, mautic).forgetContact(
       'aissatou@example.test',
+      true,
     );
 
     expect(deleteCalls).toEqual(['aissatou@example.test']);
   });
 
-  it('forgetContact is a no-op when Mautic is not configured', async () => {
+  it('forgetContact deletes a withdrawn contact too (synced=false — the row still lives in Mautic)', async () => {
     const { prisma } = makePrisma({ ...PROFILE });
-    const { mautic, deleteCalls } = makeMautic({ configured: false });
+    const { mautic, deleteCalls } = makeMautic();
 
     await new NewsletterSyncService(prisma, mautic).forgetContact(
       'aissatou@example.test',
+      false,
+    );
+
+    expect(deleteCalls).toEqual(['aissatou@example.test']);
+  });
+
+  it('forgetContact does NOT touch Mautic for a never-synced account (synced=null)', async () => {
+    // The P1 guard: a lookup would newly disclose the email of someone who never
+    // consented — the exact leak resolveNewsletterAction exists to prevent.
+    const { prisma } = makePrisma({ ...PROFILE });
+    const { mautic, deleteCalls } = makeMautic();
+
+    await new NewsletterSyncService(prisma, mautic).forgetContact(
+      'aissatou@example.test',
+      null,
     );
 
     expect(deleteCalls).toHaveLength(0);
@@ -156,7 +172,7 @@ describe('NewsletterSyncService', () => {
     const { prisma } = makePrisma({ ...PROFILE });
     const { mautic, deleteCalls } = makeMautic();
 
-    await new NewsletterSyncService(prisma, mautic).forgetContact('  ');
+    await new NewsletterSyncService(prisma, mautic).forgetContact('  ', true);
 
     expect(deleteCalls).toHaveLength(0);
   });
@@ -170,6 +186,7 @@ describe('NewsletterSyncService', () => {
     await expect(
       new NewsletterSyncService(prisma, mautic).forgetContact(
         'aissatou@example.test',
+        true,
       ),
     ).resolves.toBeUndefined();
   });

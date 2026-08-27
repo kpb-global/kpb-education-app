@@ -60,6 +60,7 @@ describe('ProfilesService — account deletion & export', () => {
     'referral',
     'creditTransaction',
     'counsellorReview',
+    'counsellor',
     'ambassador',
     'ambassadorReferral',
     'deviceToken',

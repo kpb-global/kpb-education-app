@@ -53,6 +53,16 @@ export class MauticService {
   }
 
   /**
+   * Credentials-only reachability, WITHOUT the segment id. Deletion (contact
+   * lookup + DELETE) never touches a segment, so it must still run when the
+   * newsletter is disabled (`MAUTIC_SEGMENT_ID` removed) while historical
+   * contacts remain — otherwise erasure would silently skip them. Revue P2 #246.
+   */
+  private get canReachApi(): boolean {
+    return Boolean(this.baseUrl && this.username && this.password);
+  }
+
+  /**
    * Applies the desired newsletter state for one contact. Opt-in upserts the
    * contact, clears any email do-not-contact flag (a previous opt-out set it)
    * and adds it to the scholarship segment; opt-out removes it from the
@@ -112,8 +122,10 @@ export class MauticService {
    * follow-up; see docs/STORE_READINESS.md §6.
    */
   async deleteContact(email: string): Promise<void> {
-    if (!this.isConfigured) {
-      this.logger.warn('Mautic not configured — contact deletion skipped.');
+    if (!this.canReachApi) {
+      this.logger.warn(
+        'Mautic API credentials absent — contact deletion skipped.',
+      );
       return;
     }
     if (!email?.trim()) return;

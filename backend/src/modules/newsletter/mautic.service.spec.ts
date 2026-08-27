@@ -206,4 +206,26 @@ describe('MauticService', () => {
     // Lookup only; a missing contact is a success, not a DELETE.
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('deleteContact runs on credentials only — no MAUTIC_SEGMENT_ID needed', async () => {
+    // Newsletter delivery disabled (segment removed) but historical contacts
+    // remain: erasure must still reach them. deleteContact never uses a segment.
+    configure();
+    delete process.env.MAUTIC_SEGMENT_ID;
+    const fetchSpy = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ contacts: { '7': { id: 7 } }, total: 1 }),
+      })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    global.fetch = fetchSpy as unknown as typeof fetch;
+
+    await new MauticService().deleteContact('aissatou@example.test');
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(fetchSpy.mock.calls[1][0]).toBe(
+      'https://mautic.example.test/api/contacts/7/delete',
+    );
+  });
 });
