@@ -149,19 +149,31 @@ BUILD=$(plist_get "$APP_PLIST" CFBundleVersion) || fail "CFBundleVersion absent"
 ORIENTATION=$(plist_get "$APP_PLIST" UISupportedInterfaceOrientations) || fail "orientations absentes"
 [[ "$ORIENTATION" == "UIInterfaceOrientationPortrait" ]] || \
   fail "orientations archive = [$ORIENTATION]"
-if IPAD=$(plist_get "$APP_PLIST" 'UISupportedInterfaceOrientations~ipad' 2>/dev/null); then
-  [[ "$IPAD" == "UIInterfaceOrientationPortrait" ]] || \
-    fail "orientations iPad archive = [$IPAD]"
-fi
-# Famille d'appareils : iPhone SEUL. Une app portrait-only qui embarque AUSSI
-# l'iPad (UIDeviceFamily = 1,2) est refusée par App Store Connect (ITMS 90474) :
-# le multitâche iPad exige alors les quatre orientations. Ce préflight impose le
-# portrait-only ci-dessus ; il doit donc imposer l'iPhone-only ici, sinon il
-# laisse passer exactement le bundle qu'Apple rejette. C'est ce qui est arrivé à
-# la build 49 : upload refusé APRÈS un préflight vert — le contrôle manquait ici.
+# Famille d'appareils ET orientations iPad : deux règles d'Apple, couplées. Elles
+# ne laissent qu'UNE configuration valide, et ce préflight a laissé passer les
+# deux bundles qui la violaient — d'où ce contrôle.
+#
+#  · 90101 — on ne peut PAS retirer une famille d'appareils d'une app DÉJÀ
+#    publiée. La fiche (id 1128659292) est universelle depuis toujours, donc
+#    UIDeviceFamily doit contenir 2. Tenté en iPhone-only sur la 49 : refusé.
+#  · 90474 — un bundle qui embarque l'iPad doit déclarer les QUATRE orientations
+#    iPad (multitâche). Tenté en portrait-only sur la 49 : refusé.
+#
+# Seule issue : famille [1,2] + 4 orientations iPad — exactement la build 48,
+# acceptée. L'iPhone reste portrait-only (aucune contrainte de multitâche), et
+# le verrou runtime (SystemChrome.portraitUp, lockPortraitOrientation) garde
+# l'UI en portrait sur les DEUX familles : déclarer les 4 orientations iPad
+# n'autorise donc aucune rotation réelle.
 DEVICE_FAMILY=$(plist_get "$APP_PLIST" UIDeviceFamily) || fail "UIDeviceFamily absent"
-[[ "$DEVICE_FAMILY" == "1" ]] || \
-  fail "UIDeviceFamily=[${DEVICE_FAMILY//$'\n'/,}] : bundle iPad + portrait-only = rejet App Store 90474. Cibler iPhone seul (TARGETED_DEVICE_FAMILY=1)."
+DEVICE_FAMILY_FLAT=$(printf '%s' "$DEVICE_FAMILY" | tr '\n' ',')
+printf '%s\n' "$DEVICE_FAMILY" | grep -Fxq '2' || \
+  fail "UIDeviceFamily=[$DEVICE_FAMILY_FLAT] : l'iPad manque. Retirer une famille d'appareils d'une app publiée = rejet 90101. Garder TARGETED_DEVICE_FAMILY=\"1,2\"."
+IPAD=$(plist_get "$APP_PLIST" 'UISupportedInterfaceOrientations~ipad') || \
+  fail "UISupportedInterfaceOrientations~ipad absent alors que le bundle embarque l'iPad"
+IPAD_FLAT=$(printf '%s' "$IPAD" | tr '\n' ',')
+IPAD_COUNT=$(printf '%s\n' "$IPAD" | grep -c .)
+[[ "$IPAD_COUNT" == "4" ]] || \
+  fail "orientations iPad=[$IPAD_FLAT] : un bundle iPad doit déclarer les 4 orientations (multitâche), sinon rejet 90474."
 BACKGROUND=$(plist_get "$APP_PLIST" UIBackgroundModes) || fail "UIBackgroundModes absent"
 [[ "$BACKGROUND" == "remote-notification" ]] || \
   fail "UIBackgroundModes archive = [$BACKGROUND]"
