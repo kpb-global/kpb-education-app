@@ -58,7 +58,8 @@ void main() {
     expect(_plistArray(plist, 'UIBackgroundModes'), ['remote-notification']);
   });
 
-  test('LIV-T5 : portrait seulement, iPhone et iPad', () {
+  test('LIV-T5 : portrait seulement, iPhone-only (pas d\'iPad — rejet 90474)',
+      () {
     expect(
       _plistArray(plist, 'UISupportedInterfaceOrientations'),
       ['UIInterfaceOrientationPortrait'],
@@ -67,8 +68,14 @@ void main() {
       _plistArray(plist, 'UISupportedInterfaceOrientations~ipad'),
       ['UIInterfaceOrientationPortrait'],
     );
-    expect(pbx.contains('TARGETED_DEVICE_FAMILY = "1,2";'), isTrue,
-        reason: 'Ne pas retirer l\'iPad d\'une app déjà publiée.');
+    expect(pbx.contains('TARGETED_DEVICE_FAMILY = "1";'), isTrue,
+        reason:
+            'iPhone-only (décidé le 28/08) : un bundle universel « 1,2 » en '
+            'portrait-only est refusé par App Store Connect (erreur 90474) — le '
+            'multitâche iPad exigerait les 4 orientations. Ne pas remettre « 1,2 » '
+            'sans lever le verrou portrait iPad.');
+    expect(pbx.contains('TARGETED_DEVICE_FAMILY = "1,2";'), isFalse,
+        reason: 'Aucune config ne doit rester universelle : rejet 90474.');
   });
 
   test('LIV-T5 : SystemChrome portrait avant runApp', () async {

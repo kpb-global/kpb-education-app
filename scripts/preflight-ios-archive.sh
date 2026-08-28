@@ -153,6 +153,15 @@ if IPAD=$(plist_get "$APP_PLIST" 'UISupportedInterfaceOrientations~ipad' 2>/dev/
   [[ "$IPAD" == "UIInterfaceOrientationPortrait" ]] || \
     fail "orientations iPad archive = [$IPAD]"
 fi
+# Famille d'appareils : iPhone SEUL. Une app portrait-only qui embarque AUSSI
+# l'iPad (UIDeviceFamily = 1,2) est refusée par App Store Connect (ITMS 90474) :
+# le multitâche iPad exige alors les quatre orientations. Ce préflight impose le
+# portrait-only ci-dessus ; il doit donc imposer l'iPhone-only ici, sinon il
+# laisse passer exactement le bundle qu'Apple rejette. C'est ce qui est arrivé à
+# la build 49 : upload refusé APRÈS un préflight vert — le contrôle manquait ici.
+DEVICE_FAMILY=$(plist_get "$APP_PLIST" UIDeviceFamily) || fail "UIDeviceFamily absent"
+[[ "$DEVICE_FAMILY" == "1" ]] || \
+  fail "UIDeviceFamily=[${DEVICE_FAMILY//$'\n'/,}] : bundle iPad + portrait-only = rejet App Store 90474. Cibler iPhone seul (TARGETED_DEVICE_FAMILY=1)."
 BACKGROUND=$(plist_get "$APP_PLIST" UIBackgroundModes) || fail "UIBackgroundModes absent"
 [[ "$BACKGROUND" == "remote-notification" ]] || \
   fail "UIBackgroundModes archive = [$BACKGROUND]"
