@@ -59,9 +59,13 @@ des listes tant que le cycle n'est pas rouvert.)
 
 ## Le reste du comportement, vérifié
 
-- **Une seule mise en avant.** Cocher « mise en avant » sur une nouvelle vidéo
-  retire la coche de la précédente, dans la même transaction. `featuredVideo`
-  n'est donc jamais ambigu.
+- **Une seule mise en avant, en édition séquentielle.** Cocher « mise en avant »
+  sur une nouvelle vidéo retire la coche de la précédente, dans la même
+  transaction. Aucun index unique ne l'impose en base, cependant : deux
+  personnes qui mettraient en avant deux vidéos *exactement* en même temps
+  pourraient laisser deux coches — la lecture publique trancherait alors sur
+  `displayOrder`. Sans conséquence à un seul rédacteur, à savoir si l'équipe
+  éditoriale grandit.
 - **Pas de doublon.** Le même identifiant YouTube deux fois sur la même bourse
   est refusé par une contrainte d'unicité en base — l'API répond 409.
 - **Ordre d'affichage** : mise en avant d'abord, puis `displayOrder` croissant.

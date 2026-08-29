@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 import { PrismaClient } from '@prisma/client';
 
@@ -7,6 +8,10 @@ import { CatalogService } from '../catalog/catalog.service';
 import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
 import { ScholarshipsIndexService } from './scholarships-index.service';
 import { ScholarshipVideosService } from './scholarship-videos.service';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { AdminCatalogController } from '../admin-catalog/admin-catalog.controller';
+import type { AdminCatalogService } from '../admin-catalog/admin-catalog.service';
+import { CreateScholarshipVideoDto } from './dto/create-scholarship-video.dto';
 import type { GreatYopScraper } from './scrapers/greatyop.scraper';
 import type { MastereTnScraper } from './scrapers/mastereTn.scraper';
 
@@ -331,6 +336,38 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
       return new ScholarshipVideosService(prismaService);
     }
 
+    /**
+     * Le vrai chemin d'écriture, moins le transport HTTP.
+     *
+     * Appeler `ScholarshipVideosService.create()` directement sauterait ce que
+     * l'admin traverse réellement : la validation de la requête et le câblage
+     * du contrôleur. On rejoue donc le `ValidationPipe` global de `main.ts`
+     * (`whitelist`, `forbidNonWhitelisted`, `transform` — mêmes options) sur la
+     * charge utile, puis on passe par la méthode du contrôleur.
+     *
+     * Restent hors de portée ici, et assumés : `AdminAuthGuard` / `RolesGuard`
+     * (des décorateurs, inertes sur un appel direct) et la sérialisation HTTP.
+     */
+    async function postFromAdmin(
+      scholarshipId: string,
+      payload: Record<string, unknown>,
+    ) {
+      const pipe = new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      });
+      const dto = (await pipe.transform(payload, {
+        type: 'body',
+        metatype: CreateScholarshipVideoDto,
+      })) as CreateScholarshipVideoDto;
+      const controller = new AdminCatalogController(
+        {} as AdminCatalogService,
+        videosService(),
+      );
+      return controller.createScholarshipVideo(scholarshipId, dto);
+    }
+
     type PublicVideo = { id: string; youtubeVideoId: string; watchUrl: string };
     type Detail = { videos: PublicVideo[] };
     type ListItem = { id: string; featuredVideo: PublicVideo | null };
@@ -352,7 +389,7 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
 
     it('publie la vidéo créée depuis un lien de partage youtu.be', async () => {
       // La forme exacte que donne le bouton « Partager » de YouTube.
-      const created = (await videosService().create(videoHostId, {
+      const created = (await postFromAdmin(videoHostId, {
         youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
         titleFr: 'Comprendre la bourse en 3 minutes',
         titleEn: 'Understand the scholarship in 3 minutes',
@@ -375,7 +412,7 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
     });
 
     it("garde le brouillon hors de l'app, tout en le montrant à l'admin", async () => {
-      const draft = (await videosService().create(videoHostId, {
+      const draft = (await postFromAdmin(videoHostId, {
         youtubeUrl: 'https://www.youtube.com/watch?v=BROUILLON01',
         titleFr: 'Version non relue',
         titleEn: 'Unreviewed cut',
@@ -394,11 +431,50 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
       expect(admin.items.map((v) => v.id)).toContain(draft.id);
     });
 
+    // Le `ValidationPipe` rejoué ci-dessus doit être celui de `main.ts`, sinon
+    // le reste de ce bloc mesure une configuration imaginaire. Rien ne gardait
+    // ces trois options jusqu'ici.
+    it('rejoue les options de validation réellement posées dans main.ts', () => {
+      const main = readFileSync('src/main.ts', 'utf-8');
+      expect(main).toContain('whitelist: true');
+      expect(main).toContain('forbidNonWhitelisted: true');
+      expect(main).toContain('transform: true');
+    });
+
+    it("refuse un identifiant nu — c'est l'admin qui le normalise", async () => {
+      // Ce que ce cas prouve : coller les 11 caractères seuls dans l'API rend
+      // une 400. Ce qu'il ne prouve PAS : quelle couche l'a refusée. Vérifié
+      // par mutation — retirer `@IsUrl` du DTO laisse le test vert, parce que
+      // `extractYoutubeVideoId` lève lui aussi une `BadRequestException`. La
+      // redondance est une bonne nouvelle ; l'écrire évite de croire que ce
+      // test garde le DTO. Le formulaire admin, lui, reconstruit l'URL avant
+      // d'envoyer — c'est cette asymétrie qui compte pour la saisie.
+      await expect(
+        postFromAdmin(videoHostId, {
+          youtubeUrl: 'dQw4w9WgXcQ',
+          titleFr: 'Identifiant nu',
+          titleEn: 'Bare id',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      // Un champ inconnu est rejeté, pas ignoré. Celui-là, seul le pipe le
+      // voit : le service ignorerait simplement la clé en trop.
+      await expect(
+        postFromAdmin(videoHostId, {
+          youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+          titleFr: 'Champ pirate',
+          titleEn: 'Rogue field',
+          status: 'published',
+          scholarshipId: 'une-autre-bourse',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
     it("ne sort pas une vidéo publiée si la bourse n'est pas servie", async () => {
       // `unverifiedId` est approuvée et active, mais jamais vérifiée : la
       // clause publique la retire. 35 des 45 fiches de production sont dans
       // un état de ce genre — y attacher une vidéo ne la rendrait pas visible.
-      const orphan = (await videosService().create(unverifiedId, {
+      const orphan = (await postFromAdmin(unverifiedId, {
         youtubeUrl: 'https://www.youtube.com/watch?v=ORPHELINE01',
         titleFr: 'Vidéo sur une fiche invisible',
         titleEn: 'Video on a hidden entry',
@@ -420,8 +496,13 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
       expect(await listItem(unverifiedId)).toBeUndefined();
     });
 
+    // Exclusivité en édition SÉQUENTIELLE — la seule que la base garantisse.
+    // Aucun index unique partiel n'interdit deux `isFeatured` : deux requêtes
+    // simultanées peuvent chacune démoter avant que l'autre n'ait inséré. En
+    // pratique un seul contenu éditorial saisit ces fiches ; l'ambiguïté serait
+    // levée par la lecture, qui trancherait sur `displayOrder`.
     it('ne met en avant qu\'une seule vidéo à la fois', async () => {
-      const second = (await videosService().create(videoHostId, {
+      const second = (await postFromAdmin(videoHostId, {
         youtubeUrl: 'https://www.youtube.com/watch?v=SECONDEVID1',
         titleFr: 'La nouvelle mise en avant',
         titleEn: 'The new featured one',
