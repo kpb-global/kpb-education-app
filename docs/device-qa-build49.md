@@ -18,9 +18,9 @@
 | Élément | Valeur | Vérifié |
 |---|---|---|
 | Build | `2.1.0 (49)` | uploadée sur App Store Connect le 29/08 |
-| Backend prod | `458d115ebc8d` (déployé le 29/08) | `GET /api/health/version` — contient la purge de suppression #246. La 49 est coupée de `8f5d71ce2f57`, un ancêtre : couplage satisfait |
+| Backend prod | `458d115ebc8d`, démarré le 29/08 à 08:42 UTC | `GET /api/health/version` rend `{"sha","startedAt"}` — contient la purge de suppression #246. **Si `startedAt` a changé pendant la session, le backend a redémarré : refaire les constats de la section C.** |
 | PostHog | **actif** (clé `phc_…` dans le binaire) | `DART_DEFINES` de l'archive |
-| Drapeaux serveur | `eef`, `eefTeaser`, `successLab`, `competitionReadiness`, `aiDiagnostic` = **false** | `GET /api/config/app` |
+| Drapeaux serveur | les **sept** à `false` : `eef`, `eefTeaser`, `successLab`, `competitionReadiness`, `aiDiagnostic`, `outcomeEvidence`, `publicImpactStats` | `GET /api/config/app` — relu le 29/08 |
 
 Appareil de test : `____________________`  ·  iOS `______`  ·  Testeur : `__________`  ·  Date : `__________`
 
@@ -42,9 +42,23 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
 
 - [ ] **A2 — Le catalogue montre toutes les bourses publiées.**
   Ouvrir le catalogue **sans filtre**, avec un profil **sans domaine renseigné**.
-  **Attendu :** toutes les fiches publiées s'affichent (≈ 34 au catalogue, dont
-  celles sans `relatedFieldIds`).
+  **Attendu : 10 fiches**, dont celles sans `relatedFieldIds`.
   **Défaut d'origine :** le filtre par domaine excluait ~9 fiches sur 10.
+
+  > **Ne pas ouvrir de P0 sur un chiffre bas sans faire ce contrôle.** 10 est ce
+  > que la production sert aujourd'hui — vérifié le 29/08 — et **non** ce que la
+  > base contient : elle a **45 fiches, dont 35 ne sont pas servies** (inactives,
+  > en attente de modération, jamais vérifiées, ou échues). C'est le filtre
+  > public, pas le filtre par domaine. Le chiffre du jour se lit sans compte :
+  >
+  > ```bash
+  > curl -s https://api.kpbeducation.cloud/api/catalog/scholarships | python3 -c "import sys,json;print(len(json.load(sys.stdin)['items']))"
+  > ```
+  >
+  > Le défaut A2 se reconnaît à autre chose : **le même profil voit MOINS que
+  > cette commande**, ou en voit plus après avoir renseigné un domaine.
+
+  Nombre observé : `______`  ·  nombre rendu par la commande : `______`
   Constat : `______________________________`
 
 ## B. Parcours qui ne se prouvent QUE sur appareil réel
@@ -79,6 +93,18 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
 - [ ] **B5 — Liens externes (« Formulaire officiel », source officielle).**
   **Attendu :** ouverture dans le navigateur système. Un échec doit être
   **visible**, jamais muet.
+  Constat : `______________________________`
+
+- [ ] **B6 — L'app sur iPad.** *Ajouté après coup : la 49 a coûté deux rejets sur
+  ce terrain, et aucune ligne de ce protocole n'y touchait.*
+  La 49 est **universelle** (`UIDeviceFamily = [1, 2]`, imposé par le rejet 90101 :
+  on ne retire pas l'iPad d'une app déjà publiée). Elle déclare les **4
+  orientations iPad** (imposé par le rejet 90474, multitâche), mais
+  `lockPortraitOrientation` verrouille le portrait au runtime.
+  **Attendu :** l'app s'ouvre plein écran sur iPad, **ne tourne pas** quand on
+  incline la tablette, et aucun écran n'est tronqué ou étiré.
+  **Pourquoi ça compte :** le relecteur d'Apple ouvrira l'app sur iPad. Un écran
+  cassé là est un rejet, et c'est le seul endroit où on peut le voir avant lui.
   Constat : `______________________________`
 
 ## C. Confidentialité — ce qui est déclaré aux stores doit être vrai
@@ -122,6 +148,11 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
 - [ ] **D1 — Les 4 outils IA sont absents** de la boîte à outils. Le **scanner de
   documents doit rester présent** (masquage M2 le garde ouvert, aucun appel
   réseau).
+  **Ce n'est pas un défaut à signaler.** `KPB_AI_TOOLS_ENABLED` est une constante
+  de **compilation** : la 49 a été construite sans, donc générateur de CV,
+  lettres de motivation, simulateur d'entretien et relecture en sont absents, et
+  aucun réglage serveur ne peut les y allumer. Ils reviennent avec la **build
+  50** (`docs/release-ledger.md`).
   Constat : `______________________________`
 
 - [ ] **D2 — Aucun téléversement de pièces** dans le tunnel : l'étape documents
