@@ -652,6 +652,13 @@ class ScholarshipModel {
   /// Ouvert / Bientôt clôturé / Clôturé, derived from [deadlineAt]. [now] is
   /// injectable for testing; [soonDays] is the "closing soon" window.
   ScholarshipWindowStatus windowStatus({DateTime? now, int soonDays = 21}) {
+    // Une date ESTIMÉE ne peut produire ni « Bientôt clôturé » ni « Clôturé ».
+    // Les deux sont des affirmations au jour près sur une projection : le
+    // badge annonçait la clôture d'une campagne dont personne n'a publié la
+    // date, et « Clôturé » aurait fait renoncer un étudiant à une bourse encore
+    // ouverte. Le champ existait déjà et disait la vérité ; c'est ce calcul qui
+    // ne le consultait pas.
+    if (deadlineIsEstimated) return ScholarshipWindowStatus.open;
     final close = deadlineAt;
     if (close == null) return ScholarshipWindowStatus.open;
     final ref = now ?? DateTime.now();
@@ -722,6 +729,12 @@ class ScholarshipModel {
         'academyCourseId': academyCourseId,
         'eligibility': eligibility.map((e) => e.toJson()).toList(),
         'deadlineAt': deadlineAt?.toIso8601String(),
+        // Symétrique de `fromJson`, qui lit cette clé. Elle manquait, donc
+        // toute copie persistée (cache hors-ligne, instantané local) revenait
+        // avec `deadlineIsEstimated = false` : une date estimée redevenait
+        // « confirmée » au simple aller-retour par le disque, et le compte à
+        // rebours réapparaissait sur une projection.
+        'dateConfidence': deadlineIsEstimated ? 'estimated' : 'confirmed',
       };
 }
 

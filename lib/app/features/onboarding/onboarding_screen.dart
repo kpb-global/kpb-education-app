@@ -77,25 +77,13 @@ const _studyLevels = [
   ('Master', 'Master'),
   ('PhD', 'Doctorat'),
 ];
-const _targetLevels = [
-  ('Bachelor', 'Licence'),
-  ('Master', 'Master'),
-  ('PhD', 'Doctorat'),
-];
-const _langLevels = [
-  ('Beginner', 'Débutant'),
-  ('Intermediate', 'Intermédiaire'),
-  ('Advanced', 'Avancé'),
-];
-const _grades = ['10 - 12/20', '12 - 14/20', '15+/20'];
-// Annual tuition-budget ranges in EUR. The selected display currency only
-// changes the presentation; matching remains on this canonical EUR value.
-const _budgetRanges = <(int, String)>[
-  (4000, '< 5 000 €'),
-  (7500, '5 000 – 10 000 €'),
-  (15000, '10 000 – 20 000 €'),
-  (25000, '> 20 000 €'),
-];
+// Ces quatre listes vivent maintenant dans onboarding_m2_constants.dart, pour
+// que l'écran de profil puisse ouvrir les mêmes champs à l'édition sans en
+// recopier les valeurs. Les alias gardent le corps de ce fichier inchangé.
+const _targetLevels = onboardingTargetLevels;
+const _langLevels = onboardingLanguageLevels;
+const _grades = onboardingGradeRanges;
+const _budgetRanges = onboardingBudgetRanges;
 const _documentKeys = [
   ('Passport', 'Passeport'),
   ('CV', 'CV'),

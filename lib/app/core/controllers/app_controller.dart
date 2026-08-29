@@ -316,7 +316,32 @@ abstract class _AppControllerBase extends GetxController {
     isAppLockEnabled = snapshot.isAppLockEnabled;
     dataSaverEnabled = snapshot.dataSaverEnabled;
     analyticsConsentDecided = snapshot.analyticsConsentDecided;
-    analyticsOptOut = analyticsConsentDecided ? snapshot.analyticsOptOut : true;
+    // ── Mesure d'audience : ACTIVE par défaut, refus explicite préservé ──────
+    //
+    // Revue du build 49 : l'analyse d'usage doit être active par défaut, et
+    // les CGU l'annoncent (section « Mesure d'audience », `terms_analytics_body`,
+    // et politique §9 `privacy_s9_body`).
+    //
+    // TOUT tient dans le ternaire, et c'est pour cela qu'il ne faut pas le
+    // remplacer par un simple `snapshot.analyticsOptOut`. Deux populations
+    // vivent dans ce champ et elles n'ont pas les mêmes droits :
+    //
+    //   • `decided == true` — l'utilisateur a TOUCHÉ l'interrupteur
+    //     (Profil → « Analyse d'usage »). Son choix est rendu tel quel, y
+    //     compris quand c'est un refus. Basculer le défaut ne doit JAMAIS
+    //     retourner un refus explicite en acceptation : ce serait révoquer une
+    //     décision prise, et sur ce terrain c'est exactement ce qu'un
+    //     régulateur regarde.
+    //
+    //   • `decided == false` — l'utilisateur n'a jamais rien dit. C'est LA
+    //     seule population que ce défaut concerne, et c'est elle qui passe de
+    //     « éteint » à « allumé ».
+    //
+    // La valeur persistée d'un indécis est donc ignorée des deux côtés du
+    // changement : avant elle était écrasée par `true`, elle l'est maintenant
+    // par `false`. Rien à migrer, aucune écriture de rattrapage.
+    analyticsOptOut =
+        analyticsConsentDecided ? snapshot.analyticsOptOut : false;
     hasCompletedOnboarding = snapshot.hasCompletedOnboarding;
     onboardingSkipped = snapshot.onboardingSkipped;
     onboardingStep = snapshot.onboardingStep;
@@ -2012,7 +2037,15 @@ abstract class _AppControllerBase extends GetxController {
       'languageLevel': profile.languageLevel,
       'fieldIds': profile.fieldIds,
       'targetCountryIds': profile.targetCountryIds,
-      'gradeRange': profile.bacSeries ?? profile.gradeRange,
+      // Deux champs, deux clés. Cette ligne valait
+      // `profile.bacSeries ?? profile.gradeRange` : faute de colonne
+      // `bacSeries` côté serveur, la série du bac voyageait DANS la moyenne
+      // académique. Choisir « D » écrivait donc `gradeRange = 'D'`, et la
+      // synchronisation suivante rapatriait « D » comme moyenne — la vraie
+      // valeur était perdue sans que rien ne le signale. La colonne existe
+      // depuis la migration 20260829140000_profile_bac_series.
+      'gradeRange': profile.gradeRange,
+      'bacSeries': profile.bacSeries,
       'annualTuitionBudgetEur': profile.annualTuitionBudgetEur,
       'preferredCurrency': profile.preferredCurrency,
       'wantsScholarshipSupport': profile.wantsScholarshipSupport,

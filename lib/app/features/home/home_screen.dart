@@ -707,7 +707,7 @@ List<(String, double)> _gaugeBars(UserProfile? profile) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero / "Diambar Gauge" Card — dark navy readiness card + sub-score bars.
+// Hero / "Progress gauge" Card — dark navy readiness card + sub-score bars.
 // The ring + sub-bars are the real profile.completionScore, decomposed.
 // ─────────────────────────────────────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {

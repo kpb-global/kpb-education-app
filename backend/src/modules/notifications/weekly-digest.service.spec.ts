@@ -86,6 +86,8 @@ describe('WeeklyDigestService', () => {
     ...over,
   });
 
+  // `cycles` : voir milestone-reminder.service.spec.ts — Prisma rend toujours
+  // le tableau, la doublure aussi.
   const freshScholarship = (over: Record<string, unknown> = {}) => ({
     id: 's1',
     nameFr: 'Bourse Nouvelle',
@@ -93,6 +95,7 @@ describe('WeeklyDigestService', () => {
     countryId: 'fra',
     countryNameFr: 'France',
     deadlineAt: new Date(Date.now() + 40 * DAY),
+    cycles: [] as Array<{ dateConfidence: 'confirmed' | 'estimated' }>,
     ...over,
   });
 

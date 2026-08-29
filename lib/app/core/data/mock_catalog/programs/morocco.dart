@@ -12,12 +12,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Comptabilité, Contrôle et Audit',
         en: 'Comptabilité, Contrôle et Audit'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Baccalaureate all streams; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat toutes séries ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Baccalaureate all streams; dossier review plus written test and oral interview.')
     ],
   ),
@@ -30,12 +30,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Marketing Digital & Développement Commercial',
         en: 'Marketing Digital & Développement Commercial'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Baccalaureate all streams; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat toutes séries ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Baccalaureate all streams; dossier review plus written test and oral interview.')
     ],
   ),
@@ -48,12 +48,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Logistique, Transport et Commerce International',
         en: 'Logistique, Transport et Commerce International'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Baccalaureate all streams; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat toutes séries ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Baccalaureate all streams; dossier review plus written test and oral interview.')
     ],
   ),
@@ -66,12 +66,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Gestion des Ressources Humaines',
         en: 'Gestion des Ressources Humaines'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Baccalaureate all streams; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat toutes séries ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Baccalaureate all streams; dossier review plus written test and oral interview.')
     ],
   ),
@@ -84,12 +84,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Développement Multimédia et Animation 3D',
         en: 'Développement Multimédia et Animation 3D'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat scientifique, économique ou technique ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.')
     ],
   ),
@@ -101,12 +101,12 @@ const kProgramsMorocco = <ProgramModel>[
     name: LocalizedText(
         fr: 'Blockchain et Cryptographie', en: 'Blockchain et Cryptographie'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat scientifique, économique ou technique ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.')
     ],
   ),
@@ -118,12 +118,12 @@ const kProgramsMorocco = <ProgramModel>[
     name: LocalizedText(
         fr: 'Développement Web et Mobile', en: 'Développement Web et Mobile'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat scientifique, économique ou technique ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.')
     ],
   ),
@@ -135,12 +135,12 @@ const kProgramsMorocco = <ProgramModel>[
     name: LocalizedText(
         fr: 'IoT et Systèmes Intelligents', en: 'IoT et Systèmes Intelligents'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat scientifique, économique ou technique ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Scientific, economic, or technical baccalaureate; dossier review plus written test and oral interview.')
     ],
   ),
@@ -153,12 +153,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Classes préparatoires intégrées',
         en: 'Classes préparatoires intégrées'),
     level: LocalizedText(fr: 'Bac+2', en: 'BTS/DUT'),
-    duration: LocalizedText(fr: '2 years', en: '2 years'),
+    duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(fr: '40000 MAD/an', en: '40000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Scientific baccalaureate; dossier review plus written test and oral interview.',
+          fr: 'Baccalauréat scientifique ; étude du dossier, épreuve écrite et entretien oral.',
           en: 'Scientific baccalaureate; dossier review plus written test and oral interview.')
     ],
   ),
@@ -170,12 +170,12 @@ const kProgramsMorocco = <ProgramModel>[
     name: LocalizedText(
         fr: 'Ingénierie Informatique', en: 'Ingénierie Informatique'),
     level: LocalizedText(fr: 'Engineering', en: 'Engineering'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Engineering pathway / school-specific progression and admissions.',
+          fr: 'Filière ingénieur ; progression et admissions propres à chaque école.',
           en: 'Engineering pathway / school-specific progression and admissions.')
     ],
   ),
@@ -188,12 +188,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Ingénierie Data Science et Biotech',
         en: 'Ingénierie Data Science et Biotech'),
     level: LocalizedText(fr: 'Engineering', en: 'Engineering'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Engineering pathway / school-specific progression and admissions.',
+          fr: 'Filière ingénieur ; progression et admissions propres à chaque école.',
           en: 'Engineering pathway / school-specific progression and admissions.')
     ],
   ),
@@ -206,12 +206,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master en Gestion Opérationnelle et Stratégies des Entreprises',
         en: 'Master en Gestion Opérationnelle et Stratégies des Entreprises'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -224,12 +224,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master en Qualité, Hygiène, Sécurité, Environnement',
         en: 'Master en Qualité, Hygiène, Sécurité, Environnement'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -242,12 +242,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master en Comptabilité, Contrôle et Audit',
         en: 'Master en Comptabilité, Contrôle et Audit'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -260,12 +260,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master en IoT et Data Science',
         en: 'Master en IoT et Data Science'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -278,12 +278,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master Fintech and Risk Management',
         en: 'Master Fintech and Risk Management'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -296,12 +296,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master Développement Logiciel, Mobile et IoT',
         en: 'Master Développement Logiciel, Mobile et IoT'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -314,12 +314,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Master Digital Marketing and Communication',
         en: 'Master Digital Marketing and Communication'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: 'To confirm', en: 'To confirm'),
+    duration: LocalizedText(fr: 'À confirmer', en: 'To confirm'),
     tuition: LocalizedText(fr: '45000 MAD/an', en: '45000 MAD/an'),
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Relevant prior degree / program-specific requirements.',
+          fr: 'Diplôme antérieur dans un domaine pertinent ; conditions propres à chaque programme.',
           en: 'Relevant prior degree / program-specific requirements.')
     ],
   ),
@@ -332,12 +332,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Bac+3 Gestion des entreprises - Option Management',
         en: 'Bac+3 Gestion des entreprises - Option Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '5500 EUR/an', en: '5500 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Year 1: Bac validated or in progress. Year 2: Bac + validated first year in management. Year 3: Bac+2 or Bac+3 in management disciplines.',
+          fr: '1re année : bac obtenu ou en cours. 2e année : bac + une première année de gestion validée. 3e année : bac+2 ou bac+3 en disciplines de gestion.',
           en: 'Year 1: Bac validated or in progress. Year 2: Bac + validated first year in management. Year 3: Bac+2 or Bac+3 in management disciplines.')
     ],
   ),
@@ -350,12 +350,12 @@ const kProgramsMorocco = <ProgramModel>[
         fr: 'Bac+3 Gestion des entreprises - Option Finance',
         en: 'Bac+3 Gestion des entreprises - Option Finance'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '5500 EUR/an', en: '5500 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Year 1: Bac validated or in progress. Year 2: Bac + validated first year in management. Year 3: Bac+2 or Bac+3 in management disciplines.',
+          fr: '1re année : bac obtenu ou en cours. 2e année : bac + une première année de gestion validée. 3e année : bac+2 ou bac+3 en disciplines de gestion.',
           en: 'Year 1: Bac validated or in progress. Year 2: Bac + validated first year in management. Year 3: Bac+2 or Bac+3 in management disciplines.')
     ],
   ),

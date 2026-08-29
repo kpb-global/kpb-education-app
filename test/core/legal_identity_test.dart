@@ -84,14 +84,28 @@ void _requireOneOf(
 /// VERTE, parce que le mot « Dubaï » subsistait dans l'adresse postale du §11.
 /// Une clause de juridiction vidée passait donc pour intacte. On exige
 /// désormais le fait DANS la section qui doit le porter.
+/// Découpe la section `<h2>` dont le TITRE correspond, quel que soit son
+/// numéro.
+///
+/// Le numéro est délibérément ignoré. La version précédente cherchait
+/// `<h2>10. Droit applicable</h2>` littéralement : insérer une section plus
+/// haut dans la page décalait tous les numéros, et la garde ne trouvait plus
+/// rien — elle rougissait sur un changement éditorial parfaitement légitime,
+/// tout en n'ayant JAMAIS vérifié que le numéro était juste. Elle liait donc la
+/// clause au mauvais identifiant. C'est le titre qui nomme la clause, pas son
+/// rang.
 String _section(String html, String heading) {
-  final start = html.indexOf('<h2>$heading</h2>');
-  if (start < 0) {
+  final title = heading.replaceFirst(RegExp(r'^\s*\d+\.\s*'), '');
+  final pattern = RegExp(
+    '<h2>(?:\\s*\\d+\\.\\s*)?${RegExp.escape(title)}</h2>',
+  );
+  final match = pattern.firstMatch(html);
+  if (match == null) {
     // Titre renommé : on rend une chaîne qui échoue à tous les coups plutôt
     // que la chaîne vide, qui rendrait la garde silencieusement inopérante.
-    return '<<section « $heading » introuvable>>';
+    return '<<section « $title » introuvable>>';
   }
-  final after = start + heading.length + 9;
+  final after = match.end;
   final next = html.indexOf('<h2>', after);
   return html.substring(after, next < 0 ? html.length : next);
 }

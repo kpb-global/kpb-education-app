@@ -415,7 +415,25 @@ class _HeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cycle = scholarship.currentCycle;
-    final deadline = cycle?.closesAt ?? scholarship.deadlineAt;
+    // Une date ESTIMÉE ne doit pas devenir une « Date limite » au jour près.
+    //
+    // La carte de la liste se tait déjà dans ce cas (`_deadlineBadge` rend
+    // `null` quand le cycle est estimé) ; la fiche détail, elle, retombait sur
+    // `deadlineAt` — qui vient de `estimatedCloseAt` à l'import — et
+    // l'affichait formatée en jj/mm/aaaa. Les deux écrans disaient donc deux
+    // choses différentes de la même bourse, et c'est le plus détaillé des deux
+    // qui affirmait le plus faux.
+    //
+    // `null` ici n'efface rien : le bloc plus bas retombe alors sur
+    // `deadlineLabel`, c'est-à-dire la phrase « À venir, généralement aux mois
+    // de … » — la formulation honnête, à la granularité de ce qu'on sait.
+    // Prédicat IDENTIQUE à celui de `_deadlineBadge`
+    // (live_scholarships_screen.dart) — volontairement recopié à l'octet près
+    // plutôt que « équivalent » : c'est leur divergence qui faisait dire deux
+    // choses aux deux écrans.
+    final isEstimated = cycle?.isEstimated ?? false;
+    final deadline =
+        isEstimated ? null : (cycle?.closesAt ?? scholarship.deadlineAt);
     final funding = scholarship.isFullyFunded
         ? 'live_scholarships_fully_funded'.tr
         : scholarship.isPartiallyFunded

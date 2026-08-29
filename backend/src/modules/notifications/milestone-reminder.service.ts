@@ -134,6 +134,13 @@ export class MilestoneReminderService {
             deadlineAt: true,
             countryNameFr: true,
             countryNameEn: true,
+            // Le cycle le plus récent, uniquement pour savoir si `deadlineAt`
+            // est une date CONFIRMÉE ou une projection.
+            cycles: {
+              orderBy: { academicYear: 'desc' },
+              take: 1,
+              select: { dateConfidence: true },
+            },
           },
         }),
       )) ?? [];
@@ -143,6 +150,20 @@ export class MilestoneReminderService {
     for (const saved of savedItems) {
       const scholarship = byId.get(saved.itemId);
       if (!scholarship?.deadlineAt) continue;
+      // ── Ne jamais pousser un rappel J-30/14/7/3/1 sur une date ESTIMÉE ──
+      //
+      // L'importeur remplit `deadlineAt` depuis `estimatedCloseAt` quand le
+      // cycle n'est pas confirmé — utile pour CLASSER, jamais pour AFFIRMER.
+      // Sans ce test, l'app envoyait « plus que 3 jours pour candidater » sur
+      // une campagne dont personne n'a publié la date. Deux surfaces clientes
+      // se taisaient déjà correctement dans ce cas (la pastille de la liste et
+      // le calendrier) ; la notification, elle, ne consultait pas le champ —
+      // et c'est la seule des trois qui réveille le téléphone.
+      //
+      // « Pas de cycle » vaut CONFIRMÉ, comme partout ailleurs dans le dépôt
+      // (`catalog.mapper.ts`, `ScholarshipModel.deadlineIsEstimated`) : les
+      // fiches héritées n'ont pas de cycle et leur date est vraie.
+      if (scholarship.cycles[0]?.dateConfidence === 'estimated') continue;
       const days = daysUntil(now, scholarship.deadlineAt);
       if (!SCHOLARSHIP_REMINDER_DAYS.has(days)) continue;
       reminders.push({

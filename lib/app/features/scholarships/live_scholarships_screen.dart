@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
@@ -75,6 +76,36 @@ String _shortDate(DateTime date) {
   return '$day/$month/${local.year}';
 }
 
+/// La fenêtre couvre-t-elle des MOIS ENTIERS (1er → dernier jour) ?
+///
+/// C'est la convention de saisie pour « on connaît la saison, pas la date » :
+/// l'opérateur borne au mois, et la phrase affichée doit alors parler en mois.
+/// Toute autre fenêtre a été saisie au jour près et est rendue telle quelle.
+bool _isWholeMonthWindow(DateTime open, DateTime close) {
+  final from = open.toLocal();
+  final to = close.toLocal();
+  // Dernier jour de `to` : le jour 0 du mois SUIVANT.
+  final lastDayOfCloseMonth = DateTime(to.year, to.month + 1, 0).day;
+  return from.day == 1 && to.day == lastDayOfCloseMonth && !to.isBefore(from);
+}
+
+/// Le nom du mois dans la langue active (« mars », « March »).
+///
+/// `try`/`catch` obligatoire, et ce n'est pas de la superstition : `DateFormat`
+/// avec une locale explicite lève `LocaleDataException` si les données de cette
+/// locale ne sont pas chargées — ce qui arrive hors d'un `MaterialApp`, donc
+/// dans les tests. Le repli numérique ne peut pas lever et reste exact. C'est
+/// exactement le patron déjà documenté et éprouvé dans `EefCalendar.dayLabel`.
+String _monthName(DateTime date) {
+  final local = date.toLocal();
+  final locale = Get.locale?.languageCode == 'en' ? 'en' : 'fr';
+  try {
+    return DateFormat('MMMM', locale).format(local);
+  } catch (_) {
+    return local.month.toString().padLeft(2, '0');
+  }
+}
+
 (String, Color, Color)? _cyclePill(LiveScholarshipModel scholarship) {
   final cycle = scholarship.currentCycle;
   if (cycle == null) return null;
@@ -96,6 +127,28 @@ String _shortDate(DateTime date) {
   final estimatedOpen = cycle.estimatedOpenAt ?? cycle.opensAt;
   final estimatedClose = cycle.estimatedCloseAt ?? cycle.closesAt;
   if (estimatedOpen != null && estimatedClose != null) {
+    // ── « À venir, généralement aux mois de mars – avril » ────────────────
+    //
+    // Quand la fenêtre couvre des MOIS ENTIERS (1er du mois → dernier jour du
+    // mois), c'est la convention de saisie pour « on connaît la saison, pas la
+    // date ». L'afficher en « 01/03/2027 – 30/04/2027 » revenait à annoncer au
+    // jour près une campagne dont personne n'a publié le calendrier : deux
+    // dates exactes qui ne sont que les bornes d'un mois. La granularité de la
+    // phrase doit être celle de ce qu'on sait.
+    if (_isWholeMonthWindow(estimatedOpen, estimatedClose)) {
+      final from = _monthName(estimatedOpen);
+      final to = _monthName(estimatedClose);
+      return (
+        from == to
+            ? 'live_scholarships_upcoming_month'.trParams({'from': from})
+            : 'live_scholarships_upcoming_months'
+                .trParams({'from': from, 'to': to}),
+        KpbColors.warningLight,
+        KpbColors.warning,
+      );
+    }
+    // Fenêtre estimée qui NE tombe pas sur des bornes de mois : l'opérateur a
+    // saisi des dates précises, on les rend telles quelles.
     return (
       'live_scholarships_period_estimated'.trParams({
         'open': _shortDate(estimatedOpen),

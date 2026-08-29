@@ -62,6 +62,10 @@ export class UpdateProfileDto {
   gradeRange?: string;
 
   @IsOptional()
+  @IsString()
+  bacSeries?: string;
+
+  @IsOptional()
   @IsInt()
   monthlyBudgetEur?: number;
 

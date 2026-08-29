@@ -488,6 +488,26 @@ drapeau) : c'est la ligne « Push identity » qui le couvre.
 > · Play → « Journaux de plantage » → **collecte FACULTATIVE, « les utilisateurs
 > peuvent choisir de ne pas fournir ces données »** — raison : l'interrupteur
 > coupe bien les trois collecteurs depuis le correctif 3.
+>
+> ⚠️ **Revue du build 49 — la mesure est passée ACTIVE PAR DÉFAUT.** La réponse
+> Play ne change PAS pour autant, et il faut savoir pourquoi avant de remplir le
+> formulaire : « facultative » au sens de Google, ce n'est pas « désactivée au
+> départ », c'est « l'utilisateur peut choisir ». Un opt-OUT réel qualifie donc
+> autant qu'un opt-in. Ce qui doit rester vrai — et ce que la garde
+> `analytics_consent_test.dart` tient — c'est que l'interrupteur Profil →
+> « Analyse d'usage » coupe VRAIMENT les trois collecteurs et que le refus
+> survit au redémarrage (`app_controller.dart` : le ternaire sur
+> `analyticsConsentDecided`). Le jour où l'un des deux cesse d'être vrai, la
+> réponse Play devient « obligatoire », pas « facultative ».
+>
+> Reste exact au niveau natif : la collecte démarre éteinte au manifeste et au
+> plist ; c'est `applyAnalyticsConsent()` qui l'allume après `hydrate()`. Le
+> défaut produit vit dans le contrôleur, pas dans le manifeste — ne pas
+> « corriger » le manifeste en croyant l'aligner.
+>
+> Déclaré aux utilisateurs : CGU §5 « Mesure d'audience »
+> (`terms_analytics_body`, `web/public/conditions.html`) et politique §9
+> (`privacy_s9_body`, `web/public/confidentialite.html`).
 > · Play → « Interactions dans l'appli » / « Historique de recherche » →
 > **OPTIONNELLE** — raison : `analytics_service.dart:97-108` +
 > `profile_screen.dart:741`. Les deux lignes doivent donc répondre **différemment** :

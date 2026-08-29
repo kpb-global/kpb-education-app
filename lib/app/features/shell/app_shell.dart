@@ -76,6 +76,17 @@ class _AppShellState extends State<AppShell> {
           // `KpbToolsDrawer.open(context)`.
           key: _shellKey,
           drawer: const KpbToolsDrawer(),
+          // Le glissé depuis le bord gauche suit le bouton : ouvrable sur
+          // l'accueil, inerte ailleurs. Sans cela, retirer le bouton des
+          // autres onglets n'aurait fait que RENDRE le tiroir invisible, pas
+          // inatteignable — et un tiroir qu'on ne peut ouvrir que par accident
+          // est pire que pas de tiroir du tout.
+          //
+          // Le `drawer:` lui-même reste posé sur tous les onglets, à dessein :
+          // c'est lui qui donne à `_shellKey.currentState` un tiroir à ouvrir,
+          // donc le lien profond qui vise la boîte à outils continue de
+          // fonctionner quel que soit l'onglet courant.
+          drawerEnableOpenDragGesture: index == StudentShellTab.home,
           // The banners live ABOVE the overlay Stack so they push everything
           // (tab content AND the floating hamburger) down instead of colliding
           // with the top-left drawer button. Both banners collapse to zero
@@ -117,22 +128,36 @@ class _AppShellState extends State<AppShell> {
                       child: Stack(
                         children: [
                           IndexedStack(index: index, children: pages),
-                          // Top-left hamburger overlay. Tab screens have their
-                          // own Scaffolds without leading icons, so we surface
-                          // the drawer entry point from the AppShell level.
+                          // Top-left hamburger overlay — ACCUEIL SEULEMENT.
+                          // La boîte à outils (estimateur de coûts, etc.) est
+                          // une extension de l'accueil, pas une commande
+                          // globale : sur les autres onglets elle recouvrait un
+                          // contenu déjà dense et proposait une sortie
+                          // latérale au milieu d'une tâche. Le `CoachFab`
+                          // juste en dessous applique déjà la règle inverse
+                          // avec le même test.
+                          //
+                          // Masquer le bouton ne suffit PAS : sans
+                          // `drawerEnableOpenDragGesture` (posé sur le
+                          // Scaffold, plus haut), le tiroir resterait ouvrable
+                          // au glissé depuis le bord gauche sur tous les
+                          // onglets — donc masqué mais toujours atteignable.
+                          //
                           // Sits clear of the dynamic-island / notch via
                           // SafeArea (a no-op below a visible banner).
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            child: SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: KpbSpacing.xs, top: KpbSpacing.xs),
-                                child: _KpbDrawerButton(),
+                          if (index == StudentShellTab.home)
+                            Positioned(
+                              key: const ValueKey('kpb_shell_tools_button'),
+                              top: 0,
+                              left: 0,
+                              child: SafeArea(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: KpbSpacing.xs, top: KpbSpacing.xs),
+                                  child: _KpbDrawerButton(),
+                                ),
                               ),
                             ),
-                          ),
                           // "KPB Intelligence" pill. It floats over the tab
                           // content, so every scrollable in a tab must keep
                           // `KpbShellChrome.bottomReserve(context)` free at its

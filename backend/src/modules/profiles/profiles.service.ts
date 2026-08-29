@@ -208,6 +208,7 @@ export class ProfilesService {
             ? { languageLevel: input.languageLevel }
             : {}),
           ...(input.gradeRange ? { gradeRange: input.gradeRange } : {}),
+          ...(input.bacSeries ? { bacSeries: input.bacSeries } : {}),
           ...(input.monthlyBudgetEur !== undefined
             ? { monthlyBudgetEur: input.monthlyBudgetEur }
             : {}),
@@ -1429,6 +1430,7 @@ export class ProfilesService {
       targetLevel: p.targetLevel,
       languageLevel: p.languageLevel,
       gradeRange: p.gradeRange,
+      bacSeries: p.bacSeries,
       annualTuitionBudgetEur: p.annualTuitionBudgetEur,
       monthlyBudgetEur: p.monthlyBudgetEur,
       preferredCurrency: p.preferredCurrency,

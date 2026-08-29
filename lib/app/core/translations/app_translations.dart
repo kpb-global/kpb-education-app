@@ -731,7 +731,8 @@ class AppTranslations extends Translations {
               '• Écrans consultés, actions effectuées (orientation, recherche, sauvegarde)\n'
               '• PostHog enregistre également des sessions (captures d\'écran de votre navigation) ; les textes et les images sont masqués automatiquement, donc aucun document, note ou coordonnée n\'est visible dans l\'enregistrement\n'
               '• Aucune donnée personnelle identifiable n\'est transmise à des fins publicitaires ; il n\'y a aucun SDK publicitaire ni suivi inter-applications\n'
-              '• Vous pouvez désactiver à tout moment l\'analyse d\'usage et les enregistrements depuis Profil → « Analyse d\'usage » : la collecte s\'arrête immédiatement',
+              '• Cette mesure est ACTIVE PAR DÉFAUT : elle fait partie du fonctionnement normal du service et sert uniquement à l\'améliorer (voir les CGU, « Mesure d\'audience »)\n'
+              '• Vous pouvez la désactiver à tout moment, ainsi que les enregistrements, depuis Profil → « Analyse d\'usage » : la collecte s\'arrête immédiatement, et votre refus est conservé — il n\'est jamais réactivé par une mise à jour',
           'privacy_s10_body':
               'Cette politique peut être mise à jour. Nous vous informerons de tout changement significatif via une notification dans l\'application.\n\n'
                   'En continuant à utiliser l\'application après une mise à jour, vous acceptez la nouvelle politique.',
@@ -752,13 +753,25 @@ class AppTranslations extends Translations {
           'terms_s2_title': '2. Acceptation',
           'terms_s3_title': '3. Inscription',
           'terms_s4_title': '4. Services proposés',
-          'terms_s5_title': '5. Services payants',
-          'terms_s6_title': '6. Obligations de l\'utilisateur',
-          'terms_s7_title': '7. Propriété intellectuelle',
-          'terms_s8_title': '8. Limitation de responsabilité',
-          'terms_s9_title': '9. Résiliation',
-          'terms_s10_title': '10. Droit applicable',
-          'terms_s11_title': '11. Contact',
+          // Les CLÉS `terms_s5..s11` gardent leur numéro d'origine alors que
+          // leur numéro AFFICHÉ a glissé d'un cran : `terms_analytics_*`
+          // s'intercale en 5. Les gardes légales (legal_identity_test) lisent
+          // `terms_s10_body` / `terms_s11_body` par clé — renommer les clés
+          // pour recoller les numéros les aurait cassées sans rien gagner.
+          'terms_analytics_title': '5. Mesure d\'audience',
+          'terms_s5_title': '6. Services payants',
+          'terms_s6_title': '7. Obligations de l\'utilisateur',
+          'terms_s7_title': '8. Propriété intellectuelle',
+          'terms_s8_title': '9. Limitation de responsabilité',
+          'terms_s9_title': '10. Résiliation',
+          'terms_s10_title': '11. Droit applicable',
+          'terms_s11_title': '12. Contact',
+          'terms_analytics_body':
+              'Pour maintenir et améliorer le service, KPB Education mesure l\'usage de l\'application. Cette mesure est ACTIVE PAR DÉFAUT dès la première ouverture.\n\n'
+                  'Ce qui est mesuré : les écrans consultés et les actions effectuées (orientation, recherche, sauvegarde, candidature), les diagnostics de plantage, et des enregistrements de session dont les textes et les images sont masqués automatiquement — aucun document, note ou coordonnée n\'y est lisible.\n\n'
+                  'Ce qui n\'est PAS fait : aucune revente de données, aucun SDK publicitaire, aucun suivi inter-applications, aucun profilage publicitaire.\n\n'
+                  'Vous gardez la main : Profil → « Analyse d\'usage » coupe la mesure et les enregistrements immédiatement. Votre refus est conservé et n\'est jamais réactivé par une mise à jour de l\'application. Refuser n\'enlève aucune fonctionnalité.\n\n'
+                  'Le détail des destinataires et des durées de conservation figure dans la Politique de confidentialité, section « Analyse d\'usage ».',
           'deadlines_date_to_confirm': 'Date à confirmer',
           'deadlines_filter_all': 'Toutes',
           'deadlines_filter_saved': 'Sauvegardées',
@@ -1161,6 +1174,15 @@ class AppTranslations extends Translations {
           'live_scholarships_open_estimated': 'Ouverture estimée : @date',
           'live_scholarships_period_estimated':
               'Période estimée : @open – @close',
+          // ── Bourses « à venir » (revue du build 49, point 9) ─────────────
+          // Quand la fenêtre estimée couvre des MOIS entiers, on l'annonce en
+          // mois. Afficher « 01/03/2027 – 30/04/2027 » était plus précis que
+          // ce qu'on sait réellement : ces deux dates sont les bornes du mois,
+          // pas une date de campagne publiée.
+          'live_scholarships_upcoming_months':
+              'À venir, généralement aux mois de @from – @to',
+          'live_scholarships_upcoming_month':
+              'À venir, généralement au mois de @from',
           'scholarship_detail_title': 'Détails de la bourse',
           'scholarship_detail_not_found': 'Bourse introuvable',
           'scholarship_detail_not_found_body':
@@ -1636,6 +1658,34 @@ class AppTranslations extends Translations {
           'profile_missing_language_level_field': 'Niveau de langue',
           'profile_missing_language_level_impact':
               'Certaines universités ont des seuils minimum',
+          // ── Les huit items du score qui n'avaient aucun libellé ─────────
+          // `completionScore` en compte treize ; la carte n'en savait nommer
+          // que cinq. Un profil à qui il ne manquait que le budget affichait
+          // « 92 % » au-dessus d'une carte vide.
+          'profile_missing_full_name_field': 'Nom complet',
+          'profile_missing_full_name_impact':
+              'C\'est le nom qui figurera sur tes candidatures',
+          'profile_missing_email_field': 'Adresse e-mail',
+          'profile_missing_email_impact':
+              'Le canal par lequel les écoles et nos conseillers te répondent',
+          'profile_missing_phone_field': 'Téléphone',
+          'profile_missing_phone_impact':
+              'Permet à un conseiller de te joindre pour un dossier urgent',
+          'profile_missing_country_field': 'Pays de résidence',
+          'profile_missing_country_impact':
+              'Détermine les bourses et les procédures qui te sont ouvertes',
+          'profile_missing_language_field': 'Langue de l\'application',
+          'profile_missing_language_impact':
+              'Définit la langue de tes contenus et de tes notifications',
+          'profile_missing_fields_field': 'Domaines d\'études',
+          'profile_missing_fields_impact':
+              'Sans eux, aucune recommandation de filière n\'est possible',
+          'profile_missing_target_countries_field': 'Pays visés',
+          'profile_missing_target_countries_impact':
+              'Oriente tes bourses, tes coûts et tes délais de procédure',
+          'profile_missing_budget_field': 'Budget annuel de scolarité',
+          'profile_missing_budget_impact':
+              'Écarte les programmes hors de portée et cible les bourses utiles',
           'universities_empty_sync_subtitle':
               'Synchronisez l\'app avec le serveur pour charger le catalogue.',
           // --- KPB-89 home ---
@@ -1712,8 +1762,8 @@ class AppTranslations extends Translations {
           'home_badge_guidance': "Accompagnement",
           'home_student_tools_title': 'Outils étudiants',
           'home_student_tools_subtitle': 'CV, lettres de motivation, et plus',
-          // ── Diambar Gauge card (App-engagement handoff) ──
-          'home_gauge_eyebrow': 'JAUGE DIAMBAR',
+          // ── Progress gauge card (App-engagement handoff) ──
+          'home_gauge_eyebrow': 'JAUGE DE PROGRESSION',
           'home_gauge_bar_level': 'Niveau',
           'home_gauge_bar_interests': 'Intérêts',
           'home_gauge_bar_documents': 'Documents',
@@ -3735,12 +3785,12 @@ class AppTranslations extends Translations {
                   '• Object to processing\n'
                   '• Data portability\n\n'
                   'To exercise these rights, contact us at: privacy@kpbeducation.com',
-          'privacy_s9_body':
-              'We use Firebase Analytics (Google) and PostHog to understand and improve the app:\n\n'
-                  '• Screens viewed, actions taken (orientation, search, save)\n'
-                  '• PostHog also records sessions (screenshots of your navigation); text and images are masked automatically, so no document, note or contact detail is visible\n'
-                  '• No identifiable personal data is sent for advertising; there is no ad SDK and no cross-app tracking\n'
-                  '• You can turn usage analytics and recordings off at any time from Profile → "Usage analytics": collection stops immediately',
+          'privacy_s9_body': 'We use Firebase Analytics (Google) and PostHog to understand and improve the app:\n\n'
+              '• Screens viewed, actions taken (orientation, search, save)\n'
+              '• PostHog also records sessions (screenshots of your navigation); text and images are masked automatically, so no document, note or contact detail is visible\n'
+              '• No identifiable personal data is sent for advertising; there is no ad SDK and no cross-app tracking\n'
+              '• This measurement is ON BY DEFAULT: it is part of the normal operation of the service and is used solely to improve it (see the Terms, "Audience measurement")\n'
+              '• You can turn it off at any time, along with the recordings, from Profile → "Usage analytics": collection stops immediately, and your refusal is kept — no update ever turns it back on',
           'privacy_s10_body':
               'This policy may be updated. We will notify you of any material change via an in-app notification.\n\n'
                   'By continuing to use the app after an update, you accept the new policy.',
@@ -3761,13 +3811,20 @@ class AppTranslations extends Translations {
           'terms_s2_title': '2. Acceptance',
           'terms_s3_title': '3. Registration',
           'terms_s4_title': '4. Services offered',
-          'terms_s5_title': '5. Paid services',
-          'terms_s6_title': '6. User obligations',
-          'terms_s7_title': '7. Intellectual property',
-          'terms_s8_title': '8. Limitation of liability',
-          'terms_s9_title': '9. Termination',
-          'terms_s10_title': '10. Governing law',
-          'terms_s11_title': '11. Contact',
+          'terms_analytics_title': '5. Audience measurement',
+          'terms_s5_title': '6. Paid services',
+          'terms_s6_title': '7. User obligations',
+          'terms_s7_title': '8. Intellectual property',
+          'terms_s8_title': '9. Limitation of liability',
+          'terms_s9_title': '10. Termination',
+          'terms_s10_title': '11. Governing law',
+          'terms_s11_title': '12. Contact',
+          'terms_analytics_body':
+              'To maintain and improve the service, KPB Education measures how the app is used. This measurement is ON BY DEFAULT from first launch.\n\n'
+                  'What is measured: screens viewed and actions taken (orientation, search, save, application), crash diagnostics, and session recordings in which text and images are masked automatically — no document, note or contact detail is readable in them.\n\n'
+                  'What is NOT done: no sale of data, no advertising SDK, no cross-app tracking, no advertising profiling.\n\n'
+                  'You stay in control: Profile → "Usage analytics" stops the measurement and the recordings immediately. Your refusal is kept and is never turned back on by an app update. Declining removes no feature.\n\n'
+                  'Recipients and retention periods are detailed in the Privacy Policy, section "Usage analytics".',
           'deadlines_date_to_confirm': 'Date to be confirmed',
           'deadlines_filter_all': 'All',
           'deadlines_filter_saved': 'Saved',
@@ -4150,6 +4207,9 @@ class AppTranslations extends Translations {
           'live_scholarships_open_estimated': 'Estimated opening: @date',
           'live_scholarships_period_estimated':
               'Estimated period: @open – @close',
+          'live_scholarships_upcoming_months':
+              'Upcoming, usually in @from – @to',
+          'live_scholarships_upcoming_month': 'Upcoming, usually in @from',
           'scholarship_detail_title': 'Scholarship details',
           'scholarship_detail_not_found': 'Scholarship not found',
           'scholarship_detail_not_found_body':
@@ -4579,6 +4639,30 @@ class AppTranslations extends Translations {
           'profile_missing_language_level_field': 'Language level',
           'profile_missing_language_level_impact':
               'Some universities have minimum thresholds',
+          'profile_missing_full_name_field': 'Full name',
+          'profile_missing_full_name_impact':
+              'This is the name that will appear on your applications',
+          'profile_missing_email_field': 'Email address',
+          'profile_missing_email_impact':
+              'How schools and our advisors reply to you',
+          'profile_missing_phone_field': 'Phone',
+          'profile_missing_phone_impact':
+              'Lets an advisor reach you about an urgent application',
+          'profile_missing_country_field': 'Country of residence',
+          'profile_missing_country_impact':
+              'Determines which scholarships and procedures are open to you',
+          'profile_missing_language_field': 'App language',
+          'profile_missing_language_impact':
+              'Sets the language of your content and notifications',
+          'profile_missing_fields_field': 'Fields of study',
+          'profile_missing_fields_impact':
+              'Without them, no programme recommendation is possible',
+          'profile_missing_target_countries_field': 'Target countries',
+          'profile_missing_target_countries_impact':
+              'Drives your scholarships, costs and processing times',
+          'profile_missing_budget_field': 'Annual tuition budget',
+          'profile_missing_budget_impact':
+              'Rules out programmes beyond reach and targets useful scholarships',
           'universities_empty_sync_subtitle':
               'Sync the app with the server to load the catalog.',
           // --- KPB-89 home ---
@@ -4654,8 +4738,8 @@ class AppTranslations extends Translations {
           'home_badge_guidance': 'Guidance',
           'home_student_tools_title': 'Student tools',
           'home_student_tools_subtitle': 'CV, cover letters, and more',
-          // ── Diambar Gauge card (App-engagement handoff) ──
-          'home_gauge_eyebrow': 'DIAMBAR GAUGE',
+          // ── Progress gauge card (App-engagement handoff) ──
+          'home_gauge_eyebrow': 'PROGRESS GAUGE',
           'home_gauge_bar_level': 'Level',
           'home_gauge_bar_interests': 'Interests',
           'home_gauge_bar_documents': 'Documents',

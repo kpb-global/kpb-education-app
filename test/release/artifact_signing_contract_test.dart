@@ -120,7 +120,7 @@ void main() {
       expect(preflight, contains('ProvisionedDevices'));
       expect(
           preflight, contains('PrivacyInfo.xcprivacy absent du bundle signé'));
-      expect(preflight, contains('EXPECTED_BUILD="49"'));
+      expect(preflight, contains('EXPECTED_BUILD="50"'));
       expect(preflight, contains('EXPECTED_VERSION="2.1.0"'));
       expect(preflight, contains('EXPECTED_BUNDLE_ID="Karatou.karatou"'));
     });
@@ -163,7 +163,7 @@ void main() {
     test('AAB preflight pins identity, version, SDK, and Play certificate', () {
       expect(preflight, contains('EXPECTED_PACKAGE="com.karatou.android"'));
       expect(preflight, contains('EXPECTED_VERSION_NAME="2.1.0"'));
-      expect(preflight, contains('EXPECTED_VERSION_CODE="49"'));
+      expect(preflight, contains('EXPECTED_VERSION_CODE="50"'));
       expect(preflight, contains('EXPECTED_TARGET_SDK="36"'));
       expect(preflight, contains('"\$JARSIGNER_BIN" -verify'));
       expect(preflight, contains('"\$KEYTOOL_BIN" -printcert -jarfile'));
@@ -175,32 +175,47 @@ void main() {
     });
   });
 
-  test('the shipping pubspec version remains the build-49 contract', () {
+  // La build 49 est celle que le propriétaire a revue ; la 50 porte les
+  // correctifs de cette revue. Le NOM de version ne bouge pas (2.1.0) : c'est
+  // un nouveau build de la même version, pas une nouvelle version publiée.
+  test('the shipping pubspec version remains the build-50 contract', () {
     expect(
-      RegExp(r'^version:\s*2\.1\.0\+49\s*$', multiLine: true)
+      RegExp(r'^version:\s*2\.1\.0\+50\s*$', multiLine: true)
           .hasMatch(_read('pubspec.yaml')),
       isTrue,
     );
   });
 
-  test('analytics requires an explicit persisted consent decision', () {
+  // Revue du build 49 : la mesure d'audience est passée d'OPT-IN à ACTIVE PAR
+  // DÉFAUT, annoncée dans les CGU. Ce test tenait l'ancienne règle ; il tient
+  // maintenant la nouvelle ET la limite qui, elle, n'a pas bougé : un refus
+  // explicite reste un refus. C'est la seule moitié qui protège quelqu'un.
+  test('analytics is on by default but an explicit refusal is preserved', () {
     final snapshot = _read('lib/app/core/repositories/app_snapshot.dart');
     final repository =
         _read('lib/app/core/repositories/local_app_repository.dart');
     final controller = _read('lib/app/core/controllers/app_controller.dart');
 
-    expect(snapshot, contains('this.analyticsOptOut = true'));
+    // Le marqueur « a-t-il tranché ? » reste distinct de « qu'a-t-il dit ? ».
+    // C'est lui qui rend le refus explicite reconnaissable, donc préservable.
     expect(snapshot, contains('this.analyticsConsentDecided = false'));
     expect(
       repository,
       contains("json['analyticsConsentDecided'] as bool? ?? false"),
     );
+    // Espaces NORMALISÉS avant de chercher. `dart format` a le droit de couper
+    // cette affectation en deux lignes selon sa longueur — et il l'a fait dès
+    // que le commentaire au-dessus a changé. Un `contains` sur le littéral
+    // exact rougissait donc sur une mise en forme, pas sur une régression :
+    // un test qui crie pour la mauvaise raison finit désactivé, et c'est ainsi
+    // qu'une vraie garde se perd.
+    final flat = controller.replaceAll(RegExp(r'\s+'), ' ');
     expect(
-      controller,
+      flat,
       contains(
-        'analyticsOptOut = analyticsConsentDecided ? snapshot.analyticsOptOut : true;',
+        'analyticsOptOut = analyticsConsentDecided ? snapshot.analyticsOptOut : false;',
       ),
     );
-    expect(controller, contains('analyticsConsentDecided = true;'));
+    expect(flat, contains('analyticsConsentDecided = true;'));
   });
 }

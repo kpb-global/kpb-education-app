@@ -11,6 +11,7 @@ import '../../core/i18n/app_locale.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/currency_utils.dart';
 import '../../core/utils/study_level.dart';
 import '../community/community_screen.dart';
 import '../eligibility/eligibility_simulator_screen.dart';
@@ -1023,14 +1024,18 @@ class _AcademicInfoCard extends StatelessWidget {
         _InfoTile(
           icon: Icons.trending_up_rounded,
           label: 'target_level'.tr,
-          value: profile.targetLevel!,
+          // Le JETON persisté est anglais (« Bachelor », « PhD ») ; il était
+          // affiché tel quel dans une interface française. Même défaut, même
+          // correctif, pour le niveau de langue juste en dessous
+          // (« Intermediate »).
+          value: targetLevelLabel(profile.targetLevel),
           iconColor: KpbColors.success,
         ),
       if (profile.languageLevel != null)
         _InfoTile(
           icon: Icons.translate_outlined,
           label: 'language_level'.tr,
-          value: profile.languageLevel!,
+          value: languageLevelLabel(profile.languageLevel),
           iconColor: KpbColors.gold,
         ),
       if ((profile.gradeRange ?? '').isNotEmpty)
@@ -1488,7 +1493,12 @@ class _ProfileCompletionGuide extends StatelessWidget {
               ),
             ),
           ),
-          if (completion >= 100) ...[
+          // Les deux branches sont désormais PROVABLEMENT complémentaires :
+          // elles testent la même liste, pas `completion >= 100` d'un côté et
+          // `missing.isNotEmpty` de l'autre. C'est cette dissymétrie qui
+          // produisait la carte muette — un troisième état, ni « complet » ni
+          // « voici ce qui manque », que personne n'avait voulu.
+          if (missing.isEmpty) ...[
             const SizedBox(height: 12),
             Row(
               children: [
@@ -1505,7 +1515,7 @@ class _ProfileCompletionGuide extends StatelessWidget {
                 ),
               ],
             ),
-          ] else if (missing.isNotEmpty) ...[
+          ] else ...[
             const SizedBox(height: 14),
             ...missing.map(
               (m) => Padding(
@@ -1565,39 +1575,98 @@ class _ProfileCompletionGuide extends StatelessWidget {
     );
   }
 
+  /// Les manques, dérivés de [UserProfile.missingCompletionItems].
+  ///
+  /// ## Ce que cette fonction ne fait plus
+  ///
+  /// Elle ne RE-CALCULE plus ce qui manque. L'ancienne version testait cinq
+  /// champs à la main, avec ses propres prédicats (`p.currentLevel == null`
+  /// alors que le score teste `.trim().isNotEmpty` — une chaîne vide comptait
+  /// donc comme manquante pour le score et comme remplie pour la liste), puis
+  /// tronquait à trois. Résultat : à qui il ne manquait que le budget, la carte
+  /// affichait « 92 % », une barre, et RIEN d'autre — pas de liste, pas de
+  /// bouton, parce que `missing` était vide et que tout le bloc vivait sous
+  /// `else if (missing.isNotEmpty)`. Le cas se reproduit avec la propre fixture
+  /// du dépôt (`createTestProfile`, sans budget : 12/13 = 92 %).
+  ///
+  /// Le `take(3)` est parti avec. La demande est de montrer ce qu'il manque
+  /// POUR ATTEINDRE 100 % : en cacher la moitié rend le compte impossible à
+  /// boucler, et c'est justement la plainte.
   List<({String field, String impact})> _missingFields(UserProfile p) {
-    final result = <({String field, String impact})>[];
-    if ((p.gradeRange ?? '').isEmpty) {
-      result.add((
-        field: 'profile_missing_grade_field'.tr,
-        impact: 'profile_missing_grade_impact'.tr,
-      ));
+    return p.missingCompletionItems.map(_labelFor).toList(growable: false);
+  }
+
+  /// Un libellé par item du score. Le `switch` est EXHAUSTIF sans `default` :
+  /// ajouter un item à [ProfileCompletionItem] sans lui donner de libellé ne
+  /// compile pas. C'est ce qui empêche la divergence de revenir.
+  ({String field, String impact}) _labelFor(ProfileCompletionItem item) {
+    switch (item) {
+      case ProfileCompletionItem.fullName:
+        return (
+          field: 'profile_missing_full_name_field'.tr,
+          impact: 'profile_missing_full_name_impact'.tr,
+        );
+      case ProfileCompletionItem.email:
+        return (
+          field: 'profile_missing_email_field'.tr,
+          impact: 'profile_missing_email_impact'.tr,
+        );
+      case ProfileCompletionItem.phone:
+        return (
+          field: 'profile_missing_phone_field'.tr,
+          impact: 'profile_missing_phone_impact'.tr,
+        );
+      case ProfileCompletionItem.countryOfResidence:
+        return (
+          field: 'profile_missing_country_field'.tr,
+          impact: 'profile_missing_country_impact'.tr,
+        );
+      case ProfileCompletionItem.preferredLanguage:
+        return (
+          field: 'profile_missing_language_field'.tr,
+          impact: 'profile_missing_language_impact'.tr,
+        );
+      case ProfileCompletionItem.currentLevel:
+        return (
+          field: 'profile_field_current_study_level'.tr,
+          impact: 'profile_missing_current_level_impact'.tr,
+        );
+      case ProfileCompletionItem.targetLevel:
+        return (
+          field: 'profile_missing_target_level_field'.tr,
+          impact: 'profile_missing_target_level_impact'.tr,
+        );
+      case ProfileCompletionItem.languageLevel:
+        return (
+          field: 'profile_missing_language_level_field'.tr,
+          impact: 'profile_missing_language_level_impact'.tr,
+        );
+      case ProfileCompletionItem.fields:
+        return (
+          field: 'profile_missing_fields_field'.tr,
+          impact: 'profile_missing_fields_impact'.tr,
+        );
+      case ProfileCompletionItem.targetCountries:
+        return (
+          field: 'profile_missing_target_countries_field'.tr,
+          impact: 'profile_missing_target_countries_impact'.tr,
+        );
+      case ProfileCompletionItem.grade:
+        return (
+          field: 'profile_missing_grade_field'.tr,
+          impact: 'profile_missing_grade_impact'.tr,
+        );
+      case ProfileCompletionItem.budget:
+        return (
+          field: 'profile_missing_budget_field'.tr,
+          impact: 'profile_missing_budget_impact'.tr,
+        );
+      case ProfileCompletionItem.documents:
+        return (
+          field: 'profile_missing_documents_field'.tr,
+          impact: 'profile_missing_documents_impact'.tr,
+        );
     }
-    if (p.currentLevel == null) {
-      result.add((
-        field: 'profile_field_current_study_level'.tr,
-        impact: 'profile_missing_current_level_impact'.tr,
-      ));
-    }
-    if (p.targetLevel == null) {
-      result.add((
-        field: 'profile_missing_target_level_field'.tr,
-        impact: 'profile_missing_target_level_impact'.tr,
-      ));
-    }
-    if (p.availableDocuments.isEmpty) {
-      result.add((
-        field: 'profile_missing_documents_field'.tr,
-        impact: 'profile_missing_documents_impact'.tr,
-      ));
-    }
-    if (p.languageLevel == null) {
-      result.add((
-        field: 'profile_missing_language_level_field'.tr,
-        impact: 'profile_missing_language_level_impact'.tr,
-      ));
-    }
-    return result.take(3).toList(); // Show max 3 at a time
   }
 }
 
@@ -1750,6 +1819,20 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   late TextEditingController _countryCtrl;
   String? _currentLevel;
   String? _bacSeries;
+  // ── Les quatre champs qui n'étaient réglables qu'à l'inscription ─────────
+  // Revue du build 49 : « certaines options ne peuvent pas être complétées ou
+  // modifiées sur le profil après (comme le budget) ». Le budget en était le
+  // cas le plus net — `annualTuitionBudgetEur` n'avait qu'UN écrivain dans
+  // tout lib/ (onboarding_screen.dart), et le seul chemin de retour vers ce
+  // menu était « Revoir le tutoriel de démarrage », qui efface
+  // `hasCompletedOnboarding` et relance l'entonnoir en trois pages.
+  //
+  // Les trois autres bloquaient le 100 % de la même façon : la carte de
+  // complétion les réclamait sans qu'aucun écran ne sache les fournir.
+  String? _targetLevel;
+  String? _languageLevel;
+  String? _gradeRange;
+  int? _annualBudgetEur;
   late Set<String> _countryIds;
   late Set<String> _documents;
   bool _saving = false;
@@ -1766,6 +1849,23 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     // dropdown selects the right item instead of resetting to null.
     _currentLevel = normalizeStudentLevel(p.currentLevel)?.labelFr;
     _bacSeries = onboardingBacSeries.contains(p.bacSeries) ? p.bacSeries : null;
+    // Chaque valeur est confrontée à sa liste avant d'être posée. Un jeton
+    // inconnu (profil ancien, valeur venue du serveur) rend `null` et le menu
+    // s'ouvre vide, au lieu de faire planter `DropdownButtonFormField`, qui
+    // exige que la valeur initiale figure EXACTEMENT une fois dans ses items.
+    _targetLevel = onboardingTargetLevels.any((e) => e.$1 == p.targetLevel)
+        ? p.targetLevel
+        : null;
+    _languageLevel =
+        onboardingLanguageLevels.any((e) => e.$1 == p.languageLevel)
+            ? p.languageLevel
+            : null;
+    _gradeRange =
+        onboardingGradeRanges.contains(p.gradeRange) ? p.gradeRange : null;
+    _annualBudgetEur =
+        onboardingBudgetRanges.any((e) => e.$1 == p.annualTuitionBudgetEur)
+            ? p.annualTuitionBudgetEur
+            : null;
     _countryIds = p.targetCountryIds.toSet();
     _documents = p.availableDocuments.toSet();
   }
@@ -1889,6 +1989,76 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   onChanged: (v) => setState(() => _bacSeries = v),
                 ),
               ],
+              const SizedBox(height: 16),
+              // Niveau visé — jeton stocké, libellé français affiché.
+              DropdownButtonFormField<String>(
+                initialValue: _targetLevel,
+                isExpanded: true,
+                decoration: _dropdownDecoration(
+                  'target_level'.tr,
+                  Icons.trending_up_rounded,
+                ),
+                items: onboardingTargetLevels
+                    .map(
+                        (l) => DropdownMenuItem(value: l.$1, child: Text(l.$2)))
+                    .toList(),
+                onChanged: (v) => setState(() => _targetLevel = v),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _languageLevel,
+                isExpanded: true,
+                decoration: _dropdownDecoration(
+                  'language_level'.tr,
+                  Icons.translate_outlined,
+                ),
+                items: onboardingLanguageLevels
+                    .map(
+                        (l) => DropdownMenuItem(value: l.$1, child: Text(l.$2)))
+                    .toList(),
+                onChanged: (v) => setState(() => _languageLevel = v),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _gradeRange,
+                isExpanded: true,
+                decoration: _dropdownDecoration(
+                  'grade_range'.tr,
+                  Icons.grade_outlined,
+                ),
+                items: onboardingGradeRanges
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                    .toList(),
+                onChanged: (v) => setState(() => _gradeRange = v),
+              ),
+              const SizedBox(height: 16),
+              // LE budget du signalement. Les montants s'affichent dans la
+              // devise choisie par l'étudiant, comme à l'inscription, mais la
+              // valeur stockée reste l'euro canonique — c'est lui qui sert au
+              // rapprochement des programmes.
+              DropdownButtonFormField<int>(
+                initialValue: _annualBudgetEur,
+                isExpanded: true,
+                decoration: _dropdownDecoration(
+                  'tuition_budget_annual'.tr,
+                  Icons.savings_outlined,
+                ),
+                items: onboardingBudgetRanges
+                    .map(
+                      (r) => DropdownMenuItem(
+                        value: r.$1,
+                        child: Text(
+                          CurrencyUtils.formatEur(
+                            r.$1,
+                            widget.controller.profile!.preferredCurrency,
+                            perYear: true,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => _annualBudgetEur = v),
+              ),
               const SizedBox(height: 24),
               Text(
                 'profile_target_countries'.tr,
@@ -1980,6 +2150,10 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       countryOfResidence: _countryCtrl.text.trim(),
       currentLevel: _currentLevel,
       bacSeries: _bacSeries,
+      targetLevel: _targetLevel,
+      languageLevel: _languageLevel,
+      gradeRange: _gradeRange,
+      annualTuitionBudgetEur: _annualBudgetEur,
       targetCountryIds: _countryIds.toList(),
       availableDocuments: _documents.toList(),
     );

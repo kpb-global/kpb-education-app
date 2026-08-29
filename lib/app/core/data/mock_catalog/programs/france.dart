@@ -10,12 +10,12 @@ const kProgramsFrance = <ProgramModel>[
     fieldId: 'd02',
     name: LocalizedText(fr: 'International BBA', en: 'International BBA'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '9900 EUR/an', en: '9900 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Year 1: Baccalaureate or equivalent. Year 2: 1 year of higher education.',
+          fr: '1re année : baccalauréat ou équivalent. 2e année : une année d\'études supérieures validée.',
           en: 'Year 1: Baccalaureate or equivalent. Year 2: 1 year of higher education.')
     ],
   ),
@@ -27,12 +27,12 @@ const kProgramsFrance = <ProgramModel>[
     name: LocalizedText(
         fr: 'Bachelor in Management', en: 'Bachelor in Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '9200 EUR/an', en: '9200 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -45,12 +45,12 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'Bachelor Tech & Innovation Management',
         en: 'Bachelor Tech & Innovation Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '3 years', en: '3 years'),
+    duration: LocalizedText(fr: '3 ans', en: '3 years'),
     tuition: LocalizedText(fr: '8000 EUR/an', en: '8000 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -63,12 +63,12 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'Master in Management (Grande École)',
         en: 'Master in Management (Grande École)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: '2 years', en: '2 years'),
+    duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(fr: '14500 EUR/an', en: '14500 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -81,12 +81,12 @@ const kProgramsFrance = <ProgramModel>[
         fr: 'MSc in International Management MIEX',
         en: 'MSc in International Management MIEX'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: '2 years', en: '2 years'),
+    duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(fr: '10000 EUR/an', en: '10000 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -97,12 +97,12 @@ const kProgramsFrance = <ProgramModel>[
     fieldId: 'd01',
     name: LocalizedText(fr: 'MSc (DESSMI)', en: 'MSc (DESSMI)'),
     level: LocalizedText(fr: 'Bac+5', en: 'Master'),
-    duration: LocalizedText(fr: '2 years', en: '2 years'),
+    duration: LocalizedText(fr: '2 ans', en: '2 years'),
     tuition: LocalizedText(fr: '9500 EUR/an', en: '9500 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -113,12 +113,12 @@ const kProgramsFrance = <ProgramModel>[
     fieldId: 'd02',
     name: LocalizedText(fr: 'PhD', en: 'PhD'),
     level: LocalizedText(fr: 'Doctorat', en: 'Doctorat'),
-    duration: LocalizedText(fr: 'Varies', en: 'Varies'),
+    duration: LocalizedText(fr: 'Variable', en: 'Varies'),
     tuition: LocalizedText(fr: '9000 EUR/an', en: '9000 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -129,12 +129,12 @@ const kProgramsFrance = <ProgramModel>[
     fieldId: 'd02',
     name: LocalizedText(fr: 'DBA', en: 'DBA'),
     level: LocalizedText(fr: 'DBA', en: 'DBA'),
-    duration: LocalizedText(fr: 'Varies', en: 'Varies'),
+    duration: LocalizedText(fr: 'Variable', en: 'Varies'),
     tuition: LocalizedText(fr: '30000 EUR/an', en: '30000 EUR/an'),
     language: LocalizedText(fr: 'Bilingue EN/FR', en: 'Bilingue EN/FR'),
     requirements: [
       LocalizedText(
-          fr: 'Program-specific; contact KPB for latest entry requirements.',
+          fr: 'Variable selon le programme ; contactez KPB pour les conditions d\'admission à jour.',
           en: 'Program-specific; contact KPB for latest entry requirements.')
     ],
   ),
@@ -1963,8 +1963,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -1981,8 +1981,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -1999,8 +1999,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2017,8 +2017,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2035,8 +2035,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2053,8 +2053,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2070,8 +2070,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2087,8 +2087,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2104,8 +2104,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2122,8 +2122,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2139,8 +2139,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2156,8 +2156,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(
@@ -2175,8 +2175,8 @@ const kProgramsFrance = <ProgramModel>[
     language: LocalizedText(fr: 'Français', en: 'French'),
     requirements: [
       LocalizedText(
-          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français',
-          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\\\'études. Avoir un bon niveau de français')
+          fr: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français',
+          en: 'Avoir au moins 11 de moyennes durant les 3 dernières années d\'études. Avoir un bon niveau de français')
     ],
   ),
   ProgramModel(

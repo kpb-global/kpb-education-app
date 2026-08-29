@@ -17,8 +17,12 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/observability/crashlytics_observability.dart';
+import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/services/analytics_service.dart';
+
+import '../../widget_test_helpers.dart';
 
 void main() {
   final service = AnalyticsService.instance;
@@ -146,6 +150,83 @@ void main() {
         contains('setCollectionEnabled(!analyticsOptOut)'),
         reason: 'le boot doit passer par l\'entonnoir unique ; un appel direct '
             'à un SDK y contournerait Crashlytics',
+      );
+    });
+
+    // ── Revue du build 49 : la mesure est ACTIVE PAR DÉFAUT ────────────────
+    //
+    // Les deux gardes ci-dessus lisent le SOURCE. Elles ne peuvent pas dire ce
+    // que `hydrate()` calcule réellement, et c'est précisément la question ici :
+    // basculer un défaut de consentement, c'est un endroit où « le source
+    // contient la bonne ligne » et « le refus de l'utilisateur est respecté »
+    // peuvent diverger. Ces trois cas exercent donc le vrai contrôleur.
+    test('hydrate() : un indécis collecte, un refus explicite est préservé',
+        () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      setupPlatformChannelMocks();
+
+      Future<bool> optOutAfterHydrate(AppSnapshot snapshot) async {
+        final controller = AppController(
+          repository: FakeRepository(snapshot: snapshot),
+          apiClient: MockApiClient(),
+        );
+        await controller.hydrate();
+        return controller.analyticsOptOut;
+      }
+
+      const base = AppSnapshot(localeCode: 'fr', hasCompletedOnboarding: true);
+
+      // (1) Jamais tranché → la mesure tourne. C'est le changement demandé.
+      expect(
+        await optOutAfterHydrate(base),
+        isFalse,
+        reason: 'sans décision de l\'utilisateur, la mesure d\'audience doit '
+            'être active (défaut annoncé dans les CGU)',
+      );
+
+      // (2) Un instantané d'indécis qui portait `analyticsOptOut: true` — le
+      // cas de TOUS les installés du build 49 — bascule lui aussi, parce que
+      // ce `true` n'était pas un choix, seulement l'ancien défaut.
+      expect(
+        await optOutAfterHydrate(
+          const AppSnapshot(
+            localeCode: 'fr',
+            hasCompletedOnboarding: true,
+            analyticsOptOut: true,
+          ),
+        ),
+        isFalse,
+        reason: 'un `optOut` persisté SANS décision est l\'ancien défaut, pas '
+            'un refus : il ne doit pas survivre au changement de politique',
+      );
+
+      // (3) LA garde qui protège quelqu'un : un refus explicite survit. Si ce
+      // cas passe au vert en rendant `false`, le changement de défaut a révoqué
+      // une décision prise — exactement ce qu'il ne doit jamais faire.
+      expect(
+        await optOutAfterHydrate(
+          const AppSnapshot(
+            localeCode: 'fr',
+            hasCompletedOnboarding: true,
+            analyticsOptOut: true,
+            analyticsConsentDecided: true,
+          ),
+        ),
+        isTrue,
+        reason: 'un refus EXPLICITE doit survivre au changement de défaut',
+      );
+
+      // (4) Symétrique : une acceptation explicite reste une acceptation.
+      expect(
+        await optOutAfterHydrate(
+          const AppSnapshot(
+            localeCode: 'fr',
+            hasCompletedOnboarding: true,
+            analyticsOptOut: false,
+            analyticsConsentDecided: true,
+          ),
+        ),
+        isFalse,
       );
     });
   });

@@ -263,6 +263,13 @@ export class WeeklyDigestService {
             nameFr: true,
             countryNameFr: true,
             deadlineAt: true,
+            // Confirmée ou projetée ? Le bloc « ÉCHÉANCES SOUS 14 JOURS »
+            // imprime la date brute, donc il ne peut lister que du confirmé.
+            cycles: {
+              orderBy: { academicYear: 'desc' },
+              take: 1,
+              select: { dateConfidence: true },
+            },
           },
         }),
       )) ?? [];
@@ -271,6 +278,10 @@ export class WeeklyDigestService {
     for (const s of saved) {
       const row = byId.get(s.itemId);
       if (!row) continue;
+      // Une date ESTIMÉE sous un titre « ÉCHÉANCES SOUS 14 JOURS » est une
+      // affirmation fausse : `deadlineAt` vient alors de `estimatedCloseAt`.
+      // Même règle que les rappels J-30/…/J-1 ; « pas de cycle » vaut confirmé.
+      if (row.cycles[0]?.dateConfidence === 'estimated') continue;
       const list = byUser.get(s.userId) ?? [];
       if (list.length >= MAX_ITEMS_PER_BLOCK) continue;
       list.push({
