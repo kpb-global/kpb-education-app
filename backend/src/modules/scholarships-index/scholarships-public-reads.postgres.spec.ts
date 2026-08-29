@@ -6,6 +6,7 @@ import type { PrismaService } from '../prisma/prisma.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { ScholarshipContentQualityService } from './scholarship-content-quality.service';
 import { ScholarshipsIndexService } from './scholarships-index.service';
+import { ScholarshipVideosService } from './scholarship-videos.service';
 import type { GreatYopScraper } from './scrapers/greatyop.scraper';
 import type { MastereTnScraper } from './scrapers/mastereTn.scraper';
 
@@ -39,6 +40,7 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
   const staleCycleId = `pubread-stalecycle-${suffix}`;
   const defaultsId = `pubread-defaults-${suffix}`;
   const moderatableId = `pubread-moderatable-${suffix}`;
+  const videoHostId = `pubread-videohost-${suffix}`;
   const allIds = [
     expiredId,
     unverifiedId,
@@ -46,6 +48,7 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
     staleCycleId,
     defaultsId,
     moderatableId,
+    videoHostId,
   ];
 
   const prismaService = {
@@ -165,6 +168,17 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
             verifiedAt: new Date(now - day),
           },
         },
+      }),
+    });
+
+    // Hôte des vidéos : servable, pour que seul l'état de la VIDÉO explique
+    // sa présence ou son absence dans la charge publique.
+    await prisma.scholarship.create({
+      data: row(videoHostId, {
+        isActive: true,
+        moderationStatus: 'approved',
+        lastVerifiedAt: new Date(now - day),
+        deadlineAt: new Date(now + 60 * day),
       }),
     });
 
@@ -301,6 +315,128 @@ describePostgres('Lectures publiques de bourses — intégration PostgreSQL', ()
       expect(
         (catalog.items as Array<{ id: string }>).map((i) => i.id),
       ).not.toContain(defaultsId);
+    });
+  });
+  // ── Les explications vidéo attachées depuis l'admin ───────────────────────
+  //
+  // La chaîne « je colle un lien YouTube dans l'admin → l'étudiant voit la
+  // vidéo » traverse deux services et un `where` Prisma, et n'était couverte
+  // nulle part : `scholarship-videos.service.spec.ts` s'arrête à l'écriture
+  // (avec un Prisma simulé), et les lectures publiques ci-dessus ignoraient
+  // les vidéos. Les deux façons de perdre une vidéo — la laisser en
+  // `draft`, ou l'accrocher à une bourse que le public ne reçoit pas —
+  // passaient donc sans témoin.
+  describe("les explications vidéo, de l'admin à l'app", () => {
+    function videosService() {
+      return new ScholarshipVideosService(prismaService);
+    }
+
+    type PublicVideo = { id: string; youtubeVideoId: string; watchUrl: string };
+    type Detail = { videos: PublicVideo[] };
+    type ListItem = { id: string; featuredVideo: PublicVideo | null };
+
+    async function detailOf(id: string): Promise<Detail> {
+      return (await indexService().getForProfile(id, {
+        lang: 'fr',
+        userId: 'user-test',
+      })) as unknown as Detail;
+    }
+
+    async function listItem(id: string): Promise<ListItem | undefined> {
+      const response = await indexService().listForProfile({
+        lang: 'fr',
+        limit: 100,
+      });
+      return (response.items as unknown as ListItem[]).find((i) => i.id === id);
+    }
+
+    it('publie la vidéo créée depuis un lien de partage youtu.be', async () => {
+      // La forme exacte que donne le bouton « Partager » de YouTube.
+      const created = (await videosService().create(videoHostId, {
+        youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+        titleFr: 'Comprendre la bourse en 3 minutes',
+        titleEn: 'Understand the scholarship in 3 minutes',
+        status: 'published',
+        isFeatured: true,
+      })) as unknown as { id: string; youtubeVideoId: string };
+
+      // L'identifiant est extrait, pas l'URL entière stockée.
+      expect(created.youtubeVideoId).toBe('dQw4w9WgXcQ');
+
+      const detail = await detailOf(videoHostId);
+      expect(detail.videos.map((v) => v.id)).toContain(created.id);
+      expect(detail.videos[0].watchUrl).toBe(
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      );
+
+      // La liste ne porte qu'une vidéo : celle mise en avant.
+      const item = await listItem(videoHostId);
+      expect(item?.featuredVideo?.youtubeVideoId).toBe('dQw4w9WgXcQ');
+    });
+
+    it("garde le brouillon hors de l'app, tout en le montrant à l'admin", async () => {
+      const draft = (await videosService().create(videoHostId, {
+        youtubeUrl: 'https://www.youtube.com/watch?v=BROUILLON01',
+        titleFr: 'Version non relue',
+        titleEn: 'Unreviewed cut',
+        // `status` omis : c'est le défaut du schéma qui décide, et il vaut
+        // `draft`. L'oubli le plus probable en saisie.
+      })) as unknown as { id: string; status: string };
+
+      expect(draft.status).toBe('draft');
+
+      const detail = await detailOf(videoHostId);
+      expect(detail.videos.map((v) => v.id)).not.toContain(draft.id);
+
+      // Contre-épreuve : l'admin, lui, doit continuer à le voir — sinon on ne
+      // saurait pas distinguer « filtré » de « jamais écrit ».
+      const admin = await videosService().list(videoHostId);
+      expect(admin.items.map((v) => v.id)).toContain(draft.id);
+    });
+
+    it("ne sort pas une vidéo publiée si la bourse n'est pas servie", async () => {
+      // `unverifiedId` est approuvée et active, mais jamais vérifiée : la
+      // clause publique la retire. 35 des 45 fiches de production sont dans
+      // un état de ce genre — y attacher une vidéo ne la rendrait pas visible.
+      const orphan = (await videosService().create(unverifiedId, {
+        youtubeUrl: 'https://www.youtube.com/watch?v=ORPHELINE01',
+        titleFr: 'Vidéo sur une fiche invisible',
+        titleEn: 'Video on a hidden entry',
+        status: 'published',
+        isFeatured: true,
+      })) as unknown as { id: string };
+
+      // Elle est bien écrite…
+      const admin = await videosService().list(unverifiedId);
+      expect(admin.items.map((v) => v.id)).toContain(orphan.id);
+
+      // … et pourtant l'app ne l'atteint jamais : la fiche elle-même est 404.
+      await expect(
+        indexService().getForProfile(unverifiedId, {
+          lang: 'fr',
+          userId: 'user-test',
+        }),
+      ).rejects.toThrow(/not found/i);
+      expect(await listItem(unverifiedId)).toBeUndefined();
+    });
+
+    it('ne met en avant qu\'une seule vidéo à la fois', async () => {
+      const second = (await videosService().create(videoHostId, {
+        youtubeUrl: 'https://www.youtube.com/watch?v=SECONDEVID1',
+        titleFr: 'La nouvelle mise en avant',
+        titleEn: 'The new featured one',
+        status: 'published',
+        isFeatured: true,
+      })) as unknown as { id: string };
+
+      const featured = (await videosService().list(videoHostId)).items.filter(
+        (v) => v.isFeatured,
+      );
+      expect(featured.map((v) => v.id)).toEqual([second.id]);
+
+      // Et c'est bien elle que la liste publique remonte, sans ambiguïté.
+      const item = await listItem(videoHostId);
+      expect(item?.featuredVideo?.id).toBe(second.id);
     });
   });
 });
