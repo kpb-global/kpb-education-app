@@ -203,7 +203,7 @@ export class CommercialService {
             },
           },
         },
-        orderBy: { fullName: 'asc' },
+        orderBy: [{ fullName: 'asc' }, { id: 'asc' }],
       }),
     );
 

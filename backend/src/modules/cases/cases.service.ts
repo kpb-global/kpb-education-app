@@ -149,9 +149,17 @@ export class CasesService {
 
     const created = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
+        // `id` départage, et ce n'est pas de la précaution abstraite : les
+        // trois conseillers de production ont été insérés par un seul
+        // `INSERT … VALUES (…now()), (…now()), (…now())`, donc `now()` — qui
+        // rend l'horodatage de la TRANSACTION — leur a donné le même
+        // `createdAt` à la milliseconde près. Sans départage, Postgres ne doit
+        // aucun ordre entre eux : la rotation « Jojo → Donald → Richard »
+        // annoncée par la seed n'était garantie par rien, et pouvait changer
+        // d'un plan d'exécution à l'autre.
         const activeCounsellors = await tx.counsellor.findMany({
           where: { isActive: true },
-          orderBy: { createdAt: 'asc' },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         });
 
         // Insert with a temporary unique placeholder, then derive the real

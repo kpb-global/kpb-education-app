@@ -52,7 +52,10 @@ export class CounsellorsService {
             ? { specialties: { has: params.specialty } }
             : {}),
         },
-        orderBy: [{ avgRating: 'desc' }, { reviewCount: 'desc' }],
+        // Sans avis, `avgRating` et `reviewCount` sont égaux pour tous : sans
+        // départage, l'étudiant voit la liste se réordonner d'un chargement à
+        // l'autre sans que rien n'ait changé.
+        orderBy: [{ avgRating: 'desc' }, { reviewCount: 'desc' }, { id: 'asc' }],
         select: {
           id: true,
           fullName: true,
@@ -113,7 +116,7 @@ export class CounsellorsService {
             ? { kycStatus: params.kycStatus as never }
             : {}),
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
       }),
     );
     return { items: items ?? [] };

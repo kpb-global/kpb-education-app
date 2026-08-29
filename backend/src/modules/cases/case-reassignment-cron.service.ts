@@ -51,11 +51,17 @@ export class CaseReassignmentCronService {
 
       await this.prismaService.execute((prisma) =>
         prisma.$transaction(async (tx) => {
+          // Sans `orderBy`, la ligne rendue en premier à charge égale dépend
+          // de l'ordre physique des lignes : le `sort` par charge ci-dessous
+          // est stable, mais son ENTRÉE ne l'était pas. Trois conseillers à
+          // zéro dossier — l'état du jour — rendaient donc la réaffectation
+          // arbitraire, à chaque passage du cron.
           const activeCounsellors = await tx.counsellor.findMany({
             where: {
               isActive: true,
               id: { not: item.counsellorId ?? undefined },
             },
+            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
             include: {
               _count: {
                 select: {
