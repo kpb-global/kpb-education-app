@@ -148,6 +148,48 @@ void main() {
     });
   });
 
+  group('la série du bac peut être effacée', () {
+    // Revue automatique de la PR #252 (P2). `copyWith(bacSeries: null)` ne
+    // pouvait PAS effacer — `null` y signifie « ne change rien ». La feuille
+    // met pourtant `_bacSeries` à null quand l'étudiant passe à un niveau sans
+    // série de bac. Résultat : la série obsolète survivait, et continuait de
+    // satisfaire l'item « moyenne » du score de complétion — donc un profil
+    // affichait 100 % grâce à une donnée qui n'aurait plus dû exister.
+    test('clearBacSeries efface, là où null ne pouvait pas', () {
+      final withSeries = createTestProfile().copyWith(bacSeries: 'D');
+      expect(withSeries.bacSeries, 'D');
+
+      // L'ancien geste, celui qui ne marchait pas.
+      expect(
+        withSeries.copyWith(bacSeries: null).bacSeries,
+        'D',
+        reason: 'null veut dire « ne change rien » dans tout ce constructeur — '
+            'c\'est bien pourquoi il fallait un drapeau explicite',
+      );
+
+      expect(withSeries.copyWith(clearBacSeries: true).bacSeries, isNull);
+    });
+
+    test(
+        'effacer la série retire l\'item « moyenne » quand il n\'y a pas de moyenne',
+        () {
+      final onlySeries = createTestProfile().copyWith(
+        gradeRange: '',
+        bacSeries: 'D',
+        annualTuitionBudgetEur: 7500,
+      );
+      expect(onlySeries.missingCompletionItems, isEmpty);
+
+      final cleared = onlySeries.copyWith(clearBacSeries: true);
+      expect(
+        cleared.missingCompletionItems,
+        contains(ProfileCompletionItem.grade),
+        reason: 'sans série ni moyenne, l\'item doit redevenir manquant — '
+            'sinon une donnée effacée continue de compter',
+      );
+    });
+  });
+
   group('Point 5 — les champs orphelins sont redevenus modifiables', () {
     setUp(resetGetxSingleton);
     tearDown(resetGetxSingleton);

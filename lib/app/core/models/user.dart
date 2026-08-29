@@ -170,6 +170,14 @@ class UserProfile {
     List<String>? targetCountryIds,
     String? gradeRange,
     String? bacSeries,
+
+    /// `copyWith(bacSeries: null)` ne peut PAS effacer : `null` y signifie
+    /// « ne change rien », c'est la sémantique de tout ce constructeur. Or la
+    /// feuille de profil met bien `_bacSeries` à `null` quand l'étudiant passe
+    /// à un niveau qui n'a pas de série de bac — et sans ce drapeau la série
+    /// obsolète survivait, en continuant de satisfaire l'item « moyenne » du
+    /// score de complétion.
+    bool clearBacSeries = false,
     int? annualTuitionBudgetEur,
     int? monthlyBudgetEur,
     String? preferredCurrency,
@@ -200,7 +208,7 @@ class UserProfile {
       fieldIds: fieldIds ?? this.fieldIds,
       targetCountryIds: targetCountryIds ?? this.targetCountryIds,
       gradeRange: gradeRange ?? this.gradeRange,
-      bacSeries: bacSeries ?? this.bacSeries,
+      bacSeries: clearBacSeries ? null : (bacSeries ?? this.bacSeries),
       annualTuitionBudgetEur:
           annualTuitionBudgetEur ?? this.annualTuitionBudgetEur,
       monthlyBudgetEur: monthlyBudgetEur ?? this.monthlyBudgetEur,

@@ -1998,9 +1998,13 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   'target_level'.tr,
                   Icons.trending_up_rounded,
                 ),
+                // Libellé via l'aide localisée : le menu ne doit pas afficher
+                // du français dans une interface anglaise.
                 items: onboardingTargetLevels
-                    .map(
-                        (l) => DropdownMenuItem(value: l.$1, child: Text(l.$2)))
+                    .map((l) => DropdownMenuItem(
+                          value: l.$1,
+                          child: Text(targetLevelLabel(l.$1)),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _targetLevel = v),
               ),
@@ -2013,8 +2017,10 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                   Icons.translate_outlined,
                 ),
                 items: onboardingLanguageLevels
-                    .map(
-                        (l) => DropdownMenuItem(value: l.$1, child: Text(l.$2)))
+                    .map((l) => DropdownMenuItem(
+                          value: l.$1,
+                          child: Text(languageLevelLabel(l.$1)),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _languageLevel = v),
               ),
@@ -2150,6 +2156,10 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       countryOfResidence: _countryCtrl.text.trim(),
       currentLevel: _currentLevel,
       bacSeries: _bacSeries,
+      // Le menu disparaît pour les niveaux sans série de bac, et `_bacSeries`
+      // passe alors à `null` : il faut le dire explicitement, sinon l'ancienne
+      // série reste.
+      clearBacSeries: _bacSeries == null,
       targetLevel: _targetLevel,
       languageLevel: _languageLevel,
       gradeRange: _gradeRange,

@@ -81,15 +81,40 @@ String _shortDate(DateTime date) {
 /// C'est la convention de saisie pour « on connaît la saison, pas la date » :
 /// l'opérateur borne au mois, et la phrase affichée doit alors parler en mois.
 /// Toute autre fenêtre a été saisie au jour près et est rendue telle quelle.
+///
+/// ## Tout se compare en UTC, et c'est le cœur du sujet
+///
+/// Ces bornes sont des dates SANS heure, écrites en UTC par le catalogue :
+/// `2027-03-01T00:00:00.000Z` et `2027-04-30T23:59:59.000Z`. Les convertir en
+/// heure locale les fait changer de jour calendaire pour presque tout le monde :
+/// à l'ouest d'UTC, le 1er mars devient le 28 février ; à l'est — donc au Niger,
+/// au Sénégal, en Côte d'Ivoire, c'est-à-dire notre public — le 30 avril à
+/// 23 h 59 UTC devient le 1er mai. Dans les deux cas le test échouait pour la
+/// convention même qu'il doit reconnaître, et la carte retombait sur des dates
+/// précises trompeuses : exactement ce que ce lot corrige.
+/// Le prédicat de [_isWholeMonthWindow], exposé aux tests.
+///
+/// Il vaut la peine d'être testé directement : sa première version comparait
+/// en heure LOCALE et échouait, hors UTC, pour la convention même qu'elle doit
+/// reconnaître. Un test qui passerait par l'écran entier n'aurait pas pu isoler
+/// ce cas — et il aurait été vert sur une machine à UTC+0.
+@visibleForTesting
+bool isWholeMonthWindowForTest(DateTime open, DateTime close) =>
+    _isWholeMonthWindow(open, close);
+
 bool _isWholeMonthWindow(DateTime open, DateTime close) {
-  final from = open.toLocal();
-  final to = close.toLocal();
-  // Dernier jour de `to` : le jour 0 du mois SUIVANT.
-  final lastDayOfCloseMonth = DateTime(to.year, to.month + 1, 0).day;
+  final from = open.toUtc();
+  final to = close.toUtc();
+  // Dernier jour de `to` : le jour 0 du mois SUIVANT, calculé en UTC.
+  final lastDayOfCloseMonth = DateTime.utc(to.year, to.month + 1, 0).day;
   return from.day == 1 && to.day == lastDayOfCloseMonth && !to.isBefore(from);
 }
 
 /// Le nom du mois dans la langue active (« mars », « March »).
+///
+/// En UTC, pour la raison écrite dans [_isWholeMonthWindow] : une borne de mois
+/// convertie en local peut basculer sur le mois voisin, et on afficherait
+/// « février » pour une fenêtre qui commence le 1er mars.
 ///
 /// `try`/`catch` obligatoire, et ce n'est pas de la superstition : `DateFormat`
 /// avec une locale explicite lève `LocaleDataException` si les données de cette
@@ -97,12 +122,12 @@ bool _isWholeMonthWindow(DateTime open, DateTime close) {
 /// dans les tests. Le repli numérique ne peut pas lever et reste exact. C'est
 /// exactement le patron déjà documenté et éprouvé dans `EefCalendar.dayLabel`.
 String _monthName(DateTime date) {
-  final local = date.toLocal();
+  final utc = date.toUtc();
   final locale = Get.locale?.languageCode == 'en' ? 'en' : 'fr';
   try {
-    return DateFormat('MMMM', locale).format(local);
+    return DateFormat('MMMM', locale).format(utc);
   } catch (_) {
-    return local.month.toString().padLeft(2, '0');
+    return utc.month.toString().padLeft(2, '0');
   }
 }
 

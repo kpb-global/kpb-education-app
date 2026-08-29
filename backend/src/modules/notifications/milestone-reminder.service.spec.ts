@@ -65,7 +65,10 @@ describe('MilestoneReminderService', () => {
   // `undefined` qui n'existe jamais en production.
   const scholarshipDueInDays = (
     days: number,
-    cycles: Array<{ dateConfidence: 'confirmed' | 'estimated' }> = [],
+    cycles: Array<{
+      status: 'open' | 'forecast' | 'closed';
+      dateConfidence: 'confirmed' | 'estimated';
+    }> = [],
   ) => ({
     id: 'sch-1',
     nameFr: 'Bourse X',
@@ -98,7 +101,9 @@ describe('MilestoneReminderService', () => {
   it('ne rappelle JAMAIS sur une date estimée', async () => {
     const { service } = makeService({
       saved: [savedFor('fr')],
-      scholarships: [scholarshipDueInDays(7, [{ dateConfidence: 'estimated' }])],
+      scholarships: [scholarshipDueInDays(7, [
+        { status: 'forecast', dateConfidence: 'estimated' },
+      ])],
     });
     const reminders = await service.collectDueReminders(new Date());
     expect(reminders).toHaveLength(0);
@@ -107,7 +112,9 @@ describe('MilestoneReminderService', () => {
   it('rappelle bien sur une date confirmée', async () => {
     const { service } = makeService({
       saved: [savedFor('fr')],
-      scholarships: [scholarshipDueInDays(7, [{ dateConfidence: 'confirmed' }])],
+      scholarships: [scholarshipDueInDays(7, [
+        { status: 'open', dateConfidence: 'confirmed' },
+      ])],
     });
     // Contre-garde du test précédent : sans elle, une erreur qui supprimerait
     // TOUS les rappels passerait pour un correctif.
@@ -120,6 +127,30 @@ describe('MilestoneReminderService', () => {
       scholarships: [scholarshipDueInDays(7, [])],
     });
     expect(await service.collectDueReminders(new Date())).toHaveLength(1);
+  });
+
+  // LA régression que la revue automatique a trouvée sur la PR #252.
+  //
+  // Une bourse dont la campagne EN COURS est ouverte et confirmée, et pour
+  // laquelle l'exploitation a déjà saisi la prévision de l'année suivante.
+  // `deadlineAt` appartient au cycle OUVERT. La première version sélectionnait
+  // « l'année lexicographiquement la plus récente » — donc la prévision, donc
+  // « estimée » — et supprimait des rappels parfaitement légitimes, sur les
+  // bourses les plus suivies précisément parce qu'elles sont les mieux tenues.
+  it('rappelle quand un cycle OUVERT confirmé coexiste avec une prévision plus récente',
+      async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [
+        scholarshipDueInDays(7, [
+          { status: 'forecast', dateConfidence: 'estimated' },
+          { status: 'open', dateConfidence: 'confirmed' },
+        ]),
+      ],
+    });
+    const reminders = await service.collectDueReminders(new Date());
+    expect(reminders).toHaveLength(1);
+    expect(reminders[0].titleFr).toBe('Bourse à J-7');
   });
 
   it('reminds at the new J-3 threshold', async () => {

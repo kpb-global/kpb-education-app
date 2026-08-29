@@ -61,9 +61,14 @@ export class UpdateProfileDto {
   @IsString()
   gradeRange?: string;
 
+  // `null` est une valeur ACCEPTÉE et signifiante : elle demande l'effacement
+  // de la série du bac (l'étudiant est passé à un niveau qui n'en a pas).
+  // `@IsOptional()` laisse passer `null` comme `undefined` ; c'est le service
+  // qui distingue les deux, et le type le dit pour que ce ne soit pas un
+  // accident.
   @IsOptional()
   @IsString()
-  bacSeries?: string;
+  bacSeries?: string | null;
 
   @IsOptional()
   @IsInt()

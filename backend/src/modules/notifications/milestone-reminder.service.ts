@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { hasEstimatedDeadline } from '../../common/current-scholarship-cycle';
 import {
   DispatchOutcome,
   NotificationDispatchService,
@@ -134,13 +135,12 @@ export class MilestoneReminderService {
             deadlineAt: true,
             countryNameFr: true,
             countryNameEn: true,
-            // Le cycle le plus récent, uniquement pour savoir si `deadlineAt`
-            // est une date CONFIRMÉE ou une projection.
-            cycles: {
-              orderBy: { academicYear: 'desc' },
-              take: 1,
-              select: { dateConfidence: true },
-            },
+            // TOUS les cycles, pas le plus récent : c'est
+            // `hasEstimatedDeadline` qui applique la règle de sélection du
+            // dépôt (ouvert → prévision → premier). Un `take: 1` sur l'année
+            // rendait la PRÉVISION d'une bourse dont la campagne en cours est
+            // ouverte et confirmée, et supprimait donc de vrais rappels.
+            cycles: { select: { status: true, dateConfidence: true } },
           },
         }),
       )) ?? [];
@@ -160,10 +160,7 @@ export class MilestoneReminderService {
       // le calendrier) ; la notification, elle, ne consultait pas le champ —
       // et c'est la seule des trois qui réveille le téléphone.
       //
-      // « Pas de cycle » vaut CONFIRMÉ, comme partout ailleurs dans le dépôt
-      // (`catalog.mapper.ts`, `ScholarshipModel.deadlineIsEstimated`) : les
-      // fiches héritées n'ont pas de cycle et leur date est vraie.
-      if (scholarship.cycles[0]?.dateConfidence === 'estimated') continue;
+      if (hasEstimatedDeadline(scholarship.cycles)) continue;
       const days = daysUntil(now, scholarship.deadlineAt);
       if (!SCHOLARSHIP_REMINDER_DAYS.has(days)) continue;
       reminders.push({
