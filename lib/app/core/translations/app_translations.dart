@@ -962,6 +962,11 @@ class AppTranslations extends Translations {
               'Trop de demandes d\'affilée. Réessaie dans une minute.',
           'tools_ai_error_signin_required':
               'Reconnecte-toi pour utiliser l\'IA.',
+          // 403 `age_verification_required` : le compte est bien connecté, il
+          // lui manque une date de naissance. « Reconnecte-toi » envoyait dans
+          // le mur — la vérification d'âge précède tout traitement IA.
+          'tools_ai_error_birthdate_required':
+              'Ajoute ta date de naissance dans ton profil pour utiliser l\'IA.',
           'cv_field_residence': 'Pays de résidence',
           'cv_objective_prefill':
               'Objectif : intégrer un programme de @level en @field.',
@@ -3957,6 +3962,8 @@ class AppTranslations extends Translations {
               'Too many requests. Try again in a minute.',
           'tools_ai_error_signin_required':
               'Please sign in again to use the AI.',
+          'tools_ai_error_birthdate_required':
+              'Add your date of birth to your profile to use the AI.',
           'cv_field_residence': 'Country of residence',
           'cv_objective_prefill': 'Goal: join a @level programme in @field.',
           'cv_objective_destination': 'Target destination: @country.',

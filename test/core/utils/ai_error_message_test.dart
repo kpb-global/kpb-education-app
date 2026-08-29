@@ -48,6 +48,25 @@ void main() {
     expect(aiConsentBlockCode(error), 'guardian_consent_required');
   });
 
+  // `AiConsentService` refuse sur la date de naissance AVANT de regarder le
+  // consentement. Ce 403 était inatteignable tant que les outils IA étaient
+  // masqués ; la build 50 les démasque, donc il devient un vrai écran.
+  test('403 age_verification_required envoie au profil, pas à la connexion',
+      () {
+    final error = _dio(
+      status: 403,
+      data: {'code': 'age_verification_required'},
+    );
+    expect(isAiConsentRequiredError(error), isFalse,
+        reason: 'ce n\'est pas le cas qui rouvre la boîte de consentement');
+    expect(aiConsentBlockCode(error), 'age_verification_required');
+
+    final message = aiErrorMessage(error).toLowerCase();
+    expect(message, contains('date de naissance'));
+    // La régression exacte : un compte connecté à qui on dit de se reconnecter.
+    expect(message, isNot(contains('reconnecte')));
+  });
+
   test('timeouts blame the network', () {
     final error = _dio(type: DioExceptionType.connectionTimeout);
     expect(aiErrorMessage(error),

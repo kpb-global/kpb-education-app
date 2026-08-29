@@ -12,7 +12,9 @@ String? aiConsentBlockCode(Object error) {
   final data = error.response?.data;
   if (data is Map && data['code'] is String) {
     final code = data['code'] as String;
-    if (code == 'ai_consent_required' || code == 'guardian_consent_required') {
+    if (code == 'ai_consent_required' ||
+        code == 'guardian_consent_required' ||
+        code == 'age_verification_required') {
       return code;
     }
   }
@@ -45,6 +47,13 @@ String aiErrorMessage(Object error) {
   final block = aiConsentBlockCode(error);
   if (block == 'guardian_consent_required') {
     return trOr('guardian_consent_required');
+  }
+  // `AiConsentService` refuse AVANT de regarder le consentement quand la date
+  // de naissance manque : un compte connecté tombait donc sur « reconnecte-toi »,
+  // qui ne mène nulle part. Le masque des outils IA rendait ce 403 inatteignable
+  // ; le démasquage de la build 50 le rend atteignable.
+  if (block == 'age_verification_required') {
+    return trOr('tools_ai_error_birthdate_required');
   }
   if (status == 401 || status == 403) {
     return trOr('tools_ai_error_signin_required');

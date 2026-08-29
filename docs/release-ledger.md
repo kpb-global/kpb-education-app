@@ -8,12 +8,52 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 - `46` — AAB CI du 31/07/2026, jamais téléversé sur Play
 - `48` — consommé sur TestFlight le 12/08/2026
+- `49` — téléversée sur App Store Connect le 29/08/2026 (2.1.0 (49), archive du
+  jour, `UIDeviceFamily = [1, 2]` et 4 orientations iPad vérifiés dans le
+  bundle). Le binaire porte le correctif iOS de la PR #247 (`249c3a5`), pas le
+  `8f5d71ce2f57` gelé le 26/08 : deux rejets d'Apple, 90474 puis 90101, ont
+  imposé un nouvel archivage. La production tournait sur `458d115ebc8d` au
+  moment du téléversement.
 
 ## Courant
 
-- `49` — `8f5d71ce2f57` (gelé le 26/08/2026 ; backend déployé sur ce SHA)
+- `50` — démasque les quatre outils IA (`KPB_AI_TOOLS_ENABLED=true`)
 
-### Ce que 49 embarque en plus
+  **Cette bascule ne se fait PAS depuis un tableau de bord.**
+  `AppConfig.aiToolsEnabled` lit un `bool.fromEnvironment`, donc une constante
+  de compilation : la 49 a été construite sans le drapeau, et rien côté serveur
+  ne peut le lui donner. Générateur de CV, lettres de motivation, simulateur
+  d'entretien et relecture de document restent invisibles dans la 49 — c'est
+  une NOUVELLE build ou rien.
+
+  Les deux conditions posées au lot 7 :
+
+  | Condition | État |
+  |---|---|
+  | `AiConsentGuard` déployée en production | ✅ en ligne (`458d115ebc8d`) |
+  | 49 chez les testeurs | ⏳ en traitement chez Apple depuis le 29/08 |
+
+  La seconde n'est pas de la superstition : livrer la 50 avant que la 49 ait été
+  essayée mettrait le contenu des deux builds dans le même retour de test, et un
+  outil IA cassé serait indiscernable d'un défaut de la 49.
+
+  Ligne de build — le drapeau en plus, tout le reste identique :
+
+  ```bash
+  export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
+  flutter build ios --release \
+    --dart-define=KPB_APP_ENV=prod \
+    --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
+    --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY" \
+    --dart-define=KPB_AI_TOOLS_ENABLED=true
+  ```
+
+  L'oubli du drapeau ne se voit pas : la 50 se construirait, s'archiverait et
+  se téléverserait sans un mot, identique à la 49 pour l'étudiant.
+  `scripts/preflight-ios-archive.sh` le refuse désormais (`EXPECTED_AI_TOOLS`),
+  et `test/release/artifact_signing_contract_test.dart` garde le garde.
+
+### Ce que 49 embarquait — pour mémoire
 
 - **Notice IA : OpenRouter nommé (PR #239, 26/08/2026).** Le consentement
   KPB Intelligence et la divulgation des outils (FR/EN) nomment désormais

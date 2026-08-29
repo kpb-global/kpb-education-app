@@ -142,7 +142,9 @@ attribué coûte plus cher qu'un échec.
       release.
 - [ ] **Aucun `--dart-define` sur les cinq drapeaux de masquage.** Les valeurs
       par défaut attendues : `KPB_MVP_ONLY=true` (`lib/app/core/config/app_config.dart:93-96`),
-      `KPB_AI_TOOLS_ENABLED=false` (`app_config.dart:149-154`),
+      `KPB_AI_TOOLS_ENABLED=false` (`app_config.dart:149-154`) — **sauf pour une
+      build de livraison à partir de la 50, qui le passe volontairement à `true` ;
+      voir `docs/release-ledger.md`**,
       `KPB_DOCUMENT_UPLOAD_ENABLED=false` (`app_config.dart:182-187`),
       `KPB_AMBASSADOR_CASH_ENABLED=false` (`app_config.dart:105-108`),
       `KPB_FLIGHT_ESTIMATOR_ENABLED=false` (`app_config.dart:116-119`).

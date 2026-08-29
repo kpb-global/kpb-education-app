@@ -120,7 +120,14 @@ void main() {
       expect(preflight, contains('ProvisionedDevices'));
       expect(
           preflight, contains('PrivacyInfo.xcprivacy absent du bundle signé'));
-      expect(preflight, contains('EXPECTED_BUILD="49"'));
+      expect(preflight, contains('EXPECTED_BUILD="50"'));
+      // Le démasquage des outils IA est une constante de compilation : une 50
+      // construite sans le drapeau s'archive et se téléverse sans un mot, et
+      // l'étudiant retrouve la 49. Le préflight est le dernier endroit où ça
+      // peut encore rougir, donc la garde elle-même est gardée ici.
+      expect(preflight, contains('EXPECTED_AI_TOOLS="true"'));
+      expect(preflight, contains(r'$AI_TOOLS" == "$EXPECTED_AI_TOOLS'));
+      expect(preflight, contains('DART_DEFINES sans KPB_AI_TOOLS_ENABLED='));
       expect(preflight, contains('EXPECTED_VERSION="2.1.0"'));
       expect(preflight, contains('EXPECTED_BUNDLE_ID="Karatou.karatou"'));
     });
@@ -163,7 +170,7 @@ void main() {
     test('AAB preflight pins identity, version, SDK, and Play certificate', () {
       expect(preflight, contains('EXPECTED_PACKAGE="com.karatou.android"'));
       expect(preflight, contains('EXPECTED_VERSION_NAME="2.1.0"'));
-      expect(preflight, contains('EXPECTED_VERSION_CODE="49"'));
+      expect(preflight, contains('EXPECTED_VERSION_CODE="50"'));
       expect(preflight, contains('EXPECTED_TARGET_SDK="36"'));
       expect(preflight, contains('"\$JARSIGNER_BIN" -verify'));
       expect(preflight, contains('"\$KEYTOOL_BIN" -printcert -jarfile'));
@@ -175,9 +182,9 @@ void main() {
     });
   });
 
-  test('the shipping pubspec version remains the build-49 contract', () {
+  test('the shipping pubspec version remains the build-50 contract', () {
     expect(
-      RegExp(r'^version:\s*2\.1\.0\+49\s*$', multiLine: true)
+      RegExp(r'^version:\s*2\.1\.0\+50\s*$', multiLine: true)
           .hasMatch(_read('pubspec.yaml')),
       isTrue,
     );

@@ -16,10 +16,16 @@ XCCONFIG=""
 ARCHIVE_PLIST=""
 APP_PATH=""
 
-EXPECTED_BUILD="49"
+EXPECTED_BUILD="50"
 EXPECTED_VERSION="2.1.0"
 EXPECTED_BUNDLE_ID="Karatou.karatou"
 EXPECTED_TEAM_ID="DNPB788LKX"
+
+# Le démasquage des outils IA est une constante de COMPILATION : l'oublier ne
+# casse rien, ne se voit nulle part, et livre une build identique à la
+# précédente. C'est la raison d'être de cette ligne — la changer doit rester un
+# geste délibéré, pas un effet de bord.
+EXPECTED_AI_TOOLS="true"
 
 usage() {
   sed -n '2,15p' "$0" | sed 's/^# \?//'
@@ -129,6 +135,12 @@ printf '%s\n' "$DECODED" | grep -q '^POSTHOG_API_KEY=' || \
 if [[ -n "$POSTHOG" && "$POSTHOG" != phc_* ]]; then
   fail "POSTHOG_API_KEY renseignée mais format public phc_… invalide"
 fi
+
+AI_TOOLS=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_AI_TOOLS_ENABLED=//p' | tail -1)
+printf '%s\n' "$DECODED" | grep -q '^KPB_AI_TOOLS_ENABLED=' || \
+  fail "DART_DEFINES sans KPB_AI_TOOLS_ENABLED= : le drapeau est lu à la COMPILATION, l'omettre livre les outils IA masqués sans le dire"
+[[ "$AI_TOOLS" == "$EXPECTED_AI_TOOLS" ]] || \
+  fail "KPB_AI_TOOLS_ENABLED=$AI_TOOLS (attendu $EXPECTED_AI_TOOLS)"
 
 API_OVERRIDE=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_API_BASE_URL=//p' | tail -1)
 if [[ -n "$API_OVERRIDE" && "$API_OVERRIDE" != https://* ]]; then

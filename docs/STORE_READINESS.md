@@ -220,9 +220,11 @@ drapeau) : c'est la ligne « Push identity » qui le couvre.
 > `Nom : ${dto.name}`. Ces routes, plus document-review et les deux alias POST
 > d'orientation, sont derrière `AiConsentGuard` (403 `ai_consent_required` /
 > `guardian_consent_required` ; `orientation.controller.ts:28-29`, `:36-37`).
-> **Ne pas déployer ce backend en production avant que la build 49 soit chez les
-> testeurs** — la 48 renverrait 403 avec « vérifiez votre connexion ». Le masque
-> client `KPB_AI_TOOLS_ENABLED=false` reste en place jusqu'à ce basculement couplé.
+> ✅ **Le couplage est joué.** `AiConsentGuard` est en production depuis
+> `458d115ebc8d` et la build 49 a été téléversée le 29/08/2026. Le masque client
+> `KPB_AI_TOOLS_ENABLED=false` reste en place **dans la 49** — c'est une constante
+> de compilation, donc les quatre outils IA y sont simplement absents. Leur
+> démasquage est le contenu de la **build 50** (`docs/release-ledger.md`).
 
 > ✅ **#216 — la surface orientation a été refermée, et une garde la verrouille.**
 > Le lot 11 n'avait nettoyé que `/tools` : `orientation.service.ts` recopiait

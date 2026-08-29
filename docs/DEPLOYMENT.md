@@ -484,7 +484,14 @@ certificat TLS nginx couvre bien `api.kpbeducation.cloud`.
 **⚠️ Attention pour iOS :**
 Le GitHub Action actuel compile l'application iOS pour prouver qu'il n'y a pas d'erreur de compilation (`--no-codesign`). Il ne produit pas d'IPA signé.
 
-### Livraison TestFlight (build 49) — jour J
+### Livraison TestFlight (build 50) — jour J
+
+> La 49 est **consommée** : téléversée le 29/08/2026 (voir
+> [`release-ledger.md`](release-ledger.md)). La 50 n'ajoute qu'une chose, mais
+> elle n'est atteignable d'aucune autre façon : **le démasquage des quatre
+> outils IA**. `AppConfig.aiToolsEnabled` lit un `bool.fromEnvironment`, donc une
+> constante de compilation — aucun réglage serveur ne peut allumer ces écrans
+> dans une build déjà partie.
 
 La ligne complète, pour le *build* (pas l'export IPA) :
 
@@ -496,8 +503,16 @@ export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
 flutter build ios --release \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
+  --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY" \
+  --dart-define=KPB_AI_TOOLS_ENABLED=true
 ```
+
+> **Le drapeau IA ne pardonne pas l'oubli.** Sans lui la 50 se construit,
+> s'archive et se téléverse sans un mot — identique à la 49 pour l'étudiant.
+> `scripts/preflight-ios-archive.sh` le refuse depuis la 50 (`EXPECTED_AI_TOOLS`),
+> et la garde a été vue rouge sur l'archive réelle de la 49, qui ne portait pas
+> le drapeau. Condition de fond, elle, inchangée : `AiConsentGuard` doit être en
+> production — c'est le cas depuis `458d115ebc8d`.
 
 > ### ⚠️ Les trois pièges de la distribution iOS — payés sur la build 49 (28-29/08/2026)
 >
@@ -530,9 +545,10 @@ flutter build ios --release \
 > Xcode re-signe au moment du Distribute.
 
 `flutter build ipa --release` avec les mêmes defines **échoue à l'export sur
-cette machine** (espace dans le chemin du dépôt, « Copy failed »). La voie
-réelle est donc : `flutter build ios` ci-dessus, puis **Xcode → Product →
-Archive → Organizer → Distribute**.
+cette machine** — même « Copy failed », même cause qu'au point 1 ci-dessus : le
+conflit rsync/PATH, **pas** l'espace dans le chemin du dépôt. La voie réelle est
+donc : `flutter build ios` ci-dessus, puis **Xcode → Product → Archive →
+Organizer → Distribute**, Xcode lancé avec le PATH assaini.
 
 Avant d'ouvrir Organizer, lancer le préflight sur l'artefact (il ne construit
 rien) :
@@ -543,10 +559,11 @@ scripts/preflight-ios-archive.sh \
   --archive-plist <Archive>.xcarchive/Products/Applications/Runner.app/Info.plist
 ```
 
-Cinq assertions : `FLUTTER_BUILD_NUMBER` / `CFBundleVersion` = 49 ;
+Six assertions : `FLUTTER_BUILD_NUMBER` / `CFBundleVersion` = 50 ;
 `DART_DEFINES` décodés contiennent `POSTHOG_API_KEY`, `KPB_APP_ENV=prod`,
-`KPB_WHATSAPP_NUMBER` ; orientations = portrait ; `UIBackgroundModes` =
-`remote-notification` ; `CFBundleLocalizations` = `fr`.
+`KPB_WHATSAPP_NUMBER` **et `KPB_AI_TOOLS_ENABLED=true`** ; orientations =
+portrait sur iPhone et les 4 sur iPad ; `UIDeviceFamily` contient l'iPad ;
+`UIBackgroundModes` = `remote-notification` ; `CFBundleLocalizations` = `fr`.
 
 **dSYM → Crashlytics (LIV-T11).** Le `pbxproj` n'a aucune phase
 `upload-symbols`. Après l'archive, téléverser manuellement les dSYM depuis

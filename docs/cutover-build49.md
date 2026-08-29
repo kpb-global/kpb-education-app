@@ -370,9 +370,14 @@ flutter build ios --release \
   --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
-(`docs/DEPLOYMENT.md:441-451`.) **Ne pas** ajouter
+(`docs/DEPLOYMENT.md`, section « Livraison TestFlight ».) **Ne pas** ajouter
 `--dart-define=KPB_AI_TOOLS_ENABLED=true` : c'est exactement ce que la bascule
 interdit ce soir (§1, dernière sous-section).
+
+> Consigne propre à la **49**, et déjà périmée pour la suite : la 49 a été
+> téléversée le 29/08/2026 et `AiConsentGuard` est en production. La **50** doit
+> au contraire porter ce drapeau — voir `docs/release-ledger.md` et la section
+> « Livraison TestFlight (build 50) » de `docs/DEPLOYMENT.md`.
 
 `flutter build ipa --release` **échoue à l'export sur cette machine** (« Copy
 failed », espace dans le chemin du dépôt) — `docs/DEPLOYMENT.md:452-456`. La voie
