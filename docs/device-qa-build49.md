@@ -22,7 +22,21 @@
 | PostHog | **actif** (clé `phc_…` dans le binaire) | `DART_DEFINES` de l'archive |
 | Drapeaux serveur | les **sept** à `false` : `eef`, `eefTeaser`, `successLab`, `competitionReadiness`, `aiDiagnostic`, `outcomeEvidence`, `publicImpactStats` | `GET /api/config/app` — relu le 29/08 |
 
-Appareil de test : `____________________`  ·  iOS `______`  ·  Testeur : `__________`  ·  Date : `__________`
+**Cette feuille se remplit DEUX FOIS — une par plateforme.** Les trois cases
+qu'elle prétend fermer exigent les deux : `mobile-store-submission-contract.md:156`
+dit « Physical **Android and iOS** smoke », et `mvp-launch-readiness-checklist.md:30`
+demande les deux installs. Une feuille iOS seule ne ferme rien.
+
+| | iOS | Android |
+|---|---|---|
+| Appareil | `________________` | `________________` |
+| Version d'OS | `________` | `________` |
+| Canal | TestFlight, build `____` | Test interne Play, build `____` |
+| Testeur | `____________` | `____________` |
+| Date | `__________` | `__________` |
+
+Les cas marqués **iOS** ou **Android** ne concernent qu'une plateforme ; tous les
+autres se rejouent des deux côtés.
 
 ---
 
@@ -32,7 +46,7 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
 
 - [ ] **A1 — Le verrou d'application ne boucle plus.**
   Profil → activer « Verrouiller l'app ». Mettre l'app en arrière-plan, revenir,
-  déverrouiller par Face ID.
+  déverrouiller par biométrie (Face ID sur iOS, empreinte ou visage sur Android).
   **Attendu :** **une seule** demande d'authentification, puis usage normal.
   **Défaut d'origine :** l'overlay « Application Verrouillée » revenait toutes
   les ~1,6 s, indéfiniment (Face ID → coche verte → rescan en boucle).
@@ -71,13 +85,22 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
   confirmation d'ouverture — c'est normal).
   Constat : `______________________________`
 
-- [ ] **B2 — Notifications push (OneSignal).**
-  Accepter l'invite système, puis envoyer une notification de test depuis le
-  tableau de bord OneSignal vers ce device.
-  **Attendu :** réception ; l'ouverture mène à l'écran attendu.
+- [ ] **B2 — Notifications push (OneSignal), dont une sur app TUÉE.**
+  Accepter l'invite système, puis **deux** envois depuis le tableau de bord
+  OneSignal vers ce device :
+
+  1. app au premier plan → réception ;
+  2. **app forcée à quitter** (balayage depuis le sélecteur), notification
+     **routée vers `/cases/{id}`** → la toucher doit **démarrer à froid** sur ce
+     dossier, pas sur un accueil vide.
+
+  Le second cas est le seul qui exerce l'initialisation au démarrage à froid et
+  la route en attente ; c'est ce qu'exige `phase1-stability-smoke-checklist.md`
+  §8 (LIV-T13). Une app qui reçoit parfaitement au premier plan peut échouer
+  intégralement ici.
   **À noter :** l'identité poussée est un UUID + 4 étiquettes — **jamais**
   l'e-mail (garde `onesignal_no_email_test.dart`).
-  Constat : `______________________________`
+  Constat 1 : `______________________`  ·  Constat 2 (app tuée) : `______________________`
 
 - [ ] **B3 — Connexion Google / OAuth Supabase + e-mail OTP.**
   Les deux voies, sur appareil (le rebond `io.supabase.kpbeducation://` ne se
@@ -95,7 +118,7 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
   **visible**, jamais muet.
   Constat : `______________________________`
 
-- [ ] **B6 — L'app sur iPad.** *Ajouté après coup : la 49 a coûté deux rejets sur
+- [ ] **B6 — iOS — L'app sur iPad.** *Ajouté après coup : la 49 a coûté deux rejets sur
   ce terrain, et aucune ligne de ce protocole n'y touchait.*
   La 49 est **universelle** (`UIDeviceFamily = [1, 2]`, imposé par le rejet 90101 :
   on ne retire pas l'iPad d'une app déjà publiée). Elle déclare les **4
@@ -116,13 +139,32 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
   de la plateforme — refuser doit annuler la dictée, pas basculer en silence.
   Constat : `______________________________`
 
-- [ ] **C2 — « Analyse d'usage » coupe les TROIS collecteurs.**
-  Profil → couper l'interrupteur.
-  **Attendu :** plus aucun événement dans **PostHog** ni **Firebase**, et les
-  rapports Crashlytics non envoyés sont purgés. Réactiver rétablit.
-  **Vérification externe :** tableau de bord PostHog (projet 519294) — l'absence
-  d'événements après coupure est la preuve.
-  Constat : `______________________________`
+- [ ] **C2 — « Analyse d'usage » coupe les TROIS collecteurs, un par un.**
+  Profil → couper l'interrupteur, puis naviguer 2-3 minutes.
+
+  > **Un tableau de bord PostHog vide ne prouve RIEN sur les deux autres.** Le
+  > code applique le consentement collecteur par collecteur, avec un `catch` par
+  > collecteur qui avale l'échec (`analytics_service.dart`) — le commentaire du
+  > code dit lui-même que c'est ainsi que « les diagnostics de plantage sont
+  > restés allumés pendant des mois après la livraison de l'interrupteur ». Une
+  > régression sur Firebase ou Crashlytics laisserait donc C2 passer.
+
+  Trois preuves distinctes, chacune à refaire dans les deux sens :
+
+  - **PostHog** — tableau de bord du projet 519294 : aucun événement neuf après
+    la coupure ; ils reprennent à la réactivation.
+    Coupé : `______`  ·  Réactivé : `______`
+  - **Firebase Analytics** — console Firebase → Analytics → **Temps réel**
+    (fenêtre glissante de 30 min) : plus aucun utilisateur actif ni événement
+    après la coupure.
+    Coupé : `______`  ·  Réactivé : `______`
+  - **Crashlytics** — se fabriquer un non-fatal à la demande : lancer le
+    questionnaire d'orientation **sans consentement IA**, qui en produit un
+    (`submitOrientation`, voir D5). Interrupteur **coupé** → relancer l'app à
+    froid → **rien** n'arrive dans Crashlytics. Interrupteur **réactivé** →
+    refaire → il arrive. *Crashlytics ne téléverse qu'au lancement suivant :
+    sans redémarrage à froid, l'absence ne prouve rien.*
+    Coupé : `______`  ·  Réactivé : `______`
 
 - [ ] **C3 — PostHog reçoit bien (la clé est dans ce binaire).**
   Naviguer 2-3 minutes avec l'analyse **activée**.
@@ -191,16 +233,36 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
 - ✅ **E2 — Purge des résidus de suppression : LEVÉ.** #246 déployée le 29/08
   (`458d115ebc8d`, `GET /api/health/version`). Le point est passé en C4.
 
+- [ ] **E3 — La colonne Android ne peut pas encore être remplie : l'AAB 49
+  n'existe pas.** Vérifié le 29/08 — **aucun tag `v*`** dans le dépôt et
+  **aucune exécution `workflow_dispatch`** de `flutter-ci.yml` ayant produit un
+  bundle signé. Or l'AAB signé n'est fabriqué que par l'un des deux
+  (`flutter-ci.yml`, job « Produce signed Android App Bundle »), et il est
+  *skipped* sur une PR ordinaire.
+  **Ce qu'il faut faire avant de commencer la colonne Android :** déclencher le
+  job (tag `v*` ou `workflow_dispatch` avec `release_android`), vérifier que
+  `preflight-android-aab.sh` passe, puis publier sur la piste de **test
+  interne** Play.
+  **Pourquoi ce n'est pas un détail :** sans cette étape, la moitié Android du
+  verdict reste ouverte, et les trois cases de la section Verdict ne peuvent pas
+  être cochées — quelle que soit la qualité de la feuille iOS.
+
 ---
 
 ## Verdict
 
-- [ ] **Aucun défaut P0/P1 ouvert** → la case « parcours critiques prouvés sur
-  appareils réels » peut enfin être cochée dans
+- [ ] **iOS — aucun défaut P0/P1 ouvert.**  Signé : `__________` · Date : `________`
+- [ ] **Android — aucun défaut P0/P1 ouvert.**  Signé : `__________` · Date : `________`
+
+- [ ] **Les DEUX ci-dessus cochés** → et seulement alors, la case « parcours
+  critiques prouvés sur appareils réels » peut être cochée dans
   `mobile-store-submission-contract.md:156`,
   `mvp-launch-readiness-checklist.md:30` et
   `production-launch-implementation-plan.md:453`.
 
-Défauts relevés : `______________________________________________`
+  **Une seule plateforme ne suffit pas**, et ce n'est pas un excès de zèle : les
+  deux premières lignes citées exigent explicitement Android **et** iOS. Fermer
+  ces cases sur la foi d'une feuille iOS remplacerait une case vide par une case
+  fausse — précisément le défaut que ce document a été écrit pour réparer.
 
-Signé : `____________`  ·  Date : `____________`
+Défauts relevés : `______________________________________________`
