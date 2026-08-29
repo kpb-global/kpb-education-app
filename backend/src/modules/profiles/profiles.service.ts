@@ -208,6 +208,15 @@ export class ProfilesService {
             ? { languageLevel: input.languageLevel }
             : {}),
           ...(input.gradeRange ? { gradeRange: input.gradeRange } : {}),
+          // `undefined` (champ absent) ≠ `null` (effacement demandé). Le test
+          // de vérité qui précédait — `input.bacSeries ? …` — confondait les
+          // deux, donc aucune requête ne pouvait remettre la colonne à NULL :
+          // un étudiant passé de Terminale à Master gardait indéfiniment une
+          // série de bac obsolète, qui continuait de satisfaire l'item
+          // « moyenne » de son score de complétion.
+          ...(input.bacSeries !== undefined
+            ? { bacSeries: input.bacSeries || null }
+            : {}),
           ...(input.monthlyBudgetEur !== undefined
             ? { monthlyBudgetEur: input.monthlyBudgetEur }
             : {}),
@@ -1429,6 +1438,7 @@ export class ProfilesService {
       targetLevel: p.targetLevel,
       languageLevel: p.languageLevel,
       gradeRange: p.gradeRange,
+      bacSeries: p.bacSeries,
       annualTuitionBudgetEur: p.annualTuitionBudgetEur,
       monthlyBudgetEur: p.monthlyBudgetEur,
       preferredCurrency: p.preferredCurrency,

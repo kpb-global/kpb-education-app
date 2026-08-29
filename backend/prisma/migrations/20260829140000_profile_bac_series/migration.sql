@@ -1,0 +1,21 @@
+-- Série du bac (revue du build 49 : « certaines options ne peuvent pas être
+-- complétées ou modifiées sur le profil après »).
+--
+-- POURQUOI CETTE COLONNE N'EXISTAIT PAS, ET CE QUE ÇA COÛTAIT
+--
+-- `bacSeries` était déjà un champ du modèle Flutter, déjà éditable dans la
+-- feuille de profil, et déjà lu par `ProfileApiCodec` (`json['bacSeries']`).
+-- Mais il n'avait aucune colonne : le serveur ne pouvait donc jamais le
+-- renvoyer, et le client l'écrasait à `null` à chaque synchronisation.
+--
+-- Pire, le client contournait l'absence en faisant voyager la série DANS
+-- `gradeRange` (`'gradeRange': profile.bacSeries ?? profile.gradeRange`).
+-- Choisir « D » écrivait donc `gradeRange = 'D'` côté serveur, et la moyenne
+-- académique réelle — « 12 - 14/20 » — était perdue. Un champ qui en détruit
+-- un autre, silencieusement, à chaque enregistrement.
+--
+-- ADDITIF SEULEMENT : une colonne nullable, sans défaut, sans reprise, sans
+-- DROP et sans NOT NULL. Les lignes existantes gardent NULL = « série non
+-- renseignée », et un backend plus ancien remis sur ce schéma continue de
+-- fonctionner en ignorant la colonne.
+ALTER TABLE "UserProfile" ADD COLUMN "bacSeries" TEXT;

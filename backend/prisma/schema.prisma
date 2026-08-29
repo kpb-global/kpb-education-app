@@ -347,6 +347,10 @@ model UserProfile {
   targetLevel             String?
   languageLevel           String?
   gradeRange              String?
+  // Série du bac (A, C, D, G2, PRO…). Distincte de `gradeRange`, qui est la
+  // moyenne : le client faisait auparavant voyager la série dans `gradeRange`
+  // faute de colonne, ce qui écrasait la moyenne à chaque enregistrement.
+  bacSeries               String?
   // Legacy monthly living budget. Read only for backward compatibility.
   monthlyBudgetEur        Int?
   // Annual tuition budget is the canonical financial input for matching.

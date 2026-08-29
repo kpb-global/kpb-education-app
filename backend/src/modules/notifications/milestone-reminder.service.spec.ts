@@ -58,13 +58,25 @@ describe('MilestoneReminderService', () => {
       countryOfResidence: 'SN',
     },
   });
-  const scholarshipDueInDays = (days: number) => ({
+  // `cycles` fait partie de la SÉLECTION Prisma depuis que le rappel refuse
+  // les dates estimées. Prisma rend toujours un tableau (vide s'il n'y a pas de
+  // cycle) : la doublure doit donc en rendre un aussi, sinon elle ne décrit
+  // plus la requête qu'elle prétend simuler — et le service se protégerait d'un
+  // `undefined` qui n'existe jamais en production.
+  const scholarshipDueInDays = (
+    days: number,
+    cycles: Array<{
+      status: 'open' | 'forecast' | 'closed';
+      dateConfidence: 'confirmed' | 'estimated';
+    }> = [],
+  ) => ({
     id: 'sch-1',
     nameFr: 'Bourse X',
     nameEn: 'Scholarship X',
     deadlineAt: new Date(Date.now() + days * DAY),
     countryNameFr: 'France',
     countryNameEn: 'France',
+    cycles,
   });
 
   it('produces a J-7 reminder deep-linking to /deadlines', async () => {
@@ -76,6 +88,69 @@ describe('MilestoneReminderService', () => {
     expect(reminders).toHaveLength(1);
     expect(reminders[0].titleFr).toBe('Bourse à J-7');
     expect(reminders[0].route).toBe('/deadlines');
+  });
+
+  // ── Revue du build 49, point 9 : les bourses « à venir » ────────────────
+  //
+  // L'importeur remplit `deadlineAt` depuis `estimatedCloseAt` quand le cycle
+  // n'est pas confirmé. Sans le refus, l'app poussait « plus que 3 jours pour
+  // candidater » sur une campagne dont AUCUNE date n'a été publiée. Deux
+  // surfaces se taisaient déjà correctement (pastille de liste, calendrier) ;
+  // la notification, seule des trois à réveiller le téléphone, ne consultait
+  // pas le champ.
+  it('ne rappelle JAMAIS sur une date estimée', async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [scholarshipDueInDays(7, [
+        { status: 'forecast', dateConfidence: 'estimated' },
+      ])],
+    });
+    const reminders = await service.collectDueReminders(new Date());
+    expect(reminders).toHaveLength(0);
+  });
+
+  it('rappelle bien sur une date confirmée', async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [scholarshipDueInDays(7, [
+        { status: 'open', dateConfidence: 'confirmed' },
+      ])],
+    });
+    // Contre-garde du test précédent : sans elle, une erreur qui supprimerait
+    // TOUS les rappels passerait pour un correctif.
+    expect(await service.collectDueReminders(new Date())).toHaveLength(1);
+  });
+
+  it('une fiche héritée SANS cycle reste rappelée (le silence n\'est pas un refus)', async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [scholarshipDueInDays(7, [])],
+    });
+    expect(await service.collectDueReminders(new Date())).toHaveLength(1);
+  });
+
+  // LA régression que la revue automatique a trouvée sur la PR #252.
+  //
+  // Une bourse dont la campagne EN COURS est ouverte et confirmée, et pour
+  // laquelle l'exploitation a déjà saisi la prévision de l'année suivante.
+  // `deadlineAt` appartient au cycle OUVERT. La première version sélectionnait
+  // « l'année lexicographiquement la plus récente » — donc la prévision, donc
+  // « estimée » — et supprimait des rappels parfaitement légitimes, sur les
+  // bourses les plus suivies précisément parce qu'elles sont les mieux tenues.
+  it('rappelle quand un cycle OUVERT confirmé coexiste avec une prévision plus récente',
+      async () => {
+    const { service } = makeService({
+      saved: [savedFor('fr')],
+      scholarships: [
+        scholarshipDueInDays(7, [
+          { status: 'forecast', dateConfidence: 'estimated' },
+          { status: 'open', dateConfidence: 'confirmed' },
+        ]),
+      ],
+    });
+    const reminders = await service.collectDueReminders(new Date());
+    expect(reminders).toHaveLength(1);
+    expect(reminders[0].titleFr).toBe('Bourse à J-7');
   });
 
   it('reminds at the new J-3 threshold', async () => {

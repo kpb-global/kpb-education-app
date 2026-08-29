@@ -11,12 +11,12 @@ const kProgramsTurkey = <ProgramModel>[
     name: LocalizedText(
         fr: 'Business Administration', en: 'Business Administration'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '8500 USD/an', en: '8500 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -29,12 +29,12 @@ const kProgramsTurkey = <ProgramModel>[
         fr: 'International Trade and Business',
         en: 'International Trade and Business'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '8500 USD/an', en: '8500 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -46,12 +46,12 @@ const kProgramsTurkey = <ProgramModel>[
     name:
         LocalizedText(fr: 'International Finance', en: 'International Finance'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '8500 USD/an', en: '8500 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -62,12 +62,12 @@ const kProgramsTurkey = <ProgramModel>[
     fieldId: 'd01',
     name: LocalizedText(fr: 'Computer Engineering', en: 'Computer Engineering'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '9000 USD/an', en: '9000 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -78,12 +78,12 @@ const kProgramsTurkey = <ProgramModel>[
     fieldId: 'd01',
     name: LocalizedText(fr: 'Software Engineering', en: 'Software Engineering'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '9000 USD/an', en: '9000 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -96,12 +96,12 @@ const kProgramsTurkey = <ProgramModel>[
         fr: 'Artificial Intelligence Engineering',
         en: 'Artificial Intelligence Engineering'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '12000 USD/an', en: '12000 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -112,12 +112,12 @@ const kProgramsTurkey = <ProgramModel>[
     fieldId: 'd04',
     name: LocalizedText(fr: 'Medicine', en: 'Medicine'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '6 years', en: '6 years'),
+    duration: LocalizedText(fr: '6 ans', en: '6 years'),
     tuition: LocalizedText(fr: '28000 USD/an', en: '28000 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -128,12 +128,12 @@ const kProgramsTurkey = <ProgramModel>[
     fieldId: 'd11',
     name: LocalizedText(fr: 'Architecture', en: 'Architecture'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '8500 USD/an', en: '8500 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),
@@ -145,12 +145,12 @@ const kProgramsTurkey = <ProgramModel>[
     name: LocalizedText(
         fr: 'Textile and Fashion Design', en: 'Textile and Fashion Design'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '8500 USD/an', en: '8500 USD/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.',
+          fr: 'Candidature en ligne ; passeport, relevés de notes du secondaire et diplôme s\'il est disponible. Certains programmes exigent une lettre de motivation ou un portfolio.',
           en: 'Online application; passport, high school transcripts, and diploma if available. Some programs require motivation letter or portfolio.')
     ],
   ),

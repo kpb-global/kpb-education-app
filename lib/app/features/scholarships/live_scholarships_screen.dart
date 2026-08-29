@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
@@ -75,6 +76,61 @@ String _shortDate(DateTime date) {
   return '$day/$month/${local.year}';
 }
 
+/// La fenêtre couvre-t-elle des MOIS ENTIERS (1er → dernier jour) ?
+///
+/// C'est la convention de saisie pour « on connaît la saison, pas la date » :
+/// l'opérateur borne au mois, et la phrase affichée doit alors parler en mois.
+/// Toute autre fenêtre a été saisie au jour près et est rendue telle quelle.
+///
+/// ## Tout se compare en UTC, et c'est le cœur du sujet
+///
+/// Ces bornes sont des dates SANS heure, écrites en UTC par le catalogue :
+/// `2027-03-01T00:00:00.000Z` et `2027-04-30T23:59:59.000Z`. Les convertir en
+/// heure locale les fait changer de jour calendaire pour presque tout le monde :
+/// à l'ouest d'UTC, le 1er mars devient le 28 février ; à l'est — donc au Niger,
+/// au Sénégal, en Côte d'Ivoire, c'est-à-dire notre public — le 30 avril à
+/// 23 h 59 UTC devient le 1er mai. Dans les deux cas le test échouait pour la
+/// convention même qu'il doit reconnaître, et la carte retombait sur des dates
+/// précises trompeuses : exactement ce que ce lot corrige.
+/// Le prédicat de [_isWholeMonthWindow], exposé aux tests.
+///
+/// Il vaut la peine d'être testé directement : sa première version comparait
+/// en heure LOCALE et échouait, hors UTC, pour la convention même qu'elle doit
+/// reconnaître. Un test qui passerait par l'écran entier n'aurait pas pu isoler
+/// ce cas — et il aurait été vert sur une machine à UTC+0.
+@visibleForTesting
+bool isWholeMonthWindowForTest(DateTime open, DateTime close) =>
+    _isWholeMonthWindow(open, close);
+
+bool _isWholeMonthWindow(DateTime open, DateTime close) {
+  final from = open.toUtc();
+  final to = close.toUtc();
+  // Dernier jour de `to` : le jour 0 du mois SUIVANT, calculé en UTC.
+  final lastDayOfCloseMonth = DateTime.utc(to.year, to.month + 1, 0).day;
+  return from.day == 1 && to.day == lastDayOfCloseMonth && !to.isBefore(from);
+}
+
+/// Le nom du mois dans la langue active (« mars », « March »).
+///
+/// En UTC, pour la raison écrite dans [_isWholeMonthWindow] : une borne de mois
+/// convertie en local peut basculer sur le mois voisin, et on afficherait
+/// « février » pour une fenêtre qui commence le 1er mars.
+///
+/// `try`/`catch` obligatoire, et ce n'est pas de la superstition : `DateFormat`
+/// avec une locale explicite lève `LocaleDataException` si les données de cette
+/// locale ne sont pas chargées — ce qui arrive hors d'un `MaterialApp`, donc
+/// dans les tests. Le repli numérique ne peut pas lever et reste exact. C'est
+/// exactement le patron déjà documenté et éprouvé dans `EefCalendar.dayLabel`.
+String _monthName(DateTime date) {
+  final utc = date.toUtc();
+  final locale = Get.locale?.languageCode == 'en' ? 'en' : 'fr';
+  try {
+    return DateFormat('MMMM', locale).format(utc);
+  } catch (_) {
+    return utc.month.toString().padLeft(2, '0');
+  }
+}
+
 (String, Color, Color)? _cyclePill(LiveScholarshipModel scholarship) {
   final cycle = scholarship.currentCycle;
   if (cycle == null) return null;
@@ -96,6 +152,28 @@ String _shortDate(DateTime date) {
   final estimatedOpen = cycle.estimatedOpenAt ?? cycle.opensAt;
   final estimatedClose = cycle.estimatedCloseAt ?? cycle.closesAt;
   if (estimatedOpen != null && estimatedClose != null) {
+    // ── « À venir, généralement aux mois de mars – avril » ────────────────
+    //
+    // Quand la fenêtre couvre des MOIS ENTIERS (1er du mois → dernier jour du
+    // mois), c'est la convention de saisie pour « on connaît la saison, pas la
+    // date ». L'afficher en « 01/03/2027 – 30/04/2027 » revenait à annoncer au
+    // jour près une campagne dont personne n'a publié le calendrier : deux
+    // dates exactes qui ne sont que les bornes d'un mois. La granularité de la
+    // phrase doit être celle de ce qu'on sait.
+    if (_isWholeMonthWindow(estimatedOpen, estimatedClose)) {
+      final from = _monthName(estimatedOpen);
+      final to = _monthName(estimatedClose);
+      return (
+        from == to
+            ? 'live_scholarships_upcoming_month'.trParams({'from': from})
+            : 'live_scholarships_upcoming_months'
+                .trParams({'from': from, 'to': to}),
+        KpbColors.warningLight,
+        KpbColors.warning,
+      );
+    }
+    // Fenêtre estimée qui NE tombe pas sur des bornes de mois : l'opérateur a
+    // saisi des dates précises, on les rend telles quelles.
     return (
       'live_scholarships_period_estimated'.trParams({
         'open': _shortDate(estimatedOpen),

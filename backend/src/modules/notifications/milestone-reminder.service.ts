@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { hasEstimatedDeadline } from '../../common/current-scholarship-cycle';
 import {
   DispatchOutcome,
   NotificationDispatchService,
@@ -134,6 +135,12 @@ export class MilestoneReminderService {
             deadlineAt: true,
             countryNameFr: true,
             countryNameEn: true,
+            // TOUS les cycles, pas le plus récent : c'est
+            // `hasEstimatedDeadline` qui applique la règle de sélection du
+            // dépôt (ouvert → prévision → premier). Un `take: 1` sur l'année
+            // rendait la PRÉVISION d'une bourse dont la campagne en cours est
+            // ouverte et confirmée, et supprimait donc de vrais rappels.
+            cycles: { select: { status: true, dateConfidence: true } },
           },
         }),
       )) ?? [];
@@ -143,6 +150,17 @@ export class MilestoneReminderService {
     for (const saved of savedItems) {
       const scholarship = byId.get(saved.itemId);
       if (!scholarship?.deadlineAt) continue;
+      // ── Ne jamais pousser un rappel J-30/14/7/3/1 sur une date ESTIMÉE ──
+      //
+      // L'importeur remplit `deadlineAt` depuis `estimatedCloseAt` quand le
+      // cycle n'est pas confirmé — utile pour CLASSER, jamais pour AFFIRMER.
+      // Sans ce test, l'app envoyait « plus que 3 jours pour candidater » sur
+      // une campagne dont personne n'a publié la date. Deux surfaces clientes
+      // se taisaient déjà correctement dans ce cas (la pastille de la liste et
+      // le calendrier) ; la notification, elle, ne consultait pas le champ —
+      // et c'est la seule des trois qui réveille le téléphone.
+      //
+      if (hasEstimatedDeadline(scholarship.cycles)) continue;
       const days = daysUntil(now, scholarship.deadlineAt);
       if (!SCHOLARSHIP_REMINDER_DAYS.has(days)) continue;
       reminders.push({

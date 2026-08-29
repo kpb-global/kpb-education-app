@@ -10,12 +10,12 @@ const kProgramsGermany = <ProgramModel>[
     fieldId: 'd02',
     name: LocalizedText(fr: 'International BBA', en: 'International BBA'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '9900 EUR/an', en: '9900 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Year 1: Baccalaureate or equivalent. Year 2: 1 year of higher education.',
+          fr: '1re année : baccalauréat ou équivalent. 2e année : une année d\'études supérieures validée.',
           en: 'Year 1: Baccalaureate or equivalent. Year 2: 1 year of higher education.')
     ],
   ),

@@ -108,7 +108,7 @@ void main() {
       await tester.binding.setSurfaceSize(null);
     });
 
-    testWidgets('renders the Diambar Gauge card and the WhatsApp CTA',
+    testWidgets('renders the progress gauge card and the WhatsApp CTA',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(1440, 2560));
       final profile = createTestProfile();
@@ -125,7 +125,7 @@ void main() {
       );
 
       // Profile isn't 100% complete (no monthly budget) → the readiness ring
-      // + its "Diambar Gauge" eyebrow render (App-engagement handoff).
+      // + its "progress gauge" eyebrow render (App-engagement handoff).
       // `.tr` resolves to the raw key in this harness (no translations
       // loaded), matching the convention used across this test suite.
       expect(find.text('home_gauge_eyebrow'), findsOneWidget);

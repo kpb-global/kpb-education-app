@@ -12,12 +12,12 @@ const kProgramsSpain = <ProgramModel>[
         fr: 'BA in International Relations and Diplomacy',
         en: 'BA in International Relations and Diplomacy'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -29,12 +29,12 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(
         fr: 'BS in International Business', en: 'BS in International Business'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -47,12 +47,12 @@ const kProgramsSpain = <ProgramModel>[
         fr: 'BS in International Hospitality and Tourism Management',
         en: 'BS in International Hospitality and Tourism Management'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -65,12 +65,12 @@ const kProgramsSpain = <ProgramModel>[
         fr: 'BS in International Marketing',
         en: 'BS in International Marketing'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -82,12 +82,12 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(
         fr: 'BS in Computer Science', en: 'BS in Computer Science'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -100,12 +100,12 @@ const kProgramsSpain = <ProgramModel>[
         fr: 'BS in Applied Mathematics and Artificial Intelligence',
         en: 'BS in Applied Mathematics and Artificial Intelligence'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -117,12 +117,12 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(
         fr: 'BS in Business Analytics', en: 'BS in Business Analytics'),
     level: LocalizedText(fr: 'Bac+3', en: 'Bachelor'),
-    duration: LocalizedText(fr: '4 years', en: '4 years'),
+    duration: LocalizedText(fr: '4 ans', en: '4 years'),
     tuition: LocalizedText(fr: '15420 EUR/an', en: '15420 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Official secondary school completion / high school diploma or equivalent.',
+          fr: 'Diplôme de fin d\'études secondaires officiel (baccalauréat) ou équivalent.',
           en: 'Official secondary school completion / high school diploma or equivalent.')
     ],
   ),
@@ -136,13 +136,14 @@ const kProgramsSpain = <ProgramModel>[
         en: 'MA in International Relations and Diplomacy'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16560 EUR/an', en: '16560 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -155,13 +156,14 @@ const kProgramsSpain = <ProgramModel>[
         en: 'MS in Digital Marketing and E-commerce'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16560 EUR/an', en: '16560 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -172,13 +174,14 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(fr: 'MS in Global Finance', en: 'MS in Global Finance'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16560 EUR/an', en: '16560 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -191,13 +194,14 @@ const kProgramsSpain = <ProgramModel>[
         en: 'MS in Sustainability Management'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16500 EUR/an', en: '16500 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -208,13 +212,14 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(fr: 'MS in Data Science', en: 'MS in Data Science'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16500 EUR/an', en: '16500 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -225,13 +230,14 @@ const kProgramsSpain = <ProgramModel>[
     name: LocalizedText(fr: 'MBA', en: 'MBA'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '16560 EUR/an', en: '16560 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
   ProgramModel(
@@ -244,13 +250,14 @@ const kProgramsSpain = <ProgramModel>[
         en: 'MBA in International Business'),
     level: LocalizedText(fr: 'MBA', en: 'MBA'),
     duration: LocalizedText(
-        fr: 'See official program page', en: 'See official program page'),
+        fr: 'Voir la page officielle du programme',
+        en: 'See official program page'),
     tuition: LocalizedText(fr: '20700 EUR/an', en: '20700 EUR/an'),
     language: LocalizedText(fr: 'Anglais', en: 'English'),
     requirements: [
       LocalizedText(
-          fr: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.',
-          en: 'Bachelor\\\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
+          fr: 'Licence ou équivalent ; une évaluation des relevés de notes peut être exigée pour certains diplômes étrangers.',
+          en: 'Bachelor\'s degree or equivalent; transcript evaluation may be required for some international credentials.')
     ],
   ),
 ];

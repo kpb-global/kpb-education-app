@@ -49,11 +49,18 @@ class AppSnapshot {
   final bool dataSaverEnabled;
 
   /// User opted out of product analytics, crash reporting, and session replay.
-  /// Privacy-safe default: collection stays off until the user actively decides.
+  ///
+  /// La valeur portée ici n'est LUE que si [analyticsConsentDecided] est vrai :
+  /// `AppController.hydrate` écrase celle d'un indécis par le défaut du produit
+  /// (mesure active, annoncée dans les CGU). Le `true` du constructeur est donc
+  /// le repli d'un instantané qui n'a jamais été écrit, pas la politique.
   final bool analyticsOptOut;
 
-  /// Distinguishes an explicit preference from legacy snapshots whose former
-  /// implicit default was analytics-on. Missing/false requires fresh consent.
+  /// L'utilisateur a-t-il TOUCHÉ l'interrupteur « Analyse d'usage » ?
+  ///
+  /// C'est ce champ, et lui seul, qui rend un refus explicite distinguable d'un
+  /// silence — donc préservable quand le défaut du produit change. Sans lui,
+  /// basculer le défaut aurait retourné les refus en acceptations.
   final bool analyticsConsentDecided;
   final ThemeMode themeMode;
   final UserProfile? profile;

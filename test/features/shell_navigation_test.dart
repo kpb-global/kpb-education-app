@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 
 import 'package:karatou/app/core/controllers/app_controller.dart';
+import 'package:karatou/app/core/navigation/shell_tabs.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/features/shell/app_shell.dart';
 
@@ -409,6 +410,82 @@ void main() {
         find.byKey(const ValueKey('kpb_shell_nav_bar')),
         findsNWidgets(2),
       );
+    });
+
+    testWidgets(
+        'the tools button shows on Home only, and the edge-swipe follows it',
+        (tester) async {
+      // Revue du build 49 : la boîte à outils (« estimateur de coûts… ») est
+      // une extension de l'accueil. Deux moitiés d'une même règle, et le test
+      // tient les deux : le BOUTON disparaît hors accueil, et le GLISSÉ depuis
+      // le bord gauche aussi. Sans la seconde assertion, une régression
+      // pourrait masquer le bouton en laissant le tiroir ouvrable au doigt —
+      // c'est-à-dire invisible mais toujours atteignable, le pire des deux.
+      final snapshot = AppSnapshot(
+        localeCode: 'fr',
+        hasCompletedOnboarding: true,
+        profile: createTestProfile(),
+      );
+
+      await pumpTestApp(
+        tester,
+        child: const AppShell(),
+        initialSnapshot: snapshot,
+      );
+
+      const toolsButton = ValueKey('kpb_shell_tools_button');
+
+      // On démarre sur l'accueil : bouton présent, glissé armé.
+      expect(find.byKey(toolsButton), findsOneWidget);
+      expect(
+        tester
+            .widget<Scaffold>(
+              find
+                  .ancestor(
+                    of: find.byKey(const ValueKey('kpb_shell_nav_bar')),
+                    matching: find.byType(Scaffold),
+                  )
+                  .first,
+            )
+            .drawerEnableOpenDragGesture,
+        isTrue,
+      );
+
+      // Les quatre autres onglets : ni bouton, ni glissé.
+      for (final tab in const [
+        StudentShellTab.universities,
+        StudentShellTab.scholarships,
+        StudentShellTab.cases,
+        StudentShellTab.profile,
+      ]) {
+        Get.find<AppController>().goToTab(tab);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(toolsButton),
+          findsNothing,
+          reason: 'le bouton outils ne doit pas être rendu sur l\'onglet $tab',
+        );
+        expect(
+          tester
+              .widget<Scaffold>(
+                find
+                    .ancestor(
+                      of: find.byKey(const ValueKey('kpb_shell_nav_bar')),
+                      matching: find.byType(Scaffold),
+                    )
+                    .first,
+              )
+              .drawerEnableOpenDragGesture,
+          isFalse,
+          reason: 'le tiroir doit rester inatteignable au glissé sur $tab',
+        );
+      }
+
+      // Retour à l'accueil : la règle est réversible, pas un aller simple.
+      Get.find<AppController>().goToTab(StudentShellTab.home);
+      await tester.pumpAndSettle();
+      expect(find.byKey(toolsButton), findsOneWidget);
     });
   });
 }

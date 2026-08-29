@@ -18,6 +18,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Injectable, Logger } from '@nestjs/common';
+import { hasEstimatedDeadline } from '../../common/current-scholarship-cycle';
 import { Cron } from '@nestjs/schedule';
 
 import {
@@ -263,6 +264,11 @@ export class WeeklyDigestService {
             nameFr: true,
             countryNameFr: true,
             deadlineAt: true,
+            // Confirmée ou projetée ? Le bloc « ÉCHÉANCES SOUS 14 JOURS »
+            // imprime la date brute, donc il ne peut lister que du confirmé.
+            // TOUS les cycles : la règle de sélection vit dans
+            // `hasEstimatedDeadline`, pas dans un `orderBy`.
+            cycles: { select: { status: true, dateConfidence: true } },
           },
         }),
       )) ?? [];
@@ -271,6 +277,9 @@ export class WeeklyDigestService {
     for (const s of saved) {
       const row = byId.get(s.itemId);
       if (!row) continue;
+      // Une date ESTIMÉE sous un titre « ÉCHÉANCES SOUS 14 JOURS » est une
+      // affirmation fausse : `deadlineAt` vient alors de `estimatedCloseAt`.
+      if (hasEstimatedDeadline(row.cycles)) continue;
       const list = byUser.get(s.userId) ?? [];
       if (list.length >= MAX_ITEMS_PER_BLOCK) continue;
       list.push({

@@ -170,6 +170,14 @@ class UserProfile {
     List<String>? targetCountryIds,
     String? gradeRange,
     String? bacSeries,
+
+    /// `copyWith(bacSeries: null)` ne peut PAS effacer : `null` y signifie
+    /// « ne change rien », c'est la sémantique de tout ce constructeur. Or la
+    /// feuille de profil met bien `_bacSeries` à `null` quand l'étudiant passe
+    /// à un niveau qui n'a pas de série de bac — et sans ce drapeau la série
+    /// obsolète survivait, en continuant de satisfaire l'item « moyenne » du
+    /// score de complétion.
+    bool clearBacSeries = false,
     int? annualTuitionBudgetEur,
     int? monthlyBudgetEur,
     String? preferredCurrency,
@@ -200,7 +208,7 @@ class UserProfile {
       fieldIds: fieldIds ?? this.fieldIds,
       targetCountryIds: targetCountryIds ?? this.targetCountryIds,
       gradeRange: gradeRange ?? this.gradeRange,
-      bacSeries: bacSeries ?? this.bacSeries,
+      bacSeries: clearBacSeries ? null : (bacSeries ?? this.bacSeries),
       annualTuitionBudgetEur:
           annualTuitionBudgetEur ?? this.annualTuitionBudgetEur,
       monthlyBudgetEur: monthlyBudgetEur ?? this.monthlyBudgetEur,
@@ -222,24 +230,74 @@ class UserProfile {
     );
   }
 
+  /// Ce que le score de complétion mesure, item par item.
+  ///
+  /// ## Pourquoi cette carte existe alors que le score suffisait
+  ///
+  /// Le score et la liste « ce qu'il te manque » sont la MÊME information vue
+  /// de deux côtés, et tant qu'ils ont été calculés à deux endroits ils ont
+  /// divergé. L'écran de profil énumérait cinq manques ; le score en comptait
+  /// treize. Un étudiant à qui il ne manquait que le budget lisait donc
+  /// « 92 % » au-dessus d'une carte vide : le score savait ce qui manquait, la
+  /// liste ne savait pas le dire, et aucun des deux ne mentait tout seul.
+  ///
+  /// [completionScore] dérive maintenant d'ici. Ajouter un item au score sans
+  /// lui donner de libellé devient impossible : la liste le réclamera.
+  Map<ProfileCompletionItem, bool> get completionBreakdown => {
+        ProfileCompletionItem.fullName: fullName.trim().isNotEmpty,
+        ProfileCompletionItem.email: email.trim().isNotEmpty,
+        ProfileCompletionItem.phone: phone.trim().isNotEmpty,
+        ProfileCompletionItem.countryOfResidence:
+            countryOfResidence.trim().isNotEmpty,
+        ProfileCompletionItem.preferredLanguage:
+            preferredLanguage.trim().isNotEmpty,
+        ProfileCompletionItem.currentLevel:
+            (currentLevel ?? '').trim().isNotEmpty,
+        ProfileCompletionItem.targetLevel:
+            (targetLevel ?? '').trim().isNotEmpty,
+        ProfileCompletionItem.languageLevel:
+            (languageLevel ?? '').trim().isNotEmpty,
+        ProfileCompletionItem.fields: fieldIds.isNotEmpty,
+        ProfileCompletionItem.targetCountries: targetCountryIds.isNotEmpty,
+        ProfileCompletionItem.grade: (gradeRange ?? '').trim().isNotEmpty ||
+            (bacSeries ?? '').trim().isNotEmpty,
+        ProfileCompletionItem.budget:
+            (annualTuitionBudgetEur ?? 0) > 0 || (monthlyBudgetEur ?? 0) > 0,
+        ProfileCompletionItem.documents: availableDocuments.isNotEmpty,
+      };
+
+  /// Ce qui manque pour atteindre 100 %, dans l'ordre de [completionBreakdown].
+  ///
+  /// Vide si et seulement si [completionScore] vaut 1.0 — c'est la même source.
+  List<ProfileCompletionItem> get missingCompletionItems =>
+      completionBreakdown.entries
+          .where((entry) => !entry.value)
+          .map((entry) => entry.key)
+          .toList(growable: false);
+
   double get completionScore {
-    final items = <bool>[
-      fullName.trim().isNotEmpty,
-      email.trim().isNotEmpty,
-      phone.trim().isNotEmpty,
-      countryOfResidence.trim().isNotEmpty,
-      preferredLanguage.trim().isNotEmpty,
-      (currentLevel ?? '').trim().isNotEmpty,
-      (targetLevel ?? '').trim().isNotEmpty,
-      (languageLevel ?? '').trim().isNotEmpty,
-      fieldIds.isNotEmpty,
-      targetCountryIds.isNotEmpty,
-      (gradeRange ?? '').trim().isNotEmpty ||
-          (bacSeries ?? '').trim().isNotEmpty,
-      (annualTuitionBudgetEur ?? 0) > 0 || (monthlyBudgetEur ?? 0) > 0,
-      availableDocuments.isNotEmpty,
-    ];
+    final items = completionBreakdown.values;
     final completed = items.where((item) => item).length;
     return completed / items.length;
   }
+}
+
+/// Les treize items qui composent [UserProfile.completionScore].
+///
+/// L'ordre est celui de l'affichage : identité d'abord (ce que l'étudiant sait
+/// remplir sans réfléchir), projet ensuite, budget et pièces à la fin.
+enum ProfileCompletionItem {
+  fullName,
+  email,
+  phone,
+  countryOfResidence,
+  preferredLanguage,
+  currentLevel,
+  targetLevel,
+  languageLevel,
+  fields,
+  targetCountries,
+  grade,
+  budget,
+  documents,
 }

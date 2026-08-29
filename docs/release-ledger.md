@@ -8,10 +8,29 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 - `46` — AAB CI du 31/07/2026, jamais téléversé sur Play
 - `48` — consommé sur TestFlight le 12/08/2026
+- `49` — installée et revue par le propriétaire le 29/08/2026
+  (`docs/device-qa-build49.md`). Cette revue a produit neuf demandes ; les
+  correctifs montent dans la 50, donc la 49 ne repart pas.
 
 ## Courant
 
-- `49` — `8f5d71ce2f57` (gelé le 26/08/2026 ; backend déployé sur ce SHA)
+- `50` — revue du build 49 : jauge de progression, boîte à outils limitée à
+  l'accueil, catalogue hors-ligne repassé en français, checklist de profil
+  réparée, champs orphelins rouverts à l'édition (dont le budget), mesure
+  d'audience active par défaut + clause CGU, bourses « à venir ».
+
+  **Couplage backend : `requires-new`, et ce n'est PAS le cas de la 49.**
+  La 49 était `tolerates-old` : contre un backend en retard, ses drapeaux
+  retombaient sur `false` et ses entrées se masquaient. La 50 n'a pas cette
+  propriété, pour une raison précise et vérifiable : `main.ts:68-71` monte la
+  `ValidationPipe` avec `forbidNonWhitelisted: true`, et le profil envoie
+  désormais `bacSeries` à chaque `PATCH /profiles/me`. Contre un backend sans
+  ce champ au DTO, la requête ne perd pas un champ — elle est **rejetée en
+  400**, donc TOUTE sauvegarde de profil échoue.
+
+  Le backend doit donc être déployé AVANT la distribution, migration
+  `20260829140000_profile_bac_series` comprise (additive : une colonne
+  nullable, sans défaut ni reprise).
 
 ### Ce que 49 embarque en plus
 

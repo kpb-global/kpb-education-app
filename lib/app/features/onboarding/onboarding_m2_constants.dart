@@ -28,6 +28,89 @@ const onboardingBacSeries = <String>[
   'Autre',
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Les quatre listes que l'onboarding gardait pour lui
+//
+// Elles vivaient en `const _privé` dans onboarding_screen.dart, et c'est
+// exactement pourquoi l'écran de profil ne pouvait pas offrir ces champs : les
+// rouvrir à l'édition aurait demandé de recopier les listes, donc de créer une
+// seconde vérité. Le dépôt a déjà payé ce prix une fois — `currentLevel` est
+// écrit « High school » par l'onboarding et « Terminale » par le profil, si
+// bien que rejouer l'onboarding après une modification de profil rétrograde
+// silencieusement le niveau.
+//
+// Forme `(jeton, libellé)` : le JETON est ce qui est persisté et envoyé au
+// serveur, le LIBELLÉ est ce qu'on affiche. Les deux écrans doivent stocker le
+// jeton et n'afficher que le libellé — voir [targetLevelLabel] et
+// [languageLevelLabel], qui existent parce que l'écran de profil affichait le
+// jeton brut (« Bachelor », « Intermediate ») dans une interface française.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const onboardingTargetLevels = <(String, String)>[
+  ('Bachelor', 'Licence'),
+  ('Master', 'Master'),
+  ('PhD', 'Doctorat'),
+];
+
+const onboardingLanguageLevels = <(String, String)>[
+  ('Beginner', 'Débutant'),
+  ('Intermediate', 'Intermédiaire'),
+  ('Advanced', 'Avancé'),
+];
+
+/// Fourchettes de moyenne. Pas de jeton séparé : la valeur EST le libellé.
+const onboardingGradeRanges = <String>[
+  '10 - 12/20',
+  '12 - 14/20',
+  '15+/20',
+];
+
+/// Annual tuition-budget ranges in EUR. The selected display currency only
+/// changes the presentation; matching remains on this canonical EUR value.
+const onboardingBudgetRanges = <(int, String)>[
+  (4000, '< 5 000 €'),
+  (7500, '5 000 – 10 000 €'),
+  (15000, '10 000 – 20 000 €'),
+  (25000, '> 20 000 €'),
+];
+
+/// Le libellé d'un niveau visé DANS LA LANGUE ACTIVE ; rend le jeton tel quel
+/// s'il est inconnu — un profil ancien ne doit pas afficher du vide.
+String targetLevelLabel(String? token) =>
+    _labelFor(onboardingTargetLevels, token);
+
+/// Idem pour le niveau de langue.
+String languageLevelLabel(String? token) =>
+    _labelFor(onboardingLanguageLevels, token);
+
+/// Rend le libellé de la locale active, jamais le français inconditionnellement.
+///
+/// La première version rendait toujours `entry.$2`, le libellé français. En
+/// anglais elle aurait donc REMPLACÉ des jetons déjà corrects — « Bachelor »,
+/// « Intermediate » — par « Licence » et « Intermédiaire », et rendu à moitié
+/// française une interface anglaise. Le défaut est aujourd'hui inatteignable
+/// (`kShippedLocale = 'fr'`, `kLanguageSwitchVisible = false`), mais le
+/// dictionnaire anglais est maintenu et vérifié par `translations_parity_test` :
+/// une aide qui ignore la locale est une bombe à retardement posée dans du code
+/// qu'on croit bilingue.
+///
+/// En anglais le JETON EST le libellé (« Bachelor », « Intermediate ») — c'est
+/// pourquoi la table n'a que deux colonnes et que ce cas se résout en rendant
+/// `entry.$1`.
+String _labelFor(List<(String, String)> table, String? token) {
+  if (token == null || token.trim().isEmpty) return '';
+  final isEnglish = Get.locale?.languageCode == 'en';
+  for (final entry in table) {
+    if (entry.$1 == token) return isEnglish ? entry.$1 : entry.$2;
+    // Un profil édité par une version qui stockait le LIBELLÉ français : on
+    // sait alors retrouver le jeton anglais correspondant.
+    if (entry.$2 == token) return isEnglish ? entry.$1 : entry.$2;
+  }
+  // Valeur qu'on ne connaît pas : la rendre telle quelle plutôt qu'effacer une
+  // information réelle.
+  return token;
+}
+
 class OnboardingDestination {
   const OnboardingDestination({
     required this.id,

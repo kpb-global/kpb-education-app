@@ -167,6 +167,18 @@ class TermsOfServiceScreen extends StatelessWidget {
                   '• Un espace communautaire\n\n'
                   'Les informations fournies sont à titre indicatif et ne constituent pas un engagement contractuel de résultat.',
             ),
+            // Mesure d'audience — ACTIVE PAR DÉFAUT, donc annoncée ici et pas
+            // seulement dans la politique de confidentialité : un défaut qui
+            // collecte doit se lire dans le contrat qu'on accepte, pas
+            // uniquement dans l'annexe qu'on ouvre rarement.
+            //
+            // Titre ET corps passent par `.tr`, contrairement aux sections
+            // voisines dont le corps est un littéral français : en anglais,
+            // celles-là rendent du français (voir la revue i18n).
+            _LegalSection(
+              title: 'terms_analytics_title'.tr,
+              body: 'terms_analytics_body'.tr,
+            ),
             _LegalSection(
               title: 'terms_s5_title'.tr,
               body:
