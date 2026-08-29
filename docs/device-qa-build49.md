@@ -18,7 +18,7 @@
 | Élément | Valeur | Vérifié |
 |---|---|---|
 | Build | `2.1.0 (49)` | uploadée sur App Store Connect le 29/08 |
-| Backend prod | `8f5d71ce2f57` | `GET /api/health/version` — c'est le SHA d'où la 49 est coupée |
+| Backend prod | `458d115ebc8d` (déployé le 29/08) | `GET /api/health/version` — contient la purge de suppression #246. La 49 est coupée de `8f5d71ce2f57`, un ancêtre : couplage satisfait |
 | PostHog | **actif** (clé `phc_…` dans le binaire) | `DART_DEFINES` de l'archive |
 | Drapeaux serveur | `eef`, `eefTeaser`, `successLab`, `competitionReadiness`, `aiDiagnostic` = **false** | `GET /api/config/app` |
 
@@ -110,10 +110,11 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
   Profil → « Mes données » → exporter, puis supprimer (**compte de test**).
   **Attendu :** export JSON partagé via la feuille iOS ; suppression immédiate,
   reconnexion impossible.
-  ⚠️ **Réserve connue :** la purge des résidus (`CounsellorReview`, registre
-  ambassadeur, contact Mautic — PR #246) est **mergée mais PAS déployée**
-  (prod = `8f5d71ce2f57`, du 26/08). Ce test valide donc le comportement
-  **d'avant** la purge. À rejouer après le prochain déploiement backend.
+  ✅ **La purge des résidus est EN PRODUCTION** depuis le déploiement du 29/08
+  (`458d115ebc8d`) : `CounsellorReview` (nom civil), registre ambassadeur et
+  contact Mautic sont désormais supprimés avec le compte (PR #246). Ce test
+  valide donc la suppression **complète** — c'est ce qui autorise à déclarer
+  « ≤ 30 jours » en console sans réserve.
   Constat : `______________________________`
 
 ## D. Masquages de la 49 (ce qui ne doit PAS apparaître)
@@ -156,8 +157,8 @@ Ce sont les régressions vues par un testeur le 15/08. Ils doivent être **morts
   apparaître dans `/etudes-en-france` du back-office. Avec un profil **Niger**,
   la mise en garde doit **remplacer** la date, pas s'y ajouter.
 
-- [ ] **E2 — Purge des résidus de suppression** (voir C4) : après déploiement de
-  #246.
+- ✅ **E2 — Purge des résidus de suppression : LEVÉ.** #246 déployée le 29/08
+  (`458d115ebc8d`, `GET /api/health/version`). Le point est passé en C4.
 
 ---
 
