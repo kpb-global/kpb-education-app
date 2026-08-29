@@ -58,17 +58,38 @@ void main() {
     expect(_plistArray(plist, 'UIBackgroundModes'), ['remote-notification']);
   });
 
-  test('LIV-T5 : portrait seulement, iPhone et iPad', () {
+  // Les deux rejets App Store de la build 49, encodés. Ils se contredisent en
+  // apparence et ne laissent qu'UNE configuration valide :
+  //   · 90101 — retirer une famille d'appareils d'une app DÉJÀ publiée est
+  //     interdit. La fiche (id 1128659292) est universelle : l'iPad reste.
+  //   · 90474 — un bundle qui embarque l'iPad doit déclarer les QUATRE
+  //     orientations iPad (multitâche).
+  // D'où : famille « 1,2 » + 4 orientations iPad, comme la build 48 acceptée.
+  // L'iPhone reste portrait-only, et `lockPortraitOrientation` (testé juste en
+  // dessous) garde l'UI en portrait sur les deux familles — les 4 orientations
+  // déclarées n'autorisent aucune rotation réelle.
+  test(
+      'LIV-T5 : iPhone portrait, iPad universel + 4 orientations (90101/90474)',
+      () {
     expect(
       _plistArray(plist, 'UISupportedInterfaceOrientations'),
       ['UIInterfaceOrientationPortrait'],
     );
     expect(
       _plistArray(plist, 'UISupportedInterfaceOrientations~ipad'),
-      ['UIInterfaceOrientationPortrait'],
+      [
+        'UIInterfaceOrientationPortrait',
+        'UIInterfaceOrientationPortraitUpsideDown',
+        'UIInterfaceOrientationLandscapeLeft',
+        'UIInterfaceOrientationLandscapeRight',
+      ],
+      reason: 'Moins de 4 orientations iPad = rejet 90474 à l\'upload.',
     );
     expect(pbx.contains('TARGETED_DEVICE_FAMILY = "1,2";'), isTrue,
-        reason: 'Ne pas retirer l\'iPad d\'une app déjà publiée.');
+        reason: 'Ne pas retirer l\'iPad d\'une app déjà publiée : rejet 90101. '
+            'Tenté le 28/08 en iPhone-only, refusé par App Store Connect.');
+    expect(pbx.contains('TARGETED_DEVICE_FAMILY = "1";'), isFalse,
+        reason: 'iPhone-only = rejet 90101 sur cette app publiée.');
   });
 
   test('LIV-T5 : SystemChrome portrait avant runApp', () async {

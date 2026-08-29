@@ -499,6 +499,36 @@ flutter build ios --release \
   --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 ```
 
+> ### ⚠️ Les trois pièges de la distribution iOS — payés sur la build 49 (28-29/08/2026)
+>
+> **1. « Copy failed » à l'étape Distribute = conflit rsync/PATH, PAS l'espace du chemin.**
+> `IDEDistributionCreateIPAStep` lance `/usr/bin/rsync -8aPhhE --link-dest …`, mais
+> `/usr/bin/rsync` est **openrsync** (« 2.6.9 compatible ») qui **ignore `-8`** ; le flag
+> n'est ajouté que parce qu'un rsync 3.x (MacPorts `/opt/local/bin`, ou Homebrew) précède
+> `/usr/bin` dans le PATH hérité par Xcode. **Lancer Xcode avec un PATH assaini :**
+>
+> ```bash
+> env PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+>   /Applications/Xcode.app/Contents/MacOS/Xcode ios/Runner.xcworkspace
+> ```
+>
+> Une fenêtre rouverte depuis le Dock/Finder réhérite du PATH pollué : le bug revient.
+>
+> **2. Rejet 90474 — orientations iPad.** Un bundle qui embarque l'iPad doit déclarer les
+> **4** orientations dans `UISupportedInterfaceOrientations~ipad` (multitâche iPad).
+>
+> **3. Rejet 90101 — famille d'appareils.** On ne peut **pas** retirer l'iPad d'une app
+> **déjà publiée**. `TARGETED_DEVICE_FAMILY = "1"` est refusé.
+>
+> 2 et 3 se combinent : la **seule** configuration valide est `"1,2"` **+ 4 orientations
+> iPad** (celle de la build 48, acceptée). L'iPhone reste portrait-only et
+> `lockPortraitOrientation` verrouille le portrait au runtime sur les deux familles —
+> les 4 orientations déclarées n'autorisent **aucune** rotation réelle.
+> `scripts/preflight-ios-archive.sh` garde désormais 2 et 3 (garde couplée, vue rouge sur
+> les deux archives réellement rejetées). Le faire tourner **avant** « Distribute ».
+> Il échoue toujours sur « Apple Distribution » en signature automatique : c'est **normal**,
+> Xcode re-signe au moment du Distribute.
+
 `flutter build ipa --release` avec les mêmes defines **échoue à l'export sur
 cette machine** (espace dans le chemin du dépôt, « Copy failed »). La voie
 réelle est donc : `flutter build ios` ci-dessus, puis **Xcode → Product →
