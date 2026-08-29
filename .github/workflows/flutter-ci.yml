@@ -169,7 +169,8 @@ jobs:
             flutter build apk --debug \
               --dart-define=KPB_APP_ENV=prod \
               --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
-              --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+              --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }} \
+              --dart-define=KPB_AI_TOOLS_ENABLED=true
           }
           build || {
             echo "::warning::First Gradle build failed — retrying once (likely a Maven Central blip)."
@@ -266,7 +267,7 @@ jobs:
         # Production host is the branded domain (api.kpbeducation.cloud/api),
         # resolved from KPB_APP_ENV=prod in app_config.dart. Do not hardcode a
         # KPB_API_BASE_URL override here.
-        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }} --dart-define=KPB_AI_TOOLS_ENABLED=true
 
       - name: Verify App Bundle signature
         run: |
@@ -378,7 +379,7 @@ jobs:
         run: cd ios && rm -f Podfile.lock && pod install --repo-update
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+        run: flutter build ios --release --no-codesign --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }} --dart-define=KPB_AI_TOOLS_ENABLED=true
 
       - name: Prove the unsigned build is rejected by the store preflight
         run: |

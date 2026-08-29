@@ -182,6 +182,27 @@ void main() {
     });
   });
 
+  // La 50 démasque les outils IA par un `--dart-define`, donc build par build.
+  // La dérive naturelle est d'en poser un et d'oublier les autres : la CI a
+  // trois invocations de build « prod » (APK de validation, AAB signé Play,
+  // compilation iOS). Une seule oubliée et Android partirait sans les outils
+  // que l'iOS annonce — sans que rien ne rougisse, puisque le préflight AAB ne
+  // sait pas lire les defines d'un bundle.
+  test('every production CI build carries the AI-tools flag', () {
+    final workflow = _read('.github/workflows/flutter-ci.yml');
+    int count(String needle) => needle.allMatches(workflow).length;
+    final prodBuilds = count('--dart-define=KPB_APP_ENV=prod');
+    expect(prodBuilds, greaterThanOrEqualTo(3),
+        reason:
+            'les invocations de build « prod » ont bougé : relire le workflow');
+    expect(
+      count('--dart-define=KPB_AI_TOOLS_ENABLED=true'),
+      prodBuilds,
+      reason: 'un build de production sans le drapeau IA livre la 49 sous le '
+          'numéro 50, en silence',
+    );
+  });
+
   test('the shipping pubspec version remains the build-50 contract', () {
     expect(
       RegExp(r'^version:\s*2\.1\.0\+50\s*$', multiLine: true)
