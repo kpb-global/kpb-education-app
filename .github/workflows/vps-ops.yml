@@ -96,7 +96,7 @@ jobs:
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}
         env:
-          HEALTH_URL: ${{ secrets.HEALTH_URL }}
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
         run: |
           set -euo pipefail
           # La preuve ne vient pas du serveur qu'on vient de toucher : elle vient
