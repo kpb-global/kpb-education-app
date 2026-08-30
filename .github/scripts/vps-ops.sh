@@ -37,6 +37,34 @@ set_env_key() {
   fi
 }
 
+# Recrée le conteneur api SANS RIEN RECONSTRUIRE.
+#
+# `docker compose up -d --no-deps api` seul a été une erreur, payée le
+# 30/08/2026 : compose résout `image: kpb-backend:${KPB_IMAGE_TAG:-local}`, ne
+# trouve pas `kpb-backend:local`, échoue à le tirer (registre privé), et
+# RECONSTRUIT depuis la source. Le conteneur repart alors sur une image sans
+# tag ni `KPB_BUILD_SHA` : `/health/version` rend `sha: unknown`, et l'empreinte
+# immuable de la release — que `deploy.yml` construit et vérifie soigneusement —
+# est perdue.
+#
+# Le code tournant restait le bon (le checkout du VPS est au SHA déployé), mais
+# la traçabilité, non. Une opération de drapeau ne doit JAMAIS changer l'artefact.
+#
+# On relit donc le tag et le SHA sur le conteneur EN COURS, et on recrée avec
+# exactement les mêmes. `--no-build` est la ceinture : si le tag ne résout pas,
+# on veut un échec franc, pas une reconstruction silencieuse.
+recreate_api_same_image() {
+  local cur tag sha
+  cur=$(docker inspect -f '{{.Config.Image}}' kpb_api 2>/dev/null || true)
+  [ -n "$cur" ] || { echo "::error::conteneur kpb_api introuvable — ne pas recréer à l'aveugle"; exit 1; }
+  tag="${cur##*:}"
+  [ -n "$tag" ] && [ "$tag" != "$cur" ] || { echo "::error::image sans tag exploitable : $cur"; exit 1; }
+  sha=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kpb_api 2>/dev/null | sed -n 's/^KPB_BUILD_SHA=//p' | head -1)
+  echo "recréation à l'identique — image $cur, build sha ${sha:-<absent>}"
+  KPB_IMAGE_TAG="$tag" KPB_BUILD_SHA="$sha" \
+    docker compose up -d --no-deps --no-build api
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
@@ -69,7 +97,7 @@ case "$ACTION" in
       exit 1
     fi
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
-    docker compose up -d --no-deps api
+    recreate_api_same_image
     ;;
 
   eef-teaser-off)
@@ -77,7 +105,7 @@ case "$ACTION" in
     cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
     set_env_key KPB_EEF_TEASER_ENABLED false
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
-    docker compose up -d --no-deps api
+    recreate_api_same_image
     ;;
 
   publish-catalog)
