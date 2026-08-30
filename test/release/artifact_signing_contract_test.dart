@@ -120,7 +120,7 @@ void main() {
       expect(preflight, contains('ProvisionedDevices'));
       expect(
           preflight, contains('PrivacyInfo.xcprivacy absent du bundle signé'));
-      expect(preflight, contains('EXPECTED_BUILD="50"'));
+      expect(preflight, contains('EXPECTED_BUILD="51"'));
       expect(preflight, contains('EXPECTED_VERSION="2.1.0"'));
       expect(preflight, contains('EXPECTED_BUNDLE_ID="Karatou.karatou"'));
     });
@@ -163,7 +163,7 @@ void main() {
     test('AAB preflight pins identity, version, SDK, and Play certificate', () {
       expect(preflight, contains('EXPECTED_PACKAGE="com.karatou.android"'));
       expect(preflight, contains('EXPECTED_VERSION_NAME="2.1.0"'));
-      expect(preflight, contains('EXPECTED_VERSION_CODE="50"'));
+      expect(preflight, contains('EXPECTED_VERSION_CODE="51"'));
       expect(preflight, contains('EXPECTED_TARGET_SDK="36"'));
       expect(preflight, contains('"\$JARSIGNER_BIN" -verify'));
       expect(preflight, contains('"\$KEYTOOL_BIN" -printcert -jarfile'));
@@ -178,9 +178,9 @@ void main() {
   // La build 49 est celle que le propriétaire a revue ; la 50 porte les
   // correctifs de cette revue. Le NOM de version ne bouge pas (2.1.0) : c'est
   // un nouveau build de la même version, pas une nouvelle version publiée.
-  test('the shipping pubspec version remains the build-50 contract', () {
+  test('the shipping pubspec version remains the build-51 contract', () {
     expect(
-      RegExp(r'^version:\s*2\.1\.0\+50\s*$', multiLine: true)
+      RegExp(r'^version:\s*2\.1\.0\+51\s*$', multiLine: true)
           .hasMatch(_read('pubspec.yaml')),
       isTrue,
     );

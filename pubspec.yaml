@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # 2.1.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
 # CFBundleShortVersionString doit lui être supérieure. +49 = prochain
 # TestFlight (48 déjà chez les testeurs). Voir docs/release-ledger.md.
-version: 2.1.0+50
+version: 2.1.0+51
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

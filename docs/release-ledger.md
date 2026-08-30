@@ -11,10 +11,18 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 - `49` — installée et revue par le propriétaire le 29/08/2026
   (`docs/device-qa-build49.md`). Cette revue a produit neuf demandes ; les
   correctifs montent dans la 50, donc la 49 ne repart pas.
+- `50` — téléversée sur TestFlight le 30/08/2026 à 02h15. Elle porte sept des
+  neuf points de la revue. Trois manques constatés par le propriétaire sur cet
+  artefact : les outils CV/lettres restaient masqués (drapeau de COMPILATION,
+  donc impossible à ouvrir sans binaire neuf), PostHog partait sans clé, et la
+  prélude Campus France restait éteinte côté serveur. La 50 ne repart pas.
 
 ## Courant
 
-- `50` — revue du build 49 : jauge de progression, boîte à outils limitée à
+- `51` — ouvre les outils IA, embarque la clé PostHog. Détail plus bas.
+
+<!-- Historique de la 50, conservé : -->
+- ~~`50`~~ — revue du build 49 : jauge de progression, boîte à outils limitée à
   l'accueil, catalogue hors-ligne repassé en français, checklist de profil
   réparée, champs orphelins rouverts à l'édition (dont le budget), mesure
   d'audience active par défaut + clause CGU, bourses « à venir ».

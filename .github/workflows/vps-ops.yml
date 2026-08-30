@@ -1,0 +1,105 @@
+name: VPS ops (feature flag / catalogue)
+
+# Deux opérations de production que le runbook demandait de faire À LA MAIN en
+# SSH, et que personne ne pouvait faire depuis un poste de travail : le port 22
+# du VPS n'y est pas joignable (`db-info.yml` le documente déjà). Résultat
+# mesuré : la vitrine « Études en France » est restée éteinte deux revues de
+# suite, et 34 fiches de bourses vérifiées sont restées invisibles pendant que
+# l'app en servait 10.
+#
+# Un runbook qu'on ne peut pas exécuter n'est pas un runbook.
+#
+# ── CE QUE CE WORKFLOW N'EST PAS ────────────────────────────────────────────
+#
+# Ce n'est PAS un exécuteur de commandes. Il n'accepte aucune commande, aucun
+# nom de variable, aucune valeur libre. `action` est une liste fermée de quatre
+# opérations écrites ici, en clair, relisibles en revue. Un workflow qui prendrait
+# une commande en entrée aurait transformé un secret de déploiement en shell
+# distant pour quiconque peut cliquer sur « Run workflow ».
+#
+# Les seules clés que la branche `eef-*` écrit dans le `.env` sont les trois
+# `KPB_EEF_*` ci-dessous. Le fichier est sauvegardé avant écriture, et la clé
+# est REMPLACÉE si elle existe déjà plutôt qu'ajoutée en double — un `.env` avec
+# deux fois la même clé prend la dernière, ce qui rend le fichier illisible pour
+# la personne qui le relit ensuite.
+#
+# ── PUBLICATION DU CATALOGUE ────────────────────────────────────────────────
+#
+# `publish-catalog` suit `docs/catalog-verification-sop.md`, à UNE différence
+# près, délibérée et expliquée là-bas : PAS de `--confirmed-only`. Ce drapeau
+# écarte par construction toute fiche dont le cycle est estimé — c'est-à-dire
+# exactement les bourses « à venir » que l'app sait désormais afficher
+# (« À venir, généralement aux mois de … »). C'est lui qui laissait 22 fiches
+# sur 34 hors ligne, dont les six licences panafricaines.
+#
+# Le défaut est `dry_run: true`. Rien ne change tant qu'on ne l'a pas décoché.
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Opération à exécuter'
+        type: choice
+        required: true
+        options:
+          - show-state
+          - eef-teaser-on
+          - eef-teaser-off
+          - publish-catalog
+      dry_run:
+        description: 'Simuler seulement (publish-catalog). Décocher pour appliquer.'
+        type: boolean
+        required: false
+        default: true
+
+concurrency:
+  group: vps-ops
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ops:
+    name: ${{ inputs.action }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Exécuter l'opération
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+          ACTION: ${{ inputs.action }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
+          ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
+            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+
+      - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
+        if: ${{ always() && inputs.action != 'publish-catalog' }}
+        env:
+          HEALTH_URL: ${{ secrets.HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          # La preuve ne vient pas du serveur qu'on vient de toucher : elle vient
+          # de ce que l'app lira réellement.
+          curl -fsS "${HEALTH_URL}/api/config/app" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False))'

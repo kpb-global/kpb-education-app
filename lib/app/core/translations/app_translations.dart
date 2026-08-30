@@ -38,6 +38,18 @@ class AppTranslations extends Translations {
           'guest_case_gate_body':
               'Un compte est nécessaire pour qu\'un conseiller KPB puisse traiter ta demande et te répondre.',
           'guest_case_gate_cta': 'Se connecter',
+          // Mur invité des outils IA. Sans lui, le clic d'un visiteur sur
+          // « Générateur de CV » ne produisait rien du tout.
+          'guest_ai_tool_gate_title':
+              'Connecte-toi pour utiliser les outils IA',
+          'guest_ai_tool_gate_body':
+              'Le générateur de CV, les lettres de motivation et le simulateur d\'entretien travaillent à partir de ton profil. Un compte est nécessaire pour les personnaliser.',
+          'guest_ai_tool_gate_cta': 'Créer mon compte',
+          // Authentifié mais sans profil en cache : synchronisation inaboutie.
+          // Ni un invité, ni un refus de consentement.
+          'profile_sync_pending_title': 'Profil pas encore synchronisé',
+          'profile_sync_pending_body':
+              'Tes informations n\'ont pas encore été récupérées. Vérifie ta connexion et réessaie dans un instant.',
           // ── Mur invité de l'onglet Bourses (PARC-04) ──
           // L'index des bourses exige une session côté serveur. L'écran
           // affichait « problème de connexion » et un bouton « Réessayer »
@@ -975,6 +987,11 @@ class AppTranslations extends Translations {
               'Trop de demandes d\'affilée. Réessaie dans une minute.',
           'tools_ai_error_signin_required':
               'Reconnecte-toi pour utiliser l\'IA.',
+          // Le serveur refuse tant que la date de naissance manque : sans ce
+          // message, l'étudiant lisait « reconnecte-toi » alors qu'il était
+          // déjà connecté, et se déconnectait pour rien.
+          'tools_ai_error_birthdate_required':
+              'Ajoute ta date de naissance dans ton profil pour utiliser les outils IA.',
           'cv_field_residence': 'Pays de résidence',
           'cv_objective_prefill':
               'Objectif : intégrer un programme de @level en @field.',
@@ -3144,6 +3161,13 @@ class AppTranslations extends Translations {
           'guest_case_gate_body':
               'You need an account so a KPB advisor can process your request and reply to you.',
           'guest_case_gate_cta': 'Sign in',
+          'guest_ai_tool_gate_title': 'Sign in to use the AI tools',
+          'guest_ai_tool_gate_body':
+              'The CV generator, cover letters and interview simulator work from your profile. An account is required to personalise them.',
+          'guest_ai_tool_gate_cta': 'Create my account',
+          'profile_sync_pending_title': 'Profile not synced yet',
+          'profile_sync_pending_body':
+              'Your information has not been retrieved yet. Check your connection and try again in a moment.',
           // ── Guest wall on the Scholarships tab (PARC-04) ──
           'scholarships_auth_required_title':
               'Create your account to see the scholarships',
@@ -4014,6 +4038,8 @@ class AppTranslations extends Translations {
               'Too many requests. Try again in a minute.',
           'tools_ai_error_signin_required':
               'Please sign in again to use the AI.',
+          'tools_ai_error_birthdate_required':
+              'Add your date of birth in your profile to use the AI tools.',
           'cv_field_residence': 'Country of residence',
           'cv_objective_prefill': 'Goal: join a @level programme in @field.',
           'cv_objective_destination': 'Target destination: @country.',

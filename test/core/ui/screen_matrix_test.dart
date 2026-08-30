@@ -39,16 +39,12 @@ import 'package:karatou/app/features/auth/auth_welcome_screen.dart';
 import 'package:karatou/app/features/auth/magic_link_email_screen.dart';
 import 'package:karatou/app/features/auth/magic_link_verify_screen.dart';
 import 'package:karatou/app/features/cases/cases_screen.dart';
-import 'package:karatou/app/features/cases/document_review_screen.dart';
 import 'package:karatou/app/features/france/france_private_admission_screen.dart';
 import 'package:karatou/app/features/home/home_screen.dart';
 import 'package:karatou/app/features/housing/housing_estimator_screen.dart';
 import 'package:karatou/app/features/profile/profile_screen.dart';
 import 'package:karatou/app/features/scholarships/live_scholarships_screen.dart';
 import 'package:karatou/app/features/shell/kpb_tools_drawer.dart';
-import 'package:karatou/app/features/tools/cv_generator_screen.dart';
-import 'package:karatou/app/features/tools/interview_simulator_screen.dart';
-import 'package:karatou/app/features/tools/motivation_letters_screen.dart';
 import 'package:karatou/app/features/universities/universities_screen.dart';
 
 import '../../support/raw_key_guard.dart';
@@ -162,31 +158,20 @@ Map<String, Future<Widget> Function()> buildScreenSpecs() {
     };
   }
 
-  // Les quatre écrans que M1 retire de la NAVIGATION mais pas du dépôt.
+  // Les quatre écrans IA sont RETOURNÉS dans la navigation (build 51,
+  // `AppConfig.aiToolsEnabled` passé à `true`), donc la boucle `tool:`
+  // ci-dessus les couvre désormais — avec leur vrai contexte de tiroir, ce qui
+  // vaut mieux que le montage nu qu'on faisait ici.
   //
-  // La boucle ci-dessus se pilote sur la liste du tiroir, qui respecte
-  // `AppConfig.aiToolsEnabled` : sans ce bloc, la matrice perdrait quatre
-  // surfaces le jour du masquage et les retrouverait, non mesurées depuis des
-  // mois, le jour où le drapeau rebascule. Un écran qu'on livre sans qu'aucun
-  // test ne l'ait jamais monté est exactement ce que ce fichier existe pour
-  // empêcher — le masquage ne change pas cette règle, il change seulement qui
-  // peut y accéder.
-  specs['ai:CvGeneratorScreen'] = () async {
-    await seedKpbController();
-    return const CvGeneratorScreen();
-  };
-  specs['ai:MotivationLettersScreen'] = () async {
-    await seedKpbController();
-    return const MotivationLettersScreen();
-  };
-  specs['ai:InterviewSimulatorScreen'] = () async {
-    await seedKpbController();
-    return const InterviewSimulatorScreen();
-  };
-  specs['ai:DocumentReviewScreen'] = () async {
-    await seedKpbController();
-    return const DocumentReviewScreen();
-  };
+  // Ce bloc portait quatre entrées `ai:` explicites. Elles existaient pour une
+  // raison précise et temporaire, écrite dans leur propre commentaire : pendant
+  // le masquage, la boucle ne les voyait pas, et la matrice aurait perdu quatre
+  // surfaces pendant des mois pour les retrouver non mesurées le jour de la
+  // rebascule. Le masquage levé, les garder ferait compter chaque écran DEUX
+  // fois — un doublon qui ne mesure rien de plus.
+  //
+  // Si le drapeau devait être refermé (`--dart-define=KPB_AI_TOOLS_ENABLED=false`),
+  // il faudrait les remettre : c'est le sens de la note laissée ici.
 
   return specs;
 }

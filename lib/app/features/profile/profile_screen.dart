@@ -1833,6 +1833,12 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   String? _languageLevel;
   String? _gradeRange;
   int? _annualBudgetEur;
+  // La date de naissance n'avait AUCUN éditeur après l'inscription, et ce
+  // manque est devenu bloquant en build 51 : le serveur refuse tout appel IA
+  // tant qu'elle est absente (`age_verification_required`), et le message
+  // renvoie l'étudiant vers son profil. Sans ce champ, l'instruction était un
+  // cul-de-sac — le seul chemin restant était de rejouer tout l'onboarding.
+  DateTime? _birthDate;
   late Set<String> _countryIds;
   late Set<String> _documents;
   bool _saving = false;
@@ -1866,6 +1872,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
         onboardingBudgetRanges.any((e) => e.$1 == p.annualTuitionBudgetEur)
             ? p.annualTuitionBudgetEur
             : null;
+    _birthDate = p.birthDate;
     _countryIds = p.targetCountryIds.toSet();
     _documents = p.availableDocuments.toSet();
   }
@@ -2038,6 +2045,43 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                 onChanged: (v) => setState(() => _gradeRange = v),
               ),
               const SizedBox(height: 16),
+              // Mêmes bornes que l'onboarding (16 ans minimum, 80 ans max) :
+              // deux sélecteurs qui accepteraient des dates différentes pour le
+              // même champ finiraient par diverger.
+              InkWell(
+                onTap: () async {
+                  final now = DateTime.now();
+                  final lastDate = DateTime(now.year - 16, now.month, now.day);
+                  var initial =
+                      _birthDate ?? DateTime(now.year - 18, now.month, now.day);
+                  if (initial.isAfter(lastDate)) initial = lastDate;
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: initial,
+                    firstDate: DateTime(now.year - 80),
+                    lastDate: lastDate,
+                    helpText: 'birth_date'.tr,
+                  );
+                  if (picked != null) setState(() => _birthDate = picked);
+                },
+                child: InputDecorator(
+                  decoration: _dropdownDecoration(
+                    'birth_date'.tr,
+                    Icons.cake_outlined,
+                  ),
+                  child: Text(
+                    _birthDate == null
+                        ? 'birth_date_hint'.tr
+                        : '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                            '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                            '${_birthDate!.year}',
+                    style: _birthDate == null
+                        ? const TextStyle(color: KpbColors.textMuted)
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               // LE budget du signalement. Les montants s'affichent dans la
               // devise choisie par l'étudiant, comme à l'inscription, mais la
               // valeur stockée reste l'euro canonique — c'est lui qui sert au
@@ -2164,6 +2208,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
       languageLevel: _languageLevel,
       gradeRange: _gradeRange,
       annualTuitionBudgetEur: _annualBudgetEur,
+      birthDate: _birthDate,
       targetCountryIds: _countryIds.toList(),
       availableDocuments: _documents.toList(),
     );
