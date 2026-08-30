@@ -43,9 +43,30 @@ mode par défaut.
 ```bash
 docker compose exec -T api npm run catalog:import -- --dry-run
 docker compose exec -T api npm run catalog:import -- --apply
-docker compose exec -T api npm run catalog:switch -- --dry-run --confirmed-only
-docker compose exec -T api npm run catalog:switch -- --apply --confirmed-only
+docker compose exec -T api npm run catalog:switch -- --dry-run
+docker compose exec -T api npm run catalog:switch -- --apply
 ```
+
+> ### ⚠️ `--confirmed-only` a été RETIRÉ de ces commandes (30/08/2026)
+>
+> Ce drapeau écarte par construction toute fiche dont le cycle est `estimated`
+> — c'est-à-dire **exactement** les bourses « à venir ». Mesuré en production le
+> 30/08 : 34 fiches vérifiées en base, **10 servies à l'app**, dont 4 en licence.
+> Les 22 manquantes étaient les fiches à dates estimées, dont les six licences
+> panafricaines (Ashesi, ALU, AUC) et les trois européennes.
+>
+> Le drapeau avait un sens tant que l'app ne savait afficher qu'une date ferme :
+> publier une projection au jour près aurait été un mensonge. Depuis la build 50,
+> l'app rend « À venir, généralement aux mois de … » pour ces fiches et ne leur
+> applique ni compte à rebours, ni badge « bientôt clôturé », ni notification
+> d'échéance. La raison de les cacher a disparu ; le drapeau, non.
+>
+> Le remettre re-cacherait 22 fiches sur 34. Si un jour il faut publier une
+> vague strictement confirmée, ajouter `--confirmed-only` **à cet appel-là**, en
+> connaissance de cause.
+>
+> Ces commandes s'exécutent aussi depuis GitHub Actions → **VPS ops
+> (feature flag / catalogue)** → `publish-catalog`, pour qui n'a pas d'accès SSH.
 
 > **`import` n'est pas optionnel, et l'ordre n'est pas une préférence.** `switch`
 > publie les fiches *déjà présentes en base* puis dépublie les anciennes. Lancé
@@ -61,11 +82,20 @@ deux dans une seule transaction, en publiant avant de dépublier : il n'existe
 donc aucun instant où l'onglet Bourses est vide pour les utilisateurs. Lancées
 séparément, les deux commandes laissent une fenêtre.
 
-**Pourquoi `--confirmed-only` par défaut aujourd'hui.** Une build déjà distribuée
-peut ne pas savoir afficher une date estimée autrement que comme une date ferme.
-Publier d'abord les seules fiches à dates confirmées évite de faire mentir une
-app en circulation. Les fiches estimées se publient avec la build qui sait les
-présenter, en relançant `catalog:publish --apply` sans le drapeau.
+**Pourquoi `--confirmed-only` a existé, et pourquoi il ne s'applique plus.**
+Une build déjà distribuée pouvait ne pas savoir afficher une date estimée
+autrement que comme une date ferme ; publier d'abord les seules fiches
+confirmées évitait de faire mentir une app en circulation. Ce paragraphe
+annonçait déjà la sortie : « les fiches estimées se publient avec la build qui
+sait les présenter, en relançant sans le drapeau ».
+
+**Cette build est la 50** (30/08/2026). Elle rend « À venir, généralement aux
+mois de … » pour les cycles estimés, et surtout elle ne leur applique plus ce
+qui aurait menti : ni compte à rebours (`_deadlineBadge`), ni badge « bientôt
+clôturé » (`ScholarshipModel.windowStatus` sort sur `deadlineIsEstimated`), ni
+« Date limite » ferme sur la fiche détail, ni rappel J-30/…/J-1 ni digest
+hebdomadaire (`hasEstimatedDeadline`, côté backend). La condition posée ici est
+donc remplie, et vérifiable ligne à ligne.
 
 **Ce que la CLI refuse.** Elle écarte une fiche dont la clôture est passée ou
 absente, une fiche que la porte de qualité refuse, et elle annule la transaction
