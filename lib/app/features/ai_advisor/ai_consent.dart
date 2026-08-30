@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
+import '../../core/ui/components/kpb_guest_gate.dart';
 import 'ai_chat_screen.dart';
 
 /// Shared AI-processing consent gate (IA-T4).
@@ -68,6 +69,34 @@ Future<void> openAiToolIfConsented(
   Widget Function() page,
 ) async {
   final controller = Get.find<AppController>();
+  // ── L'invité n'a pas de profil, et sans ceci son clic ne faisait RIEN ────
+  //
+  // `ensureAiConsent` rend `false` quand `profile == null` (le mode invité pose
+  // exactement cela), et l'appelant se contentait de `return`. Le tiroir se
+  // refermait donc sur un écran inchangé : pas de dialogue, pas de message, pas
+  // d'invitation à créer un compte. Un clic mort, indiscernable d'un bug.
+  //
+  // Le défaut dormait tant que les quatre outils étaient masqués ; il devient
+  // visible exactement le jour où on les ouvre. On l'envoie sur le mur invité
+  // du dépôt, qui sait convertir (il quitte le mode invité, remet l'onboarding
+  // à faire et journalise `guest_to_signup` avec sa provenance).
+  if (controller.profile == null) {
+    await Get.to<void>(
+      () => Scaffold(
+        appBar: AppBar(title: Text('tools_drawer_title'.tr)),
+        body: const SafeArea(
+          child: KpbGuestGate(
+            source: 'ai_tool_gate',
+            titleKey: 'guest_ai_tool_gate_title',
+            bodyKey: 'guest_ai_tool_gate_body',
+            ctaKey: 'guest_ai_tool_gate_cta',
+            icon: Icons.auto_awesome_outlined,
+          ),
+        ),
+      ),
+    );
+    return;
+  }
   if (!await ensureAiConsent(context, controller)) return;
   await Get.to(page);
 }

@@ -177,20 +177,39 @@ void main() {
     test('aucun mot d\'un outil masqué dans le bénéfice IA de l\'accueil', () {
       final masked = _declaredToolLabels().difference(_runtimeToolLabels());
 
+      // ── Build 51 : les quatre outils IA ne sont PLUS masqués ────────────
+      //
+      // Ce pin affirmait l'inverse, et le message d'échec qu'il portait disait
+      // déjà quoi faire le jour de la bascule. Il est retourné plutôt que
+      // supprimé : il garde la trace du sens, et il rougira si quelqu'un
+      // referme le masque sans reculer la promesse de l'écran d'accueil.
       expect(
         masked,
-        containsAll(<String>[
+        isNot(anyElement(isIn(<String>[
           'tools_cv',
           'tools_motivation_letter',
           'tools_interview',
           'tools_doc_review',
-        ]),
-        reason: 'Les quatre outils IA ne sont plus masqués. Ce n\'est pas un '
-            'échec de copie : relisez `auth_intelligence_benefit_ai`, la '
-            'promesse peut redevenir plus large, puis ajustez ce pin.',
+        ]))),
+        reason: 'Un outil IA est redevenu masqué. Si c\'est voulu '
+            '(--dart-define=KPB_AI_TOOLS_ENABLED=false), il faut aussi vérifier '
+            'que `auth_intelligence_benefit_ai` ne le promet plus.',
       );
       // Ce que la build livre vraiment, et qu'on a donc le droit de promettre.
-      expect(_runtimeToolLabels(), containsAll(<String>['tools_doc_scanner']));
+      expect(
+        _runtimeToolLabels(),
+        containsAll(<String>['tools_doc_scanner', 'tools_cv']),
+      );
+      // CONTRE-GARDE. La boucle ci-dessous ne prouve rien si `masked` est vide :
+      // zéro mot interdit, donc zéro infraction, donc vert. Il reste au moins
+      // l'espace « Études en France », masqué tant que le serveur ne l'allume
+      // pas — c'est lui qui donne des dents au contrôle.
+      expect(
+        masked,
+        isNotEmpty,
+        reason: 'Plus aucun outil masqué : la vérification qui suit ne mesure '
+            'plus rien. Retirer ce test plutôt que de le laisser vert à vide.',
+      );
 
       final offenders = <String>[];
       for (final lang in <String, Map<String, String>>{

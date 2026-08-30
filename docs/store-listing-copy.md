@@ -383,15 +383,17 @@ payment is arranged outside the app. The "Premium" screen is a
 subscription and no billing state.
 
 AI FEATURES
-Two features call a third-party LLM (Groq, United States): the conversational
-assistant "KPB Intelligence" and the orientation questionnaire. Both are
-behind an explicit, timestamped in-app AI consent dialog, and a declared
-minor additionally requires a guardian's recorded consent. The assistant has
-a weekly free message quota. Answers are presented as indicative and the UI
+Six features call a third-party LLM (OpenRouter and Groq, United States): the
+conversational assistant "KPB Intelligence", the orientation questionnaire,
+and the four writing tools — CV summary, motivation letter, interview practice
+and document review. All six are behind an explicit, timestamped in-app AI
+consent dialog enforced server-side on every route, and a declared minor
+additionally requires a guardian's recorded consent. The assistant has a
+weekly free message quota. Answers are presented as indicative and the UI
 states they do not replace a counsellor or the institution's official
-information. The four AI writing tools (CV, motivation letter, interview
-practice, document review) are compiled but disabled in this build and cannot
-be reached from any screen.
+information. Text the student pastes into the writing tools is sent to the
+model to produce the requested draft; the student's name is never included in
+the prompt.
 
 USER-GENERATED CONTENT
 There is no public feed, no forum and no user-to-user messaging. A student

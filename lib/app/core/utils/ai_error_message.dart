@@ -12,7 +12,18 @@ String? aiConsentBlockCode(Object error) {
   final data = error.response?.data;
   if (data is Map && data['code'] is String) {
     final code = data['code'] as String;
-    if (code == 'ai_consent_required' || code == 'guardian_consent_required') {
+    // `age_verification_required` manquait ici, et le manque était visible.
+    //
+    // `AiConsentService` (ai-consent.service.ts:41) rend ce code AVANT les deux
+    // autres, dès que le profil n'a pas de date de naissance — profil ancien,
+    // compte créé avant la porte d'âge, ou PATCH jamais arrivé. Le code n'étant
+    // pas reconnu, `aiErrorMessage` retombait sur le fourre-tout `status == 403`
+    // et affichait « connecte-toi » à quelqu'un DÉJÀ connecté : un message faux,
+    // qui envoie l'étudiant se déconnecter au lieu de compléter sa date de
+    // naissance. Le défaut dormait tant que les outils étaient masqués.
+    if (code == 'ai_consent_required' ||
+        code == 'guardian_consent_required' ||
+        code == 'age_verification_required') {
       return code;
     }
   }
@@ -45,6 +56,9 @@ String aiErrorMessage(Object error) {
   final block = aiConsentBlockCode(error);
   if (block == 'guardian_consent_required') {
     return trOr('guardian_consent_required');
+  }
+  if (block == 'age_verification_required') {
+    return trOr('tools_ai_error_birthdate_required');
   }
   if (status == 401 || status == 403) {
     return trOr('tools_ai_error_signin_required');

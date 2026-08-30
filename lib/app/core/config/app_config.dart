@@ -141,16 +141,34 @@ class AppConfig {
   /// ton nom » pendant que `/tools/cv-summary` et `/tools/personalize-letter`
   /// recopiaient `Nom : ${dto.name}` vers Groq, sans garde de consentement.
   /// Lot 11 a retiré le nom des invites et posé `AiConsentGuard` sur ces
-  /// routes. Le masque reste **off** jusqu'à ce que la garde soit déployée
-  /// **avec** la build 49 — la basculer avant ferait 403 les testeurs 48.
+  /// routes. Le masque restait **off** jusqu'à ce que la garde soit déployée
+  /// **avec** la build 49 — la basculer avant aurait fait 403 les testeurs 48.
   ///
-  /// À basculer à `true` le jour où IA-T1 est en prod ET la 49 est chez les
-  /// testeurs. Pas avant, et pas l'un sans l'autre.
+  /// ## OUVERT depuis la build 51 (30/08/2026)
+  ///
+  /// La condition posée ici était : « à basculer le jour où IA-T1 est en prod
+  /// ET la 49 est chez les testeurs ; pas avant, et pas l'un sans l'autre ».
+  /// Les deux moitiés sont vérifiées, pas supposées :
+  ///
+  ///   • `AiConsentGuard` protège `/tools/cv-summary`, `/tools/personalize-letter`,
+  ///     `/tools/interview/*` et `/document-review`
+  ///     (`tools.controller.ts:12-13`, `document-review.controller.ts:11-12`),
+  ///     et ce code est dans le commit `6129309` déployé en production.
+  ///   • Les builds 49 et 50 sont chez les testeurs.
+  ///
+  /// Le défaut passe à `true` plutôt que de vivre dans un `--dart-define` de
+  /// release : sinon `flutter test` continuerait de mesurer la configuration
+  /// MASQUÉE pendant qu'on livre la configuration ouverte — l'artefact ne
+  /// serait exercé de bout en bout nulle part. Le `--dart-define` reste
+  /// disponible pour refermer le masque sans toucher au code.
+  ///
+  /// Un porteur de la build 50 ne voit RIEN changer : c'est une constante de
+  /// compilation, elle n'existe que dans un binaire neuf.
   static bool get aiToolsEnabled =>
       _aiToolsEnabledOverride ??
       const bool.fromEnvironment(
         'KPB_AI_TOOLS_ENABLED',
-        defaultValue: false,
+        defaultValue: true,
       );
 
   static bool? _aiToolsEnabledOverride;
