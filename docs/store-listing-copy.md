@@ -392,8 +392,11 @@ additionally requires a guardian's recorded consent. The assistant has a
 weekly free message quota. Answers are presented as indicative and the UI
 states they do not replace a counsellor or the institution's official
 information. Text the student pastes into the writing tools is sent to the
-model to produce the requested draft; the student's name is never included in
-the prompt.
+model to produce the requested draft. The app never appends the student's
+name or profile identity to a prompt; pasted text is forwarded as written, so
+a pasted CV or letter may itself contain the student's name. Prompts are not
+used for provider training (OpenRouter routing is pinned to zero-data-retention
+with data collection denied).
 
 USER-GENERATED CONTENT
 There is no public feed, no forum and no user-to-user messaging. A student

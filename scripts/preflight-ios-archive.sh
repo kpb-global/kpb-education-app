@@ -126,9 +126,27 @@ WHATSAPP=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_WHATSAPP_NUMBER=//p' | tail
 POSTHOG=$(printf '%s\n' "$DECODED" | sed -n 's/^POSTHOG_API_KEY=//p' | tail -1)
 printf '%s\n' "$DECODED" | grep -q '^POSTHOG_API_KEY=' || \
   fail "DART_DEFINES sans choix explicite POSTHOG_API_KEY="
-if [[ -n "$POSTHOG" && "$POSTHOG" != phc_* ]]; then
+# La clé doit être PRÉSENTE, pas seulement « choisie explicitement ».
+#
+# Le contrôle acceptait la chaîne vide — un « choix explicite » de désactiver
+# PostHog. C'était juste tant que la clé n'existait pas. Elle existe depuis le
+# 26/08 (secret GitHub), et la build 50 est quand même partie sans elle :
+# `flutter build ios` a régénéré le xcconfig sans le define, l'archive a été
+# construite par-dessus, et le préflight a dit oui. La télémétrie produit de
+# cette build est perdue, définitivement.
+#
+# Accepter le vide, c'est laisser le même oubli passer une seconde fois — et
+# l'oubli est silencieux par nature : rien, dans l'app, ne signale que PostHog
+# ne parle pas. Pour désactiver PostHog volontairement, il faut désormais
+# éditer cette garde, ce qui laisse une trace en revue.
+[[ -n "$POSTHOG" ]] || \
+  fail "POSTHOG_API_KEY VIDE. La build 50 est partie ainsi et sa télémétrie est perdue. Reconstruire avec --dart-define=POSTHOG_API_KEY=phc_…"
+[[ "$POSTHOG" == phc_* ]] || \
   fail "POSTHOG_API_KEY renseignée mais format public phc_… invalide"
-fi
+# Un `phc_` de trois caractères passerait le préfixe et livrerait une clé morte
+# — le mode d'échec que DEPLOYMENT.md met en garde en toutes lettres.
+[[ ${#POSTHOG} -ge 40 ]] || \
+  fail "POSTHOG_API_KEY trop courte (${#POSTHOG} caractères) : ressemble à un exemple recopié, pas à une clé de projet"
 
 API_OVERRIDE=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_API_BASE_URL=//p' | tail -1)
 if [[ -n "$API_OVERRIDE" && "$API_OVERRIDE" != https://* ]]; then

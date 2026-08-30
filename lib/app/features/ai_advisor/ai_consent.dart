@@ -80,7 +80,16 @@ Future<void> openAiToolIfConsented(
   // visible exactement le jour où on les ouvre. On l'envoie sur le mur invité
   // du dépôt, qui sait convertir (il quitte le mode invité, remet l'onboarding
   // à faire et journalise `guest_to_signup` avec sa provenance).
-  if (controller.profile == null) {
+  //
+  // Le test porte sur `isGuestMode`, PAS sur `profile == null`. Les deux ne sont
+  // pas synonymes : une installation authentifiée dont la première
+  // synchronisation a échoué n'a pas de profil en cache non plus, et la coquille
+  // gère explicitement cet état. L'envoyer sur le mur invité l'aurait mis en
+  // BOUCLE — le bouton appelle `leaveGuestForSignup`, qui ne fait rien quand
+  // `isGuestMode` est faux, puis `AppBootScreen` voit un compte dont
+  // l'onboarding est terminé et le renvoie dans la coquille. Le même clic, sans
+  // fin.
+  if (controller.isGuestMode) {
     await Get.to<void>(
       () => Scaffold(
         appBar: AppBar(title: Text('tools_drawer_title'.tr)),
@@ -94,6 +103,17 @@ Future<void> openAiToolIfConsented(
           ),
         ),
       ),
+    );
+    return;
+  }
+  // Authentifié mais sans profil : la synchronisation n'a pas abouti. Ce n'est
+  // ni un invité ni un refus de consentement — le dire, plutôt que de rendre un
+  // clic mort.
+  if (controller.profile == null) {
+    Get.snackbar(
+      'profile_sync_pending_title'.tr,
+      'profile_sync_pending_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
     );
     return;
   }

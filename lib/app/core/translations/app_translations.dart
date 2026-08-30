@@ -45,6 +45,11 @@ class AppTranslations extends Translations {
           'guest_ai_tool_gate_body':
               'Le générateur de CV, les lettres de motivation et le simulateur d\'entretien travaillent à partir de ton profil. Un compte est nécessaire pour les personnaliser.',
           'guest_ai_tool_gate_cta': 'Créer mon compte',
+          // Authentifié mais sans profil en cache : synchronisation inaboutie.
+          // Ni un invité, ni un refus de consentement.
+          'profile_sync_pending_title': 'Profil pas encore synchronisé',
+          'profile_sync_pending_body':
+              'Tes informations n\'ont pas encore été récupérées. Vérifie ta connexion et réessaie dans un instant.',
           // ── Mur invité de l'onglet Bourses (PARC-04) ──
           // L'index des bourses exige une session côté serveur. L'écran
           // affichait « problème de connexion » et un bouton « Réessayer »
@@ -3160,6 +3165,9 @@ class AppTranslations extends Translations {
           'guest_ai_tool_gate_body':
               'The CV generator, cover letters and interview simulator work from your profile. An account is required to personalise them.',
           'guest_ai_tool_gate_cta': 'Create my account',
+          'profile_sync_pending_title': 'Profile not synced yet',
+          'profile_sync_pending_body':
+              'Your information has not been retrieved yet. Check your connection and try again in a moment.',
           // ── Guest wall on the Scholarships tab (PARC-04) ──
           'scholarships_auth_required_title':
               'Create your account to see the scholarships',
