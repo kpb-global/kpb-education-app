@@ -332,11 +332,11 @@ describe('versioned scholarship catalog', () => {
 
     await expect(importScholarshipCatalog(catalog, writer)).resolves.toMatchObject({
       created: 1,
-      skippedExisting: 0,
+      existingNotUpdated: 0,
     });
     await expect(importScholarshipCatalog(catalog, writer)).resolves.toMatchObject({
       created: 0,
-      skippedExisting: 1,
+      existingNotUpdated: 1,
     });
   });
 

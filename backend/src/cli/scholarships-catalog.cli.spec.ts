@@ -5,7 +5,9 @@ import { validateScholarshipCatalog } from '../modules/scholarships-index/data/s
 import {
   LEGACY_SEED_IDS,
   decidePublication,
+  driftLine,
   issuesByRecordIndex,
+  moderationDifferences,
   parseArgs,
   refuseSwitchReason,
 } from './scholarships-catalog.cli';
@@ -47,6 +49,21 @@ describe('scholarships-catalog CLI', () => {
     it('refuses --confirmed-only on import, where it would mean nothing', () => {
       expect(parseArgs(['import', '--apply', '--confirmed-only'])).toContain(
         '--confirmed-only applies to publish and switch',
+      );
+    });
+
+    it('accepts reconcile, and refuses --confirmed-only on it', () => {
+      expect(parseArgs(['reconcile', '--dry-run'])).toEqual({
+        command: 'reconcile',
+        apply: false,
+        confirmedOnly: false,
+      });
+      // `--confirmed-only` trie des fiches à PUBLIER. Réconcilier ne publie
+      // rien : l'accepter ici laisserait croire qu'on ne réaligne que les
+      // fiches confirmées, et donc qu'on peut le lancer sans conséquence sur
+      // les autres.
+      expect(parseArgs(['reconcile', '--apply', '--confirmed-only'])).toContain(
+        'not to reconcile',
       );
     });
 
@@ -227,6 +244,72 @@ describe('scholarships-catalog CLI', () => {
     });
   });
 
+
+  describe('moderationDifferences', () => {
+    // Le filet de `reconcile` : réaligner du contenu ne doit RIEN changer à
+    // l'état de modération. On compare un instantané de TOUTE la table avant et
+    // après, pas seulement les lignes du plan — un effet de bord ne se déclare
+    // pas à l'avance. Onze fiches de démonstration sont devenues publiques sur
+    // ce projet parce qu'un chemin d'écriture posait `isActive` sans le vouloir.
+    it('ne voit aucune différence quand la modération est intacte', () => {
+      const state = new Map([
+        ['a_2027', 'true/approved'],
+        ['b_2027', 'false/pending'],
+      ]);
+      expect(moderationDifferences(state, new Map(state))).toEqual([]);
+    });
+
+    it('attrape une publication, une dépublication, une apparition, une disparition', () => {
+      const before = new Map([
+        ['published_2027', 'true/approved'],
+        ['pending_2027', 'false/pending'],
+        ['gone_2027', 'false/pending'],
+      ]);
+      const after = new Map([
+        ['published_2027', 'false/pending'],
+        ['pending_2027', 'true/approved'],
+        ['new_2027', 'true/approved'],
+      ]);
+
+      expect(moderationDifferences(before, after)).toEqual([
+        'gone_2027 (disparue)',
+        'new_2027 (apparue : true/approved)',
+        'pending_2027 (false/pending → true/approved)',
+        'published_2027 (true/approved → false/pending)',
+      ]);
+    });
+  });
+
+  describe('driftLine', () => {
+    // « 2 fiches divergent » oblige à ouvrir psql pour savoir sur quoi. La ligne
+    // doit porter le champ, la valeur servie et la valeur du dépôt.
+    it('nomme le champ, la valeur en base et celle du catalogue', () => {
+      expect(
+        driftLine({
+          scholarshipId: 'york_pise_2027_forecast',
+          scope: 'cycle',
+          field: 'dateConfidence',
+          inDatabase: 'estimated',
+          inCatalog: 'confirmed',
+          reconciled: true,
+        }),
+      ).toBe('cycle.dateConfidence : estimated → confirmed');
+    });
+
+    it('dit explicitement quand une divergence est conservée en base', () => {
+      expect(
+        driftLine({
+          scholarshipId: 'york_pise_2027_forecast',
+          scope: 'cycle',
+          field: 'status',
+          inDatabase: 'open',
+          inCatalog: 'forecast',
+          reconciled: false,
+          keptReason: 'cycle activé en base',
+        }),
+      ).toContain('[CONSERVÉ EN BASE — cycle activé en base]');
+    });
+  });
 
   describe('refuseSwitchReason', () => {
     // Reproduit l'incident du 14/08/2026 : `switch` lancé sans `import`, aucune

@@ -32,6 +32,19 @@ name: VPS ops (feature flag / catalogue)
 # (« À venir, généralement aux mois de … »). C'est lui qui laissait 22 fiches
 # sur 34 hors ligne, dont les six licences panafricaines.
 #
+# Depuis le 31/08/2026, l'action enchaîne `import` → `reconcile` → `switch`.
+# `import` ne relit jamais une ligne existante — c'est voulu, et c'est pour cela
+# qu'une correction relue en PR n'atteignait JAMAIS la production une fois la
+# fiche créée : deux fiches servaient encore un cycle « estimated » là où le
+# dépôt disait « confirmed » depuis le 24/08. `reconcile` ferme cet écart, et
+# le `dry_run` le LISTE champ par champ au lieu de le taire derrière un
+# compteur de fiches « sautées ».
+#
+# `reconcile` ne publie ni n'approuve aucune fiche : il n'écrit ni `isActive` ni
+# `moderationStatus`, et sa transaction est annulée si l'état de modération
+# d'une seule fiche a bougé pendant l'opération. Approuver reste l'affaire de
+# `switch`, sur décision explicite.
+#
 # Le défaut est `dry_run: true`. Rien ne change tant qu'on ne l'a pas décoché.
 
 on:

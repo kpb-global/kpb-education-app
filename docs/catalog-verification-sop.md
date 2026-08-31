@@ -43,9 +43,67 @@ mode par défaut.
 ```bash
 docker compose exec -T api npm run catalog:import -- --dry-run
 docker compose exec -T api npm run catalog:import -- --apply
+docker compose exec -T api npm run catalog:reconcile -- --dry-run
+docker compose exec -T api npm run catalog:reconcile -- --apply
 docker compose exec -T api npm run catalog:switch -- --dry-run
 docker compose exec -T api npm run catalog:switch -- --apply
 ```
+
+> ### ⚠️ `import` ne corrige RIEN. C'est `reconcile` qui réaligne. (31/08/2026)
+>
+> `import` est idempotent par identifiant : il crée les fiches manquantes et
+> **saute** celles qui existent déjà. C'est délibéré — il ne doit pas écraser une
+> ligne à l'aveugle — mais la conséquence l'était moins : **une correction
+> apportée à une fiche du dépôt n'atteignait jamais la production une fois la
+> ligne créée.**
+>
+> Mesuré en production le 31/08/2026, après `catalog:switch --apply` (30 fiches
+> publiées, catalogue 1.3.0) : `york_pise_2027_forecast` et
+> `jj_wbgsp_2027_forecast` servaient `dateConfidence: "estimated"` alors que le
+> dépôt dit `confirmed` depuis la re-vérification du 24/08 (commit `1176f22`).
+> L'écart était conservateur — « À venir, généralement aux mois de … » au lieu
+> d'une date ferme, donc aucun étudiant n'a vu de fausse échéance — mais il
+> grandit à chaque version du catalogue.
+>
+> Rien ne le disait : `"skippedExisting": 34` se lit « rien à faire » alors qu'il
+> veut dire « 34 fiches non réalignées, donc potentiellement périmées ». Le
+> compteur s'appelle désormais `existingNotUpdated`, et `import --dry-run` liste
+> les écarts **champ par champ** :
+>
+> ```json
+> "existingNotUpdated": 34,
+> "existingAligned": 32,
+> "existingDrifted": 2,
+> "drift": [
+>   { "id": "york_pise_2027_forecast", "realign": 4, "keptFromDatabase": 0,
+>     "fields": ["cycle.dateConfidence : estimated → confirmed", "…"] }
+> ]
+> ```
+>
+> **L'ordre `import` → `reconcile` → `switch` n'est pas une préférence.**
+> `reconcile` doit passer AVANT `switch`, sinon on publie la version périmée
+> avant de la corriger.
+>
+> **`reconcile` ne publie ni n'approuve jamais.** Il n'écrit ni `isActive` ni
+> `moderationStatus`, et sa transaction est annulée si l'état de modération
+> d'une seule fiche a bougé pendant l'opération. La modération reste
+> fail-closed : publier est le travail de `switch`, sur décision explicite.
+>
+> **Ce que `reconcile` refuse d'écraser**, en le signalant dans son rapport
+> plutôt qu'en le taisant :
+>
+> | Cas | Qui fait foi | Pourquoi |
+> | --- | --- | --- |
+> | Cycle activé depuis l'admin (`activatedAt`) | la base | Réaligner rétrograderait une date ferme confirmée par un humain en « À venir » — le défaut d'aujourd'hui, dans l'autre sens |
+> | `lastVerifiedAt` en base plus récent que celui du dépôt | la base | Un contrôle humain du mois dernier ne se remplace pas par un tampon de catalogue plus ancien |
+> | Étape de candidature présente en base et absente du catalogue | la base | `ScholarshipWorkspaceStep.sourceStepId` est en `onDelete: SetNull` : la supprimer détacherait la progression des étudiants |
+> | Tags posés dans l'admin, ou tag d'une version antérieure du catalogue | la base | Les tags s'ajoutent, ne se remplacent pas — `publish` retrouve les lignes par ce tag |
+>
+> Sur tout le reste — texte, avantages, éligibilité, dates du cycle, étapes —
+> **le dépôt fait foi**. Une modification faite dans l'admin sur un champ
+> éditorial sera donc écrasée. C'est le sens voulu (une correction relue en PR
+> doit atteindre la production), et c'est pourquoi le `--dry-run` liste chaque
+> champ avant d'écrire.
 
 > ### ⚠️ `--confirmed-only` a été RETIRÉ de ces commandes (30/08/2026)
 >
