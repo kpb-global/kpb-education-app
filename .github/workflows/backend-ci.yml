@@ -116,6 +116,17 @@ jobs:
           KPB_RUN_POSTGRES_INTEGRATION: 'true'
         run: npm run test:integration:catalog-reads
 
+      # L'affectation en round-robin trie les conseillers sur `createdAt`, et la
+      # seed de production leur a donné le MÊME (un seul `now()` pour trois
+      # lignes). Sans départage, Postgres ne doit aucun ordre — seule une vraie
+      # base le dit. Les trois lignes du test sont insérées dans un ordre
+      # physique différent de l'ordre des identifiants, sinon il serait vert
+      # par hasard.
+      - name: PostgreSQL counsellor round-robin integration
+        env:
+          KPB_RUN_POSTGRES_INTEGRATION: 'true'
+        run: npm run test:integration:round-robin
+
       - name: Seed active countries + base catalog
         run: |
           npm run seed:countries-m5
