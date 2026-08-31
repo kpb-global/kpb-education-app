@@ -8,8 +8,9 @@
  * laissé les 34 fiches vérifiées dans le dépôt et 11 fiches de démonstration
  * dans la base pendant un mois.
  *
- * Quatre sous-commandes :
+ * Cinq sous-commandes :
  *   import              crée les fiches manquantes, inactives et en attente
+ *   reconcile           réaligne les fiches DÉJÀ présentes sur le dépôt
  *   publish             active les fiches éligibles
  *   deactivate-legacy   désactive les 11 fiches de démonstration nommément
  *   switch              publish puis deactivate-legacy, dans UNE transaction
@@ -17,6 +18,18 @@
  * `switch` est la commande de la bascule : l'ordre publier-puis-dépublier et la
  * transaction unique garantissent qu'il n'existe aucun instant où l'onglet
  * Bourses est vide pour les utilisateurs.
+ *
+ * `reconcile` ferme la seconde moitié du même défaut. `import` ne touche jamais
+ * une ligne existante — c'est voulu — mais rien ne réalignait ces lignes ensuite :
+ * une correction relue en PR n'atteignait donc JAMAIS la production une fois la
+ * fiche créée. Mesuré le 31/08/2026 : `york_pise_2027_forecast` et
+ * `jj_wbgsp_2027_forecast` servaient un cycle `estimated` là où le dépôt dit
+ * `confirmed` depuis le 24/08. `import --dry-run` annonçait « 34 existantes » et
+ * se lisait « rien à faire ». Il liste désormais les écarts, champ par champ.
+ *
+ * `reconcile` ne publie ni n'approuve JAMAIS : il ne nomme même pas `isActive`
+ * ni `moderationStatus`, et une assertion en fin de transaction annule tout si
+ * l'état de modération d'une seule fiche a bougé pendant l'opération.
  */
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
@@ -27,6 +40,13 @@ import {
   importScholarshipCatalog,
   type ScholarshipCatalogWriter,
 } from '../modules/scholarships-index/data/scholarship-catalog.importer';
+import {
+  planIsEmpty,
+  planScholarshipReconciliation,
+  type CatalogDrift,
+  type ReconcilableScholarshipRow,
+  type ReconciliationPlan,
+} from '../modules/scholarships-index/data/scholarship-catalog.reconcile';
 import { buildScholarshipCreateData } from '../modules/scholarships-index/data/scholarship-catalog.create-data';
 import { SCHOLARSHIP_CATALOG_V1 } from '../modules/scholarships-index/data/scholarship-catalog.v1';
 import {
@@ -34,6 +54,7 @@ import {
   type ScholarshipCatalogValidationReport,
 } from '../modules/scholarships-index/data/scholarship-catalog.validator';
 import { ScholarshipContentQualityService } from '../modules/scholarships-index/scholarship-content-quality.service';
+import type { VerifiedScholarshipCatalogRecord } from '../modules/scholarships-index/data/scholarship-catalog.types';
 import type { PrismaService } from '../modules/prisma/prisma.service';
 
 /**
@@ -60,7 +81,13 @@ const LEGACY_SEED_IDS = [
   'turkiye_burslari',
 ] as const;
 
-const COMMANDS = ['import', 'publish', 'deactivate-legacy', 'switch'] as const;
+const COMMANDS = [
+  'import',
+  'reconcile',
+  'publish',
+  'deactivate-legacy',
+  'switch',
+] as const;
 type Command = (typeof COMMANDS)[number];
 
 const CATALOG_TAG = `catalog:${SCHOLARSHIP_CATALOG_V1.catalogVersion}`;
@@ -89,8 +116,8 @@ function parseArgs(argv: string[]): Options | string {
     return 'Choose exactly one mode: --dry-run or --apply.';
   }
   const confirmedOnly = argv.includes('--confirmed-only');
-  if (confirmedOnly && command === 'import') {
-    return '--confirmed-only applies to publish and switch, not to import.';
+  if (confirmedOnly && (command === 'import' || command === 'reconcile')) {
+    return `--confirmed-only applies to publish and switch, not to ${command}.`;
   }
   return { command, apply, confirmedOnly };
 }
@@ -186,8 +213,20 @@ function decidePublication(
   return { id: row.id, publish: true, reason: 'éligible', confidence };
 }
 
-async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
-  const now = new Date();
+/**
+ * La porte d'entrée commune à `import` et `reconcile` : le validateur écarte les
+ * fiches fautives une par une, jamais le catalogue entier.
+ *
+ * `reconcile` la franchit pour la même raison qu'`import` : réaligner la
+ * production sur un littéral que le validateur refuse reviendrait à pousser
+ * l'anomalie en base au lieu de la laisser dehors.
+ */
+interface CatalogGate {
+  importable: VerifiedScholarshipCatalogRecord[];
+  skipped: string[];
+}
+
+function gateCatalog(now: Date): CatalogGate {
   const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
     includeVolumeTargets: false,
     now,
@@ -200,14 +239,79 @@ async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
         'Ces anomalies ne concernent aucune fiche en particulier et doivent être corrigées.',
     );
   }
+  return {
+    importable: SCHOLARSHIP_CATALOG_V1.records.filter(
+      (_, index) => !blocking.has(index),
+    ),
+    skipped: SCHOLARSHIP_CATALOG_V1.records
+      .map((record, index) => ({ record, codes: blocking.get(index) }))
+      .filter((entry) => entry.codes)
+      .map(
+        (entry) => `${entry.record.scholarship.id} (${entry.codes!.join(', ')})`,
+      ),
+  };
+}
 
-  const importable = SCHOLARSHIP_CATALOG_V1.records.filter(
-    (_, index) => !blocking.has(index),
+type CatalogReader = Pick<PrismaClient, 'scholarship'> | Prisma.TransactionClient;
+
+/** Confronte chaque fiche du catalogue à la ligne correspondante en base. */
+async function loadReconciliationPlans(
+  db: CatalogReader,
+  records: VerifiedScholarshipCatalogRecord[],
+  catalogVersion: string,
+): Promise<ReconciliationPlan[]> {
+  const rows = await db.scholarship.findMany({
+    where: { id: { in: records.map((record) => record.scholarship.id) } },
+    include: {
+      applicationSteps: { orderBy: { stepNumber: 'asc' } },
+      cycles: { orderBy: { academicYear: 'desc' } },
+    },
+  });
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return records.map((record) =>
+    planScholarshipReconciliation(
+      record,
+      catalogVersion,
+      (byId.get(record.scholarship.id) ??
+        null) as unknown as ReconcilableScholarshipRow | null,
+    ),
   );
-  const skipped = SCHOLARSHIP_CATALOG_V1.records
-    .map((record, index) => ({ record, codes: blocking.get(index) }))
-    .filter((entry) => entry.codes)
-    .map((entry) => `${entry.record.scholarship.id} (${entry.codes!.join(', ')})`);
+}
+
+/**
+ * Une divergence rendue en UNE ligne lisible dans un terminal de CI : le champ,
+ * la valeur servie, la valeur du dépôt. Un rapport qui dit seulement « 2 fiches
+ * divergent » oblige à ouvrir psql pour savoir sur quoi.
+ */
+export function driftLine(drift: CatalogDrift): string {
+  const head = `${drift.scope}.${drift.field} : ${drift.inDatabase} → ${drift.inCatalog}`;
+  return drift.reconciled
+    ? head
+    : `${head}  [CONSERVÉ EN BASE — ${drift.keptReason}]`;
+}
+
+function driftSummary(plan: ReconciliationPlan) {
+  return {
+    id: plan.scholarshipId,
+    realign: plan.drifts.filter((drift) => drift.reconciled).length,
+    keptFromDatabase: plan.drifts.filter((drift) => !drift.reconciled).length,
+    fields: plan.drifts.map(driftLine),
+  };
+}
+
+async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
+  const now = new Date();
+  const { importable, skipped } = gateCatalog(now);
+
+  // L'écart est relevé AVANT toute création : une ligne créée à l'instant est
+  // alignée par construction, l'inclure diluerait le compte.
+  const plans = await loadReconciliationPlans(
+    prisma,
+    importable,
+    SCHOLARSHIP_CATALOG_V1.catalogVersion,
+  );
+  const existing = plans.filter((plan) => plan.presentInDatabase);
+  const drifted = existing.filter((plan) => plan.drifts.length > 0);
 
   console.log(
     JSON.stringify(
@@ -218,11 +322,26 @@ async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
         records: SCHOLARSHIP_CATALOG_V1.records.length,
         importable: importable.length,
         skipped,
+        missingFromDatabase: importable.length - existing.length,
+        // Ce bloc est la raison d'être du changement : « 34 existantes » ne se
+        // lit plus « rien à faire ». On dit combien sont réellement à jour, et
+        // pour les autres, quel champ diverge.
+        existingNotUpdated: existing.length,
+        existingAligned: existing.length - drifted.length,
+        existingDrifted: drifted.length,
+        drift: drifted.map(driftSummary),
       },
       null,
       2,
     ),
   );
+  if (drifted.length > 0) {
+    console.error(
+      `::warning::${drifted.length} fiche(s) en base divergent du catalogue ${SCHOLARSHIP_CATALOG_V1.catalogVersion}. ` +
+        '`import` ne les corrigera pas — il ne touche jamais une ligne existante. ' +
+        'Lancer `catalog:reconcile --dry-run` puis `--apply`.',
+    );
+  }
   if (importable.length === 0) {
     throw new Error('Aucune fiche importable : rien à faire.');
   }
@@ -261,6 +380,227 @@ async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
     writer,
   );
   console.log(JSON.stringify({ step: 'import', ...summary }, null, 2));
+}
+
+/**
+ * Instantané de l'état de modération de TOUTE la table, pas seulement des fiches
+ * réconciliées.
+ *
+ * Comparer avant/après est la seule preuve qui résiste à une régression future :
+ * une assertion qui se contenterait de relire les fiches que le plan a touchées
+ * ne verrait pas un effet de bord — un trigger, une cascade, un futur champ
+ * ajouté par mégarde au plan. Onze fiches de démonstration sont devenues
+ * publiques sur ce projet parce qu'un chemin d'écriture posait `isActive` sans
+ * que personne ne l'ait demandé.
+ */
+interface ReconcileGuardSnapshot {
+  moderation: Map<string, string>;
+  /** Identifiants portant un `lastVerifiedAt` non nul. */
+  verified: Set<string>;
+}
+
+async function guardSnapshot(
+  tx: Prisma.TransactionClient,
+): Promise<ReconcileGuardSnapshot> {
+  const rows = await tx.scholarship.findMany({
+    select: {
+      id: true,
+      isActive: true,
+      moderationStatus: true,
+      lastVerifiedAt: true,
+    },
+  });
+  return {
+    moderation: new Map(
+      rows.map((row) => [
+        row.id,
+        `${String(row.isActive)}/${row.moderationStatus}`,
+      ]),
+    ),
+    verified: new Set(
+      rows.filter((row) => row.lastVerifiedAt !== null).map((row) => row.id),
+    ),
+  };
+}
+
+/**
+ * Aucune fiche ne doit PERDRE son tampon de vérification pendant un
+ * réalignement : `publicScholarshipWhere` exige `lastVerifiedAt` non nul, donc
+ * l'effacer rendrait une bourse publiée invisible sans que rien ne le dise.
+ *
+ * C'est un contrôle de DELTA, et pas `assertNoUnverifiedPublication`, qui
+ * demande qu'AUCUNE fiche active n'ait un tampon nul. Cet état-là est atteignable
+ * hors de nous : `setVerification(..., false)` révoque le tampon sans toucher
+ * `isActive`. Réutiliser l'assertion absolue ici aurait fait qu'UNE fiche
+ * révoquée bloque le réalignement des 33 autres — la falaise que ce dépôt a déjà
+ * payée une fois avec le refus global du validateur.
+ */
+function verificationErased(
+  before: ReconcileGuardSnapshot,
+  after: ReconcileGuardSnapshot,
+): string[] {
+  return [...before.verified].filter((id) => !after.verified.has(id)).sort();
+}
+
+/** Réconcilier n'est pas publier. Si la modération a bougé, on annule tout. */
+export function moderationDifferences(
+  before: Map<string, string>,
+  after: Map<string, string>,
+): string[] {
+  const changed: string[] = [];
+  for (const [id, state] of after) {
+    const was = before.get(id);
+    if (was === undefined) changed.push(`${id} (apparue : ${state})`);
+    else if (was !== state) changed.push(`${id} (${was} → ${state})`);
+  }
+  for (const id of before.keys()) {
+    if (!after.has(id)) changed.push(`${id} (disparue)`);
+  }
+  return changed.sort();
+}
+
+async function assertReconcileChangedNothingItShouldNot(
+  tx: Prisma.TransactionClient,
+  before: ReconcileGuardSnapshot,
+): Promise<void> {
+  const after = await guardSnapshot(tx);
+  const changed = moderationDifferences(before.moderation, after.moderation);
+  if (changed.length > 0) {
+    throw new Error(
+      `Transaction annulée : réconcilier ne doit RIEN changer à l'état de ` +
+        `modération, or ${changed.length} fiche(s) ont bougé — ${changed.join(' ; ')}. ` +
+        'Publier est le travail de `publish` / `switch`, jamais de `reconcile`.',
+    );
+  }
+  const erased = verificationErased(before, after);
+  if (erased.length > 0) {
+    throw new Error(
+      `Transaction annulée : ${erased.length} fiche(s) ont PERDU leur date de ` +
+        `vérification (${erased.join(', ')}). Les lectures publiques les ` +
+        'masqueraient sans que rien ne le signale.',
+    );
+  }
+}
+
+/**
+ * Applique UN plan. Aucun `delete` : les étapes de candidature sont mises à jour
+ * par `stepNumber` et créées si absentes, jamais supprimées — la progression des
+ * étudiants y est rattachée par `ScholarshipWorkspaceStep.sourceStepId`
+ * (`onDelete: SetNull`), qu'une suppression détacherait en silence.
+ */
+export async function applyReconciliation(
+  tx: Prisma.TransactionClient,
+  plan: ReconciliationPlan,
+): Promise<void> {
+  if (Object.keys(plan.scholarshipUpdate).length > 0) {
+    await tx.scholarship.update({
+      where: { id: plan.scholarshipId },
+      data: plan.scholarshipUpdate as Prisma.ScholarshipUpdateInput,
+    });
+  }
+  if (plan.cycle.action === 'create') {
+    await tx.scholarshipCycle.create({
+      data: {
+        ...(plan.cycle.data as Prisma.ScholarshipCycleUncheckedCreateInput),
+        scholarshipId: plan.scholarshipId,
+      },
+    });
+  } else if (plan.cycle.action === 'update') {
+    await tx.scholarshipCycle.update({
+      where: {
+        scholarshipId_academicYear: {
+          scholarshipId: plan.scholarshipId,
+          academicYear: plan.cycle.academicYear,
+        },
+      },
+      data: plan.cycle.data as Prisma.ScholarshipCycleUpdateInput,
+    });
+  }
+  for (const step of plan.steps.create) {
+    await tx.scholarshipApplicationStep.create({
+      data: {
+        ...(step as unknown as Prisma.ScholarshipApplicationStepUncheckedCreateInput),
+        scholarshipId: plan.scholarshipId,
+      },
+    });
+  }
+  for (const step of plan.steps.update) {
+    await tx.scholarshipApplicationStep.update({
+      where: {
+        scholarshipId_stepNumber: {
+          scholarshipId: plan.scholarshipId,
+          stepNumber: step.stepNumber,
+        },
+      },
+      data: step.data as Prisma.ScholarshipApplicationStepUpdateInput,
+    });
+  }
+}
+
+async function runReconcile(
+  prisma: PrismaClient,
+  apply: boolean,
+): Promise<void> {
+  const now = new Date();
+  const { importable, skipped } = gateCatalog(now);
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const before = await guardSnapshot(tx);
+      const plans = await loadReconciliationPlans(
+        tx,
+        importable,
+        SCHOLARSHIP_CATALOG_V1.catalogVersion,
+      );
+      const present = plans.filter((plan) => plan.presentInDatabase);
+      const writable = present.filter((plan) => !planIsEmpty(plan));
+      // Divergences RÉELLES qu'on choisit de ne pas écrire (cycle activé depuis
+      // l'admin, vérification humaine plus récente, étape en trop). Les taire
+      // reproduirait le défaut d'origine à un cran plus loin.
+      const keptOnly = present.filter(
+        (plan) => planIsEmpty(plan) && plan.drifts.length > 0,
+      );
+
+      console.log(
+        JSON.stringify(
+          {
+            step: 'reconcile',
+            mode: apply ? 'apply' : 'dry-run',
+            catalogVersion: SCHOLARSHIP_CATALOG_V1.catalogVersion,
+            candidates: importable.length,
+            presentInDatabase: present.length,
+            notInDatabase: plans
+              .filter((plan) => !plan.presentInDatabase)
+              .map((plan) => plan.scholarshipId),
+            aligned: present.length - writable.length - keptOnly.length,
+            realigned: writable.map(driftSummary),
+            keptFromDatabase: keptOnly.map(driftSummary),
+            skippedByValidator: skipped,
+          },
+          null,
+          2,
+        ),
+      );
+
+      for (const plan of writable) {
+        await applyReconciliation(tx, plan);
+      }
+
+      // Modération intacte ET aucun tampon de vérification perdu, mesurés en
+      // DELTA. Voir `verificationErased` : l'assertion absolue de `publish`
+      // ferait qu'une seule fiche révoquée bloque le réalignement de toutes les
+      // autres.
+      await assertReconcileChangedNothingItShouldNot(tx, before);
+
+      if (!apply) throw new RollbackSignal('dry-run');
+    });
+  } catch (error) {
+    if (error instanceof RollbackSignal) {
+      console.log('Mode --dry-run : transaction annulée, aucune écriture.');
+      return;
+    }
+    throw error;
+  }
 }
 
 async function publishInTransaction(
@@ -504,6 +844,8 @@ async function main(): Promise<void> {
   try {
     if (parsed.command === 'import') {
       await runImport(prisma, parsed.apply);
+    } else if (parsed.command === 'reconcile') {
+      await runReconcile(prisma, parsed.apply);
     } else if (parsed.command === 'deactivate-legacy') {
       await runDeactivateLegacy(prisma, parsed.apply);
     } else {

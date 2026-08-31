@@ -116,6 +116,17 @@ jobs:
           KPB_RUN_POSTGRES_INTEGRATION: 'true'
         run: npm run test:integration:catalog-reads
 
+      # `catalog:import` ne relit jamais une ligne existante : une correction du
+      # dépôt n'atteignait donc jamais la production une fois la fiche créée.
+      # Deux fiches servaient un cycle « estimated » là où le dépôt disait
+      # « confirmed » (mesuré le 31/08/2026). Le réalignement écrit en base :
+      # seule une base réelle dit s'il écrit ce qu'il annonce, et surtout s'il
+      # laisse la modération strictement intacte.
+      - name: PostgreSQL catalog reconciliation integration
+        env:
+          KPB_RUN_POSTGRES_INTEGRATION: 'true'
+        run: npm run test:integration:catalog-reconcile
+
       - name: Seed active countries + base catalog
         run: |
           npm run seed:countries-m5

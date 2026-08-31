@@ -132,13 +132,28 @@ case "$ACTION" in
   publish-catalog)
     # SOP docs/catalog-verification-sop.md, SANS --confirmed-only : ce drapeau
     # écarte toute fiche à cycle estimé, c'est-à-dire les bourses « à venir ».
+    #
+    # `reconcile` s'intercale entre `import` et `switch`, et l'ordre est une
+    # nécessité, pas une préférence :
+    #   • `import` crée les fiches manquantes et NE TOUCHE JAMAIS les autres ;
+    #   • `reconcile` réaligne les fiches déjà créées sur le dépôt — sans lui,
+    #     une correction relue en PR n'atteint jamais la production (mesuré le
+    #     31/08/2026 : deux fiches servaient un cycle « estimated » là où le
+    #     dépôt disait « confirmed » depuis le 24/08) ;
+    #   • `switch` publie, en dernier, sur des données à jour. Réconcilier APRÈS
+    #     aurait publié la version périmée avant de la corriger.
+    #
+    # `reconcile` ne publie ni n'approuve rien : sa transaction est annulée si
+    # l'état de modération d'une seule fiche a bougé pendant l'opération.
     if [ "$DRY_RUN" = "true" ]; then
       echo "── SIMULATION (rien n'est écrit) ──"
       docker compose exec -T api npm run catalog:import -- --dry-run
+      docker compose exec -T api npm run catalog:reconcile -- --dry-run
       docker compose exec -T api npm run catalog:switch -- --dry-run
     else
       echo "── APPLICATION ──"
       docker compose exec -T api npm run catalog:import -- --apply
+      docker compose exec -T api npm run catalog:reconcile -- --apply
       docker compose exec -T api npm run catalog:switch -- --apply
     fi
     echo
