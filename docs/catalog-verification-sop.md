@@ -95,7 +95,8 @@ docker compose exec -T api npm run catalog:switch -- --apply
 > | Cas | Qui fait foi | Pourquoi |
 > | --- | --- | --- |
 > | Cycle activé depuis l'admin (`activatedAt`) | la base | Réaligner rétrograderait une date ferme confirmée par un humain en « À venir » — le défaut d'aujourd'hui, dans l'autre sens |
-> | `lastVerifiedAt` en base plus récent que celui du dépôt | la base | Un contrôle humain du mois dernier ne se remplace pas par un tampon de catalogue plus ancien |
+> | **Vérification révoquée** (`setVerification(..., false)` → `lastVerifiedAt` nul) | la base | La révocation ne touche NI `isActive` NI `moderationStatus` : la fiche reste active et n'est masquée que par `lastVerifiedAt: { not: null }`. Reposer le tampon la **republierait sans relecture**. Un `lastVerifiedAt` nul est un signal, pas un vide — seule une nouvelle vérification humaine le repose |
+> | `lastVerifiedAt` en base plus récent que celui du dépôt | la base | Un contrôle humain du mois dernier ne se remplace pas par un tampon de catalogue plus ancien. `lastVerifiedAt`, `verifiedById`, `verifiedByName` et **`sourceUrl`** se déplacent d'un bloc : `verificationData` les écrit ensemble, et garder le nom du relecteur en réécrivant sa source attribuerait sa vérification à un lien qu'il n'a pas ouvert |
 > | Étape de candidature présente en base et absente du catalogue | la base | `ScholarshipWorkspaceStep.sourceStepId` est en `onDelete: SetNull` : la supprimer détacherait la progression des étudiants |
 > | Tags posés dans l'admin, ou tag d'une version antérieure du catalogue | la base | Les tags s'ajoutent, ne se remplacent pas — `publish` retrouve les lignes par ce tag |
 >

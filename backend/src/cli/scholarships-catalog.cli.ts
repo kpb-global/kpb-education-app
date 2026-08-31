@@ -393,15 +393,53 @@ async function runImport(prisma: PrismaClient, apply: boolean): Promise<void> {
  * publiques sur ce projet parce qu'un chemin d'écriture posait `isActive` sans
  * que personne ne l'ait demandé.
  */
-async function moderationSnapshot(
+interface ReconcileGuardSnapshot {
+  moderation: Map<string, string>;
+  /** Identifiants portant un `lastVerifiedAt` non nul. */
+  verified: Set<string>;
+}
+
+async function guardSnapshot(
   tx: Prisma.TransactionClient,
-): Promise<Map<string, string>> {
+): Promise<ReconcileGuardSnapshot> {
   const rows = await tx.scholarship.findMany({
-    select: { id: true, isActive: true, moderationStatus: true },
+    select: {
+      id: true,
+      isActive: true,
+      moderationStatus: true,
+      lastVerifiedAt: true,
+    },
   });
-  return new Map(
-    rows.map((row) => [row.id, `${String(row.isActive)}/${row.moderationStatus}`]),
-  );
+  return {
+    moderation: new Map(
+      rows.map((row) => [
+        row.id,
+        `${String(row.isActive)}/${row.moderationStatus}`,
+      ]),
+    ),
+    verified: new Set(
+      rows.filter((row) => row.lastVerifiedAt !== null).map((row) => row.id),
+    ),
+  };
+}
+
+/**
+ * Aucune fiche ne doit PERDRE son tampon de vérification pendant un
+ * réalignement : `publicScholarshipWhere` exige `lastVerifiedAt` non nul, donc
+ * l'effacer rendrait une bourse publiée invisible sans que rien ne le dise.
+ *
+ * C'est un contrôle de DELTA, et pas `assertNoUnverifiedPublication`, qui
+ * demande qu'AUCUNE fiche active n'ait un tampon nul. Cet état-là est atteignable
+ * hors de nous : `setVerification(..., false)` révoque le tampon sans toucher
+ * `isActive`. Réutiliser l'assertion absolue ici aurait fait qu'UNE fiche
+ * révoquée bloque le réalignement des 33 autres — la falaise que ce dépôt a déjà
+ * payée une fois avec le refus global du validateur.
+ */
+function verificationErased(
+  before: ReconcileGuardSnapshot,
+  after: ReconcileGuardSnapshot,
+): string[] {
+  return [...before.verified].filter((id) => !after.verified.has(id)).sort();
 }
 
 /** Réconcilier n'est pas publier. Si la modération a bougé, on annule tout. */
@@ -421,16 +459,25 @@ export function moderationDifferences(
   return changed.sort();
 }
 
-async function assertModerationUnchanged(
+async function assertReconcileChangedNothingItShouldNot(
   tx: Prisma.TransactionClient,
-  before: Map<string, string>,
+  before: ReconcileGuardSnapshot,
 ): Promise<void> {
-  const changed = moderationDifferences(before, await moderationSnapshot(tx));
+  const after = await guardSnapshot(tx);
+  const changed = moderationDifferences(before.moderation, after.moderation);
   if (changed.length > 0) {
     throw new Error(
       `Transaction annulée : réconcilier ne doit RIEN changer à l'état de ` +
         `modération, or ${changed.length} fiche(s) ont bougé — ${changed.join(' ; ')}. ` +
         'Publier est le travail de `publish` / `switch`, jamais de `reconcile`.',
+    );
+  }
+  const erased = verificationErased(before, after);
+  if (erased.length > 0) {
+    throw new Error(
+      `Transaction annulée : ${erased.length} fiche(s) ont PERDU leur date de ` +
+        `vérification (${erased.join(', ')}). Les lectures publiques les ` +
+        'masqueraient sans que rien ne le signale.',
     );
   }
 }
@@ -499,7 +546,7 @@ async function runReconcile(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const before = await moderationSnapshot(tx);
+      const before = await guardSnapshot(tx);
       const plans = await loadReconciliationPlans(
         tx,
         importable,
@@ -539,10 +586,11 @@ async function runReconcile(
         await applyReconciliation(tx, plan);
       }
 
-      // Dans cet ordre : d'abord qu'on n'a rien publié, ensuite qu'on n'a rien
-      // rendu impubliable en effaçant un tampon de vérification.
-      await assertModerationUnchanged(tx, before);
-      await assertNoUnverifiedPublication(tx);
+      // Modération intacte ET aucun tampon de vérification perdu, mesurés en
+      // DELTA. Voir `verificationErased` : l'assertion absolue de `publish`
+      // ferait qu'une seule fiche révoquée bloque le réalignement de toutes les
+      // autres.
+      await assertReconcileChangedNothingItShouldNot(tx, before);
 
       if (!apply) throw new RollbackSignal('dry-run');
     });

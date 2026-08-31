@@ -28,6 +28,8 @@
  * | 9 | `sameValue` renvoie toujours `false` (tout diverge) | « ne signale rien quand la ligne est déjà alignée » + 3 autres |
  * | 10 | La garde du tampon de vérification désactivée | « ne remplace pas une vérification humaine plus récente » |
  * | 11 | Un cycle absent n'est plus créé | « crée un cycle absent … » |
+ * | 12 | `sourceUrl` retiré de `VERIFICATION_PROVENANCE_FIELDS` | « garde la source consultée par le relecteur » |
+ * | 13 | La règle de révocation rendue inopérante (`null` lu comme « jamais posé ») | « ne repose pas un tampon qu'un relecteur a révoqué » |
  *
  * La mutation n° 9 mérite un mot : elle vérifie la CONTRE-ÉPREUVE. Un détecteur
  * qui crie sur tout passerait les tests « il voit l'écart » et rendrait pourtant
@@ -35,6 +37,7 @@
  */
 import {
   NEVER_RECONCILED_FIELDS,
+  VERIFICATION_PROVENANCE_FIELDS,
   planIsEmpty,
   planScholarshipReconciliation,
   sameValue,
@@ -335,14 +338,92 @@ describe('planScholarshipReconciliation', () => {
       row.lastVerifiedAt = new Date('2026-08-30T10:00:00.000Z');
       row.verifiedById = 'admin-42';
       row.verifiedByName = 'Relecteur KPB';
+      row.sourceUrl = 'https://futurestudents.yorku.ca/corrigee-par-le-relecteur';
+
+      const plan = planScholarshipReconciliation(record, VERSION, row);
+
+      for (const field of VERIFICATION_PROVENANCE_FIELDS) {
+        expect(Object.keys(plan.scholarshipUpdate)).not.toContain(field);
+      }
+      expect(
+        plan.drifts.find((drift) => drift.field === 'verifiedByName')?.keptReason,
+      ).toContain('plus récente');
+    });
+
+    // Mutation n° 12 : retirer `sourceUrl` de VERIFICATION_PROVENANCE_FIELDS.
+    //
+    // `AdminCatalogService.verificationData` écrit `sourceUrl` AVEC le tampon :
+    // c'est la source que le relecteur a réellement ouverte. Garder son nom en
+    // réécrivant sa source par celle, plus ancienne, du dépôt produit une ligne
+    // qui attribue une vérification humaine à un lien que cette personne n'a
+    // jamais consulté. La provenance se déplace d'un bloc ou pas du tout.
+    it("garde la source consultée par le relecteur, pas celle du dépôt", () => {
+      const record = recordById('york_pise_2027_forecast');
+      const row = rowAsCreatedFrom(record);
+      row.lastVerifiedAt = new Date('2026-08-30T10:00:00.000Z');
+      row.verifiedByName = 'Relecteur KPB';
+      row.sourceUrl = 'https://futurestudents.yorku.ca/corrigee-par-le-relecteur';
+
+      const plan = planScholarshipReconciliation(record, VERSION, row);
+
+      expect(Object.keys(plan.scholarshipUpdate)).not.toContain('sourceUrl');
+      expect(
+        plan.drifts.find((drift) => drift.field === 'sourceUrl')?.reconciled,
+      ).toBe(false);
+    });
+
+    /**
+     * Mutation n° 13 : rendre la règle de révocation inopérante (traiter un
+     * `lastVerifiedAt` nul comme « jamais posé »). Le plan réécrit alors le
+     * tampon du catalogue et la fiche redevient publique.
+     *
+     * C'est le cas le plus grave couvert par ce fichier, et le moins visible.
+     * `AdminCatalogService.setVerification(..., false)` met `lastVerifiedAt`,
+     * `verifiedById` et `verifiedByName` à `null` pour dire « à confirmer », et
+     * ne touche NI `isActive` NI `moderationStatus`. La fiche reste donc active
+     * et approuvée : seule la clause `lastVerifiedAt: { not: null }` de
+     * `publicScholarshipWhere` la masque. Reposer le tampon la republie — sans
+     * relecture, et sans qu'aucune assertion ne parle, puisque le filet existant
+     * cherche l'inverse (une fiche active SANS tampon).
+     */
+    it("ne repose pas un tampon qu'un relecteur a révoqué", () => {
+      const record = recordById('york_pise_2027_forecast');
+      const row = rowAsCreatedFrom(record);
+      // L'état exact laissé par `setVerification(..., false)`.
+      row.lastVerifiedAt = null;
+      row.verifiedById = null;
+      row.verifiedByName = null;
+      // …sur une fiche restée publiée, ce que la révocation ne change pas.
+      row.isActive = true;
+      row.moderationStatus = 'approved';
 
       const plan = planScholarshipReconciliation(record, VERSION, row);
 
       expect(Object.keys(plan.scholarshipUpdate)).not.toContain('lastVerifiedAt');
+      expect(Object.keys(plan.scholarshipUpdate)).not.toContain('verifiedById');
       expect(Object.keys(plan.scholarshipUpdate)).not.toContain('verifiedByName');
-      expect(
-        plan.drifts.find((drift) => drift.field === 'verifiedByName')?.keptReason,
-      ).toContain('plus récente');
+      const drift = plan.drifts.find(
+        (item) => item.field === 'lastVerifiedAt',
+      )!;
+      expect(drift.reconciled).toBe(false);
+      expect(drift.keptReason).toContain('révoquée');
+    });
+
+    it('repose bien le tampon quand la base ne le contredit pas', () => {
+      // La contre-épreuve de la révocation : sans elle, une règle qui refuserait
+      // TOUJOURS d'écrire la provenance passerait les deux tests ci-dessus et
+      // laisserait les tampons dériver en silence.
+      const record = recordById('york_pise_2027_forecast');
+      const row = rowAsCreatedFrom(record);
+      row.lastVerifiedAt = new Date('2026-01-01T00:00:00.000Z');
+      row.verifiedByName = 'Relecteur d’il y a longtemps';
+
+      const plan = planScholarshipReconciliation(record, VERSION, row);
+
+      expect(plan.scholarshipUpdate.verifiedByName).toBe(record.verifiedBy);
+      expect(plan.scholarshipUpdate.lastVerifiedAt).toEqual(
+        new Date(record.verifiedAt),
+      );
     });
 
     // Mutation n° 5 : remplacer l'union par un remplacement pur

@@ -30,11 +30,13 @@
  * | `applyReconciliation` n'écrit plus le cycle | « la base sert désormais la date ferme » ; « un second passage ne trouve plus rien à faire » |
  * | `moderationDifferences` renvoie toujours `[]` | « le filet attrape une publication qui contournerait le planificateur » |
  * | Les étapes sont supprimées puis recréées (le « delete + recreate » naïf) | « l'étape ajoutée dans l'admin survit » ; « un second passage … » |
+ * | La règle de révocation rendue inopérante dans `reconcile.ts` | « une vérification révoquée ne redevient pas publique » |
  */
 import { randomUUID } from 'node:crypto';
 
 import { PrismaClient, type Prisma } from '@prisma/client';
 
+import { publicScholarshipWhere } from '../common/public-scholarship-where';
 import { buildScholarshipCreateData } from '../modules/scholarships-index/data/scholarship-catalog.create-data';
 import {
   planIsEmpty,
@@ -206,6 +208,33 @@ describePostgres('catalog:reconcile — intégration PostgreSQL', () => {
     const plan = await reconcileOnce();
     expect(planIsEmpty(plan)).toBe(true);
     expect(plan.drifts.filter((drift) => drift.reconciled)).toEqual([]);
+  });
+
+  it("une vérification révoquée ne redevient pas publique d'elle-même", async () => {
+    // `AdminCatalogService.setVerification(..., false)` : le tampon est effacé
+    // pour dire « à confirmer », et `isActive`/`moderationStatus` ne bougent PAS.
+    // La fiche n'est donc masquée que par `lastVerifiedAt: { not: null }`.
+    await prisma.scholarship.update({
+      where: { id },
+      data: { lastVerifiedAt: null, verifiedById: null, verifiedByName: null },
+    });
+    const hiddenBefore = await prisma.scholarship.count({
+      where: { ...publicScholarshipWhere(), id },
+    });
+    // Le décor doit bien être « masquée, mais toujours active » : sinon la suite
+    // ne prouverait rien.
+    expect(hiddenBefore).toBe(0);
+    expect((await readRow()).isActive).toBe(true);
+
+    await reconcileOnce();
+
+    const row = await readRow();
+    expect(row.lastVerifiedAt).toBeNull();
+    expect(row.verifiedByName).toBeNull();
+    // La preuve qui compte : ce que la lecture publique rendra vraiment.
+    await expect(
+      prisma.scholarship.count({ where: { ...publicScholarshipWhere(), id } }),
+    ).resolves.toBe(0);
   });
 
   it('le filet attrape une publication qui contournerait le planificateur', async () => {

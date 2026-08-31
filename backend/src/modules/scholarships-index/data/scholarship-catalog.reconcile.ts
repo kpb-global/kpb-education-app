@@ -46,12 +46,23 @@
  *    « À venir » — exactement le défaut d'aujourd'hui, dans l'autre sens. Un
  *    cycle activé est donc entièrement propriété de la base.
  *
- * 3. **Un tampon de vérification plus récent que celui du dépôt.** La file de
- *    vérification de l'admin horodate `lastVerifiedAt` et nomme le relecteur.
+ * 3. **Une vérification RÉVOQUÉE dans l'admin.** `setVerification(..., false)`
+ *    met `lastVerifiedAt`, `verifiedById` et `verifiedByName` à `null` pour
+ *    signifier « à confirmer » — et ne touche NI `isActive` NI
+ *    `moderationStatus`. La fiche reste donc active et approuvée : elle n'est
+ *    masquée que par la clause `lastVerifiedAt: { not: null }` de
+ *    `publicScholarshipWhere`. Réécrire le tampon du catalogue par-dessus la
+ *    republierait — sans nouvelle relecture, et sans qu'aucune assertion ne le
+ *    voie, puisque le filet existant cherche l'inverse (une fiche active SANS
+ *    tampon). Un `lastVerifiedAt` nul en base est donc un signal, pas un vide.
+ *
+ * 4. **Un tampon de vérification plus récent que celui du dépôt.** La file de
+ *    vérification de l'admin horodate `lastVerifiedAt`, nomme le relecteur et
+ *    enregistre le `sourceUrl` qu'il a réellement consulté (`verificationData`).
  *    Un contrôle humain du mois dernier ne doit pas être remplacé par un tampon
- *    de catalogue plus ancien. La règle est monotone : on n'avance jamais dans
- *    le passé, et on ne remet jamais `lastVerifiedAt` à `null` (les lectures
- *    publiques exigent qu'il soit posé).
+ *    de catalogue plus ancien — ni, surtout, garder le nom du relecteur en
+ *    pointant vers une source qu'il n'a pas vue. Les quatre champs vont donc
+ *    ensemble. La règle est monotone : on n'avance jamais dans le passé.
  *
  * ## Les étapes de candidature ne sont jamais supprimées
  *
@@ -95,11 +106,21 @@ export const CYCLE_ACTIVATION_OWNED_FIELDS = [
   'lastVerifiedAt',
 ] as const;
 
-/** Le triplet de provenance, qui n'avance jamais dans le passé. */
-export const VERIFICATION_STAMP_FIELDS = [
+/**
+ * La provenance de vérification, qui n'avance jamais dans le passé et se déplace
+ * d'un bloc.
+ *
+ * `sourceUrl` en fait partie parce que `AdminCatalogService.verificationData`
+ * l'écrit AVEC le tampon : c'est la source que le relecteur a réellement
+ * consultée. Garder le nom du relecteur en réécrivant sa source par celle,
+ * plus ancienne, du dépôt produirait une ligne qui attribue une vérification
+ * humaine à un lien que cette personne n'a pas ouvert.
+ */
+export const VERIFICATION_PROVENANCE_FIELDS = [
   'lastVerifiedAt',
   'verifiedById',
   'verifiedByName',
+  'sourceUrl',
 ] as const;
 
 export type DriftScope = 'scholarship' | 'cycle' | 'step';
@@ -315,18 +336,30 @@ export function planScholarshipReconciliation(
       continue;
     }
 
-    if (
-      (VERIFICATION_STAMP_FIELDS as readonly string[]).includes(field) &&
-      !catalogStampIsNotOlder(row.lastVerifiedAt, created.lastVerifiedAt)
-    ) {
-      push(
-        'scholarship',
-        field,
-        row[field],
-        wanted,
-        'vérification en base plus récente que celle du catalogue',
-      );
-      continue;
+    if ((VERIFICATION_PROVENANCE_FIELDS as readonly string[]).includes(field)) {
+      // Révocation explicite. Elle prime sur la comparaison de dates : il n'y a
+      // pas de date à comparer, et c'est justement là que « pas de tampon » se
+      // confondrait avec « tampon jamais posé ».
+      if (row.lastVerifiedAt == null) {
+        push(
+          'scholarship',
+          field,
+          row[field],
+          wanted,
+          "vérification révoquée dans l'admin — seule une nouvelle relecture humaine la repose",
+        );
+        continue;
+      }
+      if (!catalogStampIsNotOlder(row.lastVerifiedAt, created.lastVerifiedAt)) {
+        push(
+          'scholarship',
+          field,
+          row[field],
+          wanted,
+          'vérification en base plus récente que celle du catalogue',
+        );
+        continue;
+      }
     }
 
     push('scholarship', field, row[field], wanted);
