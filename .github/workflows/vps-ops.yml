@@ -52,8 +52,21 @@ on:
         required: false
         default: true
 
+# Groupe PARTAGÉ avec `deploy.yml` (`deploy-vps`), pas un groupe à nous.
+#
+# Deux groupes distincts laissaient une opération de drapeau s'entrelacer avec
+# une release : `recreate_api_same_image` relit le tag sur le conteneur en
+# cours, et ce tag est MUTABLE — `deploy.yml` le réécrit pendant
+# `docker compose build`. Selon l'ordre, on démarrait l'image fraîchement
+# reconstruite AVANT ses migrations et sa barrière de santé, ou on remettait
+# l'ancienne image APRÈS la release.
+#
+# Sérialiser est la seule vraie parade : un tag ne peut pas être rendu immuable
+# depuis `image: kpb-backend:${KPB_IMAGE_TAG}`, qui n'accepte qu'un tag.
+# `cancel-in-progress: false` fait attendre, jamais annuler — un déploiement à
+# moitié fait est pire qu'un drapeau qui arrive une minute plus tard.
 concurrency:
-  group: vps-ops
+  group: deploy-vps
   cancel-in-progress: false
 
 permissions:
