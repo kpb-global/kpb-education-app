@@ -53,16 +53,37 @@ set_env_key() {
 # On relit donc le tag et le SHA sur le conteneur EN COURS, et on recrée avec
 # exactement les mêmes. `--no-build` est la ceinture : si le tag ne résout pas,
 # on veut un échec franc, pas une reconstruction silencieuse.
+# Le tag lu ici est MUTABLE : `deploy.yml` réécrit `kpb-backend:<tag>` pendant
+# `docker compose build`. La parade principale est ailleurs — `vps-ops.yml`
+# partage désormais le groupe de concurrence `deploy-vps`, donc une opération de
+# drapeau ne peut plus s'entrelacer avec une release. Le contrôle ci-dessous est
+# la ceinture : on relève l'ID d'image (lui, immuable) avant et après, et on
+# échoue franchement s'il a bougé. Sans lui, une sérialisation cassée un jour
+# par une renommée de groupe repasserait inaperçue — et c'est précisément ce
+# genre de silence qui a coûté l'empreinte de release le 30/08/2026.
 recreate_api_same_image() {
-  local cur tag sha
+  local cur tag sha id_before id_after sha_after
   cur=$(docker inspect -f '{{.Config.Image}}' kpb_api 2>/dev/null || true)
   [ -n "$cur" ] || { echo "::error::conteneur kpb_api introuvable — ne pas recréer à l'aveugle"; exit 1; }
   tag="${cur##*:}"
   [ -n "$tag" ] && [ "$tag" != "$cur" ] || { echo "::error::image sans tag exploitable : $cur"; exit 1; }
   sha=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kpb_api 2>/dev/null | sed -n 's/^KPB_BUILD_SHA=//p' | head -1)
-  echo "recréation à l'identique — image $cur, build sha ${sha:-<absent>}"
+  id_before=$(docker inspect -f '{{.Image}}' kpb_api)
+  echo "recréation à l'identique — image $cur, id ${id_before}, build sha ${sha:-<absent>}"
   KPB_IMAGE_TAG="$tag" KPB_BUILD_SHA="$sha" \
     docker compose up -d --no-deps --no-build api
+
+  id_after=$(docker inspect -f '{{.Image}}' kpb_api)
+  if [ "$id_before" != "$id_after" ]; then
+    echo "::error::l'image a CHANGÉ pendant la recréation : ${id_before} -> ${id_after}. Le tag ${tag} a été réécrit entre-temps (release concurrente ?). Relancer « Deploy backend (VPS) » scope=full pour repartir d'un état connu."
+    exit 1
+  fi
+  sha_after=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kpb_api 2>/dev/null | sed -n 's/^KPB_BUILD_SHA=//p' | head -1)
+  if [ "$sha" != "$sha_after" ]; then
+    echo "::error::KPB_BUILD_SHA perdu à la recréation : « ${sha:-<absent>} » -> « ${sha_after:-<absent>} ». L'empreinte de release ne serait plus lisible sur /health/version."
+    exit 1
+  fi
+  echo "image et empreinte inchangées — id ${id_after}, build sha ${sha_after:-<absent>}"
 }
 
 show_state() {
