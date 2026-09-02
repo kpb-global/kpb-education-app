@@ -331,130 +331,131 @@ enum SlotOfferStatus {
 }
 
 model UserProfile {
-  id                      String                         @id @default(cuid())
-  accountType             AccountType
+  id                        String                         @id @default(cuid())
+  accountType               AccountType
   // Supabase Auth user id (JWT `sub`). Null for legacy/home-grown accounts
   // not yet migrated. Used by SupabaseAuthGuard to map a verified token to a
   // local profile.
-  supabaseUserId          String?                        @unique
-  preferredLanguage       String
-  fullName                String
-  email                   String                         @unique
-  phone                   String
-  whatsApp                String?
-  countryOfResidence      String
-  currentLevel            String?
-  targetLevel             String?
-  languageLevel           String?
-  gradeRange              String?
+  supabaseUserId            String?                        @unique
+  preferredLanguage         String
+  fullName                  String
+  email                     String                         @unique
+  phone                     String
+  whatsApp                  String?
+  countryOfResidence        String
+  currentLevel              String?
+  targetLevel               String?
+  languageLevel             String?
+  gradeRange                String?
   // Série du bac (A, C, D, G2, PRO…). Distincte de `gradeRange`, qui est la
   // moyenne : le client faisait auparavant voyager la série dans `gradeRange`
   // faute de colonne, ce qui écrasait la moyenne à chaque enregistrement.
-  bacSeries               String?
+  bacSeries                 String?
   // Legacy monthly living budget. Read only for backward compatibility.
-  monthlyBudgetEur        Int?
+  monthlyBudgetEur          Int?
   // Annual tuition budget is the canonical financial input for matching.
-  annualTuitionBudgetEur  Int?
+  annualTuitionBudgetEur    Int?
   // EUR is the canonical stored unit; this is only the user's display choice.
-  preferredCurrency       String                         @default("XOF")
-  wantsScholarship        Boolean                        @default(false)
+  preferredCurrency         String                         @default("XOF")
+  wantsScholarship          Boolean                        @default(false)
   // Per-user interest selections (previously held in a shared in-memory
   // singleton, which leaked across users). Now persisted per profile.
-  fieldIds                String[]                       @default([])
-  targetCountryIds        String[]                       @default([])
-  availableDocuments      String[]                       @default([])
-  consentedAt             DateTime?
+  fieldIds                  String[]                       @default([])
+  targetCountryIds          String[]                       @default([])
+  availableDocuments        String[]                       @default([])
+  consentedAt               DateTime?
   // Separate, explicit consent for third-party AI processing (Groq). Gates the
   // AI coach independently of the general onboarding consent above.
-  aiConsentedAt           DateTime?
+  aiConsentedAt             DateTime?
   // Scholarship-newsletter opt-in (Mautic). `newsletterOptIn` is the user's
   // current desired state; `newsletterConsentedAt` is the timestamped proof of
   // the latest opt-in (GDPR); `newsletterSyncedOptIn` is the last state
   // actually pushed to Mautic (null = never synced). The reconciliation cron
   // syncs every profile where desired != synced, so a failed push self-heals.
-  newsletterOptIn         Boolean                        @default(false)
-  newsletterConsentedAt   DateTime?
-  newsletterSyncedOptIn   Boolean?
+  newsletterOptIn           Boolean                        @default(false)
+  newsletterConsentedAt     DateTime?
+  newsletterSyncedOptIn     Boolean?
   // KPB-169: the per-type notification opt-outs, as stable keys (see
   // src/common/notification-types.ts). A third type appeared, so — as the
   // previous note planned — the per-type booleans collapsed into one column.
   // Adding a family now costs a key, not a migration.
-  disabledNotificationTypes String[]                     @default([])
+  disabledNotificationTypes String[]                       @default([])
   // DEPRECATED (KPB-169) — no longer read by any code path. Kept for one
   // release so a rollback still finds its data; the values were copied into
   // disabledNotificationTypes by the 20260725_notification_optout_types
   // migration. Drop both columns in KPB-174.
-  dailyScholarshipOptOut  Boolean                        @default(false)
-  weeklyDigestOptOut      Boolean                        @default(false)
+  dailyScholarshipOptOut    Boolean                        @default(false)
+  weeklyDigestOptOut        Boolean                        @default(false)
   // Age gate + self-attested guardian consent for declared minors (<18).
   // guardianConsentedAt gates data sync and AI processing for minors.
-  birthDate               DateTime?
-  guardianName            String?
-  guardianContact         String?
-  guardianConsentedAt     DateTime?
+  birthDate                 DateTime?
+  guardianName              String?
+  guardianContact           String?
+  guardianConsentedAt       DateTime?
   // Profile photo. This is the PRIVATE storage key of the image object (e.g.
   // "2026-08-12/<uuid>.jpg"), never a URL: the catalog also serves secondary
   // scholarships, so an avatar can be a minor's face and a guessable public URL
   // would be a design defect. The bytes are served only by the authenticated
   // GET /api/profiles/me/avatar endpoint, which re-checks ownership.
-  avatarStorageKey        String?
+  avatarStorageKey          String?
   // Last time the profile-completion nudge (KPB-76) was sent — throttles the
   // re-engagement push so an incomplete profile is reminded at most monthly.
-  profileNudgedAt         DateTime?
+  profileNudgedAt           DateTime?
   // Stable per-student referral code (KPB-69) — generated on first read, shared
   // via WhatsApp. Friends who redeem it are attributed back to this profile.
-  referralCode            String?                        @unique
+  referralCode              String?                        @unique
   // No-cash referral rewards (KPB-77). Denormalized credit balance: +1 when a
   // referee reaches the first-case milestone, spent into a WhatsApp advisor
   // voucher. The signed CreditTransaction log is the audit trail and reconciles
   // this counter via SUM(amount); both are always written in one $transaction.
-  reviewCredits           Int                            @default(0)
-  createdAt               DateTime                       @default(now())
-  updatedAt               DateTime                       @updatedAt
-  cases                   Case[]
-  appointments            Appointment[]
-  savedItems              SavedItem[]
-  partnerLead             PartnerLead?
-  credential              StudentCredential?
-  deviceTokens            DeviceToken[]
-  purchases               AcademyPurchase[]
-  parentLinksAsParent     ParentChildLink[]              @relation("parentLink_parent")
-  parentLinksAsChild      ParentChildLink[]              @relation("parentLink_child")
-  paymentIntents          PaymentIntent[]
+  reviewCredits             Int                            @default(0)
+  createdAt                 DateTime                       @default(now())
+  updatedAt                 DateTime                       @updatedAt
+  cases                     Case[]
+  appointments              Appointment[]
+  savedItems                SavedItem[]
+  partnerLead               PartnerLead?
+  credential                StudentCredential?
+  deviceTokens              DeviceToken[]
+  purchases                 AcademyPurchase[]
+  parentLinksAsParent       ParentChildLink[]              @relation("parentLink_parent")
+  parentLinksAsChild        ParentChildLink[]              @relation("parentLink_child")
+  paymentIntents            PaymentIntent[]
   // Espace « Études en France » — au plus une déclaration d'intérêt par
   // profil (contrainte @unique portée par EefInterest.userId).
-  eefInterest             EefInterest?
+  eefInterest               EefInterest?
+  premiumWaitlist           PremiumWaitlistEntry?
   // ── Phase 3 — Alumni mentor layer ─────────────────────────────────────────
   // Students who got admitted become verified mentors with a badge in the
   // community. We keep the fields flat on UserProfile (rather than a separate
   // Mentor model) because the identity is the same — it's a status, not a new
   // account type. Admin flips `alumniStatus` to `approved` after reviewing the
   // acceptance letter uploaded via `alumniProofUrl`.
-  alumniStatus            AlumniVerificationStatus       @default(none)
-  alumniUniversity        String?
-  alumniProgramme         String?
-  alumniGraduationYear    Int?
-  alumniCountryCode       String? // ISO 3166-1 alpha-2
-  alumniBioFr             String?
-  alumniBioEn             String?
-  alumniProofUrl          String? // Admission letter / degree — admin-only
-  alumniVerifiedAt        DateTime?
-  alumniVerifiedById      String? // AdminUser.id (no FK — keep decoupled)
-  alumniBadgeVisible      Boolean                        @default(true)
-  servicePurchases        ServicePurchase[]
-  salonRegistrations      SalonRegistration[]
-  referralsMade           Referral[]                     @relation("referral_referrer")
-  referralReceived        Referral?                      @relation("referral_referee")
-  creditTransactions      CreditTransaction[]
-  matches                 Match[]
-  scholarshipAlerts       ScholarshipAlertSubscription[]
-  userNotifications       UserNotification[]
-  consentReceipts         ConsentReceipt[]
-  scholarshipWorkspaces   ScholarshipWorkspace[]
-  aiQuotaBuckets          AiQuotaBucket[]
-  outcomeEvidenceAssets   OutcomeEvidenceAsset[]
-  outcomeEvidenceLinks    OutcomeEvidenceLink[]
-  impactCohortMemberships ImpactCohortMembership[]
+  alumniStatus              AlumniVerificationStatus       @default(none)
+  alumniUniversity          String?
+  alumniProgramme           String?
+  alumniGraduationYear      Int?
+  alumniCountryCode         String? // ISO 3166-1 alpha-2
+  alumniBioFr               String?
+  alumniBioEn               String?
+  alumniProofUrl            String? // Admission letter / degree — admin-only
+  alumniVerifiedAt          DateTime?
+  alumniVerifiedById        String? // AdminUser.id (no FK — keep decoupled)
+  alumniBadgeVisible        Boolean                        @default(true)
+  servicePurchases          ServicePurchase[]
+  salonRegistrations        SalonRegistration[]
+  referralsMade             Referral[]                     @relation("referral_referrer")
+  referralReceived          Referral?                      @relation("referral_referee")
+  creditTransactions        CreditTransaction[]
+  matches                   Match[]
+  scholarshipAlerts         ScholarshipAlertSubscription[]
+  userNotifications         UserNotification[]
+  consentReceipts           ConsentReceipt[]
+  scholarshipWorkspaces     ScholarshipWorkspace[]
+  aiQuotaBuckets            AiQuotaBucket[]
+  outcomeEvidenceAssets     OutcomeEvidenceAsset[]
+  outcomeEvidenceLinks      OutcomeEvidenceLink[]
+  impactCohortMemberships   ImpactCohortMembership[]
 
   @@index([accountType])
   @@index([createdAt])
@@ -2896,15 +2897,15 @@ model ImpactDataRoomExport {
 // sur un réseau lent gonfle la liste d'appel de doublons que personne ne
 // dédoublonne ensuite.
 model EefInterest {
-  id           String      @id @default(cuid())
-  userId       String      @unique
+  id             String      @id @default(cuid())
+  userId         String      @unique
   // Niveau courant et niveau visé, tels que l'étudiant les déclare. Chaînes
   // libres bornées côté DTO, pas des enums : la nomenclature scolaire diffère
   // d'un pays à l'autre et une enum aurait figé celle d'un seul.
-  currentLevel String?
-  targetLevel  String?
-  fieldIds     String[]    @default([])
-  wantsPremium Boolean     @default(false)
+  currentLevel   String?
+  targetLevel    String?
+  fieldIds       String[]    @default([])
+  wantsPremium   Boolean     @default(false)
   // La preuve de consentement, en DEUX morceaux qui ne se remplacent pas.
   //
   // `consentedAt` est horodaté par le serveur : le client ne l'envoie pas et ne
@@ -2918,11 +2919,53 @@ model EefInterest {
   // consentement. Le champ `consent` du DTO est ce qui fait de cette colonne
   // une preuve plutôt qu'un horodatage.
   consentVersion String
-  consentedAt  DateTime
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  user         UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consentedAt    DateTime
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  user           UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([wantsPremium])
+}
+
+/// La liste d'attente Karatou Premium.
+///
+/// ## Pourquoi une table à elle, et pas `EefInterest.wantsPremium`
+///
+/// Parce que `EefInterest` est un REGISTRE DE CONSENTEMENT. Sa ligne porte
+/// `consentVersion` et `consentedAt`, et sa raison d'être est de pouvoir
+/// produire, le jour où on le demande, la phrase exacte qu'un étudiant a
+/// acceptée — celle de l'espace « Études en France ». Y cocher `wantsPremium`
+/// pour un étudiant qui n'a jamais rien lu sur Études en France aurait fabriqué
+/// un consentement qu'il n'a pas donné, dans le registre même qui sert à le
+/// prouver. Le back-office l'aurait ensuite listé comme prospect Études en
+/// France, et un conseiller l'aurait rappelé à ce sujet.
+///
+/// Les deux intérêts sont réels et indépendants : on peut vouloir le Pass sans
+/// viser la France, et viser la France sans vouloir le Pass.
+///
+/// ## Ce que cette table ne contient pas
+///
+/// Aucun montant, aucun état de facturation, aucune référence de paiement.
+/// Karatou n'encaisse rien dans l'application (règle App Store 3.1.1), et
+/// l'inscription ici est une déclaration d'intérêt GRATUITE, sans engagement.
+/// Le jour où le Pass s'achètera, ce sera ailleurs et par un autre chemin ; y
+/// ajouter une colonne de prix ferait de cette liste un début de caisse.
+model PremiumWaitlistEntry {
+  id             String      @id @default(cuid())
+  userId         String      @unique
+  // Preuve de consentement en deux morceaux, comme `EefInterest` : la date dit
+  // QUAND, la version dit CE QUI a été lu. `consentedAt` est horodaté par le
+  // serveur — le client ne l'envoie pas et ne peut donc pas l'antidater — et le
+  // DTO exige un `consent: true` explicite, sans quoi un corps vide suffirait à
+  // fabriquer une inscription.
+  consentVersion String
+  consentedAt    DateTime
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  user           UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Le seul usage réel est « combien, et depuis quand » : l'index porte donc
+  // sur la date de création, qui est la colonne du dénombrement et du tri.
+  @@index([createdAt])
 }

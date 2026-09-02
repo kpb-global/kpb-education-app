@@ -67,24 +67,66 @@ void main() {
     await tester.pumpWidget(_wrap(const PremiumScreen()));
     await tester.pumpAndSettle();
 
-    // Value proposition (coming soon), incl. the REAL free AI-coach quota row.
+    // Value proposition (coming soon).
     expect(find.text('premium_hero_title'.tr), findsOneWidget);
     expect(find.text('premium_value_advisors'.tr), findsOneWidget);
+
+    // Single advisor-routed CTA, in the pinned bottom bar (always visible).
+    expect(find.text('parent_premium_cta'.tr), findsOneWidget);
+
+    // Waiting list: a FREE interest registration, not a purchase. Scrolled into
+    // view rather than assumed — the 800x600 test viewport is shorter than any
+    // real phone, and a ListView does not build what it does not show.
+    await tester.dragUntilVisible(
+      find.text('premium_waitlist_cta'.tr),
+      find.byType(ListView),
+      const Offset(0, -160),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('premium_waitlist_cta'.tr), findsOneWidget);
+    // Le texte de consentement est affiché AVEC le bouton : une mention lue
+    // après le tap n'aurait rien prouvé.
+    expect(find.text('premium_waitlist_notice'.tr), findsOneWidget);
+
+    // The REAL free AI-coach quota row, likewise scrolled into view: asserting
+    // it without scrolling would pass on an empty screen for the wrong reason.
+    await tester.dragUntilVisible(
+      find.text('premium_free_ai_coach'.trParams({'count': '5'})),
+      find.byType(ListView),
+      const Offset(0, -160),
+    );
+    await tester.pumpAndSettle();
     expect(find.text('premium_free_ai_coach'.trParams({'count': '5'})),
         findsOneWidget);
     expect(find.text('premium_unlimited_soon'.tr), findsOneWidget);
 
-    // Single advisor-routed CTA (reuses the parent premium key).
-    expect(find.text('parent_premium_cta'.tr), findsOneWidget);
+    // NO price, subscription, external checkout, or Karatou-ID payment block —
+    // checked ALL THE WAY DOWN the list, not just on the first screenful. The
+    // cards are lazily built, so a negative assertion made without scrolling
+    // would only ever have proven that the hidden cards were hidden.
+    Future<void> assertNoBilling() async {
+      for (final needle in const [
+        'FCFA',
+        '4 900',
+        '4,900',
+        'karatou.app/premium',
+        '/month',
+        '/mois',
+        'KARATOU ID',
+        'Subscribe',
+        'Pay ',
+      ]) {
+        expect(find.textContaining(needle), findsNothing, reason: needle);
+      }
+    }
 
-    // NO price, subscription, external checkout, or Karatou-ID payment block.
-    expect(find.textContaining('FCFA'), findsNothing);
-    expect(find.textContaining('4 900'), findsNothing);
-    expect(find.textContaining('4,900'), findsNothing);
-    expect(find.textContaining('karatou.app/premium'), findsNothing);
-    expect(find.textContaining('/month'), findsNothing);
-    expect(find.textContaining('/mois'), findsNothing);
-    expect(find.textContaining('KARATOU ID'), findsNothing);
+    await tester.scrollUntilVisible(
+      find.text('premium_how_title'.tr),
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await assertNoBilling();
     expect(tester.takeException(), isNull);
   });
 

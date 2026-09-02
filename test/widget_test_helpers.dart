@@ -70,6 +70,14 @@ class MockApiClient extends Mock implements AppApiClient {
   @override
   String get avatarStreamUrl =>
       'https://api.invalid.test/api/profiles/me/avatar';
+
+  /// Liste d'attente Premium : « pas inscrit », l'état par défaut d'un écran de
+  /// test. Stubbé EXPLICITEMENT plutôt que laissé lever un `MissingStubError`
+  /// que le `catch` du contrôleur avalerait : un test qui ne teste rien parce
+  /// qu'une erreur est absorbée en silence est pire qu'un test absent.
+  @override
+  Future<Map<String, dynamic>> getPremiumWaitlist() async =>
+      <String, dynamic>{'registered': false, 'registeredAt': null};
 }
 
 /// Client qui COMPTE ses appels, pour les tests qui doivent prouver qu'un

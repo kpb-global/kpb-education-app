@@ -82,6 +82,22 @@ abstract final class AnalyticsEventName {
   static const eefInterestDeclared = 'eef_interest_declared';
   static const eefInterestFailed = 'eef_interest_failed';
 
+  /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
+  /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
+  /// peine d'être construit, et pour combien d'étudiants.
+  ///
+  /// `premium_waitlist_failed` suit la même logique que son homologue EEF :
+  /// sans lui, un backend en panne se lit dans les tableaux de bord exactement
+  /// comme « personne n'est intéressé », et on en tirerait la conclusion
+  /// inverse de la vérité.
+  ///
+  /// Aucun événement de retrait, volontairement : mesurer les désinscriptions
+  /// demanderait de garder une trace de quelqu'un qui vient de demander à ne
+  /// plus en avoir, et le taux ne changerait aucune décision que le compteur
+  /// d'inscriptions ne montre déjà.
+  static const premiumWaitlistJoined = 'premium_waitlist_joined';
+  static const premiumWaitlistFailed = 'premium_waitlist_failed';
+
   /// Sync / catalog observability (paired with [AnalyticsService] helpers).
   static const syncFullComplete = 'sync_full_complete';
   static const syncConflictResolved = 'sync_conflict_resolved';
