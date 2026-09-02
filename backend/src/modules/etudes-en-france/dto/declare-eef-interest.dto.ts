@@ -1,3 +1,4 @@
+import { Transform, type TransformFnParams } from 'class-transformer';
 import {
   ArrayMaxSize,
   Equals,
@@ -64,7 +65,25 @@ export class DeclareEefInterestDto {
    * son empreinte de contenu, `ConsentReceipt`) ; il n'est branché que sur le
    * Success Lab. Cette colonne est la version pauvre mais réelle, et le
    * chaînage complet est un chantier à part.
+   *
+   * ## Pourquoi le `@Transform` n'est pas cosmétique
+   *
+   * Pour class-validator, `"   "` n'est PAS une chaîne vide : `@IsNotEmpty()`
+   * la laisse passer. Le service faisait ensuite `.trim()` et écrivait `""` en
+   * base — une ligne d'apparence irréprochable, portant un `consentedAt` et une
+   * version VIDE, c'est-à-dire une preuve de consentement qui ne désigne aucun
+   * texte. C'est la panne exacte que cette colonne existe pour éviter, et rien
+   * ne l'aurait signalée : la ligne redevenait ce qu'elle valait AVANT l'ajout
+   * du champ.
+   *
+   * Le rognage doit donc avoir lieu ICI, pas dans le service. `main.ts` monte
+   * le `ValidationPipe` avec `transform: true`, donc la transformation
+   * s'applique avant les validateurs : `@IsNotEmpty()` juge la valeur réelle,
+   * et `@MaxLength(64)` mesure la chaîne STOCKÉE plutôt que son remplissage.
    */
+  @Transform(({ value }: TransformFnParams) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)
