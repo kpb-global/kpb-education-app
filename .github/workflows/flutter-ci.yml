@@ -195,6 +195,7 @@ jobs:
       STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
     steps:
       - uses: actions/checkout@v5
 
@@ -262,11 +263,37 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Verify PostHog project key
+        run: |
+          set -euo pipefail
+          # La build 50 iOS est partie chez les testeurs SANS clé PostHog, et sa
+          # télémétrie produit est perdue définitivement. Le préflight iOS refuse
+          # désormais une clé vide ; ce job, lui, substituait encore le secret
+          # sans jamais le regarder. Un AAB muet serait parti de la même façon,
+          # et rien dans l'app ne signale que PostHog ne parle pas.
+          #
+          # Mêmes trois règles que scripts/preflight-ios-archive.sh, pour que les
+          # deux plateformes refusent exactement la même chose. La clé n'est
+          # jamais imprimée : seule sa longueur l'est, qui n'est pas sensible.
+          if [ -z "${POSTHOG_API_KEY:-}" ]; then
+            echo "::error::POSTHOG_API_KEY est vide. L'AAB partirait sans télémétrie, en silence — exactement ce qui est arrivé à la build 50 iOS. Renseigner le secret POSTHOG_API_KEY du dépôt."
+            exit 1
+          fi
+          case "$POSTHOG_API_KEY" in
+            phc_*) ;;
+            *) echo "::error::POSTHOG_API_KEY ne commence pas par phc_ : ce n'est pas une clé de projet publique."; exit 1 ;;
+          esac
+          if [ "${#POSTHOG_API_KEY}" -lt 40 ]; then
+            echo "::error::POSTHOG_API_KEY fait ${#POSTHOG_API_KEY} caractères : ressemble à un exemple recopié, pas à une clé de projet."
+            exit 1
+          fi
+          echo "cle PostHog presente et plausible (${#POSTHOG_API_KEY} caracteres, prefixe phc_)"
+
       - name: Build signed production AAB
         # Production host is the branded domain (api.kpbeducation.cloud/api),
         # resolved from KPB_APP_ENV=prod in app_config.dart. Do not hardcode a
         # KPB_API_BASE_URL override here.
-        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}
+        run: flutter build appbundle --release --dart-define=KPB_APP_ENV=prod --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 
       - name: Verify App Bundle signature
         run: |

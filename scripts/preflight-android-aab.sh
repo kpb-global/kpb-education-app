@@ -144,4 +144,7 @@ for key in (
         raise SystemExit(1)
 PY
 
-echo "Préflight Android OK — 2.1.0 (49), com.karatou.android, SDK 36, certificat Play concordant, AD_ID absent."
+# Le message se compose à partir des valeurs VÉRIFIÉES. Il annonçait « (49) »
+# en dur alors que le script exigeait déjà la 51 : un rapport de succès qui
+# ment sur ce qu'il a contrôlé est pire qu'un rapport absent.
+echo "Préflight Android OK — ${EXPECTED_VERSION_NAME} (${EXPECTED_VERSION_CODE}), ${EXPECTED_PACKAGE}, SDK ${EXPECTED_TARGET_SDK}, certificat Play concordant, AD_ID absent."

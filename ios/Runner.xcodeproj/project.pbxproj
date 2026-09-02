@@ -207,6 +207,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				45E6A62A0956F49F964EEE18 /* [CP] Embed Pods Frameworks */,
 				FD1164D4A83AE2EB25768708 /* [CP] Copy Pods Resources */,
+				30944CAE9445A84D0D2E6E1F /* Upload dSYMs to Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -397,6 +398,21 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		30944CAE9445A84D0D2E6E1F /* Upload dSYMs to Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Upload dSYMs to Crashlytics";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Envoi des dSYM à Crashlytics.\n#\n# Sans cette phase, les rapports de plantage arrivent en adresses mémoire\n# brutes : illisibles. La build 50 est partie chez les testeurs dans cet\n# état.\n#\n# On ne s'exécute QUE pendant un archivage (ACTION=install). Un\n# `flutter build ios` d'intégration continue ne doit ni téléverser des\n# symboles ni dépendre du réseau pour réussir.\nset -eu\n\nif [ \"${ACTION:-build}\" != \"install\" ]; then\n  echo \"note: pas un archivage (ACTION=${ACTION:-build}) — envoi Crashlytics ignoré.\"\n  exit 0\nfi\n\nUPLOADER=\"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\"\nPLIST=\"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\nDSYM=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n\n# Échouer FRANCHEMENT plutôt que d'avertir. Un avertissement dans le journal\n# de build est exactement ce qui a laissé partir une archive incomplète sans\n# que personne ne le voie.\n[ -x \"$UPLOADER\" ] || { echo \"error: upload-symbols introuvable ($UPLOADER). Lancer 'pod install' dans ios/.\" >&2; exit 1; }\n[ -f \"$PLIST\" ] || { echo \"error: GoogleService-Info.plist introuvable ($PLIST).\" >&2; exit 1; }\n[ -d \"$DSYM\" ] || { echo \"error: aucun dSYM produit ($DSYM) alors que la configuration est ${CONFIGURATION}. Vérifier DEBUG_INFORMATION_FORMAT=dwarf-with-dsym.\" >&2; exit 1; }\n\n\"$UPLOADER\" -gsp \"$PLIST\" -p ios \"$DSYM\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
