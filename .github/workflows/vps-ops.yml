@@ -105,6 +105,22 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
+      # L'App ID OneSignal que l'APP embarque réellement, extrait de la source
+      # plutôt que recopié à la main. C'est une valeur publique — elle voyage
+      # dans le binaire, un `strings` sur l'IPA la donne — et c'est ce qui
+      # permet au script de dire si le serveur cible la MÊME application. Une
+      # constante recopiée aurait fini par diverger de `app_config.dart` sans
+      # que personne ne le voie, et la comparaison aurait alors validé un écart.
+      - name: Lire l'App ID OneSignal embarqué par l'app
+        id: onesignal
+        run: |
+          set -euo pipefail
+          app_id="$(sed -n "/KPB_ONESIGNAL_APP_ID/,/)/p" lib/app/core/config/app_config.dart \
+            | sed -n "s/.*defaultValue: '\\([^']*\\)'.*/\\1/p" | head -1)"
+          [ -n "$app_id" ] || { echo "::error::App ID OneSignal introuvable dans app_config.dart"; exit 1; }
+          echo "app_id=$app_id" >> "$GITHUB_OUTPUT"
+          echo "App ID embarqué par l'app : $app_id"
+
       - name: Exécuter l'opération
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -112,12 +128,13 @@ jobs:
           VPS_PATH: ${{ secrets.VPS_PATH }}
           ACTION: ${{ inputs.action }}
           DRY_RUN: ${{ inputs.dry_run }}
+          EXPECTED_ONESIGNAL_APP_ID: ${{ steps.onesignal.outputs.app_id }}
         run: |
           set -euo pipefail
           scp -i ~/.ssh/deploy_key -o BatchMode=yes \
             .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
           ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
-            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
 
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}

@@ -1,14 +1,20 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 
 import { LlmService } from '../ai/llm.service';
+import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { HealthController } from './health.controller';
 
 function makeController(
   prisma: PrismaService,
   llm: Pick<LlmService, 'isConfigured'> = { isConfigured: false },
+  push: Pick<OneSignalSenderService, 'isConfigured'> = { isConfigured: false },
 ) {
-  return new HealthController(prisma, llm as LlmService);
+  return new HealthController(
+    prisma,
+    llm as LlmService,
+    push as OneSignalSenderService,
+  );
 }
 
 describe('HealthController', () => {
@@ -60,6 +66,50 @@ describe('HealthController', () => {
 
     const off = makeController(prisma, { isConfigured: false }).check();
     expect(off.ai).toEqual({ configured: false });
+  });
+
+  // Le push se désactive EXACTEMENT comme l'IA — par une variable absente — et
+  // rien ne le disait. `OneSignalSenderService` se dégrade en no-op journalisé :
+  // le fil d'actualité s'écrit, le push ne part pas, et personne ne s'en aperçoit.
+  // C'est la forme d'échec qui a envoyé la build 50 sans PostHog.
+  it('expose push.configured, et jamais la clé REST', () => {
+    const prisma = { isReady: jest.fn() } as unknown as PrismaService;
+
+    const on = makeController(
+      prisma,
+      { isConfigured: false },
+      { isConfigured: true },
+    ).check();
+    expect(on.push).toEqual({ configured: true });
+
+    const off = makeController(prisma).check();
+    expect(off.push).toEqual({ configured: false });
+
+    // Booléen SEUL : ni la clé, ni sa longueur, ni l'App ID sur une route
+    // non authentifiée.
+    process.env.ONESIGNAL_REST_API_KEY = 'os_v2_supersecret_value';
+    const body = makeController(
+      prisma,
+      { isConfigured: false },
+      { isConfigured: true },
+    ).check();
+    expect(JSON.stringify(body)).not.toMatch(
+      /os_v2_|ONESIGNAL_REST_API_KEY|supersecret/i,
+    );
+    delete process.env.ONESIGNAL_REST_API_KEY;
+  });
+
+  // L'IA et le push sont deux capacités indépendantes : les lire d'un seul
+  // booléen ferait passer une panne de l'une pour la santé de l'autre.
+  it('rapporte l\'IA et le push indépendamment', () => {
+    const prisma = { isReady: jest.fn() } as unknown as PrismaService;
+    const body = makeController(
+      prisma,
+      { isConfigured: true },
+      { isConfigured: false },
+    ).check();
+    expect(body.ai).toEqual({ configured: true });
+    expect(body.push).toEqual({ configured: false });
   });
 
   // The preflight compares this sha to `git rev-parse --short=12 <ref>`. An

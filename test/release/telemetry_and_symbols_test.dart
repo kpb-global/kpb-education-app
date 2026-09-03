@@ -142,6 +142,87 @@ void main() {
       });
     });
 
+    // ── Push ──────────────────────────────────────────────────────────────
+    //
+    // Le push se désactive comme PostHog et comme l'IA : par une variable
+    // absente, sans un mot. `OneSignalSenderService` se dégrade en no-op
+    // journalisé — le fil d'actualité s'écrit, la notification ne part pas, et
+    // le dispatcher rend `push_unconfigured`. Personne ne le voyait.
+    group('une panne de push ne peut plus être silencieuse', () {
+      final health = _read('backend/src/modules/health/health.controller.ts');
+      final opsScript = _read('.github/scripts/vps-ops.sh');
+      final opsWorkflow = _read('.github/workflows/vps-ops.yml');
+      final appConfig = _read('lib/app/core/config/app_config.dart');
+
+      test('/health annonce l\'état du push, comme celui de l\'IA', () {
+        expect(
+          health,
+          contains('push: { configured: this.pushSender.isConfigured }'),
+          reason:
+              '/health exposait ai.configured et RIEN sur le push, alors que '
+              'les deux s\'éteignent de la même façon.',
+        );
+      });
+
+      test('la route n\'expose qu\'un booléen, jamais la clé REST', () {
+        // La clé REST OneSignal est un secret, contrairement à l'App ID. Ni sa
+        // valeur ni sa longueur n'ont leur place sur une route publique.
+        //
+        // On teste le CODE, pas la prose : les commentaires de ce contrôleur
+        // nomment la variable pour expliquer la règle, et une recherche brute
+        // les aurait comptés comme une fuite. Une première version de ce test
+        // rougissait exactement ainsi — sur son propre commentaire.
+        final code = health
+            .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '')
+            .replaceAll(RegExp(r'//.*'), '');
+        expect(
+          code.contains('ONESIGNAL'),
+          isFalse,
+          reason: 'le contrôleur ne doit jamais lire la variable lui-même',
+        );
+        expect(code.contains('restApiKey'), isFalse);
+        // La seule chose qui sort est le booléen dérivé du service.
+        expect(code, contains('this.pushSender.isConfigured'));
+      });
+
+      test('l\'outillage d\'ops rend compte des deux variables', () {
+        expect(opsScript, contains('report_key ONESIGNAL_APP_ID public'));
+        expect(opsScript, contains('report_key ONESIGNAL_REST_API_KEY masked'));
+        // `masked` est le mode qui n'imprime que « posée ». Un basculement en
+        // `public` ferait sortir un secret dans un journal de CI public.
+        expect(
+          opsScript.contains('report_key ONESIGNAL_REST_API_KEY public'),
+          isFalse,
+          reason: 'la clé REST ne doit JAMAIS être imprimée',
+        );
+      });
+
+      // Le défaut le plus vicieux n'est pas l'absence de configuration : c'est
+      // un serveur bien configuré qui pointe sur une AUTRE application
+      // OneSignal. Tout « réussit », et aucun téléphone ne reçoit rien.
+      test('l\'App ID du serveur est comparé à celui que l\'app embarque', () {
+        expect(opsScript, contains(r'EXPECTED_ONESIGNAL_APP_ID'));
+        expect(opsWorkflow, contains(r'EXPECTED_ONESIGNAL_APP_ID'));
+        // Extrait de la SOURCE, jamais recopié : une constante recopiée aurait
+        // fini par diverger de app_config.dart, et la comparaison aurait alors
+        // validé l'écart qu'elle est censée dénoncer.
+        expect(opsWorkflow, contains('app_config.dart'));
+      });
+
+      test('app_config.dart garde la forme que le workflow sait lire', () {
+        final match = RegExp(
+          "KPB_ONESIGNAL_APP_ID',\\s*defaultValue: '([^']+)'",
+        ).firstMatch(appConfig);
+        expect(
+          match,
+          isNotNull,
+          reason: 'le workflow extrait l\'App ID avec un sed sur cette forme ; '
+              'la changer casserait la comparaison EN SILENCE.',
+        );
+        expect(match!.group(1)!.trim(), isNotEmpty);
+      });
+    });
+
     // Un rapport de succès qui ment sur ce qu'il a contrôlé est pire qu'un
     // rapport absent : il annonçait « (49) » alors que le script exigeait 51.
     test(

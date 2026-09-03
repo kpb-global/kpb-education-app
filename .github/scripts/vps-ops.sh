@@ -86,10 +86,66 @@ recreate_api_same_image() {
   echo "image et empreinte inchangées — id ${id_after}, build sha ${sha_after:-<absent>}"
 }
 
+# Rend compte d'un secret SANS le montrer.
+#
+# La règle est asymétrique et c'est voulu : `ONESIGNAL_APP_ID` est public — il
+# voyage dans le binaire de l'app, un `strings` sur l'IPA le donne — donc
+# l'afficher permet de vérifier que le serveur cible bien la MÊME application
+# OneSignal que le client. `ONESIGNAL_REST_API_KEY` est un secret : on n'en dit
+# que la présence, jamais la valeur ni la longueur.
+report_key() {
+  local key="$1" mode="${2:-masked}" value
+  value=$(grep -E "^${key}=" .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r' | xargs || true)
+  if [ -z "$value" ]; then
+    printf '  %-26s ABSENTE\n' "$key"
+    return 1
+  fi
+  if [ "$mode" = "public" ]; then
+    printf '  %-26s %s\n' "$key" "$value"
+  else
+    printf '  %-26s posée\n' "$key"
+  fi
+}
+
+# Le push est-il seulement CAPABLE de partir, et vers la bonne application ?
+#
+# `OneSignalSenderService` se dégrade en silence : sans ces deux variables,
+# chaque envoi devient un no-op journalisé, le fil d'actualité s'écrit quand
+# même, et le dispatcher rend `push_unconfigured`. Rien, nulle part, ne le
+# disait — c'est la forme d'échec qui a envoyé la build 50 sans PostHog.
+#
+# Le second défaut, plus vicieux, est un serveur correctement configuré mais
+# pointant sur une AUTRE application OneSignal que l'app : tout « réussit »,
+# et aucun téléphone ne reçoit rien. D'où la comparaison à l'App ID que l'app
+# embarque réellement, passé par le workflow (`EXPECTED_ONESIGNAL_APP_ID`).
+show_push_state() {
+  echo "── Notifications push (OneSignal) ──"
+  local ok=0
+  report_key ONESIGNAL_APP_ID public || ok=1
+  report_key ONESIGNAL_REST_API_KEY masked || ok=1
+  if [ "$ok" -ne 0 ]; then
+    echo "  → push DÉSACTIVÉ : le fil s'écrira, aucune notification ne partira."
+  else
+    echo "  → push configuré."
+  fi
+
+  if [ -n "${EXPECTED_ONESIGNAL_APP_ID:-}" ]; then
+    local server
+    server=$(grep -E '^ONESIGNAL_APP_ID=' .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r' | xargs || true)
+    if [ "$server" = "$EXPECTED_ONESIGNAL_APP_ID" ]; then
+      echo "  App ID identique à celui embarqué par l'app ✅"
+    else
+      echo "::error::l'App ID du serveur ($server) DIFFÈRE de celui embarqué par l'app ($EXPECTED_ONESIGNAL_APP_ID) : les envois « réussiraient » sans qu'aucun téléphone ne reçoive rien."
+    fi
+  fi
+  echo
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
   echo
+  show_push_state
   echo "── Ce que compose interpolera ──"
   docker compose config 2>/dev/null | grep -E 'KPB_EEF' || echo "(interpolation indisponible)"
   echo
