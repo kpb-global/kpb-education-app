@@ -45,10 +45,55 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 ## Courant
 
-- `53` — rien encore. Le numéro est ouvert parce que la 52 est consommée :
-  Apple refuse un `CFBundleVersion` déjà téléversé, et un archivage reparti
-  sur 52 aurait échoué au moment du Distribute, c'est-à-dire le plus tard
-  possible.
+- `53` — **`2.2.0 (53)`. Rigoureusement le même code applicatif que la 52.**
+
+  Entre `b6d8d769cc71` (la 52) et cette build, un seul fichier applicatif a
+  changé, et il est côté SERVEUR : `health.controller.ts`, qui expose
+  `push: { configured }`. Rien dans `lib/`, rien dans `ios/`, rien dans
+  `android/`. La 53 n'est donc pas une nouvelle version du produit — c'est la
+  52 sous un autre numéro de version marketing.
+
+  **Pourquoi la construire alors.** Parce que `AppVersionGate` compare la
+  version MARKETING au `minVersion` du serveur et que `isVersionBelow` coupe
+  la chaîne au `+` : le numéro de build est ignoré. Les 48, 49, 50 et 52
+  s'appelant toutes « 2.1.0 », aucune valeur de `KPB_MIN_APP_VERSION` ne
+  pouvait en distinguer une seule. Soumettre la 52 en 2.1.0 aurait donc coûté
+  une revue de plus pour obtenir, plus tard, une porte de mise à jour qui
+  fonctionne. La 53 fait les deux en une soumission.
+
+  **Ce que « même code » NE dispense PAS de faire.** Une première rédaction de
+  cette entrée affirmait que la vérification sur appareil de la 52 restait
+  valable pour la 53. C'était faux, et dangereusement : elle disait à un
+  opérateur de sauter un contrôle que le dépôt rend obligatoire
+  (`docs/phase1-stability-smoke-checklist.md` — « every release candidate »,
+  sur un appareil physique de chaque plateforme — et la checklist du contrat de
+  soumission, qui exige le smoke sur la build SOUMISE).
+
+  Trois raisons, dont la deuxième est la raison d'être de cette build :
+
+  - **la 53 est un artefact NEUF**, reconstruit et re-signé. Une source
+    identique ne rend pas deux archives identiques : empaquetage, signature,
+    profil, installation et premier démarrage peuvent échouer indépendamment
+    du code ;
+  - **le comportement de la porte de mise à jour DIFFÈRE** à l'exécution —
+    `isVersionBelow` compare « 2.2.0 » au lieu de « 2.1.0 ». C'est précisément
+    ce qu'on est venu chercher, donc c'est précisément ce qu'il faut voir
+    tourner ;
+  - un artefact non installé n'a jamais été vu par personne.
+
+  Ce que « même code » dispense de faire, en revanche : re-parcourir les neuf
+  points de la revue du build 49 fonction par fonction. Ils ont été vérifiés
+  sur la 52 et aucun code applicatif n'a bougé depuis.
+
+  Reste, comme pour la 52, le seul contrôle que le dépôt ne peut pas rendre :
+  la réception effective d'une notification, qui seule prouve l'environnement
+  APNs de l'artefact livré.
+
+  **Couplage backend : `tolerates-old`.** Aucune route nouvelle, aucun champ
+  nouveau envoyé par l'app. `push.configured` est une LECTURE que l'app ne
+  fait pas ; le déploiement qui l'a livrée est déjà en production
+  (`0ec1c1e42b6d`). La 53 tourne indifféremment contre ce backend ou contre
+  le précédent.
 
 ### Ce que 52 embarque
 
