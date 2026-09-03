@@ -86,16 +86,49 @@ recreate_api_same_image() {
   echo "image et empreinte inchangées — id ${id_after}, build sha ${sha_after:-<absent>}"
 }
 
+# La valeur EFFECTIVEMENT vue par l'API, pas celle qu'on devine.
+#
+# Deux façons de se tromper, et le script tombait dans les deux :
+#
+#   1. Lire `.env` avec `head -1`. Une clé posée deux fois garde la DERNIÈRE —
+#      `set_env_key` le documente à quatre lignes d'ici — donc le premier
+#      assignement peut dire exactement le contraire de la configuration
+#      réelle. Un rapport qui ment sur ce qu'il a lu est pire qu'un rapport
+#      absent.
+#   2. Lire `.env` tout court. Une variable peut y être posée sans être
+#      relayée dans le bloc `environment:` de compose : elle existe dans le
+#      fichier et n'atteint jamais le processus. C'est le défaut mesuré en
+#      août (LIV-T15), et `require_relay` existe déjà à cause de lui.
+#
+# On interroge donc le CONTENEUR EN COURS, qui est la seule source de vérité :
+# c'est l'environnement que Node lit réellement. Repli sur `.env` avec
+# `tail -1` si le conteneur est introuvable, en le DISANT.
+effective_env() {
+  local key="$1" value
+  value=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' kpb_api 2>/dev/null \
+    | sed -n "s/^${key}=//p" | tail -1 || true)
+  if [ -n "$value" ]; then
+    printf '%s' "$value"
+    return 0
+  fi
+  # Le conteneur ne porte pas la clé : soit elle est absente, soit il n'est pas
+  # là. On distingue les deux, parce que « absente » et « illisible » n'appellent
+  # pas le même geste.
+  if docker inspect kpb_api >/dev/null 2>&1; then
+    return 1
+  fi
+  grep -E "^${key}=" .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '"'"'"'\r' | xargs || true
+}
+
 # Rend compte d'un secret SANS le montrer.
 #
 # La règle est asymétrique et c'est voulu : `ONESIGNAL_APP_ID` est public — il
 # voyage dans le binaire de l'app, un `strings` sur l'IPA le donne — donc
-# l'afficher permet de vérifier que le serveur cible bien la MÊME application
-# OneSignal que le client. `ONESIGNAL_REST_API_KEY` est un secret : on n'en dit
-# que la présence, jamais la valeur ni la longueur.
+# l'afficher permet de comparer. `ONESIGNAL_REST_API_KEY` est un secret : on
+# n'en dit que la présence, jamais la valeur ni la longueur.
 report_key() {
   local key="$1" mode="${2:-masked}" value
-  value=$(grep -E "^${key}=" .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r' | xargs || true)
+  value=$(effective_env "$key")
   if [ -z "$value" ]; then
     printf '  %-26s ABSENTE\n' "$key"
     return 1
@@ -113,13 +146,10 @@ report_key() {
 # chaque envoi devient un no-op journalisé, le fil d'actualité s'écrit quand
 # même, et le dispatcher rend `push_unconfigured`. Rien, nulle part, ne le
 # disait — c'est la forme d'échec qui a envoyé la build 50 sans PostHog.
-#
-# Le second défaut, plus vicieux, est un serveur correctement configuré mais
-# pointant sur une AUTRE application OneSignal que l'app : tout « réussit »,
-# et aucun téléphone ne reçoit rien. D'où la comparaison à l'App ID que l'app
-# embarque réellement, passé par le workflow (`EXPECTED_ONESIGNAL_APP_ID`).
 show_push_state() {
   echo "── Notifications push (OneSignal) ──"
+  docker inspect kpb_api >/dev/null 2>&1 \
+    || echo "  (conteneur kpb_api introuvable — valeurs lues dans .env, pas dans le processus)"
   local ok=0
   report_key ONESIGNAL_APP_ID public || ok=1
   report_key ONESIGNAL_REST_API_KEY masked || ok=1
@@ -129,13 +159,26 @@ show_push_state() {
     echo "  → push configuré."
   fi
 
+  # Comparaison INDICATIVE, et jamais bloquante.
+  #
+  # `EXPECTED_ONESIGNAL_APP_ID` vient du `defaultValue` COURANT de
+  # `app_config.dart`. Ce n'est pas nécessairement l'App ID de la build que les
+  # utilisateurs ont installée : le défaut a pu changer depuis la mise en ligne,
+  # et un binaire peut avoir été construit avec `--dart-define`, qui l'emporte.
+  #
+  # Un écart mérite donc un REGARD, pas une action. En faire une erreur aurait
+  # invité à basculer le serveur pour le faire correspondre à la source — et à
+  # couper le push pour tous les clients déjà installés. La vérité vit dans
+  # l'artefact distribué : `strings App.framework/App | grep -o '[0-9a-f-]\{36\}'`.
   if [ -n "${EXPECTED_ONESIGNAL_APP_ID:-}" ]; then
     local server
-    server=$(grep -E '^ONESIGNAL_APP_ID=' .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r' | xargs || true)
-    if [ "$server" = "$EXPECTED_ONESIGNAL_APP_ID" ]; then
-      echo "  App ID identique à celui embarqué par l'app ✅"
+    server=$(effective_env ONESIGNAL_APP_ID)
+    if [ -z "$server" ]; then
+      : # déjà signalé comme ABSENTE ci-dessus
+    elif [ "$server" = "$EXPECTED_ONESIGNAL_APP_ID" ]; then
+      echo "  App ID identique au défaut courant de app_config.dart ✅"
     else
-      echo "::error::l'App ID du serveur ($server) DIFFÈRE de celui embarqué par l'app ($EXPECTED_ONESIGNAL_APP_ID) : les envois « réussiraient » sans qu'aucun téléphone ne reçoive rien."
+      echo "::warning::l'App ID du serveur ($server) diffère du défaut courant de app_config.dart ($EXPECTED_ONESIGNAL_APP_ID). Ce n'est PAS forcément une panne : la build installée peut porter un autre App ID (défaut modifié depuis la mise en ligne, ou --dart-define). NE PAS basculer le serveur sans avoir lu l'App ID de l'artefact réellement distribué."
     fi
   fi
   echo
