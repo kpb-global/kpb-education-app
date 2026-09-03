@@ -1,4 +1,11 @@
-# Mobile store submission contract — build 49
+# Mobile store submission contract
+
+> **This document is tied to NO build in particular.** It used to be titled
+> "— build 49" and named build 49 throughout, long after builds 50 and 52 had
+> shipped: an operator opening it read the identity of an artifact that no
+> longer existed. The build number is therefore gone from here — it lives in
+> `docs/release-ledger.md`, which is its source, and a document that copies it
+> ends up contradicting it.
 
 This file is the release operator's compact source of truth for the **artifact
 that is actually uploaded**. Marketing copy remains in `store-listing-copy.md`;
@@ -13,8 +20,8 @@ Apple/Google console state, a signed artifact, or a physical-device result.
 | Field | Required value | Verified by repository |
 |---|---|---|
 | Public name | KPB Education | Source metadata tests |
-| Marketing version | `2.2.0` | `pubspec.yaml` + both artifact preflights. Passée de 2.1.0 à 2.2.0 le 03/09/2026 pour que la porte de mise à jour puisse distinguer une build d'une autre : `isVersionBelow` ignore le numéro de build. |
-| Build/version code | `49` | Release ledger + both artifact preflights |
+| Marketing version | `2.2.0` | `pubspec.yaml` + les deux préflights, verrouillés par `artifact_signing_contract_test.dart`. Passée de 2.1.0 à 2.2.0 le 03/09/2026 : `isVersionBelow` ignore le numéro de build, donc sans changement de version marketing la porte de mise à jour ne peut distinguer aucune build. |
+| Build/version code | le **Courant** de `docs/release-ledger.md` | Registre + les deux préflights, appariés par `build_number_test.dart` |
 | Android application ID | `com.karatou.android` | Gradle + AAB manifest preflight |
 | iOS bundle ID | `Karatou.karatou` | Xcode + signed-app preflight |
 | iOS Apple team | `DNPB788LKX` | Signed-app/profile preflight |
@@ -118,7 +125,7 @@ the final archive because third-party manifests are aggregated separately.
   absent.
 - Data types: personal information; messages; optional avatar; app activity and
   search; crash/diagnostics; device or other IDs. Files/documents are **No** in
-  build 49 while document upload remains disabled, unless the production
+  the submitted build while document upload remains disabled, unless the production
   Success Lab feature is opened and accepts a file—confirm the production flag
   before answering.
 - Analytics, replay, and diagnostics are user-controllable. They must start
@@ -133,7 +140,7 @@ Answer these facts and retain screenshots/PDFs of the submitted answers:
 - contractual/onboarding minimum age: **16**; guardian consent below 18;
 - generative AI/free-text assistant: **Yes**;
 - staff-facing user content (case and coach messages): **Yes**;
-- public user-to-user community in build 49: **No** (`KPB_MVP_ONLY=true`);
+- public user-to-user community in the submitted build: **No** (`KPB_MVP_ONLY=true`);
 - objectionable generative-AI output can be reported **in app** from both the
   coach reply and orientation explanation. A report is persisted as an
   authenticated Trust & Safety case and is visible to authorised KPB staff;
@@ -149,18 +156,18 @@ the release evidence; do not infer it from the contractual 16-year floor.
 ## 5. Required manual evidence
 
 - [ ] Clean immutable release SHA, synced to the intended `origin/main` commit.
-- [ ] Signed build-49 AAB passes `preflight-android-aab.sh` and matches Play's
+- [ ] The submitted build's signed AAB passes `preflight-android-aab.sh` and matches Play's
       public upload-certificate SHA-256.
-- [ ] Apple Distribution build-49 archive passes
+- [ ] The submitted build's Apple Distribution archive passes
       `preflight-ios-archive.sh`; Xcode privacy report reviewed.
-- [ ] Play Internal Testing install and TestFlight install are both build 49.
+- [ ] Play Internal Testing install and TestFlight install are both the submitted build.
 - [ ] Submit one AI-output report from the coach and one from orientation on
       those internal-track builds; retain both case references and evidence
       that authorised staff received them in the back-office case queue.
 - [ ] Physical Android and iOS smoke: first run, guest browse, account creation,
       OAuth/OTP, notifications, case messaging/dictation, export, deletion,
       analytics refusal, offline/reconnect, external links.
-- [ ] Screenshots and Play feature graphic captured from build 49; no masked or
+- [ ] Screenshots and Play feature graphic captured from the submitted build; no masked or
       server-disabled feature shown.
 - [ ] Reference-device AAB delivered size, five-run cold-start average, memory,
       and representative-session network bytes recorded in `STORE_READINESS.md`.
