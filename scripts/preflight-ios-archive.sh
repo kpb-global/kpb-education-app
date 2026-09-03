@@ -17,7 +17,7 @@ ARCHIVE_PLIST=""
 APP_PATH=""
 
 EXPECTED_BUILD="53"
-EXPECTED_VERSION="2.1.0"
+EXPECTED_VERSION="2.2.0"
 EXPECTED_BUNDLE_ID="Karatou.karatou"
 EXPECTED_TEAM_ID="DNPB788LKX"
 
@@ -284,4 +284,8 @@ if expiration.replace(tzinfo=datetime.timezone.utc) <= now:
     raise SystemExit(1)
 PY
 
-echo "Préflight iOS OK — 2.1.0 (49), Karatou.karatou, Apple Distribution, APNs production, profil App Store, confidentialité embarquée."
+# Le message se compose à partir des valeurs VÉRIFIÉES. Il annonçait
+# « 2.1.0 (49) » en dur alors que le script exigeait déjà la 53 : un
+# rapport de succès qui ment sur ce qu'il a contrôlé est pire qu'un rapport
+# absent. Même défaut, même correctif que côté Android.
+echo "Préflight iOS OK — ${EXPECTED_VERSION} (${EXPECTED_BUILD}), ${EXPECTED_BUNDLE_ID}, Apple Distribution, APNs production, profil App Store, confidentialité embarquée."

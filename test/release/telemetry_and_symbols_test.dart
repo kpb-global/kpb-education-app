@@ -273,6 +273,55 @@ void main() {
       });
     });
 
+    // Le contrat de soumission est ce qu'un opérateur ouvre le jour J. Il
+    // s'intitulait « — build 49 » et énumérait la 49 partout, alors que les 50
+    // et 52 étaient parties : il décrivait l'identité d'un artefact périmé.
+    //
+    // Pire, un correctif partiel — mettre à jour la version marketing sans le
+    // numéro de build — y a fabriqué un artefact IMPOSSIBLE, 2.2.0+49, qui n'a
+    // jamais existé et n'existera jamais. Le numéro n'y figure donc plus : il
+    // vit dans le registre, sa seule source.
+    test('le contrat de soumission ne recopie aucun numéro de build', () {
+      final contract = _read('docs/mobile-store-submission-contract.md');
+      final identity = contract.substring(
+        contract.indexOf('Immutable artifact identity'),
+        contract.indexOf('```bash'),
+      );
+      expect(
+        RegExp(r'\|\s*`\d+`\s*\|').hasMatch(identity),
+        isFalse,
+        reason:
+            'un numéro de build recopié dans le tableau d\'identité dérive à '
+            'chaque release et finit par décrire un artefact impossible',
+      );
+      expect(identity, contains('release-ledger.md'));
+      // La version MARKETING, elle, est légitimement épinglée — un test la
+      // verrouille sur pubspec.yaml — mais elle doit y correspondre.
+      final shipping = RegExp(r'^version:\s*(\d+\.\d+\.\d+)\+', multiLine: true)
+          .firstMatch(_read('pubspec.yaml'))!
+          .group(1)!;
+      expect(
+        identity,
+        contains('`$shipping`'),
+        reason:
+            'le contrat annonce une version marketing différente de pubspec',
+      );
+    });
+
+    // Le même défaut existait des DEUX côtés : le préflight iOS annonçait
+    // « 2.1.0 (49) » en dur alors qu'il exigeait déjà la 53. Un opérateur
+    // lisant ce message aurait cru valider un artefact qui n'était pas celui-là.
+    test('le préflight iOS n\'annonce pas une version qu\'il ne vérifie pas',
+        () {
+      final tail = iosPreflight.substring(iosPreflight.length - 700);
+      expect(
+        RegExp(r'Préflight iOS OK — \d+\.\d+\.\d+ \(\d+\)').hasMatch(tail),
+        isFalse,
+        reason: 'version et build en dur dans le message de succès',
+      );
+      expect(tail, contains(r'${EXPECTED_VERSION} (${EXPECTED_BUILD})'));
+    });
+
     // Un rapport de succès qui ment sur ce qu'il a contrôlé est pire qu'un
     // rapport absent : il annonçait « (49) » alors que le script exigeait 51.
     test(

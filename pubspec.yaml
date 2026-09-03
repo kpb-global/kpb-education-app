@@ -16,10 +16,23 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-# 2.1.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
-# CFBundleShortVersionString doit lui être supérieure. +49 = prochain
-# TestFlight (48 déjà chez les testeurs). Voir docs/release-ledger.md.
-version: 2.1.0+53
+# 2.2.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
+# CFBundleShortVersionString doit lui être supérieure. Le NUMÉRO de build vit
+# dans docs/release-ledger.md, qui fait foi.
+#
+# Pourquoi 2.1.0 → 2.2.0 le 03/09/2026. La porte de mise à jour
+# (`AppVersionGate`) compare la version MARKETING au `minVersion` servi par
+# /config/app, et `isVersionBelow` coupe la chaîne au `+` : le numéro de build
+# est ignoré. Les 48, 49, 50, 52 portant toutes « 2.1.0 », aucune valeur de
+# `KPB_MIN_APP_VERSION` ne pouvait distinguer une build d'une autre — la porte
+# était inutilisable en pratique.
+#
+# ATTENTION à l'ordre : ne poser `KPB_MIN_APP_VERSION=2.2.0` sur le VPS
+# qu'APRÈS que la 2.2.0 soit RÉELLEMENT téléchargeable sur les deux stores.
+# Posée avant, elle enferme tous les utilisateurs derrière un écran plein
+# (`PopScope(canPop: false)`) qui renvoie vers une version qui n'existe pas
+# encore.
+version: 2.2.0+53
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
