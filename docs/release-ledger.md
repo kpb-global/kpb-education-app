@@ -24,9 +24,31 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   dans les échanges avec le propriétaire, et faire porter ce nom à un autre
   artefact aurait rendu toute trace ultérieure ambiguë.
 
+- `52` — **livrée aux deux plateformes le 03/09/2026.** Archive iOS
+  téléversée sur App Store Connect à 11h22 (« Uploaded to Apple ») ; AAB
+  Android signé et vérifié par la CI le même jour (run 33752445518,
+  artefact `app-release-android-aab`).
+
+  Premier artefact dont la télémétrie et la lisibilité des plantages sont
+  PROUVÉES et non supposées :
+  - clé PostHog présente dans le binaire iOS (`strings` : 1 occurrence ;
+    la 50 en avait 0) et exigée par la garde du job AAB avant construction ;
+  - 55 dSYM produits et envoyés à Crashlytics — le journal d'archivage
+    porte « Successfully submitted symbols for architecture arm64 » sous
+    l'identifiant de la phase `30944CAE…` ;
+  - AAB signé par LA clé d'upload attendue, empreinte SHA-256 comparée à
+    celle du keystore installé par le job lui-même.
+
+  Backend au même SHA que la build (`b6d8d769cc71` au moment de l'archive),
+  couplage `requires-new` satisfait et vérifié par le préflight de release.
+  La 52 ne repart pas.
+
 ## Courant
 
-- `52` — la 51 plus la liste d'attente Karatou Premium. Détail plus bas.
+- `53` — rien encore. Le numéro est ouvert parce que la 52 est consommée :
+  Apple refuse un `CFBundleVersion` déjà téléversé, et un archivage reparti
+  sur 52 aurait échoué au moment du Distribute, c'est-à-dire le plus tard
+  possible.
 
 ### Ce que 52 embarque
 
