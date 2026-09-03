@@ -1,6 +1,7 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 
 import { LlmService } from '../ai/llm.service';
+import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /** Captured at import time, so it is the process start and not the call time. */
@@ -11,6 +12,7 @@ export class HealthController {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly llmService: LlmService,
+    private readonly pushSender: OneSignalSenderService,
   ) {}
 
   /** Backwards-compatible liveness endpoint: process is able to receive HTTP. */
@@ -21,6 +23,24 @@ export class HealthController {
       timestamp: new Date().toISOString(),
       // Boolean only — never the provider key, never the model name.
       ai: { configured: this.llmService.isConfigured },
+      /**
+       * Le push est-il seulement CAPABLE de partir ?
+       *
+       * `OneSignalSenderService` se dégrade en silence : sans
+       * `ONESIGNAL_APP_ID` / `ONESIGNAL_REST_API_KEY`, chaque envoi devient un
+       * no-op journalisé, le fil d'actualité s'écrit quand même, et le
+       * dispatcher rend `push_unconfigured`. Personne ne s'en apercevait :
+       * cette route annonçait l'état de l'IA et RIEN sur le push, alors que
+       * les deux se désactivent de la même façon — par une variable absente.
+       *
+       * C'est la forme d'échec qui a envoyé la build 50 chez les testeurs sans
+       * PostHog : une capacité éteinte sans le moindre signal. Un booléen ici
+       * coûte une ligne et rend la panne visible de l'extérieur.
+       *
+       * Booléen SEUL, comme pour l'IA : la clé REST est un secret, et même sa
+       * longueur n'a rien à faire sur une route non authentifiée.
+       */
+      push: { configured: this.pushSender.isConfigured },
     };
   }
 

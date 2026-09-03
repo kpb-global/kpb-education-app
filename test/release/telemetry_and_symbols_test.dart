@@ -142,6 +142,137 @@ void main() {
       });
     });
 
+    // ── Push ──────────────────────────────────────────────────────────────
+    //
+    // Le push se désactive comme PostHog et comme l'IA : par une variable
+    // absente, sans un mot. `OneSignalSenderService` se dégrade en no-op
+    // journalisé — le fil d'actualité s'écrit, la notification ne part pas, et
+    // le dispatcher rend `push_unconfigured`. Personne ne le voyait.
+    group('une panne de push ne peut plus être silencieuse', () {
+      final health = _read('backend/src/modules/health/health.controller.ts');
+      final opsScript = _read('.github/scripts/vps-ops.sh');
+      final opsWorkflow = _read('.github/workflows/vps-ops.yml');
+      final appConfig = _read('lib/app/core/config/app_config.dart');
+
+      test('/health annonce l\'état du push, comme celui de l\'IA', () {
+        expect(
+          health,
+          contains('push: { configured: this.pushSender.isConfigured }'),
+          reason:
+              '/health exposait ai.configured et RIEN sur le push, alors que '
+              'les deux s\'éteignent de la même façon.',
+        );
+      });
+
+      test('la route n\'expose qu\'un booléen, jamais la clé REST', () {
+        // La clé REST OneSignal est un secret, contrairement à l'App ID. Ni sa
+        // valeur ni sa longueur n'ont leur place sur une route publique.
+        //
+        // On teste le CODE, pas la prose : les commentaires de ce contrôleur
+        // nomment la variable pour expliquer la règle, et une recherche brute
+        // les aurait comptés comme une fuite. Une première version de ce test
+        // rougissait exactement ainsi — sur son propre commentaire.
+        final code = health
+            .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '')
+            .replaceAll(RegExp(r'//.*'), '');
+        expect(
+          code.contains('ONESIGNAL'),
+          isFalse,
+          reason: 'le contrôleur ne doit jamais lire la variable lui-même',
+        );
+        expect(code.contains('restApiKey'), isFalse);
+        // La seule chose qui sort est le booléen dérivé du service.
+        expect(code, contains('this.pushSender.isConfigured'));
+      });
+
+      test('l\'outillage d\'ops rend compte des deux variables', () {
+        expect(opsScript, contains('report_key ONESIGNAL_APP_ID public'));
+        expect(opsScript, contains('report_key ONESIGNAL_REST_API_KEY masked'));
+        // `masked` est le mode qui n'imprime que « posée ». Un basculement en
+        // `public` ferait sortir un secret dans un journal de CI public.
+        expect(
+          opsScript.contains('report_key ONESIGNAL_REST_API_KEY public'),
+          isFalse,
+          reason: 'la clé REST ne doit JAMAIS être imprimée',
+        );
+      });
+
+      // Le défaut le plus vicieux n'est pas l'absence de configuration : c'est
+      // un serveur bien configuré qui pointe sur une AUTRE application
+      // OneSignal. Tout « réussit », et aucun téléphone ne reçoit rien.
+      // Deux façons de lire la MAUVAISE valeur, toutes deux corrigées :
+      // `.env` peut porter la clé deux fois (compose garde la dernière), et une
+      // clé posée dans `.env` peut n'être jamais relayée au conteneur. On lit
+      // donc l'environnement du processus, qui est la seule vérité.
+      test('l\'état est lu dans le CONTENEUR, pas deviné depuis .env', () {
+        // Assertion portée sur le CORPS de `effective_env`, pas sur le fichier.
+        // Une première version cherchait `docker inspect` n'importe où dans le
+        // script — or il y figure aussi dans `recreate_api_same_image`. La
+        // mutation qui ramenait `effective_env` à un `grep .env | head -1`
+        // passait donc au vert : le test cherchait la bonne chaîne au mauvais
+        // endroit.
+        final start = opsScript.indexOf('effective_env() {');
+        expect(start, isNot(-1), reason: 'fonction effective_env absente');
+        final body = opsScript.substring(
+          start,
+          opsScript.indexOf('\n}\n', start),
+        );
+
+        expect(
+          body,
+          contains('docker inspect'),
+          reason: 'la valeur effective est celle que le processus voit',
+        );
+        expect(body, contains('.Config.Env'));
+        // Une clé posée deux fois dans `.env` garde la DERNIÈRE — `set_env_key`
+        // le documente à quelques lignes de là. Lire la première ferait dire au
+        // rapport le contraire de la configuration réelle.
+        expect(body, contains('tail -1'));
+        expect(
+          body.contains('head -1'),
+          isFalse,
+          reason: 'lire le premier assignement contredirait set_env_key',
+        );
+      });
+
+      // Un écart mérite un regard, pas une action. Le rendre bloquant aurait
+      // invité à basculer le serveur vers la source — et à couper le push pour
+      // tous les clients DÉJÀ installés, dont la build peut porter un autre
+      // App ID (défaut modifié depuis, ou --dart-define).
+      test('une divergence d\'App ID avertit, elle ne bloque pas', () {
+        final block = opsScript.substring(opsScript.indexOf('show_push_state'));
+        expect(block, contains("::warning::l'App ID du serveur"));
+        expect(
+          block.contains("::error::l'App ID du serveur"),
+          isFalse,
+          reason: 'agir sur cette comparaison sans lire l\'artefact distribué '
+              'casserait le push pour les utilisateurs en place',
+        );
+      });
+
+      test('l\'App ID du serveur est comparé à celui que l\'app embarque', () {
+        expect(opsScript, contains(r'EXPECTED_ONESIGNAL_APP_ID'));
+        expect(opsWorkflow, contains(r'EXPECTED_ONESIGNAL_APP_ID'));
+        // Extrait de la SOURCE, jamais recopié : une constante recopiée aurait
+        // fini par diverger de app_config.dart, et la comparaison aurait alors
+        // validé l'écart qu'elle est censée dénoncer.
+        expect(opsWorkflow, contains('app_config.dart'));
+      });
+
+      test('app_config.dart garde la forme que le workflow sait lire', () {
+        final match = RegExp(
+          "KPB_ONESIGNAL_APP_ID',\\s*defaultValue: '([^']+)'",
+        ).firstMatch(appConfig);
+        expect(
+          match,
+          isNotNull,
+          reason: 'le workflow extrait l\'App ID avec un sed sur cette forme ; '
+              'la changer casserait la comparaison EN SILENCE.',
+        );
+        expect(match!.group(1)!.trim(), isNotEmpty);
+      });
+    });
+
     // Un rapport de succès qui ment sur ce qu'il a contrôlé est pire qu'un
     // rapport absent : il annonçait « (49) » alors que le script exigeait 51.
     test(
