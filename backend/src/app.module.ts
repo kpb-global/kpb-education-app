@@ -36,6 +36,10 @@ import { EtudesEnFranceController } from './modules/etudes-en-france/etudes-en-f
 import { EtudesEnFranceService } from './modules/etudes-en-france/etudes-en-france.service';
 import { AdminEefInterestController } from './modules/etudes-en-france/admin-eef-interest.controller';
 import { AdminEefInterestService } from './modules/etudes-en-france/admin-eef-interest.service';
+import { PremiumWaitlistController } from './modules/premium/premium-waitlist.controller';
+import { PremiumWaitlistService } from './modules/premium/premium-waitlist.service';
+import { AdminPremiumWaitlistController } from './modules/premium/admin-premium-waitlist.controller';
+import { AdminPremiumWaitlistService } from './modules/premium/admin-premium-waitlist.service';
 import { HealthController } from './modules/health/health.controller';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
@@ -191,6 +195,8 @@ import { SalonService } from './modules/salon/salon.service';
     AppConfigController,
     EtudesEnFranceController,
     AdminEefInterestController,
+    PremiumWaitlistController,
+    AdminPremiumWaitlistController,
     HealthController,
     NotificationsController,
     OrientationController,
@@ -291,6 +297,8 @@ import { SalonService } from './modules/salon/salon.service';
     ReferralsService,
     EtudesEnFranceService,
     AdminEefInterestService,
+    PremiumWaitlistService,
+    AdminPremiumWaitlistService,
     AmbassadorService,
     ReferralCreditsService,
     ReferralCreditsReconcileCronService,

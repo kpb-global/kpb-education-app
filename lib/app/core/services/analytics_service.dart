@@ -378,6 +378,43 @@ class AnalyticsService {
     }
   }
 
+  /// Un étudiant s'est inscrit sur la liste d'attente Karatou Premium.
+  ///
+  /// La seule mesure directe de la demande pour le Pass. Émis UNIQUEMENT après
+  /// confirmation du serveur : l'émettre au tap aurait compté des inscriptions
+  /// que la base n'a jamais reçues, et gonflé précisément le chiffre qui doit
+  /// décider d'un lancement.
+  Future<void> logPremiumWaitlistJoined() async {
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.premiumWaitlistJoined,
+      );
+      _mirror(
+          AnalyticsEventName.premiumWaitlistJoined, const <String, Object>{});
+    } catch (e, s) {
+      _logError('logPremiumWaitlistJoined', e, s);
+    }
+  }
+
+  /// Une inscription à la liste d'attente a ÉCHOUÉ.
+  ///
+  /// La moitié qui manque toujours : sans elle, une panne du backend produit la
+  /// même courbe plate que l'absence d'intérêt. [reason] reste grossier
+  /// (`network`, `unauthorized`, `server`) — on cherche à distinguer une panne
+  /// d'un désintérêt, pas à journaliser des messages d'erreur.
+  Future<void> logPremiumWaitlistFailed(String reason) async {
+    final params = <String, Object>{AnalyticsParamKey.reason: reason};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.premiumWaitlistFailed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.premiumWaitlistFailed, params);
+    } catch (e, s) {
+      _logError('logPremiumWaitlistFailed', e, s);
+    }
+  }
+
   /// Une déclaration d'intérêt a ÉCHOUÉ.
   ///
   /// Cet événement est la moitié qui manque toujours. Sans lui, un backend en

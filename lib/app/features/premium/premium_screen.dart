@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/services/coach_service.dart';
+import '../../core/ui/components/kpb_guest_gate.dart';
 import '../../core/utils/whatsapp_utils.dart';
 import '../../core/ui/app_tokens.dart';
+import 'premium_waitlist_controller.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Karatou Premium — App-engagement handoff (navy/blue).
@@ -20,6 +22,12 @@ import '../../core/ui/app_tokens.dart';
 // "coming soon / activate via a KPB advisor" screen. The single free-vs-premium
 // row is the ONE real, verifiable limit: the AI Coach weekly quota (read live
 // from CoachService, default 5). The lone CTA hands off to the WhatsApp advisor.
+//
+// La liste d'attente ajoutée en 2026-09 ne change RIEN à ce qui précède : c'est
+// une inscription GRATUITE et sans engagement, qui n'affiche ni prix ni moyen
+// de paiement et n'ouvre aucun tunnel d'achat. Elle enregistre « préviens-moi à
+// l'ouverture », rien d'autre — et le back-office s'en sert pour compter la
+// demande avant de construire le service.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
@@ -50,10 +58,108 @@ class _PremiumScreenState extends State<PremiumScreen> {
   // limit (5) and is refreshed from the live quota when available.
   int _freeWeeklyLimit = 5;
 
+  late final PremiumWaitlistController _waitlist;
+  late final bool _isGuest;
+  late final bool _isStudent;
+
   @override
   void initState() {
     super.initState();
+    final app = Get.find<AppController>();
+    _isGuest = app.isGuestMode;
+    // Le serveur refuse l'écriture aux comptes parent et partenaire
+    // (`premium-waitlist.controller.ts`). L'écran le dit AVANT le tap plutôt
+    // que de laisser partir une requête dont la seule issue est un 403 que le
+    // client avalerait — un bouton qui ne fait rien est indiscernable d'un bug.
+    _isStudent = app.isStudent;
+    // `AppApiClient` n'est PAS enregistré dans GetX : il vit sur AppController,
+    // qui l'a construit. Un `Get.find<AppApiClient>()` aurait levé au premier
+    // montage réel, et jamais dans un test qui l'injecte à la main.
+    _waitlist = PremiumWaitlistController(apiClient: app.apiClient);
     _loadQuota();
+    // Un invité n'a pas de session : l'appel partirait pour revenir en 401.
+    if (!_isGuest) _waitlist.load();
+  }
+
+  @override
+  void dispose() {
+    _waitlist.dispose();
+    super.dispose();
+  }
+
+  /// Envoie l'invité sur le mur de conversion du dépôt.
+  ///
+  /// Il quitte le mode invité, remet l'onboarding à faire et journalise la
+  /// provenance — sans quoi le routeur de démarrage le renverrait droit dans la
+  /// coquille invité, c'est-à-dire dans la boucle que ce mur rompt.
+  Future<void> _openGuestGate() async {
+    await Get.to<void>(
+      () => Scaffold(
+        appBar: AppBar(title: Text('premium_screen_title'.tr)),
+        body: const SafeArea(
+          child: KpbGuestGate(
+            source: 'premium_waitlist_gate',
+            titleKey: 'guest_premium_waitlist_title',
+            bodyKey: 'guest_premium_waitlist_body',
+            ctaKey: 'guest_premium_waitlist_cta',
+            icon: Icons.workspace_premium_outlined,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _join() async {
+    if (_isGuest) return _openGuestGate();
+    final ok = await _waitlist.join();
+    if (!mounted) return;
+    if (!ok) _showFailure();
+  }
+
+  /// Confirme puis exécute le retrait.
+  ///
+  /// La confirmation n'est pas un réflexe : sans elle, un tap accidentel
+  /// effacerait l'inscription, et rien n'annulerait le geste — la ligne est
+  /// supprimée, pas archivée.
+  Future<void> _confirmLeave() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('premium_waitlist_leave'.tr),
+        content: Text('premium_waitlist_notice'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('cancel'.tr),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('premium_waitlist_leave'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final ok = await _waitlist.leave();
+    if (!mounted) return;
+    // Le retour est dit dans les DEUX sens : un retrait qui échoue en silence
+    // laisserait l'étudiant croire qu'il n'est plus dans la liste alors qu'il y
+    // est — le même mensonge que « c'est noté » sur une ligne jamais écrite,
+    // dans l'autre direction.
+    if (!ok) _showFailure();
+  }
+
+  void _showFailure() {
+    final key = switch (_waitlist.failure) {
+      PremiumWaitlistFailure.network => 'premium_waitlist_error_network',
+      PremiumWaitlistFailure.unauthorized =>
+        'premium_waitlist_error_unauthorized',
+      _ => 'premium_waitlist_error_server',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(key.tr)),
+    );
   }
 
   Future<void> _loadQuota() async {
@@ -113,6 +219,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 children: [
                   _heroCard(count),
+                  const SizedBox(height: 14),
+                  _pitchCard(),
+                  const SizedBox(height: 14),
+                  // Le seul bloc interactif de l'écran, placé AVANT le tableau
+                  // comparatif : c'est la seule chose qu'on demande à
+                  // l'étudiant de faire ici, et l'enterrer sous deux cartes
+                  // descriptives aurait mesuré le défilement plutôt que
+                  // l'intérêt.
+                  AnimatedBuilder(
+                    animation: _waitlist,
+                    builder: (_, __) => _waitlistCard(),
+                  ),
                   const SizedBox(height: 14),
                   _comparisonCard(count),
                   const SizedBox(height: 14),
@@ -191,6 +309,212 @@ class _PremiumScreenState extends State<PremiumScreen> {
         ],
       ),
     );
+  }
+
+  // ── Ce qu'est le Pass ─────────────────────────────────────────────────────
+  //
+  // Décrit un service À VENIR — le badge « Bientôt disponible » du hero reste
+  // au-dessus. Aucun prix, aucun bouton d'achat, aucun verbe « s'abonner » :
+  // Karatou n'encaisse rien dans l'application.
+  Widget _pitchCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: KpbColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'premium_pitch_title'.tr,
+            style: const TextStyle(
+              fontSize: 15.5,
+              fontWeight: FontWeight.w800,
+              color: KpbColors.brandNavy,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'premium_pitch_body'.tr,
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.5,
+              color: KpbColors.gray700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final key in const [
+            'premium_pitch_point_shortlist',
+            'premium_pitch_point_documents',
+            'premium_pitch_point_review',
+            'premium_pitch_point_deadlines',
+          ])
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 1),
+                    child: Icon(Icons.check_circle_rounded,
+                        size: 16, color: KpbColors.actionPrimary),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      key.tr,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        height: 1.45,
+                        color: KpbColors.gray700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Liste d'attente ───────────────────────────────────────────────────────
+  //
+  // Inscription gratuite, sans engagement, sans prix affiché. Elle enregistre
+  // « préviens-moi à l'ouverture » et rien d'autre.
+  //
+  // Trois états, et le troisième n'est pas décoratif : un compte parent ou
+  // partenaire se voit dire pourquoi il n'y a pas de bouton, plutôt que d'en
+  // taper un dont la seule issue serait un 403 avalé en silence.
+  Widget _waitlistCard() {
+    final registered = _waitlist.registered;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: registered ? KpbColors.actionPrimarySoft : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: registered ? KpbColors.actionPrimary : KpbColors.border,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                registered
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_none_rounded,
+                size: 18,
+                color: KpbColors.actionPrimary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  registered
+                      ? 'premium_waitlist_joined_title'.tr
+                      : 'premium_waitlist_title'.tr,
+                  style: const TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w800,
+                    color: KpbColors.brandNavy,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            registered
+                ? 'premium_waitlist_joined_body'.trParams({'date': _joinedOn()})
+                : 'premium_waitlist_body'.tr,
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.5,
+              color: KpbColors.gray700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (registered)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: _waitlist.busy ? null : _confirmLeave,
+                child: Text('premium_waitlist_leave'.tr),
+              ),
+            )
+          else if (!_isGuest && !_isStudent)
+            Text(
+              'premium_waitlist_student_only'.tr,
+              style: const TextStyle(
+                fontSize: 11.5,
+                height: 1.4,
+                fontWeight: FontWeight.w700,
+                color: KpbColors.textFaint,
+              ),
+            )
+          else ...[
+            // Le texte de consentement est AU-DESSUS du bouton, jamais après :
+            // c'est ce que `kPremiumWaitlistConsentVersion` désigne, et une
+            // mention lue après le tap n'aurait rien prouvé.
+            Text(
+              'premium_waitlist_notice'.tr,
+              style: const TextStyle(
+                fontSize: 11.5,
+                height: 1.45,
+                color: KpbColors.textFaint,
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 48,
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _waitlist.busy ? null : _join,
+                style: FilledButton.styleFrom(
+                  backgroundColor: KpbColors.actionPrimary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: _waitlist.busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'premium_waitlist_cta'.tr,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// La date d'inscription, telle que l'étudiant la lit.
+  ///
+  /// Rend une chaîne vide si le serveur n'a pas donné de date : mieux vaut une
+  /// phrase amputée qu'un « null » affiché, et l'inscription elle-même est déjà
+  /// confirmée par le titre de la carte.
+  String _joinedOn() {
+    final at = _waitlist.entry.registeredAt;
+    if (at == null) return '';
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${two(at.day)}/${two(at.month)}/${at.year}';
   }
 
   // ── Free vs Premium: ONLY the one real, verifiable row (AI coach quota) ────

@@ -366,6 +366,51 @@ class AppTranslations extends Translations {
               'Bonjour KPB, je souhaite en savoir plus sur Karatou Premium.',
           'premium_no_payment_note':
               'Karatou ne propose aucun paiement intégré.',
+          // ── Ce qu'est le Pass, en une carte ──────────────────────────
+          //
+          // Décrit un service À VENIR, jamais un produit achetable ici : ni
+          // prix, ni bouton d'achat, ni verbe « s'abonner ». Karatou n'encaisse
+          // rien dans l'application (règle App Store 3.1.1), et le badge
+          // « Bientôt disponible » de l'écran reste affiché au-dessus.
+          'premium_pitch_title': 'Postuler de A à Z, accompagné',
+          'premium_pitch_body':
+              'Le Pass Karatou, c\'est votre candidature aux bourses prise en main du début à la fin : KPB Intelligence pour préparer, des conseillers KPB pour relire et valider.',
+          'premium_pitch_point_shortlist':
+              'Une sélection de bourses faite pour votre profil, pas une liste générique.',
+          'premium_pitch_point_documents':
+              'CV, lettres de motivation et réponses préparés avec KPB Intelligence.',
+          'premium_pitch_point_review':
+              'Une relecture humaine par un conseiller KPB avant l\'envoi.',
+          'premium_pitch_point_deadlines':
+              'Un suivi des échéances, pour ne pas rater une date.',
+          // ── Liste d'attente ──────────────────────────────────────────
+          //
+          // ATTENTION : le texte de `premium_waitlist_notice` est ce que
+          // `kPremiumWaitlistConsentVersion` DÉSIGNE. Le modifier sans
+          // incrémenter la constante ferait pointer la preuve de consentement
+          // vers un texte qui n'existe plus. Un test verrouille l'appariement.
+          'premium_waitlist_title': 'Soyez prévenu à l\'ouverture',
+          'premium_waitlist_body':
+              'Le Pass n\'est pas encore ouvert. Inscrivez-vous sur la liste d\'attente : nous vous préviendrons en premier.',
+          'premium_waitlist_notice':
+              'En vous inscrivant, vous acceptez que KPB vous contacte au sujet du Pass Karatou. C\'est gratuit et sans engagement, et vous pouvez vous retirer à tout moment.',
+          'premium_waitlist_cta': 'M\'inscrire sur la liste d\'attente',
+          'premium_waitlist_joined_title': 'Vous êtes sur la liste',
+          'premium_waitlist_joined_body':
+              'Inscrit le @date. Nous vous préviendrons dès l\'ouverture du Pass.',
+          'premium_waitlist_leave': 'Me retirer de la liste',
+          'premium_waitlist_error_network':
+              'Connexion impossible. Vérifiez votre réseau et réessayez.',
+          'premium_waitlist_error_unauthorized':
+              'Votre session a expiré. Reconnectez-vous puis réessayez.',
+          'premium_waitlist_error_server':
+              'Inscription impossible pour l\'instant. Réessayez dans un moment.',
+          'premium_waitlist_student_only':
+              'La liste d\'attente est réservée aux comptes étudiants.',
+          'guest_premium_waitlist_title': 'Créez votre compte',
+          'guest_premium_waitlist_body':
+              'La liste d\'attente sert à vous prévenir à l\'ouverture du Pass. Sans compte, nous n\'aurions personne à prévenir.',
+          'guest_premium_waitlist_cta': 'Créer mon compte',
           'parent_packs_label': 'Accompagnement KPB',
           'parent_pack_review': 'Relecture de dossier KPB',
           'parent_pack_review_desc':
@@ -3472,6 +3517,39 @@ class AppTranslations extends Translations {
           'premium_wa_prefill':
               'Hello KPB, I\'d like to learn more about Karatou Premium.',
           'premium_no_payment_note': 'Karatou has no in-app payment.',
+          'premium_pitch_title': 'Apply from A to Z, with support',
+          'premium_pitch_body':
+              'The Karatou Pass takes your scholarship application from start to finish: KPB Intelligence to prepare it, KPB advisers to review and approve it.',
+          'premium_pitch_point_shortlist':
+              'A shortlist built for your profile, not a generic list.',
+          'premium_pitch_point_documents':
+              'CVs, motivation letters and answers prepared with KPB Intelligence.',
+          'premium_pitch_point_review':
+              'A human review by a KPB adviser before you submit.',
+          'premium_pitch_point_deadlines':
+              'Deadline tracking, so you never miss a date.',
+          'premium_waitlist_title': 'Be told when it opens',
+          'premium_waitlist_body':
+              'The Pass is not open yet. Join the waiting list and we will tell you first.',
+          'premium_waitlist_notice':
+              'By joining, you agree that KPB may contact you about the Karatou Pass. It is free, there is no commitment, and you can leave the list at any time.',
+          'premium_waitlist_cta': 'Join the waiting list',
+          'premium_waitlist_joined_title': 'You are on the list',
+          'premium_waitlist_joined_body':
+              'Joined on @date. We will tell you as soon as the Pass opens.',
+          'premium_waitlist_leave': 'Leave the list',
+          'premium_waitlist_error_network':
+              'Could not connect. Check your network and try again.',
+          'premium_waitlist_error_unauthorized':
+              'Your session expired. Sign in again, then retry.',
+          'premium_waitlist_error_server':
+              'Cannot join right now. Please try again in a moment.',
+          'premium_waitlist_student_only':
+              'The waiting list is for student accounts.',
+          'guest_premium_waitlist_title': 'Create your account',
+          'guest_premium_waitlist_body':
+              'The waiting list exists so we can tell you when the Pass opens. Without an account there would be nobody to tell.',
+          'guest_premium_waitlist_cta': 'Create my account',
           'parent_packs_label': 'KPB support',
           'parent_pack_review': 'KPB application review',
           'parent_pack_review_desc':
