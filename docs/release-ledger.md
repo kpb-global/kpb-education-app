@@ -45,10 +45,33 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 ## Courant
 
-- `53` — rien encore. Le numéro est ouvert parce que la 52 est consommée :
-  Apple refuse un `CFBundleVersion` déjà téléversé, et un archivage reparti
-  sur 52 aurait échoué au moment du Distribute, c'est-à-dire le plus tard
-  possible.
+- `53` — **`2.2.0 (53)`. Rigoureusement le même code applicatif que la 52.**
+
+  Entre `b6d8d769cc71` (la 52) et cette build, un seul fichier applicatif a
+  changé, et il est côté SERVEUR : `health.controller.ts`, qui expose
+  `push: { configured }`. Rien dans `lib/`, rien dans `ios/`, rien dans
+  `android/`. La 53 n'est donc pas une nouvelle version du produit — c'est la
+  52 sous un autre numéro de version marketing.
+
+  **Pourquoi la construire alors.** Parce que `AppVersionGate` compare la
+  version MARKETING au `minVersion` du serveur et que `isVersionBelow` coupe
+  la chaîne au `+` : le numéro de build est ignoré. Les 48, 49, 50 et 52
+  s'appelant toutes « 2.1.0 », aucune valeur de `KPB_MIN_APP_VERSION` ne
+  pouvait en distinguer une seule. Soumettre la 52 en 2.1.0 aurait donc coûté
+  une revue de plus pour obtenir, plus tard, une porte de mise à jour qui
+  fonctionne. La 53 fait les deux en une soumission.
+
+  **Conséquence utile** : la vérification sur appareil faite sur la 52 reste
+  valable pour la 53 — c'est le même binaire à la version près. Ce qui reste
+  à prouver sur appareil est ce qui l'était déjà : la réception effective
+  d'une notification, seul contrôle de l'environnement APNs de l'artefact
+  livré.
+
+  **Couplage backend : `tolerates-old`.** Aucune route nouvelle, aucun champ
+  nouveau envoyé par l'app. `push.configured` est une LECTURE que l'app ne
+  fait pas ; le déploiement qui l'a livrée est déjà en production
+  (`0ec1c1e42b6d`). La 53 tourne indifféremment contre ce backend ou contre
+  le précédent.
 
 ### Ce que 52 embarque
 
