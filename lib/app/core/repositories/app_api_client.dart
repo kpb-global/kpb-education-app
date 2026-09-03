@@ -267,6 +267,7 @@ class AppApiClient {
   /// notification qui ne viendrait jamais.
   Future<Map<String, dynamic>> joinPremiumWaitlist({
     required String consentVersion,
+    required String consentLocale,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/premium/waitlist',
@@ -276,6 +277,10 @@ class AppApiClient {
         // n'importe quel rejeu fabriquait une preuve de consentement.
         'consent': true,
         'consentVersion': consentVersion,
+        // La version désigne une PAIRE de textes, français et anglais. Sans la
+        // langue, la preuve dit « il a accepté l'un des deux » — et l'on ne
+        // saurait plus lequel dès qu'il change de langue.
+        'consentLocale': consentLocale,
       },
     );
     return response.data ?? <String, dynamic>{};

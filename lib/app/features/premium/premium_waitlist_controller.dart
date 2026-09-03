@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
 import '../../core/models/premium_waitlist.dart';
 import '../../core/repositories/app_api_client.dart';
@@ -64,6 +65,20 @@ class PremiumWaitlistController extends ChangeNotifier {
   PremiumWaitlistEntry get entry => _entry;
   PremiumWaitlistFailure? get failure => _failure;
 
+  /// La langue du texte RÉELLEMENT affiché au moment du tap.
+  ///
+  /// Lue sur `Get.locale`, c'est-à-dire la même source que `.tr`, qui a rendu
+  /// le texte à l'écran. La dériver d'ailleurs — la locale du système, la
+  /// préférence enregistrée au profil — aurait pu désigner une langue que
+  /// l'étudiant n'a pas lue.
+  ///
+  /// Repli sur `fr` : c'est la seule langue livrée aujourd'hui
+  /// (`kShippedLocale`), et le serveur n'accepte que `fr` ou `en`. Envoyer une
+  /// locale exotique ferait refuser l'inscription pour une raison que
+  /// l'étudiant ne peut ni comprendre ni corriger.
+  @visibleForTesting
+  String get consentLocale => Get.locale?.languageCode == 'en' ? 'en' : 'fr';
+
   bool get registered => _entry.registered;
   bool get busy =>
       _phase == PremiumWaitlistPhase.loading ||
@@ -103,6 +118,7 @@ class PremiumWaitlistController extends ChangeNotifier {
     try {
       final raw = await _apiClient.joinPremiumWaitlist(
         consentVersion: kPremiumWaitlistConsentVersion,
+        consentLocale: consentLocale,
       );
       final saved = PremiumWaitlistEntry.fromJson(raw);
 

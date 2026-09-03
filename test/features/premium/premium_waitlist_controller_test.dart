@@ -8,7 +8,12 @@
 // réseau et l'échec disparaissait dans Crashlytics.
 
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+// `get` et `dio` exportent tous deux `Response`. On masque celui de `get` plutôt
+// que de restreindre l'import à `Get` : le setter `Get.locale` est une extension
+// sur `GetInterface`, et un `show Get` la rendrait invisible.
+import 'package:get/get.dart' hide Response;
 import 'package:mocktail/mocktail.dart';
 
 import 'package:karatou/app/core/repositories/app_api_client.dart';
@@ -46,7 +51,8 @@ void main() {
   group('inscription', () {
     test('envoie la version de consentement, pas seulement un tap', () async {
       when(() => api.joinPremiumWaitlist(
-          consentVersion: any(named: 'consentVersion'))).thenAnswer(
+          consentVersion: any(named: 'consentVersion'),
+          consentLocale: any(named: 'consentLocale'))).thenAnswer(
         (_) async => _registeredBody,
       );
 
@@ -55,12 +61,18 @@ void main() {
       // Sans version, la preuve en base ne désignerait aucun texte : on saurait
       // QUAND l'étudiant a tapé, jamais à quoi il s'est inscrit.
       verify(() => api.joinPremiumWaitlist(
-          consentVersion: kPremiumWaitlistConsentVersion)).called(1);
+            consentVersion: kPremiumWaitlistConsentVersion,
+            // La langue part avec la version : sans elle, la preuve dit « il a
+            // accepté l'un des deux textes », et l'on ne saurait plus lequel dès
+            // qu'il change de langue.
+            consentLocale: 'fr',
+          )).called(1);
     });
 
     test('ne marque « inscrit » que sur confirmation du serveur', () async {
       when(() => api.joinPremiumWaitlist(
-              consentVersion: any(named: 'consentVersion')))
+              consentVersion: any(named: 'consentVersion'),
+              consentLocale: any(named: 'consentLocale')))
           .thenAnswer((_) async => _registeredBody);
 
       expect(controller.registered, isFalse);
@@ -73,7 +85,8 @@ void main() {
       // Le cas limite qui compte : le transport a réussi, l'enregistrement non.
       // Un 200 n'est pas une preuve d'écriture — le corps l'est.
       when(() => api.joinPremiumWaitlist(
-              consentVersion: any(named: 'consentVersion')))
+              consentVersion: any(named: 'consentVersion'),
+              consentLocale: any(named: 'consentLocale')))
           .thenAnswer((_) async => <String, dynamic>{'registered': false});
 
       await expectLater(controller.join(), completion(isFalse));
@@ -84,7 +97,8 @@ void main() {
 
     test('un corps vide ou illisible ne produit pas un succès', () async {
       when(() => api.joinPremiumWaitlist(
-              consentVersion: any(named: 'consentVersion')))
+              consentVersion: any(named: 'consentVersion'),
+              consentLocale: any(named: 'consentLocale')))
           .thenAnswer((_) async => <String, dynamic>{});
 
       await expectLater(controller.join(), completion(isFalse));
@@ -93,7 +107,8 @@ void main() {
 
     test('une panne réseau laisse « pas inscrit »', () async {
       when(() => api.joinPremiumWaitlist(
-              consentVersion: any(named: 'consentVersion')))
+              consentVersion: any(named: 'consentVersion'),
+              consentLocale: any(named: 'consentLocale')))
           .thenThrow(_dio(type: DioExceptionType.connectionError));
 
       await expectLater(controller.join(), completion(isFalse));
@@ -106,7 +121,8 @@ void main() {
       // serveur est idempotent, mais l'écran ne doit pas non plus compter deux
       // fois l'événement analytique qui sert à mesurer la demande.
       when(() => api.joinPremiumWaitlist(
-          consentVersion: any(named: 'consentVersion'))).thenAnswer(
+          consentVersion: any(named: 'consentVersion'),
+          consentLocale: any(named: 'consentLocale'))).thenAnswer(
         (_) async {
           await Future<void>.delayed(const Duration(milliseconds: 20));
           return _registeredBody;
@@ -118,7 +134,41 @@ void main() {
       await first;
 
       verify(() => api.joinPremiumWaitlist(
-          consentVersion: any(named: 'consentVersion'))).called(1);
+            consentVersion: any(named: 'consentVersion'),
+            consentLocale: any(named: 'consentLocale'),
+          )).called(1);
+    });
+  });
+
+  group('langue du consentement', () {
+    setUp(() => Get.locale = const Locale('fr'));
+    tearDown(() => Get.locale = null);
+
+    test('suit la langue AFFICHÉE, pas une préférence enregistrée ailleurs',
+        () async {
+      when(() => api.joinPremiumWaitlist(
+            consentVersion: any(named: 'consentVersion'),
+            consentLocale: any(named: 'consentLocale'),
+          )).thenAnswer((_) async => _registeredBody);
+
+      Get.locale = const Locale('en');
+      await controller.join();
+      verify(() => api.joinPremiumWaitlist(
+            consentVersion: kPremiumWaitlistConsentVersion,
+            consentLocale: 'en',
+          )).called(1);
+    });
+
+    test('retombe sur « fr » pour toute langue que le serveur refuserait', () {
+      // Le serveur n'accepte que `fr` et `en`. Envoyer `es` ferait refuser
+      // l'inscription pour une raison que l'étudiant ne peut ni comprendre ni
+      // corriger — et le français est la seule langue livrée aujourd'hui.
+      for (final code in ['es', 'ar', 'pt']) {
+        Get.locale = Locale(code);
+        expect(controller.consentLocale, 'fr');
+      }
+      Get.locale = null;
+      expect(controller.consentLocale, 'fr');
     });
   });
 

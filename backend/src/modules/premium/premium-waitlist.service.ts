@@ -64,16 +64,20 @@ export class PremiumWaitlistService {
 
     const consentedAt = new Date();
     const consentVersion = dto.consentVersion.trim();
+    // La langue est déjà normalisée et bornée par le DTO (`@IsIn`) ; on la
+    // recopie telle quelle plutôt que de la redériver ici, pour qu'il n'existe
+    // qu'un seul endroit où la liste des langues acceptées est écrite.
+    const consentLocale = dto.consentLocale;
 
     const saved = await this.prismaService.execute((prisma) =>
       prisma.premiumWaitlistEntry.upsert({
         where: { userId },
-        create: { userId, consentedAt, consentVersion },
+        create: { userId, consentedAt, consentVersion, consentLocale },
         // Rafraîchi à chaque inscription : le consentement qui compte est le
         // dernier donné, et c'est celui qu'on doit pouvoir produire. Garder la
         // première date ferait remonter une preuve périmée, désignant un texte
         // que l'étudiant n'a peut-être jamais vu.
-        update: { consentedAt, consentVersion },
+        update: { consentedAt, consentVersion, consentLocale },
       }),
     );
 

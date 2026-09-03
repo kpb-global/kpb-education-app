@@ -2960,6 +2960,12 @@ model PremiumWaitlistEntry {
   // DTO exige un `consent: true` explicite, sans quoi un corps vide suffirait à
   // fabriquer une inscription.
   consentVersion String
+  // La LANGUE du texte lu. Une version seule désigne une PAIRE de textes,
+  // français et anglais : elle dit « l'étudiant a accepté l'un des deux », ce
+  // qui ne suffit pas le jour où il faut produire la phrase — et le problème
+  // empire s'il change de langue ensuite, puisque plus rien ne rappelle celle
+  // qu'il lisait alors.
+  consentLocale  String
   consentedAt    DateTime
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt

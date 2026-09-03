@@ -53,6 +53,7 @@ function fakePrisma(options: {
 const validDto: JoinPremiumWaitlistDto = {
   consent: true,
   consentVersion: 'premium-waitlist-v1',
+  consentLocale: 'fr',
 };
 
 const row = { consentedAt: new Date('2026-09-03T10:00:00.000Z') };
@@ -74,6 +75,10 @@ describe('PremiumWaitlistService', () => {
     expect(stamped.getTime()).toBeLessThanOrEqual(after);
     // La version voyage telle quelle : c'est elle qui dit CE QUI a été lu.
     expect(args.create.consentVersion).toBe('premium-waitlist-v1');
+    // Et la LANGUE avec elle : une version seule désigne une paire de textes,
+    // donc « l'un des deux ». Sans la langue, l'audit s'arrête là.
+    expect(args.create.consentLocale).toBe('fr');
+    expect(args.update.consentLocale).toBe('fr');
   });
 
   it('rafraîchit la preuve à la réinscription plutôt que de garder la première', async () => {
@@ -152,19 +157,74 @@ describe('JoinPremiumWaitlistDto', () => {
 
   it('refuse un consentement explicitement faux', async () => {
     expect(
-      await check({ consent: false, consentVersion: 'premium-waitlist-v1' }),
+      await check({
+        consent: false,
+        consentVersion: 'premium-waitlist-v1',
+        consentLocale: 'fr',
+      }),
     ).not.toHaveLength(0);
   });
 
   it('refuse une inscription sans version de texte', async () => {
     // Une date prouve le moment, pas ce qui a été lu.
-    expect(await check({ consent: true })).not.toHaveLength(0);
-    expect(await check({ consent: true, consentVersion: '  ' })).not.toHaveLength(0);
+    expect(await check({ consent: true, consentLocale: 'fr' })).not.toHaveLength(0);
+    expect(
+      await check({ consent: true, consentVersion: '  ', consentLocale: 'fr' }),
+    ).not.toHaveLength(0);
+  });
+
+  it("refuse une version que le serveur ne sait pas restituer", async () => {
+    // Sans liste fermée, n'importe quel client authentifié faisait écrire une
+    // prétendue preuve : une version qui ne désigne aucun texte figé ne prouve
+    // rien, et donne à une colonne vide l'apparence d'être remplie.
+    for (const version of ['unknown-v1', 'premium-waitlist-v99', 'v1']) {
+      expect(
+        await check({
+          consent: true,
+          consentVersion: version,
+          consentLocale: 'fr',
+        }),
+      ).not.toHaveLength(0);
+    }
+  });
+
+  it('exige la langue du texte lu', async () => {
+    expect(
+      await check({ consent: true, consentVersion: 'premium-waitlist-v1' }),
+    ).not.toHaveLength(0);
+  });
+
+  it('refuse une langue dans laquelle le texte n\'existe pas', async () => {
+    // Une locale libre finirait par contenir `fr-FR`, `FR` et `français` pour
+    // la même chose, et la colonne redeviendrait inexploitable.
+    for (const locale of ['de', 'fr-FR', 'français', '']) {
+      expect(
+        await check({
+          consent: true,
+          consentVersion: 'premium-waitlist-v1',
+          consentLocale: locale,
+        }),
+      ).not.toHaveLength(0);
+    }
+  });
+
+  it('normalise la casse et les espaces de la langue', async () => {
+    const dto = plainToInstance(JoinPremiumWaitlistDto, {
+      consent: true,
+      consentVersion: 'premium-waitlist-v1',
+      consentLocale: ' FR ',
+    });
+    expect(await validate(dto)).toHaveLength(0);
+    expect(dto.consentLocale).toBe('fr');
   });
 
   it('accepte le seul corps qui a du sens', async () => {
     expect(
-      await check({ consent: true, consentVersion: 'premium-waitlist-v1' }),
+      await check({
+        consent: true,
+        consentVersion: 'premium-waitlist-v1',
+        consentLocale: 'fr',
+      }),
     ).toHaveLength(0);
   });
 });
@@ -185,8 +245,9 @@ describe('PremiumWaitlistController', () => {
     // Un parent y ferait entrer SES coordonnées dans une liste que le
     // back-office présente comme une liste d'étudiants à prévenir.
     for (const type of ['parent', 'partner']) {
-      expect(() => controller.join(req(type), { consent: true, consentVersion: 'v1' }))
-        .toThrow(ForbiddenException);
+      expect(() => controller.join(req(type), validDto)).toThrow(
+        ForbiddenException,
+      );
     }
     expect(service.join).not.toHaveBeenCalled();
   });
@@ -210,10 +271,7 @@ describe('PremiumWaitlistController', () => {
   });
 
   it("accepte l'inscription d'un compte étudiant", () => {
-    controller.join(req('student'), { consent: true, consentVersion: 'v1' });
-    expect(service.join).toHaveBeenCalledWith('u1', {
-      consent: true,
-      consentVersion: 'v1',
-    });
+    controller.join(req('student'), validDto);
+    expect(service.join).toHaveBeenCalledWith('u1', validDto);
   });
 });

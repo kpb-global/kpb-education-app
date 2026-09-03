@@ -1,5 +1,17 @@
 import { Transform } from 'class-transformer';
-import { Equals, IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  Equals,
+  IsBoolean,
+  IsIn,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+
+import {
+  PREMIUM_WAITLIST_CONSENT_LOCALES,
+  PREMIUM_WAITLIST_CONSENT_VERSIONS,
+} from '../premium-waitlist-consent';
 
 /**
  * Une inscription à la liste d'attente Karatou Premium.
@@ -57,9 +69,43 @@ export class JoinPremiumWaitlistDto {
   //
   // La transformation vaut aussi côté service, qui reçoit alors la valeur déjà
   // découpée : `main.ts` monte le `ValidationPipe` avec `transform: true`.
+  //
+  // `@IsIn` sur la liste FERMÉE des versions que ce serveur sait restituer.
+  //
+  // Sans elle, n'importe quel client authentifié pouvait envoyer une version
+  // inventée : elle passait la validation et devenait une prétendue preuve.
+  // Une version qui ne désigne aucun texte figé ne prouve rien, et donne à une
+  // colonne vide l'apparence d'être remplie — ce qui est pire, parce qu'on s'y
+  // fie. Voir le couplage de déploiement documenté dans
+  // `premium-waitlist-consent.ts`.
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)
+  @IsIn(PREMIUM_WAITLIST_CONSENT_VERSIONS as unknown as string[], {
+    message:
+      'consentVersion must be one of the notice versions this server can reproduce.',
+  })
   consentVersion!: string;
+
+  /**
+   * La LANGUE du texte affiché au moment du tap.
+   *
+   * Une version seule désigne une PAIRE de textes, français et anglais. Elle
+   * dit donc « l'étudiant a accepté l'un des deux », ce qui ne suffit pas le
+   * jour où il faut produire la phrase — et le problème empire s'il change de
+   * langue ensuite, puisque plus rien ne rappelle celle qu'il lisait alors.
+   *
+   * Liste fermée elle aussi : une locale libre finirait par contenir `fr-FR`,
+   * `FR` et `français` pour la même chose, et la colonne redeviendrait
+   * inexploitable.
+   */
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
+  @IsString()
+  @IsIn(PREMIUM_WAITLIST_CONSENT_LOCALES as unknown as string[], {
+    message: 'consentLocale must be a locale this notice exists in.',
+  })
+  consentLocale!: string;
 }

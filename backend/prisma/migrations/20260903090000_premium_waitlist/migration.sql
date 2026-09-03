@@ -20,6 +20,10 @@
 -- daterait une inscription que personne n'a demandée. "consentVersion" pousse
 -- la même idée d'un cran — une date dit QUAND, la version dit CE QUI a été lu.
 --
+-- Cette migration est AMENDÉE plutôt que doublée : la table n'existe encore
+-- nulle part (branche non fusionnée, production au SHA précédent). Livrer deux
+-- migrations pour une table que personne n'a serait du bruit.
+--
 -- Aucune colonne de montant, d'état de facturation ni de référence de paiement.
 -- Karatou n'encaisse rien dans l'application (App Store 3.1.1) : l'inscription
 -- est une déclaration d'intérêt gratuite et sans engagement.
@@ -27,6 +31,12 @@ CREATE TABLE "PremiumWaitlistEntry" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "consentVersion" TEXT NOT NULL,
+    -- La LANGUE du texte lu. Une version seule désigne une PAIRE de textes (fr
+    -- et en) : sans cette colonne on sait que l'étudiant a accepté l'un des
+    -- deux, jamais lequel — et l'information disparaît définitivement s'il
+    -- change de langue ensuite. NOT NULL sans défaut : une valeur inventée par
+    -- la base serait exactement la preuve creuse que ce modèle refuse.
+    "consentLocale" TEXT NOT NULL,
     "consentedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
