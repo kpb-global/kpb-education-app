@@ -4,6 +4,29 @@ import 'package:flutter_test/flutter_test.dart';
 
 String _read(String path) => File(path).readAsStringSync();
 
+/// Le numéro de build et le nom de version, lus dans `pubspec.yaml`.
+///
+/// ## Pourquoi les DÉRIVER plutôt que les épingler
+///
+/// Ces assertions portaient « 51 » en dur, à trois endroits. Le défaut qu'elles
+/// doivent attraper n'est pas « le numéro n'est pas 51 » — c'est **un préflight
+/// qui attend un autre numéro que celui porté par l'artefact**, exactement ce
+/// qui ferait refuser une archive parfaitement bonne, ou pire, laisserait
+/// passer la mauvaise. Comparer les préflights à `pubspec.yaml` teste cette
+/// propriété-là, à tous les numéros à venir.
+///
+/// Le cliquet contre la réutilisation d'un numéro déjà consommé n'est pas perdu
+/// pour autant : il vit dans `build_number_test.dart`, qui confronte
+/// `pubspec.yaml` au registre de release. Les deux tests répondent à deux
+/// questions différentes, et aucun ne remplace l'autre.
+({String name, String build}) _shippingVersion() {
+  final match =
+      RegExp(r'^version:\s*(\d+\.\d+\.\d+)\+(\d+)\s*$', multiLine: true)
+          .firstMatch(_read('pubspec.yaml'));
+  expect(match, isNotNull, reason: 'pubspec.yaml sans version+build.');
+  return (name: match!.group(1)!, build: match.group(2)!);
+}
+
 String _plistValue(String xml, String key) {
   final match = RegExp(
     '<key>${RegExp.escape(key)}</key>\\s*<(string|true|false)(?:>(.*?)</string>|/>)',
@@ -120,8 +143,10 @@ void main() {
       expect(preflight, contains('ProvisionedDevices'));
       expect(
           preflight, contains('PrivacyInfo.xcprivacy absent du bundle signé'));
-      expect(preflight, contains('EXPECTED_BUILD="51"'));
-      expect(preflight, contains('EXPECTED_VERSION="2.1.0"'));
+      final shipping = _shippingVersion();
+      expect(preflight, contains('EXPECTED_BUILD="${shipping.build}"'),
+          reason: 'le préflight iOS attend un autre build que pubspec.yaml');
+      expect(preflight, contains('EXPECTED_VERSION="${shipping.name}"'));
       expect(preflight, contains('EXPECTED_BUNDLE_ID="Karatou.karatou"'));
     });
   });
@@ -162,8 +187,11 @@ void main() {
 
     test('AAB preflight pins identity, version, SDK, and Play certificate', () {
       expect(preflight, contains('EXPECTED_PACKAGE="com.karatou.android"'));
-      expect(preflight, contains('EXPECTED_VERSION_NAME="2.1.0"'));
-      expect(preflight, contains('EXPECTED_VERSION_CODE="51"'));
+      final shipping = _shippingVersion();
+      expect(preflight, contains('EXPECTED_VERSION_NAME="${shipping.name}"'));
+      expect(preflight, contains('EXPECTED_VERSION_CODE="${shipping.build}"'),
+          reason:
+              'le préflight Android attend un autre build que pubspec.yaml');
       expect(preflight, contains('EXPECTED_TARGET_SDK="36"'));
       expect(preflight, contains('"\$JARSIGNER_BIN" -verify'));
       expect(preflight, contains('"\$KEYTOOL_BIN" -printcert -jarfile'));
@@ -175,15 +203,14 @@ void main() {
     });
   });
 
-  // La build 49 est celle que le propriétaire a revue ; la 50 porte les
-  // correctifs de cette revue. Le NOM de version ne bouge pas (2.1.0) : c'est
-  // un nouveau build de la même version, pas une nouvelle version publiée.
-  test('the shipping pubspec version remains the build-51 contract', () {
-    expect(
-      RegExp(r'^version:\s*2\.1\.0\+51\s*$', multiLine: true)
-          .hasMatch(_read('pubspec.yaml')),
-      isTrue,
-    );
+  // Le NOM de version ne bouge pas (2.1.0) : les 49, 50, 51 et 52 sont des
+  // builds successifs de la MÊME version publiée, pas des versions nouvelles.
+  // Le changer sans le vouloir créerait une entrée distincte sur les stores.
+  //
+  // Le NUMÉRO de build, lui, n'est plus épinglé ici : `build_number_test.dart`
+  // le confronte au registre de release, qui est sa source.
+  test('the shipping marketing version stays 2.1.0', () {
+    expect(_shippingVersion().name, '2.1.0');
   });
 
   // Revue du build 49 : la mesure d'audience est passée d'OPT-IN à ACTIVE PAR

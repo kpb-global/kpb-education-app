@@ -86,7 +86,7 @@ Aucune ligne des fiches ne doit y faire allusion, même indirectement.
 | Programme ambassadeur rémunéré (FCFA, classement, retraits Wave) | `lib/app/core/config/app_config.dart:105-108` (défaut `false`) ; `lib/app/features/referral/ambassador_screen.dart:166` |
 | Estimateur de logement | Techniquement atteignable (`lib/app/features/shell/kpb_tools_drawer.dart:218-223`) mais la tuile Profil est masquée (`lib/app/features/profile/profile_screen.dart:1272-1278`). **Incohérent ⇒ ne pas vanter** (décision §9-D4) |
 | Success Lab / relecture d'étude / preuve de résultat | Décidé par le serveur, pas par le binaire : `lib/app/features/scholarships/live_scholarships_screen.dart:250-263` (fail-closed) ; gabarits à `false` `backend/.env.example:83-87,105` ⇒ INCONNU en prod ⇒ ne pas vanter |
-| « Premium », abonnement, tarif d'abonnement | `lib/app/features/premium/premium_screen.dart:12-22` : écran « bientôt / via un conseiller », sans prix ni paiement |
+| « Premium », abonnement, tarif d'abonnement | `lib/app/features/premium/premium_screen.dart:12-28` : écran « bientôt / via un conseiller », sans prix ni paiement. Depuis la 52, la liste d'attente est une inscription GRATUITE et réversible — aucun montant, aucun droit ouvert, aucune donnée de paiement (`backend/src/modules/premium/`), et `test/features/premium/premium_waitlist_consent_version_test.dart` balaie toutes les clés `premium_pitch_*` / `premium_waitlist_*` à la recherche d'un montant ou d'un verbe d'achat |
 
 **Interdits de langage** (contraintes de la demande, non négociables) :
 aucune promesse d'admission, de visa ou de bourse ; aucun superlatif
@@ -380,7 +380,12 @@ letters and an application file). Their FCFA price is displayed for
 information, and the call to action opens WhatsApp to reach a counsellor;
 payment is arranged outside the app. The "Premium" screen is a
 "coming soon / arrange with an advisor" screen: it shows no price, no
-subscription and no billing state.
+subscription and no billing state. From build 52 it also carries a free
+waiting-list button: tapping it records the student's interest so the team can
+size demand before building the service. It takes no payment details, states no
+price, creates no entitlement and can be undone from the same screen; the stored
+row holds only the account id, the timestamp, and which consent notice was shown
+and in which language.
 
 AI FEATURES
 Six features call a third-party LLM (OpenRouter and Groq, United States): the

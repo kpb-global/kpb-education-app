@@ -16,10 +16,54 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   artefact : les outils CV/lettres restaient masqués (drapeau de COMPILATION,
   donc impossible à ouvrir sans binaire neuf), PostHog partait sans clé, et la
   prélude Campus France restait éteinte côté serveur. La 50 ne repart pas.
+- `51` — **jamais archivée ni téléversée.** Le numéro a porté le dépôt du
+  31/08 au 03/09/2026 — plusieurs PR fusionnées et des artefacts de CI
+  l'ont embarqué — mais aucune archive n'a été produite. Son contenu monte
+  intégralement dans la 52, qui y ajoute la liste d'attente Premium. Brûlée
+  plutôt que réutilisée : « build 51 » désigne déjà quelque chose de précis
+  dans les échanges avec le propriétaire, et faire porter ce nom à un autre
+  artefact aurait rendu toute trace ultérieure ambiguë.
 
 ## Courant
 
-- `51` — ouvre les outils IA, embarque la clé PostHog. Détail plus bas.
+- `52` — la 51 plus la liste d'attente Karatou Premium. Détail plus bas.
+
+### Ce que 52 embarque
+
+- **Liste d'attente Karatou Premium (PR #258).** Point 8 de la revue du build
+  49 : un bouton d'inscription gratuite, pour que l'équipe puisse compter la
+  demande avant de construire le Pass. Table DÉDIÉE `PremiumWaitlistEntry`, et
+  non un drapeau de plus sur `EefInterest` — ce dernier est un registre de
+  consentement, et y cocher un intérêt Premium aurait fabriqué un consentement
+  « Études en France » que l'étudiant n'a jamais donné.
+
+  L'écran présente enfin le Pass pour ce qu'il est : une candidature accompagnée
+  de bout en bout. Toujours **aucun prix, aucun tunnel d'achat, aucun verbe
+  d'abonnement** (App Store 3.1.1) — et cette règle est désormais exécutable,
+  un test balayant toutes les clés `premium_pitch_*` et `premium_waitlist_*`.
+
+- **dSYM envoyés à Crashlytics (PR #257).** Le projet Xcode n'avait aucune phase
+  `upload-symbols` : les plantages de la 50 sont arrivés en adresses mémoire
+  brutes, inexploitables. La phase ne tourne QUE pendant un archivage
+  (`ACTION=install`), et l'absence de dSYM y est fatale plutôt qu'avertie.
+
+- **Garde PostHog côté Android (PR #257).** Le job AAB substituait le secret
+  sans jamais le regarder — le défaut exact qui a envoyé la 50 iOS sans
+  télémétrie. Mêmes trois règles des deux côtés désormais, appliquées AVANT la
+  construction.
+
+**Couplage backend : `requires-new`.** Deux raisons, et la première suffit :
+
+1. La liste d'attente appelle `/premium/waitlist`, absente d'un backend
+   antérieur — le bouton tomberait dans le vide.
+2. `consentVersion` est validé contre une **liste fermée** côté serveur
+   (`premium-waitlist-consent.ts`). Une app qui enverrait une version que le
+   backend ne connaît pas se verrait refuser l'inscription en 400.
+
+**Ce couplage est DÉJÀ satisfait** : le backend a été déployé le 03/09/2026 à
+02h15 UTC au SHA `e9576c0831ab`, migration `20260903090000_premium_waitlist`
+appliquée (« All migrations have been successfully applied »), et
+`GET /premium/waitlist` est passé de 404 à 401 vu de l'extérieur.
 
 <!-- Historique de la 50, conservé : -->
 - ~~`50`~~ — revue du build 49 : jauge de progression, boîte à outils limitée à
