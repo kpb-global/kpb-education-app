@@ -203,14 +203,22 @@ void main() {
     });
   });
 
-  // Le NOM de version ne bouge pas (2.1.0) : les 49, 50, 51 et 52 sont des
-  // builds successifs de la MÊME version publiée, pas des versions nouvelles.
-  // Le changer sans le vouloir créerait une entrée distincte sur les stores.
+  // Le NOM de version est épinglé, et il n'a bougé qu'une fois, exprès.
   //
-  // Le NUMÉRO de build, lui, n'est plus épinglé ici : `build_number_test.dart`
-  // le confronte au registre de release, qui est sa source.
-  test('the shipping marketing version stays 2.1.0', () {
-    expect(_shippingVersion().name, '2.1.0');
+  // Les 48 à 52 portaient toutes « 2.1.0 » : ce sont des builds successifs de
+  // la même version publiée. Le faire dériver par inadvertance créerait une
+  // entrée distincte sur les stores, d'où ce cliquet.
+  //
+  // Passé à 2.2.0 le 03/09/2026, délibérément : `AppVersionGate` compare la
+  // version MARKETING au `minVersion` du serveur et `isVersionBelow` ignore le
+  // numéro de build (il coupe au `+`). Tant que toutes les builds s'appelaient
+  // « 2.1.0 », aucune valeur de `KPB_MIN_APP_VERSION` ne pouvait en distinguer
+  // une seule — la porte de mise à jour ne servait à rien.
+  //
+  // Le NUMÉRO de build, lui, n'est pas épinglé ici : `build_number_test.dart`
+  // le confronte au registre de release, qui en est la source.
+  test('the shipping marketing version stays 2.2.0', () {
+    expect(_shippingVersion().name, '2.2.0');
   });
 
   // Revue du build 49 : la mesure d'audience est passée d'OPT-IN à ACTIVE PAR

@@ -13,7 +13,7 @@ Apple/Google console state, a signed artifact, or a physical-device result.
 | Field | Required value | Verified by repository |
 |---|---|---|
 | Public name | KPB Education | Source metadata tests |
-| Marketing version | `2.1.0` | `pubspec.yaml` + both artifact preflights |
+| Marketing version | `2.2.0` | `pubspec.yaml` + both artifact preflights. Passée de 2.1.0 à 2.2.0 le 03/09/2026 pour que la porte de mise à jour puisse distinguer une build d'une autre : `isVersionBelow` ignore le numéro de build. |
 | Build/version code | `49` | Release ledger + both artifact preflights |
 | Android application ID | `com.karatou.android` | Gradle + AAB manifest preflight |
 | iOS bundle ID | `Karatou.karatou` | Xcode + signed-app preflight |

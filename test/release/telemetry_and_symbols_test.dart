@@ -273,6 +273,20 @@ void main() {
       });
     });
 
+    // Le même défaut existait des DEUX côtés : le préflight iOS annonçait
+    // « 2.1.0 (49) » en dur alors qu'il exigeait déjà la 53. Un opérateur
+    // lisant ce message aurait cru valider un artefact qui n'était pas celui-là.
+    test('le préflight iOS n\'annonce pas une version qu\'il ne vérifie pas',
+        () {
+      final tail = iosPreflight.substring(iosPreflight.length - 700);
+      expect(
+        RegExp(r'Préflight iOS OK — \d+\.\d+\.\d+ \(\d+\)').hasMatch(tail),
+        isFalse,
+        reason: 'version et build en dur dans le message de succès',
+      );
+      expect(tail, contains(r'${EXPECTED_VERSION} (${EXPECTED_BUILD})'));
+    });
+
     // Un rapport de succès qui ment sur ce qu'il a contrôlé est pire qu'un
     // rapport absent : il annonçait « (49) » alors que le script exigeait 51.
     test(
