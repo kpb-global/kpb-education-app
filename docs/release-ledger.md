@@ -61,11 +61,33 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   une revue de plus pour obtenir, plus tard, une porte de mise à jour qui
   fonctionne. La 53 fait les deux en une soumission.
 
-  **Conséquence utile** : la vérification sur appareil faite sur la 52 reste
-  valable pour la 53 — c'est le même binaire à la version près. Ce qui reste
-  à prouver sur appareil est ce qui l'était déjà : la réception effective
-  d'une notification, seul contrôle de l'environnement APNs de l'artefact
-  livré.
+  **Ce que « même code » NE dispense PAS de faire.** Une première rédaction de
+  cette entrée affirmait que la vérification sur appareil de la 52 restait
+  valable pour la 53. C'était faux, et dangereusement : elle disait à un
+  opérateur de sauter un contrôle que le dépôt rend obligatoire
+  (`docs/phase1-stability-smoke-checklist.md` — « every release candidate »,
+  sur un appareil physique de chaque plateforme — et la checklist du contrat de
+  soumission, qui exige le smoke sur la build SOUMISE).
+
+  Trois raisons, dont la deuxième est la raison d'être de cette build :
+
+  - **la 53 est un artefact NEUF**, reconstruit et re-signé. Une source
+    identique ne rend pas deux archives identiques : empaquetage, signature,
+    profil, installation et premier démarrage peuvent échouer indépendamment
+    du code ;
+  - **le comportement de la porte de mise à jour DIFFÈRE** à l'exécution —
+    `isVersionBelow` compare « 2.2.0 » au lieu de « 2.1.0 ». C'est précisément
+    ce qu'on est venu chercher, donc c'est précisément ce qu'il faut voir
+    tourner ;
+  - un artefact non installé n'a jamais été vu par personne.
+
+  Ce que « même code » dispense de faire, en revanche : re-parcourir les neuf
+  points de la revue du build 49 fonction par fonction. Ils ont été vérifiés
+  sur la 52 et aucun code applicatif n'a bougé depuis.
+
+  Reste, comme pour la 52, le seul contrôle que le dépôt ne peut pas rendre :
+  la réception effective d'une notification, qui seule prouve l'environnement
+  APNs de l'artefact livré.
 
   **Couplage backend : `tolerates-old`.** Aucune route nouvelle, aucun champ
   nouveau envoyé par l'app. `push.configured` est une LECTURE que l'app ne
