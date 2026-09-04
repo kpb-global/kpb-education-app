@@ -73,6 +73,30 @@ jobs:
             echo '- API + PostgreSQL readiness: passed'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # ── Capacités qui s'éteignent sans faire tomber la route ────────────────
+      #
+      # `live` et `ready` répondaient 200 pendant les vingt jours où clamd était
+      # mort : le processus vivait, Postgres répondait, et pourtant AUCUN envoi
+      # de fichier ne passait. Une sonde qui ne regarde que « le service
+      # répond-il » ne peut pas voir cette classe de panne.
+      #
+      # Les règles vivent dans un script exercé hors ligne, pas dans ce bloc :
+      # un `run:` ne se teste qu'en le déclenchant, et c'est précisément ce
+      # qu'on ne veut plus pour une garde.
+      - name: Capacités de l'API (antivirus)
+        if: ${{ !cancelled() }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HEALTH_URL:-}" ]; then
+            echo "::error::VPS_HEALTH_URL n'est pas défini — capacités NON sondées."
+            exit 1
+          fi
+          curl -fsS --retry 2 --retry-delay 5 --max-time 20 \
+            "${HEALTH_URL}/api/health" \
+            | python3 .github/scripts/check-health-capabilities.py
+
       # `!cancelled()` on the remaining probes: one run must report EVERY broken
       # surface, not just the first. Without it, a down API hides whether the
       # legal pages the stores link to are still up.

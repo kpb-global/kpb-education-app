@@ -3,17 +3,23 @@ import { ServiceUnavailableException } from '@nestjs/common';
 import { LlmService } from '../ai/llm.service';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AntivirusService } from '../storage/antivirus.service';
 import { HealthController } from './health.controller';
 
 function makeController(
   prisma: PrismaService,
   llm: Pick<LlmService, 'isConfigured'> = { isConfigured: false },
   push: Pick<OneSignalSenderService, 'isConfigured'> = { isConfigured: false },
+  antivirus: Pick<AntivirusService, 'isEnabled' | 'ping'> = {
+    isEnabled: false,
+    ping: async () => false,
+  },
 ) {
   return new HealthController(
     prisma,
     llm as LlmService,
     push as OneSignalSenderService,
+    antivirus as AntivirusService,
   );
 }
 
@@ -57,14 +63,14 @@ describe('HealthController', () => {
     );
   });
 
-  it('exposes ai.configured as a boolean and never the provider key', () => {
+  it('exposes ai.configured as a boolean and never the provider key', async () => {
     delete process.env.GROQ_API_KEY;
     const prisma = { isReady: jest.fn() } as unknown as PrismaService;
-    const body = makeController(prisma, { isConfigured: true }).check();
+    const body = await makeController(prisma, { isConfigured: true }).check();
     expect(body.ai).toEqual({ configured: true });
     expect(JSON.stringify(body)).not.toMatch(/gsk_|GROQ_API_KEY/i);
 
-    const off = makeController(prisma, { isConfigured: false }).check();
+    const off = await makeController(prisma, { isConfigured: false }).check();
     expect(off.ai).toEqual({ configured: false });
   });
 
@@ -72,23 +78,23 @@ describe('HealthController', () => {
   // rien ne le disait. `OneSignalSenderService` se dégrade en no-op journalisé :
   // le fil d'actualité s'écrit, le push ne part pas, et personne ne s'en aperçoit.
   // C'est la forme d'échec qui a envoyé la build 50 sans PostHog.
-  it('expose push.configured, et jamais la clé REST', () => {
+  it('expose push.configured, et jamais la clé REST', async () => {
     const prisma = { isReady: jest.fn() } as unknown as PrismaService;
 
-    const on = makeController(
+    const on = await makeController(
       prisma,
       { isConfigured: false },
       { isConfigured: true },
     ).check();
     expect(on.push).toEqual({ configured: true });
 
-    const off = makeController(prisma).check();
+    const off = await makeController(prisma).check();
     expect(off.push).toEqual({ configured: false });
 
     // Booléen SEUL : ni la clé, ni sa longueur, ni l'App ID sur une route
     // non authentifiée.
     process.env.ONESIGNAL_REST_API_KEY = 'os_v2_supersecret_value';
-    const body = makeController(
+    const body = await makeController(
       prisma,
       { isConfigured: false },
       { isConfigured: true },
@@ -101,15 +107,60 @@ describe('HealthController', () => {
 
   // L'IA et le push sont deux capacités indépendantes : les lire d'un seul
   // booléen ferait passer une panne de l'une pour la santé de l'autre.
-  it('rapporte l\'IA et le push indépendamment', () => {
+  it('rapporte l\'IA et le push indépendamment', async () => {
     const prisma = { isReady: jest.fn() } as unknown as PrismaService;
-    const body = makeController(
+    const body = await makeController(
       prisma,
       { isConfigured: true },
       { isConfigured: false },
     ).check();
     expect(body.ai).toEqual({ configured: true });
     expect(body.push).toEqual({ configured: false });
+  });
+
+  // ── L'écart qui a coûté vingt jours ──────────────────────────────────────
+  //
+  // Le 15/08/2026, clamd est mort dans `kpb_clamav`. `CLAMAV_HOST` est resté
+  // valide, le conteneur est resté « Up » (freshclam tournait toujours), et
+  // `AntivirusService` étant FAIL-CLOSED, tout envoi de fichier repartait en
+  // 503 — documents de dossier, avatars, pièces du Success Lab. Personne ne
+  // l'a su avant le 04/09.
+  //
+  // Un seul booléen `configured` aurait annoncé « ✅ » pendant toute la panne.
+  // C'est précisément ce que ce test interdit.
+  it('distingue « configuré » de « joignable » pour l\'antivirus', async () => {
+    const prisma = { isReady: jest.fn() } as unknown as PrismaService;
+
+    const dead = await makeController(
+      prisma,
+      { isConfigured: false },
+      { isConfigured: false },
+      { isEnabled: true, ping: async () => false },
+    ).check();
+    expect(dead.antivirus).toEqual({ configured: true, reachable: false });
+
+    const alive = await makeController(
+      prisma,
+      { isConfigured: false },
+      { isConfigured: false },
+      { isEnabled: true, ping: async () => true },
+    ).check();
+    expect(alive.antivirus).toEqual({ configured: true, reachable: true });
+  });
+
+  // Une sonde qui échoue est un RÉSULTAT, pas une panne de la route : /health
+  // doit répondre 200 surtout quand une dépendance est à terre.
+  it('répond quand même si la sonde antivirus rejette', async () => {
+    const prisma = { isReady: jest.fn() } as unknown as PrismaService;
+    const body = await makeController(prisma, undefined, undefined, {
+      isEnabled: true,
+      ping: async () => {
+        throw new Error('socket explosé');
+      },
+    })
+      .check()
+      .catch(() => null);
+    expect(body).not.toBeNull();
   });
 
   // The preflight compares this sha to `git rev-parse --short=12 <ref>`. An

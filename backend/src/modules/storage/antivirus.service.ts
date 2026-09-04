@@ -55,6 +55,9 @@ export function parseClamdResponse(raw: string): ClamdVerdict {
  * unscanned file through. When unset, scanning is skipped (dev/local mode) —
  * production logs a warning at boot, same pattern as the S3 fallback.
  */
+/** Sonde de santé : court par nature — voir `ping()`. */
+const PING_TIMEOUT_MS = 3000;
+
 @Injectable()
 export class AntivirusService {
   private readonly logger = new Logger(AntivirusService.name);
@@ -110,6 +113,46 @@ export class AntivirusService {
         'Antivirus scan unavailable. Please retry.',
       );
     }
+  }
+
+  /**
+   * Le daemon répond-il, MAINTENANT ?
+   *
+   * Distinct de `isEnabled`, qui ne dit que « une adresse est configurée ».
+   * Toute la panne du 15/08/2026 tient dans cet écart : `CLAMAV_HOST` est
+   * resté valide pendant vingt jours pendant que clamd était mort, et
+   * `AntivirusService` étant FAIL-CLOSED, chaque envoi de fichier repartait
+   * en 503 sans que rien ne le signale. Le conteneur restait « Up » parce que
+   * `freshclam`, lui, tournait — il a mis à jour les signatures d'un daemon
+   * absent, tous les matins, pendant vingt jours.
+   *
+   * Ne LÈVE JAMAIS : cette méthode sert une route de santé, et une sonde qui
+   * échoue est un résultat, pas une panne de la route. Délai court :
+   * `/api/health` ne doit pas s'allonger de 30 s parce que l'antivirus est à
+   * terre — c'est justement le moment où on l'interroge.
+   */
+  async ping(): Promise<boolean> {
+    if (!this.isEnabled) return false;
+    return new Promise((resolvePromise) => {
+      const socket = new Socket();
+      let response = '';
+      let settled = false;
+      const finish = (value: boolean) => {
+        if (settled) return;
+        settled = true;
+        socket.destroy();
+        resolvePromise(value);
+      };
+      socket.setTimeout(PING_TIMEOUT_MS, () => finish(false));
+      socket.on('error', () => finish(false));
+      socket.on('connect', () => socket.write('zPING\0'));
+      socket.on('data', (chunk) => {
+        response += chunk.toString();
+        if (response.includes('PONG')) finish(true);
+      });
+      socket.on('close', () => finish(false));
+      socket.connect(this.port, this.host);
+    });
   }
 
   /**

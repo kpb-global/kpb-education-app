@@ -3,6 +3,7 @@ import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { LlmService } from '../ai/llm.service';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AntivirusService } from '../storage/antivirus.service';
 
 /** Captured at import time, so it is the process start and not the call time. */
 const PROCESS_STARTED_AT = new Date().toISOString();
@@ -13,11 +14,12 @@ export class HealthController {
     private readonly prismaService: PrismaService,
     private readonly llmService: LlmService,
     private readonly pushSender: OneSignalSenderService,
+    private readonly antivirus: AntivirusService,
   ) {}
 
   /** Backwards-compatible liveness endpoint: process is able to receive HTTP. */
   @Get()
-  check() {
+  async check() {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -41,6 +43,25 @@ export class HealthController {
        * longueur n'a rien à faire sur une route non authentifiée.
        */
       push: { configured: this.pushSender.isConfigured },
+      /**
+       * `configured` ET `reachable`, parce que l'écart entre les deux EST la
+       * panne du 15/08/2026 : `CLAMAV_HOST` est resté valide vingt jours
+       * pendant que clamd était mort, et `AntivirusService` étant FAIL-CLOSED,
+       * tout envoi de fichier repartait en 503 — documents de dossier, photos
+       * de profil, pièces du Success Lab.
+       *
+       * Un seul booléen `configured` aurait annoncé « ✅ » pendant toute la
+       * panne. C'est la raison d'être du second.
+       *
+       * `.catch` en ceinture : `ping()` est écrit pour ne jamais rejeter, mais
+       * une route de santé qui rend 500 parce qu'une SONDE a levé serait
+       * l'exact inverse du but — elle doit répondre surtout quand quelque
+       * chose est cassé. Verrouillé par un test qui échoue sans ce catch.
+       */
+      antivirus: {
+        configured: this.antivirus.isEnabled,
+        reachable: await this.antivirus.ping().catch(() => false),
+      },
     };
   }
 
