@@ -191,7 +191,20 @@ services:
     image: clamav/clamav:stable
     container_name: kpb_clamav
     restart: always
-    mem_limit: 1536m
+    # 3 Go, pas 1,5. MESURÉ le 04/09/2026, clamd fraîchement redémarré et base
+    # chargée : 956 Mo occupés sur les 1536 Mo du plafond, soit 62 %. Or clamd
+    # détient DEUX copies de la base pendant un rechargement de signatures —
+    # ~1,9 Go de pointe contre un plafond de 1,5 Go. Le plafond était donc
+    # dépassé par construction à chaque mise à jour de freshclam.
+    #
+    # C'est la cause la plus probable de la mort de clamd le 15/08/2026, sans
+    # être PROUVÉE : un OOM est journalisé par le noyau de l'HÔTE, pas par le
+    # conteneur, et ces lignes-là ne sont pas remontées ici. La marge est prise
+    # pour ce que la mesure montre, pas pour une certitude.
+    #
+    # Un plafond n'est pas une réservation : la boîte de 8 Go n'est pas
+    # entamée tant que clamd n'y monte pas.
+    mem_limit: 3g
     # Private network only: never exposed to Traefik or the marketing stack.
     networks:
       - internal
