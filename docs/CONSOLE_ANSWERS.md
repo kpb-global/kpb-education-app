@@ -60,6 +60,7 @@ rouvre tout seul à la revue suivante.
 
 | Changement | Effet sur les déclarations |
 |---|---|
+| **Les quatre outils IA ne sont plus masqués** | `AppConfig.aiToolsEnabled` porte `defaultValue: true`, et les `DART_DEFINES` de l'archive 2.2.0 (53) ne le contredisent pas : CV, lettre de motivation, simulateur d'entretien et relecture de document sont **actifs** dans la build soumise. Les surfaces d'IA générative passent de **2 à 6** (§3). C'est un changement de nature pour la revue Apple — l'app soumise n'est pas l'app masquée de la 49. |
 | **Mesure d'audience passée d'opt-in à ACTIVE PAR DÉFAUT** (revue du build 49, point 6) | La réponse Play « Requis / l'utilisateur peut choisir » **reste « peut choisir »** : le refus explicite existe, fonctionne et est conservé (`app_controller.dart`, verrouillé par `analytics_consent_test.dart`). Mais la collecte démarre **sans geste préalable**, et c'est annoncé dans les CGU (clause « Mesure d'audience »). Ne pas décrire un opt-in. |
 | **Liste d'attente Karatou Premium** (en ligne depuis le 03/09) | Nouvelle collecte : identifiant de compte, horodatage, version **et langue** du texte de consentement. Se rattache à « Activité dans l'application → Autres actions » + l'ID utilisateur déjà déclaré. **Aucune donnée financière** : inscription gratuite, sans prix ni moyen de paiement (`premium_screen.dart`, garde exécutable dans `premium_waitlist_consent_version_test.dart`). |
 | **Déclaration d'intérêt « Études en France »** (vitrine allumée le 30/08) | Même rattachement. Stocke niveau, filières, horodatage et version de consentement. Écriture réservée aux comptes étudiants. |
@@ -71,7 +72,7 @@ rouvre tout seul à la revue suivante.
 
 ### 1.1 Portée
 - **L'app collecte-t-elle / partage-t-elle des données ?** **Oui (collecte).**
-- **Partage (« shared ») :** les transferts vers sous-traitants (Groq, Firebase,
+- **Partage (« shared ») :** les transferts vers sous-traitants (OpenRouter, Firebase,
   Supabase, PostHog, Resend, Mautic, PayDunya, CinetPay) = **collecte**, PAS
   « partage ». **Deux exceptions à cocher « Partagée » :**
   - **OneSignal** — reçoit l'**ID utilisateur** (UUID de profil) + **4 étiquettes**
@@ -102,7 +103,7 @@ rouvre tout seul à la revue suivante.
 | Infos perso — **Autres** (date de naissance, nom+contact tuteur) | Oui | Non | Requis si mineur déclaré | Contrôle d'âge, consentement tuteur | `schema.prisma:388-390` |
 | Infos financières | **Non** | — | — | — | aucun moyen de paiement, aucun SDK d'achat |
 | Messages — **In-app (dossiers)** | Oui | Non | Requis pour la fonction | Fonctionnalité | tunnel `case_tunnel_flow.dart:357` |
-| Messages — **Autres (coach IA → Groq)** | Oui | Non (aucun ID transmis) | **Optionnel — consentement explicite** | Fonctionnalité | `AiConsentGuard` ; pas de nom dans l'invite |
+| Messages — **Autres (surfaces IA → OpenRouter)** | Oui | Non (aucun ID transmis) | **Optionnel — consentement explicite** | Fonctionnalité | `AiConsentGuard` ; pas de nom dans l'invite |
 | Photos | Oui | Non | **Optionnel** | Fonctionnalité | avatar seul, sans EXIF |
 | Fichiers & docs | ⚠️ **Point 6** | Non | Optionnel | Fonctionnalité | dépend de `applicationArtifacts.enabled` / `counsellorStudy.enabled` sur `GET /success-lab/access`, pas du drapeau public |
 | **Audio — enregistrements vocaux** | **Non** | — | — | — | on-device + accord explicite ; aucun octet chez KPB |
@@ -149,7 +150,7 @@ rouvre tout seul à la revue suivante.
 | Sensibles | **Non** | — | — | — | aucun champ sensible au modèle |
 | Contenu — **Photos** (avatar) | Oui | Oui | Non | Fonctionnalité | sans EXIF/GPS |
 | Contenu — **Support (messages dossier)** | Oui | Oui | Non | Fonctionnalité | tunnel |
-| Contenu — **Autres (coach IA → Groq)** | Oui | Oui | Non | Fonctionnalité | derrière consentement ; aucun ID chez Groq |
+| Contenu — **Autres (surfaces IA → OpenRouter)** | Oui | Oui | Non | Fonctionnalité | derrière consentement ; aucun ID transmis |
 | Contenu — **Audio** | **Non** | — | — | — | on-device + accord explicite (voir §Audio) |
 | Contenu — **Autres (docs dossier)** | ⚠️ **Point 6** | — | — | — | Yes seulement si `GET /success-lab/access` rend `applicationArtifacts.enabled` **ou** `counsellorStudy.enabled` vrai pour un compte réel |
 | Identifiants — **ID utilisateur** | Oui | Oui | Non | Fonctionnalité, Analyses | OneSignal + PostHog `identify` — PostHog **actif** depuis la 52 |
@@ -185,7 +186,7 @@ rouvre tout seul à la revue suivante.
 | Interaction entre utilisateurs | **Non** (vérifié sur la 53) | Community derrière `!mvpOnly` défaut true ; forum 404 sous `MvpGuard` |
 | Contenu généré par l'utilisateur | **Oui — visible staff, jamais public** | 3 écritures, aucune publique |
 | Signalement de contenu / blocage | **Signalement IA : Oui. Blocage : N/A** | `ai_content_report_sheet.dart` → `POST /cases` |
-| IA générative, texte libre | **Oui — 2 surfaces** | coach + test d'orientation → Groq |
+| IA générative, texte libre | **Oui — 6 surfaces** | coach, test d'orientation, CV, lettre de motivation, simulateur d'entretien, relecture de document → OpenRouter |
 | Localisation | **Non** | aucun plugin géo |
 | Jeux d'argent | **Non** | absence exhaustive |
 | Achats intégrés (IARC) | **Non** | CTA WhatsApp, aucun SDK. PayDunya/CinetPay = §processeurs, jamais ici |
@@ -193,7 +194,7 @@ rouvre tout seul à la revue suivante.
 
 > **Recommandé :** saisir ces réponses et laisser chaque questionnaire calculer la
 > tranche. **Ne pas** reporter l'ancien couple « Apple 12+ / Google Teen » (dérivé
-> d'un module communautaire qui ne ship pas et sans les 2 surfaces d'IA).
+> d'un module communautaire qui ne ship pas et sans les 6 surfaces d'IA).
 
 ---
 
@@ -241,7 +242,7 @@ trois se cumulent.
 |---|---|---|---|---|
 | Backend NestJS/Postgres | **France** (VPS) | toutes les données app | Fonctionnalité | collecte |
 | Supabase Auth | **eu-west-3 (Paris)** | e-mail, OAuth Google, jetons | Authentification | collecte |
-| Groq (LLM) | **US** | profil pseudonymisé (sans nom), budget en tranche, messages | Réponses IA | collecte |
+| OpenRouter (LLM) | **US** | profil pseudonymisé (sans nom), budget en tranche, messages | Réponses IA | collecte |
 | **OneSignal** | US | **ID utilisateur + 4 étiquettes** (pas d'e-mail) | Push + segmentation | **PARTAGÉ** |
 | Firebase Analytics | US | ID instance, événements, **terme de recherche** | Analyses | collecte |
 | PostHog | **US** | événements, replay masqué, UUID | Analyses, replay | collecte — **actif si l'archive porte la clé** (point 1) |
@@ -253,6 +254,21 @@ trois se cumulent.
 | PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
 | **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
 | **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
+
+> **OpenRouter est un *routeur*, pas un modèle.** Il redistribue chaque invite
+> vers des clouds de modèles tiers ; en production le modèle demandé est
+> `deepseek/deepseek-v4-flash`. Le routage est épinglé sur des points de
+> terminaison **sans rétention** (`zdr: true`, plus `data_collection: 'deny'` et
+> `require_parameters: true` — `llm.service.ts:routingPolicy`). Si le formulaire
+> demande de nommer les destinataires en clair, écrire « OpenRouter (routeur) et
+> les fournisseurs de modèles vers lesquels il achemine, épinglés sans
+> rétention » : nommer OpenRouter seul laisserait croire à un destinataire
+> unique.
+>
+> Groq reste un chemin de **repli** dans le code (variables `GROQ_*` héritées) ;
+> il n'est pas le destinataire actif. Vérifier avant chaque soumission avec
+> `vps-ops` → `show-state`, section « Fournisseur LLM » : elle lit le conteneur
+> en cours, pas ce document.
 
 ---
 

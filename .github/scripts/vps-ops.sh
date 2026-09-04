@@ -184,11 +184,92 @@ show_push_state() {
   echo
 }
 
+# Vers QUI partent réellement les invites IA ?
+#
+# La question n'est pas cosmétique : `docs/CONSOLE_ANSWERS.md` §5 porte la
+# mention « recopier au formulaire destinataires ». Nommer le mauvais
+# sous-traitant dans une déclaration de confidentialité est une déclaration
+# fausse, pas une coquille.
+#
+# On REJOUE ici la précédence exacte de `LlmService.provider`
+# (backend/src/modules/ai/llm.service.ts) plutôt que de la résumer : un résumé
+# se désynchronise du code en silence, et c'est précisément ce qu'on cherche à
+# éviter. `LLM_API_KEY` l'emporte (OpenRouter sauf `LLM_PROVIDER=groq`) ; à
+# défaut, `GROQ_API_KEY` fait tomber sur Groq ; sans clé, aucun fournisseur.
+#
+# Asymétrie habituelle : les CLÉS sont des secrets (présence seulement), le
+# fournisseur, le modèle et l'URL sont de la configuration — les afficher est
+# tout l'intérêt de la manoeuvre.
+show_llm_state() {
+  echo "── Fournisseur LLM (destinataire des invites) ──"
+  docker inspect kpb_api >/dev/null 2>&1 \
+    || echo "  (conteneur kpb_api introuvable — valeurs lues dans .env, pas dans le processus)"
+
+  # `|| true` sur CHAQUE lecture optionnelle : sous `set -e`, une affectation
+  # dont la substitution rend 1 tue le script. `effective_env` rend justement 1
+  # quand la clé est absente du conteneur — et `LLM_PROVIDER`, `LLM_MODEL` et
+  # `LLM_CHAT_COMPLETIONS_URL` sont TOUTES optionnelles par construction. Sans
+  # ces gardes, `show-state` mourait pile sur l'installation la plus banale.
+  local llm_key groq_key name model url
+  llm_key=$(effective_env LLM_API_KEY || true)
+  groq_key=$(effective_env GROQ_API_KEY || true)
+
+  if [ -n "$llm_key" ]; then
+    report_key LLM_API_KEY masked
+    local declared
+    declared=$(effective_env LLM_PROVIDER || true)
+    if [ "$(printf '%s' "$declared" | tr '[:upper:]' '[:lower:]')" = "groq" ]; then
+      name=groq
+      model=$(effective_env LLM_MODEL || true); model="${model:-llama-3.3-70b-versatile (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL || true); url="${url:-https://api.groq.com/openai/v1/chat/completions (défaut)}"
+    else
+      name=openrouter
+      model=$(effective_env LLM_MODEL || true); model="${model:-deepseek/deepseek-v4-flash (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL || true); url="${url:-https://openrouter.ai/api/v1/chat/completions (défaut)}"
+    fi
+  elif [ -n "$groq_key" ]; then
+    echo "  LLM_API_KEY                ABSENTE (repli sur les variables GROQ_* héritées)"
+    report_key GROQ_API_KEY masked
+    name=groq
+    model=$(effective_env GROQ_MODEL || true); model="${model:-llama-3.3-70b-versatile (défaut)}"
+    url="https://api.groq.com/openai/v1/chat/completions (fixe sur ce chemin)"
+  else
+    echo "  aucune clé LLM posée"
+    echo "  → IA NON configurée : les outils rendront une réponse locale de repli."
+    echo
+    return 0
+  fi
+
+  printf '  %-26s %s\n' "fournisseur résolu" "$name"
+  printf '  %-26s %s\n' "modèle" "$model"
+  printf '  %-26s %s\n' "URL appelée" "$url"
+  echo "  → destinataire à déclarer dans les formulaires : $name"
+
+  # La fiche consoles déclare un destinataire ; la production en utilise un.
+  # Les deux doivent coïncider, sinon le formulaire Play Data Safety / App
+  # Privacy nommera le mauvais sous-traitant.
+  #
+  # Le nom attendu est LU dans la fiche par le workflow et passé ici — jamais
+  # écrit en dur. Une constante se désynchronise de la fiche à la première
+  # migration de fournisseur : c'est exactement ce qui s'est produit, la garde
+  # annonçant « la fiche dit Groq » après que la fiche eut été corrigée.
+  local expected="${EXPECTED_LLM_PROVIDER:-}"
+  if [ -z "$expected" ]; then
+    echo "  (destinataire déclaré non transmis — comparaison impossible)"
+  elif [ "$name" != "$expected" ]; then
+    echo "::warning::docs/CONSOLE_ANSWERS.md déclare « ${expected} » comme destinataire des invites IA, or la production route vers « ${name} ». Corriger la fiche AVANT de recopier la table des destinataires dans Play Data Safety / App Privacy."
+  else
+    echo "  → conforme à la fiche consoles (${expected})."
+  fi
+  echo
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
   echo
   show_push_state
+  show_llm_state
   echo "── Ce que compose interpolera ──"
   docker compose config 2>/dev/null | grep -E 'KPB_EEF' || echo "(interpolation indisponible)"
   echo
