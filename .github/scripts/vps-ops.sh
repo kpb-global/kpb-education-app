@@ -205,26 +205,33 @@ show_llm_state() {
   docker inspect kpb_api >/dev/null 2>&1 \
     || echo "  (conteneur kpb_api introuvable — valeurs lues dans .env, pas dans le processus)"
 
+  # `|| true` sur CHAQUE lecture optionnelle : sous `set -e`, une affectation
+  # dont la substitution rend 1 tue le script. `effective_env` rend justement 1
+  # quand la clé est absente du conteneur — et `LLM_PROVIDER`, `LLM_MODEL` et
+  # `LLM_CHAT_COMPLETIONS_URL` sont TOUTES optionnelles par construction. Sans
+  # ces gardes, `show-state` mourait pile sur l'installation la plus banale.
   local llm_key groq_key name model url
-  llm_key=$(effective_env LLM_API_KEY)
-  groq_key=$(effective_env GROQ_API_KEY)
+  llm_key=$(effective_env LLM_API_KEY || true)
+  groq_key=$(effective_env GROQ_API_KEY || true)
 
   if [ -n "$llm_key" ]; then
     report_key LLM_API_KEY masked
-    if [ "$(effective_env LLM_PROVIDER | tr '[:upper:]' '[:lower:]')" = "groq" ]; then
+    local declared
+    declared=$(effective_env LLM_PROVIDER || true)
+    if [ "$(printf '%s' "$declared" | tr '[:upper:]' '[:lower:]')" = "groq" ]; then
       name=groq
-      model=$(effective_env LLM_MODEL); model="${model:-llama-3.3-70b-versatile (défaut)}"
-      url=$(effective_env LLM_CHAT_COMPLETIONS_URL); url="${url:-https://api.groq.com/openai/v1/chat/completions (défaut)}"
+      model=$(effective_env LLM_MODEL || true); model="${model:-llama-3.3-70b-versatile (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL || true); url="${url:-https://api.groq.com/openai/v1/chat/completions (défaut)}"
     else
       name=openrouter
-      model=$(effective_env LLM_MODEL); model="${model:-deepseek/deepseek-v4-flash (défaut)}"
-      url=$(effective_env LLM_CHAT_COMPLETIONS_URL); url="${url:-https://openrouter.ai/api/v1/chat/completions (défaut)}"
+      model=$(effective_env LLM_MODEL || true); model="${model:-deepseek/deepseek-v4-flash (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL || true); url="${url:-https://openrouter.ai/api/v1/chat/completions (défaut)}"
     fi
   elif [ -n "$groq_key" ]; then
     echo "  LLM_API_KEY                ABSENTE (repli sur les variables GROQ_* héritées)"
     report_key GROQ_API_KEY masked
     name=groq
-    model=$(effective_env GROQ_MODEL); model="${model:-llama-3.3-70b-versatile (défaut)}"
+    model=$(effective_env GROQ_MODEL || true); model="${model:-llama-3.3-70b-versatile (défaut)}"
     url="https://api.groq.com/openai/v1/chat/completions (fixe sur ce chemin)"
   else
     echo "  aucune clé LLM posée"
