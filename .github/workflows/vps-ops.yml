@@ -59,6 +59,7 @@ on:
           - eef-teaser-on
           - eef-teaser-off
           - publish-catalog
+          - restart-clamav
       dry_run:
         description: 'Simuler seulement (publish-catalog). Décocher pour appliquer.'
         type: boolean

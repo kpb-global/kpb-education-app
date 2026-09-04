@@ -103,4 +103,51 @@ void main() {
       );
     });
   });
+
+  // ── La liste fermée doit être fermée des DEUX côtés ───────────────────────
+  //
+  // `vps-ops.yml` propose les actions, `vps-ops.sh` les exécute. Les deux
+  // fichiers doivent s'accorder, et rien ne le vérifiait : une option ajoutée
+  // au menu sans branche dans le `case` part jusqu'au VPS pour y mourir sur
+  // « ACTION inconnue » (code 2) — après avoir pris le verrou de concurrence
+  // partagé avec `deploy`. Une branche sans option, elle, est du code mort
+  // qu'on croit disponible.
+  group('Le menu des actions et le script disent la même chose', () {
+    final workflow = _read('.github/workflows/vps-ops.yml');
+    final script = _read('.github/scripts/vps-ops.sh');
+
+    Set<String> menuActions() {
+      final block =
+          RegExp(r'options:\s*\n((?:\s*- \S+\n)+)').firstMatch(workflow);
+      expect(block, isNotNull, reason: 'liste `options:` introuvable');
+      return RegExp(r'- (\S+)')
+          .allMatches(block!.group(1)!)
+          .map((m) => m.group(1)!)
+          .toSet();
+    }
+
+    Set<String> scriptBranches() {
+      final block = RegExp(r'case "\$ACTION" in\n(.*?)\n  \*\)', dotAll: true)
+          .firstMatch(script);
+      expect(block, isNotNull, reason: 'bloc `case "\$ACTION"` introuvable');
+      return RegExp(r'^  ([a-z][a-z0-9-]*)\)', multiLine: true)
+          .allMatches(block!.group(1)!)
+          .map((m) => m.group(1)!)
+          .toSet();
+    }
+
+    test('chaque action proposée a une branche qui l\'exécute', () {
+      final orphans = menuActions().difference(scriptBranches());
+      expect(orphans, isEmpty,
+          reason: 'proposées au menu mais absentes du script : $orphans — '
+              'elles échoueraient sur le VPS en « ACTION inconnue »');
+    });
+
+    test('chaque branche du script est proposée au menu', () {
+      final unreachable = scriptBranches().difference(menuActions());
+      expect(unreachable, isEmpty,
+          reason: 'implémentées mais absentes du menu : $unreachable — '
+              'code mort qu\'on croit disponible');
+    });
+  });
 }

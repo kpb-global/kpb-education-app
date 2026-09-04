@@ -264,12 +264,166 @@ show_llm_state() {
   echo
 }
 
+# Fait passer le fichier de test EICAR par le protocole INSTREAM, depuis le
+# conteneur `api` — même réseau, même résolution de nom, même chemin que les
+# envois réels.
+#
+# INSTREAM et pas PING. Un PONG ne prouve que le canal de CONTRÔLE : un clamd
+# qui répond peut refuser INSTREAM (limite de taille) ou tourner sans base
+# chargée, et rendre 503 sur chaque fichier — soit exactement la panne qu'on
+# prétend détecter. Seul un verdict prouve qu'on analyse.
+#
+# Rend sur stdout : ANALYSE | NE_DETECTE_RIEN | INJOIGNABLE (…) | …
+#
+# La chaîne EICAR est assemblée en guillemets SIMPLES et transmise par
+# l'environnement : elle contient `$` et `\`, que des guillemets doubles
+# feraient interpréter par bash. Le JS ne fait donc aucune interpolation.
+clamd_verdict() {
+  local host="$1" port="$2" eicar
+  eicar='X5O!P%@AP[4\PZX54(P^)7CC)7}'
+  eicar="${eicar}"'$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+
+  docker compose exec -T \
+    -e AV_HOST="$host" -e AV_PORT="$port" -e AV_EICAR="$eicar" \
+    api node -e '
+      const net = require("net");
+      const eicar = Buffer.from(process.env.AV_EICAR, "ascii");
+      const s = net.createConnection({
+        host: process.env.AV_HOST,
+        port: Number(process.env.AV_PORT),
+      });
+      let out = "";
+      const done = (v) => {
+        try { s.destroy(); } catch (e) {}
+        console.log(v);
+        process.exit(0);
+      };
+      s.setTimeout(15000, () => done("INJOIGNABLE (delai depasse)"));
+      s.on("error", (e) => done("INJOIGNABLE (" + e.code + ")"));
+      s.on("connect", () => {
+        s.write("zINSTREAM\0");
+        const len = Buffer.alloc(4);
+        len.writeUInt32BE(eicar.length, 0);
+        s.write(Buffer.concat([len, eicar, Buffer.from([0, 0, 0, 0])]));
+      });
+      s.on("data", (d) => {
+        out += d.toString();
+        if (out.includes("FOUND")) done("ANALYSE");
+        else if (/\bOK\b/.test(out)) done("NE_DETECTE_RIEN");
+        else if (out.includes("ERROR")) done("ERREUR (" + out.trim() + ")");
+      });
+      s.on("close", () =>
+        done(out.trim() ? "REPONSE INATTENDUE (" + out.trim() + ")" : "FERME SANS REPONSE"));
+    ' 2>/dev/null | tr -d '\r' | tail -1 || true
+}
+
+# L'analyse antivirus des documents envoyés fonctionne-t-elle VRAIMENT ?
+#
+# On SONDE clamd, on ne se contente pas de lire `CLAMAV_HOST`. La distinction
+# est tout l'objet de cette fonction : le 15/08/2026 à 09h55, clamd est mort
+# dans le conteneur `kpb_clamav` sans que rien ne le dise. Le conteneur est
+# resté « Up » pendant vingt jours parce que `freshclam`, lui, tournait
+# toujours — il a consciencieusement mis à jour des signatures pour un daemon
+# absent. `docker ps` affichait « unhealthy », personne ne regarde `docker ps`,
+# et la configuration, elle, restait parfaitement valide.
+#
+# Une garde qui aurait affiché `CLAMAV_HOST=clamav` aurait donc été aussi
+# aveugle que l'absence de garde. On envoie un vrai PING au daemon, depuis le
+# conteneur `api` — même réseau, même résolution de nom, même chemin que les
+# envois réels.
+#
+# `AntivirusService` est FAIL-CLOSED : configuré mais sans verdict, il rend 503
+# et l'envoi est refusé. Les deux issues d'une panne sont donc opposées, et il
+# faut savoir laquelle : hôte posé + daemon mort ⇒ plus aucun envoi de document
+# ne passe ; hôte vide ⇒ les fichiers passent SANS ÊTRE ANALYSÉS.
+show_antivirus_state() {
+  echo "── Analyse antivirus des documents (ClamAV) ──"
+  local host port
+  host=$(effective_env CLAMAV_HOST || true)
+  port=$(effective_env CLAMAV_PORT || true); port="${port:-3310}"
+
+  if [ -z "$host" ]; then
+    echo "  CLAMAV_HOST                VIDE"
+    echo "::warning::CLAMAV_HOST est vide : les documents envoyés sont persistés SANS analyse antivirus. C'est un choix valide en local, jamais en production."
+    echo
+    return 0
+  fi
+
+  printf '  %-26s %s\n' "CLAMAV_HOST" "$host"
+  printf '  %-26s %s\n' "CLAMAV_PORT" "$port"
+
+  # `|| true` : une sonde qui échoue est un RÉSULTAT, pas une raison de faire
+  # échouer une lecture d'état.
+  local verdict
+  verdict=$(clamd_verdict "$host" "$port" || true)
+
+  case "$verdict" in
+    ANALYSE)
+      echo "  → EICAR détecté : la chaîne complète analyse réellement. ✅"
+      ;;
+    NE_DETECTE_RIEN)
+      echo "  → clamd répond mais NE DÉTECTE PAS le fichier de test."
+      echo "::error::clamd répond sur $host:$port mais déclare EICAR propre : les signatures ne sont pas chargées. Un fichier réellement infecté PASSERAIT. Ce n'est pas un service sain."
+      ;;
+    "")
+      echo "  → sonde impossible (conteneur api injoignable). État INCONNU."
+      ;;
+    *)
+      echo "  → pas de verdict : $verdict"
+      echo "::error::ClamAV est configuré ($host:$port) mais ne rend aucun verdict. AntivirusService étant fail-closed, TOUT envoi de document est refusé en 503. Vérifier le conteneur kpb_clamav : freshclam peut tourner (conteneur « Up ») alors que clamd est mort — c'est le mode de panne du 15/08/2026."
+      ;;
+  esac
+  echo
+}
+
+# Redémarre le SEUL conteneur antivirus, et vérifie que clamd revient.
+#
+# Cible délibérément étroite : `docker compose restart clamav`, pas la pile.
+# Redémarrer les six conteneurs pour ranimer un sidecar couperait l'API et la
+# base pour rien — et la panne du 15/08 n'a jamais concerné qu'un processus.
+#
+# Le redémarrage ne vaut RIEN sans la vérification qui suit : c'est tout
+# l'enseignement de cette panne. Un conteneur qui repart « Up » ne prouve pas
+# que clamd écoute — pendant vingt jours il était « Up » sans clamd. On attend
+# donc un PONG, avec une borne : clamd charge 3,3 M de signatures au démarrage,
+# ce qui prend des minutes, mais une attente non bornée transformerait une
+# opération en blocage.
+restart_clamav() {
+  echo "── Redémarrage de kpb_clamav ──"
+  echo "  état AVANT :"
+  show_antivirus_state | sed 's/^/  /'
+
+  docker compose restart clamav
+  echo
+
+  echo "  attente d'un VERDICT de clamd (jusqu'à 5 min — chargement des signatures)"
+  local waited=0 verdict
+  while [ "$waited" -lt 300 ]; do
+    sleep 15
+    waited=$((waited + 15))
+    verdict=$(clamd_verdict clamav 3310 || true)
+    if [ "$verdict" = "ANALYSE" ]; then
+      echo "  clamd analyse après ${waited}s."
+      echo
+      show_antivirus_state
+      return 0
+    fi
+    echo "  ...${verdict:-pas de réponse} (${waited}s)"
+  done
+
+  echo
+  show_antivirus_state
+  echo "::error::clamd n'a rendu aucun verdict dans les 5 minutes suivant le redémarrage. Un simple redémarrage ne suffit donc pas : suspecter la limite mémoire (mem_limit 1536m face à 3,3 M de signatures — un OOM est journalisé par le noyau de l'HÔTE, pas par le conteneur). Les envois de fichiers restent refusés en 503."
+  return 1
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
   echo
   show_push_state
   show_llm_state
+  show_antivirus_state
   echo "── Ce que compose interpolera ──"
   docker compose config 2>/dev/null | grep -E 'KPB_EEF' || echo "(interpolation indisponible)"
   echo
@@ -283,6 +437,10 @@ show_state() {
 case "$ACTION" in
   show-state)
     show_state
+    ;;
+
+  restart-clamav)
+    restart_clamav
     ;;
 
   eef-teaser-on)
