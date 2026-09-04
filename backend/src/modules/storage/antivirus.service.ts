@@ -55,8 +55,22 @@ export function parseClamdResponse(raw: string): ClamdVerdict {
  * unscanned file through. When unset, scanning is skipped (dev/local mode) —
  * production logs a warning at boot, same pattern as the S3 fallback.
  */
-/** Sonde de santé : court par nature — voir `ping()`. */
-const PING_TIMEOUT_MS = 3000;
+/**
+ * Fichier de test EICAR, assemblé à l'exécution.
+ *
+ * Jamais écrit d'un seul tenant : une chaîne EICAR contiguë dans un fichier
+ * source fait réagir les antivirus des postes de développement et des chaînes
+ * d'intégration. Le fragmenter n'est pas de la dissimulation — c'est la
+ * pratique habituelle pour un motif conçu pour être détecté.
+ */
+function eicarProbe(): Buffer {
+  const parts = [
+    'X5O!P%@AP[4\\PZX54(P^)7CC)7}',
+    '$EICAR-STANDARD-ANTIVIRUS-',
+    'TEST-FILE!$H+H*',
+  ];
+  return Buffer.from(parts.join(''), 'ascii');
+}
 
 @Injectable()
 export class AntivirusService {
@@ -116,43 +130,45 @@ export class AntivirusService {
   }
 
   /**
-   * Le daemon répond-il, MAINTENANT ?
+   * L'analyse fonctionne-t-elle VRAIMENT, maintenant ?
    *
    * Distinct de `isEnabled`, qui ne dit que « une adresse est configurée ».
    * Toute la panne du 15/08/2026 tient dans cet écart : `CLAMAV_HOST` est
    * resté valide pendant vingt jours pendant que clamd était mort, et
-   * `AntivirusService` étant FAIL-CLOSED, chaque envoi de fichier repartait
-   * en 503 sans que rien ne le signale. Le conteneur restait « Up » parce que
-   * `freshclam`, lui, tournait — il a mis à jour les signatures d'un daemon
+   * `AntivirusService` étant FAIL-CLOSED, chaque envoi repartait en 503 sans
+   * que rien ne le signale. Le conteneur restait « Up » parce que
+   * `freshclam`, lui, tournait — il mettait à jour les signatures d'un daemon
    * absent, tous les matins, pendant vingt jours.
    *
+   * On envoie le fichier de test EICAR par `assertClean` — donc EXACTEMENT le
+   * chemin qu'empruntent les envois réels. Un simple PING aurait été plus
+   * simple et plus faible : il ne prouve que le canal de contrôle. Un clamd
+   * qui répond PONG peut très bien refuser INSTREAM (limite de taille) ou
+   * tourner sans base chargée, et rendre 503 sur chaque fichier — soit
+   * précisément la panne qu'on prétend détecter.
+   *
+   * Trois issues, trois significations :
+   *   - `InfectedFileError`        → le scanner a rendu un VERDICT correct ✅
+   *   - retour sans exception      → EICAR déclaré propre : rien n'est détecté
+   *   - `AntivirusUnavailableError`→ pas de verdict du tout
+   *
    * Ne LÈVE JAMAIS : cette méthode sert une route de santé, et une sonde qui
-   * échoue est un résultat, pas une panne de la route. Délai court :
-   * `/api/health` ne doit pas s'allonger de 30 s parce que l'antivirus est à
-   * terre — c'est justement le moment où on l'interroge.
+   * échoue est un résultat, pas une panne de la route.
    */
-  async ping(): Promise<boolean> {
+  async selfTest(): Promise<boolean> {
     if (!this.isEnabled) return false;
-    return new Promise((resolvePromise) => {
-      const socket = new Socket();
-      let response = '';
-      let settled = false;
-      const finish = (value: boolean) => {
-        if (settled) return;
-        settled = true;
-        socket.destroy();
-        resolvePromise(value);
-      };
-      socket.setTimeout(PING_TIMEOUT_MS, () => finish(false));
-      socket.on('error', () => finish(false));
-      socket.on('connect', () => socket.write('zPING\0'));
-      socket.on('data', (chunk) => {
-        response += chunk.toString();
-        if (response.includes('PONG')) finish(true);
-      });
-      socket.on('close', () => finish(false));
-      socket.connect(this.port, this.host);
-    });
+    try {
+      await this.assertClean(eicarProbe(), 'antivirus-selftest');
+      // EICAR déclaré propre : le daemon répond mais ne détecte rien — base
+      // non chargée, ou en cours de rechargement. Un fichier réellement
+      // infecté passerait. Ce n'est pas « sain ».
+      this.logger.error(
+        'Antivirus self-test: EICAR was reported CLEAN — signatures are not loaded.',
+      );
+      return false;
+    } catch (error) {
+      return error instanceof InfectedFileError;
+    }
   }
 
   /**

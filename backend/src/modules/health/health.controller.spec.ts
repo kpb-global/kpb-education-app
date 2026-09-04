@@ -10,9 +10,9 @@ function makeController(
   prisma: PrismaService,
   llm: Pick<LlmService, 'isConfigured'> = { isConfigured: false },
   push: Pick<OneSignalSenderService, 'isConfigured'> = { isConfigured: false },
-  antivirus: Pick<AntivirusService, 'isEnabled' | 'ping'> = {
+  antivirus: Pick<AntivirusService, 'isEnabled' | 'selfTest'> = {
     isEnabled: false,
-    ping: async () => false,
+    selfTest: async () => false,
   },
 ) {
   return new HealthController(
@@ -128,24 +128,24 @@ describe('HealthController', () => {
   //
   // Un seul booléen `configured` aurait annoncé « ✅ » pendant toute la panne.
   // C'est précisément ce que ce test interdit.
-  it('distingue « configuré » de « joignable » pour l\'antivirus', async () => {
+  it('distingue « configuré » de « analyse vraiment » pour l\'antivirus', async () => {
     const prisma = { isReady: jest.fn() } as unknown as PrismaService;
 
     const dead = await makeController(
       prisma,
       { isConfigured: false },
       { isConfigured: false },
-      { isEnabled: true, ping: async () => false },
+      { isEnabled: true, selfTest: async () => false },
     ).check();
-    expect(dead.antivirus).toEqual({ configured: true, reachable: false });
+    expect(dead.antivirus).toEqual({ configured: true, scanning: false });
 
     const alive = await makeController(
       prisma,
       { isConfigured: false },
       { isConfigured: false },
-      { isEnabled: true, ping: async () => true },
+      { isEnabled: true, selfTest: async () => true },
     ).check();
-    expect(alive.antivirus).toEqual({ configured: true, reachable: true });
+    expect(alive.antivirus).toEqual({ configured: true, scanning: true });
   });
 
   // Une sonde qui échoue est un RÉSULTAT, pas une panne de la route : /health
@@ -154,7 +154,7 @@ describe('HealthController', () => {
     const prisma = { isReady: jest.fn() } as unknown as PrismaService;
     const body = await makeController(prisma, undefined, undefined, {
       isEnabled: true,
-      ping: async () => {
+      selfTest: async () => {
         throw new Error('socket explosé');
       },
     })

@@ -44,21 +44,21 @@ def verdicts(body):
         ]
 
     configured = bool(antivirus.get("configured"))
-    reachable = bool(antivirus.get("reachable"))
+    scanning = bool(antivirus.get("scanning"))
 
     # Asymétrie voulue : `configured: false` est un CHOIX de déploiement (les
     # fichiers passent sans analyse — discutable, mais délibéré et visible
-    # ailleurs). `configured: true` + `reachable: false` est une panne : la
+    # ailleurs). `configured: true` + `scanning: false` est une panne : la
     # seule combinaison qui REFUSE silencieusement le travail des utilisateurs.
-    if configured and not reachable:
+    if configured and not scanning:
         return 1, [
-            "::error::ClamAV est configuré mais INJOIGNABLE : tout envoi de "
+            "::error::ClamAV est configuré mais N'ANALYSE PAS : tout envoi de "
             "fichier est refusé en 503 (fail-closed) — documents de dossier, "
             "avatars, pièces du Success Lab. Réparer avec "
             "vps-ops → restart-clamav, puis vérifier la limite mémoire."
         ]
 
-    lines.append("antivirus ✅" if reachable else "antivirus non configuré (choix de déploiement)")
+    lines.append("antivirus ✅" if scanning else "antivirus non configuré (choix de déploiement)")
     return 0, lines
 
 

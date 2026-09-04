@@ -44,7 +44,7 @@ export class HealthController {
        */
       push: { configured: this.pushSender.isConfigured },
       /**
-       * `configured` ET `reachable`, parce que l'écart entre les deux EST la
+       * `configured` ET `scanning`, parce que l'écart entre les deux EST la
        * panne du 15/08/2026 : `CLAMAV_HOST` est resté valide vingt jours
        * pendant que clamd était mort, et `AntivirusService` étant FAIL-CLOSED,
        * tout envoi de fichier repartait en 503 — documents de dossier, photos
@@ -53,14 +53,19 @@ export class HealthController {
        * Un seul booléen `configured` aurait annoncé « ✅ » pendant toute la
        * panne. C'est la raison d'être du second.
        *
-       * `.catch` en ceinture : `ping()` est écrit pour ne jamais rejeter, mais
+       * `scanning`, pas `reachable` : un clamd qui répond au canal de contrôle
+       * peut refuser INSTREAM ou tourner sans base chargée, et rendre 503 sur
+       * chaque fichier. `selfTest()` fait passer le fichier de test EICAR par
+       * le chemin RÉEL des envois — le mot dit ce qui est prouvé.
+       *
+       * `.catch` en ceinture : `selfTest()` est écrit pour ne jamais rejeter,
        * une route de santé qui rend 500 parce qu'une SONDE a levé serait
        * l'exact inverse du but — elle doit répondre surtout quand quelque
        * chose est cassé. Verrouillé par un test qui échoue sans ce catch.
        */
       antivirus: {
         configured: this.antivirus.isEnabled,
-        reachable: await this.antivirus.ping().catch(() => false),
+        scanning: await this.antivirus.selfTest().catch(() => false),
       },
     };
   }

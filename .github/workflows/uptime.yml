@@ -41,6 +41,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      # Le job démarre sur un workspace VIDE. Sans ce checkout, l'étape
+      # « Capacités de l'API » plus bas échouerait sur
+      # `python3: can't open file '.github/scripts/check-health-capabilities.py'`
+      # À CHAQUE exécution — une garde rouge en permanence, pour une raison qui
+      # n'a rien à voir avec la production. Le seul autre `actions/checkout` du
+      # fichier appartient au job `stability-24h`, qui est un job distinct.
+      - uses: actions/checkout@v5
+
       - name: API — liveness and readiness
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}

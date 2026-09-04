@@ -128,3 +128,61 @@ describe('AntivirusService', () => {
     ).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 });
+
+describe('AntivirusService.selfTest', () => {
+  const previous = process.env.CLAMAV_HOST;
+  afterEach(() => {
+    if (previous === undefined) delete process.env.CLAMAV_HOST;
+    else process.env.CLAMAV_HOST = previous;
+    jest.restoreAllMocks();
+  });
+
+  /** Construit un service configuré, avec `assertClean` remplacé. */
+  function withVerdict(impl: () => Promise<void>) {
+    process.env.CLAMAV_HOST = 'clamav';
+    const service = new AntivirusService();
+    jest.spyOn(service, 'assertClean').mockImplementation(impl);
+    return service;
+  }
+
+  // Le seul résultat qui prouve que la chaîne complète fonctionne : la
+  // connexion, le protocole INSTREAM, la base chargée, et l'analyse du verdict.
+  it('rend true quand EICAR est DÉTECTÉ', async () => {
+    const service = withVerdict(() => {
+      throw new InfectedFileError('infected');
+    });
+    await expect(service.selfTest()).resolves.toBe(true);
+  });
+
+  // Un daemon qui répond mais ne détecte pas EICAR laisserait passer un vrai
+  // fichier infecté. Ce n'est pas « sain » — c'est une panne silencieuse, et
+  // c'est précisément ce qu'un PING n'aurait jamais vu.
+  it('rend false quand EICAR est déclaré PROPRE', async () => {
+    const service = withVerdict(async () => {});
+    await expect(service.selfTest()).resolves.toBe(false);
+  });
+
+  it('rend false quand le scanner ne rend aucun verdict', async () => {
+    const service = withVerdict(() => {
+      throw new AntivirusUnavailableError('down');
+    });
+    await expect(service.selfTest()).resolves.toBe(false);
+  });
+
+  // Sans hôte configuré il n'y a rien à sonder — et surtout rien à alarmer.
+  it('rend false, sans rien sonder, quand CLAMAV_HOST est vide', async () => {
+    delete process.env.CLAMAV_HOST;
+    const service = new AntivirusService();
+    const spy = jest.spyOn(service, 'assertClean');
+    await expect(service.selfTest()).resolves.toBe(false);
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  // Une sonde de santé ne doit jamais faire tomber la route qui l'appelle.
+  it('ne laisse échapper aucune exception inattendue', async () => {
+    const service = withVerdict(() => {
+      throw new TypeError('socket explosé');
+    });
+    await expect(service.selfTest()).resolves.toBe(false);
+  });
+});
