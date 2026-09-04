@@ -184,11 +184,74 @@ show_push_state() {
   echo
 }
 
+# Vers QUI partent réellement les invites IA ?
+#
+# La question n'est pas cosmétique : `docs/CONSOLE_ANSWERS.md` §5 porte la
+# mention « recopier au formulaire destinataires ». Nommer le mauvais
+# sous-traitant dans une déclaration de confidentialité est une déclaration
+# fausse, pas une coquille.
+#
+# On REJOUE ici la précédence exacte de `LlmService.provider`
+# (backend/src/modules/ai/llm.service.ts) plutôt que de la résumer : un résumé
+# se désynchronise du code en silence, et c'est précisément ce qu'on cherche à
+# éviter. `LLM_API_KEY` l'emporte (OpenRouter sauf `LLM_PROVIDER=groq`) ; à
+# défaut, `GROQ_API_KEY` fait tomber sur Groq ; sans clé, aucun fournisseur.
+#
+# Asymétrie habituelle : les CLÉS sont des secrets (présence seulement), le
+# fournisseur, le modèle et l'URL sont de la configuration — les afficher est
+# tout l'intérêt de la manoeuvre.
+show_llm_state() {
+  echo "── Fournisseur LLM (destinataire des invites) ──"
+  docker inspect kpb_api >/dev/null 2>&1 \
+    || echo "  (conteneur kpb_api introuvable — valeurs lues dans .env, pas dans le processus)"
+
+  local llm_key groq_key name model url
+  llm_key=$(effective_env LLM_API_KEY)
+  groq_key=$(effective_env GROQ_API_KEY)
+
+  if [ -n "$llm_key" ]; then
+    report_key LLM_API_KEY masked
+    if [ "$(effective_env LLM_PROVIDER | tr '[:upper:]' '[:lower:]')" = "groq" ]; then
+      name=groq
+      model=$(effective_env LLM_MODEL); model="${model:-llama-3.3-70b-versatile (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL); url="${url:-https://api.groq.com/openai/v1/chat/completions (défaut)}"
+    else
+      name=openrouter
+      model=$(effective_env LLM_MODEL); model="${model:-deepseek/deepseek-v4-flash (défaut)}"
+      url=$(effective_env LLM_CHAT_COMPLETIONS_URL); url="${url:-https://openrouter.ai/api/v1/chat/completions (défaut)}"
+    fi
+  elif [ -n "$groq_key" ]; then
+    echo "  LLM_API_KEY                ABSENTE (repli sur les variables GROQ_* héritées)"
+    report_key GROQ_API_KEY masked
+    name=groq
+    model=$(effective_env GROQ_MODEL); model="${model:-llama-3.3-70b-versatile (défaut)}"
+    url="https://api.groq.com/openai/v1/chat/completions (fixe sur ce chemin)"
+  else
+    echo "  aucune clé LLM posée"
+    echo "  → IA NON configurée : les outils rendront une réponse locale de repli."
+    echo
+    return 0
+  fi
+
+  printf '  %-26s %s\n' "fournisseur résolu" "$name"
+  printf '  %-26s %s\n' "modèle" "$model"
+  printf '  %-26s %s\n' "URL appelée" "$url"
+  echo "  → destinataire à déclarer dans les formulaires : $name"
+
+  # Le §5 de la fiche consoles nomme Groq. Si la prod route ailleurs, la fiche
+  # ment au formulaire — on le dit fort, sans faire échouer une lecture d'état.
+  if [ "$name" != "groq" ]; then
+    echo "::warning::docs/CONSOLE_ANSWERS.md §5 déclare Groq comme destinataire des invites IA, or la production route vers ${name}. Corriger la fiche AVANT de recopier la table des destinataires dans Play Data Safety / App Privacy."
+  fi
+  echo
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
   echo
   show_push_state
+  show_llm_state
   echo "── Ce que compose interpolera ──"
   docker compose config 2>/dev/null | grep -E 'KPB_EEF' || echo "(interpolation indisponible)"
   echo
