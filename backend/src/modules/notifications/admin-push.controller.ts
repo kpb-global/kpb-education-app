@@ -56,12 +56,30 @@ export class AdminPushController {
       };
     }
 
-    await this.sender.sendToUser(
+    // Le booléen était jeté et la sonde rendait `ok: true` quoi qu'il arrive.
+    // Un diagnostic qui ne peut pas échouer ne diagnostique rien : pendant les
+    // envois refusés par OneSignal du 04/09/2026, ce bouton aurait répondu
+    // « envoyé ✅ ». C'est le seul outil dont dispose l'exploitant pour tester
+    // la chaîne — il doit dire la vérité, et dire où regarder quand il échoue.
+    const sent = await this.sender.sendToUser(
       dto.userId,
       dto.title?.trim() || 'Test KPB Education',
       dto.body?.trim() || 'Ceci est une notification de test 🎓',
       dto.route ? { route: dto.route } : undefined,
     );
+
+    if (!sent) {
+      return {
+        ok: false,
+        sentTo: dto.userId,
+        reason:
+          "OneSignal n'a livré à aucun appareil. Causes possibles : cet " +
+          "utilisateur n'a pas d'appareil abonné (notifications refusées, ou " +
+          "jamais connecté depuis l'installation), ou l'application OneSignal " +
+          "n'a aucune plateforme de livraison configurée (APNs / FCM). Le motif " +
+          'exact renvoyé par OneSignal est dans les journaux du conteneur api.',
+      };
+    }
 
     return { ok: true, sentTo: dto.userId };
   }

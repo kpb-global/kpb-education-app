@@ -22,6 +22,32 @@ import {
   Textarea,
 } from '../../components/ui';
 
+/**
+ * Les audiences que le backend sait RÉSOUDRE.
+ *
+ * Ce champ était un texte libre dont le placeholder annonçait
+ * `all_users / by_case_status / by_role / specific_users` : trois de ces quatre
+ * valeurs n'existent nulle part côté serveur et rendaient 400, tandis que trois
+ * audiences réellement implémentées — `account_type`, `study_level`,
+ * `country_of_residence` — n'étaient proposées nulle part. Un champ libre ne
+ * peut pas se tromper à moitié : soit il documente les valeurs, soit il
+ * n'aurait pas dû en suggérer.
+ *
+ * Reste alignée sur `CreateNotificationCampaignDto.audienceType` et sur les
+ * branches de `CampaignExecutorService.resolveRecipients`, dont l'accord est
+ * vérifié par `campaign-audience-contract.spec.ts`.
+ */
+const AUDIENCE_TYPES = [
+  'all_users',
+  'all_students',
+  'country',
+  'country_of_residence',
+  'case_status',
+  'account_type',
+  'study_level',
+  'single_user',
+] as const;
+
 interface NotificationTemplateItem {
   id: string;
   name: string;
@@ -96,7 +122,7 @@ export default function NotificationsPage() {
     titleEn: '',
     bodyFr: '',
     bodyEn: '',
-    channels: 'push,in_app,email',
+    channels: 'push,email',
     isCritical: false,
   });
   const [campaignForm, setCampaignForm] = useState({
@@ -210,7 +236,7 @@ export default function NotificationsPage() {
         titleEn: '',
         bodyFr: '',
         bodyEn: '',
-        channels: 'push,in_app,email',
+        channels: 'push,email',
         isCritical: false,
       });
       setStatusMessage(t('notifications.templateCreated'));
@@ -370,7 +396,7 @@ export default function NotificationsPage() {
                   <Input
                     id={id}
                     value={templateForm.channels}
-                    placeholder="push,in_app,email"
+                    placeholder="push,email"
                     onChange={(e) =>
                       setTemplateForm((current) => ({
                         ...current,
@@ -491,17 +517,22 @@ export default function NotificationsPage() {
               </div>
               <Field label={t('notifications.audienceLabel')}>
                 {({ id }) => (
-                  <Input
+                  <Select
                     id={id}
                     value={campaignForm.audienceType}
-                    placeholder="all_users / by_case_status / by_role / specific_users"
                     onChange={(e) =>
                       setCampaignForm((current) => ({
                         ...current,
                         audienceType: e.target.value,
                       }))
                     }
-                  />
+                  >
+                    {AUDIENCE_TYPES.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
                 )}
               </Field>
               <Field label={t('notifications.filtersLabel')}>

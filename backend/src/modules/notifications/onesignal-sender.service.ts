@@ -14,6 +14,28 @@ import { Injectable, Logger } from '@nestjs/common';
 
 const ONESIGNAL_API_URL = 'https://onesignal.com/api/v1/notifications';
 
+/** Un journal n'est pas une décharge : on garde de quoi diagnostiquer. */
+const MAX_LOGGED_BODY = 500;
+
+function truncate(text: string): string {
+  return text.length > MAX_LOGGED_BODY
+    ? `${text.slice(0, MAX_LOGGED_BODY)}… (tronqué)`
+    : text;
+}
+
+/**
+ * Lit le corps d'une réponse en échec sans jamais faire échouer la
+ * journalisation elle-même — un corps illisible ne doit pas transformer une
+ * erreur d'envoi en exception non rattrapée.
+ */
+async function safeBody(response: Response): Promise<string> {
+  try {
+    return truncate((await response.text()).trim()) || '(corps vide)';
+  } catch {
+    return '(corps illisible)';
+  }
+}
+
 @Injectable()
 export class OneSignalSenderService {
   private readonly logger = new Logger(OneSignalSenderService.name);
@@ -71,7 +93,8 @@ export class OneSignalSenderService {
 
       if (!response.ok) {
         this.logger.error(
-          `OneSignal send failed with status ${response.status}.`,
+          `OneSignal send failed with status ${response.status}: ` +
+            `${await safeBody(response)}`,
         );
         return false;
       }
@@ -82,19 +105,44 @@ export class OneSignalSenderService {
         errors?: unknown;
       };
       if (json.errors) {
-        this.logger.error('OneSignal send returned provider errors.');
+        // La charge `errors` est le SEUL endroit où OneSignal dit pourquoi il
+        // refuse. Elle était désérialisée puis jetée : le 04/09/2026, la
+        // campagne « Rentree Decalee » a trouvé 2 destinataires et n'en a
+        // livré aucun, et le journal de production ne contenait que « provider
+        // errors » — impossible de savoir si le tort venait de l'application
+        // OneSignal, des identifiants, ou de l'abonné.
+        //
+        // Aucun secret là-dedans : ce sont les messages du fournisseur. La
+        // clé REST ne transite que dans l'en-tête, jamais dans le corps de
+        // réponse. Tronqué, parce qu'un journal n'est pas une décharge.
+        this.logger.error(
+          `OneSignal send returned provider errors: ${truncate(JSON.stringify(json.errors))}`,
+        );
         return false;
       }
-      // Distinguish "nobody to notify" (user has no subscribed device — not a
-      // transient failure, so callers should NOT retry) from a real error.
+      // « Personne à notifier » n'est PAS un succès. Le commentaire précédent
+      // annonçait vouloir distinguer ce cas, puis rendait `true` quand même —
+      // et l'appelant inscrivait la livraison comme `delivered`. Un envoi qui
+      // n'atteint aucun appareil doit se compter comme non livré, sinon les
+      // statistiques de campagne décrivent une distribution qui n'a pas eu
+      // lieu. Journalisé en `warn` et non en `debug` : c'est précisément le
+      // symptôme d'une application OneSignal sans plateforme configurée, ou
+      // d'un utilisateur qui a refusé les notifications.
       if (json.recipients === 0) {
-        this.logger.debug(
-          'OneSignal: no subscribed recipient (push not delivered).',
+        this.logger.warn(
+          `OneSignal accepted the request but delivered to 0 device for user ${userId} ` +
+            '(no subscribed device, or no delivery platform configured on the OneSignal app).',
         );
+        return false;
       }
       return true;
-    } catch {
-      this.logger.error('OneSignal push request failed.');
+    } catch (error) {
+      // Le motif compte : un abandon sur délai ne se répare pas comme un DNS
+      // qui ne résout pas. `AbortError` est le nom que `fetch` donne au
+      // dépassement des 10 s armées plus haut.
+      const reason =
+        error instanceof Error ? `${error.name}: ${error.message}` : 'unknown';
+      this.logger.error(`OneSignal push request failed — ${reason}`);
       return false;
     } finally {
       clearTimeout(timeout);

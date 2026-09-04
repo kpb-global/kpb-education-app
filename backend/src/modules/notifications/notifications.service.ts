@@ -1,5 +1,7 @@
 import {
+  BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -19,6 +21,8 @@ interface TemplateTitle {
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     private readonly casesService: CasesService,
     private readonly prismaService: PrismaService,
@@ -174,6 +178,22 @@ export class NotificationsService {
       (input['scheduledFor'] as string | null | undefined) ?? null;
     const linkedCaseId =
       (input['linkedCaseId'] as string | null | undefined) ?? null;
+    // Un canal de contenu SANS modèle ne peut rien envoyer : l'exécuteur garde
+    // ses deux boucles derrière `&& template`. La campagne partait quand même,
+    // n'envoyait rien, et s'affichait « terminée ». Or « aucun modèle » est le
+    // choix par défaut du formulaire — c'était donc le cas le plus courant.
+    //
+    // Refuser à la CRÉATION plutôt qu'échouer à l'exécution : l'exploitant
+    // apprend ce qui manque pendant qu'il a le formulaire sous les yeux, pas
+    // en ouvrant le détail des livraisons d'une campagne déjà partie.
+    const contentChannels = channels.filter((c) => c === 'push' || c === 'email');
+    if (contentChannels.length > 0 && !templateId) {
+      throw new BadRequestException(
+        `Un modèle est obligatoire pour les canaux ${contentChannels.join(', ')} : ` +
+          "sans lui, la campagne n'a aucun contenu à envoyer.",
+      );
+    }
+
     const initialStatus = scheduledFor
       ? NotificationCampaignStatus.Scheduled
       : NotificationCampaignStatus.Sending;
@@ -197,7 +217,20 @@ export class NotificationsService {
     }
 
     if (!scheduledFor) {
-      await this.campaignExecutor.execute(created.id).catch(() => undefined);
+      // L'échec d'exécution ne doit pas annuler la CRÉATION — la campagne
+      // existe, et l'exploitant doit pouvoir la retrouver et la relancer. Mais
+      // l'avaler sans un mot laissait l'API répondre 201 sur un envoi qui
+      // venait d'échouer, sans la moindre trace côté serveur.
+      //
+      // Le statut de la campagne, lui, dit désormais la vérité : l'exécuteur
+      // la passe à `failed` quand aucune livraison n'a abouti, et la liste de
+      // l'admin le montre au rechargement qui suit.
+      await this.campaignExecutor.execute(created.id).catch((error) => {
+        this.logger.error(
+          `Immediate execution of campaign ${created.id} failed:`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      });
     }
 
     if (linkedCaseId) {
