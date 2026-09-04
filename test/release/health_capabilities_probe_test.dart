@@ -135,7 +135,7 @@ void main() {
       '.github/workflows/vps-ops.yml',
       '.github/workflows/deploy.yml',
     ]) {
-      test('$path', () {
+      test(path, () {
         final file = File(path);
         if (!file.existsSync()) return;
         jobBlocks(withoutComments(file.readAsStringSync()))
