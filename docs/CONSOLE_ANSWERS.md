@@ -42,7 +42,7 @@ rouvre tout seul à la revue suivante.
 |---|---|---|---|
 | 4 | **SDK d'attribution embarqué (iOS)** | Répondre juste si un formulaire demande « SDK tiers d'attribution/pub présent ? » | `GoogleAdsOnDeviceConversion 3.4.2` **est** dans le binaire (transitif via `firebase_analytics`, `ios/Podfile.lock:124`). **Aucun suivi** (ATT absent, `NSPrivacyTracking=false`) — mais le SDK est *présent*. Ne pas cocher « Used to Track », mais le lister si la liste des SDK est demandée. |
 | 5 | **Régions d'hébergement** | Confirmé hors dépôt — recopier tel quel | Supabase **eu-west-3 (Paris)**, VPS **France** (Hostinger), Mautic même VPS. Non prouvable par le code (`STORE_READINESS.md` §1). |
-| 6 | **Fichiers Success Lab (Apple : User Content → Documents)** | Yes **seulement si** Success Lab est ouvert en prod ; sinon No | Accès fermé côté serveur par défaut. Vérifier `/config/app` → `features.successLab` sur l'environnement servi au moment de la soumission. |
+| 6 | **Fichiers Success Lab (Apple : User Content → Documents)** | Yes **seulement si un utilisateur réel peut effectivement téléverser** ; sinon No | **NE PAS se fier à `/config/app` → `features.successLab`** : ce drapeau est grossier et ne dit rien du déploiement progressif, du pays du compte, ni des drapeaux enfants `KPB_APPLICATION_ARTIFACTS_ENABLED` / `KPB_STUDY_REVIEW_ENABLED`. Il peut donc valoir `true` alors que **personne** n'atteint le formulaire d'envoi — et déclarer une collecte de documents inexistante est une déclaration fausse. La décision qui fait foi est **par utilisateur** : `GET /success-lab/access` (`workspaces.controller.ts`), et les deux capacités imbriquées **`applicationArtifacts.enabled`** et **`counsellorStudy.enabled`**. Interroger avec un compte représentatif du public visé. |
 
 ---
 
@@ -104,7 +104,7 @@ rouvre tout seul à la revue suivante.
 | Messages — **In-app (dossiers)** | Oui | Non | Requis pour la fonction | Fonctionnalité | tunnel `case_tunnel_flow.dart:357` |
 | Messages — **Autres (coach IA → Groq)** | Oui | Non (aucun ID transmis) | **Optionnel — consentement explicite** | Fonctionnalité | `AiConsentGuard` ; pas de nom dans l'invite |
 | Photos | Oui | Non | **Optionnel** | Fonctionnalité | avatar seul, sans EXIF |
-| Fichiers & docs | ⚠️ **Point 6** | Non | Optionnel | Fonctionnalité | dépend de l'ouverture de Success Lab — vérifier `/config/app` |
+| Fichiers & docs | ⚠️ **Point 6** | Non | Optionnel | Fonctionnalité | dépend de `applicationArtifacts.enabled` / `counsellorStudy.enabled` sur `GET /success-lab/access`, pas du drapeau public |
 | **Audio — enregistrements vocaux** | **Non** | — | — | — | on-device + accord explicite ; aucun octet chez KPB |
 | Activité — **Interactions** | Oui | Non | **Peut choisir** — active par défaut, refus honoré | Analyses | opt-out réel (`analytics_service.dart:144`) ; défaut changé en 50, annoncé aux CGU |
 | Activité — **Historique de recherche** | Oui | Non | **Peut choisir** — même interrupteur | Analyses | terme en clair vers Firebase **et PostHog** (`:559`) |
@@ -151,7 +151,7 @@ rouvre tout seul à la revue suivante.
 | Contenu — **Support (messages dossier)** | Oui | Oui | Non | Fonctionnalité | tunnel |
 | Contenu — **Autres (coach IA → Groq)** | Oui | Oui | Non | Fonctionnalité | derrière consentement ; aucun ID chez Groq |
 | Contenu — **Audio** | **Non** | — | — | — | on-device + accord explicite (voir §Audio) |
-| Contenu — **Autres (docs dossier)** | ⚠️ **Point 6** | — | — | — | Yes seulement si Success Lab est ouvert sur l'environnement servi — vérifier `/config/app` au moment de la soumission |
+| Contenu — **Autres (docs dossier)** | ⚠️ **Point 6** | — | — | — | Yes seulement si `GET /success-lab/access` rend `applicationArtifacts.enabled` **ou** `counsellorStudy.enabled` vrai pour un compte réel |
 | Identifiants — **ID utilisateur** | Oui | Oui | Non | Fonctionnalité, Analyses | OneSignal + PostHog `identify` — PostHog **actif** depuis la 52 |
 | Identifiants — **ID appareil** | Oui | Oui | Non | Fonctionnalité, Analyses | ID instance Firebase + abonnement OneSignal |
 | Usage — **Interaction, Historique recherche** | Oui | Oui | Non | Analyses, Fonctionnalité | désactivable |
@@ -223,9 +223,12 @@ rouvre tout seul à la revue suivante.
 >
 > **Fenêtre JWT inévitable :** un access-token déjà émis reste valide jusqu'à son
 > `exp` après suppression Supabase — ne pas présenter la suppression comme une
-> révocation rétroactive des JWT. **Survivances de purge** (à corriger, pas à
-> masquer par le libellé) : `CounsellorReview` (nom civil), registre ambassadeur,
-> contact Mautic — voir `STORE_READINESS.md` §6.
+> révocation rétroactive des JWT. C'est la **seule** réserve qui subsiste.
+>
+> (Les « survivances de purge » que cette fiche listait ici — `CounsellorReview`,
+> registre ambassadeur, contact Mautic — sont **traitées** depuis, voir le point
+> ci-dessus. `STORE_READINESS.md` §6 décrit encore l'ancien état ; ne pas s'y
+> fier pour cette question.)
 
 ---
 
