@@ -70,7 +70,7 @@ d'archiver dans Xcode, le régénérer avec l'ensemble complet — étape 4 de
 ```bash
 # POSTHOG_API_KEY : phc_… réel, ou VIDE = PostHog désactivé. Jamais « phc_… »
 # littéral (il passe le préflight mais livre une clé morte). Décision : point 1
-# de CONSOLE_ANSWERS_build49.md.
+# de CONSOLE_ANSWERS.md (renommé ; s'appelait alors CONSOLE_ANSWERS_build49.md).
 export POSTHOG_API_KEY="${POSTHOG_API_KEY-}"
 flutter build ios --release --no-codesign \
   --dart-define=KPB_APP_ENV=prod \
