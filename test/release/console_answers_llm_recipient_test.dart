@@ -62,4 +62,52 @@ void main() {
       }
     });
   });
+
+  // ── La garde ops doit pouvoir LIRE ce qu'elle compare ────────────────────
+  //
+  // `vps-ops` ne code plus le destinataire en dur : il l'extrait de la ligne
+  // « (LLM) » du tableau des sous-traitants, puis compare au fournisseur
+  // réellement résolu en production. Une constante s'était désynchronisée de
+  // la fiche à la première migration, la garde annonçant « la fiche dit Groq »
+  // APRÈS que la fiche eut été corrigée en OpenRouter.
+  //
+  // Deux façons de casser ça en silence : perdre la ligne, ou casser le
+  // tableau qui la contient.
+  group('Le destinataire IA reste extractible par l\'outillage', () {
+    final doc = File('docs/CONSOLE_ANSWERS.md').readAsStringSync();
+
+    test('la fiche porte une ligne « (LLM) » exploitable', () {
+      final row =
+          RegExp(r'^\| *([^|(]+)\(LLM\)', multiLine: true).firstMatch(doc);
+      expect(row, isNotNull,
+          reason: 'sans ligne « (LLM) », l\'étape ops échoue et plus rien ne '
+              'compare la fiche à la production');
+      final name = row!.group(1)!.replaceAll(RegExp(r'[ *]'), '').toLowerCase();
+      expect(name, isNotEmpty);
+    });
+
+    // Le tableau avait été coupé en deux par une note en bloc-citation posée
+    // au milieu : les cinq lignes suivantes se rendaient en texte brut, hors
+    // du tableau. Un tableau rompu reste « lisible » à l'œil dans le source et
+    // faux dans le rendu — et c'est ce rendu que l'on recopie dans le
+    // formulaire du store.
+    test('le tableau des sous-traitants n\'est pas coupé en deux', () {
+      final start = doc.indexOf('| Sous-traitant | Région |');
+      expect(start, greaterThan(-1));
+      final rows = doc
+          .substring(start)
+          .split('\n')
+          .takeWhile((l) => l.startsWith('|'))
+          .toList();
+      // en-tête + séparateur + les sous-traitants
+      expect(rows.length, greaterThanOrEqualTo(16),
+          reason: 'le tableau s\'arrête à ${rows.length} lignes : une ligne '
+              'vide ou une note l\'a rompu, et les sous-traitants situés '
+              'après ne se rendent plus comme des lignes de tableau');
+      for (final needle in ['OneSignal', 'Mautic', 'WhatsApp', 'PostHog']) {
+        expect(rows.any((r) => r.contains(needle)), isTrue,
+            reason: '$needle est hors du tableau');
+      }
+    });
+  });
 }

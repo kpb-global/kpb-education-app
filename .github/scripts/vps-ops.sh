@@ -245,10 +245,21 @@ show_llm_state() {
   printf '  %-26s %s\n' "URL appelée" "$url"
   echo "  → destinataire à déclarer dans les formulaires : $name"
 
-  # Le §5 de la fiche consoles nomme Groq. Si la prod route ailleurs, la fiche
-  # ment au formulaire — on le dit fort, sans faire échouer une lecture d'état.
-  if [ "$name" != "groq" ]; then
-    echo "::warning::docs/CONSOLE_ANSWERS.md §5 déclare Groq comme destinataire des invites IA, or la production route vers ${name}. Corriger la fiche AVANT de recopier la table des destinataires dans Play Data Safety / App Privacy."
+  # La fiche consoles déclare un destinataire ; la production en utilise un.
+  # Les deux doivent coïncider, sinon le formulaire Play Data Safety / App
+  # Privacy nommera le mauvais sous-traitant.
+  #
+  # Le nom attendu est LU dans la fiche par le workflow et passé ici — jamais
+  # écrit en dur. Une constante se désynchronise de la fiche à la première
+  # migration de fournisseur : c'est exactement ce qui s'est produit, la garde
+  # annonçant « la fiche dit Groq » après que la fiche eut été corrigée.
+  local expected="${EXPECTED_LLM_PROVIDER:-}"
+  if [ -z "$expected" ]; then
+    echo "  (destinataire déclaré non transmis — comparaison impossible)"
+  elif [ "$name" != "$expected" ]; then
+    echo "::warning::docs/CONSOLE_ANSWERS.md déclare « ${expected} » comme destinataire des invites IA, or la production route vers « ${name} ». Corriger la fiche AVANT de recopier la table des destinataires dans Play Data Safety / App Privacy."
+  else
+    echo "  → conforme à la fiche consoles (${expected})."
   fi
   echo
 }

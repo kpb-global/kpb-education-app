@@ -249,6 +249,11 @@ trois se cumulent.
 | Firebase Crashlytics | US | traces, modèle, OS (aucun `setUserIdentifier`) | Stabilité | collecte |
 | **Reconnaissance vocale Apple/Google** | US/global | audio dicté (si repli accepté) ; texte seul rendu | Dictée | **destinataire** — ⚠️ nommer en politique |
 | Resend | **US** | e-mail + objet + corps | E-mail transactionnel | collecte |
+| Mautic (auto-hébergé) | France (VPS) | 7 champs, **après opt-in seulement** | Newsletter bourses | collecte |
+| CinetPay | (région prestataire) | e-mail, téléphone, nom | Accompagnement payant (**toujours inatteignable** : aucun tunnel d'achat dans l'app) | collecte |
+| PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
+| **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
+| **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
 
 > **OpenRouter est un *routeur*, pas un modèle.** Il redistribue chaque invite
 > vers des clouds de modèles tiers ; en production le modèle demandé est
@@ -264,11 +269,6 @@ trois se cumulent.
 > il n'est pas le destinataire actif. Vérifier avant chaque soumission avec
 > `vps-ops` → `show-state`, section « Fournisseur LLM » : elle lit le conteneur
 > en cours, pas ce document.
-| Mautic (auto-hébergé) | France (VPS) | 7 champs, **après opt-in seulement** | Newsletter bourses | collecte |
-| CinetPay | (région prestataire) | e-mail, téléphone, nom | Accompagnement payant (**toujours inatteignable** : aucun tunnel d'achat dans l'app) | collecte |
-| PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
-| **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
-| **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
 
 ---
 

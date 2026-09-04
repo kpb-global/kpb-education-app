@@ -121,6 +121,23 @@ jobs:
           echo "app_id=$app_id" >> "$GITHUB_OUTPUT"
           echo "App ID embarqué par l'app : $app_id"
 
+      # Le destinataire IA à déclarer aux stores est écrit dans la fiche
+      # consoles, pas dans ce script. On le LIT donc, au lieu de le figer :
+      # un nom en dur ici se désynchronise de la fiche à la première
+      # migration de fournisseur — et c'est exactement ce qui est arrivé,
+      # la garde criant « la fiche dit Groq » APRÈS que la fiche eut été
+      # corrigée en OpenRouter.
+      - name: Lire le destinataire IA déclaré par la fiche consoles
+        id: llm
+        run: |
+          set -euo pipefail
+          declared="$(grep -m1 -E '^\| *[^|]*\(LLM\)' docs/CONSOLE_ANSWERS.md \
+            | sed -E 's/^\| *([^|(]+).*/\1/' \
+            | tr '[:upper:]' '[:lower:]' | tr -d ' *' )"
+          [ -n "$declared" ] || { echo "::error::Aucune ligne « (LLM) » dans le tableau des sous-traitants de docs/CONSOLE_ANSWERS.md — la garde ne peut rien comparer."; exit 1; }
+          echo "declared=$declared" >> "$GITHUB_OUTPUT"
+          echo "Destinataire IA déclaré par la fiche : $declared"
+
       - name: Exécuter l'opération
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -129,12 +146,13 @@ jobs:
           ACTION: ${{ inputs.action }}
           DRY_RUN: ${{ inputs.dry_run }}
           EXPECTED_ONESIGNAL_APP_ID: ${{ steps.onesignal.outputs.app_id }}
+          EXPECTED_LLM_PROVIDER: ${{ steps.llm.outputs.declared }}
         run: |
           set -euo pipefail
           scp -i ~/.ssh/deploy_key -o BatchMode=yes \
             .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
           ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
-            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' EXPECTED_LLM_PROVIDER='${EXPECTED_LLM_PROVIDER}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
 
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}
