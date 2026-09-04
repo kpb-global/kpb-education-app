@@ -37,16 +37,26 @@ import {
  * branches de `CampaignExecutorService.resolveRecipients`, dont l'accord est
  * vérifié par `campaign-audience-contract.spec.ts`.
  */
-const AUDIENCE_TYPES = [
-  'all_users',
-  'all_students',
-  'country',
-  'country_of_residence',
-  'case_status',
-  'account_type',
-  'study_level',
-  'single_user',
-] as const;
+const AUDIENCE_REQUIRED_FILTER: Record<string, string | null> = {
+  // Diffusions assumées : leur nom dit qu'elles visent tout le monde.
+  all_users: null,
+  all_students: null,
+  // Audiences ciblées : SANS leur filtre, le backend refuse la campagne.
+  //
+  // Ce n'est pas une coquetterie d'interface. `where: undefined` en Prisma ne
+  // veut pas dire « personne » mais « aucun filtre », donc tous les comptes :
+  // un filtre oublié transformait un envoi ciblé en diffusion à toute la base.
+  // Le serveur échoue désormais fermé ; l'afficher ici évite d'apprendre la
+  // règle par un 400.
+  country: 'countryId',
+  country_of_residence: 'countryCode',
+  case_status: 'status',
+  account_type: 'accountType',
+  study_level: 'levels',
+  single_user: 'userId',
+};
+
+const AUDIENCE_TYPES = Object.keys(AUDIENCE_REQUIRED_FILTER);
 
 interface NotificationTemplateItem {
   id: string;
@@ -530,6 +540,9 @@ export default function NotificationsPage() {
                     {AUDIENCE_TYPES.map((value) => (
                       <option key={value} value={value}>
                         {value}
+                        {AUDIENCE_REQUIRED_FILTER[value]
+                          ? ` — exige « ${AUDIENCE_REQUIRED_FILTER[value]} »`
+                          : ' — tout le monde'}
                       </option>
                     ))}
                   </Select>

@@ -7,6 +7,8 @@ import {
   MaxLength,
 } from 'class-validator';
 
+import { AUDIENCE_TYPES } from '../campaign-audience';
+
 export class CreateNotificationCampaignDto {
   @IsOptional()
   @IsString()
@@ -27,16 +29,7 @@ export class CreateNotificationCampaignDto {
    * ici sans branche dans l'exécuteur produirait 0 destinataire en silence.
    */
   @IsOptional()
-  @IsIn([
-    'all_users',
-    'all_students',
-    'country',
-    'case_status',
-    'single_user',
-    'account_type',
-    'study_level',
-    'country_of_residence',
-  ])
+  @IsIn(AUDIENCE_TYPES)
   audienceType?: string;
 
   @IsOptional()

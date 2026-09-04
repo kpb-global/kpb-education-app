@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
+import { audienceFilterMissing } from './campaign-audience';
 import { CampaignMailService } from './campaign-mail.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
@@ -271,6 +272,25 @@ export class CampaignExecutorService {
     audienceType: string,
     filters: Record<string, unknown>,
   ) {
+    // ── Échouer FERMÉ, avant toute requête ────────────────────────────────
+    //
+    // `where: undefined` en Prisma ne signifie pas « personne » mais « aucun
+    // filtre », donc TOUS LES COMPTES. Trois audiences construisaient
+    // exactement ça (`filtre ? {…} : undefined`) : un filtre oublié ou mal
+    // orthographié transformait un envoi ciblé en diffusion à toute la base.
+    //
+    // La règle existait déjà pour `country` et `single_user`, avec ce
+    // commentaire : « A missing filter must NOT fall through to "everyone" ».
+    // Elle vaut pour toutes. Envoyer à personne se constate et se corrige ;
+    // envoyer à tout le monde ne se rattrape pas.
+    if (audienceFilterMissing(audienceType, filters)) {
+      this.logger.error(
+        `Audience "${audienceType}" is missing its required filter — resolving ` +
+          'to 0 recipient instead of falling through to every account.',
+      );
+      return [];
+    }
+
     return (
       (await this.prismaService.execute((prisma) => {
         switch (audienceType) {
@@ -314,9 +334,7 @@ export class CampaignExecutorService {
             const status = filters['status'] as string | undefined;
             return prisma.userProfile
               .findMany({
-                where: status
-                  ? { cases: { some: { status: status as any } } }
-                  : undefined,
+                where: { cases: { some: { status: status as any } } },
                 select: {
                   id: true,
                   fullName: true,
@@ -343,9 +361,9 @@ export class CampaignExecutorService {
           case 'account_type': {
             const accountType = filters['accountType'] as string | undefined;
             return prisma.userProfile.findMany({
-              where: accountType
-                ? { accountType: accountType as 'student' | 'parent' | 'partner' }
-                : undefined,
+              where: {
+                accountType: accountType as 'student' | 'parent' | 'partner',
+              },
               select: {
                 id: true,
                 fullName: true,
@@ -365,7 +383,7 @@ export class CampaignExecutorService {
             return prisma.userProfile.findMany({
               where: {
                 accountType: 'student',
-                ...(levelArray ? { currentLevel: { in: levelArray } } : {}),
+                currentLevel: { in: levelArray as string[] },
               },
               select: {
                 id: true,
@@ -379,9 +397,7 @@ export class CampaignExecutorService {
           case 'country_of_residence': {
             const countryCode = filters['countryCode'] as string | undefined;
             return prisma.userProfile.findMany({
-              where: countryCode
-                ? { countryOfResidence: countryCode }
-                : undefined,
+              where: { countryOfResidence: countryCode },
               select: {
                 id: true,
                 fullName: true,

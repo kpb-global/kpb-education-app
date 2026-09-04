@@ -17,17 +17,20 @@ describe('CampaignExecutorService', () => {
     template: Record<string, string> | null;
     pushOk?: boolean;
     recipients?: Array<{ id: string; preferredLanguage: string }>;
+    audienceType?: string;
+    filters?: Record<string, unknown>;
   }) {
     const recipients = options.recipients ?? [
       { id: 'u1', preferredLanguage: 'fr' },
       { id: 'u2', preferredLanguage: 'fr' },
     ];
     let deliveries: Delivery[] = [];
+    const profileQueries: unknown[] = [];
     const campaign = {
       id: 'c1',
       templateId: options.template ? 't1' : null,
-      audienceType: 'all_users',
-      filters: {},
+      audienceType: options.audienceType ?? 'all_users',
+      filters: options.filters ?? {},
       channels: options.channels,
       linkedCaseId: null,
       status: 'sending',
@@ -48,7 +51,12 @@ describe('CampaignExecutorService', () => {
         },
       },
       notificationTemplate: { findUnique: async () => options.template },
-      userProfile: { findMany: async () => recipients },
+      userProfile: {
+        findMany: async (args?: { where?: unknown }) => {
+          profileQueries.push(args?.where);
+          return recipients;
+        },
+      },
       notificationDelivery: {
         createMany: async ({ data }: { data: Delivery[] }) => {
           deliveries = deliveries.concat(data);
@@ -86,6 +94,7 @@ describe('CampaignExecutorService', () => {
       service: new CampaignExecutorService(prisma, push, mail),
       deliveries: () => deliveries,
       status: () => campaignStatus,
+      profileQueries: () => profileQueries,
     };
   }
 
@@ -153,5 +162,63 @@ describe('CampaignExecutorService', () => {
     });
     await h.service.execute('c1');
     expect(h.status()).toBe('completed');
+  });
+
+  // ── Un filtre manquant ne doit JAMAIS devenir une diffusion générale ─────
+  //
+  // `where: undefined` en Prisma ne veut pas dire « personne » : il veut dire
+  // « aucun filtre », donc tous les comptes. `case_status`, `account_type` et
+  // `country_of_residence` construisaient exactement ça, et `study_level`
+  // retombait sur tous les étudiants. Tant que le DTO refusait ces audiences,
+  // le chemin était injoignable ; les rendre sélectionnables le mettait à un
+  // clic — un filtre oublié, et la campagne partait à toute la base.
+  describe.each([
+    ['case_status', {}],
+    ['account_type', {}],
+    ['country_of_residence', {}],
+    ['study_level', {}],
+    ['country', {}],
+    ['single_user', {}],
+    ['case_status', { status: '   ' }],
+    ['study_level', { levels: [] }],
+  ])('audience « %s » sans son filtre', (audienceType, filters) => {
+    it('ne vise personne, et n’interroge jamais sans clause', async () => {
+      const h = makeService({
+        channels: ['push'],
+        template: TEMPLATE,
+        audienceType,
+        filters: filters as Record<string, unknown>,
+      });
+      await h.service.execute('c1');
+
+      // Aucune livraison créée : la campagne n'a atteint personne.
+      expect(h.deliveries()).toEqual([]);
+      // Et surtout : aucune requête profil sans clause `where`, qui aurait
+      // ramené la totalité des comptes.
+      expect(h.profileQueries()).not.toContainEqual(undefined);
+    });
+  });
+
+  // Le pendant : avec son filtre, l'audience interroge bien AVEC une clause.
+  it('une audience filtrée interroge avec sa clause', async () => {
+    const h = makeService({
+      channels: ['push'],
+      template: TEMPLATE,
+      audienceType: 'country_of_residence',
+      filters: { countryCode: 'NE' },
+    });
+    await h.service.execute('c1');
+    expect(h.profileQueries()).toContainEqual({ countryOfResidence: 'NE' });
+  });
+
+  // Les diffusions assumées restent possibles : leur nom le dit.
+  it('all_users interroge sans clause, et c’est voulu', async () => {
+    const h = makeService({
+      channels: ['push'],
+      template: TEMPLATE,
+      audienceType: 'all_users',
+    });
+    await h.service.execute('c1');
+    expect(h.deliveries().length).toBeGreaterThan(0);
   });
 });

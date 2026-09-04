@@ -10,6 +10,10 @@ import { Prisma } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { CasesService } from '../cases/cases.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  AUDIENCE_REQUIRED_FILTER,
+  audienceFilterMissing,
+} from './campaign-audience';
 import { CampaignExecutorService } from './campaign-executor.service';
 import { CreateNotificationCampaignDto } from './dto/create-notification-campaign.dto';
 import { UpsertNotificationTemplateDto } from './dto/upsert-notification-template.dto';
@@ -186,6 +190,19 @@ export class NotificationsService {
     // Refuser à la CRÉATION plutôt qu'échouer à l'exécution : l'exploitant
     // apprend ce qui manque pendant qu'il a le formulaire sous les yeux, pas
     // en ouvrant le détail des livraisons d'une campagne déjà partie.
+    // Une audience ciblée sans son filtre ne vise PERSONNE (l'exécuteur échoue
+    // fermé). Le dire ici évite d'envoyer une campagne vide et de le découvrir
+    // dans le détail des livraisons : l'exploitant a encore le formulaire sous
+    // les yeux.
+    const filterFilters = filters as Record<string, unknown>;
+    if (audienceFilterMissing(audienceType, filterFilters)) {
+      throw new BadRequestException(
+        `L'audience « ${audienceType} » exige le filtre ` +
+          `« ${AUDIENCE_REQUIRED_FILTER[audienceType]} » : sans lui, la campagne ` +
+          "ne vise aucun destinataire.",
+      );
+    }
+
     const contentChannels = channels.filter((c) => c === 'push' || c === 'email');
     if (contentChannels.length > 0 && !templateId) {
       throw new BadRequestException(
