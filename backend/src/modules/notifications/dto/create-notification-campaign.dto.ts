@@ -7,6 +7,8 @@ import {
   MaxLength,
 } from 'class-validator';
 
+import { AUDIENCE_TYPES } from '../campaign-audience';
+
 export class CreateNotificationCampaignDto {
   @IsOptional()
   @IsString()
@@ -17,8 +19,17 @@ export class CreateNotificationCampaignDto {
   @IsString()
   templateId?: string | null;
 
+  /**
+   * Doit rester ALIGNÉ sur les branches de `CampaignExecutorService
+   * .resolveRecipients` — un test le vérifie dans les deux sens.
+   *
+   * Trois audiences étaient implémentées et inatteignables : `account_type`,
+   * `study_level` et `country_of_residence` existaient dans l'exécuteur mais
+   * pas ici, donc les demander rendait 400. À l'inverse, une valeur acceptée
+   * ici sans branche dans l'exécuteur produirait 0 destinataire en silence.
+   */
   @IsOptional()
-  @IsIn(['all_users', 'all_students', 'country', 'case_status', 'single_user'])
+  @IsIn(AUDIENCE_TYPES)
   audienceType?: string;
 
   @IsOptional()

@@ -22,6 +22,42 @@ import {
   Textarea,
 } from '../../components/ui';
 
+/**
+ * Les audiences que le backend sait RÉSOUDRE.
+ *
+ * Ce champ était un texte libre dont le placeholder annonçait
+ * `all_users / by_case_status / by_role / specific_users` : trois de ces quatre
+ * valeurs n'existent nulle part côté serveur et rendaient 400, tandis que trois
+ * audiences réellement implémentées — `account_type`, `study_level`,
+ * `country_of_residence` — n'étaient proposées nulle part. Un champ libre ne
+ * peut pas se tromper à moitié : soit il documente les valeurs, soit il
+ * n'aurait pas dû en suggérer.
+ *
+ * Reste alignée sur `CreateNotificationCampaignDto.audienceType` et sur les
+ * branches de `CampaignExecutorService.resolveRecipients`, dont l'accord est
+ * vérifié par `campaign-audience-contract.spec.ts`.
+ */
+const AUDIENCE_REQUIRED_FILTER: Record<string, string | null> = {
+  // Diffusions assumées : leur nom dit qu'elles visent tout le monde.
+  all_users: null,
+  all_students: null,
+  // Audiences ciblées : SANS leur filtre, le backend refuse la campagne.
+  //
+  // Ce n'est pas une coquetterie d'interface. `where: undefined` en Prisma ne
+  // veut pas dire « personne » mais « aucun filtre », donc tous les comptes :
+  // un filtre oublié transformait un envoi ciblé en diffusion à toute la base.
+  // Le serveur échoue désormais fermé ; l'afficher ici évite d'apprendre la
+  // règle par un 400.
+  country: 'countryId',
+  country_of_residence: 'countryCode',
+  case_status: 'status',
+  account_type: 'accountType',
+  study_level: 'levels',
+  single_user: 'userId',
+};
+
+const AUDIENCE_TYPES = Object.keys(AUDIENCE_REQUIRED_FILTER);
+
 interface NotificationTemplateItem {
   id: string;
   name: string;
@@ -96,7 +132,7 @@ export default function NotificationsPage() {
     titleEn: '',
     bodyFr: '',
     bodyEn: '',
-    channels: 'push,in_app,email',
+    channels: 'push,email',
     isCritical: false,
   });
   const [campaignForm, setCampaignForm] = useState({
@@ -210,7 +246,7 @@ export default function NotificationsPage() {
         titleEn: '',
         bodyFr: '',
         bodyEn: '',
-        channels: 'push,in_app,email',
+        channels: 'push,email',
         isCritical: false,
       });
       setStatusMessage(t('notifications.templateCreated'));
@@ -370,7 +406,7 @@ export default function NotificationsPage() {
                   <Input
                     id={id}
                     value={templateForm.channels}
-                    placeholder="push,in_app,email"
+                    placeholder="push,email"
                     onChange={(e) =>
                       setTemplateForm((current) => ({
                         ...current,
@@ -491,17 +527,25 @@ export default function NotificationsPage() {
               </div>
               <Field label={t('notifications.audienceLabel')}>
                 {({ id }) => (
-                  <Input
+                  <Select
                     id={id}
                     value={campaignForm.audienceType}
-                    placeholder="all_users / by_case_status / by_role / specific_users"
                     onChange={(e) =>
                       setCampaignForm((current) => ({
                         ...current,
                         audienceType: e.target.value,
                       }))
                     }
-                  />
+                  >
+                    {AUDIENCE_TYPES.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                        {AUDIENCE_REQUIRED_FILTER[value]
+                          ? ` — exige « ${AUDIENCE_REQUIRED_FILTER[value]} »`
+                          : ' — tout le monde'}
+                      </option>
+                    ))}
+                  </Select>
                 )}
               </Field>
               <Field label={t('notifications.filtersLabel')}>

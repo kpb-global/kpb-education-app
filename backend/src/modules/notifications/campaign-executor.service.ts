@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
+import { audienceFilterMissing } from './campaign-audience';
 import { CampaignMailService } from './campaign-mail.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
@@ -100,6 +101,26 @@ export class CampaignExecutorService {
     // per-recipient delivery records, their own scheduling and their own
     // segmentation. Whether they should also inherit quiet hours and the daily
     // cap is a product decision, tracked separately (KPB-175).
+    // Un canal choisi SANS modèle n'envoyait rien, et ne le disait pas : les
+    // deux boucles ci-dessous sont gardées par `&& template`, si bien que les
+    // livraisons créées juste au-dessus restaient « queued » à vie pendant que
+    // la campagne passait à « terminée ». Or l'absence de modèle est le choix
+    // PAR DÉFAUT du formulaire admin — c'était donc le cas le plus courant.
+    //
+    // On ne peut pas inventer un contenu ; on peut refuser de faire semblant.
+    if (!template) {
+      const affected = await this.prismaService.execute((prisma) =>
+        prisma.notificationDelivery.updateMany({
+          where: { campaignId, status: 'queued' },
+          data: { status: 'failed' },
+        }),
+      );
+      this.logger.error(
+        `Campaign ${campaignId} has no template: ${affected?.count ?? 0} ` +
+          'queued delivery(ies) marked failed — nothing could be sent.',
+      );
+    }
+
     let delivered = 0;
     if (campaign.channels.includes('push') && template) {
       for (const user of recipients) {
@@ -127,6 +148,30 @@ export class CampaignExecutorService {
               ? { status: 'delivered', deliveredAt: new Date() }
               : { status: 'failed' },
           }),
+        );
+      }
+    }
+
+    // `in_app` est accepté par le DTO, proposé par l'admin, et n'a AUCUNE
+    // branche d'exécution : ces livraisons restaient « queued » indéfiniment,
+    // ce qui se lit comme « en cours » alors que rien ne viendra jamais.
+    //
+    // Écrire réellement dans le fil (`userNotification`) est une décision
+    // PRODUIT — quelle `dedupeKey`, quel `kind`, quelle route, quelle durée de
+    // vie — et non un correctif. En attendant, on marque l'échec au lieu de
+    // laisser une file d'attente perpétuelle, et l'admin cesse de proposer ce
+    // canal.
+    if (campaign.channels.includes('in_app')) {
+      const affected = await this.prismaService.execute((prisma) =>
+        prisma.notificationDelivery.updateMany({
+          where: { campaignId, channel: 'in_app', status: 'queued' },
+          data: { status: 'failed' },
+        }),
+      );
+      if ((affected?.count ?? 0) > 0) {
+        this.logger.warn(
+          `Campaign ${campaignId}: the in_app channel has no delivery path — ` +
+            `${affected?.count} delivery(ies) marked failed instead of staying queued.`,
         );
       }
     }
@@ -178,17 +223,48 @@ export class CampaignExecutorService {
       }
     }
 
+    // Le statut se calcule sur les livraisons, il ne se décrète plus.
+    //
+    // `Completed` était écrit inconditionnellement : le 04/09/2026, la campagne
+    // « Rentree Decalee » a trouvé 2 destinataires, n'en a livré aucun, et
+    // s'est affichée en vert dans l'admin. Un exploitant n'avait aucune raison
+    // d'aller ouvrir le détail des livraisons — donc personne n'a vu la panne
+    // pendant que les notifications ne partaient plus.
+    //
+    // Règle : au moins une livraison réussie ⇒ `completed` (une campagne
+    // partiellement livrée reste une campagne livrée). Aucune réussite alors
+    // qu'on a tenté ⇒ `failed`. Rien à tenter ⇒ `completed`, il n'y a pas
+    // d'échec à signaler.
+    const deliveredCount =
+      (await this.prismaService.execute((prisma) =>
+        prisma.notificationDelivery.count({
+          where: { campaignId, status: 'delivered' },
+        }),
+      )) ?? 0;
+    const attemptedCount =
+      (await this.prismaService.execute((prisma) =>
+        prisma.notificationDelivery.count({ where: { campaignId } }),
+      )) ?? 0;
+    const finalStatus =
+      attemptedCount > 0 && deliveredCount === 0
+        ? NotificationCampaignStatus.Failed
+        : NotificationCampaignStatus.Completed;
+
     await this.prismaService.execute((prisma) =>
       prisma.notificationCampaign.update({
         where: { id: campaignId },
-        data: { status: NotificationCampaignStatus.Completed },
+        data: { status: finalStatus },
       }),
     );
 
-    this.logger.log(
+    const line =
       `Campaign ${campaignId} executed: ${recipients.length} recipients, ` +
-        `${delivered} push sent, ${emailsSent} emails sent.`,
-    );
+      `${delivered} push sent, ${emailsSent} emails sent → ${finalStatus}.`;
+    if (finalStatus === NotificationCampaignStatus.Failed) {
+      this.logger.error(line);
+    } else {
+      this.logger.log(line);
+    }
     return { enqueued: recipients.length };
   }
 
@@ -196,6 +272,25 @@ export class CampaignExecutorService {
     audienceType: string,
     filters: Record<string, unknown>,
   ) {
+    // ── Échouer FERMÉ, avant toute requête ────────────────────────────────
+    //
+    // `where: undefined` en Prisma ne signifie pas « personne » mais « aucun
+    // filtre », donc TOUS LES COMPTES. Trois audiences construisaient
+    // exactement ça (`filtre ? {…} : undefined`) : un filtre oublié ou mal
+    // orthographié transformait un envoi ciblé en diffusion à toute la base.
+    //
+    // La règle existait déjà pour `country` et `single_user`, avec ce
+    // commentaire : « A missing filter must NOT fall through to "everyone" ».
+    // Elle vaut pour toutes. Envoyer à personne se constate et se corrige ;
+    // envoyer à tout le monde ne se rattrape pas.
+    if (audienceFilterMissing(audienceType, filters)) {
+      this.logger.error(
+        `Audience "${audienceType}" is missing its required filter — resolving ` +
+          'to 0 recipient instead of falling through to every account.',
+      );
+      return [];
+    }
+
     return (
       (await this.prismaService.execute((prisma) => {
         switch (audienceType) {
@@ -239,9 +334,7 @@ export class CampaignExecutorService {
             const status = filters['status'] as string | undefined;
             return prisma.userProfile
               .findMany({
-                where: status
-                  ? { cases: { some: { status: status as any } } }
-                  : undefined,
+                where: { cases: { some: { status: status as any } } },
                 select: {
                   id: true,
                   fullName: true,
@@ -268,9 +361,9 @@ export class CampaignExecutorService {
           case 'account_type': {
             const accountType = filters['accountType'] as string | undefined;
             return prisma.userProfile.findMany({
-              where: accountType
-                ? { accountType: accountType as 'student' | 'parent' | 'partner' }
-                : undefined,
+              where: {
+                accountType: accountType as 'student' | 'parent' | 'partner',
+              },
               select: {
                 id: true,
                 fullName: true,
@@ -290,7 +383,7 @@ export class CampaignExecutorService {
             return prisma.userProfile.findMany({
               where: {
                 accountType: 'student',
-                ...(levelArray ? { currentLevel: { in: levelArray } } : {}),
+                currentLevel: { in: levelArray as string[] },
               },
               select: {
                 id: true,
@@ -304,9 +397,7 @@ export class CampaignExecutorService {
           case 'country_of_residence': {
             const countryCode = filters['countryCode'] as string | undefined;
             return prisma.userProfile.findMany({
-              where: countryCode
-                ? { countryOfResidence: countryCode }
-                : undefined,
+              where: { countryOfResidence: countryCode },
               select: {
                 id: true,
                 fullName: true,
