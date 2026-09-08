@@ -150,4 +150,48 @@ void main() {
               'code mort qu\'on croit disponible');
     });
   });
+
+  // ── Réparer clamav doit RECRÉER, jamais seulement redémarrer ──────────────
+  //
+  // `docker compose restart` relance le processus dans le conteneur existant et
+  // ne relit pas `docker-compose.yml`. Une `mem_limit` n'est appliquée qu'à la
+  // création.
+  //
+  // Le 08/09/2026 : limite portée à 3g, fusionnée, déployée — et le conteneur
+  // tournait toujours avec 1536 Mo, même identifiant qu'avant. Le correctif
+  // était juste dans le fichier et faux dans la réalité, et l'action de
+  // réparation, en `restart`, ne pouvait pas le corriger non plus.
+  group('La réparation de clamav applique la configuration', () {
+    final script = _read('.github/scripts/vps-ops.sh');
+    final body = RegExp(r'^recreate_clamav\(\) \{$(.*?)^\}$',
+            multiLine: true, dotAll: true)
+        .firstMatch(script)
+        ?.group(1);
+
+    test('la fonction existe', () {
+      expect(body, isNotNull,
+          reason: 'recreate_clamav introuvable — action de réparation absente');
+    });
+
+    test('elle recrée le conteneur', () {
+      expect(body, contains('--force-recreate'),
+          reason: 'sans --force-recreate, la nouvelle mem_limit ne '
+              's applique pas');
+    });
+
+    test('elle ne se contente PAS d\'un restart', () {
+      expect(body, isNot(contains('compose restart')),
+          reason: 'docker compose restart ne relit pas docker-compose.yml : '
+              'c est le defaut du 08/09/2026, ou clamd a ete rallume avec '
+              'l ancienne limite de 1536 Mo');
+    });
+
+    // Sans cette vérification, on répète exactement l'erreur : croire la
+    // configuration sur parole au lieu de regarder ce qui tourne.
+    test('elle VÉRIFIE la limite réellement appliquée', () {
+      expect(body, contains('HostConfig.Memory'),
+          reason: 'la limite posée doit etre lue sur le conteneur, pas '
+              'supposee depuis le fichier');
+    });
+  });
 }

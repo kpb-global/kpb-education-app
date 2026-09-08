@@ -33,7 +33,7 @@ void main() {
       }));
       expect(r.code, 1);
       expect(r.out, contains("N'ANALYSE PAS"));
-      expect(r.out, contains('restart-clamav'),
+      expect(r.out, contains('recreate-clamav'),
           reason:
               'une alerte doit dire quoi faire, pas seulement ce qui casse');
     });
@@ -149,5 +149,43 @@ void main() {
         });
       });
     }
+  });
+
+  // ── L'alerte doit nommer une action qui EXISTE ────────────────────────────
+  //
+  // Défaut rattrapé en revue sur la PR #269 : l'action `restart-clamav` a été
+  // renommée `recreate-clamav` sans toucher au texte de l'alerte. Le message
+  // d'incident aurait donc envoyé l'opérateur vers une action inexistante,
+  // précisément pendant que les envois de fichiers étaient refusés en 503.
+  //
+  // Vérifier la chaîne exacte ne suffit pas : c'est ce qu'on faisait, et ça a
+  // épinglé le texte périmé au lieu de le protéger. On vérifie donc que toute
+  // action citée par l'alerte figure dans la liste fermée du workflow.
+  group('Le remède annoncé par l\'alerte est exécutable', () {
+    test('chaque action citée existe dans vps-ops.yml', () async {
+      final probe = File(_script).readAsStringSync();
+      final workflow = File('.github/workflows/vps-ops.yml').readAsStringSync();
+
+      final options = RegExp(r'options:\s*\n((?:\s*- \S+\n)+)')
+          .firstMatch(workflow)!
+          .group(1)!;
+      final available = RegExp(r'- (\S+)')
+          .allMatches(options)
+          .map((m) => m.group(1)!)
+          .toSet();
+
+      final cited = RegExp(r'vps-ops\s*→\s*([a-z][a-z0-9-]*)')
+          .allMatches(probe)
+          .map((m) => m.group(1)!)
+          .toSet();
+
+      expect(cited, isNotEmpty,
+          reason: 'une alerte de panne doit dire QUOI FAIRE');
+      for (final action in cited) {
+        expect(available, contains(action),
+            reason: 'l alerte envoie vers `$action`, absent de la liste '
+                'fermee de vps-ops.yml : $available');
+      }
+    });
   });
 }

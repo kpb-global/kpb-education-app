@@ -55,7 +55,7 @@ def verdicts(body):
             "::error::ClamAV est configuré mais N'ANALYSE PAS : tout envoi de "
             "fichier est refusé en 503 (fail-closed) — documents de dossier, "
             "avatars, pièces du Success Lab. Réparer avec "
-            "vps-ops → restart-clamav, puis vérifier la limite mémoire."
+            "vps-ops → recreate-clamav, puis vérifier la limite mémoire."
         ]
 
     lines.append("antivirus ✅" if scanning else "antivirus non configuré (choix de déploiement)")
