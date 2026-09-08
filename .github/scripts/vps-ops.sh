@@ -388,12 +388,43 @@ show_antivirus_state() {
 # donc un PONG, avec une borne : clamd charge 3,3 M de signatures au démarrage,
 # ce qui prend des minutes, mais une attente non bornée transformerait une
 # opération en blocage.
-restart_clamav() {
-  echo "── Redémarrage de kpb_clamav ──"
+# Recréer le conteneur antivirus — PAS le redémarrer.
+#
+# `docker compose restart` relance le processus dans le conteneur EXISTANT :
+# il ne relit pas `docker-compose.yml`. Une limite mémoire n'est appliquée
+# qu'à la CRÉATION du conteneur.
+#
+# Le 08/09/2026, ça s'est payé : `mem_limit` était passé de 1536m à 3g (PR
+# #267), fusionné et déployé, et pourtant le conteneur tournait toujours avec
+# 1536 Mo — même identifiant `06f8130a6da2` qu'avant le déploiement. La
+# limite était juste dans le fichier et fausse dans la réalité. clamd est
+# remort trois jours plus tard, et l'ancienne version de cette fonction
+# l'aurait ranimé sans jamais lui donner sa mémoire : un correctif qui ne
+# pouvait pas s'appliquer, servi par un outil qui ne pouvait pas l'appliquer.
+#
+# D'où `up -d --force-recreate` — et surtout la VÉRIFICATION de la limite
+# effectivement posée, plus bas. Croire la configuration sur parole est
+# exactement ce qui a coûté ces trois jours.
+recreate_clamav() {
+  echo "── Recréation de kpb_clamav ──"
   echo "  état AVANT :"
   show_antivirus_state | sed 's/^/  /'
 
-  docker compose restart clamav
+  local mem_before mem_after
+  mem_before=$(docker inspect -f '{{.HostConfig.Memory}}' kpb_clamav 2>/dev/null || echo 0)
+
+  # `--no-build` : clamav vient d'une image publique, rien à construire ici.
+  # Une reconstruction accidentelle est le mode d'échec que `deploy.yml`
+  # documente déjà pour la recréation de l'API.
+  docker compose up -d --force-recreate --no-build clamav
+  echo
+
+  mem_after=$(docker inspect -f '{{.HostConfig.Memory}}' kpb_clamav 2>/dev/null || echo 0)
+  printf '  %-26s %s Mo\n' "limite AVANT" "$((mem_before / 1024 / 1024))"
+  printf '  %-26s %s Mo\n' "limite APRÈS" "$((mem_after / 1024 / 1024))"
+  if [ "$mem_after" -le "$mem_before" ] && [ "$mem_before" -gt 0 ]; then
+    echo "::warning::La limite mémoire n'a pas changé. Si docker-compose.yml annonce une autre valeur, la recréation n'a pas pris — vérifier que le fichier du VPS est bien à jour."
+  fi
   echo
 
   echo "  attente d'un VERDICT de clamd (jusqu'à 5 min — chargement des signatures)"
@@ -413,7 +444,7 @@ restart_clamav() {
 
   echo
   show_antivirus_state
-  echo "::error::clamd n'a rendu aucun verdict dans les 5 minutes suivant le redémarrage. Un simple redémarrage ne suffit donc pas : suspecter la limite mémoire (mem_limit 1536m face à 3,3 M de signatures — un OOM est journalisé par le noyau de l'HÔTE, pas par le conteneur). Les envois de fichiers restent refusés en 503."
+  echo "::error::clamd n'a rendu aucun verdict dans les 5 minutes suivant la RECRÉATION. La limite mémoire affichée ci-dessus est celle réellement appliquée : si elle est correcte, la mémoire n'est pas la cause et il faut chercher ailleurs (journal du conteneur, base de signatures corrompue). Les envois de fichiers restent refusés en 503."
   return 1
 }
 
@@ -439,8 +470,8 @@ case "$ACTION" in
     show_state
     ;;
 
-  restart-clamav)
-    restart_clamav
+  recreate-clamav)
+    recreate_clamav
     ;;
 
   eef-teaser-on)
