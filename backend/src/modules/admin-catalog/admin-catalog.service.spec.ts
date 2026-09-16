@@ -1,4 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { AdminCatalogService } from './admin-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -282,5 +283,211 @@ describe('AdminCatalogService — verification SLA (KPB-161)', () => {
     expect(sla.totalOverdue).toBe(0);
     expect(sla.neverVerified).toBe(0);
     expect(sla.byCategory.scholarship_deadline.overdue).toBe(0);
+  });
+});
+
+/**
+ * Guards the match-scoring columns on Program writes (lot 1).
+ *
+ * `minGpaRequired`, `tuitionMinEur`, `applicationDeadline`, `teachingLanguages`
+ * and `campusOfferings` feed matches.service.ts. Before this lot the admin API
+ * accepted them and threw them away: every program created from the back-office
+ * landed with null scoring inputs, which the scorer turns into a neutral 0.5
+ * factor and a permanent `isEstimate` flag — a silent catalogue degradation
+ * that nothing surfaced. These tests pin BOTH halves: the values must reach
+ * Prisma, and a present-but-malformed value must fail loudly instead of being
+ * dropped.
+ */
+describe('AdminCatalogService — Program match-scoring columns', () => {
+  function makeService() {
+    const creates: Array<Record<string, unknown>> = [];
+    const updates: Array<{ where: Record<string, unknown>; data: Record<string, unknown> }> = [];
+    const client = {
+      program: {
+        create: async ({ data }: { data: Record<string, unknown> }) => {
+          creates.push(data);
+          return { id: 'prog-1', ...data };
+        },
+        update: async ({
+          where,
+          data,
+        }: {
+          where: Record<string, unknown>;
+          data: Record<string, unknown>;
+        }) => {
+          updates.push({ where, data });
+          return { id: where.id, ...data };
+        },
+      },
+    };
+    const prisma = {
+      isEnabled: true,
+      execute: async (fn: (c: typeof client) => unknown) => fn(client),
+    } as unknown as PrismaService;
+    return { service: new AdminCatalogService(prisma), creates, updates };
+  }
+
+  const required = {
+    institutionId: 'omnes-ece',
+    countryId: 'fra',
+    fieldId: 'd01',
+    nameFr: 'Bachelor Cybersécurité',
+  };
+
+  describe('createProgram', () => {
+    it('persists every match-scoring column instead of dropping it', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        minGpaRequired: 12.5,
+        tuitionMinEur: 6690,
+        applicationDeadline: '2027-03-01T00:00:00.000Z',
+        teachingLanguages: ['fr', 'en'],
+      });
+      expect(creates).toHaveLength(1);
+      expect(creates[0].minGpaRequired).toBe(12.5);
+      expect(creates[0].tuitionMinEur).toBe(6690);
+      expect(creates[0].applicationDeadline).toEqual(
+        new Date('2027-03-01T00:00:00.000Z'),
+      );
+      expect(creates[0].teachingLanguages).toEqual(['fr', 'en']);
+    });
+
+    it('truncates tuitionMinEur to an integer (the column is Int?)', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({ ...required, tuitionMinEur: 6690.9 });
+      expect(creates[0].tuitionMinEur).toBe(6690);
+    });
+
+    it('defaults teachingLanguages to [] and leaves the other columns unset', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram(required);
+      expect(creates[0].teachingLanguages).toEqual([]);
+      expect(creates[0].minGpaRequired).toBeUndefined();
+      expect(creates[0].tuitionMinEur).toBeUndefined();
+      expect(creates[0].applicationDeadline).toBeUndefined();
+      expect(creates[0].campusOfferings).toBeUndefined();
+    });
+
+    it('rejects a non-numeric minGpaRequired instead of silently dropping it', async () => {
+      const { service, creates } = makeService();
+      await expect(
+        service.createProgram({ ...required, minGpaRequired: '12.5' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(creates).toHaveLength(0);
+    });
+
+    it('rejects an unparseable applicationDeadline', async () => {
+      const { service, creates } = makeService();
+      await expect(
+        service.createProgram({ ...required, applicationDeadline: 'bientôt' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(creates).toHaveLength(0);
+    });
+
+    it('rejects teachingLanguages that is not an array of strings', async () => {
+      const { service } = makeService();
+      await expect(
+        service.createProgram({ ...required, teachingLanguages: 'fr' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('campusOfferings', () => {
+    it('keeps the documented shape and drops unknown keys', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        campusOfferings: [
+          {
+            campus: 'Lyon',
+            tuitionUpfront: 6690,
+            tuitionInstallments: 7025,
+            intake: 'Mars 2027',
+            prixSecret: 999,
+          },
+        ],
+      });
+      expect(creates[0].campusOfferings).toEqual([
+        {
+          campus: 'Lyon',
+          tuitionUpfront: 6690,
+          tuitionInstallments: 7025,
+          intake: 'Mars 2027',
+        },
+      ]);
+    });
+
+    it('fills the optional members with null rather than omitting them', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        campusOfferings: [{ campus: 'Paris' }],
+      });
+      expect(creates[0].campusOfferings).toEqual([
+        {
+          campus: 'Paris',
+          tuitionUpfront: null,
+          tuitionInstallments: null,
+          intake: null,
+        },
+      ]);
+    });
+
+    it('rejects an entry without a campus, naming the offending index', async () => {
+      const { service, creates } = makeService();
+      await expect(
+        service.createProgram({
+          ...required,
+          campusOfferings: [{ campus: 'Lyon' }, { tuitionUpfront: 6690 }],
+        }),
+      ).rejects.toThrow(/campusOfferings\[1\]\.campus/);
+      expect(creates).toHaveLength(0);
+    });
+
+    it('rejects a non-numeric tuition inside an entry', async () => {
+      const { service } = makeService();
+      await expect(
+        service.createProgram({
+          ...required,
+          campusOfferings: [{ campus: 'Lyon', tuitionUpfront: '6690 €' }],
+        }),
+      ).rejects.toThrow(/campusOfferings\[0\]\.tuitionUpfront/);
+    });
+  });
+
+  describe('updateProgram', () => {
+    it('sends only the columns that were provided', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { tuitionMinEur: 7025 });
+      expect(Object.keys(updates[0].data)).toEqual(['tuitionMinEur']);
+      expect(updates[0].data.tuitionMinEur).toBe(7025);
+    });
+
+    it('clears a scalar column when the caller sends an explicit null', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', {
+        minGpaRequired: null,
+        applicationDeadline: null,
+      });
+      expect(updates[0].data.minGpaRequired).toBeNull();
+      expect(updates[0].data.applicationDeadline).toBeNull();
+    });
+
+    it('clears campusOfferings with Prisma.DbNull, not a bare null', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { campusOfferings: null });
+      // A bare `null` on a Json? column is rejected by Prisma at runtime; the
+      // mock here would happily accept it, so assert the sentinel explicitly.
+      expect(updates[0].data.campusOfferings).toBe(Prisma.DbNull);
+    });
+
+    it('validates campusOfferings on update too, not only on create', async () => {
+      const { service, updates } = makeService();
+      await expect(
+        service.updateProgram('prog-1', { campusOfferings: [{ intake: 'Mars' }] }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(updates).toHaveLength(0);
+    });
   });
 });

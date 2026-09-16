@@ -23,7 +23,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -154,6 +154,104 @@ export class AdminCatalogService {
       throw new BadRequestException(`Field "${key}" is required.`);
     }
     return v;
+  }
+
+  // ── strict pickers for the match-scoring columns ──────────────────────────
+  //
+  // These deliberately BREAK the tolerant "drop what we don't recognise" style
+  // used above. `minGpaRequired`, `tuitionMinEur`, `applicationDeadline`,
+  // `teachingLanguages` and `campusOfferings` feed the admission-probability
+  // score (matches.service.ts) — a silently dropped value ships a program that
+  // scores as a permanent `isEstimate` with nobody the wiser. A present-but-
+  // wrong value must therefore fail loudly; an ABSENT key still means "leave
+  // untouched", and an explicit `null` means "clear this column".
+
+  private numOrNullAt(v: unknown, path: string): number | null {
+    if (v == null) return null;
+    if (typeof v !== 'number' || !Number.isFinite(v)) {
+      throw new BadRequestException(`"${path}" must be a finite number or null.`);
+    }
+    return v;
+  }
+
+  private pickNumOrNull(
+    input: Record<string, unknown>,
+    key: string,
+    opts: { int?: boolean } = {},
+  ): number | null | undefined {
+    const v = input[key];
+    if (v === undefined) return undefined;
+    if (v === null) return null;
+    const n = this.numOrNullAt(v, key);
+    return n != null && opts.int ? Math.trunc(n) : n;
+  }
+
+  private pickDateOrNull(
+    input: Record<string, unknown>,
+    key: string,
+  ): Date | null | undefined {
+    const v = input[key];
+    if (v === undefined) return undefined;
+    if (v === null) return null;
+    const d =
+      v instanceof Date ? v : typeof v === 'string' ? new Date(v) : undefined;
+    if (d == null || Number.isNaN(d.getTime())) {
+      throw new BadRequestException(
+        `Field "${key}" must be an ISO-8601 date string or null.`,
+      );
+    }
+    return d;
+  }
+
+  private pickStrArr(
+    input: Record<string, unknown>,
+    key: string,
+  ): string[] | undefined {
+    const v = input[key];
+    if (v === undefined || v === null) return undefined;
+    if (!Array.isArray(v) || v.some((x) => typeof x !== 'string')) {
+      throw new BadRequestException(
+        `Field "${key}" must be an array of strings.`,
+      );
+    }
+    return (v as string[]).map((x) => x.trim()).filter(Boolean);
+  }
+
+  /// Multi-campus offerings. Shape is pinned by the `Program.campusOfferings`
+  /// schema comment: [{ campus, tuitionUpfront, tuitionInstallments, intake }].
+  /// Unknown keys are dropped so a malformed payload can't reshape the column.
+  private pickCampusOfferings(
+    input: Record<string, unknown>,
+    key: string,
+  ): Prisma.InputJsonValue | typeof Prisma.DbNull | undefined {
+    const v = input[key];
+    if (v === undefined) return undefined;
+    if (v === null) return Prisma.DbNull;
+    if (!Array.isArray(v)) {
+      throw new BadRequestException(`Field "${key}" must be an array or null.`);
+    }
+    return v.map((raw, i) => {
+      if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) {
+        throw new BadRequestException(`"${key}[${i}]" must be an object.`);
+      }
+      const row = raw as Record<string, unknown>;
+      const campus = this.nonEmptyStr(row.campus);
+      if (!campus) {
+        throw new BadRequestException(`"${key}[${i}].campus" is required.`);
+      }
+      return {
+        campus,
+        tuitionUpfront: this.numOrNullAt(
+          row.tuitionUpfront,
+          `${key}[${i}].tuitionUpfront`,
+        ),
+        tuitionInstallments: this.numOrNullAt(
+          row.tuitionInstallments,
+          `${key}[${i}].tuitionInstallments`,
+        ),
+        intake: this.nonEmptyStr(row.intake) ?? null,
+      };
+    }) as Prisma.InputJsonValue;
   }
 
   /// Drop undefined keys so we only update what was provided.
@@ -515,6 +613,13 @@ export class AdminCatalogService {
       languageEn: this.str(input.languageEn) ?? this.str(input.languageFr) ?? '',
       requirementsFr: this.strArr(input.requirementsFr) ?? [],
       requirementsEn: this.strArr(input.requirementsEn) ?? [],
+      // Match-scoring inputs. Absent stays absent (the scorer then treats the
+      // factor as neutral and flags the match `isEstimate`).
+      minGpaRequired: this.pickNumOrNull(input, 'minGpaRequired'),
+      tuitionMinEur: this.pickNumOrNull(input, 'tuitionMinEur', { int: true }),
+      applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
+      teachingLanguages: this.pickStrArr(input, 'teachingLanguages') ?? [],
+      campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
     };
     const created = await this.prisma.execute((db) =>
       db.program.create({ data }),
@@ -542,6 +647,11 @@ export class AdminCatalogService {
       languageEn: this.str(input.languageEn),
       requirementsFr: this.strArr(input.requirementsFr),
       requirementsEn: this.strArr(input.requirementsEn),
+      minGpaRequired: this.pickNumOrNull(input, 'minGpaRequired'),
+      tuitionMinEur: this.pickNumOrNull(input, 'tuitionMinEur', { int: true }),
+      applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
+      teachingLanguages: this.pickStrArr(input, 'teachingLanguages'),
+      campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
     });
     return this.runUpdate(() =>
       this.prisma.execute((db) => db.program.update({ where: { id }, data })),
