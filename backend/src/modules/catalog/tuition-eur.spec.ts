@@ -2,7 +2,7 @@ import {
   CURRENCY_PATTERNS,
   FIXED_PEGS,
   detectCurrencies,
-  SOURCED_RATES,
+  INSTITUTION_RATES,
   UNSOURCED,
   detectCurrency,
   parseAmount,
@@ -85,14 +85,43 @@ describe('tuitionToEur', () => {
     expect(r).toMatchObject({ ok: true, currency: 'XOF', eur: 1982, exact: true });
   });
 
-  it('marque la conversion MAD comme NON exacte', () => {
-    const r = tuitionToEur('MAD 35,000/an');
-    expect(r).toMatchObject({ ok: true, currency: 'MAD', eur: 3500, exact: false });
+  // Revue #273 (P1) : le taux « 1 € = 10 DH » vient des fiches d'Universiapolis
+  // et ne vaut QUE pour elle. L'appliquer à toute la devise convertirait aussi
+  // Al Akhawayn, HEM, EMSI, ISMAGI — 50 lignes — sur une base qui ne les
+  // concerne pas. Et comme l'écriture est gardée par `WHERE tuitionMinEur IS
+  // NULL`, une valeur posée à tort ne serait plus jamais corrigeable.
+  it('convertit le dirham POUR Universiapolis, au taux qu’elle facture', () => {
+    const r = tuitionToEur('34 500 DH/an', 'partner-universiapolis');
+    expect(r).toMatchObject({ ok: true, currency: 'MAD', eur: 3450, exact: false });
   });
 
-  it('convertit le libellé en dirhams du PDF Universiapolis', () => {
-    // 34 500 DH, le moins cher des cinq écoles → 3 450 € au taux facturé.
-    expect(tuitionToEur('34 500 DH/an')).toMatchObject({ eur: 3450, exact: false });
+  it.each([
+    ['al_akhawayn'],
+    ['hem'],
+    ['emsi'],
+    ['partner-ismagi'],
+    ['partner-mundiapolis'],
+  ])('laisse le dirham de %s à null — le taux ne le couvre pas', (inst) => {
+    expect(tuitionToEur('MAD 35,000/an', inst)).toEqual({
+      ok: false,
+      reason: 'unsourced-currency',
+      currency: 'MAD',
+    });
+  });
+
+  it('laisse le dirham à null quand aucun établissement n’est fourni', () => {
+    expect(tuitionToEur('MAD 35,000/an')).toEqual({
+      ok: false,
+      reason: 'unsourced-currency',
+      currency: 'MAD',
+    });
+  });
+
+  // L'euro et le CFA ne dépendent d'aucun taux : ils ne doivent pas se mettre
+  // à dépendre de l'établissement au passage.
+  it('l’euro et le CFA restent convertis sans établissement', () => {
+    expect(tuitionToEur('15 420 €/an')).toMatchObject({ ok: true, eur: 15420 });
+    expect(tuitionToEur('XOF 1 300 000/an')).toMatchObject({ ok: true, eur: 1982 });
   });
 
   // Le point dur : pas de taux inventé. Une devise sans source documentée doit
@@ -163,17 +192,18 @@ describe('les tables de taux', () => {
     expect(FIXED_PEGS.XAF).toBe(655.957);
   });
 
-  it('chaque taux sourcé cite sa source', () => {
-    for (const [code, r] of Object.entries(SOURCED_RATES)) {
+  it('chaque taux cite sa source ET nomme ses établissements', () => {
+    for (const r of INSTITUTION_RATES) {
       expect(r.perEur).toBeGreaterThan(0);
       expect(r.source.length).toBeGreaterThan(15);
-      expect(UNSOURCED).not.toContain(code);
+      expect(r.institutionIds.length).toBeGreaterThan(0);
+      expect(UNSOURCED).not.toContain(r.currency);
     }
   });
 
   it('aucune devise n’est à la fois ancrée et sourcée', () => {
-    for (const code of Object.keys(FIXED_PEGS)) {
-      expect(SOURCED_RATES[code]).toBeUndefined();
+    for (const r of INSTITUTION_RATES) {
+      expect(FIXED_PEGS[r.currency]).toBeUndefined();
     }
   });
 });

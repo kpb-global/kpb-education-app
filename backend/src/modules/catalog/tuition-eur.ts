@@ -18,21 +18,36 @@ export const FIXED_PEGS: Record<string, number> = {
   XAF: 655.957,
 };
 
-/// Taux SOURCÉS, à réviser. Chacun doit venir d'un document qu'on peut citer,
-/// jamais d'une estimation : une valeur inventée ici biaiserait le classement
-/// budgétaire de tout un pays sans que rien ne le signale.
+/// Taux de change SOURCÉS — et volontairement rattachés à l'établissement qui
+/// les publie, jamais à une devise entière.
 ///
-/// MAD — taux appliqué par l'établissement lui-même sur ses fiches « Coût des
-/// études » (Universiapolis, code FR2-1, année 2026-2027) : 1 € = 10 DH. C'est
-/// le taux auquel l'étudiant est effectivement facturé, donc le bon pour un
-/// classement par budget, même s'il s'écarte du cours de marché.
-export const SOURCED_RATES: Record<string, { perEur: number; source: string }> = {
-  MAD: { perEur: 10, source: 'Fiches Universiapolis « Coût des études » FR2-1, 2026-2027' },
-};
+/// La nuance a coûté un P1 en revue de #273 : j'avais écrit « 1 € = 10 DH, taux
+/// appliqué par l'établissement lui-même », puis appliqué ce taux aux 50 lignes
+/// en dirhams du catalogue — Al Akhawayn, HEM, EMSI, ISMAGI comprises. La
+/// justification ne vaut QUE pour l'établissement qui facture à ce taux.
+///
+/// L'écriture étant gardée par `WHERE tuitionMinEur IS NULL`, une valeur posée
+/// à tort ne pourrait plus être corrigée par une passe ultérieure : elle n'est
+/// plus nulle. Un taux hors de son périmètre est donc une erreur DÉFINITIVE,
+/// pas une approximation rattrapable.
+export const INSTITUTION_RATES: {
+  currency: string;
+  perEur: number;
+  institutionIds: readonly string[];
+  source: string;
+}[] = [
+  {
+    currency: 'MAD',
+    perEur: 10,
+    institutionIds: ['partner-universiapolis'],
+    source:
+      'Fiches Universiapolis « Coût des études » FR2-1, 2026-2027 — taux auquel l’établissement facture',
+  },
+];
 
-/// Devises rencontrées en base pour lesquelles on n'a AUCUNE source. On ne
-/// devine pas : `tuitionMinEur` reste `null` et le score budgétaire reste une
-/// estimation, ce qui est honnête. Ajouter un taux ici demande un document.
+/// Devises rencontrées en base pour lesquelles aucun taux n'est sourcé dans le
+/// périmètre demandé. On ne devine pas : `tuitionMinEur` reste `null` et le
+/// score budgétaire reste une estimation, ce qui est honnête.
 export const UNSOURCED = ['USD', 'CAD', 'GBP', 'AED'] as const;
 
 export type TuitionParse =
@@ -91,7 +106,10 @@ export function parseAmount(label: string): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-export function tuitionToEur(label: string): TuitionParse {
+export function tuitionToEur(
+  label: string,
+  institutionId?: string,
+): TuitionParse {
   const text = (label ?? '').trim();
   if (!text) return { ok: false, reason: 'no-amount' };
   // Plusieurs devises dans un même libellé — « 34 500 DH · 2 259 750 FCFA »,
@@ -116,7 +134,12 @@ export function tuitionToEur(label: string): TuitionParse {
   if (peg) {
     return { ok: true, currency, amount, eur: Math.round(amount / peg), exact: true };
   }
-  const sourced = SOURCED_RATES[currency];
+  const sourced = INSTITUTION_RATES.find(
+    (r) =>
+      r.currency === currency &&
+      institutionId != null &&
+      r.institutionIds.includes(institutionId),
+  );
   if (sourced) {
     return {
       ok: true,

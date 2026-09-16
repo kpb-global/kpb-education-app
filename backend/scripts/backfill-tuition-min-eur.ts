@@ -30,7 +30,13 @@ async function main() {
 
   const rows = await prisma.program.findMany({
     where: { tuitionMinEur: null },
-    select: { id: true, nameFr: true, tuitionFr: true, countryId: true },
+    select: {
+      id: true,
+      nameFr: true,
+      tuitionFr: true,
+      countryId: true,
+      institutionId: true,
+    },
   });
   console.log(`${rows.length} programme(s) sans tuitionMinEur\n`);
 
@@ -39,7 +45,9 @@ async function main() {
   const byCurrency: Record<string, { n: number; exact: boolean }> = {};
 
   for (const r of rows) {
-    const parsed = tuitionToEur(r.tuitionFr ?? '');
+    // L'établissement compte : un taux sourcé ne vaut que pour celui qui le
+    // publie. Voir INSTITUTION_RATES.
+    const parsed = tuitionToEur(r.tuitionFr ?? '', r.institutionId);
     if (!parsed.ok) {
       const key = parsed.currency
         ? `${parsed.reason} (${parsed.currency})`
