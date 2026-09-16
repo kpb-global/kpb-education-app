@@ -559,6 +559,25 @@ case "$ACTION" in
     fi
     ;;
 
+  backfill-tuition-eur)
+    # Renseigne `Program.tuitionMinEur` depuis le libellé `tuitionFr`.
+    #
+    # La colonne est nulle sur les 628 programmes, donc le score budgétaire de
+    # matches.service.ts est neutralisé et chaque match est marqué `isEstimate`.
+    # 350 programmes portent déjà un montant en euros : il n'y a rien à
+    # convertir, seulement à lire.
+    #
+    # N'écrit que là où la colonne est nulle, et le revérifie à l'instant de
+    # l'écriture — une valeur saisie à la main n'est jamais écrasée.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run backfill:tuition-eur
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run backfill:tuition-eur -- --apply
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2
