@@ -6,7 +6,9 @@ import {
   FIELD_BY_LABEL,
   KNOWN_LEVELS,
   LANGUAGES_BY_LABEL,
+  BACKFILLABLE,
   TARGETS,
+  institutionBlankFills,
   normalizeLevel,
   parseCsv,
   parseTuitionMinEur,
@@ -226,5 +228,142 @@ describe('stableId', () => {
     expect(stableId('partner-p-', 'a|Master Finance')).not.toBe(
       stableId('partner-p-', 'b|Master Finance'),
     );
+  });
+});
+
+/**
+ * Comblement des colonnes vides d'un établissement déjà en base.
+ *
+ * L'écriture est un `upsert` à partie `update` vide, pour ne jamais écraser une
+ * fiche retouchée à la main. Conséquence vécue : Mundiapolis a été créé avant
+ * que la colonne Description du CSV ne soit lue, et son `overview` serait resté
+ * vide indéfiniment. Ces tests fixent la frontière — combler un trou, oui ;
+ * remplacer une valeur existante, jamais.
+ */
+describe('institutionBlankFills', () => {
+  const incoming = {
+    overviewFr: 'Université privée reconnue par l’État.',
+    overviewEn: 'State-recognised private university.',
+    locationFr: 'Casablanca · Nouaceur',
+    locationEn: 'Casablanca · Nouaceur',
+  };
+
+  it('comble une colonne vide', () => {
+    expect(institutionBlankFills({ overviewFr: '' }, incoming).overviewFr).toBe(
+      incoming.overviewFr,
+    );
+  });
+
+  it('comble une colonne absente (null en base)', () => {
+    expect(
+      institutionBlankFills({ overviewFr: null }, incoming).overviewFr,
+    ).toBe(incoming.overviewFr);
+  });
+
+  // Revue #272 (P2) : « vide » doit être ce que la BASE sait vérifier dans un
+  // `WHERE col = ''`, seule forme atomique. Une colonne d'espaces n'est donc
+  // PAS comblée — c'est le choix conservateur, et il est volontaire.
+  it("ne comble PAS une colonne d'espaces", () => {
+    expect(
+      institutionBlankFills({ overviewFr: '   ' }, incoming).overviewFr,
+    ).toBeUndefined();
+  });
+
+  // Le cas Schiller : sa description est DÉJÀ en base, identique à celle du
+  // CSV. Rien ne doit être réécrit, même à valeur égale — une écriture inutile
+  // ferait bouger `updatedAt` et brouillerait la file de vérification.
+  it('ne touche pas une colonne déjà remplie', () => {
+    const fills = institutionBlankFills(
+      { overviewFr: 'Texte écrit à la main' },
+      incoming,
+    );
+    expect(fills.overviewFr).toBeUndefined();
+  });
+
+  it("n'écrit rien quand la source est vide", () => {
+    expect(
+      institutionBlankFills({ overviewFr: '' }, { overviewFr: '' }),
+    ).toEqual({});
+  });
+
+  it('ne renvoie que des colonnes de la liste autorisée', () => {
+    const fills = institutionBlankFills(
+      { overviewFr: '', locationFr: '' },
+      { ...incoming, isPartner: 'oui' } as never,
+    );
+    for (const k of Object.keys(fills)) {
+      expect(BACKFILLABLE).toContain(k);
+    }
+    expect(Object.keys(fills)).not.toContain('isPartner');
+  });
+
+  it('comble plusieurs colonnes en une passe', () => {
+    expect(
+      institutionBlankFills(
+        { overviewFr: '', overviewEn: '', locationFr: 'déjà là', locationEn: '' },
+        incoming,
+      ),
+    ).toEqual({
+      overviewFr: incoming.overviewFr,
+      overviewEn: incoming.overviewEn,
+      locationEn: incoming.locationEn,
+    });
+  });
+
+  it('un objet existant vide déclenche tous les comblements', () => {
+    expect(institutionBlankFills({}, incoming)).toEqual(incoming);
+  });
+});
+
+describe('Description du CSV', () => {
+  const rows = parseCsv(fs.readFileSync(CSV, 'utf8'));
+
+  it('chaque cible a exactement une description, non vide', () => {
+    for (const t of TARGETS) {
+      const descs = new Set(
+        rows
+          .filter((r) => r.Institution === t.csvName)
+          .map((r) => r.Description.trim()),
+      );
+      expect(descs.size).toBe(1);
+      expect([...descs][0].length).toBeGreaterThan(20);
+    }
+  });
+});
+
+/**
+ * L'atomicité du comblement ne se teste pas sur la fonction pure : elle tient à
+ * la FORME de l'écriture. `fills` est calculé pendant la lecture du plan, et un
+ * `update` inconditionnel écraserait le texte d'un administrateur qui aurait
+ * rempli la colonne entre-temps (revue de #272). La garantie doit donc être
+ * portée par un `WHERE col = ''` réévalué par la base à l'instant de l'écriture.
+ *
+ * Ce test lit le script parce que c'est le seul endroit où cette forme existe,
+ * et qu'une réécriture « simplificatrice » vers `update: fills` reviendrait au
+ * défaut sans qu'aucun test unitaire ne bronche.
+ */
+describe('le comblement est atomique, pas seulement rapproché', () => {
+  const SCRIPT = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'scripts',
+    'import-partner-universities.ts',
+  );
+  const src = fs.readFileSync(SCRIPT, 'utf8');
+
+  it("l'upsert de l'établissement ne porte AUCUN comblement", () => {
+    expect(src).not.toMatch(/update:\s*fills/);
+    expect(src).toMatch(/upsert\(\{[\s\S]{0,400}?update:\s*\{\}/);
+  });
+
+  it('le comblement passe par updateMany avec une condition de vide', () => {
+    expect(src).toMatch(/institution\.updateMany/);
+    expect(src).toMatch(/where:\s*\{\s*id:\s*target\.id,\s*\[key\]:\s*''/);
+  });
+
+  it("signale quand une colonne a été remplie entre-temps plutôt que d'écraser", () => {
+    expect(src).toMatch(/rempli entre-temps/);
   });
 });

@@ -134,6 +134,49 @@ export function parseTuitionMinEur(raw: string): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/// Columns this import is willing to BACKFILL on an institution that already
+/// exists. Strictly empty → non-empty: the script's contract is "fills gaps,
+/// never clobbers", and a blank column is a gap. Anything already written — by
+/// hand, or by another tool — is left untouched.
+///
+/// Needed because the institution write is an `upsert` with an EMPTY `update`:
+/// without this, a fiche created before a column was sourced stays blank
+/// forever, which is exactly what happened to Mundiapolis's `overview`.
+export const BACKFILLABLE = [
+  'overviewFr',
+  'overviewEn',
+  'locationFr',
+  'locationEn',
+] as const;
+
+export type BackfillableKey = (typeof BACKFILLABLE)[number];
+
+/// « Vide » signifie ici la chaîne VIDE, sans `trim()`, et c'est délibéré.
+///
+/// Le comblement doit être exécutable comme un `UPDATE … WHERE col = ''`, seule
+/// forme réellement atomique : entre la lecture du plan et l'écriture, un
+/// administrateur peut avoir rempli la colonne, et un `update` inconditionnel
+/// écraserait son texte (revue de #272). Une comparaison après `trim()` ne
+/// s'exprime pas dans ce `WHERE`, donc la définition du vide doit être celle
+/// que la base sait vérifier — sinon la garantie « ne jamais écraser » ne tient
+/// que dans le code appelant, c'est-à-dire nulle part.
+///
+/// Conséquence assumée : une colonne ne contenant que des espaces n'est PAS
+/// comblée. C'est le choix conservateur — on ne remplace rien qu'on ne sache
+/// prouver vide au moment même de l'écriture.
+export function institutionBlankFills(
+  existing: Partial<Record<BackfillableKey, string | null>>,
+  incoming: Partial<Record<BackfillableKey, string | null>>,
+): Partial<Record<BackfillableKey, string>> {
+  const out: Partial<Record<BackfillableKey, string>> = {};
+  for (const key of BACKFILLABLE) {
+    const current = existing[key] ?? '';
+    const next = (incoming[key] ?? '').trim();
+    if (current === '' && next !== '') out[key] = next;
+  }
+  return out;
+}
+
 export function stableId(prefix: string, key: string): string {
   return `${prefix}${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
 }
