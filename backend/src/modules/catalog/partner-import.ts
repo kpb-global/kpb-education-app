@@ -134,6 +134,36 @@ export function parseTuitionMinEur(raw: string): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/// Columns this import is willing to BACKFILL on an institution that already
+/// exists. Strictly empty → non-empty: the script's contract is "fills gaps,
+/// never clobbers", and a blank column is a gap. Anything already written — by
+/// hand, or by another tool — is left untouched.
+///
+/// Needed because the institution write is an `upsert` with an EMPTY `update`:
+/// without this, a fiche created before a column was sourced stays blank
+/// forever, which is exactly what happened to Mundiapolis's `overview`.
+export const BACKFILLABLE = [
+  'overviewFr',
+  'overviewEn',
+  'locationFr',
+  'locationEn',
+] as const;
+
+export type BackfillableKey = (typeof BACKFILLABLE)[number];
+
+export function institutionBlankFills(
+  existing: Partial<Record<BackfillableKey, string | null>>,
+  incoming: Partial<Record<BackfillableKey, string | null>>,
+): Partial<Record<BackfillableKey, string>> {
+  const out: Partial<Record<BackfillableKey, string>> = {};
+  for (const key of BACKFILLABLE) {
+    const current = (existing[key] ?? '').trim();
+    const next = (incoming[key] ?? '').trim();
+    if (current === '' && next !== '') out[key] = next;
+  }
+  return out;
+}
+
 export function stableId(prefix: string, key: string): string {
   return `${prefix}${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
 }

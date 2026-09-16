@@ -29,8 +29,10 @@ import {
   KNOWN_LEVELS,
   LANGUAGES_BY_LABEL,
   TARGETS,
+  type BackfillableKey,
   type PlannedProgram,
   type Target,
+  institutionBlankFills,
   normalizeLevel,
   parseCsv,
   parseTuitionMinEur,
@@ -60,7 +62,13 @@ async function main() {
   const targets = TARGETS.filter((t) => !skip.has(t.id));
   const errors: string[] = [];
   const warnings: string[] = [];
-  const plan: { target: Target; exists: boolean; programs: PlannedProgram[] }[] = [];
+  const plan: {
+    target: Target;
+    exists: boolean;
+    programs: PlannedProgram[];
+    overviewFr: string;
+    fills: Partial<Record<BackfillableKey, string>>;
+  }[] = [];
 
   for (const target of targets) {
     const group = rows.filter((r) => r.Institution === target.csvName);
@@ -132,17 +140,38 @@ async function main() {
       });
     }
 
+    // La description est identique sur toutes les lignes d'un établissement ;
+    // on prend celle de la première.
+    const overviewFr = (group[0].Description ?? '').trim();
+    const incoming = {
+      overviewFr,
+      overviewEn: overviewFr,
+      locationFr: target.campuses.join(' · '),
+      locationEn: target.campuses.join(' · '),
+    };
     const existing = await prisma.institution.findUnique({
       where: { id: target.id },
-      select: { id: true },
+      select: {
+        id: true,
+        overviewFr: true,
+        overviewEn: true,
+        locationFr: true,
+        locationEn: true,
+      },
     });
-    plan.push({ target, exists: existing != null, programs });
+    const fills = existing ? institutionBlankFills(existing, incoming) : {};
+    plan.push({ target, exists: existing != null, programs, overviewFr, fills });
   }
 
   let creates = 0;
   let skipped = 0;
-  const toWrite: { target: Target; programs: PlannedProgram[] }[] = [];
-  for (const { target, exists, programs } of plan) {
+  const toWrite: {
+    target: Target;
+    programs: PlannedProgram[];
+    overviewFr: string;
+    fills: Partial<Record<BackfillableKey, string>>;
+  }[] = [];
+  for (const { target, exists, programs, overviewFr, fills } of plan) {
     const present = new Set(
       (
         await prisma.program.findMany({
@@ -154,7 +183,7 @@ async function main() {
     const fresh = programs.filter((p) => !present.has(p.nameFr));
     creates += fresh.length;
     skipped += programs.length - fresh.length;
-    toWrite.push({ target, programs: fresh });
+    toWrite.push({ target, programs: fresh, overviewFr, fills });
 
     console.log(
       `── ${target.id}  [${exists ? 'établissement existant' : 'À CRÉER'}]  pays=${target.countryId}`,
@@ -173,6 +202,10 @@ async function main() {
       console.log(`     · ${p.levelFr || '(sans niveau)'} — ${p.nameFr.slice(0, 62)}`);
     }
     if (fresh.length > 3) console.log(`     · … ${fresh.length - 3} de plus`);
+    const filled = Object.keys(fills);
+    if (filled.length) {
+      console.log(`   colonnes vides à combler : ${filled.join(', ')}`);
+    }
     console.log();
   }
 
@@ -193,10 +226,12 @@ async function main() {
     return;
   }
 
-  for (const { target, programs } of toWrite) {
+  for (const { target, programs, overviewFr, fills } of toWrite) {
     await prisma.institution.upsert({
       where: { id: target.id },
-      update: {},
+      // Uniquement des colonnes VIDES, jamais un écrasement : voir
+      // institutionBlankFills.
+      update: fills,
       create: {
         id: target.id,
         nameFr: target.nameFr,
@@ -204,8 +239,8 @@ async function main() {
         countryId: target.countryId,
         locationFr: target.campuses.join(' · '),
         locationEn: target.campuses.join(' · '),
-        overviewFr: '',
-        overviewEn: '',
+        overviewFr,
+        overviewEn: overviewFr,
         studyLevels: [...new Set(programs.map((p) => p.levelFr).filter(Boolean))],
         tuitionLabelFr: '',
         tuitionLabelEn: '',
