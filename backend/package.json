@@ -14,6 +14,7 @@
     "import:omnes": "ts-node scripts/import-omnes-template.ts",
     "import:omnes:bundled": "ts-node scripts/import-omnes-template.ts scripts/data/omnes_fall_26.xlsx",
     "seed:omnes": "ts-node scripts/seed-omnes-programs.ts",
+    "backfill:tuition-eur": "ts-node scripts/backfill-tuition-min-eur.ts",
     "import:partners": "ts-node scripts/import-partner-universities.ts",
     "seed:partners": "ts-node scripts/seed-partner-schools.ts",
     "seed:countries-m5": "ts-node scripts/seed-countries-m5.ts",
