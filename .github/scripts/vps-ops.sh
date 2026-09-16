@@ -530,6 +530,35 @@ case "$ACTION" in
     show_state
     ;;
 
+  import-partners)
+    # Importe les universités partenaires manquantes et leurs formations depuis
+    # `backend/scripts/data/universites-partenaires.csv`.
+    #
+    # Le périmètre est une LISTE BLANCHE tenue dans le code, pas « tout le
+    # fichier » : le CSV contient aussi les écoles OMNES, déjà en production
+    # sous `omnes-*`, listées campus par campus là où la base stocke une seule
+    # formation portant `campusOfferings[]`. Les importer ré-éclaterait ce
+    # regroupement en doublons.
+    #
+    # L'écriture est un `upsert` dont la partie `update` est VIDE : relancer ne
+    # crée rien et n'écrase jamais une fiche retouchée à la main. L'opération
+    # est donc rejouable sans risque après une simulation.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run import:partners
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run import:partners -- --apply
+      echo
+      echo "── Intégrité des références pays ──"
+      # `Institution.countryId` et `Program.countryId` sont des colonnes
+      # indexées, PAS des clés étrangères : rien en base n'empêche une fiche de
+      # pointer vers un pays inexistant, et elle ne remonterait alors sous aucun
+      # filtre. Ce contrôle sort en échec s'il trouve un orphelin.
+      docker compose exec -T api npm run verify:catalog
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2

@@ -60,8 +60,9 @@ on:
           - eef-teaser-off
           - publish-catalog
           - recreate-clamav
+          - import-partners
       dry_run:
-        description: 'Simuler seulement (publish-catalog). Décocher pour appliquer.'
+        description: 'Simuler seulement (publish-catalog, import-partners). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true
