@@ -227,11 +227,14 @@ async function main() {
   }
 
   for (const { target, programs, overviewFr, fills } of toWrite) {
+    // Le comblement N'EST PAS fait ici. `fills` a été calculé pendant la phase
+    // de lecture ; l'appliquer dans cet `update` écraserait le texte d'un
+    // administrateur qui aurait rempli la colonne entre-temps. Il est appliqué
+    // plus bas, colonne par colonne, sous un `WHERE col = ''` qui revérifie le
+    // vide au moment exact de l'écriture.
     await prisma.institution.upsert({
       where: { id: target.id },
-      // Uniquement des colonnes VIDES, jamais un écrasement : voir
-      // institutionBlankFills.
-      update: fills,
+      update: {},
       create: {
         id: target.id,
         nameFr: target.nameFr,
@@ -277,6 +280,22 @@ async function main() {
           ...(p.campusOfferings ? { campusOfferings: p.campusOfferings } : {}),
         },
       });
+    }
+
+    // Comblement atomique : `updateMany` produit un
+    // `UPDATE … WHERE id = ? AND col = ''`. Si la colonne a été remplie depuis
+    // la lecture, le `WHERE` ne trouve rien et l'écriture n'a pas lieu — la
+    // garantie « ne jamais écraser » est tenue par la base, pas par le script.
+    for (const [key, value] of Object.entries(fills)) {
+      const { count } = await prisma.institution.updateMany({
+        where: { id: target.id, [key]: '' },
+        data: { [key]: value },
+      });
+      console.log(
+        count
+          ? `   comblé : ${key}`
+          : `   ${key} : rempli entre-temps, laissé intact`,
+      );
     }
   }
   console.log('\n── ÉCRIT ──');

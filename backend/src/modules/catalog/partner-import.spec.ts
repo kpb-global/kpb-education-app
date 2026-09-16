@@ -260,10 +260,13 @@ describe('institutionBlankFills', () => {
     ).toBe(incoming.overviewFr);
   });
 
-  it("traite une colonne d'espaces comme vide", () => {
+  // Revue #272 (P2) : « vide » doit être ce que la BASE sait vérifier dans un
+  // `WHERE col = ''`, seule forme atomique. Une colonne d'espaces n'est donc
+  // PAS comblée — c'est le choix conservateur, et il est volontaire.
+  it("ne comble PAS une colonne d'espaces", () => {
     expect(
       institutionBlankFills({ overviewFr: '   ' }, incoming).overviewFr,
-    ).toBe(incoming.overviewFr);
+    ).toBeUndefined();
   });
 
   // Le cas Schiller : sa description est DÉJÀ en base, identique à celle du
@@ -325,5 +328,42 @@ describe('Description du CSV', () => {
       expect(descs.size).toBe(1);
       expect([...descs][0].length).toBeGreaterThan(20);
     }
+  });
+});
+
+/**
+ * L'atomicité du comblement ne se teste pas sur la fonction pure : elle tient à
+ * la FORME de l'écriture. `fills` est calculé pendant la lecture du plan, et un
+ * `update` inconditionnel écraserait le texte d'un administrateur qui aurait
+ * rempli la colonne entre-temps (revue de #272). La garantie doit donc être
+ * portée par un `WHERE col = ''` réévalué par la base à l'instant de l'écriture.
+ *
+ * Ce test lit le script parce que c'est le seul endroit où cette forme existe,
+ * et qu'une réécriture « simplificatrice » vers `update: fills` reviendrait au
+ * défaut sans qu'aucun test unitaire ne bronche.
+ */
+describe('le comblement est atomique, pas seulement rapproché', () => {
+  const SCRIPT = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'scripts',
+    'import-partner-universities.ts',
+  );
+  const src = fs.readFileSync(SCRIPT, 'utf8');
+
+  it("l'upsert de l'établissement ne porte AUCUN comblement", () => {
+    expect(src).not.toMatch(/update:\s*fills/);
+    expect(src).toMatch(/upsert\(\{[\s\S]{0,400}?update:\s*\{\}/);
+  });
+
+  it('le comblement passe par updateMany avec une condition de vide', () => {
+    expect(src).toMatch(/institution\.updateMany/);
+    expect(src).toMatch(/where:\s*\{\s*id:\s*target\.id,\s*\[key\]:\s*''/);
+  });
+
+  it("signale quand une colonne a été remplie entre-temps plutôt que d'écraser", () => {
+    expect(src).toMatch(/rempli entre-temps/);
   });
 });
