@@ -186,6 +186,24 @@ export class AdminCatalogService {
     return n != null && opts.int ? Math.trunc(n) : n;
   }
 
+  /// Strict ISO-8601. `new Date(str)` is NOT good enough here: it accepts
+  /// `03/01/2027` and `1 mars 2027` (parsed as LOCAL time, so they land on the
+  /// previous day in UTC), and it rolls `2027-02-30` over to March 2nd. A typo
+  /// would become a valid, wrong deadline — the exact silent corruption these
+  /// pickers exist to prevent. A date-time must carry an explicit offset,
+  /// otherwise JS reads it as local time and the stored instant depends on the
+  /// server's timezone.
+  private static readonly ISO_DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+  private static readonly ISO_DATE_TIME =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+  private isRealCalendarDate(y: number, m: number, d: number): boolean {
+    if (m < 1 || m > 12 || d < 1) return false;
+    const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    const lengths = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return d <= lengths[m - 1];
+  }
+
   private pickDateOrNull(
     input: Record<string, unknown>,
     key: string,
@@ -193,14 +211,38 @@ export class AdminCatalogService {
     const v = input[key];
     if (v === undefined) return undefined;
     if (v === null) return null;
-    const d =
-      v instanceof Date ? v : typeof v === 'string' ? new Date(v) : undefined;
-    if (d == null || Number.isNaN(d.getTime())) {
+
+    if (v instanceof Date) {
+      if (Number.isNaN(v.getTime())) {
+        throw new BadRequestException(`Field "${key}" is an invalid Date.`);
+      }
+      return v;
+    }
+
+    const raw = this.nonEmptyStr(v);
+    const m =
+      raw == null
+        ? null
+        : (AdminCatalogService.ISO_DATE_ONLY.exec(raw) ??
+          AdminCatalogService.ISO_DATE_TIME.exec(raw));
+    if (m == null) {
       throw new BadRequestException(
-        `Field "${key}" must be an ISO-8601 date string or null.`,
+        `Field "${key}" must be ISO-8601 — "YYYY-MM-DD", or "YYYY-MM-DDTHH:mm:ssZ" ` +
+          `with an explicit UTC offset — or null.`,
       );
     }
-    return d;
+    if (
+      !this.isRealCalendarDate(Number(m[1]), Number(m[2]), Number(m[3]))
+    ) {
+      throw new BadRequestException(
+        `Field "${key}": "${raw}" is not a real calendar date.`,
+      );
+    }
+    const parsed = new Date(raw as string);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException(`Field "${key}": "${raw}" is unparseable.`);
+    }
+    return parsed;
   }
 
   private pickStrArr(
@@ -208,7 +250,12 @@ export class AdminCatalogService {
     key: string,
   ): string[] | undefined {
     const v = input[key];
-    if (v === undefined || v === null) return undefined;
+    if (v === undefined) return undefined;
+    // `String[]` is not nullable, so "clear" means an empty array. Returning
+    // `undefined` here would let clean() drop the key and silently keep the old
+    // value — breaking the explicit-null-clears contract documented above for
+    // the other four scoring columns.
+    if (v === null) return [];
     if (!Array.isArray(v) || v.some((x) => typeof x !== 'string')) {
       throw new BadRequestException(
         `Field "${key}" must be an array of strings.`,

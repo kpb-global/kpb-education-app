@@ -385,6 +385,73 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
       expect(creates).toHaveLength(0);
     });
 
+    // Revue #271 (P2) : `new Date(str)` accepte bien plus que de l'ISO-8601 et
+    // lit les autres formes en heure LOCALE. Mesuré sous Node avant correctif :
+    //   '1 mars 2027'  → 2027-02-28T23:00Z   (accepté, et décalé d'un jour)
+    //   '03/01/2027'   → 2027-02-28T23:00Z   (accepté, ambigu FR/US)
+    //   '2027-02-30'   → 2027-03-02T00:00Z   (jour inexistant, reporté)
+    // Une faute de frappe devenait donc une échéance valide et fausse.
+    it.each([
+      ['une date en toutes lettres', '1 mars 2027'],
+      ['un format anglo-saxon', 'March 1 2027'],
+      ['un format ambigu à slashes', '03/01/2027'],
+      ['un format compact sans tirets', '20270301'],
+      ['une date-heure sans décalage UTC', '2027-03-01T10:00:00'],
+    ])('rejette %s comme applicationDeadline', async (_label, value) => {
+      const { service, creates } = makeService();
+      await expect(
+        service.createProgram({ ...required, applicationDeadline: value }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(creates).toHaveLength(0);
+    });
+
+    it.each([
+      ['le 30 février', '2027-02-30'],
+      ['le 31 avril', '2027-04-31'],
+      ['un 29 février hors année bissextile', '2027-02-29'],
+      ['un mois 13', '2027-13-01'],
+    ])('rejette %s : jour inexistant au calendrier', async (_label, value) => {
+      const { service, creates } = makeService();
+      await expect(
+        service.createProgram({ ...required, applicationDeadline: value }),
+      ).rejects.toThrow(BadRequestException);
+      expect(creates).toHaveLength(0);
+    });
+
+    it('accepte le 29 février d\'une vraie année bissextile', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        applicationDeadline: '2028-02-29',
+      });
+      expect(creates[0].applicationDeadline).toEqual(
+        new Date('2028-02-29T00:00:00.000Z'),
+      );
+    });
+
+    it('lit une date seule en UTC, sans décalage de fuseau', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        applicationDeadline: '2027-03-01',
+      });
+      // Le jour stocké doit rester le 1er mars quel que soit le fuseau du
+      // serveur : c'est ce que garantit la forme date-seule de la spec ES.
+      const stored = creates[0].applicationDeadline as Date;
+      expect(stored.toISOString()).toBe('2027-03-01T00:00:00.000Z');
+    });
+
+    it('accepte une date-heure portant un décalage explicite', async () => {
+      const { service, creates } = makeService();
+      await service.createProgram({
+        ...required,
+        applicationDeadline: '2027-03-01T10:00:00+01:00',
+      });
+      expect((creates[0].applicationDeadline as Date).toISOString()).toBe(
+        '2027-03-01T09:00:00.000Z',
+      );
+    });
+
     it('rejects teachingLanguages that is not an array of strings', async () => {
       const { service } = makeService();
       await expect(
@@ -462,6 +529,17 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
       await service.updateProgram('prog-1', { tuitionMinEur: 7025 });
       expect(Object.keys(updates[0].data)).toEqual(['tuitionMinEur']);
       expect(updates[0].data.tuitionMinEur).toBe(7025);
+    });
+
+    // Revue #271 (P2) : le commentaire du service promet « null explicite =
+    // colonne vidée » pour les cinq colonnes de scoring. teachingLanguages
+    // faisait exception — il renvoyait undefined, clean() retirait la clé, et
+    // l'ancien tableau survivait à l'édition. La colonne n'étant pas nullable,
+    // « vider » veut dire tableau vide.
+    it('clears teachingLanguages with [] when the caller sends null', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { teachingLanguages: null });
+      expect(updates[0].data.teachingLanguages).toEqual([]);
     });
 
     it('clears a scalar column when the caller sends an explicit null', async () => {
