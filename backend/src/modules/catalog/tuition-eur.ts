@@ -112,20 +112,27 @@ export function tuitionToEur(
 ): TuitionParse {
   const text = (label ?? '').trim();
   if (!text) return { ok: false, reason: 'no-amount' };
+  // L'ABSENCE DE MONTANT se teste en premier, et l'ordre est un correctif.
+  //
+  // « À confirmer » et « Sur demande » n'ont ni chiffre ni devise. En cherchant
+  // la devise d'abord, ils ressortaient en `unknown-currency` — « devise non
+  // reconnue » — ce qui envoie chercher un format de devise là où il n'y a
+  // simplement aucun prix. 49 lignes de production étaient ainsi mal
+  // diagnostiquées, et le rapport m'a moi-même fait perdre une inspection.
+  const amount = parseAmount(text);
+  if (amount == null) return { ok: false, reason: 'no-amount' };
+
   // Plusieurs devises dans un même libellé — « 34 500 DH · 2 259 750 FCFA »,
-  // la forme exacte des fiches Universiapolis. `parseAmount` prendrait le
-  // PREMIER nombre et la détection la PREMIÈRE devise de la table : les deux
-  // peuvent désigner des colonnes différentes, et 34 500 dirhams deviendraient
-  // 34 500 francs CFA, soit 53 € au lieu de 3 450. On refuse au lieu de
-  // deviner : c'est la règle de tout ce module.
+  // la forme exacte des fiches Universiapolis. `parseAmount` prend le PREMIER
+  // nombre et la détection la PREMIÈRE devise de la table : les deux peuvent
+  // désigner des colonnes différentes, et 34 500 dirhams deviendraient 34 500
+  // francs CFA, soit 53 € au lieu de 3 450. On refuse au lieu de deviner.
   const currencies = detectCurrencies(text);
   if (currencies.length > 1) {
     return { ok: false, reason: 'ambiguous-currency', currencies };
   }
   const currency = currencies[0] ?? null;
   if (!currency) return { ok: false, reason: 'unknown-currency' };
-  const amount = parseAmount(text);
-  if (amount == null) return { ok: false, reason: 'no-amount', currency };
 
   if (currency === 'EUR') {
     return { ok: true, currency, amount, eur: amount, exact: true };

@@ -132,12 +132,39 @@ describe('tuitionToEur', () => {
     expect(r).toEqual({ ok: false, reason: 'unsourced-currency', currency: code });
   });
 
-  it('refuse un libellé sans montant', () => {
-    expect(tuitionToEur('À confirmer')).toMatchObject({ ok: false });
+  // Le MOTIF compte autant que le refus. Ces deux libellés sont les seuls
+  // présents en production sans devise (46 « À confirmer » chez Mundiapolis,
+  // 3 « Sur demande » chez ESCE). Diagnostiqués `unknown-currency`, ils
+  // envoyaient chercher un format de devise là où il n'y a aucun prix — le
+  // rapport m'a fait perdre une inspection entière avant que je ne le voie.
+  it.each(['À confirmer', 'Sur demande', 'Nous consulter', ''])(
+    'dit no-amount, pas unknown-currency, pour %s',
+    (label) => {
+      expect(tuitionToEur(label)).toEqual({ ok: false, reason: 'no-amount' });
+    },
+  );
+
+  // La réciproque : un montant SANS devise reste bien un problème de devise.
+  it('dit unknown-currency quand le montant est là mais pas la devise', () => {
+    expect(tuitionToEur('12 000 par an')).toEqual({
+      ok: false,
+      reason: 'unknown-currency',
+    });
   });
 
-  it('refuse un libellé sans devise reconnaissable', () => {
-    expect(tuitionToEur('12 000 par an')).toEqual({ ok: false, reason: 'unknown-currency' });
+  // L'ambiguïté ne doit pas être avalée par le test de montant placé avant.
+  it('signale toujours l’ambiguïté quand un montant est présent', () => {
+    expect(tuitionToEur('34 500 DH · 2 259 750 FCFA')).toMatchObject({
+      reason: 'ambiguous-currency',
+    });
+  });
+
+  // Une devise reconnue mais aucun chiffre : le motif doit rester no-amount.
+  it('dit no-amount pour « Montant en € à confirmer »', () => {
+    expect(tuitionToEur('Montant en € à confirmer')).toEqual({
+      ok: false,
+      reason: 'no-amount',
+    });
   });
 });
 
