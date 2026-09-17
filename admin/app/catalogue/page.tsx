@@ -79,6 +79,9 @@ export default function CataloguePage() {
 
   const [instDraft, setInstDraft] = useState<InstitutionDraft | null>(null);
   const [instEditingId, setInstEditingId] = useState<string | null>(null);
+  // `null` = pas encore connu. Décide du verrouillage du pays : déplacer une
+  // école laisserait ses formations sous l'ancien pays.
+  const [instProgramCount, setInstProgramCount] = useState<number | null>(null);
   const [progDraft, setProgDraft] = useState<ProgramDraft | null>(null);
   const [progEditingId, setProgEditingId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<
@@ -147,6 +150,12 @@ export default function CataloguePage() {
 
   function startInstitutionEdit(entry: CatalogInstitution) {
     setInstEditingId(entry.id);
+    setInstProgramCount(null);
+    fetchPrograms({ institutionId: entry.id, limit: 500 })
+      .then((rows) => setInstProgramCount(rows.length))
+      // Compte inconnu ⇒ on verrouille, plutôt que d'autoriser un déplacement
+      // dont on ne peut pas mesurer les dégâts.
+      .catch(() => setInstProgramCount(1));
     setInstDraft({
       nameFr: entry.name.fr,
       nameEn: entry.name.en,
@@ -231,6 +240,7 @@ export default function CataloguePage() {
             <Button
               onClick={() => {
                 setInstEditingId(null);
+                setInstProgramCount(0);
                 setInstDraft({ ...EMPTY_INSTITUTION_DRAFT });
               }}
             >
@@ -244,6 +254,7 @@ export default function CataloguePage() {
               countries={countries}
               pending={pending}
               editing={instEditingId != null}
+              programCount={instProgramCount}
               onChange={(patch) =>
                 setInstDraft((d) => (d ? { ...d, ...patch } : d))
               }
@@ -253,7 +264,10 @@ export default function CataloguePage() {
               }}
               onSubmit={() =>
                 run(async () => {
-                  const payload = toInstitutionInput(instDraft);
+                  const payload = toInstitutionInput(
+                    instDraft,
+                    instEditingId ? 'edit' : 'create',
+                  );
                   if (instEditingId) await updateInstitution(instEditingId, payload);
                   else await createInstitution(payload);
                   setInstDraft(null);

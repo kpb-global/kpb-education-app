@@ -41,12 +41,26 @@ describe('toProgramInput — champs vides', () => {
 
   // En édition, un champ vidé doit VIDER la colonne. L'omettre la laisserait
   // telle quelle : l'utilisateur croirait avoir effacé une valeur toujours là.
-  it('à l’édition, envoie null pour vider une colonne', () => {
+  it('à l’édition, envoie null pour vider une colonne de scoring', () => {
     const payload = toProgramInput(base, 'edit');
     expect(payload.minGpaRequired).toBeNull();
     expect(payload.tuitionMinEur).toBeNull();
     expect(payload.applicationDeadline).toBeNull();
     expect(payload.teachingLanguages).toBeNull();
+  });
+
+  // Revue #275 (P2) : `updateProgram` traite une clé ABSENTE comme « ne pas
+  // toucher ». Omettre un champ texte vidé faisait afficher « enregistré »
+  // pendant que l'ancienne valeur survivait et réapparaissait au rechargement.
+  // Je n'avais appliqué la sémantique création/édition qu'aux champs numériques.
+  it('à l’édition, vide aussi les champs texte et les listes', () => {
+    const payload = toProgramInput(base, 'edit');
+    expect(payload.levelFr).toBe('');
+    expect(payload.durationFr).toBe('');
+    expect(payload.tuitionFr).toBe('');
+    expect(payload.languageFr).toBe('');
+    expect(payload.nameEn).toBe('');
+    expect(payload.requirementsFr).toEqual([]);
   });
 });
 
@@ -177,5 +191,63 @@ describe('splitList', () => {
   it('écarte les entrées vides et les espaces', () => {
     expect(splitList(' a , ,b,  ')).toEqual(['a', 'b']);
     expect(splitList('')).toEqual([]);
+  });
+});
+
+describe('toProgramInput — borne de la moyenne (revue #275, P2)', () => {
+  // `matching.ts` calcule `(gpa - minGpaRequired + 2) / 4` sur une échelle /20.
+  // Un seuil de 125 met TOUT candidat à zéro — et avec `isEstimate: false`,
+  // donc l'app présenterait ce zéro comme une certitude, pas une estimation.
+  it.each(['125', '20.5', '100'])('refuse une moyenne de %s', (raw) => {
+    expect(() =>
+      toProgramInput({ ...base, minGpaRequired: raw }, 'create'),
+    ).toThrow(DraftError);
+  });
+
+  it.each(['20', '19.5', '0'])('accepte %s', (raw) => {
+    expect(
+      toProgramInput({ ...base, minGpaRequired: raw }, 'create').minGpaRequired,
+    ).toBe(Number(raw));
+  });
+
+  // Le plancher de frais, lui, n'a pas de borne haute : une scolarité à
+  // 60 000 €/an existe.
+  it('ne borne PAS le plancher de frais', () => {
+    expect(
+      toProgramInput({ ...base, tuitionMinEur: '60000' }, 'create')
+        .tuitionMinEur,
+    ).toBe(60000);
+  });
+});
+
+describe('toInstitutionInput — création vs édition (revue #275, P2)', () => {
+  const filled = {
+    ...EMPTY_INSTITUTION_DRAFT,
+    nameFr: 'Université X',
+    countryId: 'mar',
+  };
+
+  it('à la création, omet les champs vides', () => {
+    const payload = toInstitutionInput(filled, 'create');
+    expect('locationFr' in payload).toBe(false);
+    expect('overviewFr' in payload).toBe(false);
+    expect('studyLevels' in payload).toBe(false);
+    expect('intakePeriods' in payload).toBe(false);
+  });
+
+  // Sans ça, ces champs étaient IMPOSSIBLES à effacer depuis l'éditeur, qui
+  // acceptait pourtant la valeur vide sans rien signaler.
+  it('à l’édition, vide réellement les champs effacés', () => {
+    const payload = toInstitutionInput(filled, 'edit');
+    expect(payload.locationFr).toBe('');
+    expect(payload.overviewFr).toBe('');
+    expect(payload.tuitionLabelFr).toBe('');
+    expect(payload.languageRequirementsFr).toBe('');
+    expect(payload.studyLevels).toEqual([]);
+    expect(payload.intakePeriods).toEqual([]);
+  });
+
+  it('le mode par défaut reste la création', () => {
+    expect('locationFr' in toInstitutionInput(filled)).toBe(false);
   });
 });

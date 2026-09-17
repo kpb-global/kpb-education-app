@@ -27,6 +27,11 @@ const sectionStyle: CSSProperties = {
   borderRadius: 16,
 };
 
+function countryLabel(countries: CatalogCountry[], id: string): string {
+  const match = countries.find((c) => c.id === id);
+  return match ? labelOf(match) : id;
+}
+
 const hintStyle: CSSProperties = {
   fontSize: 12,
   color: 'var(--text-muted, #64748b)',
@@ -38,6 +43,7 @@ export function InstitutionForm({
   countries,
   pending,
   editing,
+  programCount,
   onChange,
   onSubmit,
   onCancel,
@@ -46,10 +52,19 @@ export function InstitutionForm({
   countries: CatalogCountry[];
   pending: boolean;
   editing: boolean;
+  /**
+   * Nombre de formations rattachées, ou `null` tant qu'il n'est pas connu.
+   * Au-delà de zéro, le pays est verrouillé : `Program.countryId` est stocké
+   * indépendamment et ne suivrait PAS le déplacement de l'établissement. Les
+   * formations resteraient filtrées et notées sous l'ancien pays, sans que rien
+   * ne le signale.
+   */
+  programCount: number | null;
   onChange: (patch: Partial<InstitutionDraft>) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }) {
+  const countryLocked = editing && (programCount ?? 0) > 0;
   return (
     <div style={sectionStyle}>
       <div style={gridStyle}>
@@ -78,20 +93,35 @@ export function InstitutionForm({
           ne signale et qui ne remonte sous aucun filtre.
         */}
         <Field label="Pays *">
-          {({ id }) => (
-            <Select
-              id={id}
-              value={draft.countryId}
-              onChange={(e) => onChange({ countryId: e.target.value })}
-            >
-              <option value="">— choisir —</option>
-              {countries.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {labelOf(c)} ({c.id})
-                </option>
-              ))}
-            </Select>
-          )}
+          {({ id }) =>
+            countryLocked ? (
+              <>
+                <Input
+                  id={id}
+                  readOnly
+                  value={`${countryLabel(countries, draft.countryId)} (${draft.countryId})`}
+                />
+                <p style={hintStyle}>
+                  Verrouillé : {programCount} formation(s) y sont rattachées et
+                  garderaient l’ancien pays. Déplacer l’école demande de
+                  déplacer ses formations, ce que cet écran ne sait pas faire.
+                </p>
+              </>
+            ) : (
+              <Select
+                id={id}
+                value={draft.countryId}
+                onChange={(e) => onChange({ countryId: e.target.value })}
+              >
+                <option value="">— choisir —</option>
+                {countries.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {labelOf(c)} ({c.id})
+                  </option>
+                ))}
+              </Select>
+            )
+          }
         </Field>
         <Field label="Ville / campus">
           {({ id }) => (
@@ -239,20 +269,27 @@ export function ProgramForm({
             </Select>
           )}
         </Field>
-        <Field label="Pays *">
+        {/*
+          LECTURE SEULE, dérivé de l'établissement.
+
+          `Program.countryId` est stocké indépendamment, et c'est LUI que
+          filtrent le catalogue public et le service de matching. Un champ
+          modifiable laissait créer une formation rattachée à une école
+          marocaine mais affichée et notée sous la France. Vérifié sur les 628
+          programmes de production : aucun ne diverge du pays de son
+          établissement — il n'y a donc aucun cas légitime à préserver.
+        */}
+        <Field label="Pays">
           {({ id }) => (
-            <Select
+            <Input
               id={id}
-              value={draft.countryId}
-              onChange={(e) => onChange({ countryId: e.target.value })}
-            >
-              <option value="">— choisir —</option>
-              {countries.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {labelOf(c)} ({c.id})
-                </option>
-              ))}
-            </Select>
+              readOnly
+              value={
+                draft.countryId
+                  ? `${countryLabel(countries, draft.countryId)} (${draft.countryId})`
+                  : '— suit l’établissement —'
+              }
+            />
           )}
         </Field>
         <Field label="Filière *">

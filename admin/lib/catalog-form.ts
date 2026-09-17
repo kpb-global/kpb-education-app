@@ -96,7 +96,7 @@ function optionalNumber(
   raw: string,
   label: string,
   mode: 'create' | 'edit',
-  { integer = false }: { integer?: boolean } = {},
+  { integer = false, max }: { integer?: boolean; max?: number } = {},
 ): number | null | undefined {
   const text = raw.trim();
   if (text === '') return mode === 'edit' ? null : undefined;
@@ -106,6 +106,9 @@ function optionalNumber(
   }
   if (value < 0) {
     throw new DraftError(`« ${label} » ne peut pas être négatif.`);
+  }
+  if (max !== undefined && value > max) {
+    throw new DraftError(`« ${label} » ne peut pas dépasser ${max}.`);
   }
   return integer ? Math.trunc(value) : value;
 }
@@ -147,6 +150,15 @@ function required(raw: string, label: string): string {
   return text;
 }
 
+/** Pose la clé seulement si une valeur a été calculée (`undefined` = ne pas toucher). */
+function assign<T extends object, K extends keyof T>(
+  target: T,
+  key: K,
+  value: T[K] | undefined,
+) {
+  if (value !== undefined) target[key] = value;
+}
+
 export function toProgramInput(
   draft: ProgramDraft,
   mode: 'create' | 'edit',
@@ -158,16 +170,34 @@ export function toProgramInput(
     fieldId: required(draft.fieldId, 'Filière'),
     nameFr: required(draft.nameFr, 'Nom (FR)'),
   };
-  if (draft.nameEn.trim()) payload.nameEn = draft.nameEn.trim();
-  if (draft.levelFr.trim()) payload.levelFr = draft.levelFr.trim();
-  if (draft.durationFr.trim()) payload.durationFr = draft.durationFr.trim();
-  if (draft.tuitionFr.trim()) payload.tuitionFr = draft.tuitionFr.trim();
-  if (draft.languageFr.trim()) payload.languageFr = draft.languageFr.trim();
+  // Un champ texte vidé doit VIDER la colonne. `updateProgram` traite une clé
+  // absente comme « ne pas toucher » : omettre ici ferait afficher « enregistré »
+  // à l'utilisateur pendant que l'ancienne valeur survit et réapparaît au
+  // rechargement. Même règle que pour les colonnes de scoring, appliquée
+  // partout au lieu d'aux seuls champs numériques.
+  const text = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
+    return mode === 'edit' ? '' : undefined;
+  };
+  assign(payload, 'nameEn', text(draft.nameEn));
+  assign(payload, 'levelFr', text(draft.levelFr));
+  assign(payload, 'durationFr', text(draft.durationFr));
+  assign(payload, 'tuitionFr', text(draft.tuitionFr));
+  assign(payload, 'languageFr', text(draft.languageFr));
   if (draft.requirementsFr.trim()) {
     payload.requirementsFr = splitList(draft.requirementsFr);
+  } else if (mode === 'edit') {
+    payload.requirementsFr = [];
   }
 
-  const gpa = optionalNumber(draft.minGpaRequired, 'Moyenne minimale', mode);
+  const gpa = optionalNumber(draft.minGpaRequired, 'Moyenne minimale', mode, {
+    // L'échelle est sur 20 : `matching.ts` calcule
+    // `(gpa - minGpaRequired + 2) / 4`. Un seuil de 125 mettrait TOUT candidat
+    // à zéro, et avec `isEstimate: false` — l'app présenterait ce zéro comme
+    // une certitude.
+    max: 20,
+  });
   if (gpa !== undefined) payload.minGpaRequired = gpa;
 
   const tuition = optionalNumber(draft.tuitionMinEur, 'Plancher en euros', mode, {
@@ -184,23 +214,33 @@ export function toProgramInput(
   return payload;
 }
 
-export function toInstitutionInput(draft: InstitutionDraft): InstitutionInput {
+export function toInstitutionInput(
+  draft: InstitutionDraft,
+  mode: 'create' | 'edit' = 'create',
+): InstitutionInput {
   const payload: InstitutionInput = {
     nameFr: required(draft.nameFr, 'Nom (FR)'),
     countryId: required(draft.countryId, 'Pays'),
   };
-  if (draft.nameEn.trim()) payload.nameEn = draft.nameEn.trim();
-  if (draft.locationFr.trim()) payload.locationFr = draft.locationFr.trim();
-  if (draft.overviewFr.trim()) payload.overviewFr = draft.overviewFr.trim();
+  // Même règle que pour les formations : vidé à l'édition = colonne vidée.
+  // Sans cela, ces champs étaient IMPOSSIBLES à effacer depuis l'éditeur, qui
+  // acceptait pourtant la valeur vide sans rien dire.
+  const text = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
+    return mode === 'edit' ? '' : undefined;
+  };
+  assign(payload, 'nameEn', text(draft.nameEn));
+  assign(payload, 'locationFr', text(draft.locationFr));
+  assign(payload, 'overviewFr', text(draft.overviewFr));
+  assign(payload, 'tuitionLabelFr', text(draft.tuitionLabelFr));
+  assign(payload, 'languageRequirementsFr', text(draft.languageRequirementsFr));
   if (draft.studyLevels.length) payload.studyLevels = draft.studyLevels;
-  if (draft.tuitionLabelFr.trim()) {
-    payload.tuitionLabelFr = draft.tuitionLabelFr.trim();
-  }
-  if (draft.languageRequirementsFr.trim()) {
-    payload.languageRequirementsFr = draft.languageRequirementsFr.trim();
-  }
+  else if (mode === 'edit') payload.studyLevels = [];
   if (draft.intakePeriods.trim()) {
     payload.intakePeriods = splitList(draft.intakePeriods);
+  } else if (mode === 'edit') {
+    payload.intakePeriods = [];
   }
   payload.isPartner = draft.isPartner;
   return payload;
