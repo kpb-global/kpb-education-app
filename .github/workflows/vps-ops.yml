@@ -62,8 +62,9 @@ on:
           - recreate-clamav
           - import-partners
           - backfill-tuition-eur
+          - fix-mundiapolis-levels
       dry_run:
-        description: 'Simuler seulement (publish-catalog, import-partners, backfill-tuition-eur). Décocher pour appliquer.'
+        description: 'Simuler seulement (publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true

@@ -578,6 +578,28 @@ case "$ACTION" in
     fi
     ;;
 
+  fix-mundiapolis-levels)
+    # Corrige les 4 niveaux hors référentiel écrits par l'import du 16/09.
+    #
+    # `normalizeDegreeLevel` laisse passer TEL QUEL ce qu'il ne reconnaît pas :
+    # « Spécialité » et « Prépa » sont donc arrivés en production, où ils
+    # s'affichent dans le filtre par niveau à côté de Bachelor et Master.
+    #
+    # Les niveaux de remplacement ne sont pas déduits — chacun vient d'une page
+    # de l'université, dont l'URL est inscrite dans `sourceUrl` à l'écriture.
+    #
+    # L'écriture est conditionnée à la valeur actuelle (`WHERE levelFr = …`) :
+    # une fiche corrigée entre-temps depuis la page Catalogue du back-office
+    # n'est pas écrasée, et l'opération est rejouable.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run fix:mundiapolis-levels
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run fix:mundiapolis-levels -- --apply
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2
