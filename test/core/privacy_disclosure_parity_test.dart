@@ -107,6 +107,11 @@ const _nonProcessorSuffixes = <String>[
   'u.ae',
   'uct.ac.za',
   'amci.ma',
+  // Université Mundiapolis : le catalogue cite ses pages de formation comme
+  // SOURCE d'un niveau de diplôme (`Program.sourceUrl`). Un lien que l'équipe
+  // et l'étudiant ouvrent pour vérifier une fiche, jamais un destinataire de
+  // données personnelles.
+  'mundiapolis.ma',
   'aucegypt.edu',
   'auf.org',
   'campuschina.org',
