@@ -51,6 +51,15 @@ export enum AdminCapability {
    * de classe, l'export à celui de sa méthode.
    */
   ViewInterestList = 'view_interest_list',
+  /**
+   * Créer et modifier les universités et les formations du catalogue.
+   *
+   * Miroir exact du `@Roles(Admin, SuperAdmin, ContentManager)` porté par
+   * `AdminCatalogController`. Distincte de [ManageScholarshipContent] : ce
+   * contrôleur-là gouverne les bourses, celui-ci le catalogue d'écoles. Les
+   * confondre ferait dériver l'un quand l'autre change de périmètre.
+   */
+  ManageCatalogContent = 'manage_catalog_content',
 }
 
 const ALL_ROLES = Object.freeze([
@@ -87,6 +96,7 @@ const ROLE_CAPABILITIES = {
   [InternalRole.ContentManager]: Object.freeze([
     AdminCapability.ViewScholarshipContent,
     AdminCapability.ManageScholarshipContent,
+    AdminCapability.ManageCatalogContent,
   ]),
   [InternalRole.Moderator]: Object.freeze([
     AdminCapability.VerifyOutcomes,
@@ -108,6 +118,7 @@ const ROLE_CAPABILITIES = {
     AdminCapability.VerifyOutcomes,
     AdminCapability.ViewScholarshipContent,
     AdminCapability.ManageScholarshipContent,
+    AdminCapability.ManageCatalogContent,
     AdminCapability.ManagePartnerAgreements,
     AdminCapability.ViewAssignedPilotCohorts,
     AdminCapability.RecruitPilotParticipants,

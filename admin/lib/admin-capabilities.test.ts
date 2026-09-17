@@ -196,3 +196,47 @@ describe('admin capability presentation matrix', () => {
     expect(Object.isFrozen(getAdminCapabilities('unknown'))).toBe(true);
   });
 });
+
+describe('ManageCatalogContent — miroir du contrôleur backend', () => {
+  // `AdminCatalogController` porte @Roles(Admin, SuperAdmin, ContentManager).
+  // La navigation masque l'entrée Catalogue sur cette capacité : si les deux
+  // listes divergent, soit un rôle voit une porte fermée, soit un rôle habilité
+  // perd l'accès sans que rien ne le signale.
+  it.each([
+    InternalRole.Admin,
+    InternalRole.SuperAdmin,
+    InternalRole.ContentManager,
+  ])('%s peut gérer le catalogue', (role) => {
+    expect(hasAdminCapability(role, AdminCapability.ManageCatalogContent)).toBe(
+      true,
+    );
+  });
+
+  it.each([
+    InternalRole.Counselor,
+    InternalRole.Commercial,
+    InternalRole.Moderator,
+  ])('%s ne le peut pas', (role) => {
+    expect(hasAdminCapability(role, AdminCapability.ManageCatalogContent)).toBe(
+      false,
+    );
+  });
+
+  // Les deux capacités couvrent des contrôleurs différents — bourses d'un côté,
+  // catalogue d'écoles de l'autre. Les confondre ferait dériver l'une quand
+  // l'autre change de périmètre.
+  it('reste distincte de ManageScholarshipContent', () => {
+    expect(AdminCapability.ManageCatalogContent).not.toBe(
+      AdminCapability.ManageScholarshipContent,
+    );
+  });
+
+  it('un rôle inconnu n’a aucun accès', () => {
+    expect(
+      hasAdminCapability('stagiaire', AdminCapability.ManageCatalogContent),
+    ).toBe(false);
+    expect(
+      hasAdminCapability(null, AdminCapability.ManageCatalogContent),
+    ).toBe(false);
+  });
+});

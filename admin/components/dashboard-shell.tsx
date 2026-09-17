@@ -16,6 +16,7 @@ const ICON_PATHS: Record<string, string> = {
   cases:
     'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
   content: 'M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7',
+  catalogue: 'M3 9l9-5 9 5-9 5zM6 11v6c0 1.5 2.7 3 6 3s6-1.5 6-3v-6',
   verification: 'M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6zM9 12l2 2 4-4',
   scholarships: 'M12 4L2 9l10 5 10-5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5',
   serviceSales:
@@ -69,6 +70,16 @@ const NAV_LINKS: readonly NavLinkDefinition[] = [
     visibleForRole: canAccessCompetitionReadiness,
   },
   { href: '/content', labelKey: 'nav.content', icon: 'content' },
+  {
+    href: '/catalogue',
+    labelKey: 'nav.catalogue',
+    icon: 'catalogue',
+    // `AdminCatalogController` n'accepte qu'Admin, SuperAdmin et
+    // ContentManager. Sans ce prédicat, un conseiller verrait l'entrée,
+    // cliquerait, et récolterait un 403 — même motif que pour `/etudes-en-france`.
+    visibleForRole: (role) =>
+      hasAdminCapability(role, AdminCapability.ManageCatalogContent),
+  },
   { href: '/verification', labelKey: 'nav.verification', icon: 'verification' },
   {
     href: '/scholarships',
