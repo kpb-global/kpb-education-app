@@ -7,7 +7,9 @@
  * • L'écriture est CONDITIONNÉE à la valeur actuelle (`WHERE levelFr = from`).
  *   Si quelqu'un a corrigé la fiche depuis, le WHERE ne trouve rien et on ne
  *   l'écrase pas. Rejouable sans risque.
- * • `durationFr` n'est comblée que si elle est VIDE — jamais un remplacement.
+ * • `durationFr` et `sourceUrl` ne sont comblées que si elles sont VIDES, et la
+ *   condition vit dans le `WHERE` de leur propre écriture — pas dans une
+ *   lecture préalable, qui laisserait une fenêtre d'écrasement.
  * • `lastVerifiedAt` n'est PAS posée. La source est inscrite dans `sourceUrl`,
  *   mais la vérification humaine reste due : un script qui se déclare vérifié
  *   sortirait ces fiches de la file de contrôle sans que personne ne les ait
@@ -81,26 +83,42 @@ async function main() {
   for (const fix of MUNDIAPOLIS_LEVEL_CORRECTIONS) {
     const current = await prisma.program.findUnique({
       where: { id: fix.id },
-      select: { durationFr: true, sourceUrl: true, nameFr: true },
+      select: { nameFr: true },
     });
     if (!current || current.nameFr !== fix.nameFr) continue;
 
+    // TROIS écritures séparées, et non une seule bâtie sur la lecture ci-dessus.
+    //
+    // Chaque champ porte SA propre condition dans le `WHERE`, réévaluée par la
+    // base à l'instant de l'écriture. Une lecture préalable qui déciderait
+    // « durationFr est vide, donc je la remplis » laisserait une fenêtre : un
+    // administrateur qui saisit la durée entre-temps la verrait écrasée, alors
+    // que le script promet de ne jamais remplacer. C'est le constat P2 de la
+    // revue de #272, reproduit ici — la garde était sur `levelFr` seulement.
     const { count } = await prisma.program.updateMany({
-      // `levelFr: fix.from` est la garde : réévaluée par la base à l'instant de
-      // l'écriture, elle rend l'opération rejouable et non destructive.
       where: { id: fix.id, levelFr: fix.from },
-      data: {
-        levelFr: fix.to,
-        levelEn: fix.to,
-        ...(current.durationFr ? {} : { durationFr: fix.durationFr, durationEn: fix.durationFr }),
-        ...(current.sourceUrl ? {} : { sourceUrl: fix.sourceUrl }),
-      },
+      data: { levelFr: fix.to, levelEn: fix.to },
     });
+
+    const duration = await prisma.program.updateMany({
+      where: { id: fix.id, durationFr: '' },
+      data: { durationFr: fix.durationFr, durationEn: fix.durationFr },
+    });
+
+    const source = await prisma.program.updateMany({
+      where: { id: fix.id, sourceUrl: null },
+      data: { sourceUrl: fix.sourceUrl },
+    });
+
     if (count) {
       written += 1;
-      console.log(`  ✓ ${fix.nameFr}`);
+      console.log(
+        `  ✓ ${fix.nameFr}` +
+          (duration.count ? ' · durée comblée' : '') +
+          (source.count ? ' · source inscrite' : ''),
+      );
     } else {
-      console.log(`  · ${fix.nameFr} — modifié entre-temps, laissé intact`);
+      console.log(`  · ${fix.nameFr} — niveau modifié entre-temps, laissé intact`);
     }
   }
   console.log(`\n── ÉCRIT : ${written} ──`);

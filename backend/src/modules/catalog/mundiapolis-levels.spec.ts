@@ -103,8 +103,29 @@ describe('le script écrit de façon conditionnelle', () => {
     expect(src).not.toMatch(/program\.update\(\{/);
   });
 
-  it('ne comble la durée que si elle est vide', () => {
-    expect(src).toMatch(/current\.durationFr \? \{\} :/);
+  // Revue #276 (P2) : la condition « champ vide » doit vivre dans le `WHERE` de
+  // SA propre écriture. La décider depuis une lecture préalable laisse une
+  // fenêtre — un administrateur qui saisit la durée entre-temps la verrait
+  // écrasée. Même constat que sur #272, reproduit ici parce que la garde ne
+  // couvrait que `levelFr`.
+  it('conditionne le comblement de la durée à une colonne encore vide', () => {
+    expect(src).toMatch(/where:\s*\{\s*id:\s*fix\.id,\s*durationFr:\s*''\s*\}/);
+  });
+
+  it('conditionne l’inscription de la source à une colonne encore nulle', () => {
+    expect(src).toMatch(/where:\s*\{\s*id:\s*fix\.id,\s*sourceUrl:\s*null\s*\}/);
+  });
+
+  // La phase de RAPPORT lit bien ces colonnes — c'est ainsi qu'elle annonce
+  // « durée « 3 ans » ». Ce qui est proscrit, c'est d'en DÉCIDER l'écriture :
+  // la donnée `data` ne doit plus se ramifier sur une lecture antérieure.
+  it('la phase d’écriture ne lit plus que le nom', () => {
+    expect(src).toMatch(/select:\s*\{\s*nameFr:\s*true\s*\}/);
+  });
+
+  it('aucune donnée écrite ne se ramifie sur la lecture préalable', () => {
+    expect(src).not.toMatch(/\.\.\.\(current\.durationFr/);
+    expect(src).not.toMatch(/\.\.\.\(current\.sourceUrl/);
   });
 
   it('ne pose PAS lastVerifiedAt — la vérification humaine reste due', () => {
