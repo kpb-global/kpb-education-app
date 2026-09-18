@@ -623,6 +623,27 @@ case "$ACTION" in
     fi
     ;;
 
+  reconcile-program-ids)
+    # Réaligne `Institution.programIds` sur les lignes `Program` réelles.
+    #
+    # Cette liste dénormalisée est LUE par six écrans de l'app : nombre de
+    # formations affiché, aperçu des trois premières, navigation depuis la fiche
+    # pays — DÉSACTIVÉE quand la liste est vide —, comparateur qui compte et
+    # trie dessus, première formation du profil, filtrage de la recherche.
+    #
+    # Rien en base ne la lie aux lignes `Program` : une formation peut exister
+    # sans être atteignable, et aucune erreur ne le signale. Mesuré le 18/09 :
+    # 3 établissements sur 68, soit 48 formations invisibles, dont les 46 de
+    # Mundiapolis créées par l'import du 16/09.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run reconcile:program-ids
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run reconcile:program-ids -- --apply
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2

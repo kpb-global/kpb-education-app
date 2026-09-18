@@ -137,6 +137,20 @@ describe('le script est prudent', () => {
   // rapport aurait alors annoncé un montant en euros que l'écriture n'aurait
   // pas posé : `tuitionToEur` ne convertit le dirham que pour les
   // établissements citant le taux en source. On compte les occurrences.
+  // Revue #277 (P1) : `Institution.programIds` est LUE par six écrans de l'app
+  // — nombre affiché, aperçu des trois premières, navigation depuis la fiche
+  // pays (désactivée si vide), comparateur, profil, recherche. Créer les
+  // formations sans la renseigner les rend inatteignables, sans aucune erreur.
+  // C'est ce qui est arrivé aux 46 formations de Mundiapolis.
+  it('renseigne programIds après avoir créé les formations', () => {
+    expect(src).toMatch(/data:\s*\{\s*programIds:\s*ids\s*\}/);
+  });
+
+  it('reconstruit la liste depuis la base, pas depuis la table en dur', () => {
+    expect(src).toMatch(/prisma\.program\.findMany\(\{[\s\S]{0,160}institutionId:\s*INST\.id/);
+    expect(src).not.toMatch(/programIds:\s*UNIVERSIAPOLIS_PROGRAMS/);
+  });
+
   it('passe l’établissement à la conversion dans LES DEUX phases', () => {
     const calls = src.match(/tuitionToEur\(p\.tuitionFr, INST\.id\)/g) ?? [];
     expect(calls).toHaveLength(2);

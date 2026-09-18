@@ -318,6 +318,16 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
           updates.push({ where, data });
           return { id: where.id, ...data };
         },
+        // Ajoutés quand le service s'est mis à entretenir
+        // `Institution.programIds` : ces tests portent sur les colonnes de
+        // scoring, mais toute écriture de formation touche désormais aussi la
+        // liste de son établissement. Un harnais qui ne l'expose pas ferait
+        // échouer le service pour une raison étrangère à ce qu'il vérifie.
+        findUnique: async () => ({ institutionId: 'omnes-ece' }),
+        findMany: async () => [{ id: 'prog-1' }],
+      },
+      institution: {
+        updateMany: async () => ({ count: 1 }),
       },
     };
     const prisma = {
@@ -567,5 +577,126 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
       expect(updates).toHaveLength(0);
     });
+  });
+});
+
+/**
+ * `Institution.programIds` est une liste DÉNORMALISÉE que l'app lit pour
+ * compter les formations d'un établissement, en afficher un aperçu, et ouvrir
+ * la navigation depuis une fiche pays — désactivée quand la liste est vide
+ * (`country_detail_screen.dart:241`). Rien en base ne la lie aux lignes
+ * `Program` : créer une formation sans l'entretenir produit une formation qui
+ * existe mais reste inatteignable, sans la moindre erreur.
+ *
+ * Mesuré en production le 18/09 : 46 formations Mundiapolis dans ce cas, créées
+ * par un import qui écrivait une liste vide. La page Catalogue livrée en #275
+ * reproduisait le défaut à chaque création.
+ */
+describe('AdminCatalogService — entretien de Institution.programIds', () => {
+  function makeService(programsByInstitution: Record<string, string[]> = {}) {
+    const rows: Record<string, string[]> = { ...programsByInstitution };
+    const institutionUpdates: Array<{ where: Record<string, unknown>; data: Record<string, unknown> }> = [];
+    let seq = 0;
+    const client = {
+      program: {
+        create: async ({ data }: { data: Record<string, unknown> }) => {
+          const id = `prog-${++seq}`;
+          const inst = data.institutionId as string;
+          (rows[inst] ??= []).push(id);
+          return { id, ...data };
+        },
+        update: async ({ where, data }: { where: { id: string }; data: Record<string, unknown> }) => {
+          const next = data.institutionId as string | undefined;
+          if (next) {
+            for (const key of Object.keys(rows)) {
+              rows[key] = rows[key].filter((x) => x !== where.id);
+            }
+            (rows[next] ??= []).push(where.id);
+          }
+          return { id: where.id, ...data };
+        },
+        delete: async ({ where }: { where: { id: string } }) => {
+          for (const key of Object.keys(rows)) {
+            rows[key] = rows[key].filter((x) => x !== where.id);
+          }
+          return { id: where.id };
+        },
+        findUnique: async ({ where }: { where: { id: string } }) => {
+          for (const [inst, ids] of Object.entries(rows)) {
+            if (ids.includes(where.id)) return { institutionId: inst };
+          }
+          return null;
+        },
+        findMany: async ({ where }: { where: { institutionId: string } }) =>
+          (rows[where.institutionId] ?? []).map((id) => ({ id })),
+      },
+      institution: {
+        updateMany: async (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+          institutionUpdates.push(args);
+          return { count: 1 };
+        },
+      },
+    };
+    const prisma = {
+      isEnabled: true,
+      execute: async (fn: (c: typeof client) => unknown) => fn(client),
+    } as unknown as PrismaService;
+    return { service: new AdminCatalogService(prisma), institutionUpdates, rows };
+  }
+
+  const required = {
+    institutionId: 'partner-mundiapolis',
+    countryId: 'mar',
+    fieldId: 'd04',
+    nameFr: 'Licence Infirmier',
+  };
+
+  it('créer une formation renseigne la liste de son établissement', async () => {
+    const { service, institutionUpdates } = makeService();
+    await service.createProgram(required);
+    expect(institutionUpdates).toHaveLength(1);
+    expect(institutionUpdates[0].where).toMatchObject({ id: 'partner-mundiapolis' });
+    expect(institutionUpdates[0].data.programIds).toEqual(['prog-1']);
+  });
+
+  it('la liste est reconstruite depuis la base, pas incrémentée à l’aveugle', async () => {
+    const { service, institutionUpdates } = makeService({
+      'partner-mundiapolis': ['déjà-là'],
+    });
+    await service.createProgram(required);
+    expect(institutionUpdates[0].data.programIds).toEqual(['déjà-là', 'prog-1']);
+  });
+
+  it('supprimer une formation la retire de la liste', async () => {
+    const { service, institutionUpdates } = makeService({
+      'partner-mundiapolis': ['prog-a', 'prog-b'],
+    });
+    await service.deleteProgram('prog-a');
+    expect(institutionUpdates).toHaveLength(1);
+    expect(institutionUpdates[0].data.programIds).toEqual(['prog-b']);
+  });
+
+  // Le cas qui se perd le plus facilement : changer d'établissement doit
+  // toucher les DEUX listes, celle qu'on quitte et celle qu'on rejoint.
+  it('déplacer une formation met à jour les deux établissements', async () => {
+    const { service, institutionUpdates } = makeService({
+      'inst-a': ['prog-x'],
+      'inst-b': [],
+    });
+    await service.updateProgram('prog-x', { institutionId: 'inst-b' });
+    const touched = institutionUpdates.map((u) => (u.where as { id: string }).id).sort();
+    expect(touched).toEqual(['inst-a', 'inst-b']);
+    const byInst = Object.fromEntries(
+      institutionUpdates.map((u) => [(u.where as { id: string }).id, u.data.programIds]),
+    );
+    expect(byInst['inst-a']).toEqual([]);
+    expect(byInst['inst-b']).toEqual(['prog-x']);
+  });
+
+  it('une modification sans changement d’établissement n’en touche qu’un', async () => {
+    const { service, institutionUpdates } = makeService({ 'inst-a': ['prog-x'] });
+    await service.updateProgram('prog-x', { nameFr: 'Nouveau nom' });
+    expect(institutionUpdates).toHaveLength(1);
+    expect((institutionUpdates[0].where as { id: string }).id).toBe('inst-a');
   });
 });

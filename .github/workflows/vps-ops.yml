@@ -64,8 +64,9 @@ on:
           - backfill-tuition-eur
           - fix-mundiapolis-levels
           - import-universiapolis
+          - reconcile-program-ids
       dry_run:
-        description: 'Simuler seulement (publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis). Décocher pour appliquer.'
+        description: 'Simuler seulement (publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true

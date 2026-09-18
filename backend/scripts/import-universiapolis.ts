@@ -101,6 +101,9 @@ async function main() {
       languageRequirementsFr: '',
       languageRequirementsEn: '',
       intakePeriods: [...INST.intakePeriods],
+      // Renseignée APRÈS la création des formations : l'app lit cette liste
+      // pour compter, lister et NAVIGUER. Vide, l'établissement paraît n'avoir
+      // aucune formation et la navigation depuis la fiche pays est désactivée.
       programIds: [],
       isPartner: INST.isPartner,
     },
@@ -137,7 +140,21 @@ async function main() {
     written += 1;
     console.log(`  ✓ ${p.nameFr}`);
   }
-  console.log(`\n── ÉCRIT : ${written} ──`);
+
+  // Reconstruite depuis les lignes réellement présentes, et non depuis la table
+  // en dur : si une formation existait déjà, elle doit y figurer aussi.
+  const ids = (
+    await prisma.program.findMany({
+      where: { institutionId: INST.id },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    })
+  ).map((row) => row.id);
+  await prisma.institution.update({
+    where: { id: INST.id },
+    data: { programIds: ids },
+  });
+  console.log(`\n── ÉCRIT : ${written} · programIds = ${ids.length} ──`);
 }
 
 main()

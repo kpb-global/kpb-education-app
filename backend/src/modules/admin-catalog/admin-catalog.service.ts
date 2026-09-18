@@ -640,6 +640,37 @@ export class AdminCatalogService {
   // ════════════════════════════════════════════════════════════════════════
   // PROGRAMS (formations)
   // ════════════════════════════════════════════════════════════════════════
+  /// Maintient `Institution.programIds`, liste dénormalisée que l'APP LIT.
+  ///
+  /// Six écrans en dépendent : le nombre de formations affiché
+  /// (`explore_screen.dart:989`), l'aperçu des trois premières (:1607), la
+  /// navigation depuis une fiche pays — DÉSACTIVÉE quand la liste est vide
+  /// (`country_detail_screen.dart:241`) —, le comparateur qui compte et trie
+  /// dessus, la première formation du profil, et le filtrage de la recherche.
+  ///
+  /// Rien en base ne lie cette liste aux lignes `Program` : elle doit être
+  /// entretenue à la main, sinon une formation existe sans être atteignable.
+  /// C'est ce qui est arrivé aux 46 formations de Mundiapolis, créées par
+  /// l'import du 16/09 avec une liste vide.
+  private async syncInstitutionProgramIds(institutionId: string) {
+    const ids = (
+      await this.prisma.execute((db) =>
+        db.program.findMany({
+          where: { institutionId },
+          select: { id: true },
+          orderBy: { id: 'asc' },
+        }),
+      )
+    )?.map((p) => p.id);
+    if (ids == null) return;
+    await this.prisma.execute((db) =>
+      db.institution.updateMany({
+        where: { id: institutionId },
+        data: { programIds: ids },
+      }),
+    );
+  }
+
   async createProgram(input: Record<string, unknown>) {
     this.assertDb();
     const data: Prisma.ProgramCreateInput = {
@@ -671,6 +702,7 @@ export class AdminCatalogService {
     const created = await this.prisma.execute((db) =>
       db.program.create({ data }),
     );
+    await this.syncInstitutionProgramIds(data.institutionId);
     return created;
   }
 
@@ -700,20 +732,39 @@ export class AdminCatalogService {
       teachingLanguages: this.pickStrArr(input, 'teachingLanguages'),
       campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
     });
-    return this.runUpdate(() =>
-      this.prisma.execute((db) => db.program.update({ where: { id }, data })),
+    // L'établissement peut changer : les DEUX listes doivent bouger, celle
+    // qu'on quitte comme celle qu'on rejoint.
+    const before = await this.prisma.execute((db) =>
+      db.program.findUnique({ where: { id }, select: { institutionId: true } }),
+    );
+    const updated = await this.runUpdate(
+      () => this.prisma.execute((db) => db.program.update({ where: { id }, data })),
       'Program',
       id,
     );
+    const after = (data as { institutionId?: string }).institutionId;
+    const touched = new Set(
+      [before?.institutionId, after].filter((x): x is string => x != null),
+    );
+    for (const institutionId of touched) {
+      await this.syncInstitutionProgramIds(institutionId);
+    }
+    return updated;
   }
 
   async deleteProgram(id: string) {
     this.assertDb();
+    const before = await this.prisma.execute((db) =>
+      db.program.findUnique({ where: { id }, select: { institutionId: true } }),
+    );
     await this.runUpdate(
       () => this.prisma.execute((db) => db.program.delete({ where: { id } })),
       'Program',
       id,
     );
+    if (before?.institutionId) {
+      await this.syncInstitutionProgramIds(before.institutionId);
+    }
     return { id, deleted: true };
   }
 
