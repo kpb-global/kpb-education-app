@@ -3,6 +3,18 @@ import * as path from 'node:path';
 
 import { SEED_INSTITUTION_FILLS } from './seed-institution-fills';
 
+const SCRIPT = fs.readFileSync(
+  path.join(__dirname, '../../../scripts/backfill-seed-institutions.ts'),
+  'utf8',
+);
+
+/**
+ * Le script SANS ses commentaires. Un test qui cherche une chaîne dans le
+ * fichier entier confond « le code écrit ceci » et « le commentaire en parle » :
+ * la première version échouait sur sa propre documentation.
+ */
+const CODE = SCRIPT.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+
 /**
  * La table EST le correctif : elle écrit la description que des étudiants
  * liront pour choisir où engager des frais de scolarité. Un champ vide ici
@@ -76,26 +88,52 @@ describe('table de complétion des établissements seed', () => {
   // Mundiapolis — une fiche qui se déclare vérifiée sort de la file de
   // contrôle sans que personne ne l'ait regardée.
   it('le script ne se déclare jamais vérifié', () => {
-    const script = fs.readFileSync(
-      path.join(__dirname, '../../../scripts/backfill-seed-institutions.ts'),
-      'utf8',
-    );
-    expect(script).not.toContain('lastVerifiedAt');
+    expect(CODE).not.toContain('lastVerifiedAt');
   });
 
   // Chaque écriture doit porter SA condition dans le WHERE, réévaluée par la
   // base à l'instant de l'écriture. Une décision prise sur la lecture préalable
   // laisserait une fenêtre : un administrateur qui saisit la description
   // entre-temps la verrait écrasée, alors que le script promet l'inverse.
-  it('chaque écriture est conditionnée à un champ vide', () => {
-    const script = fs.readFileSync(
-      path.join(__dirname, '../../../scripts/backfill-seed-institutions.ts'),
-      'utf8',
+  it('aucune écriture ne vise une ligne par son seul identifiant', () => {
+    expect(CODE).not.toMatch(/updateMany\(\{\s*where:\s*\{\s*id:[^,}]*\}\s*,/);
+    expect(CODE).toContain('sourceUrl: null');
+  });
+
+  // ── Le défaut relevé en revue (P2, #278) ────────────────────────────────
+  //
+  // La première version groupait les paires bilingues : `WHERE overviewFr = ''`
+  // écrivait overviewFr ET overviewEn. Or `updateInstitution` accepte les deux
+  // langues INDÉPENDAMMENT, donc « anglais saisi, français encore vide » est un
+  // état atteignable — et cette écriture écrasait l'anglais saisi à la main.
+  //
+  // Le test regarde la FORME de l'écriture : le `data` ne doit jamais porter
+  // plus d'une colonne, sinon une colonne est écrite sous la condition d'une
+  // autre. C'est cela qui doit rester vrai, pas la présence d'une chaîne.
+  it('chaque écriture ne touche qu’une seule colonne', () => {
+    const writes = [...CODE.matchAll(/data:\s*\{([^}]*)\}/g)].map((m) =>
+      m[1]
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
     );
-    expect(script).toContain("overviewFr: ''");
-    expect(script).toContain("locationFr: ''");
-    expect(script).toContain('sourceUrl: null');
-    // Aucune écriture ne doit viser une ligne par son seul identifiant.
-    expect(script).not.toMatch(/updateMany\(\{\s*where:\s*\{\s*id:[^,}]*\}\s*,/);
+    expect(writes.length).toBeGreaterThan(0);
+    for (const columns of writes) {
+      expect(columns).toHaveLength(1);
+    }
+  });
+
+  // Les quatre colonnes texte doivent TOUTES être comblées — y compris les
+  // anglaises. Le défaut symétrique du précédent : un overviewEn vide n'était
+  // jamais comblé si overviewFr était déjà rempli.
+  it('les quatre colonnes texte sont comblées, pas seulement les françaises', () => {
+    for (const column of [
+      'overviewFr',
+      'overviewEn',
+      'locationFr',
+      'locationEn',
+    ]) {
+      expect(CODE).toContain(`'${column}'`);
+    }
   });
 });

@@ -1,7 +1,23 @@
 /**
- * Comble les champs vides des institutions « seed » (antérieures à l'import
- * partenaire). Chaque écriture est conditionnée à un champ VIDE — si
- * quelqu'un a rempli le champ depuis l'admin, on ne l'écrase pas.
+ * Comble les champs vides des établissements « seed » (antérieurs à l'import
+ * partenaire). Voir src/modules/catalog/seed-institution-fills.ts pour la
+ * table et ses sources.
+ *
+ * UNE COLONNE = UNE ÉCRITURE = SA PROPRE CONDITION.
+ *
+ * La première version groupait les paires bilingues : `WHERE overviewFr = ''`
+ * écrivait overviewFr ET overviewEn. `updateInstitution` accepte pourtant les
+ * deux langues INDÉPENDAMMENT (admin-catalog.service.ts), donc l'état « anglais
+ * saisi, français encore vide » est atteignable — et cette écriture écrasait
+ * l'anglais saisi à la main. Le symétrique était tout aussi faux : un anglais
+ * vide n'était jamais comblé si le français était déjà rempli.
+ *
+ * La condition vit dans le `WHERE`, jamais dans une lecture préalable : une
+ * décision prise sur la lecture laisserait une fenêtre où un administrateur
+ * saisit la valeur entre-temps et la voit écrasée.
+ *
+ * `lastVerifiedAt` n'est PAS posée : la source est inscrite, la vérification
+ * humaine reste due.
  *
  *   npm run backfill:seed-institutions                # simulation
  *   npm run backfill:seed-institutions -- --apply     # écrit
@@ -17,11 +33,19 @@ if (existsSync('.env')) loadEnvFile?.('.env');
 
 const prisma = new PrismaClient();
 
+/** Les colonnes texte, chacune comblée seule. */
+const TEXT_COLUMNS = [
+  'overviewFr',
+  'overviewEn',
+  'locationFr',
+  'locationEn',
+] as const;
+
 async function main() {
   const apply = process.argv.includes('--apply');
   let toWrite = 0;
 
-  console.log(`${SEED_INSTITUTION_FILLS.length} institution(s) à compléter\n`);
+  console.log(`${SEED_INSTITUTION_FILLS.length} établissement(s) à compléter\n`);
 
   for (const fill of SEED_INSTITUTION_FILLS) {
     const row = await prisma.institution.findUnique({
@@ -30,7 +54,9 @@ async function main() {
         id: true,
         nameFr: true,
         overviewFr: true,
+        overviewEn: true,
         locationFr: true,
+        locationEn: true,
         sourceUrl: true,
       },
     });
@@ -40,21 +66,19 @@ async function main() {
       continue;
     }
 
-    const gaps: string[] = [];
-    if (!row.overviewFr) gaps.push('overview');
-    if (!row.locationFr) gaps.push('location');
-    if (!row.sourceUrl) gaps.push('source');
+    const gaps = TEXT_COLUMNS.filter((c) => !row[c]);
+    if (!row.sourceUrl) gaps.push('sourceUrl' as never);
 
     if (gaps.length === 0) {
       console.log(`  · ${row.nameFr} — déjà complet`);
       continue;
     }
 
-    console.log(`  → ${row.nameFr} : ${gaps.join(', ')} à combler`);
+    console.log(`  → ${row.nameFr} : ${gaps.join(', ')}`);
     toWrite += 1;
   }
 
-  console.log(`\nTOTAL : ${toWrite} institution(s) à compléter.`);
+  console.log(`\nTOTAL : ${toWrite} établissement(s) à compléter.`);
   if (!apply) {
     console.log('\n── SIMULATION — aucune écriture. Relancer avec --apply. ──');
     return;
@@ -62,36 +86,29 @@ async function main() {
 
   let written = 0;
   for (const fill of SEED_INSTITUTION_FILLS) {
-    let touched = false;
+    const filled: string[] = [];
 
-    const ov = await prisma.institution.updateMany({
-      where: { id: fill.id, overviewFr: '' },
-      data: { overviewFr: fill.overviewFr, overviewEn: fill.overviewEn },
-    });
-    if (ov.count) touched = true;
-
-    const loc = await prisma.institution.updateMany({
-      where: { id: fill.id, locationFr: '' },
-      data: { locationFr: fill.locationFr, locationEn: fill.locationEn },
-    });
-    if (loc.count) touched = true;
+    // Une écriture par colonne : chacune ne s'applique QUE si cette colonne-là
+    // est vide, réévalué par la base à l'instant de l'écriture.
+    for (const column of TEXT_COLUMNS) {
+      const { count } = await prisma.institution.updateMany({
+        where: { id: fill.id, [column]: '' },
+        data: { [column]: fill[column] },
+      });
+      if (count) filled.push(column);
+    }
 
     const src = await prisma.institution.updateMany({
       where: { id: fill.id, sourceUrl: null },
       data: { sourceUrl: fill.sourceUrl },
     });
-    if (src.count) touched = true;
+    if (src.count) filled.push('sourceUrl');
 
-    if (touched) {
+    if (filled.length) {
       written += 1;
-      console.log(
-        `  ✓ ${fill.id}` +
-          (ov.count ? ' · overview' : '') +
-          (loc.count ? ' · location' : '') +
-          (src.count ? ' · source' : ''),
-      );
+      console.log(`  ✓ ${fill.id} · ${filled.join(', ')}`);
     } else {
-      console.log(`  · ${fill.id} — tout rempli entre-temps`);
+      console.log(`  · ${fill.id} — tout rempli entre-temps, rien écrit`);
     }
   }
   console.log(`\n── ÉCRIT : ${written} ──`);
