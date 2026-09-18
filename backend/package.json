@@ -18,6 +18,7 @@
     "import:universiapolis": "ts-node scripts/import-universiapolis.ts",
     "fix:mundiapolis-levels": "ts-node scripts/fix-mundiapolis-levels.ts",
     "backfill:tuition-eur": "ts-node scripts/backfill-tuition-min-eur.ts",
+    "backfill:seed-institutions": "ts-node scripts/backfill-seed-institutions.ts",
     "import:partners": "ts-node scripts/import-partner-universities.ts",
     "seed:partners": "ts-node scripts/seed-partner-schools.ts",
     "seed:countries-m5": "ts-node scripts/seed-countries-m5.ts",
