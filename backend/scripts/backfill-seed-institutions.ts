@@ -26,7 +26,13 @@ async function main() {
   for (const fill of SEED_INSTITUTION_FILLS) {
     const row = await prisma.institution.findUnique({
       where: { id: fill.id },
-      select: { id: true, nameFr: true, overviewFr: true, locationFr: true },
+      select: {
+        id: true,
+        nameFr: true,
+        overviewFr: true,
+        locationFr: true,
+        sourceUrl: true,
+      },
     });
 
     if (!row) {
@@ -37,6 +43,7 @@ async function main() {
     const gaps: string[] = [];
     if (!row.overviewFr) gaps.push('overview');
     if (!row.locationFr) gaps.push('location');
+    if (!row.sourceUrl) gaps.push('source');
 
     if (gaps.length === 0) {
       console.log(`  · ${row.nameFr} — déjà complet`);
@@ -69,12 +76,19 @@ async function main() {
     });
     if (loc.count) touched = true;
 
+    const src = await prisma.institution.updateMany({
+      where: { id: fill.id, sourceUrl: null },
+      data: { sourceUrl: fill.sourceUrl },
+    });
+    if (src.count) touched = true;
+
     if (touched) {
       written += 1;
       console.log(
         `  ✓ ${fill.id}` +
           (ov.count ? ' · overview' : '') +
-          (loc.count ? ' · location' : ''),
+          (loc.count ? ' · location' : '') +
+          (src.count ? ' · source' : ''),
       );
     } else {
       console.log(`  · ${fill.id} — tout rempli entre-temps`);
