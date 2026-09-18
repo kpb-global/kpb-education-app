@@ -14,6 +14,7 @@
     "import:omnes": "ts-node scripts/import-omnes-template.ts",
     "import:omnes:bundled": "ts-node scripts/import-omnes-template.ts scripts/data/omnes_fall_26.xlsx",
     "seed:omnes": "ts-node scripts/seed-omnes-programs.ts",
+    "import:universiapolis": "ts-node scripts/import-universiapolis.ts",
     "fix:mundiapolis-levels": "ts-node scripts/fix-mundiapolis-levels.ts",
     "backfill:tuition-eur": "ts-node scripts/backfill-tuition-min-eur.ts",
     "import:partners": "ts-node scripts/import-partner-universities.ts",

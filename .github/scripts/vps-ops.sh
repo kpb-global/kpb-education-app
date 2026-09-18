@@ -600,6 +600,29 @@ case "$ACTION" in
     fi
     ;;
 
+  import-universiapolis)
+    # Crée Universiapolis et ses 6 formations.
+    #
+    # Écartée de l'import CSV du 16/09 : ses 15 lignes étaient des ANNÉES
+    # D'ENTRÉE tarifées (« 1re année », « 2e année »…), pas des formations.
+    # `normalizeDegreeLevel` les aurait laissées passer telles quelles, et l'app
+    # aurait affiché « 2e année » comme un niveau de diplôme.
+    #
+    # Les diplômes viennent des pages de l'université, reportées dans
+    # `sourceUrl`. `tuitionMinEur` est calculé au taux dirham que l'université
+    # publie elle-même — première fois que ce taux couvre une ligne en base.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run import:universiapolis
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run import:universiapolis -- --apply
+      echo
+      echo "── Intégrité des références pays ──"
+      docker compose exec -T api npm run verify:catalog
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2

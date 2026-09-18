@@ -112,6 +112,13 @@ const _nonProcessorSuffixes = <String>[
   // et l'étudiant ouvrent pour vérifier une fiche, jamais un destinataire de
   // données personnelles.
   'mundiapolis.ma',
+  // Universiapolis et ses écoles : le catalogue cite leurs pages comme SOURCE
+  // d'un niveau de diplôme (`Program.sourceUrl`). Des liens qu'on ouvre pour
+  // vérifier une fiche, jamais des destinataires de données personnelles.
+  'universiapolis.ma',
+  'e-polytechnique.ma',
+  'suphcom.ma',
+  'suphdroit.ma',
   'aucegypt.edu',
   'auf.org',
   'campuschina.org',
