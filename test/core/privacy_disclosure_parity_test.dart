@@ -119,6 +119,12 @@ const _nonProcessorSuffixes = <String>[
   'e-polytechnique.ma',
   'suphcom.ma',
   'suphdroit.ma',
+  // ESSEC et l'Université d'Ottawa : le catalogue cite leur site officiel
+  // comme SOURCE de la description d'établissement (`Institution.sourceUrl`).
+  // Même nature que les deux précédents — un lien que l'étudiant OUVRE pour
+  // vérifier une fiche, jamais un destinataire de ses données.
+  'essec.edu',
+  'uottawa.ca',
   'aucegypt.edu',
   'auf.org',
   'campuschina.org',
