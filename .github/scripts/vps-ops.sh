@@ -644,6 +644,19 @@ case "$ACTION" in
     fi
     ;;
 
+  backfill-seed-institutions)
+    # Comble overview et location des 2 institutions « seed » créées avant
+    # l'import partenaire (ESSEC et uOttawa). L'écriture est conditionnée à
+    # un champ VIDE — une saisie manuelle n'est jamais écrasée.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run backfill:seed-institutions
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run backfill:seed-institutions -- --apply
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2
