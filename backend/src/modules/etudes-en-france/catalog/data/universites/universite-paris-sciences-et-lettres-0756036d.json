@@ -600,7 +600,7 @@
       "level": "Master",
       "cycle": "master",
       "fieldId": "d09",
-      "fieldIsFallback": true,
+      "fieldIsFallback": false,
       "durationYears": 2,
       "campusCity": "Paris",
       "procedureType": "eef",

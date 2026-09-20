@@ -64,6 +64,8 @@ export type EefLevel = 'Bac+2' | 'Bachelor' | 'Master' | 'Doctorat';
 /// procédure et du calendrier.
 export type EefCycle =
   | 'licence1'
+  | 'licence2'
+  | 'licence3'
   | 'licence_pro'
   | 'but1'
   | 'deust'
@@ -73,6 +75,8 @@ export type EefCycle =
 
 export const EEF_CYCLES: readonly EefCycle[] = [
   'licence1',
+  'licence2',
+  'licence3',
   'licence_pro',
   'but1',
   'deust',
@@ -83,7 +87,13 @@ export const EEF_CYCLES: readonly EefCycle[] = [
 
 /// Jeu de données d'origine. Sert au journal d'import et à la re-vérification :
 /// savoir d'où vient une ligne, c'est savoir quoi re-interroger.
-export type EefSourceDataset = 'parcoursup' | 'trouver-mon-master';
+export type EefSourceDataset =
+  | 'parcoursup'
+  | 'trouver-mon-master'
+  /// Diplômes réellement préparés dans les établissements publics (SISE).
+  /// C'est la seule source ouverte qui atteste une 2e et une 3e année de
+  /// licence : elle les liste parce que des étudiants y ÉTAIENT inscrits.
+  | 'diplomes-prepares';
 
 /// Une université publique (ou assimilée : les établissements expérimentaux
 /// qui portent une typologie d'université au référentiel MESR).

@@ -1,9 +1,9 @@
 {
-  "catalogVersion": "1.0.0",
-  "generatedAt": "2026-09-20T16:05:12.916Z",
+  "catalogVersion": "1.1.0",
+  "generatedAt": "2026-09-20T19:38:37.279Z",
   "countryId": "france",
   "institutionCount": 70,
-  "programCount": 7113,
+  "programCount": 10247,
   "sources": [
     {
       "dataset": "parcoursup",
@@ -12,7 +12,7 @@
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "query": "secteur_d_etablissement=\"public\" and typologie_d_universites_et_assimiles is not null",
       "vintage": "2025",
-      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 70
     },
     {
@@ -22,7 +22,7 @@
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "query": "annee=2026 and etablissement_id_paysage in (70 universités)",
       "vintage": "2026",
-      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 4100
     },
     {
@@ -32,7 +32,7 @@
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "query": "annee=2021",
       "vintage": "2021",
-      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 3584
     },
     {
@@ -42,7 +42,7 @@
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "query": "annee=2021",
       "vintage": "2021",
-      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 9078
     },
     {
@@ -52,8 +52,18 @@
       "licence": "Licence Ouverte v2.0 (Etalab)",
       "query": "group_by(etablissement_id_paysage_source, etablissement_id_paysage_actuel)",
       "vintage": "2024",
-      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 294
+    },
+    {
+      "dataset": "diplomes-prepares",
+      "datasetId": "fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "rentree=2024 and diplome_rgp=\"Licence\" and (niveau=\"02\" or niveau=\"03\")",
+      "vintage": "2024",
+      "fetchedAt": "2026-09-20T19:38:37.279Z",
+      "rowCount": 3265
     }
   ]
 }

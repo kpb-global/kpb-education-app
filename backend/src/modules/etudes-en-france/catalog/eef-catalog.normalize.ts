@@ -110,7 +110,7 @@ export const FIELD_KEYWORD_RULES: readonly {
       'infirmi', 'sante publique', 'sciences pour la sante', 'biologie sante',
       'nutrition', 'audioprothes', 'opticien', 'orthopt', 'orthophon',
       'psychomotric', 'ergotherap', 'pedicure', 'podolog', 'soins',
-      'medical', 'biomedical', 'cancerolog', 'neurosciences',
+      'medical', 'biomedical', 'sante et societe', 'cancerolog', 'neurosciences',
       'imagerie medicale', 'ethique medicale', 'vieillissement', 'handicap',
     ],
   },
@@ -140,7 +140,7 @@ export const FIELD_KEYWORD_RULES: readonly {
       'droit', 'juridique', 'justice', 'notarial', 'science politique',
       'sciences politiques', 'relations internationales',
       'administration publique', 'carrieres juridiques', 'criminolog',
-      'securite globale', 'gendarmerie', 'defense',
+      'securite globale', 'gendarmerie', 'defense', 'etudes politiques',
     ],
   },
   {
@@ -148,7 +148,7 @@ export const FIELD_KEYWORD_RULES: readonly {
     keywords: [
       'architecture', 'genie civil', 'btp', 'urbanis', 'travaux batiment',
       'batiment', 'construction', 'travaux publics', 'amenagement du territoire',
-      'paysage', 'villes et territoires durables',
+      'paysage', 'villes et territoires durables', 'genie urbain',
     ],
   },
   {
@@ -198,7 +198,7 @@ export const FIELD_KEYWORD_RULES: readonly {
       'etudes culturelles', 'sciences de l education', 'humanites',
       'carrieres sociales', 'animation sociale', 'assistance sociale',
       'travail social', 'sanitaires et sociales', 'intervention sociale',
-      'mediations citoyennes',
+      'mediations citoyennes', 'cognitiv',
     ],
   },
   {
@@ -278,6 +278,74 @@ export function resolveFieldId(
   const primaryDomain = normalizeLabel((domain ?? '').split('|')[0] ?? '');
   const fallback = FIELD_FALLBACK_BY_DOMAIN[primaryDomain];
   return fallback ? { fieldId: fallback, isFallback: true } : null;
+}
+
+/**
+ * Rétablissement des accents sur un intitulé de diplôme.
+ *
+ * POURQUOI C'EST NÉCESSAIRE
+ *
+ * Le jeu des diplômes réellement préparés — seule source ouverte qui atteste
+ * une 2e et une 3e année de licence — publie ses intitulés SANS ACCENTS :
+ * « Langues, litteratures et civilisations etrangeres et regionales ».
+ * Servi tel quel, c'est une faute d'orthographe sur 3 000 fiches.
+ *
+ * POURQUOI ON NE DEVINE PAS
+ *
+ * Replacer des accents par règle est impossible en français (« cote », « côte »,
+ * « coté », « côté »). On ne devine donc rien : on RECONNAÎT. Deux sources,
+ * dans cet ordre :
+ *
+ * 1. Un intitulé déjà présent dans le catalogue avec ses accents — Parcoursup
+ *    et Trouver Mon Master les publient correctement. C'est 78 intitulés sur
+ *    96, et ça ne coûte aucune saisie humaine.
+ * 2. Une table FERMÉE pour les 18 restants, essentiellement les mentions STAPS
+ *    et quelques doubles licences, qu'aucun des deux autres jeux ne nomme.
+ *
+ * Ce qui ne tombe dans ni l'un ni l'autre garde son intitulé brut. C'est laid
+ * et c'est voulu : une fiche sans accent se repère et se corrige, une fiche
+ * accentuée au hasard ne se repère pas.
+ */
+export const LICENCE_LABEL_CORRECTIONS: Readonly<Record<string, string>> = {
+  'staps : education et motricite': 'STAPS : éducation et motricité',
+  'staps : entrainement sportif': 'STAPS : entraînement sportif',
+  'staps : ergonomie du sport et performance motrice':
+    'STAPS : ergonomie du sport et performance motrice',
+  'staps : activite physique adaptee et sante':
+    'STAPS : activité physique adaptée et santé',
+  'staps : management du sport': 'STAPS : management du sport',
+  'information communication': 'Information-communication',
+  'sciences et societe': 'Sciences et société',
+  'sciences de la terre et de l environnement':
+    "Sciences de la Terre et de l'environnement",
+  'histoire geographie': 'Histoire-géographie',
+  'etudes politiques': 'Études politiques',
+  'informatique et applications': 'Informatique et applications',
+  'histoire allemand': 'Histoire-allemand',
+  'histoire anglais': 'Histoire-anglais',
+  'lettres anglais': 'Lettres-anglais',
+  'lettres histoire': 'Lettres-histoire',
+  'lettres sciences du langage': 'Lettres-sciences du langage',
+  'acoustique et vibrations': 'Acoustique et vibrations',
+  'licence integree franco allemande en droit':
+    'Licence intégrée franco-allemande en droit',
+  'terre, eau, environnement': 'Terre, eau, environnement',
+  'droits francais droits etrangers': 'Droits français-droits étrangers',
+  'sante et societe': 'Santé et société',
+  'genie urbain': 'Génie urbain',
+  'sciences cognitives': 'Sciences cognitives',
+  'sciences de la vigne et du vin': 'Sciences de la vigne et du vin',
+  'sciences des systemes communicants': 'Sciences des systèmes communicants',
+};
+
+export function restoreAccentedLabel(
+  raw: string,
+  knownLabels: ReadonlyMap<string, string>,
+): string {
+  const trimmed = (raw ?? '').trim();
+  if (trimmed === '') return '';
+  const key = normalizeLabel(trimmed);
+  return knownLabels.get(key) ?? LICENCE_LABEL_CORRECTIONS[key] ?? trimmed;
 }
 
 /// Forme d'une formation Parcoursup : ce que sa famille implique.

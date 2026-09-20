@@ -14,6 +14,7 @@ import {
   normalizeLabel,
   resolveFieldId,
   resolveParcoursupShape,
+  restoreAccentedLabel,
   stableEefId,
 } from './eef-catalog.normalize';
 import type {
@@ -356,4 +357,190 @@ export function countRejections(
   const out: Record<string, number> = {};
   for (const row of rejected) out[row.reason] = (out[row.reason] ?? 0) + 1;
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Les 2e et 3e années de licence.
+//
+// POURQUOI ELLES NE VIENNENT PAS DE PARCOURSUP
+//
+// La cartographie Parcoursup ne décrit que l'ENTRÉE EN PREMIÈRE ANNÉE. Or un
+// candidat qui passe par la procédure Études en France vise très souvent une
+// L2 ou une L3 — c'est même le cas le plus courant pour qui a déjà commencé
+// des études chez lui. Ces années existent, elles ne sont simplement dans
+// aucun portail de candidature nationale : on entre en L2 ou en L3 sur dossier,
+// auprès de l'université.
+//
+// POURQUOI ON NE LES DÉDUIT PAS DES L1
+//
+// « Une licence dure trois ans, donc toute L1 implique une L2 et une L3 » est
+// vrai en général et faux en particulier : PASS n'a pas de L2 du même nom, les
+// portails pluridisciplinaires se scindent, des mentions ferment une année
+// sans fermer l'autre, et certaines L3 n'existent que sur un campus
+// secondaire. Déduire produirait des fiches plausibles et non vérifiables —
+// exactement ce que ce pipeline refuse.
+//
+// D'OÙ ELLES VIENNENT
+//
+// Du jeu des diplômes réellement préparés : le ministère y publie, par
+// établissement et par année d'étude, les diplômes où des étudiants étaient
+// INSCRITS à la rentrée. Une L3 y figure parce que quelqu'un l'a suivie. C'est
+// une preuve d'existence, pas une déduction — et elle porte l'implantation
+// exacte, donc le bon campus.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Une ligne du jeu des diplômes préparés, agrégée par établissement courant,
+/// diplôme, année d'étude et implantation.
+export interface RawLicenceYearRow {
+  readonly etablissement_id_paysage_actuel?: string | null;
+  readonly etablissement_actuel_lib?: string | null;
+  readonly libelle_intitule_1?: string | null;
+  /// « 02 » ou « 03 » : l'année dans le cursus.
+  readonly niveau?: string | null;
+  readonly implantation_commune?: string | null;
+  readonly diplom?: string | null;
+}
+
+export const DIPLOMAS_DATASET_ID =
+  'fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics';
+
+/**
+ * Le lien qui atteste UNE ligne, et pas seulement le jeu de données.
+ *
+ * Un `sourceUrl` partagé par 3 000 fiches ne se vérifie pas : le vérificateur
+ * retomberait sur 530 000 lignes et refermerait l'onglet. Le portail accepte
+ * des filtres dans l'URL, donc chaque fiche pointe sur SA ligne — le diplôme,
+ * l'établissement et la rentrée. C'est ce qui rend la file de vérification
+ * exécutable à cette échelle.
+ */
+export function diplomaSourceUrl(
+  paysageId: string,
+  diplomaCode: string,
+  rentree: number,
+): string {
+  const refines = [
+    `rentree%3A${rentree}`,
+    `diplom%3A${encodeURIComponent(diplomaCode)}`,
+    `etablissement_id_paysage_actuel%3A${encodeURIComponent(paysageId)}`,
+  ];
+  return (
+    'https://data.enseignementsup-recherche.gouv.fr/explore/assets/'
+    + `${DIPLOMAS_DATASET_ID}/view/?refine=${refines.join('&refine=')}`
+  );
+}
+
+/// Intitulés déjà connus du catalogue, AVEC leurs accents, indexés sur leur
+/// forme normalisée. Le préfixe de filière (« L1 - », « BUT - », « Master — »)
+/// est retiré : c'est la mention qui se retrouve d'un jeu à l'autre.
+export function buildLabelIndex(
+  programs: readonly EefProgramRecord[],
+): Map<string, string> {
+  const index = new Map<string, string>();
+  for (const program of programs) {
+    const withoutPrefix = program.nameFr.replace(/^[^-—]{1,12}[-—]\s*/, '').trim();
+    for (const candidate of [withoutPrefix, program.nameFr]) {
+      const key = normalizeLabel(candidate);
+      if (key !== '' && !index.has(key)) index.set(key, candidate);
+    }
+  }
+  return index;
+}
+
+/// Ce qu'une « année d'étude » du jeu source vaut au catalogue.
+const LICENCE_YEARS: Readonly<
+  Record<string, { cycle: 'licence2' | 'licence3'; remainingYears: number }>
+> = {
+  '02': { cycle: 'licence2', remainingYears: 2 },
+  '03': { cycle: 'licence3', remainingYears: 1 },
+};
+
+/// Intitulés qui ne désignent pas une mention de licence : un « portail » est
+/// une entrée pluridisciplinaire de première année, qui se scinde ensuite.
+/// L'annoncer comme une L2 ou une L3 à part entière tromperait.
+function isNotAMention(label: string): boolean {
+  const normalized = normalizeLabel(label);
+  return (
+    normalized.startsWith('portail') || normalized.startsWith('pluridisciplinaire')
+  );
+}
+
+export function buildLicenceContinuationPrograms(
+  rows: readonly RawLicenceYearRow[],
+  institutionByPaysage: ReadonlyMap<string, EefInstitutionRecord>,
+  knownLabels: ReadonlyMap<string, string>,
+  rentree: number,
+): BuildResult<EefProgramRecord> {
+  const records: EefProgramRecord[] = [];
+  const rejected: RejectedRow[] = [];
+  const seen = new Set<string>();
+
+  for (const row of rows) {
+    const paysage = (row.etablissement_id_paysage_actuel ?? '').trim();
+    const institution = institutionByPaysage.get(paysage);
+    if (!institution) {
+      rejected.push({
+        reason: 'etablissement-inconnu',
+        label: (row.etablissement_actuel_lib ?? '').trim() || '(sans nom)',
+      });
+      continue;
+    }
+    const year = LICENCE_YEARS[(row.niveau ?? '').trim()];
+    if (!year) {
+      rejected.push({ reason: 'famille-inconnue', label: `niveau ${row.niveau}` });
+      continue;
+    }
+    const rawLabel = (row.libelle_intitule_1 ?? '').trim();
+    if (rawLabel === '' || isNotAMention(rawLabel)) {
+      rejected.push({
+        reason: rawLabel === '' ? 'intitule-vide' : 'domaine-introuvable',
+        label: rawLabel || (row.etablissement_actuel_lib ?? '').trim(),
+      });
+      continue;
+    }
+    const field = resolveFieldId(rawLabel);
+    if (!field) {
+      rejected.push({ reason: 'domaine-introuvable', label: rawLabel });
+      continue;
+    }
+    const code = (row.diplom ?? '').trim();
+    if (code === '') {
+      rejected.push({ reason: 'source-manquante', label: rawLabel });
+      continue;
+    }
+    const campus = normalizeCityName(row.implantation_commune ?? '') || institution.city;
+    // Le campus entre dans la clé : une même licence servie à Poitiers et à
+    // Niort est DEUX offres pour un étudiant, qui ne déménagera pas deux fois.
+    const id = stableEefId(
+      PROGRAM_ID_PREFIX,
+      `licence-year:${institution.id}:${code}:${year.cycle}:${normalizeLabel(campus)}`,
+    );
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const label = restoreAccentedLabel(rawLabel, knownLabels);
+    records.push({
+      id,
+      institutionId: institution.id,
+      nameFr: `${year.cycle === 'licence2' ? 'L2' : 'L3'} - ${label}`,
+      level: 'Bachelor',
+      cycle: year.cycle,
+      fieldId: field.fieldId,
+      fieldIsFallback: field.isFallback,
+      durationYears: year.remainingYears,
+      campusCity: campus,
+      // La DAP ne concerne que la PREMIÈRE année. Une L2 ou une L3 se demande
+      // par la procédure Études en France, sur un autre calendrier.
+      procedureType: 'eef',
+      // L'entrée en cours de cursus passe par une commission de validation
+      // d'études : l'université arbitre, quelle que soit la capacité.
+      selectivity: 'selective',
+      formationCode: code,
+      tracks: [],
+      recommendedBachelors: [],
+      admissionModes: [],
+      dataset: 'diplomes-prepares',
+      sourceUrl: diplomaSourceUrl(paysage, code, rentree),
+    });
+  }
+  return { records, rejected };
 }

@@ -21,7 +21,7 @@ KPB-47 turns the verification badge into an operational promise: every sensitive
 
 ## Le catalogue « Études en France » (ajouté le 20/09/2026)
 
-7 113 formations dans 70 universités publiques françaises sont désormais
+10 247 formations dans 70 universités publiques françaises sont désormais
 importables, et arrivent **inactives**. Elles entrent dans la cadence
 « Formations » ci-dessus (180 jours), avec deux différences qui changent la
 façon de les relire :
@@ -29,7 +29,9 @@ façon de les relire :
 - **Le volume interdit la relecture ligne à ligne.** Ce qui doit être relu en
   priorité, c'est ce que la machine ne peut pas juger : le partage DAP /
   procédure Études en France, et les mentions de master, dont les données
-  ouvertes datent de 2021 et peuvent avoir fermé depuis.
+  ouvertes datent de 2021 et peuvent avoir fermé depuis. Les 2e et 3e années
+  de licence, elles, sont attestées par les effectifs de la rentrée 2024 :
+  elles vieillissent moins vite.
 - **La source est déjà attachée.** Chaque ligne porte sa fiche officielle
   (Parcoursup ou site de l'université) dans `sourceUrl`. La vérification
   consiste à confirmer que la fiche existe toujours et dit la même chose —

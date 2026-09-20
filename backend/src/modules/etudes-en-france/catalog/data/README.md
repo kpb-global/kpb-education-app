@@ -1,6 +1,6 @@
 # Catalogue « Études en France » — données versionnées
 
-70 universités publiques françaises, 7 113 formations. Un fichier JSON par
+70 universités publiques françaises, 10 247 formations. Un fichier JSON par
 université dans `universites/`, plus `manifest.json` qui déclare d'où vient
 chaque ligne.
 
@@ -15,9 +15,10 @@ chaque ligne.
 | --- | --- | --- | --- |
 | Les 70 universités | `fr-esr-principaux-etablissements-enseignement-superieur` | 2025 | Licence Ouverte v2.0 |
 | Premier cycle (L1, BUT, PASS, DEUST, LP) | `fr-esr-cartographie_formations_parcoursup` | 2026 | Licence Ouverte v2.0 |
+| 2e et 3e années de licence | `fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics` | 2024 | Licence Ouverte v2.0 |
 | Mentions de master | `fr-esr-tmm-…-mentions-de-master` | **2021** | Licence Ouverte v2.0 |
 | Parcours de master | `fr-esr-tmm-…-parcours-de-format` | **2021** | Licence Ouverte v2.0 |
-| Table des fusions d'universités | `fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics` | 2024 | Licence Ouverte v2.0 |
+| Table des fusions d'universités | (même jeu, agrégé autrement) | 2024 | Licence Ouverte v2.0 |
 
 Tout vient de `data.enseignementsup-recherche.gouv.fr`. La collecte est
 rejouable : `manifest.json` conserve la requête exacte et le nombre de lignes
@@ -28,6 +29,41 @@ l'offre, mais ils sont en **ODbL** — partage à l'identique. Les mélanger
 imposerait de republier le catalogue KPB dérivé sous la même licence. La
 Licence Ouverte v2.0, elle, autorise la réutilisation commerciale avec simple
 mention de la source.
+
+## Les 2e et 3e années ne sont pas déduites des 1res
+
+Parcoursup ne décrit que l'entrée en **première** année. Or un candidat qui
+passe par la procédure Études en France vise très souvent une L2 ou une L3 —
+c'est même le cas le plus courant pour qui a déjà commencé des études chez lui.
+
+« Une licence dure trois ans, donc toute L1 implique une L2 et une L3 » est vrai
+en général et faux en particulier : PASS n'a pas de L2 du même nom, les portails
+pluridisciplinaires se scindent, des mentions ferment une année sans fermer
+l'autre, et certaines L3 n'existent que sur un campus secondaire. Déduire
+produirait des fiches plausibles et invérifiables.
+
+Les 3 131 lignes de L2 et L3 viennent donc du jeu des **diplômes réellement
+préparés** : le ministère y publie, par établissement et par année d'étude, les
+diplômes où des étudiants étaient inscrits à la rentrée 2024. Une L3 y figure
+parce que quelqu'un l'a suivie — c'est une preuve d'existence, et elle porte
+l'implantation exacte, donc le bon campus.
+
+Deux conséquences visibles dans les données :
+
+- **Chaque fiche pointe sur SA ligne** du jeu, filtrée sur le diplôme,
+  l'établissement et la rentrée. Un `sourceUrl` partagé par 3 000 fiches
+  renverrait le vérificateur sur 530 000 lignes, c'est-à-dire nulle part.
+- **Les intitulés sont réaccentués**, parce que ce jeu les publie sans accents
+  (« Langues, litteratures et civilisations etrangeres… »). On ne devine pas :
+  on reconnaît l'intitulé sur celui que Parcoursup ou Trouver Mon Master écrit
+  correctement (78 sur 96), sinon sur une table fermée de 25 corrections.
+  Ce qui ne tombe dans ni l'un ni l'autre garde son intitulé brut — une fiche
+  sans accent se repère et se corrige, une fiche accentuée au hasard ne se
+  repère pas.
+
+PSL est la seule université sans L2/L3 : son offre de licence est portée par
+Dauphine et le CPES, qui ont leur propre identifiant au référentiel et ne
+remontent pas sous l'université. Un test verrouille « au plus une exception ».
 
 ## Les deux limites à connaître avant de publier
 
@@ -83,9 +119,8 @@ collecte.
 
 ## Ce qui reste à faire sur ces données
 
-1. **Les licences 2e et 3e année.** La cartographie Parcoursup ne décrit que
-   l'entrée en 1re année. Un candidat qui vise une L2 ou une L3 par la
-   procédure Études en France ne trouve pas sa ligne ici.
+1. **Les 2e et 3e années de BUT**, non couvertes : seule l'entrée en BUT 1
+   figure au catalogue.
 2. **Le doctorat.** `fr-esr-les-ecoles-doctorales-historique-annuel` couvre les
    écoles doctorales ; aucune ligne n'est encore produite.
 3. **Les masters à jour.** À re-sourcer établissement par établissement, ou à

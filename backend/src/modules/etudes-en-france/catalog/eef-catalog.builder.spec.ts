@@ -1,10 +1,14 @@
 import {
   buildInstitution,
+  buildLabelIndex,
+  buildLicenceContinuationPrograms,
+  diplomaSourceUrl,
   buildMasterPrograms,
   buildParcoursupPrograms,
   countRejections,
   institutionUaiCodes,
   type RawInstitution,
+  type RawLicenceYearRow,
   type RawMasterMention,
   type RawMasterTrack,
   type RawParcoursupRow,
@@ -220,6 +224,135 @@ describe('buildMasterPrograms', () => {
     expect(rejected[0]).toEqual({
       reason: 'etablissement-inconnu',
       label: 'Institut mines télécom',
+    });
+  });
+});
+
+const LICENCE_YEAR: RawLicenceYearRow = {
+  etablissement_id_paysage_actuel: 'PAY1',
+  etablissement_actuel_lib: 'Université de Rennes',
+  libelle_intitule_1: 'Langues, litteratures et civilisations etrangeres et regionales',
+  niveau: '03',
+  implantation_commune: 'Rennes',
+  diplom: '2300027',
+};
+
+describe('buildLabelIndex', () => {
+  it('indexe la mention sans son préfixe de filière', () => {
+    const index = buildLabelIndex(
+      buildParcoursupPrograms([PARCOURSUP_ROW], BY_PAYSAGE).records,
+    );
+    expect(index.get('droit')).toBe('Droit');
+    expect(index.get('l1 droit')).toBe('L1 - Droit');
+  });
+});
+
+describe('buildLicenceContinuationPrograms', () => {
+  const index = buildLabelIndex([
+    ...buildParcoursupPrograms(
+      [
+        {
+          ...PARCOURSUP_ROW,
+          fl: ['L1 - Langues, littératures et civilisations étrangères et régionales'],
+          gta: 1111,
+        },
+      ],
+      BY_PAYSAGE,
+    ).records,
+  ]);
+
+  it('rétablit les accents depuis un intitulé déjà connu du catalogue', () => {
+    // Le jeu source publie sans accents ; on RECONNAÎT plutôt que de deviner,
+    // parce que replacer un accent par règle est impossible en français.
+    const { records } = buildLicenceContinuationPrograms(
+      [LICENCE_YEAR],
+      BY_PAYSAGE,
+      index,
+      2024,
+    );
+    expect(records[0].nameFr).toBe(
+      'L3 - Langues, littératures et civilisations étrangères et régionales',
+    );
+  });
+
+  it('rétablit les accents depuis la table fermée quand rien ne les porte', () => {
+    const { records } = buildLicenceContinuationPrograms(
+      [{ ...LICENCE_YEAR, libelle_intitule_1: 'Staps : education et motricite' }],
+      BY_PAYSAGE,
+      new Map(),
+      2024,
+    );
+    expect(records[0].nameFr).toBe('L3 - STAPS : éducation et motricité');
+  });
+
+  it('laisse l’intitulé brut plutôt que d’accentuer au hasard', () => {
+    // Une fiche sans accent se repère et se corrige ; une fiche accentuée au
+    // hasard ne se repère pas.
+    const { records } = buildLicenceContinuationPrograms(
+      [{ ...LICENCE_YEAR, libelle_intitule_1: 'Chimie des procedes inedite' }],
+      BY_PAYSAGE,
+      new Map(),
+      2024,
+    );
+    expect(records[0].nameFr).toBe('L3 - Chimie des procedes inedite');
+  });
+
+  it('met la L2 et la L3 en procédure Études en France, jamais en DAP', () => {
+    const { records } = buildLicenceContinuationPrograms(
+      [LICENCE_YEAR, { ...LICENCE_YEAR, niveau: '02' }],
+      BY_PAYSAGE,
+      index,
+      2024,
+    );
+    expect(records.map((row) => row.cycle)).toEqual(['licence3', 'licence2']);
+    expect(records.every((row) => row.procedureType === 'eef')).toBe(true);
+    // Durée = ce qu'il RESTE à faire, pas la durée du diplôme : on entre en
+    // cours de cursus.
+    expect(records.map((row) => row.durationYears)).toEqual([1, 2]);
+  });
+
+  it('distingue deux campus de la même licence', () => {
+    // Poitiers et Niort sont deux offres pour un étudiant, qui ne déménagera
+    // pas deux fois.
+    const { records } = buildLicenceContinuationPrograms(
+      [LICENCE_YEAR, { ...LICENCE_YEAR, implantation_commune: 'Niort' }],
+      BY_PAYSAGE,
+      index,
+      2024,
+    );
+    expect(records).toHaveLength(2);
+    expect(records.map((row) => row.campusCity).sort()).toEqual(['Niort', 'Rennes']);
+  });
+
+  it('pointe sur SA ligne du jeu de données, pas sur le jeu entier', () => {
+    // Un sourceUrl partagé par 3 000 fiches ne se vérifie pas.
+    const url = diplomaSourceUrl('PAY1', '2300027', 2024);
+    expect(url).toContain('refine=diplom%3A2300027');
+    expect(url).toContain('refine=etablissement_id_paysage_actuel%3APAY1');
+    expect(url).toContain('refine=rentree%3A2024');
+    expect(url.startsWith('https://')).toBe(true);
+  });
+
+  it('écarte les portails, qui ne sont pas des mentions', () => {
+    // Un « portail » est une entrée pluridisciplinaire de 1re année, qui se
+    // scinde ensuite : l'annoncer comme une L3 tromperait.
+    const { records, rejected } = buildLicenceContinuationPrograms(
+      [
+        { ...LICENCE_YEAR, libelle_intitule_1: 'Portail convention cpge litteraires' },
+        { ...LICENCE_YEAR, niveau: '01' },
+        { ...LICENCE_YEAR, etablissement_id_paysage_actuel: 'INCONNU' },
+        { ...LICENCE_YEAR, diplom: '' },
+      ],
+      BY_PAYSAGE,
+      index,
+      2024,
+    );
+    expect(records).toHaveLength(0);
+    expect(countRejections(rejected)).toEqual({
+      'domaine-introuvable': 1,
+      'famille-inconnue': 1,
+      'etablissement-inconnu': 1,
+      'source-manquante': 1,
     });
   });
 });

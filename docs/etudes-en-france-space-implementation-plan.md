@@ -296,15 +296,16 @@ continu, ce qui laisse le calendrier au catalogue plutôt qu'à la coquille.
 ## 5. Phase 1 — Le catalogue dense (le vrai travail)
 
 > **Le pipeline de données est livré (20/09/2026).** 70 universités publiques,
-> 7 113 formations, cinq jeux de données ouvertes en Licence Ouverte v2.0,
+> 10 247 formations — L1, L2, L3, BUT, PASS, DEUST, licence pro et masters —
+> depuis cinq jeux de données ouvertes en Licence Ouverte v2.0,
 > importées **inactives**. Le détail — ce qui est dedans, ce qui manque
 > volontairement, et les cinq décisions qui méritent discussion — est dans
 > `docs/eef-catalog-pipeline.md`.
 >
 > Ce qui reste de la Phase 1 : la **vérification humaine** (toujours sans
 > propriétaire nommé, § 12.1), la **recherche paginée côté serveur** (§ 5.1,
-> non commencée), l'**écran client** (§ 5.4), et quatre trous de catalogue
-> connus — L2/L3, doctorat, masters à jour, droits d'inscription réels.
+> non commencée), l'**écran client** (§ 5.4), et trois trous de catalogue
+> connus — BUT 2/3, doctorat, masters à jour et droits d'inscription réels.
 
 
 ### 5.1 La contrainte de volume, chiffrée
@@ -367,9 +368,9 @@ Concrètement, en miroir de `backend/src/modules/scholarships-index/data/` :
   `eef:import:dry-run`, `eef:import`
 
 **Écart assumé avec le plan initial** : les fichiers de données ne contiennent
-aucune prose. À 7 113 formations, dupliquer un paragraphe bilingue par ligne
-ferait 11 Mo de JSON et rendrait toute correction de formulation illisible en
-revue — 7 113 lignes modifiées pour un mot. Les phrases sont donc dérivées des
+aucune prose. À 10 247 formations, dupliquer un paragraphe bilingue par ligne
+ferait des mégaoctets de JSON et rendrait toute correction de formulation
+illisible en revue — 10 247 lignes modifiées pour un mot. Les phrases sont donc dérivées des
 faits par `eef-catalog.copy.ts`, écrites une fois et testées une fois. La
 contrepartie : on ne corrige pas la phrase d'une seule formation en éditant le
 JSON ; ça se fait dans l'admin, avec un vérificateur nommé.

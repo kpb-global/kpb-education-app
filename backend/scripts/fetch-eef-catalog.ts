@@ -26,12 +26,15 @@ import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
+  DIPLOMAS_DATASET_ID,
   buildInstitution,
+  buildLabelIndex,
+  buildLicenceContinuationPrograms,
   buildMasterPrograms,
   buildParcoursupPrograms,
   countRejections,
-  institutionUaiCodes,
   type RawInstitution,
+  type RawLicenceYearRow,
   type RawMasterMention,
   type RawMasterTrack,
   type RawParcoursupRow,
@@ -68,6 +71,9 @@ const PARCOURSUP_YEAR = 2026;
 /// daté — ni capacité d'accueil, ni date de recrutement. Le manifeste le
 /// déclare, le validateur en avertit, et les lignes arrivent inactives.
 const MASTER_YEAR = 2021;
+/// Dernière rentrée publiée par le jeu des diplômes réellement préparés, d'où
+/// viennent les 2e et 3e années de licence. Elle avance d'un an chaque automne.
+const DIPLOMAS_YEAR = 2024;
 
 async function fetchJson(url: string): Promise<any> {
   let lastError: unknown;
@@ -296,9 +302,74 @@ async function main(): Promise<void> {
     + `${JSON.stringify(countRejections(masters.rejected))}`,
   );
 
-  // ── 4. Écriture, un fichier par université ───────────────────────────────
+  // ── 4. Les 2e et 3e années de licence ────────────────────────────────────
+  // Parcoursup ne décrit que l'entrée en 1re année ; un candidat qui a déjà
+  // commencé des études chez lui vise une L2 ou une L3. Ces années ne vivent
+  // dans aucun portail de candidature : on les prend là où le ministère atteste
+  // qu'elles ont eu des inscrits.
+  //
+  // `group_by` sur les cinq colonnes utiles : le jeu compte 530 000 lignes
+  // d'effectifs, on n'en veut que la liste distincte des diplômes préparés.
+  const licenceYearSelect = [
+    'etablissement_id_paysage_actuel',
+    'etablissement_actuel_lib',
+    'libelle_intitule_1',
+    'niveau',
+    'implantation_commune',
+    'diplom',
+  ].join(',');
+  const licenceYearWhere =
+    `rentree=${DIPLOMAS_YEAR} and diplome_rgp="Licence" and (niveau="02" or niveau="03")`;
+  const rawLicenceYears: RawLicenceYearRow[] = [];
+  for (let offset = 0; ; offset += 100) {
+    const params = new URLSearchParams({
+      limit: '100',
+      offset: String(offset),
+      where: licenceYearWhere,
+      select: licenceYearSelect,
+      group_by: licenceYearSelect,
+    });
+    const page = await fetchJson(`${API}/${DIPLOMAS_DATASET_ID}/records?${params}`);
+    rawLicenceYears.push(...(page.results as RawLicenceYearRow[]));
+    if (page.results.length < 100) break;
+  }
+  sources.push({
+    dataset: 'diplomes-prepares',
+    datasetId: DIPLOMAS_DATASET_ID,
+    portal: PORTAL,
+    licence: LICENCE,
+    query: licenceYearWhere,
+    vintage: String(DIPLOMAS_YEAR),
+    fetchedAt,
+    rowCount: rawLicenceYears.length,
+  });
+
+  // Les intitulés de ce jeu sont publiés SANS ACCENTS. On les reconnaît sur
+  // ceux que Parcoursup et Trouver Mon Master écrivent correctement, plutôt
+  // que de replacer des accents par règle — ce qui est impossible en français.
+  const labelIndex = buildLabelIndex([
+    ...firstCycle.records,
+    ...masters.records,
+  ]);
+  const licenceYears = buildLicenceContinuationPrograms(
+    rawLicenceYears,
+    byPaysage,
+    labelIndex,
+    DIPLOMAS_YEAR,
+  );
+  console.log(
+    `2e et 3e années : ${licenceYears.records.length} formations, `
+    + `${licenceYears.rejected.length} lignes écartées `
+    + `${JSON.stringify(countRejections(licenceYears.rejected))}`,
+  );
+
+  // ── 5. Écriture, un fichier par université ───────────────────────────────
   const programsByInstitution = new Map<string, EefProgramRecord[]>();
-  for (const program of [...firstCycle.records, ...masters.records]) {
+  for (const program of [
+    ...firstCycle.records,
+    ...licenceYears.records,
+    ...masters.records,
+  ]) {
     const bucket = programsByInstitution.get(program.institutionId);
     if (bucket) bucket.push(program);
     else programsByInstitution.set(program.institutionId, [program]);
@@ -307,7 +378,7 @@ async function main(): Promise<void> {
   if (process.argv.includes('--check')) {
     console.log(
       `\n--check : ${institutions.length} universités, `
-      + `${firstCycle.records.length + masters.records.length} formations. Rien écrit.`,
+      + `${firstCycle.records.length + licenceYears.records.length + masters.records.length} formations. Rien écrit.`,
     );
     return;
   }
@@ -335,7 +406,7 @@ async function main(): Promise<void> {
   }
 
   const manifest: EefCatalogManifest = {
-    catalogVersion: '1.0.0',
+    catalogVersion: '1.1.0',
     generatedAt: fetchedAt,
     countryId: 'france',
     institutionCount: institutions.length,

@@ -58,6 +58,8 @@ export function durationLabel(years: number): Bilingual {
 
 const CYCLE_LABELS: Readonly<Record<EefCycle, Bilingual>> = {
   licence1: { fr: 'Licence, 1re année', en: 'Bachelor, first year' },
+  licence2: { fr: 'Licence, 2e année', en: 'Bachelor, second year' },
+  licence3: { fr: 'Licence, 3e année', en: 'Bachelor, final year' },
   licence_pro: { fr: 'Licence professionnelle', en: 'Professional bachelor' },
   but1: {
     fr: 'Bachelor universitaire de technologie (BUT), 1re année',
@@ -158,6 +160,26 @@ const ENTRY_QUALIFICATION: Readonly<Record<EefCycle, Bilingual>> = {
     en:
       'Baccalauréat, or a foreign diploma granting access to higher education '
       + 'in the country where it was awarded.',
+  },
+  licence2: {
+    fr:
+      "Une année validée après le baccalauréat dans une discipline compatible. "
+      + "L'entrée en cours de cursus passe par une commission de validation des "
+      + "études suivies à l'étranger.",
+    en:
+      'One completed year of higher education in a compatible field. Entry '
+      + "mid-programme goes through a committee that validates studies completed "
+      + 'abroad.',
+  },
+  licence3: {
+    fr:
+      'Deux années validées après le baccalauréat (Bac+2) dans une discipline '
+      + "compatible. L'entrée en cours de cursus passe par une commission de "
+      + "validation des études suivies à l'étranger.",
+    en:
+      'Two completed years of higher education (Bac+2) in a compatible field. '
+      + 'Entry mid-programme goes through a committee that validates studies '
+      + 'completed abroad.',
   },
   but1: {
     fr: 'Baccalauréat ou diplôme équivalent.',

@@ -11,18 +11,19 @@ Rédigé le 20/09/2026.
 
 ## 1. Ce qui est livré
 
-**70 universités publiques françaises, 7 113 formations**, collectées depuis
+**70 universités publiques françaises, 10 247 formations**, collectées depuis
 les données ouvertes de l'État, versionnées dans le dépôt, validées par une
 machine, et importables en base — **inactives**.
 
 | | |
 |---|---|
 | Établissements | 70 (65 de type « Université », plus 5 classés autrement mais portant une typologie d'université au référentiel : Grenoble Alpes, Côte d'Azur, Lorraine, PSL — passées « grand établissement » avec leur statut expérimental — et l'INU Champollion) |
-| Formations | 7 113 |
-| dont premier cycle | 4 001 (L1, BUT, PASS, DEUST, licence pro, IEP, CMI, IAE, arts, STAPS) |
+| Formations | 10 247 |
+| dont entrée en 1re année | 4 004 (L1, BUT, PASS, DEUST, licence pro, IEP, CMI, IAE, arts, STAPS) |
+| dont 2e et 3e années de licence | 3 131 |
 | dont mentions de master | 3 112 |
-| Par procédure | `dap_blanche` 3 016 · `eef` 3 994 · `dap_jaune` 29 · `hors_eef` 74 |
-| Classement de domaine par repli | 3,28 % (plafond CI : 8 %) |
+| Par procédure | `eef` 7 125 · `dap_blanche` 3 019 · `dap_jaune` 29 · `hors_eef` 74 |
+| Classement de domaine par repli | 2,16 % (plafond CI : 8 %) |
 | Sources | 5 jeux, toutes en **Licence Ouverte v2.0 (Etalab)** |
 
 Le détail des jeux, leurs millésimes et leurs limites sont dans
@@ -47,12 +48,12 @@ il a déjà encaissé les deux accidents qui justifient chacune de ses étapes.
 
 ---
 
-## 2. Les cinq décisions qui méritent d'être discutées
+## 2. Les six décisions qui méritent d'être discutées
 
 ### 2.1 Données ouvertes, pas recherche IA
 
 Le plan (§ 5.2) exige **une source HTTPS officielle par affirmation publiée**.
-À 7 113 formations, une recherche IA produirait 7 113 affirmations qu'aucun
+À 10 247 formations, une recherche IA produirait autant d'affirmations qu'aucun
 humain ne vérifiera avant la campagne — c'est exactement ainsi que
 « Bourse McCall MacBain », qui n'existe nulle part, a atteint un appareil de
 production (`lib/app/core/data/catalog_source.dart:1-9`).
@@ -107,14 +108,40 @@ facteur neutre (`Program.tuitionMinEur` est nullable exprès).
 universités publiques. C'est un travail de vérification, pas de collecte, et il
 est listé en § 4.
 
-### 2.5 La procédure est déduite d'une règle, pas devinée ligne à ligne
+### 2.5 Les L2/L3 sont attestées, pas déduites
+
+Parcoursup ne décrit que l'entrée en **première** année, alors qu'un candidat
+passant par Études en France vise le plus souvent une L2 ou une L3 — c'est le
+profil de quelqu'un qui a déjà commencé des études chez lui.
+
+La tentation était de les déduire : une licence dure trois ans, donc toute L1
+implique une L2 et une L3. C'est vrai en général et faux en particulier — PASS
+n'a pas de L2 du même nom, les portails pluridisciplinaires se scindent, des
+mentions ferment une année sans fermer l'autre, et certaines L3 n'existent que
+sur un campus secondaire.
+
+Elles viennent donc du jeu des **diplômes réellement préparés** (rentrée 2024) :
+une L3 y figure parce que des étudiants y étaient inscrits. Preuve d'existence,
+pas déduction — et l'implantation exacte vient avec, donc le bon campus. Chaque
+fiche pointe sur sa propre ligne du jeu, filtrée sur le diplôme, l'établissement
+et la rentrée.
+
+Ce jeu publie ses intitulés **sans accents**. On ne les replace pas par règle —
+c'est impossible en français (« cote », « côte », « coté », « côté ») : on
+reconnaît l'intitulé sur celui que Parcoursup ou Trouver Mon Master écrit
+correctement (78 sur 96), sinon sur une table fermée de 25 corrections, sinon
+on garde le brut. Une fiche sans accent se repère ; une fiche accentuée au
+hasard, non.
+
+### 2.6 La procédure est déduite d'une règle, pas devinée ligne à ligne
 
 La demande d'admission préalable ne concerne que la **1re année de licence**
 (dossier blanc) et la **1re année en école d'architecture** (dossier jaune).
 Tout le reste de l'offre universitaire — BUT, DEUST, licence professionnelle,
 master — relève de la procédure Études en France.
 
-Cette règle est appliquée par une table fermée
+Les L2, L3 et masters relèvent donc tous de la procédure Études en France :
+7 125 formations sur 10 247. Cette règle est appliquée par une table fermée
 (`PARCOURSUP_FAMILIES`), un test la verrouille, et la page qui en fait foi est
 citée dans le code (`EEF_PROCEDURE_SOURCE_URL`). Une famille de formation
 inconnue de la table n'est **pas** devinée : la ligne est écartée et comptée.
@@ -147,17 +174,15 @@ dérive fasse du bruit tôt.
 ### Bloquant avant toute publication
 
 1. **Le propriétaire nommé de la file de vérification.** Inchangé depuis le
-   plan (§ 12.1) : une personne réelle. Sans elle, ces 7 113 lignes restent
+   plan (§ 12.1) : une personne réelle. Sans elle, ces 10 247 lignes restent
    inactives pour toujours, ce qui est le comportement correct mais pas le
    comportement utile.
 2. **La relecture métier du partage DAP / Études en France** (§ 2.5).
 
 ### Dans le catalogue
 
-3. **Les licences 2e et 3e année.** La cartographie Parcoursup ne décrit que
-   l'entrée en 1re année. Un candidat qui vise une L2 ou une L3 par la
-   procédure Études en France — c'est-à-dire une grande part du public visé —
-   ne trouve pas sa ligne. À sourcer établissement par établissement.
+3. **Les 2e et 3e années de BUT**, non couvertes : seule l'entrée en BUT 1
+   figure au catalogue.
 4. **Le doctorat.** `fr-esr-les-ecoles-doctorales-historique-annuel` existe ;
    aucune ligne n'est produite.
 5. **Les masters à jour**, à re-sourcer ou à reprendre si le ministère reprend
@@ -168,7 +193,7 @@ dérive fasse du bruit tôt.
 
 7. **La recherche paginée côté serveur.** Le plan (§ 5.1) l'annonce comme le
    point d'architecture à ne pas repousser : `AppController` tient aujourd'hui
-   la totalité du catalogue en mémoire, et 7 113 formations ne s'y tiennent
+   la totalité du catalogue en mémoire, et 10 247 formations ne s'y tiennent
    pas. `GET /etudes-en-france/search` avec facettes et curseur reste à écrire.
 8. **L'écran `eef_catalog_screen.dart`** et les facettes de procédure.
 9. **Exposer les nouvelles colonnes** (`procedureType`, `selectivity`,

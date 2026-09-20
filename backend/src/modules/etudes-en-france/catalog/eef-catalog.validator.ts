@@ -35,7 +35,11 @@ const KNOWN_FIELD_IDS = new Set([
 ]);
 const KNOWN_LEVELS = new Set(['Bac+2', 'Bachelor', 'Master', 'Doctorat']);
 const KNOWN_SELECTIVITY = new Set(['selective', 'non_selective']);
-const KNOWN_DATASETS = new Set(['parcoursup', 'trouver-mon-master']);
+const KNOWN_DATASETS = new Set([
+  'parcoursup',
+  'trouver-mon-master',
+  'diplomes-prepares',
+]);
 const KNOWN_CYCLES = new Set<string>(EEF_CYCLES);
 const KNOWN_PROCEDURES = new Set<string>(EEF_PROCEDURE_TYPES);
 
@@ -53,7 +57,7 @@ export interface EefCatalogGates {
 
 export const DEFAULT_EEF_GATES: EefCatalogGates = {
   minInstitutions: 60,
-  minPrograms: 5000,
+  minPrograms: 8000,
   maxFallbackRatio: 0.08,
   minInstitutionsWithPrograms: 0.9,
 };
