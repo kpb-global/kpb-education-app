@@ -81,6 +81,9 @@ export interface PlannedProgram {
   readonly requirementsEn: string[];
   readonly teachingLanguages: string[];
   readonly procedureType: string;
+  /// Le cycle exact, pour que la recherche filtre et facette dessus sans avoir
+  /// à découper `levelFr`, qui est un libellé rédigé pour être lu.
+  readonly cycle: string;
   readonly selectivity: string;
   readonly formationCode: string;
   readonly campusCity: string;
@@ -188,6 +191,7 @@ export function planEefImport(
         requirementsEn: requirements.map((line) => line.en),
         teachingLanguages: ['fr'],
         procedureType: program.procedureType,
+        cycle: program.cycle,
         selectivity: program.selectivity,
         formationCode: program.formationCode,
         campusCity: program.campusCity,

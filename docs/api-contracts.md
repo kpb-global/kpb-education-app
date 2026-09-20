@@ -134,6 +134,95 @@ Purpose:
 Purpose:
 - support lightweight partner acquisition outside the student case flow
 
+## Recherche du catalogue « Études en France » (Phase 1)
+
+- `GET /etudes-en-france/search`
+
+**Publique**, et c'est une décision produit, pas un oubli : « catalogue
+gratuit, accompagnement payant » (plan § 2). Un étudiant doit pouvoir chercher
+sa formation avant de créer un compte — c'est ce qui lui donne une raison d'en
+créer un. La route vit donc dans son propre contrôleur, à côté de celui de la
+déclaration d'intérêt, qui lui est authentifié au niveau de la classe.
+
+### Paramètres
+
+| Paramètre | Forme | Notes |
+|---|---|---|
+| `q` | texte | découpé en mots (6 max). Chaque mot doit apparaître dans l'intitulé **ou** la ville — « droit rennes » fonctionne. |
+| `procedureType` | CSV | `dap_blanche`, `dap_jaune`, `eef`, `parcoursup`, `hors_eef` |
+| `cycle` | CSV | `licence1`, `licence2`, `licence3`, `but1`, `deust`, `sante`, `ingenieur`, `master` |
+| `fieldId` | CSV | `d01`..`d12` |
+| `selectivity` | CSV | `selective`, `non_selective` |
+| `campusCity` | CSV | vocabulaire ouvert (vient du catalogue) |
+| `institutionId` | CSV | vocabulaire ouvert |
+| `cursor` | opaque | rendu par la page précédente |
+| `limit` | entier | défaut 20, plafond 50 |
+
+Une valeur hors référentiel fermé rend **400 `EEF_SEARCH_BAD_PARAM`**, avec le
+paramètre fautif et les valeurs admises. L'ignorer silencieusement ferait
+afficher des compteurs qui ne correspondent pas à la demande. Un
+`institutionId` inconnu, lui, rend zéro résultat : c'est la bonne réponse, pas
+une erreur. Chaque facette accepte au plus 20 valeurs — une liste `IN` sans
+borne se fabrique avec une simple URL.
+
+### Réponse
+
+```jsonc
+{
+  "items": [ /* même forme que GET /catalog/programs */ ],
+  "total": 10247,
+  "page": { "limit": 20, "hasMore": true, "nextCursor": "TDEgLSBEcm9pdAB..." },
+  "facets": {
+    "procedureType": [{ "value": "eef", "count": 7125 }, "…"],
+    "cycle": ["…"], "fieldId": ["…"], "selectivity": ["…"],
+    "campusCity": ["…"], "institutionId": ["…"]
+  },
+  "facetsTruncated": ["campusCity", "institutionId"],
+  "source": "database"
+}
+```
+
+### Ce que la pagination garantit
+
+**Curseur, pas offset.** Le curseur porte la POSITION — le dernier couple
+`(nameFr, id)` vu — et non un rang. Deux conséquences :
+
+- *Correction* : si un administrateur publie une fiche pendant qu'un étudiant
+  fait défiler, un offset décale tout d'un rang et lui fait sauter une
+  formation sans qu'il le sache. Le curseur, non.
+- *Coût constant* : mesuré sur les 10 247 lignes, page 205 sur 205 — offset
+  4,4 ms → 23,4 ms, curseur 3,8 ms → 4,8 ms. L'écart croît avec la taille du
+  catalogue ; c'est la correction qui est l'argument fort, le coût n'en est
+  que la conséquence visible.
+
+L'ordre est **total** (`nameFr` puis `id`). `nameFr` seul ne l'est pas —
+« L1 - Droit » est servi par quarante universités — et un ordre partiel fait
+sauter des lignes au curseur.
+
+### Ce que les facettes garantissent
+
+Chaque facette est comptée **sans son propre filtre**. Choisir « master » ne
+fait donc pas tomber à zéro le compte des licences : l'étudiant voit toujours
+ce qu'il obtiendrait en changeant d'avis, sans avoir à défaire son filtre. Le
+total, lui, tient compte de tous les filtres.
+
+Page, total et facettes sont lus dans **une seule transaction** : servis
+séparément, ils décriraient deux instants différents — « 1 240 résultats »
+au-dessus d'une liste qui en montre d'autres.
+
+`campusCity` et `institutionId` ont des dizaines de valeurs : les 20 plus
+fournies sont rendues, et `facetsTruncated` le dit.
+
+### Pas de repli sur les jeux de démonstration
+
+`/catalog/*` sait dégrader vers `mock-catalog` hors production. Pas ici : il
+n'existe aucun échantillon « Études en France », et en fabriquer un servirait
+des formations qui n'existent pas. Base indisponible ⇒ **503
+`CATALOG_UNAVAILABLE`**, dans tous les environnements.
+
+La route ne sert que des lignes **relues** (`isActive = true`) et rattachées au
+pays de code `FR`, résolu en base et jamais écrit en dur.
+
 ## Espace « Études en France » (Phase 0)
 
 - `GET /etudes-en-france/interest`

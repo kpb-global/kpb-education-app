@@ -108,6 +108,12 @@ describe('planEefImport', () => {
     }
   });
 
+  it('écrit le cycle exact, pour que la recherche ne découpe pas un libellé', () => {
+    const [licence, master] = plan.programs;
+    expect(licence.cycle).toBe('licence1');
+    expect(master.cycle).toBe('master');
+  });
+
   it('préfixe une mention de master, laisse la filière Parcoursup telle quelle', () => {
     const [licence, master] = plan.programs;
     expect(licence.nameFr).toBe('L1 - Droit');

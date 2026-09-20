@@ -32,6 +32,8 @@ import { ParcoursController } from './modules/parcours/parcours.controller';
 import { ParcoursService } from './modules/parcours/parcours.service';
 import { ParcoursWeeklyService } from './modules/parcours/parcours-weekly.service';
 import { AppConfigController } from './modules/config/app-config.controller';
+import { EefSearchController } from './modules/etudes-en-france/search/eef-search.controller';
+import { EefSearchService } from './modules/etudes-en-france/search/eef-search.service';
 import { EtudesEnFranceController } from './modules/etudes-en-france/etudes-en-france.controller';
 import { EtudesEnFranceService } from './modules/etudes-en-france/etudes-en-france.service';
 import { AdminEefInterestController } from './modules/etudes-en-france/admin-eef-interest.controller';
@@ -194,6 +196,7 @@ import { SalonService } from './modules/salon/salon.service';
     DocumentReviewController,
     AppConfigController,
     EtudesEnFranceController,
+    EefSearchController,
     AdminEefInterestController,
     PremiumWaitlistController,
     AdminPremiumWaitlistController,
@@ -296,6 +299,7 @@ import { SalonService } from './modules/salon/salon.service';
     ParentLinksService,
     ReferralsService,
     EtudesEnFranceService,
+    EefSearchService,
     AdminEefInterestService,
     PremiumWaitlistService,
     AdminPremiumWaitlistService,

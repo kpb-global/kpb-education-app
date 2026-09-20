@@ -1058,6 +1058,11 @@ model Program {
   // hors_eef. NULL = procédure non qualifiée — c'est le cas des 133 formations
   // France déjà en base, qui relèvent de la procédure directe des écoles.
   procedureType       String?
+  // Cycle exact : licence1, licence2, licence3, but1, deust, sante,
+  // ingenieur, master. NULL = cycle non qualifié (formations hors procédure
+  // universitaire). Facetter sur `levelFr` obligerait à découper un libellé
+  // rédigé pour être lu.
+  cycle               String?
   selectivity         String?
   formationCode       String?
   campusCity          String?
@@ -1078,7 +1083,10 @@ model Program {
   @@index([fieldId])
   @@index([lastVerifiedAt])
   @@index([procedureType])
+  @@index([cycle])
   @@index([isActive])
+  // Couvre le filtre ET l'ordre de la recherche paginée par curseur.
+  @@index([isActive, nameFr, id])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

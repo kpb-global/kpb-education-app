@@ -234,10 +234,13 @@ dérive fasse du bruit tôt.
 
 ### Dans le produit
 
-7. **La recherche paginée côté serveur.** Le plan (§ 5.1) l'annonce comme le
-   point d'architecture à ne pas repousser : `AppController` tient aujourd'hui
-   la totalité du catalogue en mémoire, et 10 247 formations ne s'y tiennent
-   pas. `GET /etudes-en-france/search` avec facettes et curseur reste à écrire.
+7. ~~La recherche paginée côté serveur.~~ **Livrée** :
+   `GET /etudes-en-france/search`, curseur + six facettes, publique.
+   Contrat complet dans `docs/api-contracts.md`. Mesurée sur les 10 247
+   lignes : traversée intégrale en 205 pages, aucun doublon, aucun saut, coût
+   constant (page 1 et page 205 au même prix). Reste à **brancher le client** :
+   `AppController` tient toujours la totalité du catalogue en mémoire, et
+   10 247 formations ne s'y tiennent pas.
 8. **L'écran `eef_catalog_screen.dart`** et les facettes de procédure.
 9. **Exposer les colonnes de procédure** (`procedureType`, `selectivity`,
    `campusCity`, `formationCode`, `institutionType`, `uaiCode`) dans
