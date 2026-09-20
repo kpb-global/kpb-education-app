@@ -1,0 +1,3722 @@
+{
+  "institution": {
+    "id": "eef-univ-0542493s",
+    "uai": "0542493S",
+    "nameFr": "Université de Lorraine",
+    "nameEn": "University of Lorraine",
+    "acronym": "UL",
+    "city": "Nancy",
+    "department": "Meurthe-et-Moselle",
+    "region": "Grand Est",
+    "websiteUrl": "https://www.univ-lorraine.fr/",
+    "typology": "Université pluridisciplinaire avec santé",
+    "enrolment": {
+      "count": 55760,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-001e422eee6b3f5b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Nancy",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "22",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=22&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-0256dd96fcc9172a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Audiovisuel, médias interactifs numériques, jeux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800147K",
+      "tracks": [
+        "Création de dispositifs ludiques",
+        "Création de projets numériques"
+      ],
+      "recommendedBachelors": [
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/filiere-sciences_humaines_et_sociales/mention_du_diplome-audiovisuel_medias_interactifs_numeriques_jeux/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0342a1ce2578bae7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800183Z",
+      "tracks": [
+        "A3R : Autonomie et Résilience : ressources et réseaux",
+        "MEDCRIM : Médecine légale, criminalistique, archéothanatologie, victimologie"
+      ],
+      "recommendedBachelors": [
+        "Psychologie|Sciences de la vie|Sciences et techniques des activités physiques et sportives|Sciences pour la santé",
+        "Droit",
+        "Psychologie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences de la vie",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sante/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0594c9c8cc0a17a3",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management sectoriel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800929K",
+      "tracks": [
+        "Management et Développement de Patrimoines Immobiliers",
+        "Management des Organisations du Secteur Sanitaire et Social (MOSSS)"
+      ],
+      "recommendedBachelors": [
+        "Gestion|Sciences sanitaires et sociales|Administration économique et sociale",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Génie civil",
+        "Sciences sanitaires et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-management_sectoriel/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0a66b89fe1e75d75",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management public",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800189F",
+      "tracks": [
+        "Management des Organisations Publiques",
+        "Gestion des Services Administratifs"
+      ],
+      "recommendedBachelors": [
+        "Administration publique|Droit|Administration économique et sociale",
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-management_public/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0b081d4498415756",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Contrôle de gestion et pilotage de la performance",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6573",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6573&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-0b8bbee597287421",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences du vivant",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800178U",
+      "tracks": [
+        "Biotechnologies",
+        "RNA and Enzyme Sciences",
+        "Recherche en Biologie - Santé"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_du_vivant/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0c35fe3ee349eeb8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Information communication Parcours métiers du livre et du patrimoine",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6321",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6321&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-0cf831679f490abf",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Chimie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800173P",
+      "tracks": [
+        "CDE - Chimie durable et environnement",
+        "CPM - Chimie et Physicochimie Moléculaires",
+        "CADFA - Chimie à Distance : des fondamentaux aux applications",
+        "CdSE - Chimie du Solide pour l'Energie"
+      ],
+      "recommendedBachelors": [
+        "Chimie|Physique|Physique, chimie",
+        "Chimie",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-chimie/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-0da44756ef027211",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "STAPS : ingénierie et ergonomie de l'activité physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800152R",
+      "tracks": [
+        "Métrologie, Performance, Santé"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://staps-nancy.univ-lorraine.fr/fr/content/master-staps"
+    },
+    {
+      "id": "eef-prog-0f2fa850bc6d5ce8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Gestion, entrepreneuriat et management d'activités",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6315",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6315&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-0f5dc3323889f04c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Marketing, vente",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800166F",
+      "tracks": [
+        "Marketing digital",
+        "Marketing et Développement des services Hôteliers",
+        "Marketing et gestion commerciale",
+        "Marketing et développement des produits"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-marketing_vente/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-1154024ebb31f1d5",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences cognitives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800203W",
+      "tracks": [
+        "Ingénierie cognitive, Interaction, Intelligence Artificielle"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_cognitives/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-11fe82d116c1df42",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique parcours biologie médicale et biotechnologie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6305",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6305&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-127277613fb24170",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Optimisation  énergétique pour le bâtiment et l'industrie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Cosnes-et-Romain",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "18214",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=18214&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-13238e3b3cc34517",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences de l'éducation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800157W",
+      "tracks": [
+        "Politiques et dispositifs en éducation et formation",
+        "Formation, travail et territoire en développement"
+      ],
+      "recommendedBachelors": [
+        "Sciences sociales",
+        "Histoire de l'art et archéologie",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Information-communication",
+        "Théologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_de_l_education/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-166cfc54f079a355",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management des systèmes d'information",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800151Q",
+      "tracks": [
+        "Conseil en organisations et systèmes d'information"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/"
+    },
+    {
+      "id": "eef-prog-1864d9d54525f497",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Génie des procédés et des bio-procédés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800176S",
+      "tracks": [
+        "SPIEQ - Sûreté des Procédés Industriels, Environnement et Qualité",
+        "PERSÉE Produits Environnement ReSsources EnergiE",
+        "Bio-procédés"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur|Sciences de la vie et de la Terre|Sciences et technologies",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie et de la Terre",
+        "Mécanique",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-1c849f4bb7c75734",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Réalisation des installations énergétiques pour le bâtiment et l'industrie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Cosnes-et-Romain",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6375",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6375&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-1f9f25f12276190a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Contrôle-Qualité, environnement et sécurité des procédés",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6296",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6296&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-213ba0f681dd89ab",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Business développement et management de la relation client",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6576",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6576&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-21aee61c8859a467",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Organisation et Supply Chain",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10764",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10764&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-2247be1ee7ffd504",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Mobilité et supply chain connectées",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Sarreguemines",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6667",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6667&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-25292fd36ff14f99",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Conception et production durables",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6571",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6571&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-263bf11ae9bff9a5",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Réseaux Opérateurs et Multimédia",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6302",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6302&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-2677109face7e9da",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique parcours sciences de l'aliment et biotechnologie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d10",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6670",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6670&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-26f7352402f92365",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Management, méthodes, maintenance innovante",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6668",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6668&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-27a39daa74f9afe0",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Géographie, aménagement, environnement et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800196P",
+      "tracks": [
+        "Paysage, patrimoine et environnement",
+        "Transition, reconversion, aménagement et développement des territoires"
+      ],
+      "recommendedBachelors": [
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-geographie_amenagement_environnement_et_developpement/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-283103df8b89ca67",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Développement web et dispositifs interactifs",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Saint-Dié-des-Vosges",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10758",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10758&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-29f861e2de935412",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Arts",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800930M",
+      "tracks": [
+        "Expertise et médiation culturelle",
+        "Mise en scène et dramaturgie en Europe",
+        "Arts de l'exposition et de la scénographie",
+        "Edition musicale et musicologie",
+        "Arts et industries culturelles"
+      ],
+      "recommendedBachelors": [
+        "Arts|Lettres|Sciences et Humanités",
+        "Arts",
+        "Lettres",
+        "Sciences et Humanités",
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-arts/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-2a4e543de05f0ed8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Métiers de la caractérisation et de l'expertise des matériaux et des produits",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Forbach",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "22594",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=22594&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-2b6372e435703b86",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Science politique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800185B",
+      "tracks": [
+        "Métiers du politique et de l'administration"
+      ],
+      "recommendedBachelors": [
+        "Droit|Science politique|Administration économique et sociale",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Administration économique et sociale"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-science_politique/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-2def48dfbc026f1d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Organisation et Supply Chain",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "44449",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=44449&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-2faf1664733be733",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Économie appliquée",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800188E",
+      "tracks": [
+        "Ingénierie financière de marché",
+        "Expertise Statistique pour l'Economie et la Finance"
+      ],
+      "recommendedBachelors": [
+        "Economie|Gestion|Economie et gestion",
+        "Economie",
+        "Gestion",
+        "Economie et gestion",
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-economie_appliquee/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-3122d57a81496740",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit civil",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800928J",
+      "tracks": [
+        "Droit de la responsabilité et de la réparation",
+        "Histoire du droit et conservation du patrimoine",
+        "Droit civil général",
+        "Contentieux"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_civil/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-3131ab9dcf903e27",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Automatisme et Informatique Industrielle",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Cosnes-et-Romain",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6374",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6374&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-34861198a74828dd",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences et génie des matériaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800184A",
+      "tracks": [
+        "Advanced Materials Science and Engineering (AMASE)",
+        "Métallurgie avancée - partenariat franco-allemand",
+        "Design and Application of Metallic Alloys for Structures (DAMAS)",
+        "Physique chimie des matériaux"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_et_genie_des_materiaux/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-367c2a33c0cd81b9",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800174Q",
+      "tracks": [
+        "Pratiques de recherche et d’intervention sociologiques"
+      ],
+      "recommendedBachelors": [
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/master/2057-master-pratiques-de-recherche-et-d-intervention-sociologiques.html"
+    },
+    {
+      "id": "eef-prog-3793846fbc8dbb80",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Management, méthodes, maintenance innovante",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10763",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10763&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-395bf503ab661fe2",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Psychologie clinique, psychopathologie et psychologie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800204X",
+      "tracks": [
+        "Psychologie de la maladie chronique, prévention et interventions",
+        "Psychothérapie et dimensions traumatiques",
+        "Psychologie légale",
+        "Psychopathologie de la cognition et des interactions",
+        "Modèles psychodynamiques, démarches diagnostiques et thérapeutiques",
+        "Psychologie du développement"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-psychologie_clinique_psychopathologie_et_psychologie_de_la_sante/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-39d38c27d5634150",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800175R",
+      "tracks": [
+        "Innovation culturelle et sociale",
+        "Ingénierie et expertise des politiques sociales"
+      ],
+      "recommendedBachelors": [
+        "Chimie|Physique, chimie",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_sociales/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-43204c2685dcd563",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique Parcours agronomie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d10",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6303",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6303&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-4652a8642dc14528",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Nancy",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "21",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=21&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-47abe62cafdfcb6b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Automatisme et Informatique Industrielle",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Saint-Dié-des-Vosges",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10756",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10756&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-48753bd7f24d42f9",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Economie de l'entreprise et des marchés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800180W",
+      "tracks": [
+        "Economie et régulation des marchés",
+        "Economie de la transition énergétique, environnementale et numérique",
+        "Microfinance professionnelle, Petite Entreprise et Développement",
+        "Analyse et Développement de l'Entreprise"
+      ],
+      "recommendedBachelors": [
+        "Economie|Economie et gestion",
+        "Economie",
+        "Economie et gestion",
+        "Gestion",
+        "Droit",
+        "Administration économique et sociale"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-economie_de_l_entreprise_et_des_marches/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-48cd3839ae14112d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800161A",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2663-master-philosophie.html"
+    },
+    {
+      "id": "eef-prog-4a4915fab14b6331",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Business développement et management de la relation client",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10765",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10765&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-4c67b8bb9b4b129d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Génie civil",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800387W",
+      "tracks": [
+        "Structure, Matériaux, Energétique du bâtiment",
+        "Architecture Bois Construction",
+        "Géotechnique - Risque",
+        "Conception Ouvrages Géomatériaux"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur|Génie civil",
+        "Sciences pour l'ingénieur",
+        "Génie civil"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-genie_civil/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-4f3704ca795b4d86",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800089X",
+      "tracks": [
+        "Développement Stratégique des Ressources Humaines (DSRH)",
+        "Management des RH et organisations (MRHO)"
+      ],
+      "recommendedBachelors": [
+        "Droit|Gestion|Economie et gestion",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Droit",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-gestion_des_ressources_humaines/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-4fd876b21d76a310",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), encadrement éducatif",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301247Z",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/master/2005-master-metiers-de-lenseignement-de-leducation-et-de-la-formation-meef-encadrement-educatif.html"
+    },
+    {
+      "id": "eef-prog-50121fb257d194e6",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Nutrition et sciences des aliments",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800190G",
+      "tracks": [
+        "Aliment, Nutrition , Cosmétique",
+        "Industrie Laitière et Qualité",
+        "CAE - Conservation des Aliments et Emballages"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-nutrition_et_sciences_des_aliments/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-50e240dd12e070cf",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Comptabilité - contrôle - audit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800195N",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Droit|Economie|Gestion|Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-5641b9dcccada205",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Management des fonctions supports",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Sarreguemines",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6666",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6666&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-5879aeb46990f58f",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Science du danger et management des risques professionnels technologiques et environnementaux",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "29878",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=29878&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-58b2e082e6e787fd",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Certificat de capacité d'Orthophoniste",
+      "level": "Bachelor",
+      "cycle": "sante",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "28050",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28050&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-59f892783047c1ae",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Réalisation d'applications : conception, développement, validation",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Saint-Dié-des-Vosges",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "10757",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10757&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-5b7684219c153b22",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 2nd degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301440J",
+      "tracks": [
+        "Education musicale et chant choral",
+        "Hôtellerie-Restauration",
+        "Sciences économiques et sociales",
+        "Education physique et sportive",
+        "Maths - Sciences physiques et chimiques",
+        "Sciences et techniques médico-sociales",
+        "Sciences de la vie et de la terre",
+        "Lettres",
+        "Lettres - Histoire - Géographie",
+        "Langues vivantes - Lettres",
+        "Espagnol",
+        "Biotechnologies",
+        "Allemand",
+        "Anglais",
+        "Economie-Gestion",
+        "Génie industriel",
+        "Italien",
+        "Enseignement technologique et professionnel",
+        "Sciences industrielles de l'ingénieur",
+        "Mathématiques",
+        "Histoire - Géographie",
+        "Documentation",
+        "Philosophie",
+        "Arts plastiques",
+        "Sciences physiques et chimiques"
+      ],
+      "recommendedBachelors": [
+        "Musicologie",
+        "Toutes licences",
+        "Economie",
+        "Administration économique et sociale",
+        "Sciences et techniques des activités physiques et sportives",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Physique, chimie",
+        "Droit",
+        "Sciences sanitaires et sociales",
+        "Sciences pour la santé",
+        "Sciences de la vie et de la Terre",
+        "Lettres",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Géographie et aménagement",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Sciences de la vie",
+        "Licence intégrée franco-allemande en droit",
+        "Gestion",
+        "Economie et gestion",
+        "Sciences pour l'ingénieur",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Philosophie",
+        "Arts",
+        "Arts plastiques"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/master/2019-master-metiers-de-lenseignement-de-leducation-et-de-la-formation-meef-2nd-degre.html"
+    },
+    {
+      "id": "eef-prog-5f816ef61dbd2b82",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Contrôle de gestion et pilotage de la performance",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Cosnes-et-Romain",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6376",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6376&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-62ffcc0e85ef6558",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management de l'innovation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800201U",
+      "tracks": [
+        "Management de la qualité",
+        "Géomanagement, stratégie et défense globale des organisations",
+        "Management global de l'innovation"
+      ],
+      "recommendedBachelors": [
+        "Gestion|Sciences pour l'ingénieur",
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-management_de_l_innovation/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-63d7a48cf913bf09",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Sciences pour la santé",
+      "level": "Bachelor",
+      "cycle": "sante",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "39381",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=39381&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-64fefbc148a1eb74",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Études européennes et internationales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800200T",
+      "tracks": [
+        "Collectivités territoriales et Union européenne",
+        "Droit de l'union européenne",
+        "Gestion et stratégies des sociétés en Europe",
+        "Relations publiques Internationales"
+      ],
+      "recommendedBachelors": [
+        "Droit|Economie|Langues étrangères appliquées|Economie et gestion|Etudes Européennes et Internationales|Sciences et Humanités",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Géographie et aménagement",
+        "Economie",
+        "Gestion",
+        "Economie et gestion",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-68d42e0213649ee5",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Urbanisme et aménagement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800164D",
+      "tracks": [
+        "Innovation urbaine, villes et territoires en transformation",
+        "Border studies",
+        "Intelligence territoriale"
+      ],
+      "recommendedBachelors": [
+        "Gestion|Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-urbanisme_et_amenagement/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-695101f5e6edeb4d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Langues et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800143F",
+      "tracks": [
+        "Cultures de l'Espace méditerranéen et d'Europe orientale",
+        "Bilangues - bicultures, traductologie/traduction",
+        "Mondes anglophones"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-langues_et_societes/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-6b97b53aad73cbc6",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Déploiement d'applications communicantes et sécurisées",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6314",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6314&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-6e9d57de523a4f46",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Contrôle de gestion et audit organisationnel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800177T",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie|Gestion|Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-6f6657ee65ad61d7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "10762",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10762&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-73d81c359c24f97d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Metz",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "47",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=47&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-76f0a56b3163b422",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Bureaux d'études Conception",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6297",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6297&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-781d6199e05dab8e",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Gestion, entrepreneuriat et management d'activités",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Cosnes-et-Romain",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6377",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6377&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-796f8695efcfa20c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Théologie catholique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800181X",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Humanités|Théologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1966-master-theologie-catholique.html"
+    },
+    {
+      "id": "eef-prog-7c96626249363c70",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Ingénierie des systèmes complexes",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800193K",
+      "tracks": [
+        "Ingénierie Numérique et Pilotage pour l'Industrie Connectée",
+        "Génie des Systèmes Industriels",
+        "Réseaux, Signaux, EcoTIC",
+        "Sûreté, Maintenance, Soutien, PHM"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Mécanique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-ingenierie_des_systemes_complexes/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-7e12588457c68f10",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Sciences et Techniques des Activités Physiques et Sportives : ergonomie du sport et performance motrice",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "14043",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=14043&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-81bac6f9cb80169c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Cinéma et audiovisuel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800191H",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Arts du spectacle|Etudes culturelles"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/diplomes-et-formations/1723-master-cinema-et-audiovisuel.html"
+    },
+    {
+      "id": "eef-prog-82dc478d90b4e288",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique parcours sciences de l'environnement et écotechnologies",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6669",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6669&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-83039b3f08d303ca",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Histoire, civilisations, patrimoine",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800199S",
+      "tracks": [
+        "Patrimoines, art et histoire",
+        "Europe et relations internationales contemporaines",
+        "Mondes anciens et médiévaux (archéologie, histoire)",
+        "Politique, violences et conflits de l'Antiquité à nos jours",
+        "Pouvoirs, Identités et cultures dans l'Occident moderne et contemporain"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie|Histoire|Humanités",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Humanités"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1642-master-histoire-civilisations-patrimoine.html"
+    },
+    {
+      "id": "eef-prog-8383393977df0563",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Langues étrangères appliquées",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800126N",
+      "tracks": [
+        "Technologies de la traduction",
+        "Langues étrangères et affaires internationales",
+        "Langues étrangères, commerce et stratégie à l'international"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-lea_langues_etrangeres_appliquees/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-86ef73cfacfcf8d0",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Civilisations, cultures et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800084S",
+      "tracks": [
+        "Etudes franco-allemandes : communication et coopération transfrontalières",
+        "Etudes germaniques: Histoire de la culture, de la langue et de la littérature dans les espaces d'expression allemande"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-civilisations_cultures_et_societes/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-891a09c3b4409c3c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Entrepreneuriat et management de projets",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800182Y",
+      "tracks": [
+        "Management de projet",
+        "Entrepreneuriat et développement d'activités"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-8cb4f105d6df542c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Ingénierie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800187D",
+      "tracks": [
+        "Innovations en Thérapeutique et diagnostic",
+        "Ingénierie biomédicale",
+        "Ergonomie et physiologie du travail"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur|Sciences de la vie|Sciences pour la santé",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences pour la santé",
+        "Informatique",
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-ingenierie_de_la_sante/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-8ded776db9720326",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Gestion",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "42967",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=42967&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-8e202a0e9eb81dea",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Conception et production durables",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6568",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6568&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-8f03d42ee329d1a1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Ergonomie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800197Q",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Gestion|Psychologie|Sciences pour l'ingénieur|Economie et gestion|Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1978-master-ergonomie.html"
+    },
+    {
+      "id": "eef-prog-8f1544a994a100ce",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Lettres",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800110V",
+      "tracks": [
+        "Littératures et médiations",
+        "Textes, interprétation et édition",
+        "Philologie, linguistique et littératures anciennes"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication",
+        "Histoire"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-lettres/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-8f3b3298f470ea56",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Sarreguemines",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "14042",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=14042&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-904de51ba7196be1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Information communication Parcours information numérique dans les organisations",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6318",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6318&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-9139780ba68225a7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Psychologie sociale, du travail et des organisations",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800148M",
+      "tracks": [
+        "Changement organisationnel, insertion et conseil",
+        "Accompagnement professionnel, prévention et gestion des risques"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1921-master-psychologie-sociale-du-travail-et-des-organisations.html"
+    },
+    {
+      "id": "eef-prog-9289380ad56e78d5",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Staps : activité physique adaptée et santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800179V",
+      "tracks": [
+        "Projet & Territoire en sport, santé (Proj&Ter)",
+        "Conception, organisation de l'activité physique adaptée - santé"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences pour l'ingénieur",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-staps_sciences_et_techniques_des_activites_physiques_et_sportives_activite_physique_adaptee_et_sante/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-92e11f31810e658c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit notarial",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800993E",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_notarial/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-96b3ba656e74daaf",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Gestion de production, logistique, achats",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800165E",
+      "tracks": [
+        "Management de la chaîne logistique"
+      ],
+      "recommendedBachelors": [
+        "Administration économique et sociale|Economie et gestion",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-996b4e505c8b2f95",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Traitement automatique des langues",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800162B",
+      "tracks": [
+        "Informatique, langue, parole et connaissances"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2680-master-traitement-automatique-des-langues-tal.html"
+    },
+    {
+      "id": "eef-prog-9b9aec3f3e5557f4",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Physique appliquée et ingénierie physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800385U",
+      "tracks": [
+        "Photonique & Optique pour les Matériaux",
+        "POM Photonique et Optique pour les Matériaux"
+      ],
+      "recommendedBachelors": [
+        "Chimie|Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique",
+        "Chimie",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-physique_appliquee_et_ingenierie_physique/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-9d81d62906fa601a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800156V",
+      "tracks": [
+        "Sciences de la fusion et des plasmas",
+        "Matière condensée et nanomatériaux"
+      ],
+      "recommendedBachelors": [
+        "Physique|Physique, chimie",
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-physique/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-9fd4e128d10837a7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Management, méthodes, maintenance innovante",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "46696",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=46696&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-a18fd191ea8733f9",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management et administration des entreprises",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800171M",
+      "tracks": [
+        "Administration des entreprises"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2677-master-administration-des-entreprises.html"
+    },
+    {
+      "id": "eef-prog-a196732da7ad2d52",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences du langage",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800169J",
+      "tracks": [
+        "Linguistique et pratique des textes et des discours",
+        "Analyse et traitement du lexique"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_du_langage/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-a1dbcba30fb887fc",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Études culturelles",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800087V",
+      "tracks": [
+        "Culture de jeunesse et culture de masse"
+      ],
+      "recommendedBachelors": [
+        "Lettres|Etudes culturelles",
+        "Lettres",
+        "Etudes culturelles"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1696-master-culture-de-la-jeunesse-culture-de-masse.html"
+    },
+    {
+      "id": "eef-prog-a489368fe5f0edd0",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "D.E Audioprothésiste",
+      "level": "Bachelor",
+      "cycle": "sante",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "28066",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28066&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-a48ed7185ecbc73b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit pénal et sciences criminelles",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800149N",
+      "tracks": [
+        "Prévention du risque pénal économique et financier",
+        "Droit pénal et sciences criminelles"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_penal_et_sciences_criminelles/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-a4c2704b71781a93",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit social",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800128Q",
+      "tracks": [
+        "Dialogue social",
+        "Droit du travail et de la protection sociale"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_social/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-a6a8cd9189be5a40",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Information communication Parcours publicité",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6319",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6319&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-a7339f39ba2a7a35",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit public",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800170K",
+      "tracks": [
+        "Droit public interne et international",
+        "Droit des contrats publics et de l'achat public",
+        "Droit de l'urbanisme et de la construction",
+        "Droit des collectivités territoriales et coopération transfrontalière",
+        "Droit des énergies renouvelables et des ressources naturelles"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_public/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-a909e184f7e2589d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique parcours biologie médicale et biotechnologie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "39041",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=39041&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-aeaeba635d027de1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Management",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800172N",
+      "tracks": [
+        "Métiers du conseil et de la recherche"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1881-master-metiers-du-conseil-et-de-la-recherche.html"
+    },
+    {
+      "id": "eef-prog-aeceeeb4dcc601a8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Business développement et management de la relation client",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6322",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6322&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-af45b9a647f47386",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Administration économique et sociale",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800155U",
+      "tracks": [
+        "Conseil économique et contrôle organisationnel",
+        "Entreprises de l'économie sociale et solidaire"
+      ],
+      "recommendedBachelors": [
+        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-aes_administration_economique_et_sociale/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-b3563dcbcb593d3d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Gestion de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800198R",
+      "tracks": [
+        "Gestion des milieux aquatiques, restauration et conservation",
+        "Génie de l'Environnement",
+        "Ecotoxicologie",
+        "Sites et sols pollués"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Environnements océaniens",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-gestion_de_l_environnement/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-b380a96db977ba8a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit fiscal",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800150P",
+      "tracks": [
+        "Procédures et fiscalités appliquées"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_fiscal/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-b4553ab210b1815f",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Électronique, énergie électrique, automatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800159Y",
+      "tracks": [
+        "Intelligence - Mesures Energétiques pour les Energies Nouvelles",
+        "Electronique Embarquée",
+        "Conception de Systèmes Electroniques et Communicants",
+        "Contrôle de l'efficacité énergétique",
+        "Energie électrique",
+        "Ingénierie des Systèmes Humain Machine",
+        "Capteurs intelligents et micro-nano-technologies",
+        "Mesure et Traitement de l'Information"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-electronique_energie_electrique_automatique/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-b493ecb92f1c513b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Saint-Denis",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "6",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-b6366c90fc790639",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Finance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800167G",
+      "tracks": [
+        "AFGA: Analyse Financière et Gestion d'Actifs",
+        "CFE : Contrôle et Finance d'Entreprise",
+        "Négociation et ingénierie patrimoniale",
+        "Banque des professionnels et management d'agence",
+        "Finance Internationale",
+        "Chargé d'affaires entreprise"
+      ],
+      "recommendedBachelors": [
+        "Economie|Gestion|Economie et gestion",
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-finance/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-b7ac9542a70de5e4",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Information communication Parcours communication des organisations",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6320",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6320&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-b8f7fada279dc3d8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Design",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800326E",
+      "tracks": [
+        "Design et Matériaux (DM)",
+        "Design Numérique et Architecture",
+        "Conception Produit (CP)",
+        "Innovation et Design EvAlués par les uSages (IDEAS)",
+        "Verre Design Architecture (VDA)",
+        "Design, Architecture et Modélisation (DAM)",
+        "Verre Design Architecture"
+      ],
+      "recommendedBachelors": [
+        "Arts|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
+        "Arts",
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-design/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-ba577418776d1717",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique Parcours diététique et nutrition",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6301",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6301&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-bb2b939e8a1e27e1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Mobilité et supply chain connectées",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Sarreguemines",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6665",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6665&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-bde27f7a4099a843",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), pratiques et ingénierie de la formation (PIF)",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302410N",
+      "tracks": [
+        "Education et Pratique Inclusive",
+        "Ingénierie Pédagogique",
+        "Éthique et pratique de l'enseignement",
+        "Pratique numérique en éducation",
+        "Ingénierie de la Formation de Formateurs"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/master/2055-master-metiers-de-lenseignement-de-leducation-et-de-la-formation-meef-pratiques-et-ingenierie-de-la-formation.html"
+    },
+    {
+      "id": "eef-prog-bed3af39a1d40afb",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Génie biologique parcours sciences de l'aliment et biotechnologie",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d10",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6304",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6304&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-bf5ed47db3f159e4",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Droit des affaires",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800137Z",
+      "tracks": [
+        "Droit des affaires transfrontières",
+        "Juriste d'affaires international et européen",
+        "Droit de l'entreprise et des affaires",
+        "Droit de la Santé"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-droit_des_affaires/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-c0ce6402891bed7a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Business développement et management de la relation client",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "44447",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=44447&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-c0e2f4ad5f65a270",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800168H",
+      "tracks": [
+        "Biomécanique",
+        "Ingénierie Mécanique et Matériaux"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques|Mécanique|Sciences pour l'ingénieur|Physique, chimie",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-mecanique/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-c4d049c354da34e5",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Français langue étrangère",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800192J",
+      "tracks": [
+        "Didactique des langues"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2673-master-didactique-des-langues.html"
+    },
+    {
+      "id": "eef-prog-c883a042de6f71ad",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Master intégré franco-allemand en management",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800975K",
+      "tracks": [
+        "Affaires internationales et management franco-allemand",
+        "Parcours général"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Economie et gestion",
+        "Licence intégrée franco-allemande en droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-c8ef8a469d497ed8",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Réseaux Opérateurs et Multimédia",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "15159",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=15159&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-c912d0b71e100465",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Business développement et management de la relation client",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Yutz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6671",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6671&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-c9edf7a0fe56795b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Management, méthodes, maintenance innovante",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Épinal",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "45295",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=45295&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-cc4b5d73f4cc958c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Microbiologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800194M",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2607-master-microbiologie.html"
+    },
+    {
+      "id": "eef-prog-ce4bf7a05dc69858",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Analyse, contrôle-qualité, environnement",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Saint-Avold",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "22593",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=22593&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-cff27d1e057d7179",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 1er degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301644F",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/master/1996-master-metiers-de-lenseignement-de-leducation-et-de-la-formation-meef-1er-degre.html"
+    },
+    {
+      "id": "eef-prog-d05a432133a2dc5a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Épistémologie, histoire des sciences et des techniques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1801015D",
+      "tracks": [
+        "MADELHIS - Epistémologie, logique et histoire des sciences"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/2003-master-epistemologie-histoire-des-sciences-et-des-techniques-madelhis.html"
+    },
+    {
+      "id": "eef-prog-d233f9283f80a7a7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Stratégie de marque et événementiel",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d12",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6574",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6574&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-d236a3706f8a97ee",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Développement web et dispositifs interactifs",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6316",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6316&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-d25f44b5966f3b1a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Énergie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800153S",
+      "tracks": [
+        "Mécanique Energie",
+        "Energie et Procédés"
+      ],
+      "recommendedBachelors": [
+        "Mécanique|Physique|Electronique, énergie électrique, automatique",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-energie/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-d6586f227f8ed55a",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800163C",
+      "tracks": [
+        "Veille stratégique et organisation des connaissances",
+        "Stratégie et conseil en communication"
+      ],
+      "recommendedBachelors": [
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-information_communication/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-d848d47f16222ccd",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "L1 - Sciences pour la santé",
+      "level": "Bachelor",
+      "cycle": "sante",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "39383",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=39383&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-dbadadc350b80aa7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Visualisation, conception d'outils décisionnels",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6572",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6572&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-dc96b98b76d6f9d1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Matériaux et contrôles physico-chimiques",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6570",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6570&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-dd298502d4d0346c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Santé publique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800329H",
+      "tracks": [
+        "ERCE: Epidémiologie, recherche clinique, évaluation",
+        "Santé publique et environnement",
+        "Epidémiologie, recherche clinique, évaluation",
+        "IPS: Intervention en Promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation (ERCE)",
+        "Ethique des soins, de la santé publique et des nouvelles technologies",
+        "Intervention en promotion de la santé (IPS)",
+        "Intervention en promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://sante.u-bourgogne.fr/masters#undefined"
+    },
+    {
+      "id": "eef-prog-ddf94b7daa8aa96d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Simulation numérique et réalité virtuelle",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6299",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6299&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-df68b9cca666bea1",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800386V",
+      "tracks": [
+        "Ingénierie des Logiciels (IL)",
+        "Apprentissage, Vision, Robotique (AVR)",
+        "Apprentissage, Vision, Robotique",
+        "Sécurité de l'Information et des Systèmes (SIS)",
+        "Génie Informatique et Interaction Humain-Machine (G2IHM)",
+        "Ingénierie des Logiciels",
+        "Informatique Décisionnelle (I&D)",
+        "Génie Informatique et Interaction Humain-Machine",
+        "Informatique Décisionnelle",
+        "Sécurité de l’Information et des Systèmes"
+      ],
+      "recommendedBachelors": [
+        "Informatique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-e15684d33637631b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Automatisme et Informatique Industrielle",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6298",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6298&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-e7740947d95af820",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Sciences de la terre et des planètes, environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800158X",
+      "tracks": [
+        "Terres - Planètes",
+        "Gestion des Ressources en eaux Souterraines et Environnement",
+        "Eaux de surface, Ressources, Gestion, Aménagement",
+        "Sols Eaux Environnement",
+        "Géosciences Pétrolière Ingénierie Réservoirs",
+        "Systèmes Métallogéniques : Géologie et Exploration",
+        "Georessources Engineering",
+        "Génie Minier et Risques"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la Terre|Sciences de la vie et de la Terre",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Mécanique",
+        "Génie civil"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-sciences_de_la_terre_et_des_planetes_environnement/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-e85c00776ed0f96c",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Déploiement d'applications communicantes et sécurisées",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6569",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6569&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-e87aac100abe6e30",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Vandœuvre-lès-Nancy",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "20",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=20&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-e9a46894d92f6083",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Metz",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "41",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=41&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-ed325c87777a03e9",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Journalisme",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800202V",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/master/1765-master-journalisme.html"
+    },
+    {
+      "id": "eef-prog-ee735a01ff7fbb5d",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Stratégie de marque et événementiel",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d12",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6317",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6317&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-f173e535eee91c16",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Gestion, entrepreneuriat et management d'activités",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Metz",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "6575",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=6575&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-f333803f7223bd4b",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Agrosciences, environnement, territoires, paysage, forêt",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800328G",
+      "tracks": [
+        "Bois, forêt et développement durable (BFD)",
+        "Forests and their environment (FEN)",
+        "Gestion conservatoire et restauration des écosystèmes (GCRE)",
+        "Forests and their environment FEN",
+        "Gestion Conservatoire et Restauration des Ecosystèmes GCRE",
+        "Bois, Forêt, Développement Durable BFD",
+        "Ecosystèmes agricoles et forestiers (ECOSAFE)",
+        "Interaction Plante et Environnement IPE",
+        "Interactions plante et environnement (IPE)",
+        "Ecosystèmes agricoles et forestiers ECOSAFE"
+      ],
+      "recommendedBachelors": [
+        "Chimie|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies",
+        "Sciences de la vie|Sciences de la vie et de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-lorraine.fr/fr/17-master/s-18/mention_du_diplome-agrosciences_environnement_territoires_paysage_foret/type_de_diplome-master"
+    },
+    {
+      "id": "eef-prog-f51f8ff4b6c26fa7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Méthodes informatiques appliquées à la gestion des entreprises - MIAGE",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800154T",
+      "tracks": [
+        "Systèmes d'Information Distribués (SID)",
+        "Audit et Conception des Systèmes d'Information (ACSI)",
+        "Informatique et Innovation"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-f5f36dfc0b157c14",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "BUT - Automatisme et Informatique Industrielle",
+      "level": "Bachelor",
+      "cycle": "but1",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Villers-lès-Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "16907",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=16907&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-f9586c677814c9b7",
+      "institutionId": "eef-univ-0542493s",
+      "nameFr": "Mathématiques et applications",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nancy",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800384T",
+      "tracks": [
+        "Mathématiques fondamentales et appliquées (MFA)",
+        "Probabilités et statistiques appliquées",
+        "Ingénierie mathématique pour la science des données (IMSD)",
+        "Mathématiques fondamentales et appliquées",
+        "Probabilité et Statistiques appliquées (PSA)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    }
+  ]
+}

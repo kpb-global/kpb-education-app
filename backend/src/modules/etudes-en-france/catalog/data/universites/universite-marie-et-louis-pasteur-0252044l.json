@@ -1,0 +1,1875 @@
+{
+  "institution": {
+    "id": "eef-univ-0252044l",
+    "uai": "0252044L",
+    "nameFr": "Université Marie et Louis Pasteur",
+    "nameEn": "Université Marie et Louis Pasteur",
+    "acronym": "UMLP",
+    "city": "Besançon",
+    "department": "Doubs",
+    "region": "Bourgogne-Franche-Comté",
+    "websiteUrl": "https://www.umlp.fr/",
+    "typology": "Université pluridisciplinaire avec santé",
+    "enrolment": {
+      "count": 24825,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-09522e777ce1c152",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Archéologie, sciences pour l'archéologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701006V",
+      "tracks": [
+        "Archéologie, sciences pour l'archéologie (ASA)",
+        "Archéologie, Culture, Territoire, Environnement"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sciences de la Terre",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-0ead7b4aaed434ed",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701293G",
+      "tracks": [
+        "International Master in biomedical engineering",
+        "Recherche en médecine palliative et dans le champ de la fin de vie",
+        "Microbiologie, Antibiorésistance, Génomique et Epidémiologie",
+        "Des lipoprotéines aux thérapies innovantes",
+        "Relation Hôte-Greffon",
+        "Santé (Médecine DFASM1 – Pharmacie DFASP1)"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://sante.u-bourgogne.fr/masters"
+    },
+    {
+      "id": "eef-prog-0fcc3374a01ef89c",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Génie mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701039F",
+      "tracks": [
+        "Conception Mécanique, Matériaux et Microsystèmes",
+        "Procédés et Matériaux",
+        "Procédés et matériaux",
+        "Eco-conception de produits"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ens2m.fr/fr/poursuivre-en-master"
+    },
+    {
+      "id": "eef-prog-12877c730e4f5ec4",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Langues, littératures et civilisations étrangères et régionales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702128P",
+      "tracks": [
+        "Double-diplôme franco-italien en partenariat avec l'université de Pavie - LLCER",
+        "Traitement automatique des langues - LLCER TAL",
+        "Anglais : langues, cultures, traduction - LLCER",
+        "Allemand : langues, cultures, traduction - LLCER",
+        "Italien : langues, cultures, traduction - LLCER",
+        "Espagnol : langues, cultures, traduction - LLCER"
+      ],
+      "recommendedBachelors": [
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-1437682fd8ff9ef6",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Economie de l'environnement, de l'énergie et des transports",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900376J",
+      "tracks": [
+        "Data Analyst for Spatial and Environmental Economics (DASEE)(Analyste de Données en Économie Spatiale et de l'Environnement)"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-dasee/"
+    },
+    {
+      "id": "eef-prog-1a29416eb313d5df",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Chimie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702101K",
+      "tracks": [
+        "Physico-chimie et matériaux pour le vivant",
+        "Formulation et traitements des surfaces"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-1c5a888eb08326d7",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Physique fondamentale et applications",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703515W",
+      "tracks": [
+        "Photonics, mIcronanotechnology, time-frequenCy metrology, and complex Systems (PICS) (Photonique et Physique appliquée, Photonique, micronanotechnologie, temps-fréquence et systèmes complexes)",
+        "Physics, Photonics & Nanotechnology (PPN) (Physique, photonique et nanotechnologie)",
+        "Physics & Computational Physics (CompuPhys)(physique et physique numérique)"
+      ],
+      "recommendedBachelors": [
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-pics/"
+    },
+    {
+      "id": "eef-prog-1cbdb7714634e017",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701424Z",
+      "tracks": [
+        "Enquêtes socio-anthropologiques et territorialisations"
+      ],
+      "recommendedBachelors": [
+        "Sociologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-238ee97ca2242fe8",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Psychologie clinique, psychopathologie et psychologie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702871X",
+      "tracks": [
+        "Intervention psychosociologique : travail et santé",
+        "Clinique psychopathologique, clinique de la famille",
+        "Psychologie cognitive et neuropsychologie",
+        "Recherche en psychologie"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-2438d7bd3dc6b078",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Mathématiques appliquées, statistique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701631Z",
+      "tracks": [
+        "Modélisation statistique"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-252cdb2162d831b9",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Droit des affaires",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703403A",
+      "tracks": [
+        "Droit social",
+        "Droit des affaires"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-25f1d4614d450312",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Arts de la scène et du spectacle vivant",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701870J",
+      "tracks": [
+        "Théâtres du monde"
+      ],
+      "recommendedBachelors": [
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-288fbfcd18743da9",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Design",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900356N",
+      "tracks": [
+        "Produits et services multimédia"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Information-communication",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-36e92614f359db5d",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Intelligence économique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703512T",
+      "tracks": [
+        "Behavioral and Digital Economics for Effective Management (BDEEM)(Economie digitale et comportementale pour un management efficace)"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Mathématiques",
+        "Administration économique et sociale",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-bdeem/"
+    },
+    {
+      "id": "eef-prog-392b136e8aa043b9",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Histoire, civilisations, patrimoine",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702299A",
+      "tracks": [
+        "Sociétés, politique et cultures de l'Antiquité à nos jours (à distance)",
+        "Sociétés, politique et cultures de l'Antiquité à nos jours",
+        "Sciences pour l'histoire de l'art"
+      ],
+      "recommendedBachelors": [
+        "Histoire"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-39504e82df1db741",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Santé publique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800329H",
+      "tracks": [
+        "ERCE: Epidémiologie, recherche clinique, évaluation",
+        "Santé publique et environnement",
+        "Epidémiologie, recherche clinique, évaluation",
+        "IPS: Intervention en Promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation (ERCE)",
+        "Ethique des soins, de la santé publique et des nouvelles technologies",
+        "Intervention en promotion de la santé (IPS)",
+        "Intervention en promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://sante.u-bourgogne.fr/masters#undefined"
+    },
+    {
+      "id": "eef-prog-3b2069a1da0410a8",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Biologie de la conservation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703514V",
+      "tracks": [
+        "Ecology, Monitoring and Management of Ecosystems (EMME)(Ecologie, Diagnostic et Gestion des Ecosystèmes)",
+        "Behavioural Ecology and Wildlife Management (BEWM)(Ecologie comportementale et gestion de la faune sauvage)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-emme/"
+    },
+    {
+      "id": "eef-prog-3b714964203df0bc",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Finance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701843E",
+      "tracks": [
+        "Management administratif et financier en entreprise",
+        "Management administratif et financier en entreprise (à distance)",
+        "Finance d'entreprise et des marchés Chargé d'affaires en Banque (CAB) - double compétence",
+        "Finance d'entreprise et des marchés Chargé d'affaires en Banque (CAB)"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Administration publique",
+        "Science politique",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-416544de55d08b63",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Sciences et technologie de l'agriculture, de l'alimentation et de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703516X",
+      "tracks": [
+        "Microbiology and Physicochemistry for food and wine Processes (MP2) (microbiologie et physicochimie des procédés alimentaires et du vin)",
+        "Physiological and Psychological FOOd choice Determinants (P2FOOD) (déterminants physiologiques et psychologiques des choix alimentaires)"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-mp2/"
+    },
+    {
+      "id": "eef-prog-4266b61e7a806ae2",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 1er degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301413E",
+      "tracks": [
+        "PROFESSEURS DES ÉCOLES - PARCOURS AED",
+        "PROFESSEURS DES ÉCOLES, OUVERTURE À L’INTERNATIONAL",
+        "PROFESSEUR DES ÉCOLES - PARCOURS CLASSIQUE",
+        "Professeur des écoles"
+      ],
+      "recommendedBachelors": [
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Mathématiques",
+        "Physique, chimie",
+        "Arts plastiques",
+        "Lettres, langues",
+        "Economie et gestion",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Lettres",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-picardie.fr/ecole/inspe/formations/"
+    },
+    {
+      "id": "eef-prog-45c0abe5eaa046e0",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 2nd degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302411P",
+      "tracks": [
+        "Espagnol - 1ère année",
+        "Sciences de la vie et de la Terre",
+        "Lettres - 1ère année - Parcours AED",
+        "Documentation - 1ère année",
+        "Mathématiques",
+        "Sciences physiques-chimie",
+        "Sciences industrielles de l'ingénieur - 1ère année",
+        "Allemand - 1ère année",
+        "Lettres Modernes - 1ère année",
+        "Sciences de la vie et de la terre - 1ère année",
+        "Mathématiques - 1ère année - Parcours AED",
+        "Langues étrangères : espagnol",
+        "Lettres",
+        "Histoire-Géographie - 1ère année",
+        "Langues étrangères : anglais",
+        "Anglais - 1ère année",
+        "Allemand - 1ère année - Parcours AED",
+        "Histoire - géographie",
+        "Mathématiques (à distance)",
+        "Physique Chimie - 1ère année",
+        "Lettres Histoire-Géographie - 1ère année",
+        "Mathématiques - 1ère année",
+        "Langues étrangères : allemand",
+        "Economie-gestion",
+        "Professeurs documentalistes",
+        "Education physique et sportive - 1ère année",
+        "Lettres - histoire - géographie",
+        "Arts plastiques - 1ère année",
+        "Education physique et sportive",
+        "Langues étrangères :  italien",
+        "Mathématiques - Sciences - 1ère année",
+        "Economie Gestion - 1ère année"
+      ],
+      "recommendedBachelors": [
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Sciences de la vie et de la Terre",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Mathématiques",
+        "Physique, chimie",
+        "Arts plastiques",
+        "Lettres, langues",
+        "Economie et gestion",
+        "Sciences et techniques des activités physiques et sportives",
+        "Histoire",
+        "Chimie",
+        "Physique",
+        "Géographie et aménagement",
+        "Toutes licences",
+        "Sciences pour l'ingénieur",
+        "Lettres",
+        "Langues étrangères appliquées",
+        "Sciences de la Terre",
+        "Economie",
+        "Gestion",
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Arts du spectacle",
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-picardie.fr/ecole/inspe/formations/"
+    },
+    {
+      "id": "eef-prog-4637c4f34cdd81dc",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Management et administration des entreprises",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702773R",
+      "tracks": [
+        "Double compétence et Management général",
+        "Entreprise et International",
+        "Entrepreneuriat et innovation",
+        "Management général"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Etudes Européennes et Internationales",
+        "Droit français - Droits étrangers"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-5633bf8a8c0b4385",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Justice, procès et procédures",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701264A",
+      "tracks": [
+        "Protection des droits fondamentaux et des libertés",
+        "Contentieux",
+        "Droit privé appliqué"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-5755420b3e0a118d",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Droit de l'entreprise",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701383E",
+      "tracks": [
+        "Entreprise industrielle et commerciale"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-5835aba14eaa6831",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), pratiques et ingénierie de la formation (PIF)",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703465T",
+      "tracks": [
+        "Ingénierie et Recherches en Education"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-6396a7d84a097528",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Culture et communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900378M",
+      "tracks": [
+        "Projects in International and European Cultural Engineering (PIECE)(Projets de l'ingénierie culturelle européenne et internationale)"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-piece/"
+    },
+    {
+      "id": "eef-prog-66af71d105c64cf3",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Staps : management du sport",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703053V",
+      "tracks": [
+        "Consommation et Commercialisation des Marques de Sport et de Destinations (CCMS & D)",
+        "Développement et pilotage des services sportifs et de loisirs"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Information-communication",
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-67a93bb001df97fb",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Lettres et humanités",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702634P",
+      "tracks": [
+        "Littérature de jeunesse et patrimoine littéraire",
+        "Sciences de l'Antiquité"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Lettres, langues",
+        "Métiers de l'enseignement du premier degré",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-682a6fa2287294f3",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Sciences du médicament et des produits de santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900377K",
+      "tracks": [
+        "Innovative drugs (médicaments innovants : nanomédicaments et imagerie moléculaire)"
+      ],
+      "recommendedBachelors": [
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/masters-in-innovative-drugs/"
+    },
+    {
+      "id": "eef-prog-6b53a611e4e0db66",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Humanités numériques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900379N",
+      "tracks": [
+        "Rare Book and Digital Humanities (Rare Book) (Livre ancien et humanités numériques)"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Musicologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-rare-books-digital-humanities/"
+    },
+    {
+      "id": "eef-prog-70632a2b6f1ecb64",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Mathématiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701706F",
+      "tracks": [
+        "Mathématiques approfondies (à distance)",
+        "Mathématiques approfondies",
+        "Mathématiques générales"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-72172f898b53fd1c",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Géoressources, géorisques, géotechnique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701987L",
+      "tracks": [
+        "Géologie appliquée"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la Terre",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-737ea3158f715397",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Droit du numérique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702836J",
+      "tracks": [
+        "Cyberveille, cyberdéfense, cybersécurité"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-76482d6c0af9ba20",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Chimie moléculaire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900375H",
+      "tracks": [
+        "Transition Metals in Molecular Chemistry (T2MC) (métaux de transition en chimie moléculaire)"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-t2mc/"
+    },
+    {
+      "id": "eef-prog-7790b5e00eb27de1",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Biodiversité, écologie et évolution",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701451D",
+      "tracks": [
+        "Dynamique et Conservation de la biodiversité (DyCoB)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-795c25c0a1a710bb",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Automatique, robotique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703513U",
+      "tracks": [
+        "Control for green mechatronics (GREEM) (commande des systèmes mécatroniques)"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-greem/"
+    },
+    {
+      "id": "eef-prog-7e08c202db1be187",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702598A",
+      "tracks": [
+        "Ingénierie système et logiciel",
+        "Développement et validation du logiciel (à distance)",
+        "Ingénierie du test et de la validation logiciels et systèmes",
+        "Informatique avancée et applications (à distance)"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Informatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utbm.fr/formations/masters/"
+    },
+    {
+      "id": "eef-prog-803e10d237f5bc25",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Economie de l'entreprise et des marchés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701522F",
+      "tracks": [
+        "Ingénierie économique",
+        "Banque et finance",
+        "Conseiller clientèle de professionnels",
+        "E-achats et marchés"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Mathématiques",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-8b6469d0e5b7120f",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Staps : activité physique adaptée et santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702789H",
+      "tracks": [
+        "Activité Physique Adaptée et Santé - APAS",
+        "Réadaptation, rééducation et plasticité de la fonction motrice"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-9702eb183006229e",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Ingénierie des systèmes complexes",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702505Z",
+      "tracks": [
+        "Microsystèmes, Instrumentation embarquée et Robotique",
+        "Mécatronique, Procédés et Microtechniques",
+        "Smart Integrated System"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur",
+        "Mécanique",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ens2m.fr/fr/poursuivre-en-master"
+    },
+    {
+      "id": "eef-prog-a3cd668ae03baf41",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Français langue étrangère",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702655M",
+      "tracks": [
+        "Didactique du FLE/FLS",
+        "Métiers du FLE, ingénierie de la formation et coopération internationale",
+        "Politiques linguistiques - éducatives (FLE)",
+        "Politiques linguistiques - éducatives et environnements numériques (à distance)"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage",
+        "Lettres, langues"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-a6c01748ca193a5c",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), encadrement éducatif",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302175H",
+      "tracks": [
+        "CONSEILLER PRINCIPAL D’ÉDUCATION (CPE)",
+        "ENCADREMENT EDUCATIF - EDUCATION A LA SANTÉ ET AU DEVELOPPEMENT DURABLE",
+        "Conseiller principal d'éducation",
+        "CONSEILLER PRINCIPAL D'ÉDUCATION DIGITALISÉ"
+      ],
+      "recommendedBachelors": [
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Arts plastiques",
+        "Lettres, langues",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Arts",
+        "Physique, chimie",
+        "Langues étrangères appliquées",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-picardie.fr/ecole/inspe/formations/"
+    },
+    {
+      "id": "eef-prog-b083329fa783c8a9",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701372T",
+      "tracks": [
+        "Gestion des ressources humaines et responsabilité sociale de l'entreprise (GRH et RSE)",
+        "Tronc commun Besançon",
+        "Gestion des ressources humaines et responsabilité sociale des entreprises (GRH et RSE) - double compétence",
+        "Tronc commun Belfort"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Droit",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Administration publique",
+        "Science politique",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b69e61a30d98c7b5",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Staps : entraînement et optimisation de la performance sportive",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702114Z",
+      "tracks": [
+        "Ingénierie de l'entraînement sportif",
+        "Entraînement, préparation physique mentale et management du sport (EPPMMS)"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b96876346145b863",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Comptabilité - contrôle - audit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702063U",
+      "tracks": [
+        "Comptabilité contrôle audit - CCA",
+        "Comptabilité-Contrôle-Audit"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie et gestion",
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bc49244cd706922d",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Géographie, aménagement, environnement et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701064H",
+      "tracks": [
+        "Aide à la décision en aménagement urbain et régional",
+        "Transport, Mobilité, Environnement, Climat (TMEC)",
+        "Aménagement et gouvernance dans les pays du Sud (à distance)"
+      ],
+      "recommendedBachelors": [
+        "Géographie et aménagement",
+        "Economie",
+        "Gestion",
+        "Sciences pour l'ingénieur",
+        "Sciences de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bd503075c5a706da",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Sciences du langage",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701199E",
+      "tracks": [
+        "Analyse du discours"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bfec7ae9f1b74e37",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703148Y",
+      "tracks": [
+        "Mécanique et ingénierie : études et développement",
+        "Smart Mechanics"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://gradschool.eiphi.ubfc.fr/?page_id=1355"
+    },
+    {
+      "id": "eef-prog-c3a69ad783f33423",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701474D",
+      "tracks": [
+        "Philosophie des pratiques"
+      ],
+      "recommendedBachelors": [
+        "Philosophie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-c3dcef3fa88ecca1",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Administration publique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701299N",
+      "tracks": [
+        "Politiques publiques",
+        "Protection des droits fondamentaux et des libertés",
+        "Droit de l'action administrative"
+      ],
+      "recommendedBachelors": [
+        "Administration publique",
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-c88e338928ea33fb",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Biologie-santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701672U",
+      "tracks": [
+        "Signalisation cellulaire et moléculaire",
+        "Physiologie, Neurosciences et Comportement",
+        "Biologie intégrative des interactions plantes microorganismes environnement (B2IPME)",
+        "Biochimie Biologie Moléculaire (BBM)",
+        "Biologie Cellulaire et Physiologie Animale (BCPA)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences pour la santé",
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d2b5158412b29ad4",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Gestion de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703151B",
+      "tracks": [
+        "Gestion durable de l'environnement"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d8527482308f6562",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Marketing, vente",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701800H",
+      "tracks": [
+        "Marketing stratégique et opérationnel - double compétence",
+        "Marketing et management international",
+        "Marketing stratégique et opérationnel",
+        "Management stratégique de la distribution"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Information-communication",
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d99b399f174490d8",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Nutrition et sciences des aliments",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702221R",
+      "tracks": [
+        "Sciences des Aliments",
+        "Systèmes automatisés de production dans les industries agroalimentaires - SAPIAA",
+        "Evaluation Sensorielle : Comrendre,  Analyser, Innover - ESCAI",
+        "Nutrition"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Chimie",
+        "Sciences pour l'ingénieur"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://agrosupdijon.fr/formations/masters/escai-evaluation-sensorielle-comprendre-analyse-innover"
+    },
+    {
+      "id": "eef-prog-da790e5d5a97ba11",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701123X",
+      "tracks": [
+        "Photonics, micro-nanotechnology, time-frequency metrology, and complex systems - PICS",
+        "Physique, physique numérique"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-dbbc795cfd968986",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Mathématiques, Physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900350F",
+      "tracks": [
+        "Mathematical Physics (Math4Phys) (mathématique pour la physique)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/math4phys/"
+    },
+    {
+      "id": "eef-prog-dceb47fe06e656fa",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Traitement du signal et des images",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702345A",
+      "tracks": [
+        "Electronique, Signal et Image",
+        "Computer Vision"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Informatique",
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-dedeb194ab019109",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703133G",
+      "tracks": [
+        "Conseil en communication"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-ea91236910381442",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Systèmes de calculs embarqués",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900374G",
+      "tracks": [
+        "Internet of Things (IoT) (internet des objets)"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Mathématiques",
+        "Sciences pour l'ingénieur"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ubfc.fr/master-iot/"
+    },
+    {
+      "id": "eef-prog-ee213e38611d04f2",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Langues étrangères appliquées",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702067Y",
+      "tracks": [
+        "Management international et savoir-faire d'excellence",
+        "Langue et commerce électronique"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-f3f8f480a5164023",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Énergie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702158X",
+      "tracks": [
+        "Energie électrique",
+        "GESTION DES ENERGIES EN MILIEU INSULAIRE ET TROPICAL (GEMIT) M2 uniquement (sous réserve d'ouverture)",
+        "Ingénierie thermique et énergie"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utbm.fr/formations/masters/"
+    },
+    {
+      "id": "eef-prog-fd0d793d665ecc49",
+      "institutionId": "eef-univ-0252044l",
+      "nameFr": "Sciences de l'eau",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Besancon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702883K",
+      "tracks": [
+        "Qualité des eaux, des sols et traitements"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    }
+  ]
+}

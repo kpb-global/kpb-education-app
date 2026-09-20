@@ -1,0 +1,497 @@
+{
+  "institution": {
+    "id": "eef-univ-0301911p",
+    "uai": "0301911P",
+    "nameFr": "Nîmes université",
+    "nameEn": "Nîmes université",
+    "acronym": null,
+    "city": "Nîmes",
+    "department": "Gard",
+    "region": "Occitanie",
+    "websiteUrl": "https://www.unimes.fr/fr/index.html",
+    "typology": "Université pluridisciplinaire hors santé",
+    "enrolment": {
+      "count": 5542,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-0079409d6559bd0e",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Droit des affaires",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501200P",
+      "tracks": [
+        "Enseignement clinique du droit des affaires"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/droit-economie-gestion-DEG/master-droit-des-affaires-parcours-enseignement-clinique-du-droit-des-affaires-hnd01z2z.html"
+    },
+    {
+      "id": "eef-prog-064a9a9592213f8f",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Design",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502092J",
+      "tracks": [
+        "Design Innovation Société"
+      ],
+      "recommendedBachelors": [
+        "Arts"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/arts-lettres-langues-ALL/master-design-hnd025a2.html"
+    },
+    {
+      "id": "eef-prog-12fc9d93051594b2",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), pratiques et ingénierie de la formation (PIF)",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301191N",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Sciences de l'éducation"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-perp.fr/"
+    },
+    {
+      "id": "eef-prog-67cc38f1165f251f",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Biologie-santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501078G",
+      "tracks": [
+        "Management de projet et innovation en biotechnologie"
+      ],
+      "recommendedBachelors": [
+        "Chimie|Physique|Sciences de la vie",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/sciences-technologies-sante-STS/master-biologie-sante-parcours-management-de-projet-et-innovation-en-biotechnologie-hnd01ztj.html"
+    },
+    {
+      "id": "eef-prog-6ff0fb3884c8c94c",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Administration économique et sociale",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100085T",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-a1af113aa3aa10d2",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Psychologie clinique, psychopathologie et psychologie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502311X",
+      "tracks": [
+        "Neuropsychologie clinique intégrative de l'adulte et de la personne âgée",
+        "Psychologie de la santé",
+        "Psychologie clinique et psychopathologie en thérapie compartementale, cognitive et émotionnelle"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-psychologie-clinique-psychopathologie-et-psychologie-de-la-sante-parcours-neuropsychologie-clinique-et-psychopathologie-cognitive-adulte-et-personne-agee-program-fr_rne_0341089z_pr_1298301899417/parcours-neuropsychologie-clinique-integrative-de-l-adulte-et-de-la-personne-agee-subprogram-parcours-neuropsychologie-clinique-et-psychopathologie-cognitive-adulte-et-personne-agee.html"
+    },
+    {
+      "id": "eef-prog-a999a6fdd41919a8",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Histoire, civilisations, patrimoine",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100111W",
+      "tracks": [
+        "Histoire vivante / Public history"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-histoire-KIT1CV36.html"
+    },
+    {
+      "id": "eef-prog-aa84e92e693ec127",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Risques et environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502309V",
+      "tracks": [
+        "Risques environnementaux et sûreté nucléaire",
+        "Disaster Management Environnemental Impact Studies"
+      ],
+      "recommendedBachelors": [
+        "Physique, chimie",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Chimie",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/sciences-technologies-sante-STS/master-risques-et-environnement-parcours-risques-environnementaux-et-surete-nucleaire-hnd02504.html"
+    },
+    {
+      "id": "eef-prog-b36faa6940feea77",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Sciences de la vision",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2000291S",
+      "tracks": [
+        "Sciences de la vision"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/sciences-technologies-sante-STS/master-sciences-de-la-vision-KB7O93VC.html"
+    },
+    {
+      "id": "eef-prog-c01a0db88c8cbbb2",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), encadrement éducatif",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302750H",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-meef-encadrement-educatif"
+    },
+    {
+      "id": "eef-prog-cb887a47d97ec032",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Humanités et industries créatives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1801099V",
+      "tracks": [
+        "Production, usages et interprétation des fictions (XIXè-XXIè siècles)"
+      ],
+      "recommendedBachelors": [
+        "Arts",
+        "Lettres",
+        "Sciences du langage",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication",
+        "Cinéma"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/arts-lettres-langues-ALL/master-humanites-et-industries-creatives-parcours-production-usages-et-interpretation-des-fictions-JC68MRPK.html"
+    },
+    {
+      "id": "eef-prog-cfa99e8cd23c9a39",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 1er degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1303356S",
+      "tracks": [
+        "Premier degré langue régionale option catalan",
+        "Premier degré",
+        "Premier degré langue régionale option occitan"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Arts",
+        "Lettres",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Physique, chimie",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-1er-degre"
+    },
+    {
+      "id": "eef-prog-e0e682bbc1b386fc",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 2nd degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1303346F",
+      "tracks": [
+        "Sciences de la vie et de la terre",
+        "Histoire-géographie",
+        "Physique - chimie",
+        "Espagnol",
+        "Catalan",
+        "Documentation",
+        "Lettres classiques et modernes",
+        "Sciences et techniques médico-sociales",
+        "Chinois",
+        "Allemand",
+        "Mathématiques - Sciences en lycée professionnel",
+        "Biotechnologies option biochimie génie biologique",
+        "Enseignement généraux en lycées professionnels",
+        "Arts plastiques",
+        "Sciences de l'ingénieur collèges-lycées et techniques industrielles lycées professionnels",
+        "Numérique et Sciences Informatiques (NSI)",
+        "Lettres",
+        "Anglais",
+        "Economie et gestion des organisations",
+        "Occitan",
+        "Mathématiques",
+        "Arts appliqués",
+        "Italien",
+        "Éducation musicale",
+        "Sciences et techniques des activités physiques et sportives",
+        "Histoire-Géographie",
+        "Sciences économiques et sociales"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie et de la Terre",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Physique, chimie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres",
+        "Sciences du langage",
+        "Humanités",
+        "Information-communication",
+        "Sciences sanitaires et sociales",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Sciences de la vie",
+        "Arts",
+        "Arts plastiques",
+        "Sciences et technologies",
+        "Informatique",
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Administration économique et sociale",
+        "Sciences sociales",
+        "Musicologie",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sociologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-2nd-degre"
+    },
+    {
+      "id": "eef-prog-e45f1d9c840c2725",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Droit des collectivités territoriales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503340R",
+      "tracks": [
+        "Droit public des affaires locales"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Administration économique et sociale"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/droit-economie-gestion-DEG/master-droit-des-collectivites-territoriales-parcours-droit-public-des-affaires-locales-hnd01zyz.html"
+    },
+    {
+      "id": "eef-prog-ff7fd800c41b8fea",
+      "institutionId": "eef-univ-0301911p",
+      "nameFr": "Psychologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nimes",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503129L",
+      "tracks": [
+        "Psychologie Sociale et environnementale"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.unimes.fr/fr/formations/catalogue/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-psychologie-parcours-psychologie-sociale-et-environnementale-hnd021ov.html"
+    }
+  ]
+}

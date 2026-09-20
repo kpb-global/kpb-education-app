@@ -1,0 +1,59 @@
+{
+  "catalogVersion": "1.0.0",
+  "generatedAt": "2026-09-20T16:05:12.916Z",
+  "countryId": "france",
+  "institutionCount": 70,
+  "programCount": 7113,
+  "sources": [
+    {
+      "dataset": "parcoursup",
+      "datasetId": "fr-esr-principaux-etablissements-enseignement-superieur",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "secteur_d_etablissement=\"public\" and typologie_d_universites_et_assimiles is not null",
+      "vintage": "2025",
+      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "rowCount": 70
+    },
+    {
+      "dataset": "parcoursup",
+      "datasetId": "fr-esr-cartographie_formations_parcoursup",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "annee=2026 and etablissement_id_paysage in (70 universités)",
+      "vintage": "2026",
+      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "rowCount": 4100
+    },
+    {
+      "dataset": "trouver-mon-master",
+      "datasetId": "fr-esr-tmm-donnees-du-portail-dinformation-trouver-mon-master-mentions-de-master",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "annee=2021",
+      "vintage": "2021",
+      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "rowCount": 3584
+    },
+    {
+      "dataset": "trouver-mon-master",
+      "datasetId": "fr-esr-tmm-donnees-du-portail-dinformation-trouver-mon-master-parcours-de-format",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "annee=2021",
+      "vintage": "2021",
+      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "rowCount": 9078
+    },
+    {
+      "dataset": "trouver-mon-master",
+      "datasetId": "fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "group_by(etablissement_id_paysage_source, etablissement_id_paysage_actuel)",
+      "vintage": "2024",
+      "fetchedAt": "2026-09-20T16:05:12.916Z",
+      "rowCount": 294
+    }
+  ]
+}

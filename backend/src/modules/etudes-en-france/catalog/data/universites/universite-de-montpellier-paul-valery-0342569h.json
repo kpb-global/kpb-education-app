@@ -1,0 +1,1569 @@
+{
+  "institution": {
+    "id": "eef-univ-0342569h",
+    "uai": "0342569H",
+    "nameFr": "Université de Montpellier Paul-Valéry",
+    "nameEn": "Université de Montpellier Paul-Valéry",
+    "acronym": "UMPV",
+    "city": "Montpellier",
+    "department": "Hérault",
+    "region": "Occitanie",
+    "websiteUrl": "https://www.univ-montp3.fr/fr",
+    "typology": "Université tertiaire - lettres et sciences Humaines",
+    "enrolment": {
+      "count": 21428,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-018a74b08c2cc916",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501997F",
+      "tracks": [
+        "Sociologie, mutations sociales, environnements médiatiques : imaginaires et pratiques",
+        "Santé, territoires, environnement",
+        "Sociologie, actions collectives, changement social",
+        "Sociologie, interactions sociales et cultures numériques : imaginaires et pratiques"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Sciences sanitaires et sociales",
+        "Histoire",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Géographie et aménagement",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-sociologie-program-master-1-sociologie-parcours-sociologie-generale.html"
+    },
+    {
+      "id": "eef-prog-01dc0c5b871393d5",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Economie sociale et solidaire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100090Y",
+      "tracks": [
+        "Economie sociale et solidaire",
+        "Association, coopération et action publique"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Science politique",
+        "Administration économique et sociale",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-economie-sociale-et-solidaire-program-master-1-economie-sociale-et-solidaire.html"
+    },
+    {
+      "id": "eef-prog-03d9d18db4a2d2d9",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Communication publique et politique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100091Z",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Lettres|Philosophie|Droit|Science politique|Sciences de l'éducation|Sciences du langage|Sociologie|Administration économique et sociale|Economie et gestion|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-communication-publique-et-politique-program-communication-publique-et-politique.html"
+    },
+    {
+      "id": "eef-prog-06e884b34a04e91d",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Tourisme",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d12",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501045W",
+      "tracks": [
+        "Tourisme et développement durable des territoires"
+      ],
+      "recommendedBachelors": [
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-tourisme-program-master-1-tourisme-parcours-tourisme-et-developpement-durable-des-territoires.html"
+    },
+    {
+      "id": "eef-prog-07008d549e0ff981",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Humanités numériques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502212P",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Lettres|Sciences de l'éducation|Sciences du langage|Sociologie|Langues, littératures et civilisations étrangères et régionales|Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-montp3.fr/fr/formations/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-humanites-numeriques-ead-program-master-1-humanites-numeriques-parcours-mediation-numerique-et-ingenierie-pedagogique.html"
+    },
+    {
+      "id": "eef-prog-12b7b7117e162263",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Mathématiques et informatique appliquées aux sciences humaines et sociales - MIASHS",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501284F",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-montp3.fr/fr/formations/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-mathematiques-et-informatique-appliquees-aux-sciences-humaines-et-sociales-miashs-program-master-1-mathematiques-et-informatique-appliquees-aux-sciences-humaines-et-sociales-miashs.html"
+    },
+    {
+      "id": "eef-prog-13848811019c0ace",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Création numérique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100084S",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Arts|Informatique|Arts du spectacle|Arts plastiques|Information-communication|Electronique, énergie électrique, automatique|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-creation-numerique-program-master-1-creation-numerique.html"
+    },
+    {
+      "id": "eef-prog-215be9e3ab9cb808",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Histoire de l'art",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503211A",
+      "tracks": [
+        "Conservation, gestion et diffusion des œuvres d'art XX-XXIe siècle",
+        "Histoire de l'art moderne et contemporain"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-histoire-de-l-art-program-fr_rne_0341089z_pr_1298299879073/parcours-conservation-gestion-et-diffusion-des-oeuvres-d-art-des-xx-et-xxi-siecles-subprogram-parcours-conservation-gestion-et-diffusion-des-oeuvres-d-art-des-xxe-et-xxie-siecles.html"
+    },
+    {
+      "id": "eef-prog-2e56d007e21ab4f6",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Arts de la scène et du spectacle vivant",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501938S",
+      "tracks": [
+        "Création en spectacle vivant",
+        "Théâtre et spectacle vivant"
+      ],
+      "recommendedBachelors": [
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-arts-de-la-scene-et-du-spectacle-vivant-program-master-1-arts-de-la-scene-et-du-spectacle-vivant-parcours-creation-spectacle-vivant/parcours-creation-en-spectacle-vivant-subprogram-parcours-creation-spectacle-vivant.html"
+    },
+    {
+      "id": "eef-prog-30c1df61127c8868",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Gestion de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100086U",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie|Administration publique|Droit|Economie|Science politique|Sociologie|Sciences pour l'ingénieur|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-gestion-de-l-environnement-program-master-1-gestion-de-l-environnement.html"
+    },
+    {
+      "id": "eef-prog-34f54e6d30bbeb2b",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Psychologie sociale, du travail et des organisations",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501891R",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-psychologie-sociale-du-travail-et-des-organisations-program-master-1-psychologie-sociale-du-travail-et-des-organisations-parcours-psychologie-sociale-du-travail-et-des-organisations.html"
+    },
+    {
+      "id": "eef-prog-3f7843e47bdde77a",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Transport, mobilités, réseaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501969A",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Histoire|Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-montp3.fr/fr/formations/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-transport-mobilites-reseaux-program-master-1-transport-mobilites-reseaux.html"
+    },
+    {
+      "id": "eef-prog-5a138ef3134b3c10",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501098D",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Lettres|Philosophie|Histoire|Sociologie|Théologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-philosophie-program-master-1-philosophie.html"
+    },
+    {
+      "id": "eef-prog-5a8760de3fef0849",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Psychologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501339R",
+      "tracks": [
+        "Psychologie des apprentissages scolaires",
+        "Psychologie du développement, inclusion et handicap",
+        "Économie et psychologie",
+        "Dynamiques cognitives et sociocognitives",
+        "Psychologie cognitive et ingénierie des facteurs humains"
+      ],
+      "recommendedBachelors": [
+        "Psychologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-psychologie-program-fr_rne_0341089z_pr_1298302324726/parcours-psychologie-des-apprentissages-scolaires-subprogram-parcours-psychologie-des-apprentissages-scolaires.html"
+    },
+    {
+      "id": "eef-prog-5bbd7797e1b1952e",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Sciences du langage",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502316C",
+      "tracks": [
+        "Analyse de discours : ressources et outils",
+        "Sociolinguistique et gestion politique et éducative des plurilinguismes"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-sciences-du-langage-program-fr_rne_0341089z_pr_1298303295996/parcours-analyse-de-discours-ressources-et-outils-adireo-subprogram-parcours-analyse-des-discours-mediatiques-institutionnels-et-politiques.html"
+    },
+    {
+      "id": "eef-prog-5e3e409674a52d27",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Histoire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502888Z",
+      "tracks": [
+        "Histoire-Sciences sociales et environnement",
+        "Sociétés, Cultures, Religions",
+        "Défense et sécurité",
+        "Histoires militaires et études de défense"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Histoire de l'art et archéologie",
+        "Théologie",
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-histoire-program-fr_rne_0341089z_pr_1298299649291/parcours-histoire-sciences-sociales-et-environnement-subprogram-parcours-traces-histoire-et-sciences-sociales.html"
+    },
+    {
+      "id": "eef-prog-60fe086737b87edb",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Français langue étrangère",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501702K",
+      "tracks": [
+        "Didactique du français langue étrangère et langue seconde"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-francais-langue-etrangere-program-fr_rne_0341089z_pr_1298303071733.html"
+    },
+    {
+      "id": "eef-prog-62ce911b88796e61",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Métiers du livre et de l'édition",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502947N",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Lettres|Histoire|Arts du spectacle|Langues, littératures et civilisations étrangères et régionales|Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-metiers-du-livre-et-de-l-edition-program-master-1-metiers-du-livre-et-de-l-edition-2.html"
+    },
+    {
+      "id": "eef-prog-71061452160a9847",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Psychologie clinique, psychopathologie et psychologie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502311X",
+      "tracks": [
+        "Neuropsychologie clinique intégrative de l'adulte et de la personne âgée",
+        "Psychologie de la santé",
+        "Psychologie clinique et psychopathologie en thérapie compartementale, cognitive et émotionnelle"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-psychologie-clinique-psychopathologie-et-psychologie-de-la-sante-parcours-neuropsychologie-clinique-et-psychopathologie-cognitive-adulte-et-personne-agee-program-fr_rne_0341089z_pr_1298301899417/parcours-neuropsychologie-clinique-integrative-de-l-adulte-et-de-la-personne-agee-subprogram-parcours-neuropsychologie-clinique-et-psychopathologie-cognitive-adulte-et-personne-agee.html"
+    },
+    {
+      "id": "eef-prog-72f1cf04015a70f5",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 2nd degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1303346F",
+      "tracks": [
+        "Sciences de la vie et de la terre",
+        "Histoire-géographie",
+        "Physique - chimie",
+        "Espagnol",
+        "Catalan",
+        "Documentation",
+        "Lettres classiques et modernes",
+        "Sciences et techniques médico-sociales",
+        "Chinois",
+        "Allemand",
+        "Mathématiques - Sciences en lycée professionnel",
+        "Biotechnologies option biochimie génie biologique",
+        "Enseignement généraux en lycées professionnels",
+        "Arts plastiques",
+        "Sciences de l'ingénieur collèges-lycées et techniques industrielles lycées professionnels",
+        "Numérique et Sciences Informatiques (NSI)",
+        "Lettres",
+        "Anglais",
+        "Economie et gestion des organisations",
+        "Occitan",
+        "Mathématiques",
+        "Arts appliqués",
+        "Italien",
+        "Éducation musicale",
+        "Sciences et techniques des activités physiques et sportives",
+        "Histoire-Géographie",
+        "Sciences économiques et sociales"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie et de la Terre",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Physique, chimie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres",
+        "Sciences du langage",
+        "Humanités",
+        "Information-communication",
+        "Sciences sanitaires et sociales",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Sciences de la vie",
+        "Arts",
+        "Arts plastiques",
+        "Sciences et technologies",
+        "Informatique",
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Administration économique et sociale",
+        "Sciences sociales",
+        "Musicologie",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sociologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-2nd-degre"
+    },
+    {
+      "id": "eef-prog-7776a6fa691a53e4",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Danse",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503270P",
+      "tracks": [
+        "Etudes chorégraphiques : recherche et représentation"
+      ],
+      "recommendedBachelors": [
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-danse-program-fr_rne_0341089z_pr_1297179230772.html"
+    },
+    {
+      "id": "eef-prog-7b72c5d9007c3a58",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502988H",
+      "tracks": [
+        "Sciences des organisations et des institutions",
+        "Management international et stratégique des RH",
+        "Gestion des ressources humaines",
+        "Management des ressources humaines",
+        "Expertise socio-économique, emplois, compétences",
+        "eMBA Leadership, gouvernance et performance des équipes",
+        "Audit social et RH"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/droit-economie-gestion-DEG/master-2-gestion-des-ressources-humaines-program-fr_rne_0341089z_pr_1297939009125.html"
+    },
+    {
+      "id": "eef-prog-7ec30cfa88cc88c5",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Etudes européennes et internationales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501648B",
+      "tracks": [
+        "Histoire, relations internationales et sciences sociales"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Histoire"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-etudes-europeennes-et-internationales-program-master-1-etudes-europeennes-et-internationales-parcours-histoire-relations-internationales-et-sciences-sociales-2.html"
+    },
+    {
+      "id": "eef-prog-7f2c081521d66393",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Mondes médiévaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502012X",
+      "tracks": [
+        "Histoire et histoire de l'art des mondes médiévaux (Occident et Orient)"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-mondes-medievaux-program-fr_rne_0341089z_pr_1298299453000.html"
+    },
+    {
+      "id": "eef-prog-7fc5a59ae2873744",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Etudes culturelles",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502331U",
+      "tracks": [
+        "Etudes de genre",
+        "Cultures en mouvement",
+        "Cultures populaires"
+      ],
+      "recommendedBachelors": [
+        "Lettres|Philosophie|Science politique|Histoire|Sociologie|Arts du spectacle|Arts plastiques|Langues, littératures et civilisations étrangères et régionales|Sciences de l'Homme, anthropologie, ethnologie",
+        "Lettres",
+        "Philosophie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-etudes-culturelles-program-fr_rne_0341089z_pr_1300799474217.html"
+    },
+    {
+      "id": "eef-prog-8165b08ae8e0e41b",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), pratiques et ingénierie de la formation (PIF)",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301191N",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Sciences de l'éducation"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-perp.fr/"
+    },
+    {
+      "id": "eef-prog-862a1290c1eb049e",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Intervention et développement social",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502383A",
+      "tracks": [
+        "Intervention et développement social",
+        "Intermédiation et développement social : projets, innovation, démocratie et territoire"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-intervention-et-developpement-social-program-master-1-intervention-et-developpement-social.html"
+    },
+    {
+      "id": "eef-prog-8773bb24a85d8eb0",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503041R",
+      "tracks": [
+        "Communication publique associative et culturelle",
+        "Changement organisationnel et personnel",
+        "Communication numérique et organisations"
+      ],
+      "recommendedBachelors": [
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-information-communication-program-master-1-information-communication/parcours-communication-publique-associative-et-culturelle-subprogram-parcours-communication-publique-associative-et-culturelle.html"
+    },
+    {
+      "id": "eef-prog-8f78aaf61ddd1945",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Cinéma et audiovisuel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502289Y",
+      "tracks": [
+        "Pratiques de la recherche",
+        "Création documentaire",
+        "Métiers de la diffusion",
+        "Métiers de la production"
+      ],
+      "recommendedBachelors": [
+        "Arts|Lettres|Arts du spectacle",
+        "Arts",
+        "Lettres",
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-cinema-et-audiovisuel-program-fr_rne_0341089z_pr_1297177946053.html"
+    },
+    {
+      "id": "eef-prog-98c7a44c60a38206",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Géographie, aménagement, environnement et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502517W",
+      "tracks": [
+        "Gestion des littoraux et des mers",
+        "Gestion des catastrophes et des risques naturels",
+        "Prospective territoriale et projet d'aménagement"
+      ],
+      "recommendedBachelors": [
+        "Administration publique",
+        "Science politique",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre",
+        "Sciences de la Terre",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-geographie-amenagement-environnement-et-developpement-program-fr_rne_0341089z_pr_1298298094452.html"
+    },
+    {
+      "id": "eef-prog-9ad02b2bb2cc856a",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Esthétique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501077F",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie|Lettres|Philosophie|Arts plastiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-esthetique-program-master-1-esthetique.html"
+    },
+    {
+      "id": "eef-prog-9fb977b21638576d",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Archéologie et histoire des mondes anciens",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100092A",
+      "tracks": [
+        "Sociétés et cultures du Néolithique à l'âge du Bronze",
+        "Egypte nilotique et méditerranéenne",
+        "Archéologie des mondes grecs et protohistoriques",
+        "Géoarchéologie/Bioarchéologie",
+        "Archéologie préventive",
+        "Histoire de la méditerranée antique",
+        "Archéologie des Gaules romaines et de la Méditerranée occidentale"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Humanités",
+        "Sciences de la Terre",
+        "Sciences et technologies",
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS.html"
+    },
+    {
+      "id": "eef-prog-a3c42918fc7af962",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Musicologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502377U",
+      "tracks": [
+        "Musicien interprète",
+        "Musicologie et recherche",
+        "Recherche, pratique et création en musiques médiévales"
+      ],
+      "recommendedBachelors": [
+        "Musicologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-musicologie-program-fr_rne_0341089z_pr_1297179275806.html"
+    },
+    {
+      "id": "eef-prog-aa8f002f00f112c7",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Langues, littératures et civilisations étrangères et régionales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501589M",
+      "tracks": [
+        "Etudes anglophones",
+        "Etudes occitanes",
+        "Etudes lusophones",
+        "Etudes hispanophones",
+        "Etudes néo-helléniques",
+        "Etudes chinoises",
+        "Etudes italiennes",
+        "Etudes germaniques"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-langues-litteratures-et-civilisations-etrangeres-et-regionales-l-l-c-e-r-program-master-1-langues-litteratures-et-civilisations-etrangeres-et-regionales-l-l-c-e-r/parcours-etudes-anglophones-subprogram-parcours-etudes-anglophones.html"
+    },
+    {
+      "id": "eef-prog-aa998fc3bf83ca19",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Anthropologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502581R",
+      "tracks": [
+        "Humanités environnementales",
+        "Cultures, identités, Mondialisation"
+      ],
+      "recommendedBachelors": [
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-ethnologie-parcours-ethnologie-et-metiers-du-patrimoine-program-fr_rne_0341089z_pr_1298301234220/parcours-humanites-environnementales-subprogram-parcours-ethnologie-et-metiers-du-patrimoine.html"
+    },
+    {
+      "id": "eef-prog-ae67a54de50eac94",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Psychologie : psychopathologie clinique psychanalytique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501178R",
+      "tracks": [
+        "Phénoménologie clinique des expressions sportives, corporelles et artistiques",
+        "Psychologie clinique et psychopathologie psychanalytique"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-psychologie-psychopathologie-clinique-psychanalytique-program-fr_rne_0341089z_pr_1298302049854/parcours-phenomenologie-clinique-des-expressions-sportives-corporelles-et-artistiques-subprogram-parcours-phenomenologie-clinique-du-sportif-et-des-problematiques-corporelles.html"
+    },
+    {
+      "id": "eef-prog-b7769291a48da54c",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Urbanisme et amenagement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100144G",
+      "tracks": [
+        "Projet urbain et modèles alternatifs"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-urbanisme-et-amenagement-program-master-1-urbanisme-et-amenagement-parcours-urbanisme-et-projet-de-territoire.html"
+    },
+    {
+      "id": "eef-prog-b8cea0bdfba2265c",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Psychanalyse",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502223B",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Lettres|Philosophie|Sciences de l'éducation"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-psychanalyse-program-fr_rne_0341089z_pr_1297093440662.html"
+    },
+    {
+      "id": "eef-prog-bb738abf6be4efd5",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Géomatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502007S",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Informatique|Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-montp3.fr/fr/formations/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-geomatique-program-master-1-geomatique.html"
+    },
+    {
+      "id": "eef-prog-bba1b49e64f9c9ec",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Patrimoine et musées",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501583F",
+      "tracks": [
+        "Collections et musées d'art et d'histoire",
+        "Valorisation et médiation des patrimoines"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Humanités",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-patrimoine-et-musees-program-master-1-patrimoine-et-musees-parcours-valorisation-et-mediation-des-patrimoines/parcours-collections-et-musees-d-art-et-d-histoire-subprogram-parcours-collections-et-musees-d-art-et-d-histoire.html"
+    },
+    {
+      "id": "eef-prog-c9aba58f014b24d0",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Arts plastiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502095M",
+      "tracks": [
+        "Pratiques et créations plastiques contemporaines",
+        "Jeu vidéo"
+      ],
+      "recommendedBachelors": [
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Arts plastiques",
+        "Sociologie",
+        "Informatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-arts-plastiques-program-fr_rne_0341089z_pr_1297157872003.html"
+    },
+    {
+      "id": "eef-prog-cf724e7a0ba138b3",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), encadrement éducatif",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302750H",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-meef-encadrement-educatif"
+    },
+    {
+      "id": "eef-prog-cfdc902cd27a6fdc",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Langues étrangères appliquées",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502136G",
+      "tracks": [
+        "LEA - Langues et AlterManagement",
+        "LEA - Négociations de projets internationaux",
+        "LEA - Traduction"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-montp3.fr/fr/formations/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-langues-etrangeres-appliquees-lea-program-master-1-langues-etrangeres-appliquees-l-e-a.html"
+    },
+    {
+      "id": "eef-prog-d4d55f3be0beebfc",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Journalisme",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100089X",
+      "tracks": [
+        "Journalisme numérique et nouvelles écritures"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Sciences du langage",
+        "Sociologie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-journalisme-program-master-1-journalisme.html"
+    },
+    {
+      "id": "eef-prog-d64da6f78abf7150",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Sciences de l'éducation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503391W",
+      "tracks": [
+        "Analyses et conception en éducation et formation",
+        "Responsable d'ingénierie des systèmes d'organisation",
+        "Éducation, pédagogie et société inclusives"
+      ],
+      "recommendedBachelors": [
+        "Sciences de l'éducation"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-sciences-de-l-education-program-fr_rne_645612x_pr_1240498138022.html"
+    },
+    {
+      "id": "eef-prog-de82d1d71c0a9e9d",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Direction de projets ou établissements culturels",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503327B",
+      "tracks": [
+        "Direction artistique de projets culturels européens"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Science politique",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Etudes culturelles",
+        "Etudes Européennes et Internationales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-direction-de-projets-ou-etablissements-culturels-program-master-1-direction-de-projets-ou-etablissements-culturels-2.html"
+    },
+    {
+      "id": "eef-prog-e3a6d747b2da69fe",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Etudes du développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501234B",
+      "tracks": [
+        "Alter-développement et territoires"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Science politique",
+        "Sociologie",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-etudes-du-developpement-program-master-1-etudes-du-developpement.html"
+    },
+    {
+      "id": "eef-prog-e691453638f7b7b3",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Administration et échanges internationaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503444D",
+      "tracks": [
+        "Migrations inter-méditerranéennes",
+        "Relations et Affaires internationales",
+        "Management international des territoires et des entreprises",
+        "Administration et échanges internationaux"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Sciences sociales",
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-intervention-et-developpement-social-program-master-1-intervention-et-developpement-social/parcours-migrations-inter-mediterraneennes-subprogram-parcours-migrations-inter-mediterraneennes-erasmus.html"
+    },
+    {
+      "id": "eef-prog-f14009ab66b44c83",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 1er degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1303356S",
+      "tracks": [
+        "Premier degré langue régionale option catalan",
+        "Premier degré",
+        "Premier degré langue régionale option occitan"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Arts",
+        "Lettres",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Physique, chimie",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe-academiedemontpellier.fr/formation-initiale/master-meef/master-1er-degre"
+    },
+    {
+      "id": "eef-prog-f14d9d5a413f4f4a",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Gestion des territoires et développement local",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502768U",
+      "tracks": [
+        "Espaces ruraux et développement local",
+        "Changement climatique, gestion agricole et territoires",
+        "Changements climatiques, gestion agricole et territoires"
+      ],
+      "recommendedBachelors": [
+        "Histoire",
+        "Géographie et aménagement",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-gestion-des-territoires-et-developpement-local-parcours-espaces-ruraux-et-developpement-local-program-master-1-gestion-des-territoires-et-developpement-local-parcours-espaces-ruraux-et-developpement-local/parcours-espaces-ruraux-et-developpement-local-subprogram-parcours-espaces-ruraux-et-developpement-local.html"
+    },
+    {
+      "id": "eef-prog-f19374c4bb9f4404",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Lettres",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1502532M",
+      "tracks": [
+        "Langues, littératures et cultures de la Méditerranée antique",
+        "Littératures française et comparée"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Humanités",
+        "Arts du spectacle",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-lettres-program-master-1-lettres-parcours-lettres-et-humanites/parcours-langues-litteratures-et-cultures-de-la-mediterranee-antique-lacme-subprogram-parcours-lettres-et-humanites.html"
+    },
+    {
+      "id": "eef-prog-f6a83f5f46ddb86e",
+      "institutionId": "eef-univ-0342569h",
+      "nameFr": "Information, documentation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Montpellier",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1503229V",
+      "tracks": [
+        "Management et valorisation de l’information numérique : métiers de la donnée, de l’information, des connaissances et du numérique",
+        "Gestion de l’information et médiation documentaire : métiers des bibliothèques et de la documentation"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Sciences du langage",
+        "Humanités",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-information-documentation-program-master-1-information-et-documentation-parcours-gestion-de-l-information-et-de-la-documentation/management-et-valorisation-de-l-information-numerique-metiers-de-la-donnee-de-l-information-des-connaissances-et-du-numerique-subprogram-management-et-valorisation-de-l-information-numerique-metiers-de-la-donnee-de-l-information-des-connaissances-et-du-numerique.html"
+    }
+  ]
+}

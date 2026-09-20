@@ -151,6 +151,19 @@ jobs:
         # sait quoi en faire.
         run: npm run scholarships:validate:merge-gate
 
+      - name: Validate versioned Études en France catalogue
+        # `--structure-only`, pour la même raison que la porte des bourses au
+        # pas précédent : ce portail juge la FORME des 70 fichiers — sources
+        # HTTPS, identifiants uniques, référentiels fermés, cohérence du
+        # manifeste — et pas le volume, qui dépend du millésime des jeux
+        # ouverts du ministère. Une PR d'authentification ne doit pas rougir
+        # parce que Parcoursup a republié sa cartographie.
+        #
+        # Les planchers de volume et le plafond de classement par repli sont
+        # joués par `verify:eef`, avant tout import, et par le test
+        # `eef-catalog.data.spec.ts` qui tourne dans la suite.
+        run: npm run eef:validate:structure
+
       - name: Boot smoke — API serves /api/health against the DB
         env:
           NODE_ENV: production

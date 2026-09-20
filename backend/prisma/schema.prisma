@@ -994,6 +994,12 @@ model Institution {
   intakePeriods          String[]
   programIds             String[]
   isPartner              Boolean            @default(false)
+  // ── Écart procédure « Études en France » (migration eef_catalog_procedure_fields)
+  // `institutionType` : université publique, école d'ingénieurs, BUT/IUT…
+  // `uaiCode` : identifiant officiel MESR, clé de re-vérification automatique.
+  institutionType        String?
+  uaiCode                String?
+  websiteUrl             String?
   lastVerifiedAt         DateTime?
   sourceUrl              String?
   verifiedById           String?
@@ -1004,6 +1010,7 @@ model Institution {
 
   @@index([countryId])
   @@index([lastVerifiedAt])
+  @@index([uaiCode])
 }
 
 model Program {
@@ -1040,6 +1047,20 @@ model Program {
   tuitionMinEur       Int?
   applicationDeadline DateTime?
   teachingLanguages   String[]  @default([])
+  // ── Écart procédure « Études en France » (migration eef_catalog_procedure_fields)
+  // `procedureType` décide du calendrier et du dossier : dap_blanche (L1),
+  // eef (L2/L3/master via Campus France), parcoursup (résidents en France),
+  // hors_eef. NULL = procédure non qualifiée — c'est le cas des 133 formations
+  // France déjà en base, qui relèvent de la procédure directe des écoles.
+  procedureType       String?
+  selectivity         String?
+  formationCode       String?
+  campusCity          String?
+  frenchLevelRequired String?
+  applicationFeeEur   Int?
+  // Import EEF = lignes INACTIVES en attente de modération. Défaut `true`
+  // parce que les lignes déjà en production sont publiées et le restent.
+  isActive            Boolean   @default(true)
   lastVerifiedAt      DateTime?
   sourceUrl           String?
   verifiedById        String?
@@ -1051,6 +1072,8 @@ model Program {
   @@index([countryId])
   @@index([fieldId])
   @@index([lastVerifiedAt])
+  @@index([procedureType])
+  @@index([isActive])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
