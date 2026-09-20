@@ -152,12 +152,55 @@ publication.
 
 ---
 
+## 2bis. La mise en attente est APPLIQUÉE, pas seulement écrite
+
+Ajouté le 20/09/2026, après une revue de la PR #279. Le premier jet écrivait
+`isActive: false` sur les formations importées et la documentation promettait
+que rien ne s'afficherait avant relecture. **La promesse était fausse** : le
+drapeau était écrit, et aucune lecture ne le lisait. `CatalogService` et
+`MatchesService` construisaient leur filtre à partir des seuls paramètres de
+requête — les 10 247 formations devenaient publiques à la seconde où l'import
+se terminait, et occupaient au passage les 1 000 lignes de l'instantané
+mobile.
+
+Ce qui tient la promesse maintenant :
+
+| Surface | Règle |
+|---|---|
+| `GET /catalog/programs` | `isActive: true`, jamais optionnel |
+| `GET /catalog/institutions` | `isActive: true`, jamais optionnel |
+| `MatchesService` (recommandations) | `isActive: true` |
+| `Institution.programIds` servi | privé des identifiants connus comme inactifs |
+| `PATCH /admin/catalog/programs/:id` et `/institutions/:id` | acceptent `isActive` — c'est le chemin de publication |
+
+Deux points méritent d'être dits explicitement :
+
+- **L'établissement est mis en attente lui aussi** (`Institution.isActive`,
+  migration `20260920210000`). Sa fiche est une affirmation — texte de
+  présentation, effectif daté — et son `programIds` renvoie vers des lignes non
+  relues. Publier l'université, c'était publier ses 414 formations par
+  référence, même avec la liste des formations filtrée.
+- **`programIds` est nettoyé au service, pas en base.** Le tableau est
+  dénormalisé et `syncInstitutionProgramIds` le remplit sans regarder
+  `isActive` ; on retire donc à la lecture les identifiants CONNUS comme
+  inactifs, et rien d'autre — une référence orpheline reste servie comme avant,
+  parce que la nettoyer serait un changement de comportement sans rapport avec
+  la relecture.
+
+Mesuré sur une base neuve après `eef:import --apply` : 70 établissements et
+10 247 formations en base, **0 servi**, 0 identifiant de formation servi. Après
+publication d'une université et d'une de ses formations : 1 établissement,
+1 formation, et `programIds` en sert **1** au lieu de 414.
+
+---
+
 ## 3. Ce que la CI vérifie
 
 | Porte | Quand | Ce qu'elle juge |
 |---|---|---|
 | `eef:validate:structure` | chaque PR (`backend-ci.yml`) | forme : sources HTTPS, identifiants uniques, référentiels fermés, cohérence du manifeste |
 | `eef-catalog.data.spec.ts` | suite de tests | les 70 fichiers réels passent les portes **strictes** |
+| `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris |
 | `verify:eef` | avant tout import | planchers de volume, plafond de repli, couverture |
 
 Le plafond de repli mérite un mot : le domaine d'une formation (`d01..d12`) est
@@ -196,10 +239,12 @@ dérive fasse du bruit tôt.
    la totalité du catalogue en mémoire, et 10 247 formations ne s'y tiennent
    pas. `GET /etudes-en-france/search` avec facettes et curseur reste à écrire.
 8. **L'écran `eef_catalog_screen.dart`** et les facettes de procédure.
-9. **Exposer les nouvelles colonnes** (`procedureType`, `selectivity`,
+9. **Exposer les colonnes de procédure** (`procedureType`, `selectivity`,
    `campusCity`, `formationCode`, `institutionType`, `uaiCode`) dans
    `catalog.mapper.ts` et le modèle Flutter. La migration les crée et l'import
-   les écrit ; rien ne les lit encore.
+   les écrit ; rien ne les lit encore. `isActive`, lui, est bien lu (§ 2bis).
+10. **La file de vérification en admin** ne propose pas encore de bouton
+   « publier » : le champ est accepté par l'API, l'interface reste à câbler.
 
 ---
 

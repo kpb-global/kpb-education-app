@@ -324,6 +324,10 @@ function prismaDouble(opts: {
     });
   };
   const upserts: Array<Record<string, unknown>> = [];
+  /// Les arguments réellement envoyés à `program.findMany`. Ce que le service
+  /// DEMANDE compte autant que ce qu'il reçoit : une recommandation est une
+  /// surface publique, et le filtre « relu » doit s'y voir.
+  const programQueries: Array<Record<string, unknown>> = [];
   const client = {
     userProfile: {
       findUnique: async () =>
@@ -334,8 +338,10 @@ function prismaDouble(opts: {
             : opts.profile,
     },
     program: {
-      findMany: async () =>
-        fail.has('programs') ? boom() : (opts.programRows ?? [DB_PROGRAM]),
+      findMany: async (args?: Record<string, unknown>) => {
+        if (args) programQueries.push(args);
+        return fail.has('programs') ? boom() : (opts.programRows ?? [DB_PROGRAM]);
+      },
     },
     institution: {
       findMany: async () =>
@@ -367,15 +373,16 @@ function prismaDouble(opts: {
       }
     }),
   };
-  return { prisma, upserts };
+  return { prisma, upserts, programQueries };
 }
 
 function serviceWith(opts: Parameters<typeof prismaDouble>[0]) {
-  const { prisma, upserts } = prismaDouble(opts);
+  const { prisma, upserts, programQueries } = prismaDouble(opts);
   return {
     service: new MatchesService(prisma as unknown as PrismaService),
     prisma,
     upserts,
+    programQueries,
   };
 }
 
@@ -422,6 +429,21 @@ describe('MatchesService', () => {
       expect(result.programId).toBe('db-prog-1');
       expect(result.source).toBe('database');
       expect(result.factors).toHaveLength(5);
+    });
+
+    it('ne recommande jamais une formation non relue', async () => {
+      // L'import du catalogue « Études en France » crée 10 247 formations
+      // `isActive: false`. Sans ce filtre, le moteur les proposerait à un
+      // étudiant comme « 70 % de compatibilité » — sur des fiches que
+      // personne n'a vérifiées.
+      const { service, programQueries } = serviceWith({});
+
+      await service.schoolMatch('user-1', 'db-inst-1');
+
+      expect(programQueries).not.toHaveLength(0);
+      for (const query of programQueries) {
+        expect((query.where as Record<string, unknown>).isActive).toBe(true);
+      }
     });
 
     it('an empty database is not a degradation: no items, no fixtures', async () => {

@@ -698,6 +698,10 @@ export class AdminCatalogService {
       applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
       teachingLanguages: this.pickStrArr(input, 'teachingLanguages') ?? [],
       campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
+      // Défaut `true` : une fiche créée à la main dans l'admin l'est par
+      // quelqu'un qui la relit en l'écrivant. Seul l'import de masse met en
+      // attente.
+      isActive: this.bool(input.isActive) ?? true,
     };
     const created = await this.prisma.execute((db) =>
       db.program.create({ data }),
@@ -731,6 +735,10 @@ export class AdminCatalogService {
       applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
       teachingLanguages: this.pickStrArr(input, 'teachingLanguages'),
       campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
+      // Le chemin de publication d'une ligne importée. Sans lui, une fiche
+      // créée `isActive: false` par l'import n'aurait aucun moyen de devenir
+      // visible : le drapeau serait une impasse, pas une file d'attente.
+      isActive: this.bool(input.isActive),
     });
     // L'établissement peut changer : les DEUX listes doivent bouger, celle
     // qu'on quitte comme celle qu'on rejoint.
@@ -794,6 +802,9 @@ export class AdminCatalogService {
       intakePeriods: this.strArr(input.intakePeriods) ?? [],
       programIds: this.strArr(input.programIds) ?? [],
       isPartner: this.bool(input.isPartner) ?? false,
+      // Défaut `true`, comme la formation : l'admin qui saisit une fiche la
+      // relit en l'écrivant.
+      isActive: this.bool(input.isActive) ?? true,
     };
     return this.prisma.execute((db) => db.institution.create({ data }));
   }
@@ -817,6 +828,8 @@ export class AdminCatalogService {
       intakePeriods: this.strArr(input.intakePeriods),
       programIds: this.strArr(input.programIds),
       isPartner: this.bool(input.isPartner),
+      // Même rôle que sur la formation : publier un établissement importé.
+      isActive: this.bool(input.isActive),
     });
     return this.runUpdate(
       () =>

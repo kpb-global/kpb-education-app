@@ -87,10 +87,15 @@ describe('planEefImport', () => {
     expect(planEefImport(CATALOG, 'fra').programs[0].countryId).toBe('fra');
   });
 
-  it('crée des formations INACTIVES', () => {
-    // À 7 000 lignes la relecture intégrale n'arrivera jamais ; ce qui doit
+  it('crée des lignes INACTIVES, établissements compris', () => {
+    // À 10 000 lignes la relecture intégrale n'arrivera jamais ; ce qui doit
     // arriver, c'est que rien ne s'affiche tant que personne n'a relu.
+    //
+    // L'établissement compte autant que ses formations : sa fiche est une
+    // affirmation (présentation, effectif daté) et son `programIds` renvoie
+    // vers des lignes non relues. Le publier, c'est les publier.
     expect(plan.programs.every((row) => row.isActive === false)).toBe(true);
+    expect(plan.institutions.every((row) => row.isActive === false)).toBe(true);
   });
 
   it('n’invente ni prix, ni niveau de français, ni frais de dossier', () => {

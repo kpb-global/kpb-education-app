@@ -62,23 +62,55 @@ export class CatalogService {
   async getInstitutions(
     query: { countryId?: string; partnerOnly?: boolean } = {},
   ): Promise<CatalogListResponse<unknown> & { total: number }> {
-    const where: Prisma.InstitutionWhereInput = {};
+    // `isActive` n'est pas un filtre de requête : c'est la frontière entre ce
+    // qui est relu et ce qui ne l'est pas. Elle n'est donc jamais optionnelle
+    // ici — la surface publique ne sert que du relu.
+    const where: Prisma.InstitutionWhereInput = { isActive: true };
     if (query.countryId) where.countryId = query.countryId;
     if (query.partnerOnly) where.isPartner = true;
 
-    const rows = await this.readOrDegrade('institutions', (prisma) =>
-      prisma.institution.findMany({
-        where,
-        orderBy: { nameFr: 'asc' },
+    const result = await this.readOrDegrade('institutions', (prisma) =>
+      prisma.$transaction(async (tx) => {
+        const institutions = await tx.institution.findMany({
+          where,
+          orderBy: { nameFr: 'asc' },
+        });
+        // `Institution.programIds` est dénormalisé et contient TOUTES les
+        // formations de l'établissement, relues ou non — c'est
+        // `syncInstitutionProgramIds` qui le remplit, sans regarder
+        // `isActive`. Or l'app s'en sert pour compter, prévisualiser,
+        // naviguer et comparer : le servir tel quel publierait des
+        // références vers des fiches que personne n'a relues, même une fois
+        // la liste des formations filtrée.
+        //
+        // On retire donc les identifiants CONNUS comme inactifs, et rien
+        // d'autre : une référence orpheline reste servie comme avant, parce
+        // que la nettoyer ici serait un changement de comportement sans
+        // rapport avec la relecture.
+        const hidden = await tx.program.findMany({
+          where: {
+            isActive: false,
+            institutionId: { in: institutions.map((row) => row.id) },
+          },
+          select: { id: true },
+        });
+        return { institutions, hidden };
       }),
     );
-    if (rows === null) {
+    if (result === null) {
       const fallback = this.mockResponse(mockCatalog.institutions);
       return { ...fallback, total: fallback.items.length };
     }
+    const hiddenIds = new Set(result.hidden.map((row) => row.id));
+    const items = result.institutions.map((row) =>
+      mapInstitution({
+        ...row,
+        programIds: row.programIds.filter((id) => !hiddenIds.has(id)),
+      }),
+    );
     return {
-      items: rows.map(mapInstitution),
-      total: rows.length,
+      items,
+      total: items.length,
       source: CATALOG_SOURCE_DATABASE,
     };
   }
@@ -92,7 +124,11 @@ export class CatalogService {
       offset: number;
     }
   > {
-    const where: Prisma.ProgramWhereInput = {};
+    // Voir `getInstitutions` : jamais optionnel. Une formation importée mais
+    // non relue ne doit apparaître ni dans une liste, ni dans une recherche,
+    // ni — surtout — dans les 1 000 lignes de l'instantané mobile, où elle
+    // prendrait la place d'une fiche publiée.
+    const where: Prisma.ProgramWhereInput = { isActive: true };
     if (query.fieldId) where.fieldId = query.fieldId;
     if (query.countryId) where.countryId = query.countryId;
     if (query.institutionId) where.institutionId = query.institutionId;

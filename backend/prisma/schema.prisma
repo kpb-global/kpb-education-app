@@ -1000,6 +1000,10 @@ model Institution {
   institutionType        String?
   uaiCode                String?
   websiteUrl             String?
+  // Import EEF = établissements EN ATTENTE, comme leurs formations. Défaut
+  // `true` parce que les fiches déjà en production sont publiées et le
+  // restent ; seul l'import écrit `false`.
+  isActive               Boolean            @default(true)
   lastVerifiedAt         DateTime?
   sourceUrl              String?
   verifiedById           String?
@@ -1011,6 +1015,7 @@ model Institution {
   @@index([countryId])
   @@index([lastVerifiedAt])
   @@index([uaiCode])
+  @@index([isActive])
 }
 
 model Program {

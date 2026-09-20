@@ -52,6 +52,10 @@ export interface PlannedInstitution {
   readonly intakePeriods: string[];
   readonly programIds: string[];
   readonly isPartner: false;
+  /// Comme les formations : un établissement importé attend la file de
+  /// vérification. Sa fiche — texte de présentation, effectif daté — est une
+  /// affirmation, et son `programIds` renvoie vers des lignes non relues.
+  readonly isActive: false;
   readonly institutionType: string;
   readonly uaiCode: string;
   readonly websiteUrl: string;
@@ -149,6 +153,7 @@ export function planEefImport(
       intakePeriods: [],
       programIds: file.programs.map((program) => program.id),
       isPartner: false,
+      isActive: false,
       institutionType: INSTITUTION_TYPE_PUBLIC_UNIVERSITY,
       uaiCode: institution.uai,
       websiteUrl: institution.websiteUrl,

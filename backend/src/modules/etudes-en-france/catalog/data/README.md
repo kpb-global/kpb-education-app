@@ -5,7 +5,9 @@ université dans `universites/`, plus `manifest.json` qui déclare d'où vient
 chaque ligne.
 
 > **Ces lignes ne sont pas publiables en l'état.** L'import les crée
-> `isActive = false`. Elles attendent la file de vérification `/verification`,
+> `isActive = false` — **établissements compris** — et les surfaces publiques
+> (`/catalog/*`, recommandations, `Institution.programIds`) filtrent sur ce
+> drapeau. Elles attendent la file de vérification `/verification`,
 > et la Phase 1 reste bloquée tant que cette file n'a pas un propriétaire
 > nommé — une personne réelle, pas un rôle (plan § 12.1).
 
