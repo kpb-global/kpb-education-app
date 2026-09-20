@@ -125,6 +125,19 @@ const _nonProcessorSuffixes = <String>[
   // vérifier une fiche, jamais un destinataire de ses données.
   'essec.edu',
   'uottawa.ca',
+  // Portails de l'État français dont vient le catalogue « Études en France ».
+  // data.enseignementsup-recherche.gouv.fr publie les jeux ouverts que la
+  // collecte interroge — depuis un poste d'exploitation, jamais depuis
+  // l'application — et que chaque fiche cite ensuite comme SOURCE vérifiable
+  // (`Program.sourceUrl`, filtrée sur la ligne exacte). monmaster.gouv.fr est
+  // le lien de dernier recours vers la fiche d'un master quand
+  // l'établissement n'en publie pas.
+  //
+  // Même nature que mundiapolis.ma ou essec.edu ci-dessus : des liens qu'on
+  // OUVRE pour vérifier une fiche. Ni l'un ni l'autre ne reçoit la moindre
+  // donnée d'un étudiant — l'app ne les appelle jamais.
+  'enseignementsup-recherche.gouv.fr',
+  'monmaster.gouv.fr',
   'aucegypt.edu',
   'auf.org',
   'campuschina.org',
