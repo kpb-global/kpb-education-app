@@ -533,6 +533,46 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
     });
   });
 
+  describe('publier une ligne importée', () => {
+    // L'import du catalogue « Études en France » crée ses lignes
+    // `isActive: false`. Sans ce chemin d'écriture, le drapeau serait une
+    // impasse et non une file d'attente : 10 247 formations créées, aucune
+    // publiable.
+    it('accepte isActive pour publier une formation en attente', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { isActive: true });
+      expect(updates[0].data.isActive).toBe(true);
+    });
+
+    it('accepte isActive pour remettre une formation en attente', async () => {
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { isActive: false });
+      expect(updates[0].data.isActive).toBe(false);
+    });
+
+    it("ne touche pas au drapeau quand l'appelant n'en parle pas", async () => {
+      // `clean()` retire les clés `undefined` : éditer un tarif ne doit pas
+      // republier une fiche que quelqu'un avait retirée.
+      const { service, updates } = makeService();
+      await service.updateProgram('prog-1', { tuitionMinEur: 7025 });
+      expect(Object.keys(updates[0].data)).not.toContain('isActive');
+    });
+
+    it('une formation saisie à la main est publiée par défaut', async () => {
+      // Celui qui écrit la fiche la relit en l'écrivant ; seul l'import de
+      // masse met en attente.
+      const { service, creates } = makeService();
+      await service.createProgram({
+        institutionId: 'omnes-ece',
+        countryId: 'fra',
+        fieldId: 'd01',
+        nameFr: 'Licence Informatique',
+        levelFr: 'Bachelor',
+      });
+      expect(creates[0].isActive).toBe(true);
+    });
+  });
+
   describe('updateProgram', () => {
     it('sends only the columns that were provided', async () => {
       const { service, updates } = makeService();

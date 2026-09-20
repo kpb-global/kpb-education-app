@@ -1,0 +1,1072 @@
+{
+  "institution": {
+    "id": "eef-univ-0756036d",
+    "uai": "0756036D",
+    "nameFr": "Université Paris sciences et lettres",
+    "nameEn": "Paris Sciences et Lettres Research University",
+    "acronym": "PSL",
+    "city": "Paris 6e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://www.psl.eu/",
+    "typology": "Université pluridisciplinaire hors santé",
+    "enrolment": {
+      "count": 19469,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-09dfb72557395b5d",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1005301N",
+      "tracks": [
+        "M1 & M2 Philosophie sociale et politique",
+        "Philosophie sociale et politique",
+        "M1 & M2 Philosophie du langage et de l’esprit",
+        "M1 & M2 Philosophie des religions",
+        "M1 & M2 Philosophie contemporaine",
+        "M1 & M2 Histoire de la philosophie",
+        "M1 & M2 Philosophie de la connaissance, histoire et philosophie des sciences",
+        "Philosophie du langage et de l'esprit"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Lettres",
+        "Science politique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-philosophie"
+    },
+    {
+      "id": "eef-prog-0a0d3d7ea13992c1",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900217M",
+      "tracks": [
+        "M1 Informatique fondamentale",
+        "M1 Méthodes Informatiques Appliquées pour la Gestion des Entreprises (MIAGE)",
+        "M2 Intelligence artificielle, système et données (IASD)",
+        "M2 MIAGE -  Informatique pour la finance (IF)",
+        "M2 MIAGE - Système d'information et transition numérique (SITN)",
+        "M2 Modélisation, Optimisation, Décision et Organisation (MODO)",
+        "M2 MIAGE - Informatique décisionnelle (ID)",
+        "M1 Informatique, Décision, Données",
+        "M2 Algorithmique et fondements de la programmation"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Informatique",
+        "Mathématiques",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-informatique-0"
+    },
+    {
+      "id": "eef-prog-1e8f8b7d167d1bbe",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Management de l'innovation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900205Y",
+      "tracks": [
+        "M2 Management de la technologie et de l’innovation (MTI)",
+        "M1 Management de l'innovation"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/management-de-innovation"
+    },
+    {
+      "id": "eef-prog-21728861e29728dd",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Économie appliquée",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900202V",
+      "tracks": [
+        "M1 & M2 Politiques publiques et développement",
+        "Politiques publiques et développement"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Mathématiques",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-economie-appliquee-ppd"
+    },
+    {
+      "id": "eef-prog-22b84722a70e127c",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Ingénierie nucléaire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501525T",
+      "tracks": [
+        "M2 Fuel Cycle",
+        "M1 Physics & Engineering",
+        "M1 - Nuclear Energy",
+        "M2 Decommissioning and Waste Management",
+        "M2 Nuclear Reactor Physics and Engineering",
+        "M2 Nuclear Plant and Design",
+        "M2 Nuclear energy",
+        "Dismantling Waste Management (DWM)",
+        "M2 - Nuclear Plant Design",
+        "M1 Chemistry & Chemical Engineering",
+        "M2 Operations",
+        "M1 Nuclear Energy / Ingénierie Nucléaire"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-ingenierie-nucleaire"
+    },
+    {
+      "id": "eef-prog-2c38869f1531ea84",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Humanités numériques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604765E",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie|Lettres|Philosophie|Histoire|Sciences du langage|Humanités|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-humanites-numeriques"
+    },
+    {
+      "id": "eef-prog-35da1ff265c2c88c",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences du vivant",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1603471D",
+      "tracks": [
+        "M1 & M2  IMaGHE / Physiopathologie intégrative",
+        "M1 IMALIS",
+        "M1 & M2 IMaGHE / Biodiversité et Environnement",
+        "M2 IMaLiS / Neurosciences",
+        "M2 IMaLiS / Biologie des systèmes, génomique et bioinformatique",
+        "M2 IMaLiS / Biologie fondamentale pour la santé",
+        "M2 IMaLiS / Ecologie et évolution"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-sciences-du-vivant"
+    },
+    {
+      "id": "eef-prog-47b3ecfb66df59dc",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "L1 - Professorat des Ecoles",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Paris",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "51919",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=51919&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-4da9e1f6259caa81",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences des religions et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900161A",
+      "tracks": [
+        "M1 & M2 L'islam dans ses contextes historiques et contemporains",
+        "L'islam en société : trajectoires historiques et contemporaines",
+        "M1 & M2 Religion et laïcité dans la vie professionnelle et associative",
+        "Sciences sociales des religions",
+        "M1 & M2 Sciences sociales des religions",
+        "M1 & M2 Histoire et historiographie des mondes juifs",
+        "Histoire et historiographie des mondes juifs"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-des-religions-et-societe-srs"
+    },
+    {
+      "id": "eef-prog-521d8402aceee348",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Archives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900158X",
+      "tracks": [
+        "M1 & M2 Technologies numériques appliquées à l’histoire (TNAH)"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Histoire",
+        "Droit, histoire de l'art"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-archives"
+    },
+    {
+      "id": "eef-prog-543e15c6cad4e2d7",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Énergie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604734W",
+      "tracks": [
+        "M1 & M2 Choix énergétiques pour un futur décarboné"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-energie"
+    },
+    {
+      "id": "eef-prog-584b6e375ec77c6a",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Humanités",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900335Q",
+      "tracks": [
+        "M1 & M2 Programme Moyen-Orient, Méditerranée",
+        "M1 & M2 Mondes Anciens : Archéologie, histoire",
+        "M1 & M2 Géographie et géopolitique",
+        "M1 & M2 Mondes Anciens : Langues, textes, images",
+        "M1 & M2 Histoire transnationale",
+        "M1 & M2 Littératures : théorie, histoire",
+        "M1 & M2 Arts : théorie, pratique"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Philosophie",
+        "Histoire",
+        "Arts du spectacle",
+        "Lettres, langues",
+        "Musicologie",
+        "Humanités",
+        "Sciences sociales",
+        "Cinéma",
+        "Lettres",
+        "Géographie et aménagement",
+        "Langues étrangères appliquées"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-humanites"
+    },
+    {
+      "id": "eef-prog-59f0bde8ed56f7d6",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences économiques et sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1801116P",
+      "tracks": [
+        "M2 Institutions, économie et société (Research in socio-economics)",
+        "M1 Sciences économiques et sociales",
+        "Sciences économiques et sociales"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Sciences sociales",
+        "Histoire",
+        "Sociologie",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-institutions-organisations-economie-et-societe"
+    },
+    {
+      "id": "eef-prog-610fa3a0c723d98f",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900127P",
+      "tracks": [
+        "M2 ICFP Quantum physics",
+        "M2 ICFP Condensed matter physics",
+        "M2 ICFP Theorical Physics",
+        "M1 International Centre for Fundamental Physics (ICFP)",
+        "M2 ICFP Soft matter and biological physics"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-physique"
+    },
+    {
+      "id": "eef-prog-67939d29a17a4343",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Civilisations, cultures et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900153S",
+      "tracks": [
+        "M1 & M2 Géohistoire et géopolitique : espaces, cultures, pouvoirs",
+        "M1 & M2 Antiquité méditerranéenne et proche-orientale : langues, histoire, religions",
+        "M1 & M2 Islamologie et mondes musulmans",
+        "M1 & M2 Europe moderne et contemporaine : religions, cultures, politiques",
+        "M1 & M2 Linguistique historique et typologie des langues",
+        "M2 Histoire politique et culturelle de l'Europe médiévale, moderne et contemporaine (parcours européen)",
+        "M1 & M2 Histoire et culture des Juifs et du judaïsme : sources et patrimoine",
+        "M1 & M2 Études médiévales : textes, cultures et religions"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sciences du langage",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Théologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-civilisations-cultures-et-societes"
+    },
+    {
+      "id": "eef-prog-6a7e25e25099659d",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Ingénierie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900144G",
+      "tracks": [
+        "Bioiengineering and innovation neurosciences (BIN)",
+        "M2 Bioimaging (BIM)",
+        "BIM (Bioimaging)",
+        "Molecular and cellular biotherapy (MCB)",
+        "M2 BioMaterials and Biodevices (BioMat)",
+        "BIN (Bioengineering and Innovation in Neurosciences)",
+        "Biomechanics (BIOMECH)",
+        "M2 Bioengineering and Innovation in Neurosciences (BIN)",
+        "BioMAT (Biomaterials)",
+        "M2 Molecular and Cellular Biotherapies (MCB)",
+        "Biomedical engineering BME",
+        "Biomaterials and biodevices",
+        "Bioimaging (BIM)",
+        "M2 BioMechanics (BioMECH)",
+        "MCB (Molecular and Cellular Biotherapies)",
+        "M1 Ingénierie de la santé",
+        "BioMECH (Biomechanics)"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences de la vie|Sciences et technologies|Sciences pour la santé|Frontières du vivant",
+        "Sciences pour la santé",
+        "Sciences pour l'ingénieur",
+        "Chimie",
+        "Physique",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://odf.u-paris.fr/fr/offre-de-formation/master-XB/sciences-technologies-sante-STS/ingenierie-de-la-sante-K2NDJ7KW.html"
+    },
+    {
+      "id": "eef-prog-71f3ae03daed1d81",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences et génie des matériaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604735X",
+      "tracks": [
+        "M2 Matériaux d'avenir : design et ingénierie (MADI)",
+        "M1 Sciences et génie des matériaux",
+        "M2 Microfluidique",
+        "M2 Mécanique des matériaux pour l’ingénierie et l’intégrité des structures (MAGIS)"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-et-genie-des-materiaux"
+    },
+    {
+      "id": "eef-prog-8309bacdc559fcf6",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences cognitives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900182Y",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie",
+        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Sciences de la vie|Frontières du vivant"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-cognitives-cogmaster"
+    },
+    {
+      "id": "eef-prog-84bf3b65b83a35b4",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Mathématiques et applications",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900199S",
+      "tracks": [
+        "M2 Mathématiques, apprentissage, sciences et humanités (MASH)",
+        "M2 Actuariat",
+        "M1 Mathématiques appliquées",
+        "M2 Mathématiques de l'assurance, de l'économie et de la finance (MASEF)",
+        "M2 Mathématiques appliquées et théoriques (MATH)",
+        "M1 Mathématiques Fondamentales",
+        "M1 Mathématiques approfondies",
+        "M2 Ingénierie statistique et financière (ISF)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/mathematiques-et-applications/m2-mathematiques-apprentissage-sciences-humanites"
+    },
+    {
+      "id": "eef-prog-8983bee84154eb89",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Chimie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900190G",
+      "tracks": [
+        "M1 Chimie et sciences du vivant (CSDV)",
+        "Ingénierie chimique",
+        "M2 Chimie des matériaux (MAT)",
+        "M2 Chimie analytique, physique et théorique (CAPT)",
+        "M2 Ingénierie chimique (IC)",
+        "M1 Chimie et Innovation",
+        "Chimie des Matériaux",
+        "Chimie et sciences du vivant",
+        "Préparation à l'agrégation",
+        "M2 Chimie moléculaire (MOL)",
+        "Chimie analytique, physique et théorique",
+        "Chimie moléculaire",
+        "M1 Chimie"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Sciences de la vie",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-chimie"
+    },
+    {
+      "id": "eef-prog-9082aebde312c17d",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Comptabilité - contrôle - audit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900171M",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/comptabilite-controle-audit"
+    },
+    {
+      "id": "eef-prog-949213a01e9ba6ed",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Politiques publiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900118D",
+      "tracks": [
+        "M2 Politiques d'entreprises et responsabilités sociales",
+        "M2 Carrières publiques et grands concours",
+        "M1 Politiques publiques",
+        "M2 Politiques urbaines et gouvernance des territoires",
+        "M2 Politiques publiques et opinion"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/politiques-publiques"
+    },
+    {
+      "id": "eef-prog-ae1873c0f46a9707",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Histoire de l'art et archéologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900325D",
+      "tracks": [
+        "M1 & M2 Archéologie et Histoire de l'art (parcours international)",
+        "M1 Histoire de l'art et archéologie",
+        "M2 Art, Muséologie, Activités curatoriales (AMAC) (parcours international)",
+        "M2 Histoire de l'art",
+        "M2 Archéologie"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Histoire",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Science politique",
+        "Musicologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-histoire-de-lart-et-archeologie"
+    },
+    {
+      "id": "eef-prog-b1ff79a05645ec28",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Etudes asiatiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900334P",
+      "tracks": [
+        "M1 & M2 Histoire et sciences sociales : terrains, textes et images",
+        "Histoire et sciences sociales : terrains, textes et images",
+        "M1 & M2 Histoire, philologie et religion"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-etudes-asiatiques"
+    },
+    {
+      "id": "eef-prog-b691cfb37c96b5c7",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "L1 - Professorat des Ecoles",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Paris",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "53162",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=53162&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-b6baf583d6a16464",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences de la terre et des planètes, environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900150P",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Physique, chimie|Sciences de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-de-la-planete-0"
+    },
+    {
+      "id": "eef-prog-b8efbf18893f9ebf",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Economie et gestion de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900326E",
+      "tracks": [
+        "M2  Management stratégique des services et établissements pour personnes âgées",
+        "M2 Evaluation médico-économique et accès au marché",
+        "M2 Management de la transformation des secteurs de la santé et du social",
+        "M1 Economie et Gestion de la santé",
+        "M2 Economie et gestion des organisations sanitaires et médico-sociales"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Mathématiques",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/economie-et-gestion-de-la-sante"
+    },
+    {
+      "id": "eef-prog-c5cb4a8908beb549",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Droit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900162B",
+      "tracks": [
+        "M1 Droit des affaires et fiscalités",
+        "M2 Droit du plaidoyer et affaires publiques",
+        "M2 Droit des affaires",
+        "M2 Droit et responsabilité sociétale des entreprises",
+        "M1 Patrimoine",
+        "M2 Droit et régulation des marchés",
+        "M1 Gouvernance publique",
+        "M2 Droit des assurances",
+        "M2 Droit notarial",
+        "M2 Droit et gestion publique",
+        "M2 Administration fiscale (programme international)",
+        "M2 Droit du patrimoine professionnel",
+        "M2 Juriste financier",
+        "M2 Droit européen et international des affaires",
+        "M2 Fiscalité de l'entreprise",
+        "M2 Recherche juridique et innovations",
+        "M2 Droit fiscal approfondi"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences sociales",
+        "Economie",
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://dauphine.psl.eu/formations/masters/droit"
+    },
+    {
+      "id": "eef-prog-d15708b3d5b5417d",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Analyse et politique économiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604867R",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie|Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Economie|Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Economie|Science politique|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-analyse-et-politique-economiques"
+    },
+    {
+      "id": "eef-prog-e51e49a2ee5c4ab8",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences de l'univers et technologies spatiales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604923B",
+      "tracks": [
+        "M2 Astrophysique (APHI)",
+        "M1 Sciences de l'univers et technologies spatiales",
+        "M2 Outils et Systèmes de l'Astronomie et de l'Espace (OSAE)",
+        "M2 Planétologie et Exploration Spatiale (PES)",
+        "M2 Dynamique des Systèmes Gravitationnels (DSG)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Mécanique",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-de-l-univers-et-technologies-spatiales"
+    },
+    {
+      "id": "eef-prog-f56187432b0c2c99",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Sciences sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900125M",
+      "tracks": [
+        "Pratiques de l'interdisciplinarité en sciences sociales",
+        "M1 & M2 Quantifier en sciences sociales (QESS)",
+        "Quantifier en sciences sociales",
+        "M1 & M2 Pratiques de l'interdisciplinarité dans les sciences sociales (PDI)"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-pratique-linterdisciplinarit%C3%A9-dans-sciences-sociales"
+    },
+    {
+      "id": "eef-prog-f8da5290b1d7a394",
+      "institutionId": "eef-univ-0756036d",
+      "nameFr": "Transport, mobilités, réseaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501088T",
+      "tracks": [
+        "Transport et développement durable TraDD",
+        "M1 & M2 Transport, mobilité",
+        "Transport et Mobilité",
+        "Transport, mobilité",
+        "M1 & M2 Transport et développement durable",
+        "Transport et mobilité TM"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-transport-mobilites-reseaux"
+    }
+  ]
+}

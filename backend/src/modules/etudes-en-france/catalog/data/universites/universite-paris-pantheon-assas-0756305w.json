@@ -1,0 +1,1537 @@
+{
+  "institution": {
+    "id": "eef-univ-0756305w",
+    "uai": "0756305W",
+    "nameFr": "Université Paris-Panthéon-Assas",
+    "nameEn": "Université Paris-Panthéon-Assas",
+    "acronym": null,
+    "city": "Paris 5e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://www.assas-universite.fr/fr",
+    "typology": "Université tertiaire - droit et économie",
+    "enrolment": {
+      "count": 23294,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-1098e4b7b22bd26c",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit du numérique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900136Y",
+      "tracks": [
+        "Droit des médias",
+        "Droit du numérique"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/droit/masters-1-droit"
+    },
+    {
+      "id": "eef-prog-110b9a51a9f550b7",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit social",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900971F",
+      "tracks": [
+        "Droit et pratique des relations de travail",
+        "Droit social général"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-social"
+    },
+    {
+      "id": "eef-prog-137d9a2166aa4f8a",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Administration économique et sociale",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Melun",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300006",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300006&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-19bf2287d7b900fc",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900148M",
+      "tracks": [
+        "Gestion des relation humaines internationales",
+        "Gestion des ressources humaines et management public",
+        "Gestion des ressources humaines et relations du travail"
+      ],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/gestion/masters-gestion"
+    },
+    {
+      "id": "eef-prog-1be1f9b887c84a64",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit notarial",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900969D",
+      "tracks": [
+        "Droit notarial"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-notarial"
+    },
+    {
+      "id": "eef-prog-1fec768e681c9111",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Entrepreneuriat et management de projets",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900204X",
+      "tracks": [
+        "Management stratégique et entrepreneuriat"
+      ],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-gestion/master-entrepreneuriat-et-management-de-projet"
+    },
+    {
+      "id": "eef-prog-2038fe60f79e34dc",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L1 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Melun",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "9912",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=9912&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-23679e41b38fd5d4",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit de la propriété intellectuelle",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900187D",
+      "tracks": [
+        "Propriété industrielle",
+        "Droit de la propriété artistique, littéraire et industrielle"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-des-affaires"
+    },
+    {
+      "id": "eef-prog-23af82259cb216a8",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit de l'entreprise",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900157W",
+      "tracks": [
+        "Propriété industrielle"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-251723fce00c1637",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit de l'immobilier",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900140C",
+      "tracks": [
+        "Droit immobilier et de la construction"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/droit/masters-1-droit"
+    },
+    {
+      "id": "eef-prog-253f41a3d9f93f37",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit des assurances",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900189F",
+      "tracks": [
+        "Assurances"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-des-assurances"
+    },
+    {
+      "id": "eef-prog-2f4aaa667782f0c7",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Juriste européen",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900323B",
+      "tracks": [
+        "Juriste européen"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-2-en-droit/master-en-droit-juriste-europeen"
+    },
+    {
+      "id": "eef-prog-38b558964aedfcd0",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit comparé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900201U",
+      "tracks": [
+        "Droits français et européen",
+        "Droit public comparé"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-1-en-droit/master-1-droit-compare"
+    },
+    {
+      "id": "eef-prog-3c650825fadb4f93",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit privé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900968C",
+      "tracks": [
+        "Droit privé général",
+        "Contentieux international privé",
+        "Droit du marché et du patrimoine artistiques",
+        "Histoire du droit-droit privé"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-prive"
+    },
+    {
+      "id": "eef-prog-41aae9b58e077a8a",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Science politique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300007",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300007&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-4b4c59f7d2941f90",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Economie de l'entreprise et des marchés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900192J",
+      "tracks": [
+        "Stratégies de l'entreprise et économie des organisations"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-economie/master-economie-de-lentreprise-et-des-marches"
+    },
+    {
+      "id": "eef-prog-52a239ad2d671e74",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit du patrimoine",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900146J",
+      "tracks": [
+        "gestion du patrimoine privé et professionnel"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/droit/masters-1-droit"
+    },
+    {
+      "id": "eef-prog-5838987f2f811db5",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Science politique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900960U",
+      "tracks": [
+        "Etudes politiques"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Science politique"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-science-politique/master-science-politique"
+    },
+    {
+      "id": "eef-prog-5a0869eb2f281a9e",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Marketing, vente",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900177T",
+      "tracks": [
+        "Marketing et communication/MC2"
+      ],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-gestion/master-marketing-vente-parcours-marketing-et"
+    },
+    {
+      "id": "eef-prog-5d3693c8b007ebf3",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300005",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300005&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-5d91ed0a78399915",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Monnaie, banque, finance, assurance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900172N",
+      "tracks": [
+        "Techniques financières et bancaire",
+        "Économie monétaire et bancaire",
+        "Finance"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-monnaie-banque-finance-assurance-parcours-techniques"
+    },
+    {
+      "id": "eef-prog-65f0c1cbef9b18a6",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit international",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900974J",
+      "tracks": [
+        "Justice pénale internationale",
+        "Droits de l'homme et droit humanitaire",
+        "Droit international économique",
+        "Droit international privé et du commerce international",
+        "Droit comparé des affaires",
+        "Administration internationale",
+        "Droit international public"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-international"
+    },
+    {
+      "id": "eef-prog-67358899f14368b1",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droits de l'homme et Justice internationale",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100161A",
+      "tracks": [
+        "Droits de l'homme et droit humanitaire",
+        "Justice pénale internationale"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/droit/masters-1-droit"
+    },
+    {
+      "id": "eef-prog-68a7dfaf207dc539",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L1 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Melun",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "47500",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=47500&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-6964ceead5639546",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300005",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300005&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-69a0f98cf55d2aea",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Information-communication",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300021",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300021&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-6a69852119217732",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Gestion de production, logistique, achats",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900166F",
+      "tracks": [
+        "Management des projets logistiques"
+      ],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-gestion/master-gestion-de-production-logistique-achats"
+    },
+    {
+      "id": "eef-prog-6a74ed9ac50261f5",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Économétrie, statistiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900184A",
+      "tracks": [
+        "Ingénierie statistique et financière"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-economie/master-econometrie-statistique-parcours-ingenierie"
+    },
+    {
+      "id": "eef-prog-6de1aa6cf31fff3a",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Économie du droit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900126N",
+      "tracks": [
+        "Economie du droit"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-economie/master-economie-du-droit-parcours-economie-du"
+    },
+    {
+      "id": "eef-prog-705542bbbf268854",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900167G",
+      "tracks": [
+        "Médias, langages et sociétés",
+        "Usages du numérique, innovation, communication (UNIC)",
+        "Médias, publics et cultures numériques",
+        "Médias, communication et villes numériques",
+        "Médias et mondialisation"
+      ],
+      "recommendedBachelors": [
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-information-communication-parcours-medias-langages-et-societes"
+    },
+    {
+      "id": "eef-prog-716e747607ecfa23",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit fiscal",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900159Y",
+      "tracks": [
+        "Fiscalité internationale",
+        "Droit fiscal"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-75dc1702eff03424",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Analyse et politique économiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900137Z",
+      "tracks": [
+        "Recherches en sciences économiques"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-analyse-et-politique-economique-parcours-recherches-en-sciences"
+    },
+    {
+      "id": "eef-prog-761bc41d1b2bc00f",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit public",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900967B",
+      "tracks": [
+        "Droit public appliqué (spécialités : Vie publique et relations institutionnelles ; Droit sanitaire et social ; Histoire du droit-droit public ; Philosophie du droit et droit politique ; Préparation aux carrières administratives supérieures)",
+        "Droit public général (spécialités : Droit public approfondi ; Droit public de l'économie)",
+        "Droit de la sécurité (spécialités : Sécurité et défense ; Droit et stratégies de la sécurité)"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-public"
+    },
+    {
+      "id": "eef-prog-76e552b6b14e0e0a",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Intelligence économique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900121G",
+      "tracks": [
+        "Défense et dynamiques industrielles"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-2-en-droit/master-2-defense-et-dynamiques-industrielles"
+    },
+    {
+      "id": "eef-prog-775dfe63188ec008",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L1 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Melun",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "47501",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=47501&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-7a0be3ce33ddbc27",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Gestion",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300004",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300004&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-7f49f87511ecdb97",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Administration économique et sociale",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Melun",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300006",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300006&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-7fc45c2c45b7035a",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit des affaires franco-asiatiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900324C",
+      "tracks": [
+        "Droit des affaires franco-asiatiques"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-des-affaires-franco-asiatiques-cambodge"
+    },
+    {
+      "id": "eef-prog-86ba91638e9c2190",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Information-communication",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300021",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300021&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-884deec5a06e4eda",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L1 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Melun",
+      "procedureType": "dap_blanche",
+      "selectivity": "selective",
+      "formationCode": "47502",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=47502&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-8bf638212199ee2b",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Relations internationales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0901128B",
+      "tracks": [
+        "Relations internationales",
+        "Défense et dynamiques industrielles"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-science-politique/master-relations-internationales-parcours"
+    },
+    {
+      "id": "eef-prog-8cd7b5e8d6cec5fb",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Justice, procès et procédures",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900147K",
+      "tracks": [
+        "Contentieux, arbitrage et modes alternatifs de règlement des conflits",
+        "Communication juridique, sociologie du droit et de la justice",
+        "Justice et droit du procès"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-justice-proces-et-procedures"
+    },
+    {
+      "id": "eef-prog-947d9e1088588efd",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Politiques publiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900128Q",
+      "tracks": [
+        "Administration et politiques publiques"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Science politique"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-science-politique/master-politiques-publiques"
+    },
+    {
+      "id": "eef-prog-990f91b65d6833f0",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit des collectivités territoriales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900138A",
+      "tracks": [
+        "Juriste conseil des collectivités territoriales",
+        "Recherche en droit des collectivités territoriales"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-des-collectivites-territoriales"
+    },
+    {
+      "id": "eef-prog-9ecc8f2e5e891263",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Melun",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-a19f53354e0e9047",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Melun",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-a3901761c558643e",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Économie et management publics",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900130S",
+      "tracks": [
+        "Economie et management publics"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters-en-economie/master-economie-et-managements-publics-parcours"
+    },
+    {
+      "id": "eef-prog-a6ddccfb468b7462",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900132U",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b3a7fb268686e637",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Economie et gestion",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Melun",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300005",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300005&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-b4544317fa0486d2",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Management et commerce international",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900134W",
+      "tracks": [
+        "Management et commerce international"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters"
+    },
+    {
+      "id": "eef-prog-b887203d4fe535bf",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Administration publique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300001",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300001&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-bae62ec489e724a4",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-c285ca31beffcb42",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L2 - Science politique",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300007",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300007&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    },
+    {
+      "id": "eef-prog-c2ecb7bd78e01f69",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Management",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900173P",
+      "tracks": [
+        "Conseil et recherche en organisation"
+      ],
+      "recommendedBachelors": [
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Concours",
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters"
+    },
+    {
+      "id": "eef-prog-d6a01f8585d322f7",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L1 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence1",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 3,
+      "campusCity": "Melun",
+      "procedureType": "dap_blanche",
+      "selectivity": "non_selective",
+      "formationCode": "9913",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=9913&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-dda0c43b408d461c",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit bancaire et financier",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900120F",
+      "tracks": [
+        "Droit bancaire et financier"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-e23862e409968184",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit européen",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900973H",
+      "tracks": [
+        "Droit et contentieux de l'Union européenne",
+        "Droit européen du marché et de la régulation"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-europeen"
+    },
+    {
+      "id": "eef-prog-e796dc5d10556b10",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit des affaires",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "0900970E",
+      "tracks": [
+        "Droit des affaires",
+        "Droit des affaires internationales",
+        "Techniques de restructuration des entreprises en difficulté",
+        "Droit européen des affaires et de la concurrence",
+        "Droit des affaires et management",
+        "Juristes d'affaires",
+        "Droit privé et public des affaires (réservé aux sportifs de haut niveau)",
+        "Droit des affaires et économie",
+        "Droit des affaires et droit fiscal"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-des-affaires"
+    },
+    {
+      "id": "eef-prog-f4c83accce044e34",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "Droit pénal et sciences criminelles",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900178U",
+      "tracks": [
+        "Droit pénal et sciences pénales",
+        "Criminologie"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen",
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-penal-et-sciences-criminelles"
+    },
+    {
+      "id": "eef-prog-fc5c0f2a20d47d00",
+      "institutionId": "eef-univ-0756305w",
+      "nameFr": "L3 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Paris 6e",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3ATWBzp"
+    }
+  ]
+}

@@ -205,7 +205,10 @@ export class MatchesService {
     countryIds?: string[];
     fieldIds?: string[];
   }): Promise<{ programs: ScoringProgram[]; source: CatalogSource }> {
-    const where: Record<string, unknown> = {};
+    // Une recommandation est une surface publique comme une autre : proposer
+    // à un étudiant une formation que personne n'a relue est exactement ce que
+    // le drapeau doit empêcher.
+    const where: Record<string, unknown> = { isActive: true };
     if (filter.institutionId) where.institutionId = filter.institutionId;
     if (filter.countryIds?.length) where.countryId = { in: filter.countryIds };
     if (filter.fieldIds?.length) where.fieldId = { in: filter.fieldIds };

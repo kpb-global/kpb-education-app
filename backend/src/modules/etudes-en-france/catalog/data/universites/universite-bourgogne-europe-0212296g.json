@@ -1,0 +1,2680 @@
+{
+  "institution": {
+    "id": "eef-univ-0212296g",
+    "uai": "0212296G",
+    "nameFr": "Université Bourgogne Europe",
+    "nameEn": "University of Burgundy Europe",
+    "acronym": "UBE",
+    "city": "Dijon",
+    "department": "Côte-d'Or",
+    "region": "Bourgogne-Franche-Comté",
+    "websiteUrl": "https://www.ube.fr/",
+    "typology": "Université pluridisciplinaire avec santé",
+    "enrolment": {
+      "count": 28970,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-011ee4b635f27acd",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Philosophie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300016",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300016&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-0664a021e6317ab7",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Géographie, aménagement, environnement et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701064H",
+      "tracks": [
+        "Aide à la décision en aménagement urbain et régional",
+        "Transport, Mobilité, Environnement, Climat (TMEC)",
+        "Aménagement et gouvernance dans les pays du Sud (à distance)"
+      ],
+      "recommendedBachelors": [
+        "Géographie et aménagement",
+        "Economie",
+        "Gestion",
+        "Sciences pour l'ingénieur",
+        "Sciences de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-0b11741142908fc2",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Administration économique et sociale",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300006",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300006&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-0ed69601c73b9e53",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Chimie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701872L",
+      "tracks": [
+        "Qualité, environnement et sécurité dans l'industrie et les services (QESIS)",
+        "Matériaux plastiques et Ecoconception (M-PEC)",
+        "Contrôle et durabilité des matériaux (CDM)",
+        "Contrôle et analyse chimique (CAC)"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-0f2378d7838c3ea4",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Administration économique et sociale",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300006",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300006&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-1270f836c31b3500",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Lettres",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300026",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300026&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-150cbfe01295f331",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Sciences sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701337E",
+      "tracks": [
+        "Sciences Sociales"
+      ],
+      "recommendedBachelors": [
+        "Sciences sanitaires et sociales",
+        "Sociologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-17b487e638ecf55b",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Sciences de l'éducation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701738R",
+      "tracks": [
+        "Expertise sociologique et économique en éducation (analyse, enquêtes, évaluation)",
+        "Conseiller, consultant, responsable formation"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/formation-initiale/master-formation-initiale/master-sciences-de-l-education-parcours-expertise-sociologique-et-economique-en-education-ese.html"
+    },
+    {
+      "id": "eef-prog-183e1bcb44ef8a11",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Nutrition et sciences des aliments",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702221R",
+      "tracks": [
+        "Sciences des Aliments",
+        "Systèmes automatisés de production dans les industries agroalimentaires - SAPIAA",
+        "Evaluation Sensorielle : Comrendre,  Analyser, Innover - ESCAI",
+        "Nutrition"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Chimie",
+        "Sciences pour l'ingénieur"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://agrosupdijon.fr/formations/masters/escai-evaluation-sensorielle-comprendre-analyse-innover"
+    },
+    {
+      "id": "eef-prog-192508b522a74c84",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 1er degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302462V",
+      "tracks": [
+        "Professeurs des écoles"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/master-meef-1er-degre-2"
+    },
+    {
+      "id": "eef-prog-1bd6432d88d58ae5",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701372T",
+      "tracks": [
+        "Gestion des ressources humaines et responsabilité sociale de l'entreprise (GRH et RSE)",
+        "Tronc commun Besançon",
+        "Gestion des ressources humaines et responsabilité sociale des entreprises (GRH et RSE) - double compétence",
+        "Tronc commun Belfort"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Droit",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Administration publique",
+        "Science politique",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-22b573ee65b5a0fb",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703148Y",
+      "tracks": [
+        "Mécanique et ingénierie : études et développement",
+        "Smart Mechanics"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://gradschool.eiphi.ubfc.fr/?page_id=1355"
+    },
+    {
+      "id": "eef-prog-2d7da8f249a1019c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Histoire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701579T",
+      "tracks": [
+        "Histoire"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-32f69afde8864a7f",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Philosophie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300016",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300016&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-33763782e07436bc",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Lettres",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300026",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300026&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-35ed7d2b759c34cd",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Langues étrangères appliquées",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701450C",
+      "tracks": [
+        "Commerce et Affaires (marchés de la gastronomie et de l’agro-alimentaire)"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-3cd2787201b55cff",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Langues, littératures et civilisations étrangères et régionales",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300027",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300027&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-3dc150e5ca7d0d0e",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Géographie et aménagement",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300012",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300012&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-3fd52a62f5657f67",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Langues, littératures et civilisations étrangères et régionales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701578S",
+      "tracks": [
+        "Recherche et veille documentaire internationale : ingénierie de la recherche",
+        "Recherche et veille documentaire internationale : veille documentaire internationale"
+      ],
+      "recommendedBachelors": [
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Langues étrangères appliquées"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-3fe43d0f075ea101",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Chimie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300034",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300034&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-43ff489803a21f5d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences de la terre",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300037",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300037&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-45b170b59e2230cf",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Staps : entraînement et optimisation de la performance sportive",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702114Z",
+      "tracks": [
+        "Ingénierie de l'entraînement sportif",
+        "Entraînement, préparation physique mentale et management du sport (EPPMMS)"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-4630176fe715ad68",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Transport, mobilités, réseaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702879F",
+      "tracks": [
+        "Transport, mobilités, réseaux",
+        "Vehicle Dynamics Intelligent Vehicles (VDIV)",
+        "Energy Management and Control for Sustainable Mobility"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Mathématiques",
+        "Physique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-48f31f06f6832b8f",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Administration publique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300001",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300001&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-4964061d3d82d562",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences pour l'ingénieur",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300045",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300045&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-50318202fae855a9",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nevers",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-5600b331cd253982",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Contrôle de gestion et audit organisationnel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702787F",
+      "tracks": [
+        "Contrôle de gestion",
+        "Contrôle de gestion - double compétence",
+        "Contrôle de gestion des organisations publiques",
+        "Contrôle de gestion des organisations publiques - double compétence"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Administration publique",
+        "Droit",
+        "Science politique",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-56480b12c76c7e0b",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Santé publique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800329H",
+      "tracks": [
+        "ERCE: Epidémiologie, recherche clinique, évaluation",
+        "Santé publique et environnement",
+        "Epidémiologie, recherche clinique, évaluation",
+        "IPS: Intervention en Promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation (ERCE)",
+        "Ethique des soins, de la santé publique et des nouvelles technologies",
+        "Intervention en promotion de la santé (IPS)",
+        "Intervention en promotion de la santé",
+        "Épidémiologie, recherche clinique, évaluation"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://sante.u-bourgogne.fr/masters#undefined"
+    },
+    {
+      "id": "eef-prog-5676cc79094339c9",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Géographie et aménagement",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300012",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300012&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-573dc34da6daa72f",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Administration économique et sociale",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703409G",
+      "tracks": [
+        "Administration et gestion des entreprises (AGE)",
+        "Administration et gestion des territoires  (AGT)"
+      ],
+      "recommendedBachelors": [
+        "Administration économique et sociale"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-58fc979d73715896",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Psychologie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300014",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300014&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-5ac759cdaff337a2",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - STAPS : entraînement sportif",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300189",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300189&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-5f622bcefd44c1d1",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sciences de la terre",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300037",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300037&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-6437968debe78f1c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702917X",
+      "tracks": [
+        "Sécurité des Systèmes Numériques",
+        "Informatique"
+      ],
+      "recommendedBachelors": [
+        "Informatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-bourgogne.fr/formation/master"
+    },
+    {
+      "id": "eef-prog-6b18da1941b4a1e0",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Biologie-santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d04",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701672U",
+      "tracks": [
+        "Signalisation cellulaire et moléculaire",
+        "Physiologie, Neurosciences et Comportement",
+        "Biologie intégrative des interactions plantes microorganismes environnement (B2IPME)",
+        "Biochimie Biologie Moléculaire (BBM)",
+        "Biologie Cellulaire et Physiologie Animale (BCPA)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences pour la santé",
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-6cbc33e158142126",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences du langage",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300020",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300020&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-6f7ded2faec850c8",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Histoire de l'art et archéologie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300011",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300011&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-703121f1dc7c5200",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sciences de l'éducation et de la formation",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300237",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300237&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-70a9a62f9e4792ec",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Musicologie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300025",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300025&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-7162e7e2e2a03e5e",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Traduction et interprétation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703259U",
+      "tracks": [
+        "Traduction Multimédia (T2M)"
+      ],
+      "recommendedBachelors": [
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-7679802968240887",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences de la vie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300036",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300036&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-77871b70cef8748c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Finance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701843E",
+      "tracks": [
+        "Management administratif et financier en entreprise",
+        "Management administratif et financier en entreprise (à distance)",
+        "Finance d'entreprise et des marchés Chargé d'affaires en Banque (CAB) - double compétence",
+        "Finance d'entreprise et des marchés Chargé d'affaires en Banque (CAB)"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Administration publique",
+        "Science politique",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-7b80f569b1372a41",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Comptabilité - contrôle - audit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702063U",
+      "tracks": [
+        "Comptabilité contrôle audit - CCA",
+        "Comptabilité-Contrôle-Audit"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie et gestion",
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-80838b8f8906b2d5",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences de l'éducation et de la formation",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Nevers",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300237",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300237&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-87a89616959b20bc",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Musicologie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300025",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300025&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-8a3790af594d08f5",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Droit des affaires",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703140P",
+      "tracks": [
+        "droit fiscal",
+        "Banque Patrimoine Assurance",
+        "Juriste franco-allemand",
+        "Juriste d'affaires internationales",
+        "Juriste d'affaires : commerce, distribution et consommation"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-8d14122cc2fe5b84",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), 2nd degré",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1301294A",
+      "tracks": [
+        "Sciences économiques et sociales",
+        "Langues (Anglais)",
+        "Education physique et sportive",
+        "Education musicale et chant choral",
+        "Sciences industrielles de l'ingénieur",
+        "Sciences de la vie et de la terre",
+        "Lettres modernes",
+        "Mathématiques",
+        "Professeur documentaliste",
+        "Histoire-géographie",
+        "Sciences de gestion",
+        "Physique - Chimie",
+        "Langues (Espagnol)",
+        "Langues (Allemand)"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Sciences de l'éducation",
+        "Sciences et techniques des activités physiques et sportives",
+        "Musicologie",
+        "Sciences pour l'ingénieur",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Lettres",
+        "Mathématiques",
+        "Information-communication",
+        "Histoire",
+        "Géographie et aménagement",
+        "Chimie",
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/master-meef-2nd-degre-2"
+    },
+    {
+      "id": "eef-prog-911ac14cf8c318f6",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Biodiversité, écologie et évolution",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701451D",
+      "tracks": [
+        "Dynamique et Conservation de la biodiversité (DyCoB)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-91c8214c01efb3aa",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Électronique, énergie électrique, automatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702066X",
+      "tracks": [
+        "Electronique, Signal et Image"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-981c61939a41e90c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Information-communication",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300021",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300021&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-98291810695f2835",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sociologie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300013",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300013&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-9cccddaf69fd108a",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Archéologie, sciences pour l'archéologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701006V",
+      "tracks": [
+        "Archéologie, sciences pour l'archéologie (ASA)",
+        "Archéologie, Culture, Territoire, Environnement"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sciences de la Terre",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-9e276d0b14aa8dcb",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Administration économique et sociale",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Le Creusot",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300006",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300006&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-9e57eaed68370ac2",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Droit notarial",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702124K",
+      "tracks": [
+        "Droit notarial",
+        "Droit rural"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-a0b756b60ec7d601",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703018G",
+      "tracks": [
+        "Philosophie"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-bourgogne.fr/formation/master"
+    },
+    {
+      "id": "eef-prog-a0f34475ed418786",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Économie appliquée",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702433W",
+      "tracks": [
+        "Territoire Environnement Energie (TEE)",
+        "Management et Evaluation des Organisations de Santé (MEOS)",
+        "Analyse des politiques publiques (APP)"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-bourgogne.fr/images/stories/odf/master/ff-management-evaluation-organisations-sante-m1.pdf"
+    },
+    {
+      "id": "eef-prog-aae2a25b0178d42c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Management",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702297Y",
+      "tracks": [
+        "Affaires industrielles internationales",
+        "Entrepreneuriat technologique et industriel",
+        "International Master in Business Studies (IMBS)",
+        "Recherche et conseil en sciences de gestion"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Mécanique",
+        "Electronique, énergie électrique, automatique",
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication",
+        "Administration et échanges internationaux",
+        "Droit français - Droits étrangers",
+        "Gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utbm.fr/formations/masters/"
+    },
+    {
+      "id": "eef-prog-b2196d300d8917cb",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702416C",
+      "tracks": [
+        "Intercultural Management",
+        "Master en Stratégie de Communication Internationale (MASCI)",
+        "Sciences de l'Information et de la Communication (SIC)"
+      ],
+      "recommendedBachelors": [
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b43d37c441ca2d58",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Marketing, vente",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701800H",
+      "tracks": [
+        "Marketing stratégique et opérationnel - double compétence",
+        "Marketing et management international",
+        "Marketing stratégique et opérationnel",
+        "Management stratégique de la distribution"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Information-communication",
+        "Gestion",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b518fe0ab141e045",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Economie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300003",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300003&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-b893fac67fa227d9",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Psychologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702889S",
+      "tracks": [
+        "Psychologie clinique du développement, des apprentissages et du vieillissement (PCDAV)",
+        "Ingénierie de la Formation professionnelle et Psychologie ergonomique  (IFPE)",
+        "Ingénierie de la formation professionnelle et Psychologie ergonomique (IFPE)",
+        "Psychopathologie clinique, Psychologie médicale et Psychothérapies (PCPMP)",
+        "Psychologie sociale, Psychologie du travail et des organisations (PSPTO)"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://agrosupdijon.fr/formations/masters/ingenierie-de-la-formation-professionnelle-et-psychologie-ergonomique-ifpe"
+    },
+    {
+      "id": "eef-prog-b909f29a6b7b3058",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sciences de l'éducation et de la formation",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300237",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300237&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-b9df42a566e770de",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Gestion",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300004",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300004&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-bbe5231e85cdee83",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Sciences de la vigne et du vin",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d10",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702338T",
+      "tracks": [
+        "Vigne, vin, terroir (VVT)"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bc31b312f2e55d48",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Mathématiques et applications",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703317G",
+      "tracks": [
+        "Mathématiques pour l'Ingénierie, alGorithmique et Statistique (MIGS)",
+        "Perfectionnement en mathématiques générales (PMG)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bc72ae6263ca0ee1",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Physique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701022M",
+      "tracks": [
+        "Procédés, Contrôles, Matériaux Métalliques (PC2M) : Industrie nucléaire"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bc757cd788ef1a38",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Monnaie, banque, finance, assurance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702851A",
+      "tracks": [
+        "Banque Patrimoine Assurance"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-bd751a7f763cd40d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Mathématiques",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300032",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300032&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-be60cc48a6218081",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - STAPS : management du sport",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300192",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300192&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-bed442f7c08ed6e4",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Langues étrangères appliquées",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300028",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300028&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-bf82f038c6a0c5bf",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-c3ffefb8695b029d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Droit",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300002",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300002&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-c64ef15adc8e3efb",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Gestion",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300004",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300004&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-c85bab4a748ac698",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Histoire",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300010",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300010&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-c8b99be41ceb1ece",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sciences de la vie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300036",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300036&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-cad90277808b5070",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Administration publique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Nevers",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300001",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300001&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-d1a4bdab306c756e",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Sociologie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300013",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300013&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-d2fa7a6d9080f926",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Justice, procès et procédures",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702747M",
+      "tracks": [
+        "Protection des droits fondamentaux et des libertés",
+        "Droit processuel",
+        "Contrats et responsabilités (civile, pénale et presse)"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d4aa9d9e63dee99d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Management et administration des entreprises",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702773R",
+      "tracks": [
+        "Double compétence et Management général",
+        "Entreprise et International",
+        "Entrepreneuriat et innovation",
+        "Management général"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Sciences pour l'ingénieur",
+        "Langues étrangères appliquées",
+        "Etudes Européennes et Internationales",
+        "Droit français - Droits étrangers"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d64f50e657d052f2",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Sciences de la terre et des planètes, environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1704329F",
+      "tracks": [
+        "Sol, eau, milieux, environnement (SEME)",
+        "Sédimentologie, paléontologie, géochimie, géoressources (SP2G)"
+      ],
+      "recommendedBachelors": [
+        "Sciences et technologies",
+        "Physique, chimie",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-bourgogne.fr/images/stories/odf/master/ff-sol-eau-milieu-environnement-m1.pdf"
+    },
+    {
+      "id": "eef-prog-d82249078a979c44",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Agrosciences, environnement, territoires, paysage, forêt",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900344Z",
+      "tracks": [
+        "Gestion des Entreprises et Technologies Innovantes pour les Agroéquipements (GETIA)",
+        "Acquisition et Traitement de Données pour l’AgroEquipement (DATAE)",
+        "Gestion des Entreprises et Technologies Innovantes pour l'Agroéquipement (GETIA)",
+        "Agroécologie"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Informatique",
+        "Physique",
+        "Sciences de la Terre",
+        "Sciences de la vie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://agrosupdijon.fr/formations/masters/getia-gestion-des-entreprises-et-technologies-innovantes-pour-lagroequipement"
+    },
+    {
+      "id": "eef-prog-d95044c4b6b28641",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Musicologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703460M",
+      "tracks": [
+        "Musicologie de la création et de la performance"
+      ],
+      "recommendedBachelors": [
+        "Musicologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-db57e43bbc090125",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Droit public",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701080A",
+      "tracks": [
+        "Europa Master",
+        "Profession Juridique du Sport",
+        "Droit des ressources humaines des Fonctions Publiques",
+        "Juriste des Collectivités Territoriales",
+        "Protection des droits fondamentaux et des libertés"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Administration économique et sociale"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-db92e2df918678e7",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701293G",
+      "tracks": [
+        "International Master in biomedical engineering",
+        "Recherche en médecine palliative et dans le champ de la fin de vie",
+        "Microbiologie, Antibiorésistance, Génomique et Epidémiologie",
+        "Des lipoprotéines aux thérapies innovantes",
+        "Relation Hôte-Greffon",
+        "Santé (Médecine DFASM1 – Pharmacie DFASP1)"
+      ],
+      "recommendedBachelors": [
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://sante.u-bourgogne.fr/masters"
+    },
+    {
+      "id": "eef-prog-df370048ceed51d6",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), encadrement éducatif",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1302693W",
+      "tracks": [
+        "Conseiller principal d'éducation"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/master-meef-encadrement-educatif"
+    },
+    {
+      "id": "eef-prog-e00bd1430211ed5c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Langues, littératures et civilisations étrangères et régionales",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300027",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300027&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e013d2c88c475891",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Traitement du signal et des images",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702345A",
+      "tracks": [
+        "Electronique, Signal et Image",
+        "Computer Vision"
+      ],
+      "recommendedBachelors": [
+        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Informatique",
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-e3a5645aad8960d3",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Staps : activité physique adaptée et santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702789H",
+      "tracks": [
+        "Activité Physique Adaptée et Santé - APAS",
+        "Réadaptation, rééducation et plasticité de la fonction motrice"
+      ],
+      "recommendedBachelors": [
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-e5f02b47f7a55c3d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Histoire",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300010",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300010&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e679074cb43f80ef",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - STAPS : éducation et motricité",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300193",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300193&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e76621b6e062b68d",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Psychologie",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300014",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300014&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e7e6165fbc83d629",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Physique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300033",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300033&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e85689e0c3f70f5c",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Histoire de l'art et archéologie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300011",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300011&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-e89455769633c84b",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Histoire de l'art",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702028F",
+      "tracks": [
+        "Histoire de l'art"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Histoire",
+        "Sociologie",
+        "Musicologie",
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-ed79e766b26aafcf",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Information-communication",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300021",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300021&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-ef21aada79d4b9d6",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Direction de projets ou établissements culturels",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701468X",
+      "tracks": [
+        "Arts et Cultures, Ingénierie de l’Action Culturelle, Ingénierie des projets interculturels et internationaux"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/master-imc"
+    },
+    {
+      "id": "eef-prog-f1659e52d2e2a7f2",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Métiers de l'enseignement, de l'éducation et de la formation (MEEF), pratiques et ingénierie de la formation (PIF)",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703505L",
+      "tracks": [
+        "Elèves à Besoins Educatifs Particuliers (EBEP)",
+        "Accompagnement et analyse des pratiques professionnelles"
+      ],
+      "recommendedBachelors": [
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie",
+        "Sciences sociales",
+        "Métiers de l'enseignement du premier degré",
+        "Sciences et Humanités",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://inspe.u-bourgogne.fr/master-meef-ebep-enseignement-et-besoins-educatifs-particuliers"
+    },
+    {
+      "id": "eef-prog-f2b7b740c30282d4",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Langues étrangères appliquées",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300028",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300028&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-f37cbc65eb878d64",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Sciences du langage",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703193X",
+      "tracks": [
+        "Sciences du langage",
+        "FLE et aires linguistiques"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-f431643a13a8a607",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Management sectoriel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703099V",
+      "tracks": [
+        "Management du tourisme et de l'événementiel",
+        "Management du tourisme et de la culture"
+      ],
+      "recommendedBachelors": [
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Administration publique",
+        "Droit",
+        "Sociologie",
+        "Arts du spectacle",
+        "Lettres, langues",
+        "Musicologie",
+        "Administration économique et sociale",
+        "Information-communication",
+        "Etudes culturelles",
+        "Cinéma"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-f469c1b59560c60f",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Economie",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300003",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300003&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-fa0afa39e758f530",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sciences du langage",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300020",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300020&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-fa6fbfd30972309b",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - Informatique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300030",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300030&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-fab67564fe83ec24",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L2 - Sciences de l'éducation et de la formation",
+      "level": "Bachelor",
+      "cycle": "licence2",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Nevers",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300237",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300237&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-fadeca81f6fe6bb6",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "L3 - STAPS : activité physique adaptée et santé",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300191",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300191&refine=etablissement_id_paysage_actuel%3Al9qwd"
+    },
+    {
+      "id": "eef-prog-fdedf03d2d260b22",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Lettres",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1701323P",
+      "tracks": [
+        "Lettres modernes appliquées",
+        "Lettres modernes recherche"
+      ],
+      "recommendedBachelors": [
+        "Lettres"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-ff457db0978f9c82",
+      "institutionId": "eef-univ-0212296g",
+      "nameFr": "Staps : management du sport",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Dijon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1703053V",
+      "tracks": [
+        "Consommation et Commercialisation des Marques de Sport et de Destinations (CCMS & D)",
+        "Développement et pilotage des services sportifs et de loisirs"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Information-communication",
+        "Sciences et techniques des activités physiques et sportives"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    }
+  ]
+}

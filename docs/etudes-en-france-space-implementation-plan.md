@@ -295,6 +295,19 @@ continu, ce qui laisse le calendrier au catalogue plutôt qu'à la coquille.
 
 ## 5. Phase 1 — Le catalogue dense (le vrai travail)
 
+> **Le pipeline de données est livré (20/09/2026).** 70 universités publiques,
+> 10 247 formations — L1, L2, L3, BUT, PASS, DEUST, licence pro et masters —
+> depuis cinq jeux de données ouvertes en Licence Ouverte v2.0,
+> importées **inactives**. Le détail — ce qui est dedans, ce qui manque
+> volontairement, et les cinq décisions qui méritent discussion — est dans
+> `docs/eef-catalog-pipeline.md`.
+>
+> Ce qui reste de la Phase 1 : la **vérification humaine** (toujours sans
+> propriétaire nommé, § 12.1), la **recherche paginée côté serveur** (§ 5.1,
+> non commencée), l'**écran client** (§ 5.4), et trois trous de catalogue
+> connus — BUT 2/3, doctorat, masters à jour et droits d'inscription réels.
+
+
 ### 5.1 La contrainte de volume, chiffrée
 
 Le catalogue actuel est du Dart `const` compilé dans le binaire. La France seule
@@ -343,12 +356,24 @@ recherches IA  →  fichiers de données versionnés dans le dépôt
 
 Concrètement, en miroir de `backend/src/modules/scholarships-index/data/` :
 
-- `backend/src/modules/etudes-en-france/data/` — enregistrements versionnés
-- `eef-catalog.importer.ts`, `.record-builder.ts`, `.types.ts`
-- `backend/src/cli/eef-catalog.cli.ts` — `--dry-run` / `--apply` obligatoires,
-  aucun mode par défaut
-- scripts `eef:validate:structure`, `verify:eef`, `eef:import:dry-run`,
-  `eef:import`
+- `backend/src/modules/etudes-en-france/catalog/data/` — 70 fichiers versionnés
+  (un par université) + `manifest.json` qui déclare chaque source et sa licence
+- `eef-catalog.types.ts`, `.normalize.ts`, `.builder.ts`, `.copy.ts`,
+  `.validator.ts`, `.loader.ts`, `.importer.ts`
+- `backend/scripts/fetch-eef-catalog.ts` — la collecte, seule partie qui parle
+  au réseau
+- `backend/scripts/import-eef-catalog.ts` — `--dry-run` / `--apply`
+  obligatoires, aucun mode par défaut
+- scripts `eef:fetch`, `eef:validate:structure`, `verify:eef`,
+  `eef:import:dry-run`, `eef:import`
+
+**Écart assumé avec le plan initial** : les fichiers de données ne contiennent
+aucune prose. À 10 247 formations, dupliquer un paragraphe bilingue par ligne
+ferait des mégaoctets de JSON et rendrait toute correction de formulation
+illisible en revue — 10 247 lignes modifiées pour un mot. Les phrases sont donc dérivées des
+faits par `eef-catalog.copy.ts`, écrites une fois et testées une fois. La
+contrepartie : on ne corrige pas la phrase d'une seule formation en éditant le
+JSON ; ça se fait dans l'admin, avec un vérificateur nommé.
 
 Exigences par enregistrement, reprises du README des bourses :
 
