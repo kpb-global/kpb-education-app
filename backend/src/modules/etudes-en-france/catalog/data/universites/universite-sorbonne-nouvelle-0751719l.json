@@ -432,13 +432,14 @@
         "Recherche et développement (en partenariat avec l'Inalco et l'Université Paris Nanterre - Paris 10)"
       ],
       "recommendedBachelors": [
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Lettres, langues|Humanités|Information-communication|Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Sciences du langage",
         "Informatique",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Lettres, langues",
+        "Humanités",
+        "Information-communication",
         "Sciences de l'éducation",
         "Lettres"
       ],
@@ -495,7 +496,6 @@
         "Linguistique, acquisition et pathologies du langage"
       ],
       "recommendedBachelors": [
-        "Sciences du langage|Langues, littératures et civilisations étrangères et régionales",
         "Sciences du langage",
         "Langues, littératures et civilisations étrangères et régionales",
         "Toutes licences",
@@ -2526,7 +2526,9 @@
       "recommendedBachelors": [
         "Lettres",
         "Philosophie",
-        "Economie|Administration économique et sociale|Economie et gestion",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
         "Toutes licences",
         "Arts",
         "Histoire de l'art et archéologie",
@@ -2831,7 +2833,6 @@
         "Théâtre, écritures et représentations (TER) M2"
       ],
       "recommendedBachelors": [
-        "Arts du spectacle|Toutes licences",
         "Arts du spectacle",
         "Toutes licences"
       ],

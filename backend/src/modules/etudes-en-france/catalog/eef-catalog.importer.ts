@@ -31,6 +31,7 @@ import {
   levelLabel,
   programRequirements,
 } from './eef-catalog.copy';
+import { recommendedFieldIdsOf } from './eef-admission-signals';
 import type { EefCatalog, EefProgramRecord } from './eef-catalog.types';
 
 /// Une ligne `Institution` prête à écrire. Les noms de champs sont ceux du
@@ -85,6 +86,15 @@ export interface PlannedProgram {
   /// à découper `levelFr`, qui est un libellé rédigé pour être lu.
   readonly cycle: string;
   readonly selectivity: string;
+  /// Les licences conseillées à l'entrée et la modalité de candidature, telles
+  /// que l'établissement les publie, PLUS l'index matérialisé des domaines
+  /// auxquels ces licences appartiennent. La shortlist classe là-dessus parce
+  /// que `selectivity` est constante à l'intérieur d'un cycle et ne classe
+  /// donc rien. Vides pour tout ce qui n'est pas un master : les sources de
+  /// premier cycle ne publient aucun des deux.
+  readonly recommendedBachelors: string[];
+  readonly recommendedFieldIds: string[];
+  readonly admissionModes: string[];
   readonly formationCode: string;
   readonly campusCity: string;
   /// Null assumé : aucun jeu ouvert ne publie le niveau de français exigé
@@ -193,6 +203,9 @@ export function planEefImport(
         procedureType: program.procedureType,
         cycle: program.cycle,
         selectivity: program.selectivity,
+        recommendedBachelors: [...program.recommendedBachelors],
+        recommendedFieldIds: recommendedFieldIdsOf(program.recommendedBachelors),
+        admissionModes: [...program.admissionModes],
         formationCode: program.formationCode,
         campusCity: program.campusCity,
         frenchLevelRequired: null,

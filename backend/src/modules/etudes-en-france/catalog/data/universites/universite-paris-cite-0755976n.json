@@ -55,7 +55,14 @@
         "Life Sciences (AIV)"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sciences de l'éducation|Sociologie|Physique|Langues étrangères appliquées|Géographie et aménagement|Sciences sociales|Frontières du vivant",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Physique",
+        "Langues étrangères appliquées",
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Frontières du vivant",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
         "Sciences pour la santé"
@@ -672,7 +679,9 @@
       "formationCode": "0901144U",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Frontières du vivant"
+        "Chimie",
+        "Physique, chimie",
+        "Frontières du vivant"
       ],
       "admissionModes": [
         "Dossier",
@@ -715,7 +724,9 @@
       "formationCode": "1900245S",
       "tracks": [],
       "recommendedBachelors": [
-        "Psychologie|Sciences et techniques des activités physiques et sportives|Sciences pour la santé"
+        "Psychologie",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1201,9 +1212,12 @@
         "Musicothérapie"
       ],
       "recommendedBachelors": [
-        "Arts|Psychologie|Arts du spectacle|Arts plastiques|Musicologie|Sciences et techniques des activités physiques et sportives",
         "Arts",
-        "Arts plastiques"
+        "Psychologie",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Musicologie",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier",
@@ -1501,7 +1515,11 @@
         "MODELISATION ET SIMULATION EN MECANIQUE"
       ],
       "recommendedBachelors": [
-        "Administration économique et sociale|Economie et gestion|Géographie et aménagement|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
         "Chimie",
         "Physique, chimie",
         "Sciences de la vie",
@@ -1607,12 +1625,11 @@
         "Macroecoeconomie internationale et financiarisation"
       ],
       "recommendedBachelors": [
-        "Economie|Economie et gestion|Sciences sociales",
-        "Droit",
         "Economie",
-        "Gestion",
         "Economie et gestion",
         "Sciences sociales",
+        "Droit",
+        "Gestion",
         "Sociologie"
       ],
       "admissionModes": [
@@ -2706,12 +2723,17 @@
         "BioMECH (Biomechanics)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences de la vie|Sciences et technologies|Sciences pour la santé|Frontières du vivant",
-        "Sciences pour la santé",
-        "Sciences pour l'ingénieur",
-        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
         "Physique",
-        "Sciences de la vie"
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Sciences pour la santé",
+        "Frontières du vivant",
+        "Chimie"
       ],
       "admissionModes": [
         "Dossier",
@@ -2988,7 +3010,9 @@
       "recommendedBachelors": [
         "Lettres",
         "Philosophie",
-        "Economie|Administration économique et sociale|Economie et gestion",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
         "Toutes licences",
         "Arts",
         "Histoire de l'art et archéologie",
@@ -3053,8 +3077,13 @@
         "Microbiologie"
       ],
       "recommendedBachelors": [
-        "Sciences sanitaires et sociales|Chimie|Physique|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Sciences de la vie"
+        "Sciences sanitaires et sociales",
+        "Chimie",
+        "Physique",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -4574,9 +4603,12 @@
         "Dynamiques des pays émergents et en développement"
       ],
       "recommendedBachelors": [
-        "Science politique|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Sciences de la Terre|Sciences et Humanités",
+        "Science politique",
+        "Administration économique et sociale",
+        "Economie et gestion",
         "Géographie et aménagement",
         "Sciences de la Terre",
+        "Sciences et Humanités",
         "Sciences de la vie"
       ],
       "admissionModes": [
@@ -5291,12 +5323,13 @@
         "Histoire et philosophie des sciences - Recherche"
       ],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Chimie|Mathématiques|Physique|Sciences de la vie et de la Terre|Sciences et Humanités",
         "Philosophie",
         "Histoire",
         "Chimie",
         "Mathématiques",
         "Physique",
+        "Sciences de la vie et de la Terre",
+        "Sciences et Humanités",
         "Sciences sociales",
         "Sciences de la Terre",
         "Sciences de la vie"
@@ -5788,8 +5821,15 @@
       "formationCode": "1900182Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie",
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Sciences de la vie|Frontières du vivant"
+        "Philosophie",
+        "Psychologie",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Frontières du vivant"
       ],
       "admissionModes": [
         "Dossier",

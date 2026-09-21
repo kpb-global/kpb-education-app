@@ -74,7 +74,6 @@
         "CLOUD COMPUTING AND MOBILITY (CCM)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques",
         "Informatique",
         "Mathématiques"
       ],
@@ -211,7 +210,6 @@
         "Régie des Oeuvres et Montage d'Expositions"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire|Arts plastiques",
         "Histoire de l'art et archéologie",
         "Histoire",
         "Arts plastiques"
@@ -260,7 +258,6 @@
         "PLANIFICATION ET GESTION DES PROJETS ET DES POLITIQUES D’EDUCATION"
       ],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
         "Philosophie",
         "Histoire",
         "Psychologie",
@@ -457,7 +454,13 @@
       "formationCode": "1801032X",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Droit|Science politique|Histoire|Sociologie|Humanités"
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -540,7 +543,6 @@
         "Littérature Antique, Française et Comparée"
       ],
       "recommendedBachelors": [
-        "Lettres|Lettres, langues|Humanités",
         "Lettres",
         "Lettres, langues",
         "Humanités"
@@ -687,7 +689,6 @@
         "STRATÉGIES ET CONDUITE EN ÉNERGÉTIQUE ET MATÉRIAUX INNOVANTS (SCEMI)"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Physique, chimie|Sciences et technologies",
         "Mécanique",
         "Physique",
         "Physique, chimie",
@@ -738,7 +739,6 @@
         "ÉNERGIE ÉLECTRIQUE (EE)"
       ],
       "recommendedBachelors": [
-        "Informatique|Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique|Sciences et technologies",
         "Informatique",
         "Physique",
         "Sciences pour l'ingénieur",
@@ -785,7 +785,8 @@
       "formationCode": "1800236G",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Arts plastiques"
+        "Arts",
+        "Arts plastiques"
       ],
       "admissionModes": [
         "Dossier"
@@ -808,7 +809,10 @@
       "formationCode": "1801042H",
       "tracks": [],
       "recommendedBachelors": [
-        "Science politique|Sciences sanitaires et sociales|Sociologie|Sciences de l'Homme, anthropologie, ethnologie"
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -941,7 +945,6 @@
         "MANAGEMENT ET INGÉNIERIE LOGISTIQUE"
       ],
       "recommendedBachelors": [
-        "Gestion|Sciences pour l'ingénieur|Economie et gestion|Sciences et technologies",
         "Gestion",
         "Sciences pour l'ingénieur",
         "Economie et gestion",
@@ -1286,7 +1289,6 @@
         "CHIMIE DURABLE-MATÉRIAUX (CDMAT)"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Sciences de la vie|Sciences de la vie et de la Terre",
         "Chimie",
         "Physique, chimie",
         "Sciences de la vie",
@@ -1482,11 +1484,10 @@
         "MARKETING VENTE DISTRIBUTION"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion",
-        "Economie",
         "Gestion",
         "Administration économique et sociale",
-        "Economie et gestion"
+        "Economie et gestion",
+        "Economie"
       ],
       "admissionModes": [
         "Dossier",
@@ -1742,10 +1743,9 @@
         "ÉTUDES ANGLOPHONES - M2 AGE - AGREGATION EXTERNE"
       ],
       "recommendedBachelors": [
-        "Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales",
-        "Sciences du langage",
         "Langues étrangères appliquées",
-        "Langues, littératures et civilisations étrangères et régionales"
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Sciences du langage"
       ],
       "admissionModes": [
         "Dossier"
@@ -1961,7 +1961,6 @@
         "INGÉNIERIE DÉMOGRAPHIQUE ET EXPERTISE DES POPULATIONS"
       ],
       "recommendedBachelors": [
-        "Economie|Science politique|Sciences sanitaires et sociales|Histoire|Sciences de l'éducation|Sociologie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie",
         "Economie",
         "Science politique",
         "Sciences sanitaires et sociales",
@@ -2037,7 +2036,6 @@
         "SYSTÈMES EMBARQUÉS"
       ],
       "recommendedBachelors": [
-        "Informatique|Mécanique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique|Sciences et technologies",
         "Informatique",
         "Mécanique",
         "Sciences pour l'ingénieur",
@@ -2327,7 +2325,6 @@
         "Cinema : Analyse, Critique, Valorisation et Programmation"
       ],
       "recommendedBachelors": [
-        "Arts|Arts du spectacle",
         "Arts",
         "Arts du spectacle"
       ],
@@ -2484,7 +2481,6 @@
         "POUVOIRS ET SOCIÉTÉS"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Histoire|Psychologie|Sociologie|Langues, littératures et civilisations étrangères et régionales|Géographie et aménagement|Humanités",
         "Histoire de l'art et archéologie",
         "Lettres",
         "Histoire",
@@ -2622,7 +2618,6 @@
         "Métiers du Spectacle Vivant : Produire, Diffuser, Communiquer, Administrer"
       ],
       "recommendedBachelors": [
-        "Arts|Arts du spectacle",
         "Arts",
         "Arts du spectacle"
       ],
@@ -3364,9 +3359,9 @@
         "PRODUCTION ET INNOVATION AGROALIMENTAIRES, MANAGEMENT DE LA QUALITÉ ET ENVIRONNEMENT INDUSTRIEL (PVIA-IA)"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies",
         "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"
@@ -3412,7 +3407,6 @@
         "NEUROSCIENCES DU DÉVELOPPEMENT, DE LA COGNITION ET DES ADDICTIONS"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences pour la santé",
         "Sciences de la vie",
         "Sciences pour la santé"
       ],
@@ -3515,7 +3509,7 @@
         "MODÉLISATION ET GENIE BIOMEDICAL"
       ],
       "recommendedBachelors": [
-        "Chimie|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique|Sciences et technologies",
+        "Chimie",
         "Informatique",
         "Mathématiques",
         "Physique",
@@ -3583,7 +3577,9 @@
       "formationCode": "1801020J",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Concours",
@@ -3991,11 +3987,10 @@
         "DYNAMIQUES ET GÉOGRAPHIE DES TERRITOIRES (DYGITER)"
       ],
       "recommendedBachelors": [
-        "Géographie et aménagement|Sciences de la Terre|Sciences de la vie et de la Terre",
         "Géographie et aménagement",
         "Sciences de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier"

@@ -138,13 +138,12 @@
         "MEDCRIM : Médecine légale, criminalistique, archéothanatologie, victimologie"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sciences de la vie|Sciences et techniques des activités physiques et sportives|Sciences pour la santé",
-        "Droit",
         "Psychologie",
-        "Electronique, énergie électrique, automatique",
         "Sciences de la vie",
         "Sciences et techniques des activités physiques et sportives",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Droit",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"
@@ -189,15 +188,14 @@
         "Management des Organisations du Secteur Sanitaire et Social (MOSSS)"
       ],
       "recommendedBachelors": [
-        "Gestion|Sciences sanitaires et sociales|Administration économique et sociale",
+        "Gestion",
+        "Sciences sanitaires et sociales",
+        "Administration économique et sociale",
         "Droit",
         "Economie",
-        "Gestion",
         "Langues étrangères appliquées",
-        "Administration économique et sociale",
         "Economie et gestion",
-        "Génie civil",
-        "Sciences sanitaires et sociales"
+        "Génie civil"
       ],
       "admissionModes": [
         "Dossier",
@@ -262,12 +260,11 @@
         "Gestion des Services Administratifs"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Administration économique et sociale",
         "Administration publique",
         "Droit",
+        "Administration économique et sociale",
         "Economie",
         "Gestion",
-        "Administration économique et sociale",
         "Economie et gestion"
       ],
       "admissionModes": [
@@ -363,8 +360,8 @@
         "CdSE - Chimie du Solide pour l'Energie"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie",
         "Chimie",
+        "Physique",
         "Physique, chimie"
       ],
       "admissionModes": [
@@ -666,9 +663,9 @@
         "Bio-procédés"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Sciences de la vie et de la Terre|Sciences et technologies",
         "Sciences pour l'ingénieur",
         "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
         "Mécanique",
         "Physique"
       ],
@@ -1087,7 +1084,6 @@
         "Arts et industries culturelles"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Sciences et Humanités",
         "Arts",
         "Lettres",
         "Sciences et Humanités",
@@ -1154,12 +1150,11 @@
         "Métiers du politique et de l'administration"
       ],
       "recommendedBachelors": [
-        "Droit|Science politique|Administration économique et sociale",
         "Droit",
         "Science politique",
+        "Administration économique et sociale",
         "Histoire",
-        "Sociologie",
-        "Administration économique et sociale"
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -1224,7 +1219,6 @@
         "Expertise Statistique pour l'Economie et la Finance"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion",
         "Economie",
         "Gestion",
         "Economie et gestion",
@@ -1487,7 +1481,8 @@
         "Ingénierie et expertise des politiques sociales"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie",
+        "Chimie",
+        "Physique, chimie",
         "Sociologie",
         "Sciences de l'Homme, anthropologie, ethnologie"
       ],
@@ -1784,7 +1779,6 @@
         "Analyse et Développement de l'Entreprise"
       ],
       "recommendedBachelors": [
-        "Economie|Economie et gestion",
         "Economie",
         "Economie et gestion",
         "Gestion",
@@ -1917,7 +1911,6 @@
         "Conception Ouvrages Géomatériaux"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Génie civil",
         "Sciences pour l'ingénieur",
         "Génie civil"
       ],
@@ -1984,12 +1977,11 @@
         "Management des RH et organisations (MRHO)"
       ],
       "recommendedBachelors": [
-        "Droit|Gestion|Economie et gestion",
-        "Economie",
-        "Gestion",
-        "Administration économique et sociale",
-        "Economie et gestion",
         "Droit",
+        "Gestion",
+        "Economie et gestion",
+        "Economie",
+        "Administration économique et sociale",
         "Sciences et Humanités"
       ],
       "admissionModes": [
@@ -2084,7 +2076,10 @@
       "formationCode": "1800195N",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Economie et gestion"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2437,8 +2432,8 @@
         "Management global de l'innovation"
       ],
       "recommendedBachelors": [
-        "Gestion|Sciences pour l'ingénieur",
         "Gestion",
+        "Sciences pour l'ingénieur",
         "Economie et gestion"
       ],
       "admissionModes": [
@@ -2525,17 +2520,17 @@
         "Relations publiques Internationales"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Langues étrangères appliquées|Economie et gestion|Etudes Européennes et Internationales|Sciences et Humanités",
         "Droit",
+        "Economie",
+        "Langues étrangères appliquées",
+        "Economie et gestion",
+        "Etudes Européennes et Internationales",
+        "Sciences et Humanités",
         "Science politique",
         "Histoire",
-        "Langues étrangères appliquées",
         "Administration économique et sociale",
         "Géographie et aménagement",
-        "Economie",
-        "Gestion",
-        "Economie et gestion",
-        "Sciences et Humanités"
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2582,7 +2577,8 @@
         "Intelligence territoriale"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2610,7 +2606,6 @@
         "Mondes anglophones"
       ],
       "recommendedBachelors": [
-        "Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales"
       ],
@@ -2692,7 +2687,9 @@
       "formationCode": "1800177T",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2849,7 +2846,8 @@
       "formationCode": "1800181X",
       "tracks": [],
       "recommendedBachelors": [
-        "Humanités|Théologie"
+        "Humanités",
+        "Théologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -2916,7 +2914,7 @@
         "Sûreté, Maintenance, Soutien, PHM"
       ],
       "recommendedBachelors": [
-        "Informatique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique",
+        "Informatique",
         "Sciences pour l'ingénieur",
         "Electronique, énergie électrique, automatique",
         "Mécanique"
@@ -2999,7 +2997,8 @@
       "formationCode": "1800191H",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts du spectacle|Etudes culturelles"
+        "Arts du spectacle",
+        "Etudes culturelles"
       ],
       "admissionModes": [
         "Dossier",
@@ -3048,7 +3047,6 @@
         "Pouvoirs, Identités et cultures dans l'Occident moderne et contemporain"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire|Humanités",
         "Histoire de l'art et archéologie",
         "Histoire",
         "Humanités"
@@ -3271,7 +3269,6 @@
         "Ergonomie et physiologie du travail"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Sciences de la vie|Sciences pour la santé",
         "Sciences pour l'ingénieur",
         "Sciences de la vie",
         "Sciences pour la santé",
@@ -3376,7 +3373,11 @@
       "formationCode": "1800197Q",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Psychologie|Sciences pour l'ingénieur|Economie et gestion|Sciences et techniques des activités physiques et sportives"
+        "Gestion",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Economie et gestion",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier",
@@ -3609,10 +3610,9 @@
         "Management de la chaîne logistique"
       ],
       "recommendedBachelors": [
-        "Administration économique et sociale|Economie et gestion",
-        "Gestion",
         "Administration économique et sociale",
-        "Economie et gestion"
+        "Economie et gestion",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3740,7 +3740,6 @@
         "POM Photonique et Optique pour les Matériaux"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique",
         "Chimie",
         "Physique",
         "Sciences pour l'ingénieur",
@@ -3809,7 +3808,6 @@
         "Matière condensée et nanomatériaux"
       ],
       "recommendedBachelors": [
-        "Physique|Physique, chimie",
         "Physique",
         "Physique, chimie"
       ],
@@ -3940,7 +3938,6 @@
         "Culture de jeunesse et culture de masse"
       ],
       "recommendedBachelors": [
-        "Lettres|Etudes culturelles",
         "Lettres",
         "Etudes culturelles"
       ],
@@ -4265,7 +4262,6 @@
         "Entreprises de l'économie sociale et solidaire"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion",
         "Droit",
         "Economie",
         "Gestion",
@@ -4337,10 +4333,10 @@
         "Sites et sols pollués"
       ],
       "recommendedBachelors": [
-        "Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Environnements océaniens",
         "Sciences de la Terre",
         "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Environnements océaniens"
       ],
       "admissionModes": [
         "Dossier",
@@ -4399,7 +4395,8 @@
         "Mesure et Traitement de l'Information"
       ],
       "recommendedBachelors": [
-        "Informatique|Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique",
+        "Informatique",
+        "Physique",
         "Sciences pour l'ingénieur",
         "Electronique, énergie électrique, automatique"
       ],
@@ -4507,7 +4504,6 @@
         "Chargé d'affaires entreprise"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion",
         "Economie",
         "Gestion",
         "Economie et gestion"
@@ -4561,7 +4557,6 @@
         "Verre Design Architecture"
       ],
       "recommendedBachelors": [
-        "Arts|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
         "Arts",
         "Informatique",
         "Mathématiques",
@@ -4800,12 +4795,11 @@
         "Ingénierie Mécanique et Matériaux"
       ],
       "recommendedBachelors": [
-        "Mathématiques|Mécanique|Sciences pour l'ingénieur|Physique, chimie",
         "Mathématiques",
         "Mécanique",
-        "Physique",
         "Sciences pour l'ingénieur",
-        "Physique, chimie"
+        "Physique, chimie",
+        "Physique"
       ],
       "admissionModes": [
         "Dossier"
@@ -5199,9 +5193,9 @@
         "Energie et Procédés"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Electronique, énergie électrique, automatique",
         "Mécanique",
         "Physique",
+        "Electronique, énergie électrique, automatique",
         "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
@@ -5541,10 +5535,9 @@
         "Génie Minier et Risques"
       ],
       "recommendedBachelors": [
-        "Sciences de la Terre|Sciences de la vie et de la Terre",
         "Sciences de la Terre",
-        "Sciences de la vie",
         "Sciences de la vie et de la Terre",
+        "Sciences de la vie",
         "Mécanique",
         "Génie civil"
       ],
@@ -5852,10 +5845,12 @@
         "Ecosystèmes agricoles et forestiers ECOSAFE"
       ],
       "recommendedBachelors": [
-        "Chimie|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies",
-        "Sciences de la vie|Sciences de la vie et de la Terre",
+        "Chimie",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
         "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",

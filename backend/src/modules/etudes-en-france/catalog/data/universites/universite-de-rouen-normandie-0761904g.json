@@ -2086,13 +2086,12 @@
         "Sécurité des Procédés Industriels et Maîtrise des Risques"
       ],
       "recommendedBachelors": [
-        "Chimie|Sciences de la vie|Sciences de la vie et de la Terre",
         "Chimie",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Physique, chimie",
         "Géographie et aménagement",
-        "Sciences de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -3339,7 +3338,8 @@
       "formationCode": "1703461N",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Administration économique et sociale"
+        "Droit",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -3452,7 +3452,11 @@
       "formationCode": "1703285X",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Arts du spectacle|Humanités"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Arts du spectacle",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -3821,7 +3825,10 @@
       "formationCode": "1701814Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Sciences du langage|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales"
+        "Lettres",
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
       ],
       "admissionModes": [
         "Dossier"

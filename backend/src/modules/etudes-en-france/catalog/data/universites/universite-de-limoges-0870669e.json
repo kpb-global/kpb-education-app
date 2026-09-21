@@ -1385,7 +1385,11 @@
       "formationCode": "1601572P",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2209,7 +2213,11 @@
       "formationCode": "1602920E",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

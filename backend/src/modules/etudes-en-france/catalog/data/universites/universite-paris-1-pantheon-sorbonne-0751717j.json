@@ -38,7 +38,9 @@
       "recommendedBachelors": [
         "Lettres",
         "Philosophie",
-        "Economie|Administration économique et sociale|Economie et gestion",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
         "Toutes licences",
         "Arts",
         "Histoire de l'art et archéologie",
@@ -104,7 +106,11 @@
       "formationCode": "1604321X",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Science politique|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Science politique",
+        "Mathématiques",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -251,7 +257,10 @@
       "formationCode": "1604337Q",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Science politique|Histoire|Sociologie"
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -611,7 +620,8 @@
       "formationCode": "1604353G",
       "tracks": [],
       "recommendedBachelors": [
-        "Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Mathématiques",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -845,7 +855,14 @@
       "formationCode": "1604336P",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Droit",
+        "Economie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -1060,7 +1077,13 @@
       "formationCode": "1604342V",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Histoire|Sociologie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Histoire",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -1083,7 +1106,35 @@
       "formationCode": "1900151Q",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sociologie|Arts du spectacle|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé"
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Humanités",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Théologie",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -1419,9 +1470,11 @@
       "formationCode": "1604867R",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Science politique|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Mathématiques",
+        "Science politique",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1536,7 +1589,10 @@
       "formationCode": "1604323Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Mathématiques",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -2251,7 +2307,8 @@
       "formationCode": "1604300Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Concours",
@@ -2333,7 +2390,9 @@
       "formationCode": "1604325B",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -2358,7 +2417,11 @@
       "formationCode": "1604335N",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Gestion",
+        "Mathématiques",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2648,7 +2711,11 @@
       "formationCode": "1604351E",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Histoire|Géographie et aménagement"
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",
@@ -2796,8 +2863,28 @@
       "formationCode": "1900333N",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Histoire|Psychologie|Sciences du langage|Sociologie|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé",
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Histoire|Psychologie|Sciences du langage|Sociologie|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé"
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Psychologie",
+        "Sciences du langage",
+        "Sociologie",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -2963,7 +3050,8 @@
       "formationCode": "1604347A",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire"
+        "Histoire de l'art et archéologie",
+        "Histoire"
       ],
       "admissionModes": [
         "Dossier"
@@ -3104,7 +3192,12 @@
       "formationCode": "1604328E",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Sociologie|Administration économique et sociale|Sciences sociales"
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Concours",

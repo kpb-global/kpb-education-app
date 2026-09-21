@@ -74,7 +74,11 @@
         "Ingénierie de la formation"
       ],
       "recommendedBachelors": [
-        "Philosophie|Psychologie|Sciences de l'éducation|Sciences du langage|Sociologie"
+        "Philosophie",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -138,7 +142,10 @@
         "Systèmes de management et excellence opérationnelle"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences pour l'ingénieur|Sciences de la vie"
+        "Chimie",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier",
@@ -211,7 +218,10 @@
         "Management international"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Toutes licences"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Toutes licences"
       ],
       "admissionModes": [
         "Dossier",
@@ -767,7 +777,10 @@
         "Informatique et mathématiques discrètes (IMD)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Informatique",
+        "Mathématiques",
+        "Sciences pour l'ingénieur",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -793,7 +806,8 @@
         "Conception de systèmes mécaniques"
       ],
       "recommendedBachelors": [
-        "Mécanique|Sciences pour l'ingénieur"
+        "Mécanique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier"
@@ -896,7 +910,9 @@
         "Aéronautique et transport (AT)"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Sciences pour l'ingénieur"
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier"
@@ -1490,7 +1506,8 @@
         "Préparation à l'agrégation de sciences physiques option Physique"
       ],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur"
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier",
@@ -1803,7 +1820,8 @@
         "Recherche, études et conseil en logistique et stratégie (RECLS)"
       ],
       "recommendedBachelors": [
-        "Economie|Economie et gestion"
+        "Economie",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1831,7 +1849,9 @@
         "Banque et affaires internationales (BAI)"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -2527,7 +2547,8 @@
         "Métiers de la mode et du textile"
       ],
       "recommendedBachelors": [
-        "Economie et gestion|Information-communication"
+        "Economie et gestion",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -3080,7 +3101,8 @@
         "Contrôle, audit, conseil (CAC)"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3127,7 +3149,8 @@
         "Analyse chimique et spectroscopie (ACS)"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie"
+        "Chimie",
+        "Physique, chimie"
       ],
       "admissionModes": [
         "Dossier"
@@ -3152,7 +3175,12 @@
         "GRECC : Géosciences, réservoirs, eau, climat, surfaces continentales"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie|Géographie et aménagement|Sciences de la Terre|Sciences de la vie et de la Terre"
+        "Chimie",
+        "Physique",
+        "Physique, chimie",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -3218,7 +3246,8 @@
         "Droit, journalisme et communication des organisations"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit"
+        "Administration publique",
+        "Droit"
       ],
       "admissionModes": [
         "Dossier"
@@ -3767,7 +3796,11 @@
         "Politiques et projets d'habitat et de renouvellement urbain"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Sociologie|Géographie et aménagement"
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Sociologie",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",
@@ -4026,7 +4059,9 @@
         "Management d'équipes de soins (MES)"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -4132,7 +4167,11 @@
         "Anthropologie évolutive : os, gènes, cultures"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -4996,7 +5035,11 @@
         "Création d'entreprise (CE)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -5118,7 +5161,10 @@
         "Images, modèles et vision (IMOVI)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur"
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier"
@@ -5391,7 +5437,12 @@
         "Océanographie physique et biogéochimique"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Chimie",
+        "Physique",
+        "Physique, chimie",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -5842,7 +5893,9 @@
         "Didactique du Français Langue Etrangère et Seconde : approches critiques et innovations pédagogiques"
       ],
       "recommendedBachelors": [
-        "Lettres|Sciences du langage|Langues, littératures et civilisations étrangères et régionales"
+        "Lettres",
+        "Sciences du langage",
+        "Langues, littératures et civilisations étrangères et régionales"
       ],
       "admissionModes": [
         "Dossier"
@@ -6230,7 +6283,10 @@
         "Ingénierie des matériaux et nanotechnologies"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences pour l'ingénieur|Physique, chimie"
+        "Chimie",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie"
       ],
       "admissionModes": [
         "Dossier"
@@ -6386,20 +6442,19 @@
         "Musicologie et création"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire|Sociologie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Arts du spectacle|Musicologie|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences et technologies",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sociologie",
         "Informatique",
         "Mathématiques",
         "Mécanique",
         "Physique",
         "Sciences pour l'ingénieur",
-        "Sciences et technologies",
-        "Histoire de l'art et archéologie",
-        "Histoire",
-        "Sociologie",
         "Arts du spectacle",
         "Musicologie",
         "Humanités",
-        "Sciences de l'Homme, anthropologie, ethnologie"
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -6560,7 +6615,9 @@
         "Biochimie structurale (BS)"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé"
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -6641,7 +6698,9 @@
         "Santé et environnement"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé"
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -6859,7 +6918,9 @@
         "Architecture et sécurisation des réseaux"
       ],
       "recommendedBachelors": [
-        "Informatique|Physique|Sciences pour l'ingénieur"
+        "Informatique",
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier",
@@ -6913,7 +6974,12 @@
         "Economie théorique et empirique"
       ],
       "recommendedBachelors": [
-        "Economie|Informatique|Mathématiques|Physique|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -6970,7 +7036,12 @@
         "Instrumentation des moyens d'essai (IME)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique"
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier",
@@ -7062,7 +7133,8 @@
         "Histoire du droit et des idées politiques"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit"
+        "Administration publique",
+        "Droit"
       ],
       "admissionModes": [
         "Dossier",
@@ -7404,7 +7476,8 @@
         "Automatique"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Electronique, énergie électrique, automatique"
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"
@@ -7561,7 +7634,9 @@
         "Ingénierie des systèmes d'information étendus (ISIe)"
       ],
       "recommendedBachelors": [
-        "Gestion|Informatique|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Gestion",
+        "Informatique",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -8198,7 +8273,10 @@
         "Distribution concurrence"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -8263,7 +8341,11 @@
         "Management de l'innovation et des système d'information (MISI)"
       ],
       "recommendedBachelors": [
-        "Gestion|Informatique|Administration économique et sociale|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Gestion",
+        "Informatique",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -8688,7 +8770,11 @@
         "Médicaments et produits de santé : pharmacocinétique"
       ],
       "recommendedBachelors": [
-        "Chimie|Sciences pour l'ingénieur|Sciences de la vie|Sciences et technologies|Sciences pour la santé"
+        "Chimie",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -8752,7 +8838,8 @@
         "Gestion durable des territoires de montagne (GTDM)"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -9012,7 +9099,8 @@
         "Gestion de patrimoine (GP)"
       ],
       "recommendedBachelors": [
-        "Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"

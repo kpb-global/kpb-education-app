@@ -1677,10 +1677,9 @@
         "Carrières judiciaires"
       ],
       "recommendedBachelors": [
-        "Droit|Science politique",
-        "Administration publique",
         "Droit",
-        "Science politique"
+        "Science politique",
+        "Administration publique"
       ],
       "admissionModes": [
         "Dossier",

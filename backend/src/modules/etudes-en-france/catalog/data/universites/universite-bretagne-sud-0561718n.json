@@ -131,7 +131,6 @@
         "Administration des interventions sociales et de santé (AISS) (M2)"
       ],
       "recommendedBachelors": [
-        "Sciences sanitaires et sociales|Sciences pour la santé",
         "Sciences sanitaires et sociales",
         "Sciences pour la santé"
       ],
@@ -699,10 +698,9 @@
         "Edition contemporaine et numérique (M2)"
       ],
       "recommendedBachelors": [
-        "Lettres|Information-communication",
         "Lettres",
-        "Informatique",
         "Information-communication",
+        "Informatique",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Sciences du langage"
       ],
@@ -747,7 +745,10 @@
       "formationCode": "1701692R",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -808,7 +809,8 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Psychologie|Sociologie"
+        "Psychologie",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -1041,7 +1043,11 @@
       "formationCode": "1702171L",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion|Toutes licences"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Toutes licences"
       ],
       "admissionModes": [
         "Dossier",
@@ -1699,7 +1705,8 @@
         "Musicien intervenant"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sociologie",
+        "Psychologie",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [
@@ -1834,7 +1841,10 @@
       "formationCode": "1701219B",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -2387,23 +2397,22 @@
         "Sciences de la vie et de la terre"
       ],
       "recommendedBachelors": [
-        "Lettres|Histoire|Mathématiques|Langues, littératures et civilisations étrangères et régionales|Géographie et aménagement|Sciences et techniques des activités physiques et sportives",
+        "Lettres",
+        "Histoire",
+        "Mathématiques",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Géographie et aménagement",
+        "Sciences et techniques des activités physiques et sportives",
         "Sciences pour l'ingénieur",
         "Sciences et technologies",
-        "Langues, littératures et civilisations étrangères et régionales",
-        "Lettres",
         "Humanités",
-        "Histoire",
-        "Géographie et aménagement",
         "Economie",
         "Administration économique et sociale",
         "Sciences sociales",
         "Informatique",
-        "Mathématiques",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Philosophie",
         "Etudes Européennes et Internationales",
-        "Sciences et techniques des activités physiques et sportives",
         "Toutes licences",
         "Musicologie",
         "Chimie",

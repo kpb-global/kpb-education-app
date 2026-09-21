@@ -146,7 +146,8 @@
       "formationCode": "1704093Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion"
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -480,7 +481,8 @@
       "formationCode": "1702430T",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie et gestion|Géographie et aménagement"
+        "Economie et gestion",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",

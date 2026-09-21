@@ -176,6 +176,30 @@ export function validateEefCatalog(
       if (!isHttpsUrl(program.sourceUrl)) {
         errors.push(`${pWhere} : fiche officielle absente ou non HTTPS.`);
       }
+      // Une valeur encore jointe par des barres verticales.
+      //
+      // Le portail des masters publie `for_lic_conseille` tantôt en tableau de
+      // mentions, tantôt en UNE chaîne jointe par des `|`. Non découpée, elle
+      // produit une « mention » du genre « Droit|Economie|Gestion » : un
+      // libellé que personne ne publie, qu'aucun appariement ne reconnaît, et
+      // qui enterre donc trois licences conseillées dans une case introuvable.
+      // 501 entrées étaient dans ce cas avant que le constructeur ne découpe.
+      //
+      // Le gardien est ici plutôt que dans le constructeur parce que le défaut
+      // n'était pas une règle manquante mais une FORME de la source qu'on
+      // n'avait pas vue : c'est la donnée produite qu'il faut relire.
+      for (const [label, values] of [
+        ['licences conseillées', program.recommendedBachelors],
+        ['modalités de candidature', program.admissionModes],
+        ['parcours', program.tracks],
+      ] as const) {
+        const piped = values.filter((value) => value.includes('|'));
+        if (piped.length > 0) {
+          errors.push(
+            `${pWhere} : ${label} non découpées (${piped.join(' / ')}).`,
+          );
+        }
+      }
     }
   }
 

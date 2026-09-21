@@ -617,7 +617,11 @@
       "formationCode": "2000117C",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Chimie",
+        "Physique, chimie",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -1689,7 +1693,10 @@
       "formationCode": "1502628S",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Science politique|Administration économique et sociale"
+        "Administration publique",
+        "Droit",
+        "Science politique",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -1802,7 +1809,6 @@
         "Chimie - M1 Tronc commun"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie",
         "Chimie",
         "Physique, chimie"
       ],

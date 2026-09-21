@@ -2200,11 +2200,11 @@
         "Computer Vision"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
-        "Sciences pour l'ingénieur",
-        "Electronique, énergie électrique, automatique",
         "Informatique",
-        "Mathématiques"
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"

@@ -210,7 +210,9 @@
       "formationCode": "1501453P",
       "tracks": [],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"
@@ -290,7 +292,14 @@
       "formationCode": "1502630U",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Lettres|Philosophie|Sciences du langage|Arts du spectacle|Lettres, langues|Humanités|Sciences de l'Homme, anthropologie, ethnologie"
+        "Arts",
+        "Lettres",
+        "Philosophie",
+        "Sciences du langage",
+        "Arts du spectacle",
+        "Lettres, langues",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -572,7 +581,13 @@
       "formationCode": "1501143C",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Informatique|Mathématiques|Administration économique et sociale|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Gestion",
+        "Informatique",
+        "Mathématiques",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -1014,7 +1029,10 @@
       "formationCode": "1503350B",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences pour l'ingénieur|Sciences de la Terre"
+        "Chimie",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -1240,7 +1258,9 @@
       "formationCode": "1503228U",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique"
+        "Droit",
+        "Economie",
+        "Science politique"
       ],
       "admissionModes": [
         "Dossier",
@@ -1347,7 +1367,11 @@
       "formationCode": "1502960C",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Sciences du langage|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues"
+        "Lettres",
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues"
       ],
       "admissionModes": [
         "Dossier"
@@ -2616,7 +2640,8 @@
       "formationCode": "1502115J",
       "tracks": [],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences pour la santé"
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -2689,7 +2714,8 @@
       "formationCode": "1501689W",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie"
+        "Chimie",
+        "Physique, chimie"
       ],
       "admissionModes": [
         "Dossier"

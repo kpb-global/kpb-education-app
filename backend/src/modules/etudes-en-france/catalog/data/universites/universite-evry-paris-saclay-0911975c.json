@@ -146,7 +146,8 @@
       "formationCode": "1501731S",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"

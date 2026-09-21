@@ -199,6 +199,58 @@ describe('buildMasterPrograms', () => {
     expect(records[0].admissionModes).toEqual(['Dossier']);
   });
 
+  // Le portail publie `for_lic_conseille` tantôt en tableau de mentions,
+  // tantôt en UNE chaîne jointe par des barres verticales — les deux formes
+  // dans le même jeu. Non découpée, elle produisait une « mention » du genre
+  // « Droit|Economie|Gestion|Toutes licences » : un libellé que personne ne
+  // publie, qu'aucun appariement ne reconnaît, et qui enterrait donc quatre
+  // licences conseillées dans une case introuvable. 501 entrées du catalogue
+  // étaient dans ce cas, dont les 302 qui portent « Toutes licences » —
+  // c'est-à-dire l'information d'admission la plus favorable du jeu.
+  it('découpe les valeurs jointes par des barres verticales', () => {
+    const { records } = buildMasterPrograms(
+      [MENTION],
+      [
+        {
+          ...TRACKS[0],
+          parc_intitule: 'Théorie politique|Politiques comparées',
+          parc_lic_conseille: ['Droit|Economie|Toutes licences'],
+          for_candidature: ['Dossier|Entretien'],
+        },
+      ],
+      BY_PAYSAGE,
+      merges,
+    );
+    expect(records[0].recommendedBachelors).toEqual([
+      'Droit',
+      'Economie',
+      'Toutes licences',
+    ]);
+    expect(records[0].admissionModes).toEqual(['Dossier', 'Entretien']);
+    expect(records[0].tracks).toEqual([
+      'Théorie politique',
+      'Politiques comparées',
+    ]);
+  });
+
+  it('ne dédouble pas une mention servie sous les deux formes', () => {
+    // Un même parcours peut publier « Droit » en tableau et « Droit|Economie »
+    // en chaîne : le découpage précède le dédoublonnage, sinon « Droit »
+    // apparaîtrait deux fois.
+    const { records } = buildMasterPrograms(
+      [MENTION],
+      [
+        {
+          ...TRACKS[0],
+          parc_lic_conseille: ['Droit', 'Droit|Economie'],
+        },
+      ],
+      BY_PAYSAGE,
+      merges,
+    );
+    expect(records[0].recommendedBachelors).toEqual(['Droit', 'Economie']);
+  });
+
   it('prend le premier lien HTTPS publié, et le portail en dernier recours', () => {
     const { records } = buildMasterPrograms([MENTION], TRACKS, BY_PAYSAGE, merges);
     expect(records[0].sourceUrl).toBe(

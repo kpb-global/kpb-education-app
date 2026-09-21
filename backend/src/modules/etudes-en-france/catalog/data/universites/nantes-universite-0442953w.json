@@ -205,7 +205,6 @@
         "Filière de l'Horticulture et Innovation"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre"
       ],
@@ -2084,19 +2083,18 @@
         "Préhistoire et archéosciences"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Histoire|Chimie|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Histoire de l'art et archéologie|Lettres|Histoire|Chimie|Physique|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie",
-        "Histoire de l'art et archéologie|Lettres, langues",
         "Histoire de l'art et archéologie",
+        "Lettres",
         "Histoire",
         "Chimie",
+        "Langues, littératures et civilisations étrangères et régionales",
         "Lettres, langues",
         "Sciences de l'Homme, anthropologie, ethnologie",
         "Sciences de la Terre",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
-        "Lettres",
-        "Langues, littératures et civilisations étrangères et régionales"
+        "Physique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",
@@ -5146,10 +5144,7 @@
         "Discriminations"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Philosophie|Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sciences du langage|Sociologie|Arts du spectacle|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé",
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sociologie|Arts du spectacle|Arts plastiques|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie",
         "Arts",
-        "Histoire de l'art et archéologie",
         "Lettres",
         "Philosophie",
         "Administration publique",
@@ -5178,7 +5173,8 @@
         "Sciences sociales",
         "Théologie",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Histoire de l'art et archéologie"
       ],
       "admissionModes": [
         "Dossier",

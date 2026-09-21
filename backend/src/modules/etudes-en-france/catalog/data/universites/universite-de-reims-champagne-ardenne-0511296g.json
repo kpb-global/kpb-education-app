@@ -113,12 +113,11 @@
         "Mécanique, matériaux et procédés avancés"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences et technologies",
+        "Mécanique",
         "Physique",
         "Sciences pour l'ingénieur",
         "Physique, chimie",
-        "Sciences et technologies",
-        "Mécanique"
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -303,7 +302,9 @@
       "formationCode": "1800283H",
       "tracks": [],
       "recommendedBachelors": [
-        "Mécanique|Sciences pour l'ingénieur|Sciences et technologies"
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -636,7 +637,11 @@
       "formationCode": "1800301C",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Lettres, langues|Humanités"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Lettres, langues",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier",
@@ -1305,7 +1310,9 @@
       "formationCode": "1800303E",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2285,7 +2292,8 @@
       "formationCode": "1800319X",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques"
+        "Informatique",
+        "Mathématiques"
       ],
       "admissionModes": [
         "Dossier",
@@ -2794,7 +2802,9 @@
       "formationCode": "1800056M",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Administration économique et sociale"
+        "Administration publique",
+        "Droit",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -2837,7 +2847,11 @@
       "formationCode": "1800302D",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Science politique|Histoire|Administration économique et sociale|Géographie et aménagement"
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Administration économique et sociale",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",
@@ -3614,7 +3628,8 @@
       "formationCode": "1801013B",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Humanités"
+        "Philosophie",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier",

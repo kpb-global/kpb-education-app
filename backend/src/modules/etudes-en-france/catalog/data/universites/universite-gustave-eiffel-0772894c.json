@@ -73,7 +73,10 @@
         "Technologies des Systèmes d'Information"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Géographie et aménagement"
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"
@@ -252,7 +255,6 @@
         "Innovation Design et Luxe"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion",
         "Gestion",
         "Economie et gestion"
       ],
@@ -282,7 +284,15 @@
         "Management des destinations"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Histoire|Sociologie|Langues étrangères appliquées|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Information-communication"
+        "Economie",
+        "Gestion",
+        "Histoire",
+        "Sociologie",
+        "Langues étrangères appliquées",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier"
@@ -410,7 +420,11 @@
         "Systèmes communicants en environnement complexe"
       ],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique|Sciences et technologies"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"
@@ -658,9 +672,12 @@
         "Modélisation et simulation en Mécanique des Fluides et Transferts Thermiques"
       ],
       "recommendedBachelors": [
-        "Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Génie civil",
+        "Mathématiques",
         "Mécanique",
-        "Physique"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Génie civil"
       ],
       "admissionModes": [
         "Dossier",
@@ -864,7 +881,8 @@
         "Ingénierie de la Maîtrise d’Œuvre Architecturale et Urbaine"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Géographie et aménagement"
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"
@@ -1127,7 +1145,8 @@
         "Environnement et géomatériaux"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Sciences et technologies"
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"
@@ -1196,7 +1215,6 @@
         "Comptabilité-contrôle-audit"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion",
         "Gestion",
         "Economie et gestion"
       ],
@@ -1252,7 +1270,9 @@
       "formationCode": "1501693A",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Informatique",
+        "Mathématiques",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -1691,7 +1711,6 @@
         "Développement et Territoires : ressources, politiques et stratégies"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Histoire|Sociologie|Sciences pour l'ingénieur|Administration économique et sociale|Géographie et aménagement|Sciences sociales|Sciences de la vie et de la Terre",
         "Droit",
         "Economie",
         "Science politique",
@@ -1917,7 +1936,9 @@
         "Data Analyst - Business analytics"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Gestion",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -1963,7 +1984,6 @@
         "Ingénierie de projet en Génie Civil"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Génie civil",
         "Sciences pour l'ingénieur",
         "Génie civil",
         "Sciences et technologies"
@@ -2058,7 +2078,8 @@
         "Intelligence Stratégique, Analyse des Risques et Territoires"
       ],
       "recommendedBachelors": [
-        "Economie et gestion|Information-communication"
+        "Economie et gestion",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier"
@@ -2246,11 +2267,12 @@
         "Physico-Chimie Moléculaire et Applications"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Sciences de la vie et de la Terre",
-        "Chimie|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences et technologies",
         "Chimie",
+        "Physique, chimie",
+        "Sciences de la vie et de la Terre",
         "Physique",
-        "Physique, chimie"
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",

@@ -2069,7 +2069,9 @@
       "formationCode": "1800773R",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

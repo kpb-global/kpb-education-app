@@ -376,7 +376,6 @@
         "Comptabilité-contrôle-audit"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion",
         "Gestion",
         "Economie et gestion"
       ],
@@ -1040,7 +1039,6 @@
         "Développement et Territoires : ressources, politiques et stratégies"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Histoire|Sociologie|Sciences pour l'ingénieur|Administration économique et sociale|Géographie et aménagement|Sciences sociales|Sciences de la vie et de la Terre",
         "Droit",
         "Economie",
         "Science politique",
@@ -2536,7 +2534,6 @@
         "Ingénierie de projet en Génie Civil"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Génie civil",
         "Sciences pour l'ingénieur",
         "Génie civil",
         "Sciences et technologies"
@@ -2901,7 +2898,6 @@
         "Méthodes appliquées de la statistiques et de l'économétrie pour la recherche, l'analyse et le traitement de l'information (MASERATI) - Data-Science"
       ],
       "recommendedBachelors": [
-        "Economie|Economie et gestion",
         "Economie",
         "Economie et gestion",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales"
@@ -3042,7 +3038,6 @@
         "Energétique des bâtiments"
       ],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique|Génie civil|Sciences et technologies",
         "Physique",
         "Sciences pour l'ingénieur",
         "Physique, chimie",
@@ -3675,9 +3670,12 @@
         "Modélisation et simulation en Mécanique des Fluides et Transferts Thermiques"
       ],
       "recommendedBachelors": [
-        "Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Génie civil",
+        "Mathématiques",
         "Mécanique",
-        "Physique"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Génie civil"
       ],
       "admissionModes": [
         "Dossier",
@@ -4165,11 +4163,12 @@
         "Physico-Chimie Moléculaire et Applications"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Sciences de la vie et de la Terre",
-        "Chimie|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences et technologies",
         "Chimie",
+        "Physique, chimie",
+        "Sciences de la vie et de la Terre",
         "Physique",
-        "Physique, chimie"
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -4258,7 +4257,6 @@
         "Innovation Design et Luxe"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion",
         "Gestion",
         "Economie et gestion"
       ],
@@ -4520,7 +4518,8 @@
         "Biologie, Physiopathologie, Pharmacologie du Cœur et de la Circulation (BioCoeur)"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences pour la santé"
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",

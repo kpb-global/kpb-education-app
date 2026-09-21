@@ -238,7 +238,6 @@
         "ÉNERGIE ET MATÉRIAUX AVANCÉS, ÉNERGIE RENOUVELABLE"
       ],
       "recommendedBachelors": [
-        "Physique|Physique, chimie",
         "Physique",
         "Physique, chimie"
       ],
@@ -945,7 +944,8 @@
       "formationCode": "1502371M",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Histoire"
+        "Lettres",
+        "Histoire"
       ],
       "admissionModes": [
         "Dossier",
@@ -973,7 +973,6 @@
         "Biomatériaux pour la santé"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences pour la santé",
         "Sciences de la vie",
         "Sciences pour la santé"
       ],
@@ -1187,7 +1186,6 @@
         "ÉLECTROTECHNIQUE, AUTOMATIQUE APPROFONDIES"
       ],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique",
         "Physique",
         "Sciences pour l'ingénieur",
         "Electronique, énergie électrique, automatique"
@@ -1987,7 +1985,9 @@
       "formationCode": "2000196P",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales"
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2685,7 +2685,8 @@
       "formationCode": "1503263G",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire"
+        "Histoire de l'art et archéologie",
+        "Histoire"
       ],
       "admissionModes": [
         "Dossier"

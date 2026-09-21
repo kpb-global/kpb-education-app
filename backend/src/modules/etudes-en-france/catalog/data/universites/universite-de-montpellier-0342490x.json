@@ -318,7 +318,8 @@
       "formationCode": "1502465P",
       "tracks": [],
       "recommendedBachelors": [
-        "Physique|Electronique, énergie électrique, automatique"
+        "Physique",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"
@@ -341,7 +342,9 @@
       "formationCode": "1501611L",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Sciences de la vie|Sciences pour la santé"
+        "Chimie",
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -384,7 +387,9 @@
       "formationCode": "1502263V",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -427,7 +432,33 @@
       "formationCode": "1501664U",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -508,7 +539,10 @@
       "formationCode": "2100075G",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Mécanique|Physique|Sciences de la vie"
+        "Chimie",
+        "Mécanique",
+        "Physique",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier",
@@ -532,7 +566,33 @@
       "formationCode": "1502786N",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -633,11 +693,10 @@
         "Ecosystèmes"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre",
         "Sciences pour l'ingénieur",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Sciences et technologies"
       ],
       "admissionModes": [
@@ -704,7 +763,33 @@
       "formationCode": "1502374R",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -861,7 +946,15 @@
       "formationCode": "2100079M",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Economie|Sciences de l'éducation|Sciences du langage|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Economie et gestion|Sciences et technologies"
+        "Lettres",
+        "Economie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Economie et gestion",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"
@@ -960,7 +1053,10 @@
       "formationCode": "1502478D",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Sciences pour l'ingénieur|Sciences de la vie|Sciences pour la santé"
+        "Chimie",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1212,7 +1308,8 @@
       "formationCode": "2100072D",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Sciences pour la santé"
+        "Informatique",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1412,7 +1509,9 @@
       "formationCode": "1501067V",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1498,7 +1597,33 @@
       "formationCode": "1501696D",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1546,7 +1671,8 @@
       "formationCode": "1502891C",
       "tracks": [],
       "recommendedBachelors": [
-        "Physique|Physique, chimie"
+        "Physique",
+        "Physique, chimie"
       ],
       "admissionModes": [
         "Dossier"
@@ -1588,7 +1714,13 @@
       "formationCode": "2100068Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Sciences sanitaires et sociales|Géographie et aménagement|Sciences sociales|Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé|Sciences et Humanités"
+        "Sciences sanitaires et sociales",
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé",
+        "Sciences et Humanités"
       ],
       "admissionModes": [
         "Dossier",
@@ -1612,7 +1744,14 @@
       "formationCode": "1501654H",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique|Sciences de la vie|Sciences pour la santé"
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1736,7 +1875,12 @@
       "formationCode": "1502621J",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Sciences sanitaires et sociales|Psychologie|Sociologie|Sciences de l'Homme, anthropologie, ethnologie|Sciences pour la santé"
+        "Administration publique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -1765,18 +1909,18 @@
         "M1 Sciences de l'eau - Eau et agriculture"
       ],
       "recommendedBachelors": [
-        "Sciences sanitaires et sociales|Chimie|Physique|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
+        "Sciences sanitaires et sociales",
+        "Chimie",
+        "Physique",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Droit",
         "Sociologie",
         "Economie et gestion",
-        "Géographie et aménagement",
-        "Sciences de la vie",
-        "Physique",
         "Physique, chimie",
-        "Sciences de la vie et de la Terre",
-        "Chimie",
         "Sciences pour l'ingénieur",
-        "Sciences de la Terre",
         "Sciences et technologies"
       ],
       "admissionModes": [
@@ -1944,7 +2088,33 @@
       "formationCode": "1501140Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -2108,7 +2278,33 @@
       "formationCode": "1502890B",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -2212,7 +2408,9 @@
       "formationCode": "1501477R",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie"
+        "Chimie",
+        "Physique",
+        "Physique, chimie"
       ],
       "admissionModes": [
         "Dossier"
@@ -2702,7 +2900,9 @@
       "formationCode": "1502108B",
       "tracks": [],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé"
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -2805,16 +3005,16 @@
         "DIDACTIQUE DES SCIENCES EXPERIMENTALES ET DES MATHEMATIQUES"
       ],
       "recommendedBachelors": [
-        "Chimie|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur|Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé",
         "Chimie",
         "Informatique",
         "Mathématiques",
         "Physique",
-        "Physique, chimie",
-        "Sciences de la Terre",
+        "Sciences pour l'ingénieur",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Physique, chimie",
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -3070,7 +3270,9 @@
         "Ingénierie pour l’ éco-Conception des Aliments (ICOA)"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences de la vie"
+        "Chimie",
+        "Physique",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier"
@@ -3302,7 +3504,9 @@
       "formationCode": "1502237S",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Sciences de la vie"
+        "Informatique",
+        "Mathématiques",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier"
@@ -3425,7 +3629,18 @@
       "formationCode": "1501783Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Sciences sanitaires et sociales|Psychologie|Chimie|Sciences pour l'ingénieur|Sciences sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Chimie",
+        "Sciences pour l'ingénieur",
+        "Sciences sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -3448,8 +3663,17 @@
       "formationCode": "1501729P",
       "tracks": [],
       "recommendedBachelors": [
-        "Mathématiques|Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie et de la Terre|Sciences et technologies",
-        "Chimie|Physique|Physique, chimie|Electronique, énergie électrique, automatique|Sciences de la Terre|Sciences de la vie"
+        "Mathématiques",
+        "Sciences pour l'ingénieur",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Chimie",
+        "Physique",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences de la Terre",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier"
@@ -3533,7 +3757,9 @@
       "formationCode": "2100076H",
       "tracks": [],
       "recommendedBachelors": [
-        "Géographie et aménagement|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Géographie et aménagement",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -3645,7 +3871,9 @@
         "Commerce des vins"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3688,7 +3916,8 @@
       "formationCode": "1502007S",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Géographie et aménagement"
+        "Informatique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"
@@ -3733,7 +3962,12 @@
         "Commerce et vente en agroalimentaire"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Psychologie|Sociologie|Administration économique et sociale",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Psychologie",
+        "Sociologie",
+        "Administration économique et sociale",
         "Economie et gestion",
         "Sciences sociales"
       ],
@@ -3759,7 +3993,9 @@
       "formationCode": "1501249T",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -3821,7 +4057,9 @@
       "formationCode": "1501391X",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3969,10 +4207,14 @@
         "Economie du développement agricole, de l’environnement et de l’alimentation (Ecodeva)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Psychologie|Sciences pour l'ingénieur|Administration économique et sociale|Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Economie",
+        "Gestion",
+        "Psychologie",
+        "Sciences pour l'ingénieur",
+        "Administration économique et sociale",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Economie et gestion",
-        "Géographie et aménagement",
-        "Economie"
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",
@@ -4060,7 +4302,8 @@
         "Management de projet et innovation en biotechnologie"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences de la vie",
+        "Chimie",
+        "Physique",
         "Sciences de la vie"
       ],
       "admissionModes": [
@@ -4192,7 +4435,33 @@
       "formationCode": "1502491T",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -4513,7 +4782,11 @@
       "formationCode": "1302750H",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [
@@ -4656,7 +4929,9 @@
       "formationCode": "1503249S",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"

@@ -183,8 +183,12 @@
         "GEOGRAPHIE, ENVIRONNEMENT, TERRITOIRES"
       ],
       "recommendedBachelors": [
-        "Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Sciences sociales|Sciences de la vie et de la Terre",
-        "Géographie et aménagement"
+        "Histoire",
+        "Sociologie",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -661,7 +665,6 @@
         "COMMERCE INTERNATIONAL"
       ],
       "recommendedBachelors": [
-        "Droit|Gestion|Langues étrangères appliquées|Administration économique et sociale",
         "Droit",
         "Gestion",
         "Langues étrangères appliquées",
@@ -970,7 +973,6 @@
         "ADMINISTRATION DES SERVICES SANITAIRES ET SOCIAUX"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Histoire|Economie et gestion|Géographie et aménagement|Humanités",
         "Administration publique",
         "Droit",
         "Histoire",
@@ -1344,7 +1346,11 @@
       "formationCode": "1802166E",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts du spectacle|Arts plastiques|Lettres, langues|Humanités|Information-communication"
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Lettres, langues",
+        "Humanités",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -2174,7 +2180,6 @@
         "MANAGEMENT DES ORGANISATIONS ET DES ACTIVITÉS DE SERVICES"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Physique, chimie|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé",
         "Sciences pour l'ingénieur",
         "Physique, chimie",
         "Sciences et techniques des activités physiques et sportives",

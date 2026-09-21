@@ -1019,64 +1019,80 @@ model Institution {
 }
 
 model Program {
-  id                  String    @id @default(cuid())
-  institutionId       String
-  countryId           String
-  fieldId             String
-  nameFr              String
-  nameEn              String
-  levelFr             String
-  levelEn             String
-  durationFr          String
-  durationEn          String
-  tuitionFr           String
-  tuitionEn           String
-  languageFr          String
-  languageEn          String
-  requirementsFr      String[]
-  requirementsEn      String[]
+  id                   String    @id @default(cuid())
+  institutionId        String
+  countryId            String
+  fieldId              String
+  nameFr               String
+  nameEn               String
+  levelFr              String
+  levelEn              String
+  durationFr           String
+  durationEn           String
+  tuitionFr            String
+  tuitionEn            String
+  languageFr           String
+  languageEn           String
+  requirementsFr       String[]
+  requirementsEn       String[]
   // Multi-campus formations (OMNES, and any future school whose programme is
   // delivered on several campuses). Same formation = one Program row; the
   // per-campus price/intake live here instead of duplicating the row.
   // Null for single-campus programs. Shape:
   // [{ campus: string, tuitionUpfront: number|null,
   //    tuitionInstallments: number|null, intake: string|null }]
-  campusOfferings     Json?
+  campusOfferings      Json?
   // ── Match scoring inputs (Phase 0 / P0-D, kit matching_algorithm.md) ──────
   // Nullable on purpose: the scoring service treats a missing value as a
   // neutral 0.5 factor and flags the match `isEstimate`, so no backfill is
   // required to ship. Populating these per program is a catalog/ops task.
   // `tuitionFr/En` above stay the human-readable labels; `tuitionMinEur` is
   // the machine-readable floor used for budget scoring.
-  minGpaRequired      Float?
-  tuitionMinEur       Int?
-  applicationDeadline DateTime?
-  teachingLanguages   String[]  @default([])
+  minGpaRequired       Float?
+  tuitionMinEur        Int?
+  applicationDeadline  DateTime?
+  teachingLanguages    String[]  @default([])
   // ── Écart procédure « Études en France » (migration eef_catalog_procedure_fields)
   // `procedureType` décide du calendrier et du dossier : dap_blanche (L1),
   // eef (L2/L3/master via Campus France), parcoursup (résidents en France),
   // hors_eef. NULL = procédure non qualifiée — c'est le cas des 133 formations
   // France déjà en base, qui relèvent de la procédure directe des écoles.
-  procedureType       String?
+  procedureType        String?
   // Cycle exact : licence1, licence2, licence3, but1, deust, sante,
   // ingenieur, master. NULL = cycle non qualifié (formations hors procédure
   // universitaire). Facetter sur `levelFr` obligerait à découper un libellé
   // rédigé pour être lu.
-  cycle               String?
-  selectivity         String?
-  formationCode       String?
-  campusCity          String?
-  frenchLevelRequired String?
-  applicationFeeEur   Int?
+  cycle                String?
+  selectivity          String?
+  formationCode        String?
+  campusCity           String?
+  frenchLevelRequired  String?
+  applicationFeeEur    Int?
+  // ── Signaux d'admission publiés (migration program_admission_signals) ─────
+  // `recommendedBachelors` : les licences conseillées à l'entrée, telles que
+  // l'établissement les publie — la seule exigence d'admission NOMINATIVE que
+  // les données ouvertes fournissent. « Toutes licences » en fait partie et
+  // dit quelque chose de précis. `admissionModes` : « Dossier », « Entretien »,
+  // « Examen », « Concours ». Ces deux listes portent le classement de la
+  // shortlist, parce que `selectivity` est constante à l'intérieur d'un cycle
+  // et ne classe donc rien.
+  //
+  // `recommendedFieldIds` est l'index matérialisé du premier, par
+  // `resolveFieldId`. Les libellés restent la source de vérité ; la colonne
+  // dérivée est là pour que la requête filtre sans lire toute la table, et
+  // elle est rejouable par `npm run eef:backfill:admission`.
+  recommendedBachelors String[]  @default([])
+  recommendedFieldIds  String[]  @default([])
+  admissionModes       String[]  @default([])
   // Import EEF = lignes INACTIVES en attente de modération. Défaut `true`
   // parce que les lignes déjà en production sont publiées et le restent.
-  isActive            Boolean   @default(true)
-  lastVerifiedAt      DateTime?
-  sourceUrl           String?
-  verifiedById        String?
-  verifiedByName      String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  isActive             Boolean   @default(true)
+  lastVerifiedAt       DateTime?
+  sourceUrl            String?
+  verifiedById         String?
+  verifiedByName       String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   @@index([institutionId])
   @@index([countryId])
@@ -1087,6 +1103,9 @@ model Program {
   @@index([isActive])
   // Couvre le filtre ET l'ordre de la recherche paginée par curseur.
   @@index([isActive, nameFr, id])
+  // Chevauchement de tableaux : « les formations dont la porte d'entrée est
+  // ouverte à l'un de mes domaines ». Un B-tree ne répond pas à `&&`.
+  @@index([recommendedFieldIds], type: Gin)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
