@@ -11,20 +11,24 @@ Rédigé le 20/09/2026.
 
 ## 1. Ce qui est livré
 
-**70 universités publiques françaises, 10 247 formations**, collectées depuis
+**84 établissements publics, 10 502 formations**, collectées depuis
 les données ouvertes de l'État, versionnées dans le dépôt, validées par une
 machine, et importables en base — **inactives**.
 
+Le noyau reste les 70 universités à typologie MESR. Le 21 septembre 2026, quatorze établissements diplômants sans cette typologie ont été ajoutés (universités de technologie, Sciences Po, INALCO, CNAM, EHESS, ENS de Lyon, Muséum, ENSSIB, Arts et Métiers). L'UTTOP n'a pas de formation joignable et n'a pas de fichier. Les profils d'admission Parcoursup 2025 et les logos Commons réutilisables sont décrits dans `backend/src/modules/etudes-en-france/catalog/data/README.md`.
+
 | | |
 |---|---|
-| Établissements | 70 (65 de type « Université », plus 5 classés autrement mais portant une typologie d'université au référentiel : Grenoble Alpes, Côte d'Azur, Lorraine, PSL — passées « grand établissement » avec leur statut expérimental — et l'INU Champollion) |
-| Formations | 10 247 |
-| dont entrée en 1re année | 4 004 (L1, BUT, PASS, DEUST, licence pro, IEP, CMI, IAE, arts, STAPS) |
-| dont 2e et 3e années de licence | 3 131 |
-| dont mentions de master | 3 112 |
-| Par procédure | `eef` 7 125 · `dap_blanche` 3 019 · `dap_jaune` 29 · `hors_eef` 74 |
-| Classement de domaine par repli | 2,16 % (plafond CI : 8 %) |
-| Sources | 5 jeux, toutes en **Licence Ouverte v2.0 (Etalab)** |
+| Établissements | 84 (70 universités à typologie, plus 14 établissements diplômants ajoutés le 21/09/2026) |
+| Formations | 10 502 |
+| dont entrée en 1re année | 4 124 (L1, BUT, PASS, DEUST, IEP, cycles ingénieur) |
+| dont 2e et 3e années de licence | 3 134 |
+| dont mentions de master | 3 244 |
+| Par procédure | `eef` 7 260 · `dap_blanche` 3 133 · `dap_jaune` 29 · `hors_eef` 80 |
+| Classement de domaine par repli | 2,28 % (plafond CI : 8 %) |
+| Profils d'admission Parcoursup 2025 | 3 525 formations |
+| Logos Commons réutilisables | 40 établissements |
+| Sources | jeux MESR en **Licence Ouverte v2.0**, logos sous la licence de chaque fichier |
 
 Le détail des jeux, leurs millésimes et leurs limites sont dans
 `backend/src/modules/etudes-en-france/catalog/data/README.md`.

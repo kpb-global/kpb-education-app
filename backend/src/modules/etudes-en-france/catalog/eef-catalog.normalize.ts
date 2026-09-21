@@ -471,6 +471,28 @@ export function resolveParcoursupShape(
     : base;
 }
 
+/**
+ * La famille « Sciences Po » est unique dans la table, et le libellé ne l'est
+ * pas : la même famille couvre le grade de licence ET le grade de master.
+ * Prendre la famille seule classerait un master en 1re année de licence, donc
+ * en DAP. Le libellé publié dit lequel des deux c'est. On ne devine pas un
+ * master qui ne l'écrit pas.
+ */
+export function refineParcoursupShape(
+  shape: ParcoursupShape,
+  label: string,
+): ParcoursupShape {
+  if (shape.cycle !== 'licence1') return shape;
+  if (!normalizeLabel(label).includes('grade master')) return shape;
+  return {
+    cycle: 'master',
+    level: 'Master',
+    durationYears: 2,
+    procedureType: 'eef',
+    selectivity: 'selective',
+  };
+}
+
 /// Identifiant stable, dérivé d'une clé métier et non d'un rang de ligne.
 /// Une université qui change de nom, un jeu de données qui change d'ordre :
 /// l'id ne bouge pas, donc l'import reste idempotent.

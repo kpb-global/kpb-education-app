@@ -1509,6 +1509,24 @@ class _InstitutionDetailSheet extends StatelessWidget {
                       children: [
                         Row(
                           children: [
+                            if (institution.logoUrl != null) ...[
+                              Container(
+                                width: 40,
+                                height: 40,
+                                margin: const EdgeInsets.only(right: 10),
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Image.network(
+                                  institution.logoUrl!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      const SizedBox.shrink(),
+                                ),
+                              ),
+                            ],
                             Text(_flag(institution.countryId),
                                 style: const TextStyle(fontSize: 32)),
                             const Spacer(),

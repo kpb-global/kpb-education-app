@@ -5,6 +5,7 @@
 // leur applique les portes strictes : c'est lui qui échoue si une collecte
 // rapporte un catalogue amputé, si une source disparaît, ou si un identifiant
 // se met à doubler.
+import { programRequirements } from './eef-catalog.copy';
 import { loadEefCatalog } from './eef-catalog.loader';
 import { planEefImport } from './eef-catalog.importer';
 import { validateEefCatalog } from './eef-catalog.validator';
@@ -27,7 +28,16 @@ describe('catalogue « Études en France » versionné', () => {
     // C'est le cas le plus courant du public visé : un candidat qui a déjà
     // commencé des études chez lui n'entre pas en L1. Parcoursup ne les décrit
     // pas, donc leur absence ne se verrait nulle part sans ce test.
-    const withContinuation = catalog.universities.filter((file) =>
+    //
+    // Les établissements ajoutés hors typologie (UTC, Sciences Po, INALCO…)
+    // n'ont pas un cycle licence complet. Le « au plus une exception » ne
+    // vise que les universités du filtre historique. PSL reste cette exception.
+    const classic = catalog.universities.filter(
+      (file) =>
+        !file.institution.institutionKind
+        || file.institution.institutionKind === 'universite_publique',
+    );
+    const withContinuation = classic.filter((file) =>
       file.programs.some(
         (program) =>
           program.cycle === 'licence2' || program.cycle === 'licence3',
@@ -39,7 +49,7 @@ describe('catalogue « Études en France » versionné', () => {
     // l'université. Le seuil dit « au plus une exception », pour qu'une
     // deuxième fasse échouer le test au lieu de passer inaperçue.
     expect(withContinuation.length).toBeGreaterThanOrEqual(
-      catalog.universities.length - 1,
+      classic.length - 1,
     );
     const total = catalog.universities.reduce(
       (sum, file) =>
@@ -100,6 +110,28 @@ describe('catalogue « Études en France » versionné', () => {
     const plan = planEefImport(catalog, 'france');
     expect(plan.programs.length).toBe(result.stats.programs);
     expect(plan.programs.some((row) => row.isActive)).toBe(false);
+  });
+
+  it('décrit chaque formation et ne fabrique pas de moyenne', () => {
+    let withCohort = 0;
+    let withLogo = 0;
+    for (const file of catalog.universities) {
+      if (file.institution.logo) withLogo += 1;
+      for (const program of file.programs) {
+        if (program.admissionCohort) withCohort += 1;
+        const lines = programRequirements(program);
+        expect(lines[0].fr).toContain(program.nameFr);
+        expect(lines.some((line) => line.fr.includes('Aucune moyenne minimale'))).toBe(
+          true,
+        );
+        expect(lines[0].en.length).toBeGreaterThan(10);
+      }
+    }
+    // Plancher, pas un compte exact : un logo Commons qui change de licence
+    // ou une formation 2026 sans statistique 2025 ne doit pas casser la CI,
+    // une collecte qui n'a plus rien joint, si.
+    expect(withLogo).toBeGreaterThanOrEqual(20);
+    expect(withCohort).toBeGreaterThanOrEqual(1000);
   });
 
   it('ne sert aucune fiche vers un agrégateur', () => {

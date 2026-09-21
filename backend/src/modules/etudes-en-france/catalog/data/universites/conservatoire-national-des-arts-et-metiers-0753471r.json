@@ -1,0 +1,965 @@
+{
+  "institution": {
+    "id": "eef-univ-0753471r",
+    "uai": "0753471R",
+    "nameFr": "Conservatoire national des arts et métiers",
+    "nameEn": "Conservatoire national des arts et métiers",
+    "acronym": "CNAM",
+    "city": "Paris 3e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://www.cnam.fr/",
+    "typology": null,
+    "enrolment": {
+      "count": 2618,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "grand_etablissement",
+    "logo": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/42/CNAM_Logo.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:CNAM_Logo.svg",
+      "licence": "Public domain",
+      "wikidataId": "Q524289",
+      "trademarked": false
+    }
+  },
+  "programs": [
+    {
+      "id": "eef-prog-1088a8f0bd9c2adf",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604794M",
+      "tracks": [
+        "Traitement de l'information et exploitation des données",
+        "Recherche opérationnelle",
+        "Business Intelligence et analytics",
+        "Systèmes critiques - Objets connectés - internet des objets"
+      ],
+      "recommendedBachelors": [
+        "Informatique"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-10cc021fae6bf648",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Économie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900124K",
+      "tracks": [
+        "Stratégies économiques, numériques et données"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://efab.cnam.fr/les-masters-de-l-efab-247973.kjsp?RH=lecefab&RF=cefmast"
+    },
+    {
+      "id": "eef-prog-111cb85e0ddee69c",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900215J",
+      "tracks": [
+        "Mécanique des structures et des systèmes"
+      ],
+      "recommendedBachelors": [
+        "Mécanique"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-16ae3343656f3e49",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Management",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604778U",
+      "tracks": [
+        "Organisation et conduite du changement"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-20f2fe2498f4e4d0",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Management sectoriel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604780W",
+      "tracks": [
+        "Leadership, complexité et management humaniste des établissements et services pour personnes âgées",
+        "Gestion des établissements sanitaires et médico-sociaux"
+      ],
+      "recommendedBachelors": [
+        "Gestion",
+        "Sciences sanitaires et sociales",
+        "Administration publique",
+        "Droit",
+        "Economie et gestion"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formation.cnam.fr/rechercher-par-discipline/master-2-management-humaniste-des-services-et-etablissements-pour-personnes-agees-1176379.kjsp?RF="
+    },
+    {
+      "id": "eef-prog-236819376a4ed143",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Ergonomie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604783Z",
+      "tracks": [
+        "Intervenir en ergonomie",
+        "Conduire une recherche en ergonomie"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://ergonomie.cnam.fr/formation/master_pro.html"
+    },
+    {
+      "id": "eef-prog-29677d7389662000",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Gestion des ressources humaines",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604776S",
+      "tracks": [
+        "Travail et développement social",
+        "Gestion des ressources humaines et transformation numériques",
+        "Gestion des ressources humaines et sociologie du travail"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://innovation.cnam.fr/formations/domaine-des-formations/master-ressources-humaines-et-transformations-numeriques-1085665.kjsp?RH=3761534927091379"
+    },
+    {
+      "id": "eef-prog-29a312da6153a200",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Comptabilité - contrôle - audit",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604770K",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-47a0524e5ead6abc",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Design",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900142E",
+      "tracks": [
+        "Création, projet, transdisciplinarité"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formation.cnam.fr/rechercher-par-discipline/master-arts-lettres-langues-mention-design-parcours-creation-projets-transdisciplinarite-1085664.kjsp?RF="
+    },
+    {
+      "id": "eef-prog-489868b2fb0557d7",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Urbanisme et aménagement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d11",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900152R",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Administration économique et sociale|Géographie et aménagement"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://territoires.cnam.fr/amenagement-et-developpement-des-territoires/"
+    },
+    {
+      "id": "eef-prog-50a9131faf246ffd",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Le Mans",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "317",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=317&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 33,
+        "sansMention": 2,
+        "assezBien": 10,
+        "bien": 16,
+        "tresBien": 5,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 74,
+        "lastCalledRank": 4377
+      }
+    },
+    {
+      "id": "eef-prog-51546239a7318cc2",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Intervention et développement social",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604786C",
+      "tracks": [
+        "Recherche en travail social",
+        "Economie sociale et solidaire"
+      ],
+      "recommendedBachelors": [
+        "Sociologie",
+        "Economie",
+        "Economie et gestion"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-56bca2c902aa8cf5",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Culture et communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2100163C",
+      "tracks": [
+        "Éducation Artistique et Culturelle, Idéation, Dynamiques et Pratiques : Arts et Techniques des Publics, Interactions et Transmission"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Histoire",
+        "Sciences de l'éducation",
+        "Information-communication",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.cnam-inseac.fr/diplome-master-culture-communication-eac"
+    },
+    {
+      "id": "eef-prog-605c651a90dcac15",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Innovation, entreprise et société",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604777T",
+      "tracks": [
+        "Prospective, innovation et disruption (Michel Serres)",
+        "Prospective, innovation et transformations des organisations",
+        "Prospective, innovation et management public"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://innovation.cnam.fr/master-prospective-innovation-et-transformation-des-organisations-813117.kjsp?RH=3761534927091379&RF=1493715651430"
+    },
+    {
+      "id": "eef-prog-6cf314a1a7c36a42",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Le Mans",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "30858",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=30858&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 2,
+        "sansMention": 0,
+        "assezBien": 0,
+        "bien": 2,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 37,
+        "lastCalledRank": 46
+      }
+    },
+    {
+      "id": "eef-prog-7a1a2ba21fbaea77",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Management de l'innovation",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1702700L",
+      "tracks": [
+        "Management de l'innovation et de la conception innovante",
+        "Entrepreneuriat innovant"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-95a74304658e5c50",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Mathématiques appliquées, statistique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604795N",
+      "tracks": [
+        "Statistique du risque pour la finance et l'assurance",
+        "Sciences des données"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-aea612d2ec1deb43",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Psychologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604787D",
+      "tracks": [
+        "Psychologie du travail, santé et parcours professionnels",
+        "Psychologie de l'orientation et du conseil"
+      ],
+      "recommendedBachelors": [
+        "Psychologie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b0309bca0cf4849d",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Réseaux et télécommunication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604796P",
+      "tracks": [
+        "Systèmes de télécommunications mobiles"
+      ],
+      "recommendedBachelors": [
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-b07fc5eccf4c73d2",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Techniques, Patrimoine, Territoires de l'industrie : histoire, valorisation didactique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604350D",
+      "tracks": [
+        "Techniques, Patrimoine, Territoires de l’Industrie : histoire, valorisation, didactique (TPTI)",
+        "Erasmus Mundus TPTI"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.pantheonsorbonne.fr/fr/catalogue-des-formations/master-M/sciences-humaines-et-sociales-SHS/master-techniques-patrimoine-territoires-de-l-industrie-histoire-valorisation-didactique-KBVWWZVE.html"
+    },
+    {
+      "id": "eef-prog-b75c4738ef161d2c",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Electronique, énergie électrique, automatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1501215F",
+      "tracks": [
+        "Technologies et réseaux des télécommunications",
+        "Microsystèmes et capteurs communicants",
+        "Systèmes communicants en environnement complexe"
+      ],
+      "recommendedBachelors": [
+        "Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique|Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=689&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=832754cc707f1277d198126a591e9e29"
+    },
+    {
+      "id": "eef-prog-c2151796064ffba7",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604785B",
+      "tracks": [
+        "Communication, innovation et planning stratégique",
+        "Transition numérique et innovation collaborative"
+      ],
+      "recommendedBachelors": [
+        "Information-communication",
+        "Lettres"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formation.cnam.fr/rechercher-par-discipline/master-communication-innovation-et-planning-strategique-1085681.kjsp?RF=porform&EXT=cnam#RESULTAT"
+    },
+    {
+      "id": "eef-prog-ca9def1f305924c4",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Droit de l'entreprise",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900196P",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://droit.cnam.fr/master-droit-de-l-entreprise-1085610.kjsp?RH=draffaires_dipl&RF=1491311686476"
+    },
+    {
+      "id": "eef-prog-cbb52e23d77f057e",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Contrôle de gestion et audit organisationnel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900186C",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie|Gestion"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-cec5eece1c374915",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Actuariat",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604769J",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie|Mathématiques"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-d21f8a5662d6297f",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Entrepreneuriat et management de projets",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604773P",
+      "tracks": [
+        "Management de projet d'affaires"
+      ],
+      "recommendedBachelors": [
+        "Economie et gestion"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-dc0a0fbeb4983d76",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Finance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604774Q",
+      "tracks": [
+        "Fiance numérique et Fintech",
+        "Ingénierie financière et finance d'entreprise",
+        "Finance de marché et gestion des capitaux",
+        "Gestion de patrimoine"
+      ],
+      "recommendedBachelors": [
+        "Economie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-ddebcfd56df30943",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Gestion de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604775R",
+      "tracks": [
+        "Management de la construction durable et des écoquartiers",
+        "Management des risques (qualité, sécurité, environnement, santé) et RSE",
+        "Organisation et gouvernance du développement durable"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-e42cec5a3253eed7",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Management et commerce international",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604779V",
+      "tracks": [
+        "Relations économique internationales",
+        "Entreprise et mondialisation"
+      ],
+      "recommendedBachelors": [
+        "Economie et gestion",
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://innovation.cnam.fr/formations/licences-masters-doctorats/"
+    },
+    {
+      "id": "eef-prog-e443da0aa776771b",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Humanités numériques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604784A",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://strategies.cnam.fr/master-mega-donnees-et-analyse-sociale-medas--1085595.kjsp?RH=3758259628759575&RF=1526653625025"
+    },
+    {
+      "id": "eef-prog-eb05c7a0c2858735",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "CRIMINOLOGIE",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1404932M",
+      "tracks": [
+        "expertise criminologique"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://strategies.cnam.fr/master-criminologie-securite-defense-renseignement-cybermenaces-1085602.kjsp?RH=3758259628759575&RF=3758259628824740"
+    },
+    {
+      "id": "eef-prog-ed2d1032b87e8ea6",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Géographie, aménagement, environnement et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604793K",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Droit|Géographie et aménagement"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.esgt.cnam.fr/formation/master-foncier/"
+    },
+    {
+      "id": "eef-prog-ee3d634080ed295e",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Génie des procédés et des bio-procédés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604792J",
+      "tracks": [
+        "Ingénierie chimique"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique, chimie"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://gpip.cnam.fr/co/ACCUEILblog.html"
+    },
+    {
+      "id": "eef-prog-f6d0162b26481aa0",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Droit de l'immobilier",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604771M",
+      "tracks": [
+        "Montage d'opérations immobilières"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-f862e1315fecd14c",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Monnaie, banque, finance, assurance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604782Y",
+      "tracks": [
+        "Management de l'assurance"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Mathématiques"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-fadc0d0f2a5f2721",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Audiovisuel, médias interactifs numériques, jeux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604791H",
+      "tracks": [
+        "Jeux et Médias Interactifs Numériques : Ergonomie UX/UI",
+        "Jeux et médias interactifs numériques : Game design",
+        "Jeux et médias interactifs numériques : programmeur",
+        "Jeux et Médias Interactifs Numériques : Game Design",
+        "Jeux et médias interactifs numériques : chef de projet",
+        "Jeux et médias interactifs numériques : concepteur graphique",
+        "Jeux et médias interactifs numériques : Concepteur sonore",
+        "Jeux et médias interactifs numériques : ergonomie"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Concours"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://enjmin.cnam.fr/formations/master-jeux-video/"
+    },
+    {
+      "id": "eef-prog-fba9aae1aa9cdb19",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Management stratégique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900165E",
+      "tracks": [
+        "Stratégie d'entreprise dans un monde multipolaire, digitalisé et chahuté"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-ff245b1af254e1f1",
+      "institutionId": "eef-univ-0753471r",
+      "nameFr": "Marketing, vente",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604781X",
+      "tracks": [
+        "Marketing dans un monde digitalisé",
+        "E-business et marketing"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    }
+  ]
+}
