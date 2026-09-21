@@ -4,6 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CaseLeadMailService } from './case-lead-mail.service';
 import { CasesService } from './cases.service';
 
 function makeService(): CasesService {
@@ -191,6 +192,54 @@ describe('CasesService — referral crediting is fire-and-forget (KPB-77)', () =
       { type: 'study_abroad', title: 'x', description: 'y' } as any,
       'user-1',
     );
+    expect(result.id).toBe('case-1');
+  });
+});
+
+describe('CasesService — commercial lead email', () => {
+  function makeCreateService(leadMail?: CaseLeadMailService) {
+    const prisma = {
+      isEnabled: true,
+      execute: async () => ({ id: 'case-1' }),
+    } as unknown as PrismaService;
+    const push = { sendToUser: async () => {} } as unknown as OneSignalSenderService;
+    const moduleRef = {
+      get: () => ({ creditReferrerForFirstCase: async () => undefined }),
+    } as unknown as ModuleRef;
+    const svc = new CasesService(prisma, moduleRef, push, leadMail);
+    (svc as any).mapDbCase = () => ({ id: 'case-1', assignedAdvisorName: 'KPB' });
+    return svc;
+  }
+
+  it('notifies the three commercials after the case is stored', async () => {
+    const seen: unknown[] = [];
+    const leadMail = {
+      notifyNewCase: async (row: unknown) => {
+        seen.push(row);
+      },
+    } as unknown as CaseLeadMailService;
+
+    const result = await makeCreateService(leadMail).create(
+      { type: 'consultation', title: 'x', description: 'y' } as any,
+      'user-1',
+    );
+
+    expect(result.id).toBe('case-1');
+    expect(seen).toEqual([{ id: 'case-1' }]);
+  });
+
+  it('still returns the created case when the lead email throws', async () => {
+    const leadMail = {
+      notifyNewCase: async () => {
+        throw new Error('smtp down');
+      },
+    } as unknown as CaseLeadMailService;
+
+    const result = await makeCreateService(leadMail).create(
+      { type: 'consultation', title: 'x', description: 'y' } as any,
+      'user-1',
+    );
+
     expect(result.id).toBe('case-1');
   });
 });

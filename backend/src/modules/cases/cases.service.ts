@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -13,6 +14,7 @@ import { InternalRole } from '../../common/enums/internal-role.enum';
 import { OneSignalSenderService } from '../notifications/onesignal-sender.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReferralCreditsService } from '../referrals/referral-credits.service';
+import { CaseLeadMailService } from './case-lead-mail.service';
 import { CaseMessagingGateway } from './case-messaging.gateway';
 import { AssignCaseDto } from './dto/assign-case.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
@@ -46,6 +48,7 @@ export class CasesService {
     private readonly prismaService: PrismaService,
     private readonly moduleRef: ModuleRef,
     private readonly pushService: OneSignalSenderService,
+    @Optional() private readonly leadMail?: CaseLeadMailService,
   ) {}
 
   private broadcastCaseUpdate(caseId: string, payload: Record<string, unknown>) {
@@ -280,6 +283,15 @@ export class CasesService {
           route: `/cases/${created.id}`,
         },
       );
+    }
+    if (this.leadMail) {
+      try {
+        await this.leadMail.notifyNewCase(created);
+      } catch {
+        this.logger.warn(
+          `Commercial lead email failed for case ${created.id}.`,
+        );
+      }
     }
     return mapped;
   }
