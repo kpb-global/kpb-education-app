@@ -251,6 +251,51 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Recherche paginée du catalogue « Études en France ».
+  ///
+  /// PUBLIQUE : aucune session n'est requise. C'est la décision produit
+  /// « catalogue gratuit, accompagnement payant » — chercher sa formation avant
+  /// de créer un compte est précisément ce qui donne une raison d'en créer un.
+  ///
+  /// Les listes partent en valeurs séparées par des virgules. Le serveur
+  /// accepte aussi la forme répétée (`?cycle=a&cycle=b`) ; on retient la
+  /// première parce qu'elle tient dans une URL plus courte, ce qui compte sur
+  /// les réseaux du public visé.
+  ///
+  /// Pas de `try`/`catch` : l'appelant DOIT voir l'échec. Une liste vide rendue
+  /// sur une panne se lirait « aucune formation ne correspond », ce qui est un
+  /// mensonge — et le contrôleur distingue justement les deux.
+  Future<Map<String, dynamic>> searchEefCatalog({
+    String? query,
+    List<String> cycles = const <String>[],
+    List<String> procedureTypes = const <String>[],
+    List<String> fieldIds = const <String>[],
+    List<String> campusCities = const <String>[],
+    List<String> institutionIds = const <String>[],
+    List<String> selectivities = const <String>[],
+    String? cursor,
+    int? limit,
+  }) async {
+    String? csv(List<String> values) =>
+        values.isEmpty ? null : values.join(',');
+
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/etudes-en-france/search',
+      queryParameters: <String, dynamic>{
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (csv(cycles) != null) 'cycle': csv(cycles),
+        if (csv(procedureTypes) != null) 'procedureType': csv(procedureTypes),
+        if (csv(fieldIds) != null) 'fieldId': csv(fieldIds),
+        if (csv(campusCities) != null) 'campusCity': csv(campusCities),
+        if (csv(institutionIds) != null) 'institutionId': csv(institutionIds),
+        if (csv(selectivities) != null) 'selectivity': csv(selectivities),
+        if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
+        if (limit != null) 'limit': limit,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   // ── Liste d'attente Karatou Premium ────────────────────────────────────
 
   /// L'inscription du profil authentifié, ou l'état « pas inscrit ».

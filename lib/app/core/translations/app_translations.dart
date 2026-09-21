@@ -1885,6 +1885,36 @@ class AppTranslations extends Translations {
                   'Parles-en à un conseiller KPB : d\'autres destinations '
                   'restent ouvertes.',
           'eef_pillars_heading': 'Ce que tu pourras faire',
+          // ── Catalogue « Études en France » (Phase 1) ──────────────────
+          'eef_catalog_title': 'Catalogue des universités',
+          'eef_catalog_open': 'Ouvrir le catalogue',
+          'eef_catalog_search_hint': 'Formation, ville…',
+          'eef_catalog_facet_cycle': 'Niveau',
+          'eef_catalog_facet_procedure': 'Procédure',
+          'eef_catalog_result_count': '@count formation(s)',
+          'eef_catalog_empty_title': 'Aucune formation ne correspond',
+          'eef_catalog_empty_body':
+              'Le serveur a bien répondu : c\'est la recherche qui est trop '
+                  'étroite. Retire un filtre ou élargis les mots-clés.',
+          'eef_catalog_empty_action': 'Tout effacer',
+          'eef_catalog_error_network_title': 'Pas de connexion',
+          'eef_catalog_error_server_title': 'Catalogue indisponible',
+          'eef_catalog_error_body':
+              'Rien n\'a pu être demandé au serveur — ce n\'est pas un '
+                  'catalogue vide. Réessaie dans un instant.',
+          'eef_catalog_value_cycle_licence1': 'Licence 1re année',
+          'eef_catalog_value_cycle_licence2': 'Licence 2e année',
+          'eef_catalog_value_cycle_licence3': 'Licence 3e année',
+          'eef_catalog_value_cycle_but1': 'BUT 1re année',
+          'eef_catalog_value_cycle_deust': 'DEUST',
+          'eef_catalog_value_cycle_sante': 'Accès santé',
+          'eef_catalog_value_cycle_ingenieur': 'Cycle ingénieur',
+          'eef_catalog_value_cycle_master': 'Master',
+          'eef_catalog_value_procedureType_dap_blanche': 'DAP dossier blanc',
+          'eef_catalog_value_procedureType_dap_jaune': 'DAP dossier jaune',
+          'eef_catalog_value_procedureType_eef': 'Études en France',
+          'eef_catalog_value_procedureType_parcoursup': 'Parcoursup',
+          'eef_catalog_value_procedureType_hors_eef': 'Hors procédure',
           'eef_pillar_catalog_title': 'Un catalogue dense',
           'eef_pillar_catalog_body':
               'Universités publiques, écoles d\'ingénieurs, BUT, BTS, écoles de '
@@ -4885,6 +4915,36 @@ class AppTranslations extends Translations {
                   'opening does not change that. Talk to a KPB counsellor: '
                   'other destinations remain open.',
           'eef_pillars_heading': 'What you will be able to do',
+          // ── "Études en France" catalogue (Phase 1) ────────────────────
+          'eef_catalog_title': 'University catalogue',
+          'eef_catalog_open': 'Open the catalogue',
+          'eef_catalog_search_hint': 'Programme, city…',
+          'eef_catalog_facet_cycle': 'Level',
+          'eef_catalog_facet_procedure': 'Procedure',
+          'eef_catalog_result_count': '@count programme(s)',
+          'eef_catalog_empty_title': 'No programme matches',
+          'eef_catalog_empty_body':
+              'The server did answer: it is the search that is too narrow. '
+                  'Remove a filter or widen your keywords.',
+          'eef_catalog_empty_action': 'Clear all',
+          'eef_catalog_error_network_title': 'No connection',
+          'eef_catalog_error_server_title': 'Catalogue unavailable',
+          'eef_catalog_error_body':
+              'Nothing could be asked of the server — this is not an empty '
+                  'catalogue. Try again in a moment.',
+          'eef_catalog_value_cycle_licence1': 'Bachelor, year 1',
+          'eef_catalog_value_cycle_licence2': 'Bachelor, year 2',
+          'eef_catalog_value_cycle_licence3': 'Bachelor, final year',
+          'eef_catalog_value_cycle_but1': 'BUT, year 1',
+          'eef_catalog_value_cycle_deust': 'DEUST',
+          'eef_catalog_value_cycle_sante': 'Health studies access',
+          'eef_catalog_value_cycle_ingenieur': 'Engineering programme',
+          'eef_catalog_value_cycle_master': "Master's",
+          'eef_catalog_value_procedureType_dap_blanche': 'DAP, white form',
+          'eef_catalog_value_procedureType_dap_jaune': 'DAP, yellow form',
+          'eef_catalog_value_procedureType_eef': 'Études en France',
+          'eef_catalog_value_procedureType_parcoursup': 'Parcoursup',
+          'eef_catalog_value_procedureType_hors_eef': 'Outside the procedure',
           'eef_pillar_catalog_title': 'A dense catalogue',
           'eef_pillar_catalog_body':
               'Public universities, engineering schools, BUT, BTS, business '

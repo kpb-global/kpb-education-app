@@ -6,6 +6,7 @@ import '../../features/cases/case_create_screen.dart';
 import '../../features/cases/case_detail_screen.dart';
 import '../../features/deadlines/deadline_calendar_screen.dart';
 import '../../features/eligibility/eligibility_simulator_screen.dart';
+import '../../features/etudes_en_france/eef_catalog_screen.dart';
 import '../../features/etudes_en_france/eef_entry.dart';
 import '../../features/orientation/orientation_screen.dart';
 import '../../features/profile/profile_screen.dart';
@@ -77,6 +78,11 @@ class AppRoutes {
   /// les liens profonds et les charges de notification, donc elle porte le même
   /// choix de nom que l'écran.
   static const String etudesEnFrance = '/etudes-en-france';
+
+  /// Le catalogue dense, joignable en lien profond. La notification du jour J
+  /// peut viser directement la recherche plutôt que l'accueil de l'espace :
+  /// sans cette route, elle ne le pourrait pas.
+  static const String etudesEnFranceCatalog = '/etudes-en-france/catalogue';
   static const String saved = '/saved';
   static const String deadlines = '/deadlines';
   static const String alumni = '/alumni';
@@ -144,6 +150,7 @@ class AppRoutes {
       // l'accueil — c'est-à-dire que la campagne s'ouvre sans que personne ne
       // trouve la porte.
       etudesEnFrance,
+      etudesEnFranceCatalog,
       saved,
       deadlines,
       alumni,
@@ -264,6 +271,10 @@ class AppRoutes {
     GetPage(
       name: etudesEnFrance,
       page: () => const EefEntry(source: 'deep_link'),
+    ),
+    GetPage(
+      name: etudesEnFranceCatalog,
+      page: () => const EefCatalogScreen(),
     ),
     GetPage(name: saved, page: () => const SavedScreen()),
     GetPage(name: deadlines, page: () => const DeadlineCalendarScreen()),
