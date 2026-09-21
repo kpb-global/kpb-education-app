@@ -70,7 +70,13 @@ function serviceWith(opts: {
         }));
       },
     },
-    $transaction: async (ps: Promise<unknown>[]) => Promise.all(ps),
+    $transaction: async (
+      ps: Promise<unknown>[],
+      options?: Record<string, unknown>,
+    ) => {
+      captured.calls.push({ kind: 'transaction', ...options });
+      return Promise.all(ps);
+    },
   };
   const prisma = {
     isEnabled: opts.isEnabled ?? true,
@@ -164,7 +170,11 @@ describe('EefSearchService', () => {
     await service.search({
       cursor: encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-1' }),
     });
-    for (const call of captured.calls.filter((c) => c.kind !== 'findMany')) {
+    const reads = captured.calls.filter(
+      (c) => c.kind !== 'findMany' && c.where !== undefined,
+    );
+    expect(reads.length).toBeGreaterThan(0);
+    for (const call of reads) {
       expect((call.where as Record<string, unknown>).AND).toBeUndefined();
     }
     const findMany = captured.calls.find((c) => c.kind === 'findMany')!;

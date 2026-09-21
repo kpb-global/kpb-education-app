@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 
 import { EefSearchService } from './eef-search.service';
+import type { QueryValue } from './eef-search.query';
 
 /**
  * Recherche du catalogue « Études en France ».
@@ -20,17 +21,25 @@ import { EefSearchService } from './eef-search.service';
 export class EefSearchController {
   constructor(private readonly eefSearchService: EefSearchService) {}
 
+  /**
+   * Les paramètres sont typés `QueryValue` — `string | string[]` — parce que
+   * c'est ce qu'Express livre réellement : un paramètre répété
+   * (`?cycle=master&cycle=licence1`) arrive en tableau, et `@Query()` ne
+   * valide rien à l'exécution. Les annoter `string` ne rendait pas la requête
+   * impossible, seulement la panne surprenante : un 500 sur une requête
+   * publique licite.
+   */
   @Get('search')
   search(
-    @Query('q') q?: string,
-    @Query('procedureType') procedureType?: string,
-    @Query('cycle') cycle?: string,
-    @Query('fieldId') fieldId?: string,
-    @Query('institutionId') institutionId?: string,
-    @Query('campusCity') campusCity?: string,
-    @Query('selectivity') selectivity?: string,
-    @Query('cursor') cursor?: string,
-    @Query('limit') limit?: string,
+    @Query('q') q?: QueryValue,
+    @Query('procedureType') procedureType?: QueryValue,
+    @Query('cycle') cycle?: QueryValue,
+    @Query('fieldId') fieldId?: QueryValue,
+    @Query('institutionId') institutionId?: QueryValue,
+    @Query('campusCity') campusCity?: QueryValue,
+    @Query('selectivity') selectivity?: QueryValue,
+    @Query('cursor') cursor?: QueryValue,
+    @Query('limit') limit?: QueryValue,
   ) {
     return this.eefSearchService.search({
       q,

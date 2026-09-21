@@ -75,16 +75,47 @@ export class EefSearchCursorError extends Error {
   }
 }
 
+/**
+ * Ce qu'une requête HTTP peut réellement livrer.
+ *
+ * `string[]` n'est pas une hypothèse : Express rend un TABLEAU dès que le même
+ * paramètre apparaît deux fois — `?cycle=master&cycle=licence1`, qui est la
+ * façon conventionnelle d'envoyer plusieurs valeurs. Le typer `string` ne
+ * l'empêche pas : le décorateur `@Query()` ne valide rien à l'exécution. La
+ * première version l'ignorait, appelait `.split()` sur un tableau, et rendait
+ * **500** sur une requête publique parfaitement licite.
+ */
+export type QueryValue = string | string[] | undefined;
+
 export interface EefSearchInput {
-  readonly q?: string;
-  readonly procedureType?: string;
-  readonly cycle?: string;
-  readonly fieldId?: string;
-  readonly institutionId?: string;
-  readonly campusCity?: string;
-  readonly selectivity?: string;
-  readonly cursor?: string;
-  readonly limit?: string | number;
+  readonly q?: QueryValue;
+  readonly procedureType?: QueryValue;
+  readonly cycle?: QueryValue;
+  readonly fieldId?: QueryValue;
+  readonly institutionId?: QueryValue;
+  readonly campusCity?: QueryValue;
+  readonly selectivity?: QueryValue;
+  readonly cursor?: QueryValue;
+  readonly limit?: QueryValue | number;
+}
+
+/// Un paramètre de liste peut arriver répété ET séparé par des virgules :
+/// `?cycle=master,licence1&cycle=but1`. Les deux formes disent la même chose,
+/// donc on les aplatit plutôt que d'en refuser une — refuser la forme que
+/// n'importe quel client HTTP produit naturellement serait une chausse-trappe.
+function flattenListValue(raw: QueryValue): string[] {
+  if (raw === undefined) return [];
+  return (Array.isArray(raw) ? raw : [raw]).flatMap((part) => part.split(','));
+}
+
+/// Un paramètre SCALAIRE répété (`?cursor=a&cursor=b`) ne veut rien dire. On
+/// retient la première valeur plutôt que de rendre une erreur : le client a
+/// déjà exprimé un choix, et un 400 sur un doublon de curseur renverrait
+/// l'étudiant en haut de liste pour une bizarrerie qui ne change rien.
+function firstScalar(raw: QueryValue | number): string | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw === 'number') return String(raw);
+  return Array.isArray(raw) ? raw[0] : raw;
 }
 
 export interface EefSearchCursor {
@@ -109,12 +140,11 @@ export interface EefSearchParams {
 /// silencieusement rendrait un résultat qui ne correspond pas à la demande.
 function parseList(
   parameter: string,
-  raw: string | undefined,
+  raw: QueryValue,
   allowed: ReadonlySet<string> | null,
 ): string[] {
-  if (!raw) return [];
   const seen = new Set<string>();
-  for (const part of raw.split(',')) {
+  for (const part of flattenListValue(raw)) {
     const value = part.trim();
     if (value === '') continue;
     if (allowed && !allowed.has(value)) {
@@ -156,14 +186,15 @@ export function decodeEefCursor(raw: string): EefSearchCursor {
 }
 
 export function parseEefSearchInput(input: EefSearchInput): EefSearchParams {
+  const rawLimitText = firstScalar(input.limit);
   const rawLimit =
-    typeof input.limit === 'string' ? Number.parseInt(input.limit, 10) : input.limit;
+    rawLimitText === undefined ? Number.NaN : Number.parseInt(rawLimitText, 10);
   const limit =
-    Number.isFinite(rawLimit) && (rawLimit as number) > 0
-      ? Math.min(rawLimit as number, EEF_SEARCH_MAX_LIMIT)
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, EEF_SEARCH_MAX_LIMIT)
       : EEF_SEARCH_DEFAULT_LIMIT;
 
-  const terms = (input.q ?? '')
+  const terms = (firstScalar(input.q) ?? '')
     .split(/\s+/)
     .map((term) => term.trim())
     .filter((term) => term !== '')
@@ -180,7 +211,10 @@ export function parseEefSearchInput(input: EefSearchInput): EefSearchParams {
     institutionIds: parseList('institutionId', input.institutionId, null),
     campusCities: parseList('campusCity', input.campusCity, null),
     selectivities: parseList('selectivity', input.selectivity, KNOWN_SELECTIVITY),
-    cursor: input.cursor ? decodeEefCursor(input.cursor) : null,
+    cursor: (() => {
+      const cursor = firstScalar(input.cursor);
+      return cursor ? decodeEefCursor(cursor) : null;
+    })(),
     limit,
   };
 }

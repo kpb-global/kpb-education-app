@@ -23,6 +23,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import type { PrismaClient } from '@prisma/client';
 
 import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
+import { resolveFranceCountryId } from '../catalog/eef-country';
 import { mapProgram } from '../../catalog/catalog.mapper';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -122,7 +123,13 @@ export class EefSearchService {
             take: OPEN_FACETS.has(facet) ? OPEN_FACET_LIMIT + 1 : undefined,
           } as never),
         ),
-      ]);
+      ], {
+        // `READ COMMITTED`, l'isolation par défaut de Postgres, donne à CHAQUE
+        // instruction son propre instantané : une publication survenue entre
+        // le total et les facettes rendrait une réponse qui se contredit.
+        // `RepeatableRead` fait tenir la promesse que la transaction affiche.
+        isolationLevel: 'RepeatableRead',
+      });
       return { rows, total, facetRows };
     });
 
@@ -168,12 +175,11 @@ export class EefSearchService {
   }
 
   /**
-   * Le pays, résolu par son CODE et non écrit en dur.
-   *
-   * Même motif que l'import : `countryId` n'est pas une clé étrangère, et deux
-   * identifiants de la France coexistent en base selon le semeur qui a écrit
-   * la ligne. En coder un ferait rendre zéro résultat sur un catalogue plein,
-   * ce qu'aucun test hors production ne verrait.
+   * Le pays, résolu par son CODE et non écrit en dur — et par la règle
+   * PARTAGÉE avec l'import (`eef-country.ts`), qui accepte alpha-2 comme
+   * alpha-3. La règle vivait ici en double de l'import, et c'est pour cela que
+   * l'erreur — ne chercher que « FR » alors que le référentiel écrit « FRA » —
+   * existait en double.
    */
   private async resolveCountryId(): Promise<string> {
     const rows = await this.run((prisma) =>
@@ -182,9 +188,13 @@ export class EefSearchService {
         select: { id: true, code: true },
       }),
     );
-    const matches = rows.filter((row) => row.code.toUpperCase() === 'FR');
-    if (matches.length !== 1) throw catalogUnavailable('eef-search-country');
-    return matches[0].id;
+    try {
+      return resolveFranceCountryId(rows);
+    } catch {
+      // Le catalogue n'a nulle part où se rattacher : c'est une indisponibilité
+      // de service, pas une requête fautive.
+      throw catalogUnavailable('eef-search-country');
+    }
   }
 
   private async run<T>(

@@ -82,6 +82,41 @@ describe('parseEefSearchInput', () => {
   });
 });
 
+describe('paramètres répétés — la forme qu\u2019Express livre vraiment', () => {
+  // Régression : `?cycle=master&cycle=licence1` arrive en TABLEAU, `.split()`
+  // levait un TypeError non attrapé, et une requête publique parfaitement
+  // licite rendait 500 au lieu de 400.
+  it('aplatit un paramètre de liste répété', () => {
+    expect(
+      parseEefSearchInput({ cycle: ['master', 'licence1'] }).cycles,
+    ).toEqual(['master', 'licence1']);
+  });
+
+  it('accepte le mélange des deux formes', () => {
+    expect(
+      parseEefSearchInput({ cycle: ['master,licence1', 'but1'] }).cycles,
+    ).toEqual(['master', 'licence1', 'but1']);
+  });
+
+  it('valide chaque valeur d\u2019un tableau comme celles d\u2019une liste', () => {
+    expect(() => parseEefSearchInput({ cycle: ['master', 'doctorat'] })).toThrow(
+      EefSearchParamError,
+    );
+  });
+
+  it('retient la première valeur d\u2019un paramètre scalaire répété', () => {
+    expect(parseEefSearchInput({ limit: ['5', '50'] }).limit).toBe(5);
+    expect(parseEefSearchInput({ q: ['droit', 'ignoré'] }).terms).toEqual([
+      'droit',
+    ]);
+    const cursor = encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-1' });
+    expect(parseEefSearchInput({ cursor: [cursor, 'bruit'] }).cursor).toEqual({
+      nameFr: 'L1 - Droit',
+      id: 'p-1',
+    });
+  });
+});
+
 describe('curseur', () => {
   it('fait l’aller-retour, y compris sur un intitulé à accents et virgules', () => {
     const cursor = {

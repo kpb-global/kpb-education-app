@@ -158,6 +158,13 @@ déclaration d'intérêt, qui lui est authentifié au niveau de la classe.
 | `cursor` | opaque | rendu par la page précédente |
 | `limit` | entier | défaut 20, plafond 50 |
 
+Chaque paramètre de liste accepte les **deux formes** : séparée par des
+virgules (`?cycle=master,licence1`) et répétée (`?cycle=master&cycle=licence1`).
+Express livre la seconde sous forme de tableau ; les refuser serait une
+chausse-trappe, puisque c'est la forme que produisent naturellement les clients
+HTTP. Un paramètre scalaire répété (`?cursor=a&cursor=b`) retient la première
+valeur.
+
 Une valeur hors référentiel fermé rend **400 `EEF_SEARCH_BAD_PARAM`**, avec le
 paramètre fautif et les valeurs admises. L'ignorer silencieusement ferait
 afficher des compteurs qui ne correspondent pas à la demande. Un
@@ -206,9 +213,11 @@ fait donc pas tomber à zéro le compte des licences : l'étudiant voit toujours
 ce qu'il obtiendrait en changeant d'avis, sans avoir à défaire son filtre. Le
 total, lui, tient compte de tous les filtres.
 
-Page, total et facettes sont lus dans **une seule transaction** : servis
-séparément, ils décriraient deux instants différents — « 1 240 résultats »
-au-dessus d'une liste qui en montre d'autres.
+Page, total et facettes sont lus dans **une seule transaction**, en isolation
+`RepeatableRead` : servis séparément — ou même dans une transaction
+`READ COMMITTED`, où chaque instruction a son propre instantané — ils
+décriraient deux instants différents, « 1 240 résultats » au-dessus d'une liste
+qui en montre d'autres.
 
 `campusCity` et `institutionId` ont des dizaines de valeurs : les 20 plus
 fournies sont rendues, et `facetsTruncated` le dit.
@@ -220,8 +229,11 @@ n'existe aucun échantillon « Études en France », et en fabriquer un servirai
 des formations qui n'existent pas. Base indisponible ⇒ **503
 `CATALOG_UNAVAILABLE`**, dans tous les environnements.
 
-La route ne sert que des lignes **relues** (`isActive = true`) et rattachées au
-pays de code `FR`, résolu en base et jamais écrit en dur.
+La route ne sert que des lignes **relues** (`isActive = true`) et rattachées à
+la France, résolue en base par son **code** — `FRA` comme `FR`, le référentiel
+M5 étant en ISO 3166-1 alpha-3 — et jamais par un identifiant écrit en dur. La
+règle est partagée avec l'import (`eef-country.ts`) : elle vivait en double, et
+c'est pour cela que l'erreur y vivait aussi.
 
 ## Espace « Études en France » (Phase 0)
 
