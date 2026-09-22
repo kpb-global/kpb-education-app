@@ -20,6 +20,7 @@
 // EXACTEMENT ce que `--apply` écrira. Un dry-run qui emprunte un autre chemin
 // que l'apply ne prouve rien.
 // ─────────────────────────────────────────────────────────────────────────────
+import { commonsRasterDisplayUrl } from './eef-catalog.admission';
 import {
   INSTITUTION_LANGUAGE_REQUIREMENTS,
   LANGUAGE_NOTICE,
@@ -162,7 +163,9 @@ export function planEefImport(
       uaiCode: institution.uai,
       websiteUrl: institution.websiteUrl,
       sourceUrl: institution.sourceUrl,
-      logoUrl: institution.logo?.url ?? null,
+      logoUrl: institution.logo
+        ? commonsRasterDisplayUrl(institution.logo.url)
+        : null,
       logoSourceUrl: institution.logo?.sourceUrl ?? null,
       logoLicence: institution.logo?.licence ?? null,
     });

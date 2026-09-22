@@ -121,10 +121,12 @@ describe('planInstitutionLogoBackfill', () => {
       logoLicence: null,
     });
     expect(plan.write).toEqual({
-      logoUrl: INSTITUTION.logo?.url,
+      logoUrl: plannedInstitution.logoUrl,
       logoSourceUrl: INSTITUTION.logo?.sourceUrl,
       logoLicence: INSTITUTION.logo?.licence,
     });
+    expect(plan.write?.logoUrl).toContain('/thumb/');
+    expect(plan.write?.logoUrl).toMatch(/\.png$/);
   });
 
   it('n’écrase pas un logo déjà saisi, même incomplet', () => {

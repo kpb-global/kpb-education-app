@@ -5,7 +5,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/utils/commons_logo.dart';
 import '../../core/utils/country_utils.dart';
+import '../../core/utils/external_link.dart';
 import '../../core/utils/study_level.dart';
 import '../../core/utils/tuition_utils.dart';
 import '../cases/case_composer_sheet.dart';
@@ -1471,6 +1473,9 @@ class _InstitutionDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const score = 85; // Mock score for now
+    final logoUrl = commonsRasterDisplayUrl(institution.logoUrl);
+    final showLogoCredit = logoRequiresAttribution(institution.logoLicence) &&
+        isOpenableWebUrl(institution.logoSourceUrl);
 
     return DraggableScrollableSheet(
       expand: false,
@@ -1509,7 +1514,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            if (institution.logoUrl != null) ...[
+                            if (logoUrl != null) ...[
                               Container(
                                 width: 40,
                                 height: 40,
@@ -1519,11 +1524,14 @@ class _InstitutionDetailSheet extends StatelessWidget {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Image.network(
-                                  institution.logoUrl!,
+                                child: KpbNetworkImage(
+                                  imageUrl: logoUrl,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) =>
-                                      const SizedBox.shrink(),
+                                  width: 32,
+                                  height: 32,
+                                  targetWidth: 40,
+                                  decorative: false,
+                                  errorIcon: Icons.account_balance_outlined,
                                 ),
                               ),
                             ],
@@ -1551,6 +1559,24 @@ class _InstitutionDetailSheet extends StatelessWidget {
                           style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8)),
                         ),
+                        if (showLogoCredit) ...[
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => kpbOpenExternalUrlString(
+                              institution.logoSourceUrl,
+                            ),
+                            child: Text(
+                              'Logo · ${institution.logoLicence} · Wikimedia Commons',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.75),
+                                fontSize: 11,
+                                decoration: TextDecoration.underline,
+                                decorationColor:
+                                    Colors.white.withValues(alpha: 0.75),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

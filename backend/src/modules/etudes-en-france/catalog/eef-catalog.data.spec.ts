@@ -134,6 +134,24 @@ describe('catalogue « Études en France » versionné', () => {
     expect(withCohort).toBeGreaterThanOrEqual(1000);
   });
 
+  it('n’importe aucun logo SVG brut : Flutter ne les décode pas', () => {
+    const plan = planEefImport(catalog, 'france');
+    for (const row of plan.institutions) {
+      if (!row.logoUrl) continue;
+      expect(row.logoUrl.toLowerCase()).not.toMatch(/\.svg(\?|$)/);
+      expect(row.logoUrl).toMatch(/wikimedia\.org/);
+    }
+  });
+
+  it('n’accepte aucune licence non commerciale sur un logo versionné', () => {
+    for (const file of catalog.universities) {
+      const licence = file.institution.logo?.licence;
+      if (!licence) continue;
+      expect(licence.toLowerCase()).not.toMatch(/\bnc\b/);
+      expect(licence.toLowerCase()).not.toContain('noncommercial');
+    }
+  });
+
   it('ne sert aucune fiche vers un agrégateur', () => {
     // Les sources autorisées sont les portails de l'État et les sites des
     // établissements. Un agrégateur ne prouve rien et meurt sans prévenir.

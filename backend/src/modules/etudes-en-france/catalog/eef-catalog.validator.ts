@@ -23,6 +23,7 @@
 //   ses universités entre deux collectes n'est pas un catalogue plus petit,
 //   c'est une collecte cassée.
 // ─────────────────────────────────────────────────────────────────────────────
+import { logoLicenceAllowsCommercialReuse } from './eef-catalog.admission';
 import {
   EEF_CYCLES,
   EEF_INSTITUTION_KINDS,
@@ -47,16 +48,6 @@ const KNOWN_CYCLES = new Set<string>(EEF_CYCLES);
 const KNOWN_PROCEDURES = new Set<string>(EEF_PROCEDURE_TYPES);
 const KNOWN_KINDS = new Set<string>(EEF_INSTITUTION_KINDS);
 
-function logoLicenceAllowed(licence: string): boolean {
-  const normalized = licence.trim().toLowerCase();
-  return (
-    normalized.includes('public domain')
-    || normalized.includes('cc0')
-    || normalized.startsWith('cc by')
-    || normalized.startsWith('cc-by')
-  );
-}
-
 function validateLogo(where: string, logo: EefLogo, errors: string[]) {
   if (!isHttpsUrl(logo.url) || !logo.url.includes('wikimedia.org')) {
     errors.push(`${where} : logo hors Wikimedia (${logo.url}).`);
@@ -64,7 +55,7 @@ function validateLogo(where: string, logo: EefLogo, errors: string[]) {
   if (!isHttpsUrl(logo.sourceUrl) || !logo.sourceUrl.includes('wikimedia.org')) {
     errors.push(`${where} : page source du logo absente ou non HTTPS.`);
   }
-  if (!logoLicenceAllowed(logo.licence)) {
+  if (!logoLicenceAllowsCommercialReuse(logo.licence)) {
     errors.push(
       `${where} : licence de logo non réutilisable commercialement (${logo.licence}).`,
     );

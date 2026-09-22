@@ -7,6 +7,7 @@ import type {
   ScholarshipCycle,
 } from '@prisma/client';
 
+import { commonsRasterDisplayUrl } from '../etudes-en-france/catalog/eef-catalog.admission';
 import { ORIENTATION_FIELDS } from '../orientation/orientation-fields.data';
 
 // AI-resilience metadata lives in the orientation field referential (not the
@@ -128,7 +129,7 @@ export function mapInstitution(row: Institution) {
     intakePeriods: row.intakePeriods,
     programIds: row.programIds,
     isPartner: row.isPartner,
-    logoUrl: row.logoUrl,
+    logoUrl: row.logoUrl ? commonsRasterDisplayUrl(row.logoUrl) : row.logoUrl,
     logoSourceUrl: row.logoSourceUrl,
     logoLicence: row.logoLicence,
     lastVerifiedAt: row.lastVerifiedAt,

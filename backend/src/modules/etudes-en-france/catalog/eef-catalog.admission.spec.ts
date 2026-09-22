@@ -1,6 +1,7 @@
 import { admissionGuidance } from './eef-catalog.copy';
 import {
   cohortFromParcoursupRow,
+  commonsRasterDisplayUrl,
   logoFromCommons,
 } from './eef-catalog.admission';
 import type { EefProgramRecord } from './eef-catalog.types';
@@ -134,5 +135,53 @@ describe('logoFromCommons', () => {
     expect(
       logoFromCommons({ ...base, licence: 'Copyrighted', restrictions: '' }),
     ).toBeNull();
+  });
+
+  it('refuse CC BY-NC même si la chaîne commence par CC BY', () => {
+    expect(
+      logoFromCommons({ ...base, licence: 'CC BY-NC 4.0', restrictions: '' }),
+    ).toBeNull();
+    expect(
+      logoFromCommons({
+        ...base,
+        licence: 'CC BY-NC-SA 4.0',
+        restrictions: '',
+      }),
+    ).toBeNull();
+    expect(
+      logoFromCommons({
+        ...base,
+        licence: 'Creative Commons Attribution-NonCommercial 4.0',
+        restrictions: '',
+      }),
+    ).toBeNull();
+  });
+
+  it('garde CC BY et CC BY-SA', () => {
+    expect(
+      logoFromCommons({ ...base, licence: 'CC BY 4.0', restrictions: '' })?.licence,
+    ).toBe('CC BY 4.0');
+    expect(
+      logoFromCommons({ ...base, licence: 'CC BY-SA 3.0', restrictions: '' })
+        ?.licence,
+    ).toBe('CC BY-SA 3.0');
+  });
+});
+
+describe('commonsRasterDisplayUrl', () => {
+  it('laisse un PNG ou un JPEG inchangé', () => {
+    const png =
+      'https://upload.wikimedia.org/wikipedia/commons/6/6d/Logo_Reims_University.png';
+    expect(commonsRasterDisplayUrl(png)).toBe(png);
+  });
+
+  it('pointe le PNG miniature Commons d’un SVG', () => {
+    expect(
+      commonsRasterDisplayUrl(
+        'https://upload.wikimedia.org/wikipedia/commons/c/c6/Universit%C3%A4t_Artois_Logo.svg',
+      ),
+    ).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Universit%C3%A4t_Artois_Logo.svg/320px-Universit%C3%A4t_Artois_Logo.svg.png',
+    );
   });
 });

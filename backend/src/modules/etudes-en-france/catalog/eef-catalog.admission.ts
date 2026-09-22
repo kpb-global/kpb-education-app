@@ -72,8 +72,50 @@ export function formationCodeOfRow(row: Record<string, unknown>): string {
   return String(row.cod_aff_form ?? '').trim();
 }
 
-const COMMERCIAL_LICENCE =
-  /public domain|\bcc0\b|\bcc[ -]?by\b/i;
+/**
+ * Licences Commons qui autorisent la réutilisation commerciale.
+ *
+ * `CC BY-NC` commence par `CC BY` : un préfixe ou `\bcc[ -]?by\b` l'accepte
+ * alors que l'usage commercial est interdit. On refuse donc NC (et les
+ * formulations « noncommercial ») AVANT d'accepter BY / BY-SA / CC0 / PD.
+ */
+export function logoLicenceAllowsCommercialReuse(licence: string): boolean {
+  const normalized = licence.trim().toLowerCase().replace(/_/g, ' ');
+  if (
+    /\bnc\b/.test(normalized)
+    || normalized.includes('noncommercial')
+    || normalized.includes('non-commercial')
+    || normalized.includes('non commercial')
+  ) {
+    return false;
+  }
+  if (normalized.includes('public domain') || /\bcc0\b/.test(normalized)) {
+    return true;
+  }
+  return /\bcc[ -]?by(?:[ -]?sa)?\b/.test(normalized);
+}
+
+/**
+ * Flutter et le codec raster d'`Image.network` ne décodent pas le SVG.
+ * Commons publie un PNG miniature pour chaque SVG : on s'en sert à l'affichage,
+ * le fichier source (et sa page) restent la référence de licence.
+ */
+export function commonsRasterDisplayUrl(
+  fileUrl: string,
+  width = 320,
+): string {
+  const cleaned = fileUrl.split('?')[0] ?? fileUrl;
+  if (!/\.svg$/i.test(cleaned)) return fileUrl;
+  const match = cleaned.match(
+    /^https:\/\/upload\.wikimedia\.org\/wikipedia\/([^/]+)\/([0-9a-f])\/([0-9a-f]{2})\/([^/?#]+)$/i,
+  );
+  if (!match) return fileUrl;
+  const [, project, hash1, hash2, filename] = match;
+  return (
+    `https://upload.wikimedia.org/wikipedia/${project}/thumb/`
+    + `${hash1}/${hash2}/${filename}/${width}px-${filename}.png`
+  );
+}
 
 /**
  * Métadonnées Commons (`extmetadata`). Null si la licence n'est pas
@@ -86,7 +128,7 @@ export function logoFromCommons(input: {
   readonly licence: string;
   readonly restrictions: string;
 }): EefLogo | null {
-  if (!COMMERCIAL_LICENCE.test(input.licence)) return null;
+  if (!logoLicenceAllowsCommercialReuse(input.licence)) return null;
   if (!input.fileUrl.startsWith('https://') || !input.fileUrl.includes('wikimedia.org')) {
     return null;
   }
