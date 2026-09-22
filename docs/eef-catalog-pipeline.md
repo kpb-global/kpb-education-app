@@ -262,6 +262,8 @@ npm run verify:eef
 # En production, dans le conteneur api
 docker compose exec -T api npm run eef:import:dry-run
 docker compose exec -T api npm run eef:import
+docker compose exec -T api npm run eef:backfill -- --dry-run
+docker compose exec -T api npm run eef:backfill -- --apply
 ```
 
 `eef:import` est **création seule** : une ligne dont l'identifiant existe déjà
@@ -270,8 +272,13 @@ main. Le compteur s'appelle `existingNotUpdated` et non `skipped` — le dépôt
 appris que « sauté : 34 » se lit « rien à faire » alors qu'il veut dire
 « 34 lignes potentiellement périmées » (`docs/catalog-verification-sop.md`).
 
-Il n'existe **pas encore** de `eef:reconcile`, équivalent de
-`catalog:reconcile` pour les bourses. Tant qu'il manque, une correction
-apportée aux fichiers du dépôt n'atteint pas une ligne déjà créée en base.
-C'est acceptable pour un premier import — il n'y a rien à réaligner — et ça ne
-le sera plus au deuxième.
+`eef:backfill` est l'acte distinct pour le catalogue 1.2 : il pose le logo
+Commons (si les trois colonnes sont encore vides) et réécrit description +
+repère d'admission sur les formations encore inactives, jamais vérifiées, et
+dont la prose de procédure est encore celle de l'import. Il n'écrit ni
+`isActive` ni `lastVerifiedAt`.
+
+Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
+`catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs
+nouveaux de cette version. Une correction d'intitulé ou de procédure dans le
+dépôt n'atteint toujours pas une ligne déjà créée.

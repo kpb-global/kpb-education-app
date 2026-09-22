@@ -31,6 +31,7 @@
     "verify:eef": "ts-node scripts/validate-eef-catalog.ts",
     "eef:import:dry-run": "ts-node scripts/import-eef-catalog.ts --dry-run",
     "eef:import": "ts-node scripts/import-eef-catalog.ts --apply",
+    "eef:backfill": "ts-node scripts/backfill-eef-enrichment.ts",
     "scholarships:validate:structure": "ts-node scripts/validate-scholarship-catalog.ts --structure-only",
     "scholarships:validate:merge-gate": "ts-node scripts/validate-scholarship-catalog.ts --structure-only --ignore-clock",
     "verify:scholarships": "ts-node scripts/validate-scholarship-catalog.ts",

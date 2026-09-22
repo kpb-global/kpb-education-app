@@ -146,12 +146,15 @@ npm run eef:validate:structure  # porte rapide de CI
 npm run verify:eef              # portes strictes (volume, repli, sources)
 npm run eef:import:dry-run      # ce qui SERAIT créé, en lisant la base
 npm run eef:import              # --apply, créations seules, lignes inactives
+npm run eef:backfill -- --dry-run  # logos + repère d'admission sur l'existant
+npm run eef:backfill -- --apply
 ```
 
 `eef:fetch` réécrit `universites/` de zéro : une université disparue du
 référentiel disparaît du dépôt. `eef:import` ne met **jamais** à jour une ligne
 existante — une correction faite dans l'admin ne doit pas être écrasée par une
-collecte.
+collecte. `eef:backfill` comble ensuite logo (colonnes encore nulles) et
+exigences (lignes encore inactives et non vérifiées) sans publier.
 
 ## Ce qui reste à faire sur ces données
 
