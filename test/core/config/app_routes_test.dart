@@ -65,6 +65,23 @@ void main() {
       expect(AppRoutes.normalizeExternalRoute('/scholarships/a/b'), isNull);
     });
 
+    test('normalizes a Parcours story route (weekly push)', () {
+      expect(
+        AppRoutes.normalizeExternalRoute('/parcours/awa-diallo-medecine'),
+        '/parcours/awa-diallo-medecine',
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute('  /parcours/awa-diallo '),
+        '/parcours/awa-diallo',
+      );
+      expect(
+        AppRoutes.parcoursDetailPath('awa diallo'),
+        '/parcours/awa%20diallo',
+      );
+      expect(AppRoutes.normalizeExternalRoute('/parcours/'), isNull);
+      expect(AppRoutes.normalizeExternalRoute('/parcours/a/b'), isNull);
+    });
+
     test('normalizes Success Lab list and workspace routes', () {
       expect(
         AppRoutes.normalizeExternalRoute(AppRoutes.successLab),
@@ -193,6 +210,8 @@ void main() {
       expect(names, contains(AppRoutes.successLabSchedule));
       expect(names, contains(AppRoutes.successLabSubmission));
       expect(names, contains(AppRoutes.successLabOutcome));
+      // Le push hebdomadaire « récit de la semaine » vise `/parcours/<slug>`.
+      expect(names, contains(AppRoutes.parcoursDetail));
       // High-intent re-engagement targets (KPB-63).
       for (final route in [
         AppRoutes.orientation,
@@ -215,7 +234,7 @@ void main() {
       // Le catalogue a sa propre route, pour la même raison : une notification
       // peut viser la recherche elle-même plutôt que l'accueil de l'espace.
       expect(names, contains(AppRoutes.etudesEnFranceCatalog));
-      expect(names.length, equals(23));
+      expect(names.length, equals(24));
     });
   });
 }

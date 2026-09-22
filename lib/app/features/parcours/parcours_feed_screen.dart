@@ -34,10 +34,15 @@ class ParcoursFeedScreen extends StatefulWidget {
     super.key,
     required this.stories,
     this.initialIndex = 0,
+    this.analyticsSource = parcoursFeedSource,
   });
 
   final List<ParcoursStory> stories;
   final int initialIndex;
+
+  /// Surface tag for view/completion events. 'feed' by default; a push or
+  /// deep link passes its own so those opens are not counted as feed traffic.
+  final String analyticsSource;
 
   @override
   State<ParcoursFeedScreen> createState() => _ParcoursFeedScreenState();
@@ -67,7 +72,7 @@ class _ParcoursFeedScreenState extends State<ParcoursFeedScreen> {
     AnalyticsService.instance.logParcoursView(
       slug: story.slug,
       kind: story.isVideo ? 'video' : 'text',
-      source: parcoursFeedSource,
+      source: widget.analyticsSource,
     );
   }
 
@@ -119,6 +124,7 @@ class _ParcoursFeedScreenState extends State<ParcoursFeedScreen> {
             // disposed instead of being recycled with a stale video id.
             key: ValueKey(story.slug),
             story: story,
+            analyticsSource: widget.analyticsSource,
             isCurrent: index == _index,
             position: index + 1,
             total: widget.stories.length,
@@ -135,12 +141,14 @@ class _FeedPage extends StatefulWidget {
   const _FeedPage({
     super.key,
     required this.story,
+    required this.analyticsSource,
     required this.isCurrent,
     required this.position,
     required this.total,
   });
 
   final ParcoursStory story;
+  final String analyticsSource;
   final bool isCurrent;
   final int position;
   final int total;
@@ -204,7 +212,7 @@ class _FeedPageState extends State<_FeedPage> {
       AnalyticsService.instance.logParcoursComplete(
         slug: widget.story.slug,
         kind: 'video',
-        source: parcoursFeedSource,
+        source: widget.analyticsSource,
       );
     }
   }
@@ -213,7 +221,7 @@ class _FeedPageState extends State<_FeedPage> {
     Get.to(
       () => ParcoursStoryScreen(
         story: widget.story,
-        analyticsSource: parcoursFeedSource,
+        analyticsSource: widget.analyticsSource,
       ),
     );
   }

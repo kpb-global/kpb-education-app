@@ -86,8 +86,8 @@ class MockApiClient extends Mock implements AppApiClient {
 ///
 /// L'observable est `listParcoursStories()`, appelé par
 /// `AppController.fetchParcoursStories()` juste après son portillon
-/// `if (!AppConfig.enableRemoteSync) return;`
-/// (lib/app/core/controllers/app_controller/parcours.dart:69, appel :80).
+/// `if (!AppConfig.enableRemoteSync) return false;`
+/// (lib/app/core/controllers/app_controller/parcours.dart:73, appel :85).
 ///
 /// Ce chemin-là et pas `syncRemoteData` : `syncRemoteData` enchaîne des dizaines
 /// d'appels, des délais de repli et une file d'attente, et ne se termine JAMAIS
