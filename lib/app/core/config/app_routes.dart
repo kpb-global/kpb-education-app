@@ -9,6 +9,8 @@ import '../../features/eligibility/eligibility_simulator_screen.dart';
 import '../../features/etudes_en_france/eef_catalog_screen.dart';
 import '../../features/etudes_en_france/eef_entry.dart';
 import '../../features/orientation/orientation_screen.dart';
+import '../../features/parcours/parcours_link_screen.dart';
+import '../../features/parcours/parcours_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/salon/salon_screen.dart';
 import '../../features/saved/saved_screen.dart';
@@ -47,6 +49,15 @@ class AppRoutes {
       '/success-lab/:workspaceId/submission';
   static const String successLabOutcome = '/success-lab/:workspaceId/outcome';
   static const String _successLabPrefix = '/success-lab/';
+
+  /// Un récit Parcours (vidéo ou texte) par son slug. Le push hebdomadaire
+  /// « récit de la semaine » vise `/parcours/<slug>` : sans cette route,
+  /// `normalizeExternalRoute` la rejetait et l'élève restait sur l'accueil.
+  static const String parcoursDetail = '/parcours/:slug';
+  static const String _parcoursPrefix = '/parcours/';
+
+  static String parcoursDetailPath(String slug) =>
+      '$_parcoursPrefix${Uri.encodeComponent(slug)}';
 
   static String scholarshipDetailPath(String id) =>
       '$_scholarshipPrefix${Uri.encodeComponent(id)}';
@@ -122,6 +133,12 @@ class AppRoutes {
       return '$_scholarshipPrefix$scholarshipId';
     }
 
+    if (route.startsWith(_parcoursPrefix)) {
+      final slug = route.substring(_parcoursPrefix.length);
+      if (slug.isEmpty || slug.contains('/')) return null;
+      return '$_parcoursPrefix$slug';
+    }
+
     if (route.startsWith(_successLabPrefix)) {
       final tail = route.substring(_successLabPrefix.length);
       final segments = tail.split('/');
@@ -193,6 +210,14 @@ class AppRoutes {
           scholarshipId: scholarshipId,
           initialScholarship: initial is LiveScholarshipModel ? initial : null,
         );
+      },
+    ),
+    GetPage(
+      name: parcoursDetail,
+      page: () {
+        final slug = Get.parameters['slug'];
+        if (slug == null || slug.isEmpty) return const ParcoursScreen();
+        return ParcoursLinkScreen(slug: slug);
       },
     ),
     // Success Lab stays a pushed, deep-linkable workflow. It deliberately does
