@@ -761,7 +761,7 @@ class AppTranslations extends Translations {
               '• Resend (États-Unis) : e-mails transactionnels et campagnes\n'
               '• Mautic (outil d\'emailing auto-hébergé par KPB) pour la newsletter bourses, uniquement si vous y avez consenti\n'
               '• PayDunya et CinetPay : intentions de paiement si vous souscrivez un accompagnement payant\n'
-              '• Nos conseillers internes pour le suivi de vos dossiers, et nos conseillers et notre équipe commerciale pour les déclarations d\'intérêt que vous avez faites\n'
+              '• Nos conseillers internes pour le suivi de vos dossiers, et notre équipe commerciale pour les déclarations d\'intérêt que vous avez faites. Dès qu\'une demande de dossier est déposée, les coordonnées du compte (nom, e-mail, téléphone, WhatsApp et, le cas échéant, le contact du responsable légal) sont envoyées par e-mail aux commerciaux actifs\n'
               '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
               '• Les autorités compétentes si la loi l\'exige',
           'privacy_transfers_body':
@@ -3896,7 +3896,7 @@ class AppTranslations extends Translations {
               '• Resend (United States): transactional and campaign email\n'
               '• Mautic (email tool self-hosted by KPB) for the scholarship newsletter, only if you opted in\n'
               '• PayDunya and CinetPay: payment intents if you buy paid accompaniment\n'
-              '• Our internal advisors for case follow-up, and our counsellors and sales team for the interest declarations you made\n'
+              '• Our internal advisors for case follow-up, and our sales team for the interest declarations you made. When a case request is submitted, the account contact details (name, email, phone, WhatsApp and, where provided, the guardian contact) are emailed to the active sales team\n'
               '• Institutional partners (universities) only with your explicit agreement when you submit a case\n'
               '• Competent authorities if the law requires it',
           'privacy_transfers_body':

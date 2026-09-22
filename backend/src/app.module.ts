@@ -21,6 +21,7 @@ import { StudentAuthGuard } from './common/guards/student-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AdminCasesController } from './modules/cases/admin-cases.controller';
 import { CasesController } from './modules/cases/cases.controller';
+import { CaseLeadMailService } from './modules/cases/case-lead-mail.service';
 import { CasesService } from './modules/cases/cases.service';
 import { CaseMessagingGateway } from './modules/cases/case-messaging.gateway';
 import { CaseReassignmentCronService } from './modules/cases/case-reassignment-cron.service';
@@ -251,6 +252,7 @@ import { SalonService } from './modules/salon/salon.service';
     AuthService,
     SupabaseAuthService,
     AppointmentsService,
+    CaseLeadMailService,
     CasesService,
     CaseMessagingGateway,
     CaseReassignmentCronService,

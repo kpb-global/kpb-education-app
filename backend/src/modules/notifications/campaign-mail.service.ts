@@ -15,7 +15,12 @@ export class CampaignMailService {
     return Boolean(process.env.RESEND_API_KEY?.trim());
   }
 
-  async send(to: string, subject: string, text: string): Promise<boolean> {
+  async send(
+    to: string,
+    subject: string,
+    text: string,
+    options?: { replyTo?: string },
+  ): Promise<boolean> {
     const resendKey = process.env.RESEND_API_KEY?.trim();
     if (!resendKey) return false;
 
@@ -24,6 +29,15 @@ export class CampaignMailService {
       process.env.KPB_MAGIC_LINK_FROM?.trim() ??
       'KPB Education <noreply@kpbeducation.cloud>';
 
+    const replyTo = options?.replyTo?.trim();
+    const payload: Record<string, unknown> = {
+      from,
+      to: [to],
+      subject,
+      text,
+    };
+    if (replyTo) payload.reply_to = replyTo;
+
     try {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -31,12 +45,7 @@ export class CampaignMailService {
           Authorization: `Bearer ${resendKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          from,
-          to: [to],
-          subject,
-          text,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         this.logger.error(
