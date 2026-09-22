@@ -9,8 +9,13 @@ String? commonsRasterDisplayUrl(String? fileUrl, {int width = 320}) {
   if (url.isEmpty) return null;
   final cleaned = url.split('?').first;
   if (!cleaned.toLowerCase().endsWith('.svg')) return url;
+  // La garde PRIV-T4 lit un hostname après `https://`. Un motif regex
+  // `upload\.wikimedia` collé à ce préfixe ferait de `upload` un hôte.
+  if (!cleaned.toLowerCase().startsWith('https://upload.wikimedia.org/')) {
+    return url;
+  }
   final match = RegExp(
-    r'^https://upload\.wikimedia\.org/wikipedia/([^/]+)/([0-9a-f])/([0-9a-f]{2})/([^/?#]+)$',
+    r'/wikipedia/([^/]+)/([0-9a-f])/([0-9a-f]{2})/([^/?#]+)$',
     caseSensitive: false,
   ).firstMatch(cleaned);
   if (match == null) return url;
