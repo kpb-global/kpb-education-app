@@ -9,8 +9,8 @@
 //
 // L'observable est le compteur d'appels à `listParcoursStories()`, l'unique appel
 // réseau de `fetchParcoursStories()`, placé juste après son portillon
-// `if (!AppConfig.enableRemoteSync) return;`
-// (lib/app/core/controllers/app_controller/parcours.dart:69). Portillon fermé →
+// `if (!AppConfig.enableRemoteSync) return false;`
+// (lib/app/core/controllers/app_controller/parcours.dart:73). Portillon fermé →
 // compteur à 0 ; ouvert → au moins 1. Deux états, aucun recouvrement.
 //
 // Pourquoi pas `syncRemoteData`, le chemin « évident » : il ne se termine jamais

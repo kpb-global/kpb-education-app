@@ -52,7 +52,11 @@ mixin _ParcoursMixin on _AppControllerBase {
 
   /// Hydrate the Parcours stories from the offline cache, then refresh from the
   /// backend catalog when online. Safe to call repeatedly.
-  Future<void> fetchParcoursStories({bool force = false}) async {
+  ///
+  /// Returns true only when this call actually asked the backend (whatever the
+  /// outcome), so a caller can tell a cache-only answer from a network one and
+  /// avoid re-issuing a request that just failed.
+  Future<bool> fetchParcoursStories({bool force = false}) async {
     // 1. Offline-first: hydrate from Hive cache if we have nothing yet.
     if (_parcoursStories.isEmpty && CatalogCacheService.isInitialized) {
       final cached = CatalogCacheService.instance.read(_parcoursCacheKey);
@@ -66,11 +70,11 @@ mixin _ParcoursMixin on _AppControllerBase {
       }
     }
 
-    if (!AppConfig.enableRemoteSync) return;
-    if (isLoadingParcours) return;
+    if (!AppConfig.enableRemoteSync) return false;
+    if (isLoadingParcours) return false;
     if (!force && _parcoursStories.isNotEmpty) {
       // Already populated this session; skip redundant network call.
-      return;
+      return false;
     }
 
     isLoadingParcours = true;
@@ -105,5 +109,6 @@ mixin _ParcoursMixin on _AppControllerBase {
       isLoadingParcours = false;
       update();
     }
+    return true;
   }
 }

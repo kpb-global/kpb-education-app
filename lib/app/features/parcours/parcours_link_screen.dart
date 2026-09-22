@@ -46,10 +46,27 @@ class _ParcoursLinkScreenState extends State<ParcoursLinkScreen> {
     return null;
   }
 
+  /// Waits for a catalog load already in flight (bounded). True when there
+  /// was one, i.e. the backend has just been asked.
+  Future<bool> _awaitInFlightLoad() async {
+    if (!_ctrl.isLoadingParcours) return false;
+    final deadline = DateTime.now().add(const Duration(seconds: 30));
+    while (_ctrl.isLoadingParcours && DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    return true;
+  }
+
   Future<void> _resolve() async {
     var story = _fromCatalog();
+    var askedBackend = false;
     if (story == null) {
-      await _ctrl.fetchParcoursStories();
+      // Cold start from the push: Home may already be loading the catalog, and
+      // a second call would return at once without waiting for it.
+      askedBackend = await _awaitInFlightLoad();
+      if (!askedBackend) {
+        askedBackend = await _ctrl.fetchParcoursStories();
+      }
       story = _fromCatalog();
     }
     if (story == null) {
@@ -60,7 +77,9 @@ class _ParcoursLinkScreenState extends State<ParcoursLinkScreen> {
         // Best-effort: fall through to the forced refresh.
       }
     }
-    if (story == null) {
+    // Only when the first call stopped at the cache: re-issuing a request that
+    // just failed would keep the spinner up for another full network timeout.
+    if (story == null && !askedBackend) {
       await _ctrl.fetchParcoursStories(force: true);
       story = _fromCatalog();
     }
@@ -80,7 +99,9 @@ class _ParcoursLinkScreenState extends State<ParcoursLinkScreen> {
     }
     final story = _story;
     if (story == null) return const ParcoursScreen();
-    if (story.isVideo) return ParcoursFeedScreen(stories: [story]);
+    if (story.isVideo) {
+      return ParcoursFeedScreen(stories: [story], analyticsSource: _source);
+    }
     return ParcoursStoryScreen(story: story, analyticsSource: _source);
   }
 }
