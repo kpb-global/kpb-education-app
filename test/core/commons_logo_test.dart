@@ -31,10 +31,13 @@ void main() {
       expect(logoRequiresAttribution('CC BY-SA 3.0'), isTrue);
     });
 
-    test('n’exige rien pour le domaine public, CC0, ou l’absence de licence', () {
-      expect(logoRequiresAttribution('Public domain'), isFalse);
-      expect(logoRequiresAttribution('CC0'), isFalse);
-      expect(logoRequiresAttribution(null), isFalse);
-    });
+    test(
+      'n’exige rien pour le domaine public, CC0, ou l’absence de licence',
+      () {
+        expect(logoRequiresAttribution('Public domain'), isFalse);
+        expect(logoRequiresAttribution('CC0'), isFalse);
+        expect(logoRequiresAttribution(null), isFalse);
+      },
+    );
   });
 }
