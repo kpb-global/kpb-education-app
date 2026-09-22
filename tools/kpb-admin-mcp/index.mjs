@@ -191,6 +191,56 @@ const SOURCES = {
       .map((a) => ({ id: a.id, label: label(a) })),
 };
 
+// ── Garde-fous communs au brouillon ET à l'envoi ────────────────────────────
+// Un brouillon vit 24 h : l'heure, le plafond et les doublons doivent être
+// revérifiés au moment de l'envoi, sur l'état relu à cet instant. Sinon un
+// brouillon fait à 19 h 59 partirait après 20 h, et deux brouillons faits
+// avant le premier envoi annonceraient tous deux le même contenu.
+const DAY = 86_400_000;
+// Instant où la campagne atteint réellement les élèves (anciennes entrées :
+// `sentAt`). Une campagne échouée n'a atteint personne : elle ne compte pas.
+const deliveredAt = (s) => Date.parse(s.deliverAt ?? s.sentAt);
+const countsAsBroadcast = (s) => s.broadcast && s.status !== 'failed';
+
+function broadcastsNear(state, at) {
+  // Toute fenêtre de 7 jours qui contient `at` doit rester sous le plafond :
+  // on compte donc les diffusions à moins de 7 jours AVANT ou APRÈS.
+  return state.sends.filter((s) => countsAsBroadcast(s) && Math.abs(deliveredAt(s) - at) < 7 * DAY).length;
+}
+
+function guardrailProblems(d, state) {
+  const problems = [];
+  if (!routeIsNavigable(d.route)) {
+    problems.push(
+      `Route « ${d.route} » non navigable dans l'app : l'élève atterrirait sur l'accueil. ` +
+        `Routes valides : ${[...KNOWN_ROUTES].join(', ')}, /scholarships/<id>, /parcours/<slug>.`,
+    );
+  }
+  const sendAt = d.scheduledFor ? new Date(d.scheduledFor) : new Date();
+  if (sendAt.getTime() < Date.now() - 60_000) {
+    problems.push(`scheduledFor ${sendAt.toISOString()} est déjà passé.`);
+  }
+  const broadcast = d.audienceType !== 'single_user';
+  const near = broadcastsNear(state, sendAt.getTime());
+  if (broadcast && near >= MAX_BROADCASTS_7D) {
+    problems.push(
+      `Plafond atteint : ${near} diffusions à moins de 7 jours de ${sendAt.toISOString()} (max ${MAX_BROADCASTS_7D}). ` +
+        "Regrouper les annonces ou décaler. Les pushs automatiques du backend s'ajoutent déjà à ceux-ci.",
+    );
+  }
+  const already = d.contentIds.filter((id) => state.announced.includes(id));
+  if (already.length) problems.push(`Contenu déjà annoncé : ${already.join(', ')}.`);
+  const h = sendAt.getUTCHours();
+  const quiet = QUIET_START_UTC > QUIET_END_UTC ? h >= QUIET_START_UTC || h < QUIET_END_UTC : h >= QUIET_START_UTC && h < QUIET_END_UTC;
+  if (quiet) {
+    problems.push(
+      `Envoi à ${sendAt.toISOString()} dans la fenêtre de silence (${QUIET_START_UTC} h–${QUIET_END_UTC} h UTC). ` +
+        'Fournir un scheduledFor en journée (idéal : 12 h–13 h ou 17 h–19 h UTC).',
+    );
+  }
+  return problems;
+}
+
 // ── Serveur ─────────────────────────────────────────────────────────────────
 const server = new McpServer({ name: 'kpb-admin', version: '1.0.0' });
 
@@ -292,10 +342,14 @@ server.registerTool(
   },
   tool(async ({ limit }) => {
     const state = loadState();
-    const since = Date.now() - 7 * 86_400_000;
-    const last7d = state.sends.filter((s) => Date.parse(s.sentAt) > since && s.broadcast).length;
+    const now = Date.now();
+    const last7d = state.sends.filter(
+      (s) => countsAsBroadcast(s) && deliveredAt(s) > now - 7 * DAY && deliveredAt(s) <= now,
+    ).length;
+    const upcoming = state.sends.filter((s) => countsAsBroadcast(s) && deliveredAt(s) > now).length;
     return ok({
       broadcastsLast7Days: last7d,
+      scheduledUpcoming: upcoming,
       maxBroadcastsPer7Days: MAX_BROADCASTS_7D,
       sends: state.sends.slice(-limit).reverse(),
     });
@@ -357,35 +411,10 @@ server.registerTool(
     },
   },
   tool(async (d) => {
-    const problems = [];
-    const warnings = [];
-    if (!routeIsNavigable(d.route)) {
-      problems.push(
-        `Route « ${d.route} » non navigable dans l'app : l'élève atterrirait sur l'accueil. ` +
-          `Routes valides : ${[...KNOWN_ROUTES].join(', ')}, /scholarships/<id>, /parcours/<slug>.`,
-      );
-    }
     const state = loadState();
     const broadcast = d.audienceType !== 'single_user';
-    const since = Date.now() - 7 * 86_400_000;
-    const recent = state.sends.filter((s) => Date.parse(s.sentAt) > since && s.broadcast).length;
-    if (broadcast && recent >= MAX_BROADCASTS_7D) {
-      problems.push(
-        `Plafond atteint : ${recent} diffusions ces 7 derniers jours (max ${MAX_BROADCASTS_7D}). ` +
-          "Regrouper les annonces ou attendre. Les pushs automatiques du backend s'ajoutent déjà à ceux-ci.",
-      );
-    }
-    const already = d.contentIds.filter((id) => state.announced.includes(id));
-    if (already.length) problems.push(`Contenu déjà annoncé : ${already.join(', ')}.`);
-    const sendAt = d.scheduledFor ? new Date(d.scheduledFor) : new Date();
-    const h = sendAt.getUTCHours();
-    const quiet = QUIET_START_UTC > QUIET_END_UTC ? h >= QUIET_START_UTC || h < QUIET_END_UTC : h >= QUIET_START_UTC && h < QUIET_END_UTC;
-    if (quiet) {
-      problems.push(
-        `Envoi à ${sendAt.toISOString()} dans la fenêtre de silence (${QUIET_START_UTC} h–${QUIET_END_UTC} h UTC). ` +
-          'Fournir un scheduledFor en journée (idéal : 12 h–13 h ou 17 h–19 h UTC).',
-      );
-    }
+    const problems = guardrailProblems(d, state);
+    const warnings = [];
     if (d.audienceType === 'all_users') warnings.push('all_users inclut les comptes parents et partenaires — préférer all_students sauf intention explicite.');
     for (const lang of ['fr', 'en']) {
       if (/[A-Z]{6,}/.test(d.title[lang] + d.body[lang])) warnings.push(`Majuscules en rafale dans le texte ${lang}.`);
@@ -465,6 +494,10 @@ server.registerTool(
     if (Date.now() - Date.parse(draft.createdAt) > 24 * 3_600_000) {
       return fail('Brouillon de plus de 24 h : refaire un brouillon (audience et contenu ont pu changer).');
     }
+    const problems = guardrailProblems(draft, state);
+    if (problems.length) {
+      return fail(`Envoi refusé, les garde-fous ne passent plus :\n- ${problems.join('\n- ')}`);
+    }
 
     const template = await api('POST', '/admin/notifications/templates', {
       name: `[agent] ${draft.name}`.slice(0, 120),
@@ -483,10 +516,18 @@ server.registerTool(
       ...(draft.scheduledFor ? { scheduledFor: draft.scheduledFor } : {}),
     });
 
-    delete state.drafts[draftId];
-    state.announced.push(...draft.contentIds);
+    // Une campagne immédiate qui n'atteint aucun appareil revient `failed`.
+    // Personne n'a rien reçu : on ne marque pas le contenu comme annoncé et on
+    // garde le brouillon pour réessayer une fois la cause corrigée.
+    const failed = campaign.status === 'failed';
+    const now = new Date().toISOString();
+    if (!failed) {
+      delete state.drafts[draftId];
+      state.announced.push(...draft.contentIds);
+    }
     state.sends.push({
-      sentAt: new Date().toISOString(),
+      sentAt: now,
+      deliverAt: draft.scheduledFor ?? now,
       draftId,
       name: draft.name,
       reason: draft.reason,
@@ -500,6 +541,12 @@ server.registerTool(
       status: campaign.status,
     });
     saveState(state);
+    if (failed) {
+      return fail(
+        `Campagne ${campaign.id} créée mais ÉCHOUÉE : aucun appareil atteint. Contenu NON marqué comme annoncé, ` +
+          `brouillon ${draftId} conservé. Vérifier kpb_campaign_stats et les journaux du conteneur api (OneSignal) avant de réessayer.`,
+      );
+    }
     return ok({
       campaignId: campaign.id,
       status: campaign.status,
