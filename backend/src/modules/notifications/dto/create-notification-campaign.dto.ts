@@ -4,6 +4,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
 } from 'class-validator';
 
@@ -48,4 +49,20 @@ export class CreateNotificationCampaignDto {
   @IsOptional()
   @IsString()
   linkedCaseId?: string | null;
+
+  /**
+   * Écran ouvert au tap, sous la forme d'une route interne de l'app
+   * (`/scholarships/<id>`, `/parcours/<slug>`, `/etudes-en-france`…).
+   *
+   * Sans elle, une campagne « nouvelle bourse » ouvrait l'accueil : l'élève
+   * devait retrouver seul la bourse annoncée. L'app normalise la route et
+   * retombe sur l'accueil si elle n'est pas navigable.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  @Matches(/^\/[A-Za-z0-9\-_/]*$/, {
+    message: 'route doit être une route interne commençant par « / ».',
+  })
+  route?: string | null;
 }

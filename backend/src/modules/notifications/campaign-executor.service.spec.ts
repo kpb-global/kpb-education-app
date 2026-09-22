@@ -19,6 +19,7 @@ describe('CampaignExecutorService', () => {
     recipients?: Array<{ id: string; preferredLanguage: string }>;
     audienceType?: string;
     filters?: Record<string, unknown>;
+    route?: string | null;
   }) {
     const recipients = options.recipients ?? [
       { id: 'u1', preferredLanguage: 'fr' },
@@ -33,6 +34,7 @@ describe('CampaignExecutorService', () => {
       filters: options.filters ?? {},
       channels: options.channels,
       linkedCaseId: null,
+      route: options.route ?? null,
       status: 'sending',
     };
     let campaignStatus = campaign.status;
@@ -84,9 +86,18 @@ describe('CampaignExecutorService', () => {
       tryExecute: async (fn: (c: typeof client) => unknown) => fn(client),
     } as unknown as PrismaService;
 
+    const pushData: Array<Record<string, unknown> | undefined> = [];
     const push = {
       isConfigured: true,
-      sendToUser: async () => options.pushOk ?? true,
+      sendToUser: async (
+        _userId: string,
+        _title: string,
+        _body: string,
+        data?: Record<string, unknown>,
+      ) => {
+        pushData.push(data);
+        return options.pushOk ?? true;
+      },
     } as unknown as OneSignalSenderService;
     const mail = { isEnabled: false } as unknown as CampaignMailService;
 
@@ -95,6 +106,7 @@ describe('CampaignExecutorService', () => {
       deliveries: () => deliveries,
       status: () => campaignStatus,
       profileQueries: () => profileQueries,
+      pushData: () => pushData,
     };
   }
 
@@ -110,6 +122,24 @@ describe('CampaignExecutorService', () => {
     await h.service.execute('c1');
     expect(h.status()).toBe('completed');
     expect(h.deliveries().every((d) => d.status === 'delivered')).toBe(true);
+  });
+
+  // Une campagne « nouvelle bourse » ouvrait l'accueil au tap : l'élève devait
+  // retrouver seul la bourse annoncée.
+  it('transmet la route de la campagne au push, pour ouvrir le bon écran', async () => {
+    const h = makeService({
+      channels: ['push'],
+      template: TEMPLATE,
+      route: '/scholarships/abc',
+    });
+    await h.service.execute('c1');
+    expect(h.pushData().every((d) => d?.route === '/scholarships/abc')).toBe(true);
+  });
+
+  it('sans route, n’en invente pas (l’app ouvre l’accueil)', async () => {
+    const h = makeService({ channels: ['push'], template: TEMPLATE });
+    await h.service.execute('c1');
+    expect(h.pushData().every((d) => d && !('route' in d))).toBe(true);
   });
 
   // Le défaut central : 2 destinataires, 0 livré, badge vert.

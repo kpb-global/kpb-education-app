@@ -18,7 +18,7 @@ function executorAudiences(): Set<string> {
     join(__dirname, 'campaign-executor.service.ts'),
     'utf8',
   );
-  const start = source.indexOf('private async resolveRecipients');
+  const start = source.indexOf('async resolveRecipients(');
   expect(start).toBeGreaterThan(-1);
   const body = source.slice(start);
   return new Set(

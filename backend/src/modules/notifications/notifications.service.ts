@@ -16,6 +16,7 @@ import {
 } from './campaign-audience';
 import { CampaignExecutorService } from './campaign-executor.service';
 import { CreateNotificationCampaignDto } from './dto/create-notification-campaign.dto';
+import { PreviewCampaignAudienceDto } from './dto/preview-campaign-audience.dto';
 import { UpsertNotificationTemplateDto } from './dto/upsert-notification-template.dto';
 
 interface TemplateTitle {
@@ -165,6 +166,8 @@ export class NotificationsService {
         scheduledFor: item.scheduledFor?.toISOString() ?? null,
         status: item.status,
         linkedCaseId: item.linkedCaseId,
+        route: item.route,
+        createdAt: item.createdAt.toISOString(),
       })),
     };
   }
@@ -182,6 +185,7 @@ export class NotificationsService {
       (input['scheduledFor'] as string | null | undefined) ?? null;
     const linkedCaseId =
       (input['linkedCaseId'] as string | null | undefined) ?? null;
+    const route = (input['route'] as string | null | undefined) ?? null;
     // Un canal de contenu SANS modèle ne peut rien envoyer : l'exécuteur garde
     // ses deux boucles derrière `&& template`. La campagne partait quand même,
     // n'envoyait rien, et s'affichait « terminée ». Or « aucun modèle » est le
@@ -226,6 +230,7 @@ export class NotificationsService {
           scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
           status: initialStatus,
           linkedCaseId,
+          route,
         },
       }),
     );
@@ -274,6 +279,32 @@ export class NotificationsService {
       scheduledFor: final.scheduledFor?.toISOString() ?? null,
       status: final.status,
       linkedCaseId: final.linkedCaseId,
+      route: final.route,
+    };
+  }
+
+  /**
+   * Combien de comptes une campagne toucherait, SANS rien envoyer.
+   *
+   * Même résolution que l'exécuteur (même échec fermé sur filtre manquant) :
+   * un aperçu qui compterait autrement que l'envoi mentirait précisément au
+   * moment où l'exploitant décide.
+   */
+  async previewAudience(input: PreviewCampaignAudienceDto) {
+    this.assertDb();
+    const audienceType = input.audienceType ?? 'all_students';
+    const filters = input.filters ?? {};
+    const filterMissing = audienceFilterMissing(audienceType, filters);
+    const recipients = filterMissing
+      ? []
+      : await this.campaignExecutor.resolveRecipients(audienceType, filters);
+    const fr = recipients.filter((r) => r.preferredLanguage !== 'en').length;
+    return {
+      audienceType,
+      filters,
+      filterMissing,
+      recipients: recipients.length,
+      byLanguage: { fr, en: recipients.length - fr },
     };
   }
 
