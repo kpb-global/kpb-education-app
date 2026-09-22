@@ -133,6 +133,15 @@ async function main(): Promise<void> {
       ? '\nLignes créées INACTIVES : elles attendent la file de vérification.'
       : '\nRien écrit.',
   );
+  if (summary.institutionsExistingNotUpdated + summary.programsExistingNotUpdated > 0) {
+    console.log(
+      apply
+        ? '\nDes lignes existaient déjà : `eef:import` ne les a pas réalignées. '
+          + 'Pour y poser logos et repère d\'admission : npm run eef:backfill -- --dry-run'
+        : '\nDes lignes existantes ne seraient pas mises à jour. '
+          + 'Logos et repère d\'admission : npm run eef:backfill -- --dry-run',
+    );
+  }
 }
 
 main()

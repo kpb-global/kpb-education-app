@@ -2,8 +2,8 @@
   "catalogVersion": "1.2.0",
   "generatedAt": "2026-09-20T19:38:37.279Z",
   "countryId": "france",
-  "institutionCount": 70,
-  "programCount": 10247,
+  "institutionCount": 84,
+  "programCount": 10502,
   "sources": [
     {
       "dataset": "parcoursup",
@@ -64,6 +64,16 @@
       "vintage": "2024",
       "fetchedAt": "2026-09-20T19:38:37.279Z",
       "rowCount": 3265
+    },
+    {
+      "dataset": "parcoursup",
+      "datasetId": "fr-esr-parcoursup",
+      "portal": "https://data.enseignementsup-recherche.gouv.fr",
+      "licence": "Licence Ouverte v2.0 (Etalab)",
+      "query": "session=2025 and cod_aff_form in (formations Parcoursup du catalogue)",
+      "vintage": "2025",
+      "fetchedAt": "2026-09-21T20:40:39.246Z",
+      "rowCount": 3525
     }
   ]
 }

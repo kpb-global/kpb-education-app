@@ -1,0 +1,103 @@
+{
+  "institution": {
+    "id": "eef-univ-0130221v",
+    "uai": "0130221V",
+    "nameFr": "Sciences Po Aix",
+    "nameEn": "Sciences Po Aix",
+    "acronym": "IEP Aix",
+    "city": "Aix-en-Provence",
+    "department": "Bouches-du-Rhône",
+    "region": "Provence-Alpes-Côte d'Azur",
+    "websiteUrl": "https://www.sciencespo-aix.fr/",
+    "typology": null,
+    "enrolment": {
+      "count": 1707,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "institut_etudes_politiques"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-30f72445ac36f6e7",
+      "institutionId": "eef-univ-0130221v",
+      "nameFr": "Sciences Po / Instituts d'études politiques - Sciences Humaines et Sociales - Grade Master",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Aix-en-Provence",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "25824",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25824&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 66,
+        "sansMention": 0,
+        "assezBien": 2,
+        "bien": 17,
+        "tresBien": 41,
+        "tresBienFelicitations": 6,
+        "accessRatePct": 10,
+        "lastCalledRank": 1096
+      }
+    },
+    {
+      "id": "eef-prog-6cd9ef82be19c303",
+      "institutionId": "eef-univ-0130221v",
+      "nameFr": "Sciences Po / Instituts d'études politiques - Sciences Humaines et Sociales - Grade Master",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Aix-en-Provence",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "25831",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25831&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 13,
+        "sansMention": 0,
+        "assezBien": 0,
+        "bien": 6,
+        "tresBien": 6,
+        "tresBienFelicitations": 1,
+        "accessRatePct": 45,
+        "lastCalledRank": 38
+      }
+    },
+    {
+      "id": "eef-prog-78bad979039030a2",
+      "institutionId": "eef-univ-0130221v",
+      "nameFr": "L3 - Administration publique",
+      "level": "Bachelor",
+      "cycle": "licence3",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 1,
+      "campusCity": "Aix-en-Provence",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2300001",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "diplomes-prepares",
+      "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/assets/fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics/view/?refine=rentree%3A2024&refine=diplom%3A2300001&refine=etablissement_id_paysage_actuel%3AG8QBG"
+    }
+  ]
+}

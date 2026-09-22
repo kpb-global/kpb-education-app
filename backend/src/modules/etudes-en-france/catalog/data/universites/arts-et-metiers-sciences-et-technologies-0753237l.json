@@ -1,0 +1,159 @@
+{
+  "institution": {
+    "id": "eef-univ-0753237l",
+    "uai": "0753237L",
+    "nameFr": "Arts et Métiers Sciences et Technologies",
+    "nameEn": "Arts et Métiers Institut of Technology",
+    "acronym": "ENSAM",
+    "city": "Paris 13e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://artsetmetiers.fr/fr",
+    "typology": null,
+    "enrolment": {
+      "count": 6297,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "grand_etablissement"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-0d25f46213c3a101",
+      "institutionId": "eef-univ-0753237l",
+      "nameFr": "Énergie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900317V",
+      "tracks": [
+        "AA (Aérodynamique et Aéroacoustique)",
+        "MFEN (Mécanique des Fluides Expérimentale et Numérique pour l’efficacité énergétique et le transport durable)",
+        "M2EN (Mécanique et Energie en Environnement Naval)",
+        "E2SD (Electrical Energy for Sustainable Development)",
+        "MVE (Mobilité et Véhicules Electriques)",
+        "IMCE (Ingénierie des Machines à Conversion d’Energie)",
+        "SMI (Sciences mécanique et ingénierie)"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://artsetmetiers.fr/"
+    },
+    {
+      "id": "eef-prog-78453d27ccd6b7ae",
+      "institutionId": "eef-univ-0753237l",
+      "nameFr": "Génie industriel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900322A",
+      "tracks": [
+        "MTI3D (Management des Technologies Interactives 3D)",
+        "ICI (Innovation, Conception, Ingénierie)",
+        "SDMR (Sciences de la Décision et Management des Risques)",
+        "KIMP (Knowledge Integration in Mechanical Production)",
+        "CPSE (Cyber-Physical Systems Engineering)"
+      ],
+      "recommendedBachelors": [
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Sciences et technologies"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://artsetmetiers.fr/"
+    },
+    {
+      "id": "eef-prog-8c25cd312729eedd",
+      "institutionId": "eef-univ-0753237l",
+      "nameFr": "Génie mécanique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900318W",
+      "tracks": [
+        "MAGIS (Material and Engineering Sciences in Paris)",
+        "SAR (Systèmes Avancés et Robotique)",
+        "ME (Mécanique et Énergétique)",
+        "MM (Ingénierie Mécanique et Matériau)",
+        "Advanced Manufacturing and Materials Science",
+        "IMS (Ingénierie des Matériaux et des Surfaces)"
+      ],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://artsetmetiers.fr/"
+    },
+    {
+      "id": "eef-prog-c5935ccdc533d862",
+      "institutionId": "eef-univ-0753237l",
+      "nameFr": "Ingénierie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900144G",
+      "tracks": [
+        "Bioiengineering and innovation neurosciences (BIN)",
+        "Biomedical engineering BME",
+        "Biomaterials and biodevices",
+        "Bioimaging (BIM)",
+        "M2 BioMechanics (BioMECH)",
+        "Biomechanics (BIOMECH)",
+        "M2 Bioengineering and Innovation in Neurosciences (BIN)",
+        "BioMAT (Biomaterials)",
+        "M2 Molecular and Cellular Biotherapies (MCB)",
+        "M2 Bioimaging (BIM)",
+        "BIM (Bioimaging)",
+        "Molecular and cellular biotherapy (MCB)",
+        "M2 BioMaterials and Biodevices (BioMat)",
+        "BIN (Bioengineering and Innovation in Neurosciences)",
+        "MCB (Molecular and Cellular Biotherapies)",
+        "M1 Ingénierie de la santé",
+        "BioMECH (Biomechanics)"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Sciences pour la santé",
+        "Frontières du vivant",
+        "Chimie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://odf.u-paris.fr/fr/offre-de-formation/master-XB/sciences-technologies-sante-STS/ingenierie-de-la-sante-K2NDJ7KW.html"
+    }
+  ]
+}

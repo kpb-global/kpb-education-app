@@ -14,7 +14,14 @@
       "count": 27683,
       "year": 2024
     },
-    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/"
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "logo": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Logoupjv-bleu.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Logoupjv-bleu.png",
+      "licence": "CC BY-SA 4.0",
+      "wikidataId": "Q947747",
+      "trademarked": false
+    }
   },
   "programs": [
     {
@@ -306,7 +313,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7277&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7277&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 50,
+        "sansMention": 40,
+        "assezBien": 9,
+        "bien": 1,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 39,
+        "lastCalledRank": 148
+      }
     },
     {
       "id": "eef-prog-140e77875e7507ae",
@@ -373,7 +392,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10223&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10223&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 454,
+        "sansMention": 124,
+        "assezBien": 183,
+        "bien": 113,
+        "tresBien": 31,
+        "tresBienFelicitations": 3,
+        "accessRatePct": 52,
+        "lastCalledRank": 1674
+      }
     },
     {
       "id": "eef-prog-186f6c2e4bc61a6f",
@@ -411,7 +442,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2097&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2097&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 22,
+        "sansMention": 13,
+        "assezBien": 6,
+        "bien": 3,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 79,
+        "lastCalledRank": 55
+      }
     },
     {
       "id": "eef-prog-1ac07416ec772da5",
@@ -485,7 +528,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28596&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28596&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 31,
+        "sansMention": 0,
+        "assezBien": 1,
+        "bien": 12,
+        "tresBien": 14,
+        "tresBienFelicitations": 4,
+        "accessRatePct": 12,
+        "lastCalledRank": 431
+      }
     },
     {
       "id": "eef-prog-1f2c6156dcab4c88",
@@ -504,7 +559,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=33110&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=33110&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 40,
+        "sansMention": 0,
+        "assezBien": 6,
+        "bien": 18,
+        "tresBien": 13,
+        "tresBienFelicitations": 3,
+        "accessRatePct": 45,
+        "lastCalledRank": 225
+      }
     },
     {
       "id": "eef-prog-20f5215900654052",
@@ -593,7 +660,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=20676&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=20676&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 23,
+        "sansMention": 19,
+        "assezBien": 4,
+        "bien": 0,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 99,
+        "lastCalledRank": 658
+      }
     },
     {
       "id": "eef-prog-2673e2f4049ef134",
@@ -612,7 +691,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2098&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2098&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 48,
+        "sansMention": 26,
+        "assezBien": 12,
+        "bien": 7,
+        "tresBien": 3,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 75,
+        "lastCalledRank": 543
+      }
     },
     {
       "id": "eef-prog-286748fa55e9bcca",
@@ -650,7 +741,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10197&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10197&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 82,
+        "sansMention": 41,
+        "assezBien": 24,
+        "bien": 12,
+        "tresBien": 5,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 70,
+        "lastCalledRank": 1452
+      }
     },
     {
       "id": "eef-prog-29c3c4745dc16d1b",
@@ -669,7 +772,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25330&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25330&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 131,
+        "sansMention": 64,
+        "assezBien": 44,
+        "bien": 17,
+        "tresBien": 6,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 99,
+        "lastCalledRank": 945
+      }
     },
     {
       "id": "eef-prog-2aa70b3bc3f1498c",
@@ -717,7 +832,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10205&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10205&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 17,
+        "sansMention": 10,
+        "assezBien": 4,
+        "bien": 3,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 53,
+        "lastCalledRank": 1008
+      }
     },
     {
       "id": "eef-prog-2c36f21e45d9bd3f",
@@ -875,7 +1002,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=23565&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=23565&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 91,
+        "sansMention": 55,
+        "assezBien": 23,
+        "bien": 10,
+        "tresBien": 3,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 623
+      }
     },
     {
       "id": "eef-prog-3aaccab9c57b9ff1",
@@ -1122,7 +1261,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10178&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10178&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 197,
+        "sansMention": 75,
+        "assezBien": 92,
+        "bien": 25,
+        "tresBien": 3,
+        "tresBienFelicitations": 2,
+        "accessRatePct": 47,
+        "lastCalledRank": 802
+      }
     },
     {
       "id": "eef-prog-46a778cf13ae1ee1",
@@ -1141,7 +1292,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25332&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25332&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 40,
+        "sansMention": 12,
+        "assezBien": 16,
+        "bien": 6,
+        "tresBien": 6,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 79,
+        "lastCalledRank": 604
+      }
     },
     {
       "id": "eef-prog-4941e4d6a55fb7ad",
@@ -1186,7 +1349,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25335&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25335&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 12,
+        "sansMention": 6,
+        "assezBien": 4,
+        "bien": 1,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 243
+      }
     },
     {
       "id": "eef-prog-4c61b60619121a4d",
@@ -1205,7 +1380,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=31899&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=31899&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 21,
+        "sansMention": 9,
+        "assezBien": 10,
+        "bien": 2,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 67,
+        "lastCalledRank": 302
+      }
     },
     {
       "id": "eef-prog-4cdd0f3a136e311e",
@@ -1362,7 +1549,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=43215&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=43215&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 103,
+        "sansMention": 0,
+        "assezBien": 8,
+        "bien": 43,
+        "tresBien": 45,
+        "tresBienFelicitations": 7,
+        "accessRatePct": 15,
+        "lastCalledRank": 637
+      }
     },
     {
       "id": "eef-prog-50a59a05cb8a804d",
@@ -1381,7 +1580,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25337&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25337&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 110,
+        "sansMention": 45,
+        "assezBien": 43,
+        "bien": 18,
+        "tresBien": 2,
+        "tresBienFelicitations": 2,
+        "accessRatePct": 59,
+        "lastCalledRank": 684
+      }
     },
     {
       "id": "eef-prog-51480cbeb5263fce",
@@ -1607,7 +1818,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10210&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10210&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 18,
+        "sansMention": 10,
+        "assezBien": 2,
+        "bien": 6,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 192
+      }
     },
     {
       "id": "eef-prog-5deee7b133441d60",
@@ -1645,7 +1868,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2100&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2100&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 104,
+        "sansMention": 50,
+        "assezBien": 48,
+        "bien": 6,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 79,
+        "lastCalledRank": 956
+      }
     },
     {
       "id": "eef-prog-6228767d0cd7a090",
@@ -1702,7 +1937,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10203&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10203&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 81,
+        "sansMention": 58,
+        "assezBien": 19,
+        "bien": 3,
+        "tresBien": 0,
+        "tresBienFelicitations": 1,
+        "accessRatePct": 77,
+        "lastCalledRank": 979
+      }
     },
     {
       "id": "eef-prog-68d8406a32cdb490",
@@ -1721,7 +1968,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2101&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2101&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 17,
+        "sansMention": 7,
+        "assezBien": 8,
+        "bien": 2,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 87,
+        "lastCalledRank": 180
+      }
     },
     {
       "id": "eef-prog-6cab3b07d446c9c2",
@@ -1770,7 +2029,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28590&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28590&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 569,
+        "sansMention": 71,
+        "assezBien": 182,
+        "bien": 210,
+        "tresBien": 86,
+        "tresBienFelicitations": 20,
+        "accessRatePct": 43,
+        "lastCalledRank": 1872
+      }
     },
     {
       "id": "eef-prog-6f05682295d7c815",
@@ -1938,7 +2209,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=33508&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=33508&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 147,
+        "sansMention": 51,
+        "assezBien": 56,
+        "bien": 34,
+        "tresBien": 6,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 1209
+      }
     },
     {
       "id": "eef-prog-7689b81d16ba0501",
@@ -1996,7 +2279,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10176&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10176&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 50,
+        "sansMention": 18,
+        "assezBien": 23,
+        "bien": 8,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 67,
+        "lastCalledRank": 265
+      }
     },
     {
       "id": "eef-prog-7831e32d1263b2ca",
@@ -2015,7 +2310,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=20677&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=20677&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 43,
+        "sansMention": 21,
+        "assezBien": 18,
+        "bien": 3,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 220
+      }
     },
     {
       "id": "eef-prog-79e4a373aed9c082",
@@ -2114,7 +2421,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10214&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10214&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 160,
+        "sansMention": 70,
+        "assezBien": 51,
+        "bien": 31,
+        "tresBien": 8,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 1159
+      }
     },
     {
       "id": "eef-prog-7c3db7b14cc461fe",
@@ -2152,7 +2471,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10198&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10198&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 24,
+        "sansMention": 8,
+        "assezBien": 9,
+        "bien": 5,
+        "tresBien": 2,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 553
+      }
     },
     {
       "id": "eef-prog-7e5ca9e012600861",
@@ -2171,7 +2502,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28223&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28223&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 25,
+        "sansMention": 1,
+        "assezBien": 5,
+        "bien": 9,
+        "tresBien": 7,
+        "tresBienFelicitations": 3,
+        "accessRatePct": 11,
+        "lastCalledRank": 158
+      }
     },
     {
       "id": "eef-prog-823155bdd11fe567",
@@ -2209,7 +2552,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25334&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25334&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 13,
+        "sansMention": 9,
+        "assezBien": 2,
+        "bien": 1,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 87,
+        "lastCalledRank": 193
+      }
     },
     {
       "id": "eef-prog-8a9f09a723927b80",
@@ -2285,7 +2640,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10224&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10224&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 226,
+        "sansMention": 113,
+        "assezBien": 74,
+        "bien": 33,
+        "tresBien": 6,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 90,
+        "lastCalledRank": 2618
+      }
     },
     {
       "id": "eef-prog-8e091b8d63550f92",
@@ -2304,7 +2671,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25338&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25338&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 12,
+        "sansMention": 8,
+        "assezBien": 4,
+        "bien": 0,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 88,
+        "lastCalledRank": 287
+      }
     },
     {
       "id": "eef-prog-8fad7853a98146d4",
@@ -2370,7 +2749,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2096&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2096&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 37,
+        "sansMention": 21,
+        "assezBien": 10,
+        "bien": 6,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 87,
+        "lastCalledRank": 199
+      }
     },
     {
       "id": "eef-prog-93cf85425c16a2d9",
@@ -2415,7 +2806,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28598&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28598&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 20,
+        "sansMention": 3,
+        "assezBien": 11,
+        "bien": 4,
+        "tresBien": 2,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 42,
+        "lastCalledRank": 671
+      }
     },
     {
       "id": "eef-prog-96b77b370c90a30e",
@@ -2434,7 +2837,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10177&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10177&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 33,
+        "sansMention": 20,
+        "assezBien": 6,
+        "bien": 6,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 92,
+        "lastCalledRank": 223
+      }
     },
     {
       "id": "eef-prog-988133fbe50208dd",
@@ -2541,7 +2956,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28635&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28635&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 94,
+        "sansMention": 16,
+        "assezBien": 52,
+        "bien": 18,
+        "tresBien": 8,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 45,
+        "lastCalledRank": 1132
+      }
     },
     {
       "id": "eef-prog-a136207733c3595a",
@@ -2579,7 +3006,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25339&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25339&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 70,
+        "sansMention": 41,
+        "assezBien": 20,
+        "bien": 8,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 86,
+        "lastCalledRank": 860
+      }
     },
     {
       "id": "eef-prog-a497d0b1c4ac6667",
@@ -2720,7 +3159,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2099&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2099&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 98,
+        "sansMention": 51,
+        "assezBien": 35,
+        "bien": 10,
+        "tresBien": 2,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 69,
+        "lastCalledRank": 338
+      }
     },
     {
       "id": "eef-prog-b0272d0faf28cf83",
@@ -2819,7 +3270,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10199&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10199&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 539,
+        "sansMention": 292,
+        "assezBien": 168,
+        "bien": 63,
+        "tresBien": 16,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 53,
+        "lastCalledRank": 1585
+      }
     },
     {
       "id": "eef-prog-b6aac1594c1baf98",
@@ -2865,7 +3328,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10218&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10218&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 108,
+        "sansMention": 43,
+        "assezBien": 35,
+        "bien": 21,
+        "tresBien": 7,
+        "tresBienFelicitations": 2,
+        "accessRatePct": 100,
+        "lastCalledRank": 877
+      }
     },
     {
       "id": "eef-prog-b8f5ea7dbec679aa",
@@ -2884,7 +3359,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10173&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10173&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 125,
+        "sansMention": 51,
+        "assezBien": 53,
+        "bien": 20,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 54,
+        "lastCalledRank": 614
+      }
     },
     {
       "id": "eef-prog-ba930bd49c6d30f6",
@@ -2943,7 +3430,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=13669&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=13669&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 85,
+        "sansMention": 2,
+        "assezBien": 19,
+        "bien": 46,
+        "tresBien": 17,
+        "tresBienFelicitations": 1,
+        "accessRatePct": 31,
+        "lastCalledRank": 598
+      }
     },
     {
       "id": "eef-prog-bc65d0166b5bc22d",
@@ -3066,7 +3565,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28842&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28842&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 27,
+        "sansMention": 0,
+        "assezBien": 8,
+        "bien": 11,
+        "tresBien": 8,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 17,
+        "lastCalledRank": 296
+      }
     },
     {
       "id": "eef-prog-c5d69f041c1b2678",
@@ -3111,7 +3622,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=31962&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=31962&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 28,
+        "sansMention": 4,
+        "assezBien": 14,
+        "bien": 9,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 16,
+        "lastCalledRank": 208
+      }
     },
     {
       "id": "eef-prog-c5fff4e112ca69dd",
@@ -3206,7 +3729,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7276&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7276&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 38,
+        "sansMention": 27,
+        "assezBien": 6,
+        "bien": 5,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 83,
+        "lastCalledRank": 281
+      }
     },
     {
       "id": "eef-prog-ccb3b10226188d0c",
@@ -3244,7 +3779,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10175&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10175&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 146,
+        "sansMention": 60,
+        "assezBien": 59,
+        "bien": 24,
+        "tresBien": 3,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 61,
+        "lastCalledRank": 546
+      }
     },
     {
       "id": "eef-prog-ce84eab19486778e",
@@ -3263,7 +3810,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28679&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28679&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 55,
+        "sansMention": 24,
+        "assezBien": 21,
+        "bien": 7,
+        "tresBien": 3,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 434
+      }
     },
     {
       "id": "eef-prog-ce875b388f4032fe",
@@ -3282,7 +3841,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2075&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2075&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 22,
+        "sansMention": 17,
+        "assezBien": 3,
+        "bien": 1,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 123
+      }
     },
     {
       "id": "eef-prog-cfc2410bade7a3a2",
@@ -3320,7 +3891,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10209&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10209&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 344,
+        "sansMention": 102,
+        "assezBien": 154,
+        "bien": 68,
+        "tresBien": 20,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 43,
+        "lastCalledRank": 1928
+      }
     },
     {
       "id": "eef-prog-d24a7930d4f99222",
@@ -3339,7 +3922,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10202&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10202&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 30,
+        "sansMention": 14,
+        "assezBien": 9,
+        "bien": 4,
+        "tresBien": 3,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 685
+      }
     },
     {
       "id": "eef-prog-d2e32c680b2429c8",
@@ -3386,7 +3981,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7285&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7285&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 80,
+        "sansMention": 44,
+        "assezBien": 24,
+        "bien": 7,
+        "tresBien": 4,
+        "tresBienFelicitations": 1,
+        "accessRatePct": 36,
+        "lastCalledRank": 267
+      }
     },
     {
       "id": "eef-prog-d756ca4c9dfb054d",
@@ -3433,7 +4040,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25336&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=25336&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 5,
+        "sansMention": 5,
+        "assezBien": 0,
+        "bien": 0,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 66,
+        "lastCalledRank": 157
+      }
     },
     {
       "id": "eef-prog-dbf3e390f7775b09",
@@ -3452,7 +4071,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28081&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28081&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 8,
+        "sansMention": 1,
+        "assezBien": 1,
+        "bien": 6,
+        "tresBien": 0,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 15,
+        "lastCalledRank": 54
+      }
     },
     {
       "id": "eef-prog-de6eaf5723c18c29",
@@ -3560,7 +4191,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2102&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=2102&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 44,
+        "sansMention": 29,
+        "assezBien": 10,
+        "bien": 4,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 91,
+        "lastCalledRank": 307
+      }
     },
     {
       "id": "eef-prog-e5aff5bcf1904d40",
@@ -3624,7 +4267,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7278&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7278&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 46,
+        "sansMention": 24,
+        "assezBien": 18,
+        "bien": 3,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 41,
+        "lastCalledRank": 287
+      }
     },
     {
       "id": "eef-prog-e7b6f68cc3de4bc0",
@@ -3643,7 +4298,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7284&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=7284&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 100,
+        "sansMention": 49,
+        "assezBien": 31,
+        "bien": 19,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 58,
+        "lastCalledRank": 485
+      }
     },
     {
       "id": "eef-prog-e8c574d257ca016f",
@@ -3726,7 +4393,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28625&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=28625&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 33,
+        "sansMention": 7,
+        "assezBien": 20,
+        "bien": 5,
+        "tresBien": 1,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 51,
+        "lastCalledRank": 743
+      }
     },
     {
       "id": "eef-prog-eb0722272f77bef1",
@@ -3783,7 +4462,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10204&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10204&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 49,
+        "sansMention": 18,
+        "assezBien": 15,
+        "bien": 12,
+        "tresBien": 4,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 100,
+        "lastCalledRank": 1057
+      }
     },
     {
       "id": "eef-prog-f2ffd338a9c26c05",
@@ -3906,7 +4597,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10179&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=10179&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 169,
+        "sansMention": 49,
+        "assezBien": 75,
+        "bien": 40,
+        "tresBien": 4,
+        "tresBienFelicitations": 1,
+        "accessRatePct": 30,
+        "lastCalledRank": 300
+      }
     },
     {
       "id": "eef-prog-fb55ae3694548899",
@@ -3925,7 +4628,19 @@
       "recommendedBachelors": [],
       "admissionModes": [],
       "dataset": "parcoursup",
-      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=42950&typeBac=0&originePc=0"
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=42950&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 3,
+        "sansMention": 0,
+        "assezBien": 0,
+        "bien": 1,
+        "tresBien": 2,
+        "tresBienFelicitations": 0,
+        "accessRatePct": 58,
+        "lastCalledRank": 40
+      }
     },
     {
       "id": "eef-prog-fbc65724617cb57b",

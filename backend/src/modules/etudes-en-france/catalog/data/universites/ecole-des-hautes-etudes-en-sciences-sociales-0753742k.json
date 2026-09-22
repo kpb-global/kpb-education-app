@@ -1,0 +1,648 @@
+{
+  "institution": {
+    "id": "eef-univ-0753742k",
+    "uai": "0753742K",
+    "nameFr": "École des hautes études en sciences sociales",
+    "nameEn": "School for advanced studies in the social sciences",
+    "acronym": "EHESS",
+    "city": "Paris 6e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://www.ehess.fr/fr",
+    "typology": null,
+    "enrolment": {
+      "count": 2584,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "grand_etablissement"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-16488cdf05910300",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Territoires et développement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900329H",
+      "tracks": [
+        "Etude comparative du développement",
+        "Territoires, espaces, sociétés"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-%C3%A9tude-comparative-d%C3%A9veloppement"
+    },
+    {
+      "id": "eef-prog-16f1068330ea1284",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Sciences économiques et sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1801116P",
+      "tracks": [
+        "M2 Institutions, économie et société (Research in socio-economics)",
+        "M1 Sciences économiques et sociales",
+        "Sciences économiques et sociales"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Sciences sociales",
+        "Histoire",
+        "Sociologie",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://psl.eu/formation/master-institutions-organisations-economie-et-societe"
+    },
+    {
+      "id": "eef-prog-20e9357e7beeb92b",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Sciences cognitives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900182Y",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Psychologie",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Frontières du vivant"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-cognitives-cogmaster"
+    },
+    {
+      "id": "eef-prog-2e68ae731e69d816",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Systèmes juridiques et droits de l'homme",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "2000191H",
+      "tracks": [
+        "Théorie et analyse du droit et Histoire et anthropologie du droit",
+        "Droits de l'Homme"
+      ],
+      "recommendedBachelors": [
+        "Droit"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-syst%C3%A8mes-juridiques-et-droits-lhomme-parcours-master-ii-th%C3%A9orie-et-analyse-droit"
+    },
+    {
+      "id": "eef-prog-4418f3b56fa0d380",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Recherches comparatives en anthropologie, histoire, sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900332M",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Histoire",
+        "Sociologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-recherches-comparatives-en-anthropologie-histoire-et-sociologie"
+    },
+    {
+      "id": "eef-prog-4764c5e4cf6be0d0",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Mondes médiévaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601550R",
+      "tracks": [
+        "Histoire, Archéologie et Littératures des Mondes Chrétiens et Musulmans Médiévaux",
+        "Histoire, archéologie et littératures des mondes chrétiens et musulmans médiévaux HISTARMED, parcours européen",
+        "Histoire, archéologie et littératures des mondes chrétiens et musulmans médiévaux",
+        "Culture historique et mondes médiévaux",
+        "Histoire, archéologie, littératures des mondes chrétiens et musulmans médiévaux"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Lettres",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Humanités",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-mondes-medievaux-1"
+    },
+    {
+      "id": "eef-prog-538a4410cefd3306",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Histoire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900197Q",
+      "tracks": [
+        "Histoire du monde, Histoire des mondes",
+        "Histoire et sciences sociales"
+      ],
+      "recommendedBachelors": [
+        "Histoire"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-histoire"
+    },
+    {
+      "id": "eef-prog-5fbcf5e8abf7b231",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Etudes asiatiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900334P",
+      "tracks": [
+        "M1 & M2 Histoire et sciences sociales : terrains, textes et images",
+        "M1 & M2 Histoire, philologie et religion",
+        "Histoire et sciences sociales : terrains, textes et images"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-etudes-asiatiques"
+    },
+    {
+      "id": "eef-prog-69ade8870c40c98c",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Arts, littératures, langages",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900330J",
+      "tracks": [
+        "Littératures",
+        "Musique",
+        "Linguistique et écrit",
+        "Images, cultures visuelles, histoire de l'art"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Sciences sociales",
+        "Arts du spectacle",
+        "Musicologie",
+        "Sciences du langage",
+        "Arts",
+        "Histoire de l'art et archéologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-arts-et-langages"
+    },
+    {
+      "id": "eef-prog-745b709599fd5cf7",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Etudes politiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900331K",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-%C3%A9tudes-politiques"
+    },
+    {
+      "id": "eef-prog-794c0094789d5cbb",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1005301N",
+      "tracks": [
+        "M1 & M2 Philosophie sociale et politique",
+        "Philosophie sociale et politique",
+        "M1 & M2 Histoire de la philosophie",
+        "M1 & M2 Philosophie contemporaine",
+        "M1 & M2 Philosophie du langage et de l’esprit",
+        "M1 & M2 Philosophie des religions",
+        "M1 & M2 Philosophie de la connaissance, histoire et philosophie des sciences",
+        "Philosophie du langage et de l'esprit"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Lettres",
+        "Science politique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-philosophie"
+    },
+    {
+      "id": "eef-prog-80bb74a2ff656ebf",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Économie appliquée",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900202V",
+      "tracks": [
+        "M1 & M2 Politiques publiques et développement",
+        "Politiques publiques et développement"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Mathématiques",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-economie-appliquee-ppd"
+    },
+    {
+      "id": "eef-prog-88051270032990a6",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900174Q",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sociologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-sociologie"
+    },
+    {
+      "id": "eef-prog-9acf4b665cb37d8d",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Études sur le genre",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900183Z",
+      "tracks": [
+        "Anthropologie",
+        "Sociologie",
+        "Histoire"
+      ],
+      "recommendedBachelors": [
+        "Histoire",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-%C3%A9tudes-sur-genre-sociologie-histoire-anthropologie"
+    },
+    {
+      "id": "eef-prog-afff0749c704a552",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Sciences des religions et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900161A",
+      "tracks": [
+        "M1 & M2 L'islam dans ses contextes historiques et contemporains",
+        "L'islam en société : trajectoires historiques et contemporaines",
+        "M1 & M2 Religion et laïcité dans la vie professionnelle et associative",
+        "Sciences sociales des religions",
+        "M1 & M2 Histoire et historiographie des mondes juifs",
+        "M1 & M2 Sciences sociales des religions",
+        "Histoire et historiographie des mondes juifs"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-des-religions-et-societe-srs"
+    },
+    {
+      "id": "eef-prog-b8075e2c074f6202",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Savoirs en société",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900328G",
+      "tracks": [
+        "Histoire des sciences, des techniques et des savoirs",
+        "Santé, médecine et questions sociales",
+        "Etudes environnementales"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/parcours-histoire-sciences-techniques-et-savoirs"
+    },
+    {
+      "id": "eef-prog-bba1445e0a5e4e05",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Migrations",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900333N",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Psychologie",
+        "Sciences du langage",
+        "Sociologie",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.pantheonsorbonne.fr/fr/catalogue-des-formations/master-M/sciences-humaines-et-sociales-SHS/master-migrations-KECKGYJH/master-parcours-migrations-KECKGYWB.html"
+    },
+    {
+      "id": "eef-prog-c93bebb1a398433f",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Analyse et politique économiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1604867R",
+      "tracks": [],
+      "recommendedBachelors": [
+        "Economie",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Science politique",
+        "Mathématiques",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien",
+        "Examen"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-analyse-et-politique-economiques"
+    },
+    {
+      "id": "eef-prog-f6f2c7fc57669de0",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Sciences sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900125M",
+      "tracks": [
+        "M1 & M2 Quantifier en sciences sociales (QESS)",
+        "Quantifier en sciences sociales",
+        "Pratiques de l'interdisciplinarité en sciences sociales",
+        "M1 & M2 Pratiques de l'interdisciplinarité dans les sciences sociales (PDI)"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.psl.eu/formation/master-sciences-sociales"
+    },
+    {
+      "id": "eef-prog-f9ac1dead57c3de5",
+      "institutionId": "eef-univ-0753742k",
+      "nameFr": "Anthropologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900160Z",
+      "tracks": [
+        "Ethnologie et anthropologie sociale"
+      ],
+      "recommendedBachelors": [
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.ehess.fr/fr/master-en-sciences-humaines-et-sociales"
+    }
+  ]
+}

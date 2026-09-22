@@ -95,6 +95,55 @@ export type EefSourceDataset =
   /// licence : elle les liste parce que des étudiants y ÉTAIENT inscrits.
   | 'diplomes-prepares';
 
+/// Établissements ajoutés hors du filtre « typologie d'université ».
+/// Le filtre historique ne garde que les 70 universités dont le MESR
+/// renseigne `typologie_d_universites_et_assimiles`. UTC, Sciences Po ou
+/// l'INALCO sont diplômants et publics, mais ce champ est vide chez eux.
+export type EefInstitutionKind =
+  | 'universite_publique'
+  | 'universite_technologie'
+  | 'institut_etudes_politiques'
+  | 'grand_etablissement';
+
+export const EEF_INSTITUTION_KINDS: readonly EefInstitutionKind[] = [
+  'universite_publique',
+  'universite_technologie',
+  'institut_etudes_politiques',
+  'grand_etablissement',
+];
+
+/// Logo servi uniquement quand le fichier Commons a une licence qui autorise
+/// la réutilisation commerciale (domaine public, CC0, CC BY, CC BY-SA).
+/// `trademarked` ne retire pas le fichier : il rappelle que le signe est une
+/// marque, et qu'on l'affiche pour identifier l'établissement, pas pour
+/// se présenter comme lui.
+export interface EefLogo {
+  readonly url: string;
+  readonly sourceUrl: string;
+  readonly licence: string;
+  readonly wikidataId: string;
+  readonly trademarked: boolean;
+}
+
+/// Profil des néo-bacheliers qui ont accepté une place sur Parcoursup.
+///
+/// Ce n'est PAS une moyenne minimale Campus France. Le ministère ne publie
+/// aucune note plancher par formation pour la procédure Études en France.
+/// Il publie, pour la session Parcoursup, combien d'admis au bac français
+/// avaient quelle mention. Les cinq effectifs somment `admittedNeobac`.
+export interface EefAdmissionCohort {
+  readonly session: string;
+  readonly sourceUrl: string;
+  readonly admittedNeobac: number;
+  readonly sansMention: number;
+  readonly assezBien: number;
+  readonly bien: number;
+  readonly tresBien: number;
+  readonly tresBienFelicitations: number;
+  readonly accessRatePct: number | null;
+  readonly lastCalledRank: number | null;
+}
+
 /// Une université publique (ou assimilée : les établissements expérimentaux
 /// qui portent une typologie d'université au référentiel MESR).
 export interface EefInstitutionRecord {
@@ -119,6 +168,11 @@ export interface EefInstitutionRecord {
   readonly enrolment: { readonly count: number; readonly year: number } | null;
   /// La page officielle qui atteste des faits ci-dessus.
   readonly sourceUrl: string;
+  /// Absent sur les 70 universités du filtre historique : elles sont toutes
+  /// des universités publiques. Présent sur les établissements ajoutés ensuite.
+  readonly institutionKind?: EefInstitutionKind;
+  /// Absent quand aucun logo librement réutilisable n'a été trouvé.
+  readonly logo?: EefLogo | null;
 }
 
 /// Une formation ouverte dans une de ces universités.
@@ -154,6 +208,10 @@ export interface EefProgramRecord {
   /// La fiche officielle de CETTE formation. Une ligne sans fiche ne passe pas
   /// le validateur.
   readonly sourceUrl: string;
+  /// Présent seulement pour une formation Parcoursup dont le code rejoint la
+  /// session statistique. Les masters et les L2/L3 n'en ont pas : personne
+  /// ne publie ce profil pour eux.
+  readonly admissionCohort?: EefAdmissionCohort | null;
 }
 
 /// Le fichier versionné d'une université : l'établissement et ses formations.

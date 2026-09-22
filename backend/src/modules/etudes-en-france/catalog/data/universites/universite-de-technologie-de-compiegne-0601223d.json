@@ -1,0 +1,267 @@
+{
+  "institution": {
+    "id": "eef-univ-0601223d",
+    "uai": "0601223D",
+    "nameFr": "Université de technologie de Compiègne",
+    "nameEn": "University of Technology of compiègne",
+    "acronym": "UTC",
+    "city": "Compiègne",
+    "department": "Oise",
+    "region": "Hauts-de-France",
+    "websiteUrl": "https://www.utc.fr/",
+    "typology": null,
+    "enrolment": {
+      "count": 4233,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "universite_technologie",
+    "logo": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Technische_Universit%C3%A4t_Compi%C3%A8gne_Logo.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Technische_Universit%C3%A4t_Compi%C3%A8gne_Logo.svg",
+      "licence": "Public domain",
+      "wikidataId": "Q622906",
+      "trademarked": true
+    }
+  },
+  "programs": [
+    {
+      "id": "eef-prog-23d5d4d37875c26c",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Compiègne",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "55",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=55&typeBac=0&originePc=0"
+    },
+    {
+      "id": "eef-prog-522ccdd69230f18c",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Chimie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Compiegne",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1800317V",
+      "tracks": [
+        "ANALYSE-CONTRÔLE-QUALITÉ (ACQ)",
+        "Procédés de valorisation des ressources renouvelables (PV2R)",
+        "GÉNIE DES PRODUITS FORMULÉS (GPF)",
+        "CHIMIE DURABLE ORGANIQUE (CDORG)",
+        "MATERIALS FOR ENERGY STORAGE AND CONVERSION (MESC)",
+        "Génie des produits formulés",
+        "BIOTECHNOLOGIES DES RESSOURCES NATURELLES (BIOTECH.)",
+        "PROCÉDÉS DE VALORISATION DES RESSOURCES RENOUVELABLES (PV2R)",
+        "Biotechnologies des ressources naturelles (Biotech)",
+        "GESTION ET TRAITEMENT DE L’EAU (GTE)",
+        "CHIMIE DURABLE-MATÉRIAUX (CDMAT)"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.u-picardie.fr/catalogue-formations/FI/co/master-c.html"
+    },
+    {
+      "id": "eef-prog-587f7fbff5a106a2",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Analyse et politique économiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Compiegne",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900319X",
+      "tracks": [
+        "Major B - Macroeconomics, finance and the socioeconomic transition (Erasmus Mundus)",
+        "Politique économique pour la transition globale (Erasmus Mundus EPOG+)",
+        "Major A - Knowledge, innovation and the digital transition (Erasmus Mundus)",
+        "Major C - Development, sustainable development and the ecological transition (Erasmus Mundus)",
+        "Politiques de la connaissance, de l’innovation et de la transition numérique (Knowledge, innovation and digital transition policies - KID)",
+        "Politiques macroéconomiques et financières internationales (International macroeconomics and financial policies - IMF)",
+        "Politiques de développement et de développement durable (Development and sustainable development policies - DSD)"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Sciences sociales",
+        "Etudes Européennes et Internationales",
+        "Administration et échanges internationaux"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utc.fr/formations/diplome-de-master/mention-analyse-et-politiques-economiques-ape.html"
+    },
+    {
+      "id": "eef-prog-855797bb42e2adc0",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Humanités et industries créatives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Compiegne",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1201809P",
+      "tracks": [
+        "Design centré expérience (UxD)",
+        "Design et création d'expérience (DCX)"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Informatique",
+        "Mécanique",
+        "Sciences pour l'ingénieur",
+        "Arts plastiques",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies",
+        "Sciences pour la santé",
+        "Arts"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utc.fr/formations/diplome-de-master/mention-humanites-et-industries-creatives-hic/parcours-design-centre-experience-uxd/"
+    },
+    {
+      "id": "eef-prog-8eb4b4eda38e55ba",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Ingénierie des systèmes complexes",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Compiegne",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1201497A",
+      "tracks": [
+        "Structures et systèmes mécaniques complexes (SMC)",
+        "Biomécanique et bioingénierie (BMI)",
+        "Automatique, robotique et systèmes intelligents (ARS)",
+        "Systèmes mécatroniques (SMT)",
+        "Apprentissage et optimisation des systèmes complexes (AOS)"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Génie civil",
+        "Sciences et technologies",
+        "Sciences de la vie",
+        "Sciences pour la santé",
+        "Informatique",
+        "Electronique, énergie électrique, automatique"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utc.fr/formations/diplome-de-master/mention-ingenierie-des-systemes-complexes-isc/parcours-structures-et-systemes-mecaniques-complexes-smc/"
+    },
+    {
+      "id": "eef-prog-9a6e4d3f6ba994d8",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Ingénierie de la santé",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Compiegne",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1203420R",
+      "tracks": [
+        "Qualité et management de la performance dans les organisations (QMPO)",
+        "Dispositifs médicaux et affaires réglementaires (DMAR)",
+        "Technologies biomédicales et territoires de santé (TBTS)",
+        "Agilité créative et design de services (ACDS)"
+      ],
+      "recommendedBachelors": [
+        "Toutes licences",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.utc.fr/formations/diplome-de-master/mention-ingenierie-de-la-sante-ids.html"
+    },
+    {
+      "id": "eef-prog-a40ac217c3f1e93d",
+      "institutionId": "eef-univ-0601223d",
+      "nameFr": "Formation d'ingénieur Bac + 5",
+      "level": "Master",
+      "cycle": "ingenieur",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 5,
+      "campusCity": "Compiègne",
+      "procedureType": "hors_eef",
+      "selectivity": "selective",
+      "formationCode": "27774",
+      "tracks": [],
+      "recommendedBachelors": [],
+      "admissionModes": [],
+      "dataset": "parcoursup",
+      "sourceUrl": "https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=27774&typeBac=0&originePc=0",
+      "admissionCohort": {
+        "session": "2025",
+        "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/",
+        "admittedNeobac": 28,
+        "sansMention": 0,
+        "assezBien": 0,
+        "bien": 3,
+        "tresBien": 18,
+        "tresBienFelicitations": 7,
+        "accessRatePct": 4,
+        "lastCalledRank": 81
+      }
+    }
+  ]
+}

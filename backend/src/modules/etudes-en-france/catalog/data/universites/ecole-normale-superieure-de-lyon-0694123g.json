@@ -1,0 +1,1123 @@
+{
+  "institution": {
+    "id": "eef-univ-0694123g",
+    "uai": "0694123G",
+    "nameFr": "École normale supérieure de Lyon",
+    "nameEn": "École normale supérieure de Lyon",
+    "acronym": "ENS Lyon",
+    "city": "Lyon 7e",
+    "department": "Rhône",
+    "region": "Auvergne-Rhône-Alpes",
+    "websiteUrl": "https://www.ens-lyon.fr/",
+    "typology": null,
+    "enrolment": {
+      "count": 2338,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "grand_etablissement",
+    "logo": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Logo_ENS_de_Lyon_2010.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Logo_ENS_de_Lyon_2010.png",
+      "licence": "Public domain",
+      "wikidataId": "Q10159",
+      "trademarked": false
+    }
+  },
+  "programs": [
+    {
+      "id": "eef-prog-062a4de9a2de29a8",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602334T",
+      "tracks": [
+        "Philosophie contemporaine",
+        "Logique, histoire et philosophie des sciences et de la connaissance",
+        "Philosophie",
+        "Culture et santé"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-12a67e71e39b4bdf",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Mathématiques et applications",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601027X",
+      "tracks": [
+        "FEADéP (mathématiques)",
+        "MATHEMATIQUES AVANCEES",
+        "MATHEMATIQUES GENERALES",
+        "Mathématiques avancées"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-1e90fd14c2885df8",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Monnaie, banque, finance, assurance",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d03",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1603271L",
+      "tracks": [
+        "Management des opérations de marché (MOM) (en alternance)",
+        "Economie et Finance",
+        "Conseiller de clientèle de professionnels et gestion de patrimoine (CCProGP), alternance CFPB",
+        "Evaluation et transmission d'entreprises (ETE)",
+        "Banque et finance (BF)",
+        "Economie et finance (EF)",
+        "Banque et Finance",
+        "Finance et contrôle de gestion (FCG)"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-economie-et-finance-5_05_07_0017_FR.html"
+    },
+    {
+      "id": "eef-prog-29c47cfa26463c4d",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Arts de la scène et du spectacle vivant",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601669V",
+      "tracks": [
+        "Accompagner la création",
+        "Dramaturgies"
+      ],
+      "recommendedBachelors": [
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-arts-de-la-scene-et-du-spectacle-vivant-accompagner-la-creation-1"
+    },
+    {
+      "id": "eef-prog-2c72a0c61d6f53bc",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Géomatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601684L",
+      "tracks": [
+        "Géographies numériques",
+        "Géographies Numériques"
+      ],
+      "recommendedBachelors": [
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-geomatique-1"
+    },
+    {
+      "id": "eef-prog-2d42b03a638f3117",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Histoire de la philosophie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602744N",
+      "tracks": [
+        "Histoire de la Philosophie",
+        "FEADéP (philosophie)",
+        "Histoire de la philosophie"
+      ],
+      "recommendedBachelors": [
+        "Philosophie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-34af89551d8a1d44",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Biologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601919S",
+      "tracks": [
+        "BIOSCIENCES ET SANTE",
+        "Ingénierie Technico-commerciale",
+        "Biosciences",
+        "BIOSCIENCES ET MODELISATION DES SYSTEMES COMPLEXES",
+        "Formation à l'Enseignement, Agrégation en SV-STU et Développement Professionnel",
+        "BIOSCIENCES",
+        "FEADéP (SV-STU)",
+        "BIOLOGIE ET PHYSIOLOGIE DES ORGANISMES - SCIENCES DE LA TERRE ET DE L'UNIVERS - AGREGATION"
+      ],
+      "recommendedBachelors": [
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-3cad16f3e87c86c5",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Gestion de l'environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602084W",
+      "tracks": [
+        "Géosystèmes Environnementaux",
+        "Gestion intégrée des Ressources naturelles et des dynamiques environnementales et paysagères",
+        "Gestion intégrée des Ressources nAturelles et des dynamIques et eNvironnementales et paysagèrEs (GRAINE) (Lyon 2) (ENS de Lyon)",
+        "Prévention et Gestion des Altérations Environnementales"
+      ],
+      "recommendedBachelors": [
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre",
+        "Histoire",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Histoire de l'art et archéologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences et Humanités"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-gestion-de-l-environnement-1"
+    },
+    {
+      "id": "eef-prog-47f143422aa92240",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Langues, littératures et civilisations étrangères et régionales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1603382G",
+      "tracks": [
+        "Etudes anglophones",
+        "Linguistique et Dialectologie",
+        "Etudes Chinoises",
+        "FEADéP (allemand)",
+        "FEADéP (anglais)",
+        "Etudes arabes",
+        "Etudes Anglophones/Arabes/Chinoises/Germaniques/Italiennes/Japonaises/Russes",
+        "Etudes italiennes",
+        "FEADéP (espagnol)",
+        "FEADéP (italien)",
+        "Etudes Russes",
+        "Etudes hispaniques",
+        "Etudes hispanophones",
+        "Indologie",
+        "Etudes germaniques",
+        "Etudes lusophones",
+        "Etudes Arabes",
+        "Langue Culture Entreprise Allemand/Anglais/Arabe/Chinois/Italien/Japonais/Russe"
+      ],
+      "recommendedBachelors": [
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Langues étrangères appliquées",
+        "Lettres, langues"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1"
+    },
+    {
+      "id": "eef-prog-4cba92fc22985981",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601867K",
+      "tracks": [
+        "Natures, pouvoirs et sociétés",
+        "Espaces",
+        "Approche plurielle de la santé",
+        "FEADéP (histoire)",
+        "Éducation et savoirs en société",
+        "Sociétés, institutions, temporalités",
+        "Migrations",
+        "FEADéP (géographie)",
+        "Administrateur des institutions de recherche et de diffusion des compétences"
+      ],
+      "recommendedBachelors": [
+        "Sciences sociales",
+        "Science politique",
+        "Histoire",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Philosophie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-4efd61c84b54129a",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences de la terre et des planètes, environnement",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601819H",
+      "tracks": [
+        "PALEONTOLOGIE, SEDIMENTOLOGIE, PALEOENVIRONNEMENTS",
+        "Terre et Planètes",
+        "TERRE ET PLANETES",
+        "Paléontologie, Sédimentologie, Paléoenvironnements",
+        "Sciences de la Terre et des planètes, environnement"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Physique",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Physique, chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-50dd0b38b2f48f1b",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Mathématiques appliquées, statistique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1603284A",
+      "tracks": [
+        "MATHS EN ACTION",
+        "Mathématiques en action",
+        "Ingénierie Technico-commerciale",
+        "DATA SCIENCE",
+        "STATISTIQUES, INFORMATIQUE ET TECHNIQUES NUMERIQUES"
+      ],
+      "recommendedBachelors": [
+        "Mathématiques",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-mathematiques-appliquees-statistique-parcours-mathematiques-en-action-5_09_07_0011_FR.html"
+    },
+    {
+      "id": "eef-prog-57adafc5c64a74e4",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Informatique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601916N",
+      "tracks": [
+        "Données et Sytèmes Connectés (DSC)",
+        "Intelligence artificielle",
+        "DATA SCIENCE",
+        "Statistique et informatique pour la science des données (SISE parcours national et IDSM parcours ukrainien)",
+        "DMKM - Data Mining & Knowledge Management (parcours international) et Data Mining appliqué en français",
+        "Business intelligence & Big Data (BI&BD)",
+        "Data science",
+        "Informatique fondamentale",
+        "IMAGE, DEVELOPPEMENT ET TECHNOLOGIE 3D",
+        "IMAGE : programmation et développement pour les jeux videos (GAMAGORA)",
+        "Ingénierie Technico-commerciale",
+        "Systèmes, réseaux et infrastructures virtuelles",
+        "Image",
+        "Machine Learning and Data Mining (MLDM)",
+        "SYSTEME, RESEAUX ET INFRASTRUSTURES VIRTUELLES",
+        "Technologies de l'information et Web",
+        "INTELLIGENCE ARTIFICIELLE",
+        "Cyber-Physical Social Sytems (CPS)",
+        "INFORMATIQUE FONDAMENTALE",
+        "TECHNOLOGIES DE L'INFORMATION ET WEB",
+        "Organisation et Protection des Systèmes d'Information de l'Entreprise (OPSIE)",
+        "Conception et Intégration Multimédia (CIM) et  parcours international FOAD, VCIEL - Visualisation et Conception Infographiques en Ligne"
+      ],
+      "recommendedBachelors": [
+        "Informatique",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-informatique-parcours-donnees-et-systemes-connectes-5_09_07_0006_FR.html"
+    },
+    {
+      "id": "eef-prog-60e5ea154844dc6a",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Humanités numériques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d01",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602698N",
+      "tracks": [
+        "Edition Numérique, Sources et Patrimoine (accès en inscription secondaire pour les étudiants inscrits en Master Lettres ou Mondes Anciens)",
+        "Pratiques et méthodes en humanités numériques",
+        "Pratiques et méthodes en Humanités numériques",
+        "Humanités numériques"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Histoire",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sociologie",
+        "Informatique",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Toutes licences",
+        "Histoire de l'art et archéologie",
+        "Administration publique",
+        "Economie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Administration économique et sociale",
+        "Economie et gestion"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-humanites-numeriques-1"
+    },
+    {
+      "id": "eef-prog-6d855b100bf7a781",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences de la matière",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601908E",
+      "tracks": [
+        "FEADéP (physique)",
+        "FEADéP (chimie)",
+        "SCIENCES ET INNOVATION",
+        "Science et innovation"
+      ],
+      "recommendedBachelors": [
+        "Physique",
+        "Physique, chimie",
+        "Chimie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    },
+    {
+      "id": "eef-prog-713c9e29df7a1a9f",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Science politique",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602831H",
+      "tracks": [
+        "Politique internationale et analyse des transitions",
+        "Politiques publiques de l'alimentation et gestion du risque sanitaire",
+        "Enjeux et politique de santé",
+        "Les métiers de la représentation : associations, groupes d'intérêt et syndicats",
+        "Analyse des politiques publiques",
+        "Evaluation et suivi des politiques publiques",
+        "Sociologie Politique : enquêtes et analyse des processus politiques"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sciences sociales",
+        "Histoire",
+        "Psychologie",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1"
+    },
+    {
+      "id": "eef-prog-8d184837c4b3ff89",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Analyse et politique économiques",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602839S",
+      "tracks": [
+        "Intelligence Economique et Gestion de l'Innovation",
+        "Conseil en Développement Territorial",
+        "Economie et finance",
+        "Advanced Economics",
+        "Advanced economics",
+        "Ingénierie politique",
+        "Economie et Finance",
+        "Chargé(e) d'études économiques"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Economie et gestion",
+        "Mathématiques",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Science politique",
+        "Informatique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-intelligence-economique-et-gestion-de-l-innovation-5_05_07_0003_FR.html"
+    },
+    {
+      "id": "eef-prog-962c86e97c0da391",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Mondes anciens",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601126E",
+      "tracks": [
+        "Langues, littératures et civilisations anciennes",
+        "Histoire ancienne",
+        "Mondes anciens",
+        "FEADéP (lettres classiques)",
+        "Langues, Littératures et Civilisations Anciennes",
+        "Histoire Ancienne"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Histoire",
+        "Humanités"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-mondes-anciens-1"
+    },
+    {
+      "id": "eef-prog-a4c7e4041a722864",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Cinéma et audiovisuel",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601700D",
+      "tracks": [
+        "Métiers de l'exploitation, de la médiation et de l'éducation à l'image",
+        "Documentaire culturel : production et réalisation",
+        "Pensées du cinéma",
+        "Les pensées du cinéma"
+      ],
+      "recommendedBachelors": [
+        "Cinéma",
+        "Arts du spectacle"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-cinema-et-audiovisuel-1"
+    },
+    {
+      "id": "eef-prog-a74a2d508c35249a",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sociologie",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602336V",
+      "tracks": [
+        "Sociologie et Développement des Organisations en formation initiale (SDO FI et CE)",
+        "Analyse des sociétés contemporaines",
+        "Formes et outils de l'enquête en sciences sociales",
+        "Socio-anthropologies Appliquées du Développement Local en cours d'emploi (SADL FI et CE)",
+        "Analyse des sociétés contemporaines, ASC"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Géographie et aménagement"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-sociologie-1"
+    },
+    {
+      "id": "eef-prog-aaf69edb28063fa9",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Gestion des territoires et développement local",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d02",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601226N",
+      "tracks": [
+        "Santé et Territoire, Intelligence Géographique et Aide à la Décision",
+        "Ingénierie des Collectivités Territoriales et Stratégie Foncière",
+        "Developpement rural",
+        "Mondes Emergents, Mondes en Développement",
+        "Aménagement Durable des Territoires",
+        "Ingénierie des Transports et Politiques de Déplacements Durables"
+      ],
+      "recommendedBachelors": [
+        "Administration publique",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Histoire",
+        "Toutes licences"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-gestion-des-territoires-et-developpement-local-1"
+    },
+    {
+      "id": "eef-prog-b89c1585839b7a7a",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Études européennes et internationales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602332R",
+      "tracks": [
+        "AlterEurope",
+        "Etudes moyen-orientales",
+        "Asie orientale contemporaine"
+      ],
+      "recommendedBachelors": [
+        "Administration publique",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Philosophie",
+        "Economie"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-altereurope-5_32_07_0001_FR.html"
+    },
+    {
+      "id": "eef-prog-cd33098cfa6e7665",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Mondes médiévaux",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601550R",
+      "tracks": [
+        "Histoire, Archéologie et Littératures des Mondes Chrétiens et Musulmans Médiévaux",
+        "Histoire, archéologie et littératures des mondes chrétiens et musulmans médiévaux HISTARMED, parcours européen",
+        "Histoire, archéologie et littératures des mondes chrétiens et musulmans médiévaux",
+        "Culture historique et mondes médiévaux",
+        "Histoire, archéologie, littératures des mondes chrétiens et musulmans médiévaux"
+      ],
+      "recommendedBachelors": [
+        "Histoire de l'art et archéologie",
+        "Histoire",
+        "Lettres",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Humanités",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-mondes-medievaux-1"
+    },
+    {
+      "id": "eef-prog-d2c784a0f9b2066b",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences des religions et sociétés",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602638Y",
+      "tracks": [
+        "Histoire des religions",
+        "Sciences des Religions et Sociétés"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Philosophie",
+        "Science politique",
+        "Histoire",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Théologie"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-sciences-des-religions-et-societes-1"
+    },
+    {
+      "id": "eef-prog-d770069a7f6fe079",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences économiques et sociales",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d07",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601811Z",
+      "tracks": [
+        "Théories et histoire de l'économie dans la société"
+      ],
+      "recommendedBachelors": [
+        "Economie",
+        "Science politique",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-sciences-economiques-et-sociales-1"
+    },
+    {
+      "id": "eef-prog-d94cac2fcee6b798",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Didactique des sciences",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d05",
+      "fieldIsFallback": true,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602809J",
+      "tracks": [
+        "Didactique des sciences expérimentales et des mathématiques",
+        "DIDACTIQUE DES SCIENCES EXPERIMENTALES ET DES MATHEMATIQUES"
+      ],
+      "recommendedBachelors": [
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences pour la santé",
+        "Physique, chimie",
+        "Sciences de la Terre"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://formations.umontpellier.fr/odf/didactique_des_sciences.html"
+    },
+    {
+      "id": "eef-prog-e4eb0d201f22b4a1",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Ville et environnements urbains",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1601862E",
+      "tracks": [
+        "Altervilles",
+        "Nouveaux modes de vie et espaces de la ville contemporaine.",
+        "Nouveaux Modes de Vie et Espaces de la Ville Contemporaine",
+        "Villes en tension(s) : formes, flux, risques"
+      ],
+      "recommendedBachelors": [
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Information-communication",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-ville-et-environnements-urbains-parcours-altervilles-5_32_07_0003_FR.html"
+    },
+    {
+      "id": "eef-prog-e56b2e1f543cd104",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Histoire",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602758D",
+      "tracks": [
+        "De la Renaissance aux révolutions",
+        "Construction des Sociétés contemporaines (CSC)",
+        "Représentations et Usages Contemporains du Passé",
+        "Métiers de l'historien",
+        "De la Renaissance aux Révolutions",
+        "De la Renaissance aux révolutions (DRR)",
+        "Représentations et usages contemporains du passé (RUCP)",
+        "Construction des Sociétés Contemporaines",
+        "Construction des sociétés contemporaines"
+      ],
+      "recommendedBachelors": [
+        "Histoire",
+        "Humanités",
+        "Sciences sociales"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-histoire-1"
+    },
+    {
+      "id": "eef-prog-eb453023e748ff84",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Sciences cognitives",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602776Y",
+      "tracks": [
+        "Interactions homme-machine",
+        "Neuropsychologie et neurosciences cliniques",
+        "Sciences cognitives fondamentales et appliquées",
+        "Sciences Cognitives Fondamentales et Appliquées"
+      ],
+      "recommendedBachelors": [
+        "Philosophie",
+        "Psychologie",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Mathématiques"
+      ],
+      "admissionModes": [
+        "Dossier"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-sciences-cognitives-1"
+    },
+    {
+      "id": "eef-prog-f010d60659430781",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Lettres",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d09",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1602346F",
+      "tracks": [
+        "Lettres Modernes",
+        "Lettres modernes",
+        "Lettres modernes à l'international : parcours international d'Etudes Françaises",
+        "Lettres et Arts",
+        "Lettres, culture, entreprise",
+        "Lettres et Entreprise : lettres appliquées à la rédaction professionnelle",
+        "Etudes françaises polyvalentes (Uniquement accessible en M2)",
+        "Linguistique et stylistique des textes littéraires",
+        "Lettres modernes : option langue française, littérature française, littérature comparée, francophonie",
+        "FEADéP (lettres modernes)"
+      ],
+      "recommendedBachelors": [
+        "Lettres",
+        "Sciences du langage",
+        "Lettres, langues",
+        "Humanités",
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Arts plastiques"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-st-etienne.fr/fr/formation/master-XB/master-XB/master-lettres-parcours-lettres-modernes-5_02_07_0019_FR.html"
+    },
+    {
+      "id": "eef-prog-f47bec8d09af0e88",
+      "institutionId": "eef-univ-0694123g",
+      "nameFr": "Information, communication",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d06",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Lyon",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1603158N",
+      "tracks": [
+        "Gestion éditoriale et communication internet  : GECI",
+        "Design de communication : innovation et médiation numérique",
+        "Médiations urbaines, savoirs et expertises : MUSE",
+        "Design de communication : management et marketing digital"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sociologie",
+        "Information-communication",
+        "Lettres",
+        "Sciences de l'éducation",
+        "Arts plastiques",
+        "Informatique"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.univ-lyon2.fr/master-1-information-communication-1"
+    }
+  ]
+}

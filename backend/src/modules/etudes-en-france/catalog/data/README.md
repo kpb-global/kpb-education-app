@@ -1,8 +1,14 @@
 # Catalogue « Études en France » — données versionnées
 
-70 universités publiques françaises, 10 247 formations. Un fichier JSON par
-université dans `universites/`, plus `manifest.json` qui déclare d'où vient
+84 établissements publics, 10 502 formations. Un fichier JSON par
+établissement dans `universites/`, plus `manifest.json` qui déclare d'où vient
 chaque ligne.
+
+Les 70 universités du filtre « typologie renseignée » sont toujours là. Quatorze
+établissements diplômants sans cette typologie les rejoignent (UTC, UTT,
+Sciences Po Paris, Aix, Bordeaux, Lyon et Toulouse, INALCO, CNAM, EHESS, ENS de
+Lyon, Muséum, ENSSIB, Arts et Métiers). L'UTTOP est dans la liste cherchée et
+n'a aucune formation joignable dans les jeux utilisés : elle n'a pas de fichier.
 
 > **Ces lignes ne sont pas publiables en l'état.** L'import les crée
 > `isActive = false` — **établissements compris** — et les surfaces publiques
@@ -15,7 +21,9 @@ chaque ligne.
 
 | Couche | Jeu de données | Millésime | Licence |
 | --- | --- | --- | --- |
-| Les 70 universités | `fr-esr-principaux-etablissements-enseignement-superieur` | 2025 | Licence Ouverte v2.0 |
+| Les établissements | `fr-esr-principaux-etablissements-enseignement-superieur` | 2025 | Licence Ouverte v2.0 |
+| Profil des admis Parcoursup (mentions, pas une moyenne minimale) | `fr-esr-parcoursup` | 2025 | Licence Ouverte v2.0 |
+| Logos | Wikidata P154 + fichier Commons | — | licence du fichier, une par établissement (domaine public, CC0, CC BY, CC BY-SA seulement) |
 | Premier cycle (L1, BUT, PASS, DEUST, LP) | `fr-esr-cartographie_formations_parcoursup` | 2026 | Licence Ouverte v2.0 |
 | 2e et 3e années de licence | `fr-esr-principaux-diplomes-et-formations-prepares-etablissements-publics` | 2024 | Licence Ouverte v2.0 |
 | Mentions de master | `fr-esr-tmm-…-mentions-de-master` | **2021** | Licence Ouverte v2.0 |
@@ -96,7 +104,7 @@ portent la règle et renvoient à la fiche officielle ; `tuitionMinEur` est
   professionnelle / master, `hors_eef` pour les cycles d'ingénieur ;
 - un **domaine** du référentiel `d01..d12`, avec `fieldIsFallback` qui avoue
   quand il vient du repli par grand domaine plutôt que d'un mot-clé de
-  l'intitulé. Taux de repli actuel : **2,16 %**, plafonné à 8 % par le
+  l'intitulé. Taux de repli actuel : **2,3 %**, plafonné à 8 % par le
   validateur.
 
 Sur les masters, deux listes **publiées par l'établissement** en plus :
@@ -119,19 +127,47 @@ et qu'aucun appariement ne pouvait reconnaître.
 
 Ce que les lignes ne contiennent **pas**, et n'inventent donc pas : le niveau
 de français exigé formation par formation, les frais de dossier, les dates de
-campagne (servies par `/config/app`), et toute prose dans les fichiers de
-données — les phrases sont dérivées une seule fois par `eef-catalog.copy.ts`.
+campagne (servies par `/config/app`), une moyenne minimale Campus France, et
+toute prose dans les fichiers de données — les phrases sont dérivées une seule
+fois par `eef-catalog.copy.ts`.
+
+## Description, repère de moyenne, logo
+
+La description d'une formation et le repère de moyenne sont produits à
+l'import par `programSummary` et `admissionGuidance`. Ils atterrissent dans
+`requirementsFr` / `requirementsEn`. Le fichier JSON, lui, ne garde que les
+faits.
+
+Pour 3 525 formations Parcoursup, le fait est le profil des néo-bacheliers qui
+ont accepté une place en **2025** (`admissionCohort` : effectifs par mention,
+taux d'accès). La phrase dit « aucune moyenne minimale officielle », puis, si
+au moins 15 admis, la borne basse de la mention la plus fréquente (12, 14, 16
+ou 18/20). Ce chiffre est le plancher de cette mention au bac français, pas un
+seuil Études en France. En dessous de 15 admis, ou pour un master et une L2/L3
+(aucune statistique publiée), la phrase s'arrête à « pas de seuil vérifiable ».
+`minGpaRequired` reste vide : le scoring ne doit pas traiter ce repère comme
+une note plancher.
+
+Le logo n'est posé que si Wikidata (P154, joint par l'UAI P3202) pointe un
+fichier Commons en domaine public, CC0, CC BY ou CC BY-SA. 40 établissements
+en ont un. Les 44 autres, dont Lille, Grenoble ou Nantes, n'ont pas d'UAI sur
+l'élément Wikidata ou pas de fichier sous une de ces licences : pas d'image
+plutôt qu'un logo sous copyright. `trademarked` est conservé quand Commons le
+signale : on identifie l'établissement, on ne se présente pas comme lui.
 
 ## Commandes
 
 ```bash
 npm run eef:fetch               # recollecte depuis les données ouvertes
+npm run eef:enrich              # ajoute établissements, profils d'admission, logos
 npm run eef:validate:structure  # porte rapide de CI
 npm run verify:eef              # portes strictes (volume, repli, sources)
 npm run eef:import:dry-run      # ce qui SERAIT créé, en lisant la base
 npm run eef:import              # --apply, créations seules, lignes inactives
 npm run eef:backfill:cycle      # comble les `cycle` NULL des lignes d'avant la colonne
 npm run eef:backfill:admission  # comble les signaux d'admission, idem
+npm run eef:backfill -- --dry-run  # logos + repère d'admission sur l'existant
+npm run eef:backfill -- --apply
 ```
 
 Les deux rattrapages ne comblent que les trous et sont **rejouables** : un
@@ -140,7 +176,8 @@ import neuf écrit déjà ces colonnes, donc ils rendent `filled: 0`.
 `eef:fetch` réécrit `universites/` de zéro : une université disparue du
 référentiel disparaît du dépôt. `eef:import` ne met **jamais** à jour une ligne
 existante — une correction faite dans l'admin ne doit pas être écrasée par une
-collecte.
+collecte. `eef:backfill` comble ensuite logo (colonnes encore nulles) et
+exigences (lignes encore inactives et non vérifiées) sans publier.
 
 ## Ce qui reste à faire sur ces données
 

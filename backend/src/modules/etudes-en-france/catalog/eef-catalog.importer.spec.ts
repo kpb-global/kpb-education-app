@@ -122,11 +122,16 @@ describe('planEefImport', () => {
 
   it('écrit des exigences d’admission qui nomment la bonne procédure', () => {
     const [licence, master] = plan.programs;
-    expect(licence.requirementsFr[0]).toContain('dossier blanc');
+    expect(licence.requirementsFr[0]).toContain('L1 - Droit');
+    expect(licence.requirementsFr.join(' ')).toContain('dossier blanc');
     expect(licence.requirementsFr.join(' ')).toContain('TCF DAP');
-    expect(master.requirementsFr[0]).toContain('Études en France');
+    expect(licence.requirementsFr.join(' ')).toContain('Aucune moyenne minimale');
+    expect(licence.requirementsFr.join(' ')).not.toMatch(/\d{2}\/20/);
+    expect(master.requirementsFr[0]).toContain('Science politique');
+    expect(master.requirementsFr.join(' ')).toContain('Études en France');
     expect(master.requirementsFr.join(' ')).toContain('Licence ou diplôme équivalent');
     expect(master.requirementsFr.join(' ')).toContain('Licences conseillées');
+    expect(master.requirementsFr.join(' ')).not.toMatch(/\d{2}\/20/);
     expect(master.requirementsEn).toHaveLength(master.requirementsFr.length);
   });
 

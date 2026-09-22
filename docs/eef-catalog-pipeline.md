@@ -11,20 +11,24 @@ Rédigé le 20/09/2026.
 
 ## 1. Ce qui est livré
 
-**70 universités publiques françaises, 10 247 formations**, collectées depuis
+**84 établissements publics, 10 502 formations**, collectées depuis
 les données ouvertes de l'État, versionnées dans le dépôt, validées par une
 machine, et importables en base — **inactives**.
 
+Le noyau reste les 70 universités à typologie MESR. Le 21 septembre 2026, quatorze établissements diplômants sans cette typologie ont été ajoutés (universités de technologie, Sciences Po, INALCO, CNAM, EHESS, ENS de Lyon, Muséum, ENSSIB, Arts et Métiers). L'UTTOP n'a pas de formation joignable et n'a pas de fichier. Les profils d'admission Parcoursup 2025 et les logos Commons réutilisables sont décrits dans `backend/src/modules/etudes-en-france/catalog/data/README.md`.
+
 | | |
 |---|---|
-| Établissements | 70 (65 de type « Université », plus 5 classés autrement mais portant une typologie d'université au référentiel : Grenoble Alpes, Côte d'Azur, Lorraine, PSL — passées « grand établissement » avec leur statut expérimental — et l'INU Champollion) |
-| Formations | 10 247 |
-| dont entrée en 1re année | 4 004 (L1, BUT, PASS, DEUST, licence pro, IEP, CMI, IAE, arts, STAPS) |
-| dont 2e et 3e années de licence | 3 131 |
-| dont mentions de master | 3 112 |
-| Par procédure | `eef` 7 125 · `dap_blanche` 3 019 · `dap_jaune` 29 · `hors_eef` 74 |
-| Classement de domaine par repli | 2,16 % (plafond CI : 8 %) |
-| Sources | 5 jeux, toutes en **Licence Ouverte v2.0 (Etalab)** |
+| Établissements | 84 (70 universités à typologie, plus 14 établissements diplômants ajoutés le 21/09/2026) |
+| Formations | 10 502 |
+| dont entrée en 1re année | 4 124 (L1, BUT, PASS, DEUST, IEP, cycles ingénieur) |
+| dont 2e et 3e années de licence | 3 134 |
+| dont mentions de master | 3 244 |
+| Par procédure | `eef` 7 260 · `dap_blanche` 3 133 · `dap_jaune` 29 · `hors_eef` 80 |
+| Classement de domaine par repli | 2,28 % (plafond CI : 8 %) |
+| Profils d'admission Parcoursup 2025 | 3 525 formations |
+| Logos Commons réutilisables | 40 établissements |
+| Sources | jeux MESR en **Licence Ouverte v2.0**, logos sous la licence de chaque fichier |
 
 Le détail des jeux, leurs millésimes et leurs limites sont dans
 `backend/src/modules/etudes-en-france/catalog/data/README.md`.
@@ -261,6 +265,8 @@ npm run verify:eef
 # En production, dans le conteneur api
 docker compose exec -T api npm run eef:import:dry-run
 docker compose exec -T api npm run eef:import
+docker compose exec -T api npm run eef:backfill -- --dry-run
+docker compose exec -T api npm run eef:backfill -- --apply
 ```
 
 `eef:import` est **création seule** : une ligne dont l'identifiant existe déjà
@@ -269,8 +275,13 @@ main. Le compteur s'appelle `existingNotUpdated` et non `skipped` — le dépôt
 appris que « sauté : 34 » se lit « rien à faire » alors qu'il veut dire
 « 34 lignes potentiellement périmées » (`docs/catalog-verification-sop.md`).
 
-Il n'existe **pas encore** de `eef:reconcile`, équivalent de
-`catalog:reconcile` pour les bourses. Tant qu'il manque, une correction
-apportée aux fichiers du dépôt n'atteint pas une ligne déjà créée en base.
-C'est acceptable pour un premier import — il n'y a rien à réaligner — et ça ne
-le sera plus au deuxième.
+`eef:backfill` est l'acte distinct pour le catalogue 1.2 : il pose le logo
+Commons (si les trois colonnes sont encore vides) et réécrit description +
+repère d'admission sur les formations encore inactives, jamais vérifiées, et
+dont la prose de procédure est encore celle de l'import. Il n'écrit ni
+`isActive` ni `lastVerifiedAt`.
+
+Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
+`catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs
+nouveaux de cette version. Une correction d'intitulé ou de procédure dans le
+dépôt n'atteint toujours pas une ligne déjà créée.
