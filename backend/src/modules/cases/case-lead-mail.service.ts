@@ -4,7 +4,7 @@ import { CampaignMailService } from '../notifications/campaign-mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
- * Contact sheet emailed to Jojo, Donald and Richard when a student submits a
+ * Contact sheet emailed to Jojo and Richard when a student submits a
  * dossier. One message per address. The address is the counsellor row's
  * current email when that row is active, otherwise the address stored with
  * the commercial seed. An inactive row is skipped.
@@ -20,10 +20,6 @@ export const COMMERCIAL_LEAD_RECIPIENTS = [
   {
     id: 'counsellor-jojo',
     email: 'josphandieuaimeagbessi@gmail.com',
-  },
-  {
-    id: 'counsellor-donald',
-    email: 'bokod246@gmail.com',
   },
   {
     id: 'counsellor-richard',

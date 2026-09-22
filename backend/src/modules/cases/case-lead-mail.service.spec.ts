@@ -49,7 +49,7 @@ function makeService(
 }
 
 describe('CaseLeadMailService', () => {
-  it('emails Jojo, Donald and Richard the student contact sheet', async () => {
+  it('emails Jojo and Richard the student contact sheet', async () => {
     const { service, send } = makeService();
 
     await service.notifyNewCase(lead);
@@ -82,7 +82,6 @@ describe('CaseLeadMailService', () => {
 
     expect(send.mock.calls.map((call) => call[0])).toEqual([
       'jojo.actuel@kpb-education.com',
-      'bokod246@gmail.com',
       'richardahogle@gmail.com',
     ]);
   });
@@ -90,8 +89,8 @@ describe('CaseLeadMailService', () => {
   it('skips a counsellor who was deactivated', async () => {
     const { service, send } = makeService([
       {
-        id: 'counsellor-donald',
-        email: 'bokod246@gmail.com',
+        id: 'counsellor-richard',
+        email: 'richardahogle@gmail.com',
         isActive: false,
       },
     ]);
@@ -100,8 +99,10 @@ describe('CaseLeadMailService', () => {
 
     expect(send.mock.calls.map((call) => call[0])).toEqual([
       'josphandieuaimeagbessi@gmail.com',
-      'richardahogle@gmail.com',
     ]);
+    expect(send.mock.calls.map((call) => call[0])).not.toContain(
+      'bokod246@gmail.com',
+    );
   });
 
   it('does not email a trust-and-safety report', async () => {
@@ -140,7 +141,7 @@ describe('CaseLeadMailService', () => {
     );
 
     await expect(service.notifyNewCase(lead)).resolves.toBeUndefined();
-    expect(send).toHaveBeenCalledTimes(3);
+    expect(send).toHaveBeenCalledTimes(2);
   });
 
   it('includes the guardian contact when the student declared one', async () => {

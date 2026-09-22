@@ -211,7 +211,7 @@ describe('CasesService — commercial lead email', () => {
     return svc;
   }
 
-  it('notifies the three commercials after the case is stored', async () => {
+  it('notifies the commercials after the case is stored', async () => {
     const seen: unknown[] = [];
     const leadMail = {
       notifyNewCase: async (row: unknown) => {
