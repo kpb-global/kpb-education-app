@@ -20,6 +20,7 @@
 // EXACTEMENT ce que `--apply` écrira. Un dry-run qui emprunte un autre chemin
 // que l'apply ne prouve rien.
 // ─────────────────────────────────────────────────────────────────────────────
+import { commonsRasterDisplayUrl } from './eef-catalog.admission';
 import {
   INSTITUTION_LANGUAGE_REQUIREMENTS,
   LANGUAGE_NOTICE,
@@ -60,6 +61,9 @@ export interface PlannedInstitution {
   readonly uaiCode: string;
   readonly websiteUrl: string;
   readonly sourceUrl: string;
+  readonly logoUrl: string | null;
+  readonly logoSourceUrl: string | null;
+  readonly logoLicence: string | null;
 }
 
 export interface PlannedProgram {
@@ -154,10 +158,16 @@ export function planEefImport(
       programIds: file.programs.map((program) => program.id),
       isPartner: false,
       isActive: false,
-      institutionType: INSTITUTION_TYPE_PUBLIC_UNIVERSITY,
+      institutionType:
+        institution.institutionKind ?? INSTITUTION_TYPE_PUBLIC_UNIVERSITY,
       uaiCode: institution.uai,
       websiteUrl: institution.websiteUrl,
       sourceUrl: institution.sourceUrl,
+      logoUrl: institution.logo
+        ? commonsRasterDisplayUrl(institution.logo.url)
+        : null,
+      logoSourceUrl: institution.logo?.sourceUrl ?? null,
+      logoLicence: institution.logo?.licence ?? null,
     });
 
     for (const program of file.programs) {

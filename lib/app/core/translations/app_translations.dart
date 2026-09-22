@@ -755,6 +755,7 @@ class AppTranslations extends Translations {
               // c'est un destinataire, il se nomme. Le test de parité l'exige
               // désormais (jeton « YouTube »).
               '• YouTube (Google) : les vidéos de témoignages et de bourses sont lues par le lecteur YouTube intégré (domaine youtube-nocookie.com) et leurs vignettes sont chargées depuis YouTube — dès leur affichage, Google reçoit votre adresse IP et des données techniques, même sans compte\n'
+              '• Wikimedia Commons (Wikimedia Foundation, États-Unis) : les logos d\'établissements du catalogue Études en France sont chargés depuis Wikimedia — dès leur affichage, la fondation reçoit votre adresse IP et des données techniques, même sans compte\n'
               '• Le service de reconnaissance vocale de votre téléphone (Apple ou Google) : uniquement pour la dictée — l\'app demande d\'abord la reconnaissance locale, et ne sollicite ce service qu\'avec votre accord ; sur Android, le système peut aussi y recourir de lui-même quand le modèle local manque (voir « Dictée vocale », section 2)\n'
               '• PostHog (États-Unis) : analytique produit et enregistrements de session au contenu masqué\n'
               '• Resend (États-Unis) : e-mails transactionnels et campagnes\n'
@@ -764,7 +765,7 @@ class AppTranslations extends Translations {
               '• Nos partenaires institutionnels (universités) uniquement avec votre accord explicite lors de la soumission d\'un dossier\n'
               '• Les autorités compétentes si la loi l\'exige',
           'privacy_transfers_body':
-              'Certains destinataires sont établis aux États-Unis (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — YouTube et les services de reconnaissance vocale compris). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l\'analytique depuis Profil → « Analyse d\'usage » et refuser KPB Intelligence : le reste de l\'app reste utilisable.',
+              'Certains destinataires sont établis aux États-Unis (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — YouTube et les services de reconnaissance vocale compris — et Wikimedia). Le transfert repose sur votre consentement à cette politique et, le cas échéant, sur les clauses contractuelles types du sous-traitant. Vous pouvez refuser l\'analytique depuis Profil → « Analyse d\'usage » et refuser KPB Intelligence : le reste de l\'app reste utilisable.',
           'privacy_s6_body':
               '• Données de profil : conservées tant que votre compte est actif\n'
                   '• Données de dossier : conservées tant que le dossier est ouvert, puis supprimées avec le compte\n'
@@ -3859,6 +3860,7 @@ class AppTranslations extends Translations {
               // Voir le commentaire du bloc `fr` : un destinataire de données
               // techniques est un destinataire, il se nomme.
               '• YouTube (Google): testimonial and scholarship videos play through the embedded YouTube player (youtube-nocookie.com domain) and their thumbnails load from YouTube — as soon as they are displayed, Google receives your IP address and technical data, even without an account\n'
+              '• Wikimedia Commons (Wikimedia Foundation, United States): Études en France catalogue institution logos load from Wikimedia — as soon as they are displayed, the Foundation receives your IP address and technical data, even without an account\n'
               '• Your phone\'s speech recognition service (Apple or Google): for dictation only — the app requests on-device recognition first and only reaches this service with your agreement; on Android the system may also fall back to it on its own when the local model is missing (see "Voice dictation", section 2)\n'
               '• PostHog (United States): product analytics and content-masked session recordings\n'
               '• Resend (United States): transactional and campaign email\n'
@@ -3868,7 +3870,7 @@ class AppTranslations extends Translations {
               '• Institutional partners (universities) only with your explicit agreement when you submit a case\n'
               '• Competent authorities if the law requires it',
           'privacy_transfers_body':
-              'Some recipients are established in the United States (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — including YouTube and the speech recognition services). The transfer rests on your consent to this policy and, where applicable, the processor\'s standard contractual clauses. You can turn analytics off in Profile → "Usage analytics" and decline KPB Intelligence: the rest of the app stays usable.',
+              'Some recipients are established in the United States (OpenRouter, Groq, PostHog, OneSignal, Resend, Firebase / Google — including YouTube and the speech recognition services — and Wikimedia). The transfer rests on your consent to this policy and, where applicable, the processor\'s standard contractual clauses. You can turn analytics off in Profile → "Usage analytics" and decline KPB Intelligence: the rest of the app stays usable.',
           'privacy_s6_body': '• Profile data: kept while your account is active\n'
               '• Case data: kept while the case is open, then deleted with the account\n'
               '• Analytics data: aggregated and anonymised, kept indefinitely\n'

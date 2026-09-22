@@ -1000,6 +1000,12 @@ model Institution {
   institutionType        String?
   uaiCode                String?
   websiteUrl             String?
+  // Logo Wikimedia dont la licence autorise la réutilisation commerciale.
+  // Null quand aucun fichier libre n'existe : on n'affiche pas une marque
+  // sous copyright pour combler le trou.
+  logoUrl                String?
+  logoSourceUrl          String?
+  logoLicence            String?
   // Import EEF = établissements EN ATTENTE, comme leurs formations. Défaut
   // `true` parce que les fiches déjà en production sont publiées et le
   // restent ; seul l'import écrit `false`.

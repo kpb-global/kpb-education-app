@@ -3,6 +3,7 @@ import {
   PARCOURSUP_FAMILIES,
   normalizeCityName,
   normalizeLabel,
+  refineParcoursupShape,
   resolveFieldId,
   resolveParcoursupShape,
   stableEefId,
@@ -146,6 +147,34 @@ describe('normalizeCityName', () => {
   it('rend une chaîne vide quand il ne reste rien', () => {
     expect(normalizeCityName('   ')).toBe('');
     expect(normalizeCityName('CEDEX 12')).toBe('');
+  });
+});
+
+describe('refineParcoursupShape', () => {
+  it('laisse une licence Sciences Po en première année', () => {
+    const shape = resolveParcoursupShape([
+      "Sciences Po - Instituts d'études politiques",
+    ]);
+    expect(shape).not.toBeNull();
+    expect(
+      refineParcoursupShape(
+        shape!,
+        "Sciences Po / Instituts d'études politiques - Grade Licence",
+      ).cycle,
+    ).toBe('licence1');
+  });
+
+  it('ne classe pas un grade de master en DAP', () => {
+    const shape = resolveParcoursupShape([
+      "Sciences Po - Instituts d'études politiques",
+    ]);
+    const refined = refineParcoursupShape(
+      shape!,
+      'Sciences Po / Instituts d’études politiques - Sciences Humaines et Sociales - Grade Master',
+    );
+    expect(refined.cycle).toBe('master');
+    expect(refined.procedureType).toBe('eef');
+    expect(refined.level).toBe('Master');
   });
 });
 

@@ -54,6 +54,10 @@ const _processorSuffixToToken = <String, String>{
   // il se nomme.
   'youtube.com': 'YouTube',
   'youtu.be': 'YouTube',
+  // Même nature que les vignettes YouTube : `Image.network` charge le logo
+  // d'un établissement depuis upload.wikimedia.org dès l'ouverture de la
+  // fiche. Wikimedia Foundation reçoit l'adresse IP et le user-agent.
+  'wikimedia.org': 'Wikimedia',
 };
 
 /// Sites que le code cite sans leur envoyer les données personnelles de

@@ -22,6 +22,7 @@
 // donc faux pour une moitié du catalogue — on annonce la règle, pas le prix.
 // ─────────────────────────────────────────────────────────────────────────────
 import type {
+  EefAdmissionCohort,
   EefCycle,
   EefInstitutionRecord,
   EefLevel,
@@ -248,18 +249,165 @@ const SELECTIVITY_NOTE: Readonly<Record<EefSelectivity, Bilingual>> = {
 };
 
 /**
+ * Une phrase, pas une fiche. Elle ne dit que ce que la ligne sait déjà :
+ * l'intitulé, le cycle, le campus, et si l'établissement classe les dossiers.
+ */
+export function programSummary(program: EefProgramRecord): Bilingual {
+  const cycle = cycleLabel(program.cycle);
+  const selective = program.selectivity === 'selective';
+  return {
+    fr:
+      `${program.nameFr} — ${cycle.fr}, campus ${program.campusCity}. `
+      + (selective
+        ? "L'établissement classe les dossiers."
+        : "La capacité d'accueil limite les places, pas un classement."),
+    en:
+      `${program.nameFr} — ${cycle.en}, ${program.campusCity} campus. `
+      + (selective
+        ? 'The institution ranks applications.'
+        : 'Intake capacity limits places, not a ranking of files.'),
+  };
+}
+
+/// En dessous de cet effectif, le profil des admis est un bruit, pas un repère.
+const MIN_COHORT_FOR_TARGET = 15;
+
+interface MentionBracket {
+  readonly count: number;
+  readonly floor: number;
+  readonly fr: string;
+  readonly en: string;
+}
+
+function mentionBrackets(cohort: EefAdmissionCohort): MentionBracket[] {
+  // Les bornes sont celles que le jeu Parcoursup donne à ses propres colonnes
+  // (mention au bac français). On ne les recalcule pas à partir d'une note
+  // que le jeu ne publie pas.
+  return [
+    {
+      count: cohort.tresBienFelicitations,
+      floor: 18,
+      fr: 'mention Très bien avec félicitations (18/20 et plus)',
+      en: 'highest honours (18/20 and above)',
+    },
+    {
+      count: cohort.tresBien,
+      floor: 16,
+      fr: 'mention Très bien (16 à moins de 18/20)',
+      en: 'honours Très bien (16 to under 18/20)',
+    },
+    {
+      count: cohort.bien,
+      floor: 14,
+      fr: 'mention Bien (14 à moins de 16/20)',
+      en: 'honours Bien (14 to under 16/20)',
+    },
+    {
+      count: cohort.assezBien,
+      floor: 12,
+      fr: 'mention Assez bien (12 à moins de 14/20)',
+      en: 'honours Assez bien (12 to under 14/20)',
+    },
+    {
+      count: cohort.sansMention,
+      floor: 10,
+      fr: 'bac sans mention (10 à moins de 12/20)',
+      en: 'baccalauréat without honours (10 to under 12/20)',
+    },
+  ];
+}
+
+/**
+ * Le repère de moyenne, ou l'aveu qu'il n'y en a pas.
+ *
+ * Règle unique : aucun chiffre qui ne sorte des effectifs publiés. Le plancher
+ * cité est la borne basse de la mention la plus fréquente parmi les
+ * néo-bacheliers qui ont accepté une place — pas un seuil d'admission, et pas
+ * une exigence Campus France. En dessous de 15 admis, on donne les effectifs
+ * sans en tirer un objectif.
+ */
+export function admissionGuidance(program: EefProgramRecord): Bilingual {
+  const cohort = program.admissionCohort;
+  if (!cohort || cohort.admittedNeobac <= 0) {
+    return {
+      fr:
+        'Aucune moyenne minimale officielle n\'est publiée pour cette formation, '
+        + 'ni par le ministère ni pour la procédure Études en France. '
+        + 'Il n\'existe pas de seuil chiffré vérifiable.',
+      en:
+        'No official minimum grade is published for this programme, neither by '
+        + 'the ministry nor for the Études en France procedure. There is no '
+        + 'verifiable numeric cutoff.',
+    };
+  }
+
+  const brackets = mentionBrackets(cohort);
+  const dominant = brackets.reduce((best, bracket) =>
+    bracket.count > best.count ? bracket : best,
+  );
+  const access =
+    cohort.accessRatePct == null
+      ? ''
+      : ` Taux d'accès Parcoursup ${cohort.session} : ${cohort.accessRatePct} %.`;
+  const accessEn =
+    cohort.accessRatePct == null
+      ? ''
+      : ` Parcoursup ${cohort.session} access rate: ${cohort.accessRatePct}%.`;
+
+  if (cohort.admittedNeobac < MIN_COHORT_FOR_TARGET) {
+    return {
+      fr:
+        `Aucune moyenne minimale officielle n'est publiée. Parcoursup ${cohort.session} `
+        + `ne compte que ${cohort.admittedNeobac} néo-bacheliers ayant accepté une place : `
+        + 'l\'effectif est trop petit pour en tirer un objectif de moyenne.'
+        + access,
+      en:
+        `No official minimum grade is published. Parcoursup ${cohort.session} records `
+        + `only ${cohort.admittedNeobac} new baccalauréat holders who accepted a place: `
+        + 'the cohort is too small to infer a grade target.'
+        + accessEn,
+    };
+  }
+
+  const share = Math.round((dominant.count / cohort.admittedNeobac) * 100);
+  const targetFr =
+    dominant.floor <= 10
+      ? 'Ce profil est le plus ouvert de la session. Pour te situer au-dessus, vise au moins 12/20 (mention Assez bien). Ce n\'est pas un seuil d\'admission.'
+      : `Pour te situer dans ce profil, vise au moins ${dominant.floor}/20. Ce n'est pas un seuil d'admission.`;
+  const targetEn =
+    dominant.floor <= 10
+      ? 'This is the most open profile in the session. To sit above it, aim for at least 12/20 (Assez bien). That is not an admission cutoff.'
+      : `To sit in this profile, aim for at least ${dominant.floor}/20. That is not an admission cutoff.`;
+
+  return {
+    fr:
+      `Aucune moyenne minimale officielle n'est publiée pour Études en France. `
+      + `Parmi les ${cohort.admittedNeobac} néo-bacheliers qui ont accepté une place `
+      + `sur Parcoursup ${cohort.session}, le profil le plus fréquent est ${dominant.fr} `
+      + `(${share} %). ${targetFr}${access}`,
+    en:
+      `No official minimum grade is published for Études en France. Among the `
+      + `${cohort.admittedNeobac} new baccalauréat holders who accepted a place on `
+      + `Parcoursup ${cohort.session}, the most common profile is ${dominant.en} `
+      + `(${share}%). ${targetEn}${accessEn}`,
+  };
+}
+
+/**
  * Les exigences d'admission d'une formation, dans l'ordre où un candidat les
- * rencontre : par quelle procédure, avec quel diplôme, avec quel français,
- * puis ce que l'établissement ajoute.
+ * rencontre : ce que c'est, par quelle procédure, avec quel diplôme, avec quel
+ * français, puis le repère de moyenne — publié, ou explicitement absent.
  */
 export function programRequirements(program: EefProgramRecord): Bilingual[] {
   const out: Bilingual[] = [
+    programSummary(program),
     PROCEDURE_STEP[program.procedureType],
     ENTRY_QUALIFICATION[program.cycle],
   ];
   const french = FRENCH_LEVEL[program.procedureType];
   if (french) out.push(french);
   out.push(SELECTIVITY_NOTE[program.selectivity]);
+  out.push(admissionGuidance(program));
   if (program.recommendedBachelors.length > 0) {
     const list = program.recommendedBachelors.join(', ');
     out.push({

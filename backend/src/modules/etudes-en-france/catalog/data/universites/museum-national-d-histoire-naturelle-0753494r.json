@@ -1,0 +1,72 @@
+{
+  "institution": {
+    "id": "eef-univ-0753494r",
+    "uai": "0753494R",
+    "nameFr": "Muséum national d'histoire naturelle",
+    "nameEn": "National museum of natural history",
+    "acronym": "MNHN",
+    "city": "Paris 5e",
+    "department": "Paris",
+    "region": "Île-de-France",
+    "websiteUrl": "https://www.mnhn.fr/fr",
+    "typology": null,
+    "enrolment": {
+      "count": 440,
+      "year": 2024
+    },
+    "sourceUrl": "https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-principaux-etablissements-enseignement-superieur/information/",
+    "institutionKind": "grand_etablissement"
+  },
+  "programs": [
+    {
+      "id": "eef-prog-672517079cacf019",
+      "institutionId": "eef-univ-0753494r",
+      "nameFr": "Biodiversité, écologie et évolution",
+      "level": "Master",
+      "cycle": "master",
+      "fieldId": "d08",
+      "fieldIsFallback": false,
+      "durationYears": 2,
+      "campusCity": "Paris",
+      "procedureType": "eef",
+      "selectivity": "selective",
+      "formationCode": "1900342X",
+      "tracks": [
+        "Sociétés et Biodiversité",
+        "Muséologie des Sciences de la Nature et de l'Homme",
+        "Ecologie Evolutive et Fonctionnelle",
+        "Systématique, Evolution, Paléontologie",
+        "Ecologie de la Conservation, Ingénierie écologique  : Recherche et Expertise",
+        "Quaternaire, Préhistoire, Bioarchéologie",
+        "Environnement, Santé"
+      ],
+      "recommendedBachelors": [
+        "Science politique",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Histoire de l'art et archéologie",
+        "Philosophie",
+        "Economie",
+        "Histoire",
+        "Sciences de l'éducation",
+        "Chimie",
+        "Mathématiques",
+        "Physique",
+        "Physique, chimie",
+        "Arts du spectacle",
+        "Sciences de la Terre",
+        "Sciences pour la santé"
+      ],
+      "admissionModes": [
+        "Dossier",
+        "Entretien"
+      ],
+      "dataset": "trouver-mon-master",
+      "sourceUrl": "https://www.monmaster.gouv.fr/"
+    }
+  ]
+}

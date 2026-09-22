@@ -23,10 +23,14 @@
 //   ses universités entre deux collectes n'est pas un catalogue plus petit,
 //   c'est une collecte cassée.
 // ─────────────────────────────────────────────────────────────────────────────
+import { logoLicenceAllowsCommercialReuse } from './eef-catalog.admission';
 import {
   EEF_CYCLES,
+  EEF_INSTITUTION_KINDS,
   EEF_PROCEDURE_TYPES,
+  type EefAdmissionCohort,
   type EefCatalog,
+  type EefLogo,
 } from './eef-catalog.types';
 
 const KNOWN_FIELD_IDS = new Set([
@@ -42,6 +46,76 @@ const KNOWN_DATASETS = new Set([
 ]);
 const KNOWN_CYCLES = new Set<string>(EEF_CYCLES);
 const KNOWN_PROCEDURES = new Set<string>(EEF_PROCEDURE_TYPES);
+const KNOWN_KINDS = new Set<string>(EEF_INSTITUTION_KINDS);
+
+function validateLogo(where: string, logo: EefLogo, errors: string[]) {
+  if (!isHttpsUrl(logo.url) || !logo.url.includes('wikimedia.org')) {
+    errors.push(`${where} : logo hors Wikimedia (${logo.url}).`);
+  }
+  if (!isHttpsUrl(logo.sourceUrl) || !logo.sourceUrl.includes('wikimedia.org')) {
+    errors.push(`${where} : page source du logo absente ou non HTTPS.`);
+  }
+  if (!logoLicenceAllowsCommercialReuse(logo.licence)) {
+    errors.push(
+      `${where} : licence de logo non réutilisable commercialement (${logo.licence}).`,
+    );
+  }
+  if (!/^Q\d+$/.test(logo.wikidataId)) {
+    errors.push(`${where} : identifiant Wikidata du logo invalide.`);
+  }
+  if (typeof logo.trademarked !== 'boolean') {
+    errors.push(`${where} : drapeau trademarked absent.`);
+  }
+}
+
+function validateCohort(
+  where: string,
+  cohort: EefAdmissionCohort,
+  errors: string[],
+) {
+  if (!/^\d{4}$/.test(cohort.session)) {
+    errors.push(`${where} : session d'admission invalide.`);
+  }
+  if (
+    !isHttpsUrl(cohort.sourceUrl)
+    || !cohort.sourceUrl.includes('enseignementsup-recherche.gouv.fr')
+  ) {
+    errors.push(`${where} : source du profil d'admission hors ministère.`);
+  }
+  const counts = [
+    cohort.sansMention,
+    cohort.assezBien,
+    cohort.bien,
+    cohort.tresBien,
+    cohort.tresBienFelicitations,
+  ];
+  if (
+    !Number.isInteger(cohort.admittedNeobac)
+    || cohort.admittedNeobac < 0
+    || counts.some((count) => !Number.isInteger(count) || count < 0)
+  ) {
+    errors.push(`${where} : effectifs d'admission non entiers.`);
+    return;
+  }
+  const sum = counts.reduce((total, count) => total + count, 0);
+  if (sum !== cohort.admittedNeobac) {
+    errors.push(
+      `${where} : les mentions (${sum}) ne somment pas les admis (${cohort.admittedNeobac}).`,
+    );
+  }
+  if (
+    cohort.accessRatePct != null
+    && (cohort.accessRatePct < 0 || cohort.accessRatePct > 100)
+  ) {
+    errors.push(`${where} : taux d'accès hors de 0–100.`);
+  }
+  if (
+    cohort.lastCalledRank != null
+    && (!Number.isInteger(cohort.lastCalledRank) || cohort.lastCalledRank <= 0)
+  ) {
+    errors.push(`${where} : rang du dernier appelé invalide.`);
+  }
+}
 
 export interface EefCatalogGates {
   /// Nombre minimal d'universités. 69 des 70 publient au moins un master ;
@@ -131,6 +205,15 @@ export function validateEefCatalog(
     if (institution.enrolment && institution.enrolment.count <= 0) {
       errors.push(`${where} : effectif étudiant non positif.`);
     }
+    if (
+      institution.institutionKind
+      && !KNOWN_KINDS.has(institution.institutionKind)
+    ) {
+      errors.push(
+        `${where} : type d'établissement hors référentiel (${institution.institutionKind}).`,
+      );
+    }
+    if (institution.logo) validateLogo(where, institution.logo, errors);
 
     if (file.programs.length > 0) institutionsWithPrograms += 1;
     for (const program of file.programs) {
@@ -175,6 +258,14 @@ export function validateEefCatalog(
       }
       if (!isHttpsUrl(program.sourceUrl)) {
         errors.push(`${pWhere} : fiche officielle absente ou non HTTPS.`);
+      }
+      if (program.admissionCohort) {
+        if (program.dataset !== 'parcoursup') {
+          errors.push(
+            `${pWhere} : profil d'admission sur une formation qui n'est pas Parcoursup.`,
+          );
+        }
+        validateCohort(pWhere, program.admissionCohort, errors);
       }
     }
   }

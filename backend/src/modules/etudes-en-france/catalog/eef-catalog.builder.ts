@@ -13,6 +13,7 @@ import {
   normalizeCityName,
   normalizeLabel,
   resolveFieldId,
+  refineParcoursupShape,
   resolveParcoursupShape,
   restoreAccentedLabel,
   stableEefId,
@@ -166,8 +167,8 @@ export function buildParcoursupPrograms(
       continue;
     }
     const families = row.tf ?? [];
-    const shape = resolveParcoursupShape(families);
-    if (!shape) {
+    const resolved = resolveParcoursupShape(families);
+    if (!resolved) {
       rejected.push({ reason: 'famille-inconnue', label: families.join(' + ') });
       continue;
     }
@@ -178,6 +179,7 @@ export function buildParcoursupPrograms(
       rejected.push({ reason: 'intitule-vide', label: (row.etab_nom ?? '').trim() });
       continue;
     }
+    const shape = refineParcoursupShape(resolved, label);
     const source = (row.fiche ?? '').trim();
     if (!source.startsWith('https://')) {
       rejected.push({ reason: 'source-manquante', label });

@@ -39,6 +39,7 @@ import {
   type RawMasterTrack,
   type RawParcoursupRow,
 } from '../src/modules/etudes-en-france/catalog/eef-catalog.builder';
+import { additionalInstitutionWhere, institutionKindForUai } from '../src/modules/etudes-en-france/catalog/eef-additional-institutions';
 import type {
   EefCatalogManifest,
   EefCatalogSource,
@@ -153,8 +154,12 @@ async function main(): Promise<void> {
   // Grenoble Alpes, Côte d'Azur, Lorraine, PSL — sont classées « grand
   // établissement » depuis leur passage en établissement expérimental. Les
   // exclure retirerait quatre des plus grosses universités de France.
+  // Le second membre est une liste fermée d'UAI : universités de technologie,
+  // Sciences Po, INALCO, CNAM… publics et diplômants, mais sans typologie
+  // d'université au référentiel. Voir `eef-additional-institutions.ts`.
   const institutionWhere =
-    'secteur_d_etablissement="public" and typologie_d_universites_et_assimiles is not null';
+    '(secteur_d_etablissement="public" and typologie_d_universites_et_assimiles is not null) or ('
+    + `${additionalInstitutionWhere()})`;
   const rawInstitutions = (await fetchAll(
     'fr-esr-principaux-etablissements-enseignement-superieur',
     institutionWhere,
@@ -180,9 +185,11 @@ async function main(): Promise<void> {
       skippedInstitutions.push((raw.uo_lib ?? '(sans nom)').trim());
       continue;
     }
-    institutions.push(record);
+    const kind = institutionKindForUai(record.uai);
+    const stored = kind ? { ...record, institutionKind: kind } : record;
+    institutions.push(stored);
     const paysage = (raw.etablissement_id_paysage ?? '').trim();
-    if (paysage !== '') byPaysage.set(paysage, record);
+    if (paysage !== '') byPaysage.set(paysage, stored);
   }
   console.log(
     `Universités publiques : ${institutions.length} retenues, ${skippedInstitutions.length} écartées`,

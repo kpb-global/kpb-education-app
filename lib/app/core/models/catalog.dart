@@ -369,6 +369,9 @@ class InstitutionModel {
     required this.intakePeriods,
     required this.programIds,
     this.isPartner = false,
+    this.logoUrl,
+    this.logoSourceUrl,
+    this.logoLicence,
     this.lastVerifiedAt,
     this.sourceUrl,
   });
@@ -384,6 +387,9 @@ class InstitutionModel {
   final List<String> intakePeriods;
   final List<String> programIds;
   final bool isPartner;
+  final String? logoUrl;
+  final String? logoSourceUrl;
+  final String? logoLicence;
   final DateTime? lastVerifiedAt;
   final String? sourceUrl;
 
@@ -411,6 +417,9 @@ class InstitutionModel {
           (json['intakePeriods'] as List<dynamic>?)?.cast<String>() ?? [],
       programIds: (json['programIds'] as List<dynamic>?)?.cast<String>() ?? [],
       isPartner: json['isPartner'] as bool? ?? false,
+      logoUrl: json['logoUrl'] as String?,
+      logoSourceUrl: json['logoSourceUrl'] as String?,
+      logoLicence: json['logoLicence'] as String?,
       lastVerifiedAt:
           DateTime.tryParse(json['lastVerifiedAt'] as String? ?? ''),
       sourceUrl: json['sourceUrl'] as String?,
@@ -429,6 +438,9 @@ class InstitutionModel {
         'intakePeriods': intakePeriods,
         'programIds': programIds,
         'isPartner': isPartner,
+        'logoUrl': logoUrl,
+        'logoSourceUrl': logoSourceUrl,
+        'logoLicence': logoLicence,
         'lastVerifiedAt': lastVerifiedAt?.toIso8601String(),
         'sourceUrl': sourceUrl,
       };
