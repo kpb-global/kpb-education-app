@@ -130,6 +130,7 @@ export class CampaignExecutorService {
           user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
         const ok = await this.pushService.sendToUser(user.id, title, body, {
           campaignId,
+          ...(campaign.route ? { route: campaign.route } : {}),
           ...(campaign.linkedCaseId ? { caseId: campaign.linkedCaseId } : {}),
         });
         if (ok) delivered += 1;
@@ -268,7 +269,8 @@ export class CampaignExecutorService {
     return { enqueued: recipients.length };
   }
 
-  private async resolveRecipients(
+  /** Public pour l'aperçu d'audience : une seule résolution, jamais deux. */
+  async resolveRecipients(
     audienceType: string,
     filters: Record<string, unknown>,
   ) {
