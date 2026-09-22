@@ -132,6 +132,24 @@ void main() {
       expect(AppRoutes.normalizeExternalRoute('/success-lab/a/other'), isNull);
     });
 
+    test('resolves the « Études en France » catalogue deep link', () {
+      // La route vit sous `/etudes-en-france/`, donc elle ressemble à un
+      // identifiant de détail. Ce test fixe qu'elle est reconnue TELLE QUELLE
+      // et non découpée en « espace + segment inconnu ».
+      expect(
+        AppRoutes.normalizeExternalRoute(AppRoutes.etudesEnFranceCatalog),
+        AppRoutes.etudesEnFranceCatalog,
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute('  /etudes-en-france/catalogue '),
+        AppRoutes.etudesEnFranceCatalog,
+      );
+      expect(
+        AppRoutes.normalizeExternalRoute('/etudes-en-france/inconnu'),
+        isNull,
+      );
+    });
+
     test('maps legacy create route to current route', () {
       expect(
         AppRoutes.normalizeExternalRoute('/cases/create'),
@@ -194,7 +212,10 @@ void main() {
       // ferait un cul-de-sac silencieux, alors qu'`EefEntry` sait retomber sur
       // « bientôt disponible ».
       expect(names, contains(AppRoutes.etudesEnFrance));
-      expect(names.length, equals(22));
+      // Le catalogue a sa propre route, pour la même raison : une notification
+      // peut viser la recherche elle-même plutôt que l'accueil de l'espace.
+      expect(names, contains(AppRoutes.etudesEnFranceCatalog));
+      expect(names.length, equals(23));
     });
   });
 }

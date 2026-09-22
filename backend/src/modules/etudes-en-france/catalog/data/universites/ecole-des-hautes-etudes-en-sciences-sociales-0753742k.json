@@ -99,8 +99,15 @@
       "formationCode": "1900182Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie",
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Sciences de la vie|Frontières du vivant"
+        "Philosophie",
+        "Psychologie",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Frontières du vivant"
       ],
       "admissionModes": [
         "Dossier",
@@ -150,7 +157,11 @@
       "formationCode": "1900332M",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire|Sociologie|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales"
+        "Histoire",
+        "Sociologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -304,7 +315,11 @@
       "formationCode": "1900331K",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Droit|Science politique|Histoire|Sociologie"
+        "Philosophie",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -389,7 +404,9 @@
       "formationCode": "1900174Q",
       "tracks": [],
       "recommendedBachelors": [
-        "Science politique|Sociologie|Sciences sociales"
+        "Science politique",
+        "Sociologie",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -506,8 +523,28 @@
       "formationCode": "1900333N",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Histoire|Psychologie|Sciences du langage|Sociologie|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé",
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Histoire|Psychologie|Sciences du langage|Sociologie|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé"
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Histoire",
+        "Psychologie",
+        "Sciences du langage",
+        "Sociologie",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -530,9 +567,11 @@
       "formationCode": "1604867R",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Science politique|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Science politique",
+        "Mathématiques",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

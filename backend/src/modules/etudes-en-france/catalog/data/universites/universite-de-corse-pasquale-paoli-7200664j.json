@@ -1318,7 +1318,8 @@
       "formationCode": "1801067K",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion"
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -1617,7 +1618,8 @@
       "formationCode": "1800399J",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit"
+        "Administration publique",
+        "Droit"
       ],
       "admissionModes": [
         "Dossier"
@@ -1713,7 +1715,8 @@
       "formationCode": "1800401M",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion"
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier",

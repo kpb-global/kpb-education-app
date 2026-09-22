@@ -262,7 +262,8 @@
         "Management de projet et innovation en biotechnologie"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Sciences de la vie",
+        "Chimie",
+        "Physique",
         "Sciences de la vie"
       ],
       "admissionModes": [
@@ -554,7 +555,11 @@
       "formationCode": "1302750H",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [

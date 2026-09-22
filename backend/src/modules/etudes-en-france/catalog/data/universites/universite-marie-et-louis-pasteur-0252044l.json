@@ -1637,8 +1637,8 @@
         "Informatique avancée et applications (à distance)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Informatique"
+        "Informatique",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2751,11 +2751,11 @@
         "Computer Vision"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur",
-        "Sciences pour l'ingénieur",
-        "Electronique, énergie électrique, automatique",
         "Informatique",
-        "Mathématiques"
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"

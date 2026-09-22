@@ -1291,7 +1291,8 @@
         "Musicien intervenant"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sociologie",
+        "Psychologie",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [
@@ -1349,9 +1350,9 @@
         "Enseignement en sciences pour l'ingénieur"
       ],
       "recommendedBachelors": [
-        "Mécanique|Electronique, énergie électrique, automatique",
-        "Sciences pour l'ingénieur",
-        "Electronique, énergie électrique, automatique"
+        "Mécanique",
+        "Electronique, énergie électrique, automatique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Concours",
@@ -1768,7 +1769,6 @@
         "Enseignement dans le supérieur"
       ],
       "recommendedBachelors": [
-        "Physique|Physique, chimie",
         "Physique",
         "Physique, chimie"
       ],
@@ -2157,7 +2157,8 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Psychologie|Sociologie"
+        "Psychologie",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -2579,23 +2580,22 @@
         "Sciences de la vie et de la terre"
       ],
       "recommendedBachelors": [
-        "Lettres|Histoire|Mathématiques|Langues, littératures et civilisations étrangères et régionales|Géographie et aménagement|Sciences et techniques des activités physiques et sportives",
+        "Lettres",
+        "Histoire",
+        "Mathématiques",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Géographie et aménagement",
+        "Sciences et techniques des activités physiques et sportives",
         "Sciences pour l'ingénieur",
         "Sciences et technologies",
-        "Langues, littératures et civilisations étrangères et régionales",
-        "Lettres",
         "Humanités",
-        "Histoire",
-        "Géographie et aménagement",
         "Economie",
         "Administration économique et sociale",
         "Sciences sociales",
         "Informatique",
-        "Mathématiques",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Philosophie",
         "Etudes Européennes et Internationales",
-        "Sciences et techniques des activités physiques et sportives",
         "Toutes licences",
         "Musicologie",
         "Chimie",
@@ -2870,7 +2870,7 @@
         "international master in public finance"
       ],
       "recommendedBachelors": [
-        "Droit|Economie",
+        "Droit",
         "Economie",
         "Economie et gestion"
       ],
@@ -3201,7 +3201,6 @@
         "catalyse, molécule et chimie verte"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie",
         "Chimie",
         "Physique, chimie",
         "Physique"
@@ -3981,19 +3980,18 @@
         "Préhistoire et archéosciences"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Histoire|Chimie|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Histoire de l'art et archéologie|Lettres|Histoire|Chimie|Physique|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie",
-        "Histoire de l'art et archéologie|Lettres, langues",
         "Histoire de l'art et archéologie",
+        "Lettres",
         "Histoire",
         "Chimie",
+        "Langues, littératures et civilisations étrangères et régionales",
         "Lettres, langues",
         "Sciences de l'Homme, anthropologie, ethnologie",
         "Sciences de la Terre",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
-        "Lettres",
-        "Langues, littératures et civilisations étrangères et régionales"
+        "Physique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier",

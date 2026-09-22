@@ -202,7 +202,13 @@
       "formationCode": "1604765E",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Philosophie|Histoire|Sciences du langage|Humanités|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Sciences du langage",
+        "Humanités",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -547,12 +553,17 @@
         "BioMECH (Biomechanics)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences de la vie|Sciences et technologies|Sciences pour la santé|Frontières du vivant",
-        "Sciences pour la santé",
-        "Sciences pour l'ingénieur",
-        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
         "Physique",
-        "Sciences de la vie"
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Sciences pour la santé",
+        "Frontières du vivant",
+        "Chimie"
       ],
       "admissionModes": [
         "Dossier",
@@ -608,8 +619,15 @@
       "formationCode": "1900182Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie",
-        "Philosophie|Psychologie|Sciences du langage|Informatique|Mathématiques|Sciences sociales|Sciences de la vie|Frontières du vivant"
+        "Philosophie",
+        "Psychologie",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Frontières du vivant"
       ],
       "admissionModes": [
         "Dossier",
@@ -852,7 +870,8 @@
       "formationCode": "1900150P",
       "tracks": [],
       "recommendedBachelors": [
-        "Physique, chimie|Sciences de la Terre"
+        "Physique, chimie",
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -953,9 +972,11 @@
       "formationCode": "1604867R",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Economie|Science politique|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Mathématiques",
+        "Science politique",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

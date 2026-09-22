@@ -87,7 +87,6 @@
         "Méthodes Avancées de Génie Industriel"
       ],
       "recommendedBachelors": [
-        "Mathématiques|Physique|Sciences pour l'ingénieur",
         "Mathématiques",
         "Physique",
         "Sciences pour l'ingénieur"
@@ -113,7 +112,8 @@
       "formationCode": "2100018V",
       "tracks": [],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Sciences de la Terre"
+        "Sciences pour l'ingénieur",
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -217,7 +217,9 @@
       "formationCode": "1703071P",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Sciences de la vie|Sciences pour la santé"
+        "Chimie",
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -539,7 +541,13 @@
       "formationCode": "2100016T",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Gestion|Informatique|Langues étrangères appliquées|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences et techniques des activités physiques et sportives"
+        "Droit",
+        "Gestion",
+        "Informatique",
+        "Langues étrangères appliquées",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier",
@@ -1146,7 +1154,8 @@
       "formationCode": "2100019W",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Administration économique et sociale"
+        "Droit",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -2258,7 +2267,10 @@
       "formationCode": "1702730U",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -2282,7 +2294,10 @@
       "formationCode": "1702232C",
       "tracks": [],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Electronique, énergie électrique, automatique|Sciences et technologies"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -2844,7 +2859,9 @@
       "formationCode": "1703183L",
       "tracks": [],
       "recommendedBachelors": [
-        "Psychologie|Sciences de l'Homme, anthropologie, ethnologie|Sciences et techniques des activités physiques et sportives"
+        "Psychologie",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier",
@@ -2944,7 +2961,10 @@
       "formationCode": "1704252X",
       "tracks": [],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie|Sciences de la vie"
+        "Chimie",
+        "Physique",
+        "Physique, chimie",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier",
@@ -3646,7 +3666,8 @@
       "formationCode": "2100027E",
       "tracks": [],
       "recommendedBachelors": [
-        "Sociologie|Administration économique et sociale"
+        "Sociologie",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier"
@@ -3980,7 +4001,11 @@
       "formationCode": "2100026D",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Langues étrangères appliquées|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -4489,7 +4514,11 @@
       "formationCode": "1702262K",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Gestion|Administration économique et sociale|Economie et gestion|Sciences sociales"
+        "Droit",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -5182,7 +5211,15 @@
       "formationCode": "1703173A",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Sciences de l'éducation|Sociologie|Arts du spectacle|Musicologie|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Sciences et techniques des activités physiques et sportives"
+        "Arts",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Arts du spectacle",
+        "Musicologie",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier",

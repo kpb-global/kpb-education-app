@@ -423,10 +423,9 @@
         "Linguistique, acquisition et pathologies du langage"
       ],
       "recommendedBachelors": [
-        "Sciences du langage|Langues, littératures et civilisations étrangères et régionales",
         "Sciences du langage",
-        "Lettres",
         "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres",
         "Toutes licences"
       ],
       "admissionModes": [
@@ -1040,7 +1039,11 @@
       "formationCode": "1900149N",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Economie et gestion|Etudes Européennes et Internationales"
+        "Economie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Economie et gestion",
+        "Etudes Européennes et Internationales"
       ],
       "admissionModes": [
         "Dossier",
@@ -1285,7 +1288,9 @@
       "recommendedBachelors": [
         "Lettres",
         "Philosophie",
-        "Economie|Administration économique et sociale|Economie et gestion",
+        "Economie",
+        "Administration économique et sociale",
+        "Economie et gestion",
         "Toutes licences",
         "Histoire de l'art et archéologie",
         "Sciences de l'éducation",
@@ -1810,13 +1815,14 @@
         "Recherche et développement (en partenariat avec l'Inalco et l'Université Paris Nanterre - Paris 10)"
       ],
       "recommendedBachelors": [
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Lettres, langues|Humanités|Information-communication|Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Sciences du langage",
         "Informatique",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Lettres, langues",
+        "Humanités",
+        "Information-communication",
         "Sciences de l'éducation",
         "Lettres"
       ],
@@ -2239,7 +2245,10 @@
       "formationCode": "1900195N",
       "tracks": [],
       "recommendedBachelors": [
-        "Science politique|Langues, littératures et civilisations étrangères et régionales|Etudes Européennes et Internationales|Administration et échanges internationaux"
+        "Science politique",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Etudes Européennes et Internationales",
+        "Administration et échanges internationaux"
       ],
       "admissionModes": [
         "Dossier",

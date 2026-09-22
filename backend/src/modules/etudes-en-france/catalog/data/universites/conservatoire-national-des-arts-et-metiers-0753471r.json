@@ -256,7 +256,8 @@
       "formationCode": "1900152R",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration économique et sociale|Géographie et aménagement"
+        "Administration économique et sociale",
+        "Géographie et aménagement"
       ],
       "admissionModes": [],
       "dataset": "trouver-mon-master",
@@ -550,7 +551,11 @@
         "Systèmes communicants en environnement complexe"
       ],
       "recommendedBachelors": [
-        "Physique|Sciences pour l'ingénieur|Physique, chimie|Electronique, énergie électrique, automatique|Sciences et technologies"
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"
@@ -619,7 +624,8 @@
       "formationCode": "1900186C",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion"
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [],
       "dataset": "trouver-mon-master",
@@ -640,7 +646,8 @@
       "formationCode": "1604769J",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques"
+        "Economie",
+        "Mathématiques"
       ],
       "admissionModes": [],
       "dataset": "trouver-mon-master",
@@ -804,7 +811,8 @@
       "formationCode": "1604793K",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Géographie et aménagement"
+        "Droit",
+        "Géographie et aménagement"
       ],
       "admissionModes": [],
       "dataset": "trouver-mon-master",

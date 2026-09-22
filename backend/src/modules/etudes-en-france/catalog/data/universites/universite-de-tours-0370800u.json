@@ -274,7 +274,11 @@
       "formationCode": "1801083C",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -1091,7 +1095,11 @@
       "formationCode": "1303332R",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Histoire|Psychologie|Sciences de l'éducation|Sociologie"
+        "Droit",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -2186,7 +2194,9 @@
       "formationCode": "1800508C",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques|Economie et gestion"
+        "Economie",
+        "Mathématiques",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2513,7 +2523,10 @@
       "formationCode": "1201125W",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Mathématiques",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"

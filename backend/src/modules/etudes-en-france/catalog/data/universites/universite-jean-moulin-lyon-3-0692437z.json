@@ -2407,8 +2407,8 @@
         "Comptabilité - contrôle - audit"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion",
-        "Gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -3991,7 +3991,33 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Psychologie|Sociologie|Chimie|Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Administration économique et sociale|Economie et gestion|Humanités|Electronique, énergie électrique, automatique|Génie civil|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives|Sciences et technologies|Sciences pour la santé"
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sociologie",
+        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
+        "Physique",
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Electronique, énergie électrique, automatique",
+        "Génie civil",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
+        "Sciences et technologies",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier",
@@ -4020,11 +4046,10 @@
         "Design de communication : management et marketing digital"
       ],
       "recommendedBachelors": [
-        "Science politique|Sociologie",
-        "Information-communication",
-        "Lettres",
         "Science politique",
         "Sociologie",
+        "Information-communication",
+        "Lettres",
         "Sciences de l'éducation",
         "Arts plastiques",
         "Informatique"

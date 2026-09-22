@@ -18,6 +18,7 @@ import {
   type PlannedInstitution,
   type PlannedProgram,
 } from '../src/modules/etudes-en-france/catalog/eef-catalog.importer';
+import { resolveFranceCountryId } from '../src/modules/etudes-en-france/catalog/eef-country';
 import { loadEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.loader';
 import { validateEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.validator';
 
@@ -34,36 +35,22 @@ const prisma = new PrismaClient();
 
 /**
  * Le pays n'est pas écrit en dur, et ce n'est pas de la prudence gratuite :
- * `Institution.countryId` n'est pas une clé étrangère, et deux identifiants de
- * la France coexistent déjà dans le dépôt selon le semeur qui a écrit la ligne
- * (`france` côté M5, `fra` côté partenaires). Écrire le mauvais produirait
- * 7 000 formations orphelines qu'aucun filtre ne montrerait — et que
- * `verify:catalog` signalerait bien trop tard.
+ * `Institution.countryId` n'est pas une clé étrangère, et plusieurs
+ * identifiants de la France coexistent dans le dépôt selon le semeur qui a
+ * écrit la ligne. Écrire le mauvais produirait 10 000 formations orphelines
+ * qu'aucun filtre ne montrerait.
  *
- * On résout donc par le CODE pays, unique en base, et on refuse d'avancer si
- * la France n'est pas un pays actif.
+ * La RÈGLE, elle, vit dans `eef-country.ts`, partagée avec la recherche. Elle
+ * était recopiée ici, et la copie ne cherchait que le code « FR » alors que le
+ * référentiel M5 écrit « FRA » : sur une base normalement semée, cet import
+ * refusait de démarrer.
  */
-async function resolveFranceCountryId(): Promise<string> {
+async function resolveCountryId(): Promise<string> {
   const countries = await prisma.country.findMany({
     where: { isActive: true },
     select: { id: true, code: true },
   });
-  const matches = countries.filter(
-    (country) => country.code.toUpperCase() === 'FR',
-  );
-  if (matches.length === 0) {
-    throw new Error(
-      "Aucun pays actif de code « FR » en base : le catalogue n'a nulle part où "
-      + "se rattacher. Exécuter le semeur des pays avant l'import.",
-    );
-  }
-  if (matches.length > 1) {
-    throw new Error(
-      `Plusieurs pays actifs de code « FR » : ${matches.map((c) => c.id).join(', ')}. `
-      + 'Trancher en base avant de réimporter.',
-    );
-  }
-  return matches[0].id;
+  return resolveFranceCountryId(countries);
 }
 
 class PrismaEefWriter implements EefCatalogWriter {
@@ -130,7 +117,7 @@ async function main(): Promise<void> {
   }
   for (const warning of validation.warnings) console.warn(`  ⚠ ${warning}`);
 
-  const countryId = await resolveFranceCountryId();
+  const countryId = await resolveCountryId();
   if (countryId !== catalog.manifest.countryId) {
     console.warn(
       `  ⚠ Le manifeste vise « ${catalog.manifest.countryId} » ; la base sert `

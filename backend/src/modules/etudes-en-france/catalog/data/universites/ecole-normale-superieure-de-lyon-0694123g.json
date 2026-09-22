@@ -919,16 +919,16 @@
         "DIDACTIQUE DES SCIENCES EXPERIMENTALES ET DES MATHEMATIQUES"
       ],
       "recommendedBachelors": [
-        "Chimie|Informatique|Mathématiques|Physique|Sciences pour l'ingénieur|Sciences de la vie|Sciences de la vie et de la Terre|Sciences pour la santé",
         "Chimie",
         "Informatique",
         "Mathématiques",
         "Physique",
-        "Physique, chimie",
-        "Sciences de la Terre",
+        "Sciences pour l'ingénieur",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Physique, chimie",
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -1104,11 +1104,10 @@
         "Design de communication : management et marketing digital"
       ],
       "recommendedBachelors": [
-        "Science politique|Sociologie",
-        "Information-communication",
-        "Lettres",
         "Science politique",
         "Sociologie",
+        "Information-communication",
+        "Lettres",
         "Sciences de l'éducation",
         "Arts plastiques",
         "Informatique"

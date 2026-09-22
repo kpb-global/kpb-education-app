@@ -36,7 +36,6 @@
         "Optimisation et Sûreté des Systèmes"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Sciences pour l'ingénieur",
         "Informatique",
         "Mathématiques",
         "Sciences pour l'ingénieur"
@@ -69,12 +68,11 @@
         "Physique, spectrométrie, ingénierie et instrumentation"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences et technologies",
+        "Mécanique",
         "Physique",
         "Sciences pour l'ingénieur",
         "Physique, chimie",
-        "Sciences et technologies",
-        "Mécanique"
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",

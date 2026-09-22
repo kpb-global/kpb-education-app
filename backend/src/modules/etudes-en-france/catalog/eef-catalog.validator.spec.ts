@@ -88,6 +88,42 @@ describe('validateEefCatalog', () => {
     expect(result.stats.programs).toBe(1);
   });
 
+  // Le gardien de la forme de la source. Le portail des masters publie
+  // `for_lic_conseille` tantôt en tableau, tantôt en une chaîne jointe par des
+  // `|` : 501 entrées portaient une « mention » du genre « Droit|Economie »,
+  // que la shortlist ne pouvait apparier à rien. Le constructeur découpe
+  // désormais ; ce gardien relit la donnée PRODUITE, parce que le défaut
+  // n'était pas une règle manquante mais une forme qu'on n'avait pas vue.
+  it('refuse une valeur encore jointe par des barres verticales', () => {
+    const cases: [keyof EefProgramRecord, string][] = [
+      ['recommendedBachelors', 'licences conseillées'],
+      ['admissionModes', 'modalités de candidature'],
+      ['tracks', 'parcours'],
+    ];
+    for (const [field, label] of cases) {
+      const result = validateEefCatalog(
+        catalogOf([{ ...PROGRAM, [field]: ['Droit|Economie'] }]),
+        LOOSE,
+      );
+      expect(result.errors.join(' ')).toContain(label);
+    }
+  });
+
+  it('accepte les mêmes valeurs une fois découpées', () => {
+    const result = validateEefCatalog(
+      catalogOf([
+        {
+          ...PROGRAM,
+          recommendedBachelors: ['Droit', 'Economie'],
+          admissionModes: ['Dossier', 'Entretien'],
+          tracks: ['Théorie politique'],
+        },
+      ]),
+      LOOSE,
+    );
+    expect(result.errors).toEqual([]);
+  });
+
   it('refuse une formation sans fiche officielle HTTPS', () => {
     // Sans source, personne ne peut re-vérifier, donc personne ne le fera.
     for (const bad of ['', 'http://parcoursup.fr/x', 'https://', 'pas une url']) {

@@ -134,7 +134,19 @@
       "formationCode": "2100091Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Droit|Science politique|Sciences de l'éducation|Sciences du langage|Sociologie|Administration économique et sociale|Economie et gestion|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales"
+        "Lettres",
+        "Philosophie",
+        "Droit",
+        "Science politique",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Humanités",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -223,7 +235,12 @@
       "formationCode": "1502212P",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Sciences de l'éducation|Sciences du langage|Sociologie|Langues, littératures et civilisations étrangères et régionales|Humanités"
+        "Lettres",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -345,7 +362,14 @@
       "formationCode": "2100084S",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Informatique|Arts du spectacle|Arts plastiques|Information-communication|Electronique, énergie électrique, automatique|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences et technologies"
+        "Arts",
+        "Informatique",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Information-communication",
+        "Electronique, énergie électrique, automatique",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -535,7 +559,18 @@
       "formationCode": "2100086U",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Administration publique|Droit|Economie|Science politique|Sociologie|Sciences pour l'ingénieur|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre"
+        "Philosophie",
+        "Administration publique",
+        "Droit",
+        "Economie",
+        "Science politique",
+        "Sociologie",
+        "Sciences pour l'ingénieur",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -619,7 +654,8 @@
       "formationCode": "1501969A",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire|Géographie et aménagement"
+        "Histoire",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"
@@ -718,7 +754,11 @@
       "formationCode": "1501098D",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Sociologie|Théologie"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Sociologie",
+        "Théologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -881,7 +921,11 @@
       "formationCode": "1502947N",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Histoire|Arts du spectacle|Langues, littératures et civilisations étrangères et régionales|Humanités"
+        "Lettres",
+        "Histoire",
+        "Arts du spectacle",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -1209,7 +1253,6 @@
         "Cultures populaires"
       ],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Science politique|Histoire|Sociologie|Arts du spectacle|Arts plastiques|Langues, littératures et civilisations étrangères et régionales|Sciences de l'Homme, anthropologie, ethnologie",
         "Lettres",
         "Philosophie",
         "Science politique",
@@ -1440,7 +1483,6 @@
         "Métiers de la production"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Arts du spectacle",
         "Arts",
         "Lettres",
         "Arts du spectacle"
@@ -1499,7 +1541,10 @@
       "formationCode": "1501077F",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Philosophie|Arts plastiques"
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Arts plastiques"
       ],
       "admissionModes": [
         "Dossier"
@@ -1818,7 +1863,9 @@
       "formationCode": "1502223B",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Sciences de l'éducation"
+        "Lettres",
+        "Philosophie",
+        "Sciences de l'éducation"
       ],
       "admissionModes": [
         "Dossier"
@@ -1841,7 +1888,8 @@
       "formationCode": "1502007S",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Géographie et aménagement"
+        "Informatique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"
@@ -2077,7 +2125,11 @@
       "formationCode": "1302750H",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [

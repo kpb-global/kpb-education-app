@@ -567,7 +567,8 @@
       "formationCode": "1703447Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Psychologie|Sciences et techniques des activités physiques et sportives"
+        "Psychologie",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier"
@@ -621,7 +622,10 @@
       "formationCode": "1701321M",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -645,7 +649,8 @@
       "formationCode": "1702470L",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Gestion"
+        "Droit",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -986,7 +991,8 @@
       "formationCode": "1703374U",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Sociologie"
+        "Philosophie",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -2358,7 +2364,9 @@
       "formationCode": "1702940X",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -2781,7 +2789,11 @@
       "formationCode": "1701836X",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2836,7 +2848,10 @@
       "formationCode": "1701181K",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -4237,7 +4252,10 @@
       "formationCode": "1701774E",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -5680,7 +5698,10 @@
       "formationCode": "1702079L",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

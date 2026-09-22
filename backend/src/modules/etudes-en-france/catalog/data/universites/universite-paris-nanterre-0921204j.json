@@ -439,7 +439,8 @@
         "M2 Economie de l'alimentation durable"
       ],
       "recommendedBachelors": [
-        "Droit|Economie et gestion",
+        "Droit",
+        "Economie et gestion",
         "Economie",
         "Mathématiques"
       ],
@@ -548,7 +549,9 @@
       "formationCode": "2000190G",
       "tracks": [],
       "recommendedBachelors": [
-        "Mathématiques|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Mathématiques",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -631,7 +634,8 @@
       "formationCode": "1401917Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -4386,7 +4390,8 @@
       "formationCode": "1401245T",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -4501,7 +4506,15 @@
       "formationCode": "1403349E",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Droit|Economie|Gestion|Science politique|Histoire|Sociologie|Administration économique et sociale|Humanités"
+        "Philosophie",
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Administration économique et sociale",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier",
@@ -4525,7 +4538,8 @@
       "formationCode": "1401609N",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie et gestion"
+        "Droit",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -5047,13 +5061,14 @@
         "Recherche et développement (en partenariat avec l'Inalco et l'Université Paris Nanterre - Paris 10)"
       ],
       "recommendedBachelors": [
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences du langage|Informatique|Langues étrangères appliquées|Lettres, langues|Humanités|Information-communication|Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Sciences du langage",
         "Informatique",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Lettres, langues",
+        "Humanités",
+        "Information-communication",
         "Sciences de l'éducation",
         "Lettres"
       ],

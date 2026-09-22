@@ -3188,7 +3188,9 @@
       "formationCode": "1800974J",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Langues, littératures et civilisations étrangères et régionales|Lettres, langues"
+        "Lettres",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues"
       ],
       "admissionModes": [
         "Dossier"

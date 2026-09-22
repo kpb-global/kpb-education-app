@@ -548,11 +548,11 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Sciences de la vie|Sciences et techniques des activités physiques et sportives",
+        "Sciences de la vie",
+        "Sciences et techniques des activités physiques et sportives",
         "Sciences de l'éducation",
         "Sciences de la Terre",
         "Sciences et technologies",
-        "Sciences et techniques des activités physiques et sportives",
         "Informatique",
         "Arts",
         "Histoire de l'art et archéologie",
@@ -566,7 +566,6 @@
         "Physique, chimie",
         "Arts du spectacle",
         "Etudes culturelles",
-        "Sciences de la vie",
         "Musicologie",
         "Langues, littératures et civilisations étrangères et régionales",
         "Philosophie",
@@ -1680,7 +1679,8 @@
         "Professeur des écoles"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences et techniques des activités physiques et sportives",
+        "Sciences de la vie",
+        "Sciences et techniques des activités physiques et sportives",
         "Toutes licences"
       ],
       "admissionModes": [

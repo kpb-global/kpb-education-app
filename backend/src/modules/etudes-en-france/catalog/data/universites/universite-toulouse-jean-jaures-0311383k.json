@@ -472,11 +472,11 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Sciences de la vie|Sciences et techniques des activités physiques et sportives",
+        "Sciences de la vie",
+        "Sciences et techniques des activités physiques et sportives",
         "Sciences de l'éducation",
         "Sciences de la Terre",
         "Sciences et technologies",
-        "Sciences et techniques des activités physiques et sportives",
         "Informatique",
         "Arts",
         "Histoire de l'art et archéologie",
@@ -490,7 +490,6 @@
         "Physique, chimie",
         "Arts du spectacle",
         "Etudes culturelles",
-        "Sciences de la vie",
         "Musicologie",
         "Langues, littératures et civilisations étrangères et régionales",
         "Philosophie",
@@ -2389,7 +2388,6 @@
         "Ingénierie de Projet avec l'Amérique Latine (IPAL)"
       ],
       "recommendedBachelors": [
-        "Histoire|Sociologie|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Géographie et aménagement|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales",
         "Histoire",
         "Sociologie",
         "Langues étrangères appliquées",
@@ -2909,7 +2907,6 @@
         "Édition imprimée et numérique"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Histoire|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Histoire de l'art et archéologie",
         "Lettres",
         "Histoire",
@@ -3853,7 +3850,6 @@
         "Expertise Ethnologique en Patrimoine Immatériel (EEPI)"
       ],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Histoire|Sociologie|Sciences de l'Homme, anthropologie, ethnologie",
         "Histoire de l'art et archéologie",
         "Histoire",
         "Sociologie",
@@ -4040,7 +4036,8 @@
         "Professeur des écoles"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences et techniques des activités physiques et sportives",
+        "Sciences de la vie",
+        "Sciences et techniques des activités physiques et sportives",
         "Toutes licences"
       ],
       "admissionModes": [

@@ -520,7 +520,6 @@
         "Métiers de l'administration pénitentiaire"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Science politique|Histoire|Administration économique et sociale|Humanités",
         "Administration publique",
         "Droit",
         "Science politique",
@@ -1355,7 +1354,6 @@
         "Oncologie fondamentale et clinique, vers une médecine de précision"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies|Sciences pour la santé",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre",
         "Sciences et technologies",
@@ -1491,8 +1489,12 @@
         "GEOGRAPHIE, ENVIRONNEMENT, TERRITOIRES"
       ],
       "recommendedBachelors": [
-        "Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Sciences sociales|Sciences de la vie et de la Terre",
-        "Géographie et aménagement"
+        "Histoire",
+        "Sociologie",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -1918,7 +1920,6 @@
         "Contemporary philosophy"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Philosophie|Science politique|Humanités",
         "Arts",
         "Lettres",
         "Philosophie",
@@ -2524,7 +2525,6 @@
         "Traitement des eaux"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie",
         "Chimie",
         "Physique, chimie"
       ],
@@ -3207,8 +3207,28 @@
         "Gestion des organismes sociaux"
       ],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Administration publique|Economie|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sciences du langage|Sociologie|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Sciences et techniques des activités physiques et sportives",
-        "Sociologie"
+        "Lettres",
+        "Philosophie",
+        "Administration publique",
+        "Economie",
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sciences du langage",
+        "Sociologie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Humanités",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales",
+        "Sciences et techniques des activités physiques et sportives"
       ],
       "admissionModes": [
         "Dossier"
@@ -3265,7 +3285,6 @@
         "Atmospheric sciences"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique|Physique, chimie",
         "Chimie",
         "Physique",
         "Physique, chimie",
@@ -3994,7 +4013,6 @@
         "Justice pénale internationale"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Science politique|Administration économique et sociale",
         "Administration publique",
         "Droit",
         "Science politique",
@@ -5305,7 +5323,6 @@
         "Métiers de la gestion des ressources humaines"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Administration économique et sociale|Economie et gestion|Sciences sociales",
         "Droit",
         "Economie",
         "Gestion",
@@ -6172,7 +6189,6 @@
         "Chimie - M1 Tronc commun"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie",
         "Chimie",
         "Physique, chimie"
       ],
@@ -6225,8 +6241,6 @@
         "Politiques d'aménagement urbain et littoral"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Sciences sociales|Génie civil|Sciences de la vie et de la Terre",
-        "Administration publique|Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Information-communication",
         "Droit",
         "Economie",
         "Science politique",
@@ -6236,7 +6250,9 @@
         "Géographie et aménagement",
         "Sciences sociales",
         "Génie civil",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Administration publique",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -6645,7 +6661,6 @@
         "Chimie bioorganique"
       ],
       "recommendedBachelors": [
-        "Chimie|Physique, chimie|Sciences de la vie",
         "Chimie",
         "Physique, chimie",
         "Sciences de la vie"
@@ -6736,9 +6751,9 @@
         "Data Science"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Electronique, énergie électrique, automatique",
         "Informatique",
-        "Mathématiques"
+        "Mathématiques",
+        "Electronique, énergie électrique, automatique"
       ],
       "admissionModes": [
         "Dossier"
@@ -6964,7 +6979,6 @@
         "Droit et politiques de santé"
       ],
       "recommendedBachelors": [
-        "Droit|Administration économique et sociale",
         "Droit",
         "Administration économique et sociale"
       ],
@@ -7024,7 +7038,6 @@
         "Calcul scientifique"
       ],
       "recommendedBachelors": [
-        "Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Mathématiques",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
@@ -7078,7 +7091,9 @@
       "formationCode": "2000251Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Information-communication|Sciences sociales"
+        "Arts",
+        "Information-communication",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -7891,7 +7906,6 @@
         "Gestion des entreprises sanitaires et sociales"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Science politique|Psychologie|Sociologie|Economie et gestion",
         "Droit",
         "Economie",
         "Gestion",
@@ -8684,7 +8698,6 @@
         "Droit et politiques de défense et de sécurité nationale"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Science politique|Administration économique et sociale",
         "Administration publique",
         "Droit",
         "Science politique",
@@ -8836,7 +8849,6 @@
         "Commerce et management des affaires internationales"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Langues étrangères appliquées|Economie et gestion",
         "Economie",
         "Gestion",
         "Langues étrangères appliquées",

@@ -94,7 +94,8 @@
       "formationCode": "1503268M",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques"
+        "Informatique",
+        "Mathématiques"
       ],
       "admissionModes": [
         "Dossier"
@@ -512,7 +513,9 @@
       "formationCode": "1502932X",
       "tracks": [],
       "recommendedBachelors": [
-        "Géographie et aménagement|Sciences de la Terre|Sciences de la vie et de la Terre"
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie et de la Terre"
       ],
       "admissionModes": [
         "Dossier"
@@ -1065,7 +1068,6 @@
         "Carrières du droit public"
       ],
       "recommendedBachelors": [
-        "Droit|Administration économique et sociale",
         "Droit",
         "Administration économique et sociale"
       ],
@@ -1799,7 +1801,7 @@
         "Estimation des biens fonciers"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit",
+        "Administration publique",
         "Droit",
         "Administration économique et sociale"
       ],
@@ -2178,7 +2180,11 @@
       "formationCode": "1302750H",
       "tracks": [],
       "recommendedBachelors": [
-        "Philosophie|Histoire|Psychologie|Sciences de l'éducation|Sociologie",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [
@@ -2270,11 +2276,10 @@
         "Ecosystèmes"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre",
         "Sciences pour l'ingénieur",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Sciences et technologies"
       ],
       "admissionModes": [

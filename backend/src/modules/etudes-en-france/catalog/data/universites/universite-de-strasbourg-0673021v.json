@@ -495,7 +495,10 @@
       "formationCode": "1800633P",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Gestion|Science politique|Economie et gestion"
+        "Droit",
+        "Gestion",
+        "Science politique",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1469,7 +1472,6 @@
         "Finance d'entreprise et pratique des marchés financiers"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion",
         "Economie",
         "Gestion",
         "Economie et gestion"
@@ -5698,7 +5700,6 @@
         "Imagerie, robotique médicale et chirurgicale"
       ],
       "recommendedBachelors": [
-        "Informatique|Physique|Electronique, énergie électrique, automatique",
         "Informatique",
         "Physique",
         "Electronique, énergie électrique, automatique"
@@ -5999,7 +6000,10 @@
       "formationCode": "1800655N",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Géographie et aménagement|Sciences sociales|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Economie",
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -6247,13 +6251,13 @@
         "Architecture, structure et projet urbain"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Histoire|Sociologie|Géographie et aménagement|Sciences sociales",
         "Droit",
         "Economie",
-        "Science politique",
         "Histoire",
         "Sociologie",
-        "Géographie et aménagement"
+        "Géographie et aménagement",
+        "Sciences sociales",
+        "Science politique"
       ],
       "admissionModes": [
         "Dossier"
@@ -6464,11 +6468,11 @@
         "Communication publique et institutionnelle"
       ],
       "recommendedBachelors": [
-        "Administration publique|Histoire|Sociologie|Administration économique et sociale",
         "Administration publique",
-        "Science politique",
         "Histoire",
+        "Sociologie",
         "Administration économique et sociale",
+        "Science politique",
         "Sciences sociales"
       ],
       "admissionModes": [
@@ -6927,7 +6931,6 @@
         "Français langue étrangère - Post Graduate Certificate of Diploma of Education"
       ],
       "recommendedBachelors": [
-        "Lettres|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales",
         "Lettres",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales"
@@ -7279,7 +7282,6 @@
         "Entrepreneuriat"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion",
         "Economie",
         "Gestion",
         "Economie et gestion"

@@ -377,7 +377,15 @@
       "formationCode": "1501387T",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Sciences du langage|Informatique|Mathématiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Sciences du langage",
+        "Informatique",
+        "Mathématiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues"
       ],
       "admissionModes": [
         "Dossier",
@@ -932,7 +940,6 @@
         "Géopolitique, territoires et enjeux de pouvoir"
       ],
       "recommendedBachelors": [
-        "Droit|Science politique|Histoire|Sociologie|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Economie et gestion|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie",
         "Droit",
         "Science politique",
         "Histoire",
@@ -1232,7 +1239,6 @@
         "Mondes littéraires"
       ],
       "recommendedBachelors": [
-        "Lettres|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales",
         "Lettres",
         "Langues étrangères appliquées",
         "Langues, littératures et civilisations étrangères et régionales"
@@ -1409,7 +1415,20 @@
       "formationCode": "1502719R",
       "tracks": [],
       "recommendedBachelors": [
-        "Arts|Histoire de l'art et archéologie|Lettres|Administration publique|Droit|Science politique|Histoire|Arts du spectacle|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Humanités"
+        "Arts",
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Administration publique",
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Lettres, langues",
+        "Musicologie",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -1435,7 +1454,6 @@
         "Mondes urbains et inégalités"
       ],
       "recommendedBachelors": [
-        "Philosophie|Science politique|Histoire|Sciences de l'éducation|Sociologie|Administration économique et sociale|Géographie et aménagement|Information-communication|Sciences de l'Homme, anthropologie, ethnologie",
         "Philosophie",
         "Science politique",
         "Histoire",
@@ -1509,7 +1527,6 @@
         "Conseil en organisation et management du changement"
       ],
       "recommendedBachelors": [
-        "Sociologie|Langues étrangères appliquées|Administration économique et sociale|Economie et gestion",
         "Sociologie",
         "Langues étrangères appliquées",
         "Administration économique et sociale",
@@ -2096,7 +2113,6 @@
         "Communication pour l'audiovisuel"
       ],
       "recommendedBachelors": [
-        "Philosophie|Science politique|Sociologie|Information-communication|Sciences de l'Homme, anthropologie, ethnologie",
         "Philosophie",
         "Science politique",
         "Sociologie",
@@ -2754,7 +2770,10 @@
       "formationCode": "1503428L",
       "tracks": [],
       "recommendedBachelors": [
-        "Mathématiques|Administration économique et sociale|Economie et gestion|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Mathématiques",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2861,7 +2880,6 @@
         "Médias et rapports sociaux de classe, race, genre"
       ],
       "recommendedBachelors": [
-        "Science politique|Sociologie|Langues étrangères appliquées|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales",
         "Science politique",
         "Sociologie",
         "Langues étrangères appliquées",
@@ -3399,7 +3417,15 @@
       "formationCode": "1503253W",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Psychologie|Sociologie|Arts du spectacle|Arts plastiques|Musicologie|Sciences de l'Homme, anthropologie, ethnologie"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Psychologie",
+        "Sociologie",
+        "Arts du spectacle",
+        "Arts plastiques",
+        "Musicologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
       ],
       "admissionModes": [
         "Dossier"

@@ -107,6 +107,24 @@ portent la règle et renvoient à la fiche officielle ; `tuitionMinEur` est
   l'intitulé. Taux de repli actuel : **2,3 %**, plafonné à 8 % par le
   validateur.
 
+Sur les masters, deux listes **publiées par l'établissement** en plus :
+
+- `recommendedBachelors` — les licences conseillées à l'entrée. 2 955 masters
+  sur 3 112 en déclarent, et **302 publient « Toutes licences »**, ce qui est
+  une information d'admission et non une mention manquante. C'est la seule
+  exigence d'admission NOMINATIVE que les données ouvertes fournissent.
+- `admissionModes` — `Dossier` (2 899), `Entretien` (1 628), `Examen` (203),
+  `Concours` (83). 2 914 masters en déclarent.
+
+Ces deux listes portent le classement de la shortlist, parce que `selectivity`
+est constante à l'intérieur d'un cycle — tous les masters, toutes les L2,
+toutes les L3, tous les BUT et tous les DEUST sont `selective` — et ne classe
+donc rien. Le validateur refuse qu'une valeur y reste jointe par des barres
+verticales : le portail publie `for_lic_conseille` tantôt en tableau, tantôt
+en une seule chaîne, et 501 entrées portaient une « mention » du genre
+« Droit|Economie|Gestion|Toutes licences » — un libellé que personne ne publie
+et qu'aucun appariement ne pouvait reconnaître.
+
 Ce que les lignes ne contiennent **pas**, et n'inventent donc pas : le niveau
 de français exigé formation par formation, les frais de dossier, les dates de
 campagne (servies par `/config/app`), une moyenne minimale Campus France, et
@@ -146,9 +164,14 @@ npm run eef:validate:structure  # porte rapide de CI
 npm run verify:eef              # portes strictes (volume, repli, sources)
 npm run eef:import:dry-run      # ce qui SERAIT créé, en lisant la base
 npm run eef:import              # --apply, créations seules, lignes inactives
+npm run eef:backfill:cycle      # comble les `cycle` NULL des lignes d'avant la colonne
+npm run eef:backfill:admission  # comble les signaux d'admission, idem
 npm run eef:backfill -- --dry-run  # logos + repère d'admission sur l'existant
 npm run eef:backfill -- --apply
 ```
+
+Les deux rattrapages ne comblent que les trous et sont **rejouables** : un
+import neuf écrit déjà ces colonnes, donc ils rendent `filled: 0`.
 
 `eef:fetch` réécrit `universites/` de zéro : une université disparue du
 référentiel disparaît du dépôt. `eef:import` ne met **jamais** à jour une ligne

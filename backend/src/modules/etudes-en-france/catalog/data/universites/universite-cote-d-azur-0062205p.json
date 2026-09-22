@@ -268,12 +268,11 @@
         "Management de l'art et de la culture"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Administration économique et sociale|Economie et gestion",
         "Droit",
         "Economie",
-        "Gestion",
         "Administration économique et sociale",
-        "Economie et gestion"
+        "Economie et gestion",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -451,7 +450,6 @@
         "Economie et Management des Ressources Humaines (EMRH)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion",
         "Economie",
         "Gestion"
       ],
@@ -576,7 +574,9 @@
         "Conseiller Clientèle de Professionnels (CCPRO)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -1027,7 +1027,10 @@
         "Pédagogies et Simulations en Sciences de la Santé"
       ],
       "recommendedBachelors": [
-        "Chimie|Sciences pour l'ingénieur|Sciences de la vie|Sciences pour la santé"
+        "Chimie",
+        "Sciences pour l'ingénieur",
+        "Sciences de la vie",
+        "Sciences pour la santé"
       ],
       "admissionModes": [
         "Dossier"
@@ -1097,7 +1100,9 @@
         "Gestion internationale de patrimoine"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -1938,7 +1943,9 @@
         "Marketing, Entrepreneuriat et Evènementiel Sportif"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -2293,7 +2300,8 @@
       "formationCode": "1801073S",
       "tracks": [],
       "recommendedBachelors": [
-        "Administration publique|Droit"
+        "Administration publique",
+        "Droit"
       ],
       "admissionModes": [
         "Dossier"
@@ -2366,7 +2374,9 @@
       "formationCode": "1800550Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -3212,7 +3222,17 @@
         "e-tourisme, Hôtellerie-MICE (Meeting, Incentives, Conferencing, Exhibitions)"
       ],
       "recommendedBachelors": [
-        "Gestion|Histoire|Sociologie|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales"
+        "Gestion",
+        "Histoire",
+        "Sociologie",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Information-communication",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -3286,7 +3306,9 @@
         "Economie et Management des Industries, du Commerce et de la Distribution (EMICD)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -3461,11 +3483,13 @@
         "Encadrement des Etablissements de la Santé et du Social - Direction d'EHPAD (2E2S DEHPAD) - Blended Learning"
       ],
       "recommendedBachelors": [
-        "Lettres|Droit|Economie|Psychologie|Sciences pour l'ingénieur|Administration économique et sociale|Economie et gestion",
         "Lettres",
+        "Droit",
+        "Economie",
         "Psychologie",
         "Sciences pour l'ingénieur",
-        "Administration économique et sociale"
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -3859,7 +3883,10 @@
       "formationCode": "1800611Q",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -4145,7 +4172,10 @@
         "Stratégie digitale"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion|Sciences et technologies"
+        "Economie",
+        "Gestion",
+        "Economie et gestion",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier"

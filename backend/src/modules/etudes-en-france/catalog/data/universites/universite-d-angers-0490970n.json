@@ -126,7 +126,10 @@
       "formationCode": "1702577C",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Histoire|Langues, littératures et civilisations étrangères et régionales|Information-communication"
+        "Lettres",
+        "Histoire",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Information-communication"
       ],
       "admissionModes": [
         "Concours",
@@ -1573,7 +1576,9 @@
       "formationCode": "1701680C",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion"
+        "Droit",
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1875,10 +1880,7 @@
         "Discriminations"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Philosophie|Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sciences du langage|Sociologie|Arts du spectacle|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé",
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sociologie|Arts du spectacle|Arts plastiques|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie",
         "Arts",
-        "Histoire de l'art et archéologie",
         "Lettres",
         "Philosophie",
         "Administration publique",
@@ -1907,7 +1909,8 @@
         "Sciences sociales",
         "Théologie",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Histoire de l'art et archéologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -2345,7 +2348,6 @@
         "Filière de l'Horticulture et Innovation"
       ],
       "recommendedBachelors": [
-        "Sciences de la vie|Sciences de la vie et de la Terre",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre"
       ],
@@ -2647,7 +2649,11 @@
       "formationCode": "1702077J",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Administration publique|Droit|Histoire|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Histoire de l'art et archéologie",
+        "Administration publique",
+        "Droit",
+        "Histoire",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -4295,7 +4301,14 @@
       "formationCode": "1900348D",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Sciences sociales"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Histoire",
+        "Sociologie",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier",

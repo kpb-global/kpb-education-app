@@ -1956,10 +1956,12 @@
         "Ecosystèmes agricoles et forestiers ECOSAFE"
       ],
       "recommendedBachelors": [
-        "Chimie|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre|Sciences et technologies",
-        "Sciences de la vie|Sciences de la vie et de la Terre",
+        "Chimie",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
         "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies"
       ],
       "admissionModes": [
         "Dossier",
@@ -2975,7 +2977,8 @@
         "M2 Economie de l'alimentation durable"
       ],
       "recommendedBachelors": [
-        "Droit|Economie et gestion",
+        "Droit",
+        "Economie et gestion",
         "Economie",
         "Mathématiques"
       ],
@@ -3714,11 +3717,10 @@
         "Ecosystèmes"
       ],
       "recommendedBachelors": [
-        "Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie|Sciences de la vie et de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre",
         "Sciences pour l'ingénieur",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Sciences et technologies"
       ],
       "admissionModes": [
@@ -4032,18 +4034,18 @@
         "M1 Sciences de l'eau - Eau et agriculture"
       ],
       "recommendedBachelors": [
-        "Sciences sanitaires et sociales|Chimie|Physique|Géographie et aménagement|Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
+        "Sciences sanitaires et sociales",
+        "Chimie",
+        "Physique",
+        "Géographie et aménagement",
+        "Sciences de la Terre",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Droit",
         "Sociologie",
         "Economie et gestion",
-        "Géographie et aménagement",
-        "Sciences de la vie",
-        "Physique",
         "Physique, chimie",
-        "Sciences de la vie et de la Terre",
-        "Chimie",
         "Sciences pour l'ingénieur",
-        "Sciences de la Terre",
         "Sciences et technologies"
       ],
       "admissionModes": [
@@ -5025,7 +5027,8 @@
       "formationCode": "1502007S",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Géographie et aménagement"
+        "Informatique",
+        "Géographie et aménagement"
       ],
       "admissionModes": [
         "Dossier"

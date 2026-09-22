@@ -659,7 +659,10 @@
       "formationCode": "1502922L",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur"
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier",
@@ -1703,7 +1706,10 @@
       "formationCode": "1501695C",
       "tracks": [],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Physique|Sciences pour l'ingénieur"
+        "Informatique",
+        "Mathématiques",
+        "Physique",
+        "Sciences pour l'ingénieur"
       ],
       "admissionModes": [
         "Dossier",
@@ -1918,8 +1924,6 @@
         "Politiques d'aménagement urbain et littoral"
       ],
       "recommendedBachelors": [
-        "Droit|Economie|Science politique|Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Sciences sociales|Génie civil|Sciences de la vie et de la Terre",
-        "Administration publique|Histoire|Sociologie|Economie et gestion|Géographie et aménagement|Information-communication",
         "Droit",
         "Economie",
         "Science politique",
@@ -1929,7 +1933,9 @@
         "Géographie et aménagement",
         "Sciences sociales",
         "Génie civil",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la vie et de la Terre",
+        "Administration publique",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",

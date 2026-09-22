@@ -555,13 +555,12 @@
         "Sécurité des Procédés Industriels et Maîtrise des Risques"
       ],
       "recommendedBachelors": [
-        "Chimie|Sciences de la vie|Sciences de la vie et de la Terre",
         "Chimie",
+        "Sciences de la vie",
+        "Sciences de la vie et de la Terre",
         "Physique, chimie",
         "Géographie et aménagement",
-        "Sciences de la Terre",
-        "Sciences de la vie",
-        "Sciences de la vie et de la Terre"
+        "Sciences de la Terre"
       ],
       "admissionModes": [
         "Dossier",
@@ -1873,7 +1872,6 @@
         "Diagnostic et réhabilitation des architectures du quotidien"
       ],
       "recommendedBachelors": [
-        "Mécanique|Physique|Sciences pour l'ingénieur|Génie civil",
         "Mécanique",
         "Physique",
         "Sciences pour l'ingénieur",
@@ -1947,7 +1945,7 @@
         "Modélisation et analyse des systèmes complexes"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques",
+        "Informatique",
         "Mathématiques"
       ],
       "admissionModes": [

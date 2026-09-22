@@ -136,12 +136,17 @@
         "BioMECH (Biomechanics)"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Mécanique|Physique|Sciences pour l'ingénieur|Physique, chimie|Sciences de la vie|Sciences et technologies|Sciences pour la santé|Frontières du vivant",
-        "Sciences pour la santé",
-        "Sciences pour l'ingénieur",
-        "Chimie",
+        "Informatique",
+        "Mathématiques",
+        "Mécanique",
         "Physique",
-        "Sciences de la vie"
+        "Sciences pour l'ingénieur",
+        "Physique, chimie",
+        "Sciences de la vie",
+        "Sciences et technologies",
+        "Sciences pour la santé",
+        "Frontières du vivant",
+        "Chimie"
       ],
       "admissionModes": [
         "Dossier",

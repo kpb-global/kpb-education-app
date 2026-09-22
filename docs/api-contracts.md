@@ -134,6 +134,310 @@ Purpose:
 Purpose:
 - support lightweight partner acquisition outside the student case flow
 
+## Recherche du catalogue « Études en France » (Phase 1)
+
+- `GET /etudes-en-france/search`
+
+**Publique**, et c'est une décision produit, pas un oubli : « catalogue
+gratuit, accompagnement payant » (plan § 2). Un étudiant doit pouvoir chercher
+sa formation avant de créer un compte — c'est ce qui lui donne une raison d'en
+créer un. La route vit donc dans son propre contrôleur, à côté de celui de la
+déclaration d'intérêt, qui lui est authentifié au niveau de la classe.
+
+### Paramètres
+
+| Paramètre | Forme | Notes |
+|---|---|---|
+| `q` | texte | découpé en mots (6 max). Chaque mot doit apparaître dans l'intitulé **ou** la ville — « droit rennes » fonctionne. |
+| `procedureType` | CSV | `dap_blanche`, `dap_jaune`, `eef`, `parcoursup`, `hors_eef` |
+| `cycle` | CSV | `licence1`, `licence2`, `licence3`, `but1`, `deust`, `sante`, `ingenieur`, `master` |
+| `fieldId` | CSV | `d01`..`d12` |
+| `selectivity` | CSV | `selective`, `non_selective` |
+| `campusCity` | CSV | vocabulaire ouvert (vient du catalogue) |
+| `institutionId` | CSV | vocabulaire ouvert |
+| `cursor` | opaque | rendu par la page précédente |
+| `limit` | entier | défaut 20, plafond 50 |
+
+Chaque paramètre de liste accepte les **deux formes** : séparée par des
+virgules (`?cycle=master,licence1`) et répétée (`?cycle=master&cycle=licence1`).
+Express livre la seconde sous forme de tableau ; les refuser serait une
+chausse-trappe, puisque c'est la forme que produisent naturellement les clients
+HTTP. Un paramètre scalaire répété (`?cursor=a&cursor=b`) retient la première
+valeur.
+
+Une valeur hors référentiel fermé rend **400 `EEF_SEARCH_BAD_PARAM`**, avec le
+paramètre fautif et les valeurs admises. L'ignorer silencieusement ferait
+afficher des compteurs qui ne correspondent pas à la demande. Un
+`institutionId` inconnu, lui, rend zéro résultat : c'est la bonne réponse, pas
+une erreur. Chaque facette accepte au plus 20 valeurs — une liste `IN` sans
+borne se fabrique avec une simple URL.
+
+### Réponse
+
+```jsonc
+{
+  "items": [ /* même forme que GET /catalog/programs */ ],
+  "total": 10247,
+  "page": { "limit": 20, "hasMore": true, "nextCursor": "TDEgLSBEcm9pdAB..." },
+  "facets": {
+    "procedureType": [{ "value": "eef", "count": 7125 }, "…"],
+    "cycle": ["…"], "fieldId": ["…"], "selectivity": ["…"],
+    "campusCity": ["…"], "institutionId": ["…"]
+  },
+  "facetsTruncated": ["campusCity", "institutionId"],
+  "source": "database"
+}
+```
+
+### Ce que la pagination garantit
+
+**Curseur, pas offset.** Le curseur porte la POSITION — le dernier couple
+`(nameFr, id)` vu — et non un rang. Deux conséquences :
+
+- *Correction* : si un administrateur publie une fiche pendant qu'un étudiant
+  fait défiler, un offset décale tout d'un rang et lui fait sauter une
+  formation sans qu'il le sache. Le curseur, non.
+- *Coût constant* : mesuré sur les 10 247 lignes, page 205 sur 205 — offset
+  4,4 ms → 23,4 ms, curseur 3,8 ms → 4,8 ms. L'écart croît avec la taille du
+  catalogue ; c'est la correction qui est l'argument fort, le coût n'en est
+  que la conséquence visible.
+
+L'ordre est **total** (`nameFr` puis `id`). `nameFr` seul ne l'est pas —
+« L1 - Droit » est servi par quarante universités — et un ordre partiel fait
+sauter des lignes au curseur.
+
+### Ce que les facettes garantissent
+
+Chaque facette est comptée **sans son propre filtre**. Choisir « master » ne
+fait donc pas tomber à zéro le compte des licences : l'étudiant voit toujours
+ce qu'il obtiendrait en changeant d'avis, sans avoir à défaire son filtre. Le
+total, lui, tient compte de tous les filtres.
+
+Page, total et facettes sont lus dans **une seule transaction**, en isolation
+`RepeatableRead` : servis séparément — ou même dans une transaction
+`READ COMMITTED`, où chaque instruction a son propre instantané — ils
+décriraient deux instants différents, « 1 240 résultats » au-dessus d'une liste
+qui en montre d'autres.
+
+`campusCity` et `institutionId` ont des dizaines de valeurs : les 20 plus
+fournies sont rendues, et `facetsTruncated` le dit.
+
+### Pas de repli sur les jeux de démonstration
+
+`/catalog/*` sait dégrader vers `mock-catalog` hors production. Pas ici : il
+n'existe aucun échantillon « Études en France », et en fabriquer un servirait
+des formations qui n'existent pas. Base indisponible ⇒ **503
+`CATALOG_UNAVAILABLE`**, dans tous les environnements.
+
+La route ne sert que des lignes **relues** (`isActive = true`) et rattachées à
+la France, résolue en base par son **code** — `FRA` comme `FR`, le référentiel
+M5 étant en ISO 3166-1 alpha-3 — et jamais par un identifiant écrit en dur. La
+règle est partagée avec l'import (`eef-country.ts`) : elle vivait en double, et
+c'est pour cela que l'erreur y vivait aussi.
+
+## Shortlist « Études en France » (Phase 2)
+
+- `GET /etudes-en-france/shortlist`
+
+**Authentifiée**, et réservée aux comptes `student`. La recherche est publique
+parce qu'elle répond à « qu'existe-t-il ? » ; celle-ci répond à « lesquelles
+pour MOI » et lit donc la déclaration d'intérêt de l'appelant. Sans identité,
+la question n'a pas de sens, et il n'existe aucun repli anonyme à servir. Un
+compte `parent` reçoit **403** plutôt qu'une liste calculée sur son propre
+profil, qu'il lirait comme celle de son enfant.
+
+### Aucun pourcentage, et ce n'est pas une omission
+
+Le plan (§ 6) prévient qu'« un pourcentage opaque dans un produit payant se
+retourne au premier refus d'admission ». Cette route va plus loin : elle n'en
+sert aucun. Le catalogue ne publie ni taux d'admission, ni capacité d'accueil,
+ni nombre de candidats — un « 72 % de chances » aurait été un nombre inventé
+portant l'autorité d'un nombre mesuré.
+
+Ce qui est servi à la place : des **faits publiés**, chacun nommé par un code
+fermé et accompagné de la valeur attestée. L'étudiant peut être en désaccord
+avec le classement ; il ne peut pas être trompé sur ce qui le fonde.
+
+### Les trois étages n'existent pas toujours
+
+Constat qui a façonné toute la route : `selectivity` est **constante à
+l'intérieur d'un cycle**. Sur les 10 247 formations, tous les masters, toutes
+les L2, toutes les L3, tous les BUT et tous les DEUST sont `selective` ; seule
+la L1 varie (1 723 non sélectives, 663 sélectives). Trier des masters là-dessus
+aurait rendu trois étages qui sont le même étage sous trois noms.
+
+Le classement repose donc sur ce qui varie ET qui est attesté, et il diffère
+selon la porte d'entrée :
+
+| `path` | Cycles servis | `ranking.basis` | Étages |
+|---|---|---|---|
+| `master` | `master` | `admission_effort` | `securite` (dossier seul) · `cible` (+ entretien) · `ambition` (+ examen ou concours) · `unranked` (modalité non publiée) |
+| `post_bac` | `licence1` `but1` `deust` `sante` | `selectivity` | `securite` (non sélective) · `ambition` (sélective) — **deux**, faute d'une troisième valeur publiée |
+| `licence_continuation` | `licence2` `licence3` `licence_pro` | `null` | `unranked` seul — aucune donnée ouverte ne classe ce chemin |
+
+Mesuré sur le catalogue réel, tout publié, sans domaine déclaré : 1 221 /
+1 442 / 251 / 198 sur le chemin master. L'axe discrimine réellement.
+
+Un étage **vide n'est pas servi** : une colonne vide se lit « rien pour toi »,
+ce qui est faux quand les autres sont pleines. `unranked` n'est pas un
+quatrième étage, c'est l'aveu qu'il n'y en a pas pour ces lignes-là.
+
+### Le chemin d'entrée vient du COUPLE de niveaux
+
+La feuille de déclaration pose deux questions avec le même menu de six mots, et
+« licence » y veut dire « je suis au niveau licence » sans dire si l'étudiant
+entre en L1, continue en L3, ou sort diplômé. L'ambiguïté n'est pas bénigne :
+entrer en L1 se demande par DAP blanche avant mi-décembre, continuer en L2 se
+demande par la procédure Études en France sur un autre calendrier.
+
+La table est donc **fermée** et porte sur des couples, jamais sur un niveau
+seul. Un couple absent rend un motif, jamais un chemin « le plus probable » :
+
+| `currentLevel` \| `targetLevel` | Résultat |
+|---|---|
+| `terminale\|licence`, `bac\|licence` | `post_bac` |
+| `licence\|licence` | `licence_continuation` |
+| `licence\|master`, `master\|master` | `master` |
+| `terminale\|master`, `bac\|master`, `master\|licence`, tout `autre` | `blocked: declaration_unmappable` |
+| `*\|doctorat` | `blocked: level_not_in_catalog` |
+
+### Ce que la route sélectionne
+
+Deux strates, servies dans cet ordre :
+
+1. **`linked`** — la formation est reliée à un domaine déclaré dans un sens ou
+   dans l'autre : son propre `fieldId`, **ou** l'un des domaines de ses
+   licences conseillées. La seconde branche est l'apport de cette route : pour
+   un étudiant de « droit, économie », **594 masters** conseillent son domaine
+   sans être classés dedans, et aucun filtre par domaine du diplôme ne les
+   montrerait jamais.
+2. **`open`** — l'établissement publie « Toutes licences » (302 masters). Vraie
+   information, mais qui ne dit rien de l'étudiant : elle ne sert donc qu'à
+   compléter un étage que la première strate n'a pas rempli.
+
+Le `total` de chaque étage compte l'**étage entier** (réunion des deux
+strates), pas la strate qui l'a rempli — sans quoi un étage pouvait annoncer
+« 3 formations » en en montrant cinq.
+
+### Paramètres
+
+| Paramètre | Forme | Notes |
+|---|---|---|
+| `limit` | entier | Par étage. Défaut **5**, maximum **10**. Une valeur illisible retombe sur le défaut : une taille de page absurde n'est pas une raison de refuser la liste. |
+
+### Réponse
+
+```json
+{
+  "declaration": { "currentLevel": "licence", "targetLevel": "master", "fieldIds": ["d02"] },
+  "path": "master",
+  "blocked": null,
+  "ranking": { "basis": "admission_effort" },
+  "tiers": [
+    {
+      "tier": "securite",
+      "total": 374,
+      "items": [
+        {
+          "program": { "id": "eef-prog-…", "name": { "fr": "…", "en": "…" }, "…": "…" },
+          "reasons": [
+            { "code": "bachelor_domain_recommended", "value": "d02" },
+            { "code": "admission_file_only", "value": "Dossier" }
+          ]
+        }
+      ]
+    }
+  ],
+  "limit": 5,
+  "disclosures": [
+    "tuition_not_published",
+    "french_level_not_published",
+    "campaign_dates_served_separately"
+  ],
+  "source": "database"
+}
+```
+
+`program` est l'objet servi par la recherche et par `/catalog/*` (`mapProgram`) :
+une fiche amputée obligerait le client à deux lectures de la même formation.
+
+### Les motifs
+
+Codes fermés, jamais de prose : la phrase se traduit côté client, ce qui
+garantit la parité FR/EN par construction. Chaque code voyage avec la valeur
+attestée qui l'a produit, pour que la justification soit vérifiable sur la
+fiche officielle.
+
+| Code | Valeur | Sens |
+|---|---|---|
+| `field_declared` | `d01`…`d12` | Le domaine de la formation est déclaré. |
+| `bachelor_domain_recommended` | `d01`…`d12` | Une licence conseillée par l'établissement relève d'un domaine déclaré. |
+| `bachelor_any_accepted` | `Toutes licences` | L'établissement publie qu'il accepte toute licence. |
+| `admission_file_only` | `Dossier` | Candidature sur dossier. |
+| `admission_interview` | `Entretien` | La candidature comporte un entretien. |
+| `admission_exam` | `Examen`, `Concours` | La candidature comporte un examen ou un concours. |
+| `selectivity_open` | `non_selective` | La capacité d'accueil est la seule limite publiée. |
+| `selectivity_arbitrated` | `selective` | L'établissement arbitre entre les dossiers. |
+
+Les motifs de sélectivité ne sont émis que là où la sélectivité **distingue**
+(le chemin post-bac). Sur un master elle vaut `selective` pour les 3 112
+lignes — la loi du 23 décembre 2016 en fait une règle, pas une caractéristique
+de l'établissement — et l'émettre partout aurait ajouté à chaque fiche une
+justification qui ne justifie rien. Le fait reste écrit dans les exigences
+d'admission de la formation.
+
+Une modalité hors du référentiel fermé **n'est pas servie comme motif** :
+inventer un libellé donnerait à l'écran une phrase qu'il ne sait pas traduire.
+La ligne, elle, reste classée par ce qu'on sait lire, et tombe dans `unranked`
+si rien ne l'est.
+
+### Ce que la réponse avoue
+
+| Code | Sens |
+|---|---|
+| `tuition_not_published` | Les droits réellement payés dépendent d'une exonération que les données ouvertes ne publient pas. |
+| `french_level_not_published` | Aucun jeu ouvert ne publie le niveau de français exigé formation par formation. |
+| `campaign_dates_served_separately` | Les dates de campagne sont servies par `/config/app`, jamais figées dans une ligne de catalogue. |
+| `no_field_declared` | Aucun domaine déclaré : la liste n'est resserrée sur aucune filière. |
+| `no_ranking_data` | Le chemin d'entrée ne porte aucune donnée de classement. |
+
+Les trois premiers sont vrais pour chaque ligne du catalogue, donc dits une
+fois en tête de réponse : les répéter par formation serait du bruit, les taire
+ferait passer le silence pour une absence de frais, d'exigence ou d'échéance.
+
+### Quand aucune liste n'est possible
+
+**200**, avec `path: null` et un `blocked` qui nomme ce qui manque. La lecture a
+réussi ; ce qui manque est une réponse de l'étudiant, et un 4xx ferait afficher
+un écran de panne là où il faut poser une question. La déclaration partielle est
+renvoyée telle quelle, pour que l'écran pré-remplisse ce qui était déjà dit.
+
+| `blocked` | Ce que l'écran doit demander |
+|---|---|
+| `no_declaration` | La déclaration d'intérêt, qui n'existe pas encore. |
+| `target_level_missing` | Le niveau visé — c'est lui qui décide du chemin, il est donc réclamé en premier. |
+| `current_level_missing` | Le niveau courant, sans lequel « viser une licence » reste ambigu. |
+| `declaration_unmappable` | Une correction : le couple déclaré n'est pas interprétable. |
+| `level_not_in_catalog` | Rien. Le catalogue s'arrête au master ; il n'y a pas de champ à corriger. |
+
+Aucune requête de catalogue n'est posée dans ces cas.
+
+### Pas de repli sur les jeux de démonstration
+
+Encore moins qu'ailleurs : ce n'est pas une liste demandée par mots-clés, c'est
+une **recommandation nominative**. Servir des formations d'échantillon
+reviendrait à recommander des établissements qui n'existent pas. Base
+indisponible ⇒ **503 `CATALOG_UNAVAILABLE`**.
+
+La route ne sert que des lignes **relues** (`isActive = true`) — vérifié sur la
+base réelle : catalogue non relu ⇒ **0 servi sur 10 247** — et rattachées à la
+France résolue par son **code**, par la règle partagée avec l'import et la
+recherche (`eef-country.ts`).
+
+Les étages et leurs totaux sont lus dans **une seule transaction**
+`RepeatableRead` : servis séparément, une publication concurrente ferait
+apparaître la même formation dans deux colonnes, ou dans aucune.
+
 ## Espace « Études en France » (Phase 0)
 
 - `GET /etudes-en-france/interest`

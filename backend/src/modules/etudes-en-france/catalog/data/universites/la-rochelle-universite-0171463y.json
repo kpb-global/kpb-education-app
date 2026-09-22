@@ -2029,7 +2029,9 @@
       "formationCode": "1501915S",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Langues étrangères appliquées|Economie et gestion"
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"

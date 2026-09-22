@@ -1411,7 +1411,9 @@
       "selectivity": "selective",
       "formationCode": "1601250P",
       "tracks": [
-        "Gamification| Apprentissages| iMmersion et ingEnierie de conception"
+        "Gamification",
+        "Apprentissages",
+        "iMmersion et ingEnierie de conception"
       ],
       "recommendedBachelors": [
         "Sciences de l'éducation",

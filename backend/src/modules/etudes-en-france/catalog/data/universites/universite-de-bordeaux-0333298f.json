@@ -794,7 +794,9 @@
         "Manager RH"
       ],
       "recommendedBachelors": [
-        "Droit|Psychologie|Economie et gestion"
+        "Droit",
+        "Psychologie",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1240,7 +1242,10 @@
         "Stratégie et management des entreprises familiales et patrimoniales"
       ],
       "recommendedBachelors": [
-        "Droit|Gestion|Science politique|Administration économique et sociale"
+        "Droit",
+        "Gestion",
+        "Science politique",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier",
@@ -1711,7 +1716,11 @@
         "Intelligence économique"
       ],
       "recommendedBachelors": [
-        "Science politique|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Science politique",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier",
@@ -2928,7 +2937,9 @@
         "Management immobilier"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3584,7 +3595,10 @@
         "Responsable formation - insertion"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sciences de l'éducation|Sociologie|Sciences de l'Homme, anthropologie, ethnologie"
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Sciences de l'Homme, anthropologie, ethnologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -3911,8 +3925,8 @@
         "Direction financière et contrôle de gestion"
       ],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion",
         "Gestion",
+        "Administration économique et sociale",
         "Economie et gestion"
       ],
       "admissionModes": [
@@ -4103,7 +4117,13 @@
         "Cultures, politique, sociétés"
       ],
       "recommendedBachelors": [
-        "Science politique|Sciences sanitaires et sociales|Psychologie|Sciences de l'éducation|Sociologie|Géographie et aménagement|Sciences de l'Homme, anthropologie, ethnologie"
+        "Science politique",
+        "Sciences sanitaires et sociales",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Sciences de l'Homme, anthropologie, ethnologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -4130,7 +4150,6 @@
         "Biodiversité et suivis environnementaux"
       ],
       "recommendedBachelors": [
-        "Sciences de la Terre|Sciences de la vie|Sciences de la vie et de la Terre",
         "Sciences de la Terre",
         "Sciences de la vie",
         "Sciences de la vie et de la Terre"
@@ -4637,7 +4656,8 @@
       "formationCode": "1602662Z",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Administration économique et sociale"
+        "Droit",
+        "Administration économique et sociale"
       ],
       "admissionModes": [
         "Dossier"
@@ -4727,7 +4747,8 @@
         "Economiste-statisticien du développement et de la population"
       ],
       "recommendedBachelors": [
-        "Administration économique et sociale|Economie et gestion"
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

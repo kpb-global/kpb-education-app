@@ -248,6 +248,27 @@ export interface RawMasterTrack {
 /// portail, qui reste une page de l'opérateur et non un agrégateur.
 export const MASTER_PORTAL_SEARCH = 'https://www.monmaster.gouv.fr/';
 
+/// Le séparateur que le portail des masters emploie DANS une valeur.
+///
+/// `for_lic_conseille` arrive tantôt en tableau de mentions propres, tantôt en
+/// une seule chaîne jointe par des barres verticales — les deux formes dans le
+/// même jeu, parfois dans la même fiche. Sans découpage, 501 entrées du
+/// catalogue portaient une « mention » du genre
+/// « Droit|Economie|Gestion|Toutes licences » : un libellé que personne ne
+/// publie, qu'aucun appariement ne peut reconnaître, et qui range donc quatre
+/// licences conseillées dans une case introuvable.
+///
+/// Une barre verticale n'apparaît dans aucun intitulé de mention français. Le
+/// découpage est donc sans perte, et le validateur refuse désormais qu'une
+/// valeur en contienne encore.
+const SOURCE_VALUE_SEPARATOR = '|';
+
+function splitPipedStrings(values: readonly string[]): string[] {
+  return values.flatMap((value) =>
+    (value ?? '').split(SOURCE_VALUE_SEPARATOR),
+  );
+}
+
 function uniqueStrings(values: readonly string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
@@ -338,13 +359,19 @@ export function buildMasterPrograms(
       // 23 décembre 2016 : ce n'est pas une estimation, c'est la règle.
       selectivity: 'selective',
       formationCode: code,
-      tracks: uniqueStrings(related.map((track) => track.parc_intitule ?? '')),
-      recommendedBachelors: uniqueStrings([
-        ...related.flatMap((track) => track.for_lic_conseille ?? []),
-        ...related.flatMap((track) => track.parc_lic_conseille ?? []),
-      ]),
+      tracks: uniqueStrings(
+        splitPipedStrings(related.map((track) => track.parc_intitule ?? '')),
+      ),
+      recommendedBachelors: uniqueStrings(
+        splitPipedStrings([
+          ...related.flatMap((track) => track.for_lic_conseille ?? []),
+          ...related.flatMap((track) => track.parc_lic_conseille ?? []),
+        ]),
+      ),
       admissionModes: uniqueStrings(
-        related.flatMap((track) => track.for_candidature ?? []),
+        splitPipedStrings(
+          related.flatMap((track) => track.for_candidature ?? []),
+        ),
       ),
       dataset: 'trouver-mon-master',
       sourceUrl,

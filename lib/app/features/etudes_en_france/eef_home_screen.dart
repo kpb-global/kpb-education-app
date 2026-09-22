@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/eef_calendar.dart';
 import '../../core/ui/kpb_components.dart';
@@ -25,18 +26,15 @@ import '../../core/ui/kpb_components.dart';
 /// vitrine qu'elle remplace — elle donnerait l'impression d'un produit cassé
 /// plutôt que d'un produit en cours.
 ///
-/// Le jour où le catalogue arrive, cet écran devient le vrai point d'entrée et
-/// ce commentaire disparaît avec la liste ci-dessous.
+/// Le catalogue, lui, EST arrivé : il a sa propre carte, en tête, avec un
+/// bouton qui ouvre la recherche serveur. Les deux modules restants gardent
+/// leur mention « en préparation » — annoncer trois chantiers quand un seul
+/// existe serait exactement le « produit cassé » que ce commentaire refuse.
 class EefHomeScreen extends StatelessWidget {
   const EefHomeScreen({super.key});
 
   static const _comingModules =
       <({IconData icon, String titleKey, String bodyKey})>[
-    (
-      icon: Icons.school_outlined,
-      titleKey: 'eef_pillar_catalog_title',
-      bodyKey: 'eef_pillar_catalog_body',
-    ),
     (
       icon: Icons.tune_rounded,
       titleKey: 'eef_pillar_shortlist_title',
@@ -99,6 +97,53 @@ class EefHomeScreen extends StatelessWidget {
                         .copyWith(color: KpbColors.actionOnDark),
                   ),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(height: KpbSpacing.lg),
+          // Le catalogue : le seul module réellement livré, donc le seul qui
+          // porte une action et non un badge « en préparation ».
+          KpbCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.school_outlined,
+                      color: context.kpb.textMuted,
+                      size: 22,
+                    ),
+                    const SizedBox(width: KpbSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'eef_pillar_catalog_title'.tr,
+                            style: KpbTextStyles.titleSm,
+                          ),
+                          const SizedBox(height: KpbSpacing.xs),
+                          Text(
+                            'eef_pillar_catalog_body'.tr,
+                            style: KpbTextStyles.bodySm
+                                .copyWith(color: context.kpb.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: KpbSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: KpbButton(
+                    label: 'eef_catalog_open'.tr,
+                    onPressed: () =>
+                        Get.toNamed(AppRoutes.etudesEnFranceCatalog),
+                  ),
+                ),
               ],
             ),
           ),

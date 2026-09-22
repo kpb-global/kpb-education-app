@@ -39,7 +39,11 @@
       "formationCode": "1800341W",
       "tracks": [],
       "recommendedBachelors": [
-        "Lettres|Philosophie|Histoire|Sociologie|Humanités"
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Sociologie",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -2226,7 +2230,14 @@
       "formationCode": "1801144U",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Science politique|Histoire|Sociologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales"
+        "Droit",
+        "Science politique",
+        "Histoire",
+        "Sociologie",
+        "Géographie et aménagement",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Sciences sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2684,7 +2695,10 @@
       "formationCode": "1800350F",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -3375,7 +3389,12 @@
       "formationCode": "1800383S",
       "tracks": [],
       "recommendedBachelors": [
-        "Histoire de l'art et archéologie|Lettres|Philosophie|Histoire|Langues, littératures et civilisations étrangères et régionales|Humanités"
+        "Histoire de l'art et archéologie",
+        "Lettres",
+        "Philosophie",
+        "Histoire",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités"
       ],
       "admissionModes": [
         "Dossier"
@@ -3492,7 +3511,8 @@
       "formationCode": "1800780Y",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie et gestion|Information-communication"
+        "Economie et gestion",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -4168,7 +4188,9 @@
       "formationCode": "1800792M",
       "tracks": [],
       "recommendedBachelors": [
-        "Sociologie|Economie et gestion|Information-communication"
+        "Sociologie",
+        "Economie et gestion",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -4349,7 +4371,8 @@
       "formationCode": "1800340V",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -4442,7 +4465,12 @@
       "formationCode": "1800339U",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Economie|Gestion|Mathématiques|Administration économique et sociale|Economie et gestion"
+        "Droit",
+        "Economie",
+        "Gestion",
+        "Mathématiques",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -4639,7 +4667,9 @@
       "formationCode": "1800785D",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Gestion|Economie et gestion"
+        "Economie",
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -5188,7 +5218,9 @@
       "formationCode": "1800775T",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Administration économique et sociale|Economie et gestion"
+        "Gestion",
+        "Administration économique et sociale",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",

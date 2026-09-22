@@ -1195,12 +1195,11 @@
         "Macroecoeconomie internationale et financiarisation"
       ],
       "recommendedBachelors": [
-        "Economie|Economie et gestion|Sciences sociales",
-        "Droit",
         "Economie",
-        "Gestion",
         "Economie et gestion",
         "Sciences sociales",
+        "Droit",
+        "Gestion",
         "Sociologie"
       ],
       "admissionModes": [
@@ -4177,7 +4176,11 @@
         "MODELISATION ET SIMULATION EN MECANIQUE"
       ],
       "recommendedBachelors": [
-        "Administration économique et sociale|Economie et gestion|Géographie et aménagement|Sciences de la vie et de la Terre|Sciences et techniques des activités physiques et sportives",
+        "Administration économique et sociale",
+        "Economie et gestion",
+        "Géographie et aménagement",
+        "Sciences de la vie et de la Terre",
+        "Sciences et techniques des activités physiques et sportives",
         "Chimie",
         "Physique, chimie",
         "Sciences de la vie",

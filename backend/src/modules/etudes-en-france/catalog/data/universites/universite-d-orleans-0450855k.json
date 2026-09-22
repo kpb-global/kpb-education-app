@@ -417,7 +417,9 @@
       "formationCode": "1800508C",
       "tracks": [],
       "recommendedBachelors": [
-        "Economie|Mathématiques|Economie et gestion"
+        "Economie",
+        "Mathématiques",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1148,7 +1150,6 @@
         "Recherche en Management des Systèmes d'Information (ReMSI)"
       ],
       "recommendedBachelors": [
-        "Economie|Gestion|Administration économique et sociale|Economie et gestion",
         "Economie",
         "Gestion",
         "Administration économique et sociale",
@@ -1963,9 +1964,9 @@
         "Marketing du Produit et des Solutions Innovantes (MPSI)"
       ],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion|Information-communication",
         "Gestion",
-        "Economie et gestion"
+        "Economie et gestion",
+        "Information-communication"
       ],
       "admissionModes": [
         "Dossier",
@@ -2054,7 +2055,6 @@
         "Space Sciences and Applications (en anglais)"
       ],
       "recommendedBachelors": [
-        "Physique|Physique, chimie",
         "Physique",
         "Physique, chimie"
       ],
@@ -3262,7 +3262,11 @@
       "formationCode": "1303332R",
       "tracks": [],
       "recommendedBachelors": [
-        "Droit|Histoire|Psychologie|Sciences de l'éducation|Sociologie"
+        "Droit",
+        "Histoire",
+        "Psychologie",
+        "Sciences de l'éducation",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -4293,8 +4297,8 @@
         "Signal"
       ],
       "recommendedBachelors": [
-        "Informatique|Mathématiques|Mécanique|Physique",
         "Informatique",
+        "Mathématiques",
         "Mécanique",
         "Physique"
       ],

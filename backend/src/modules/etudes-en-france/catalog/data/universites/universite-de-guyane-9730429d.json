@@ -676,7 +676,11 @@
       "formationCode": "1701863B",
       "tracks": [],
       "recommendedBachelors": [
-        "Langues, littératures et civilisations étrangères et régionales|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Etudes culturelles|Sciences et Humanités"
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Humanités",
+        "Sciences de l'Homme, anthropologie, ethnologie",
+        "Etudes culturelles",
+        "Sciences et Humanités"
       ],
       "admissionModes": [
         "Dossier",
@@ -773,13 +777,12 @@
         "Banque et ingénierie financière"
       ],
       "recommendedBachelors": [
-        "Administration économique et sociale|Economie et gestion|Toutes licences",
-        "Administration publique",
-        "Economie",
-        "Gestion",
         "Administration économique et sociale",
         "Economie et gestion",
-        "Toutes licences"
+        "Toutes licences",
+        "Administration publique",
+        "Economie",
+        "Gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -1059,8 +1062,17 @@
       "formationCode": "1501729P",
       "tracks": [],
       "recommendedBachelors": [
-        "Mathématiques|Sciences pour l'ingénieur|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences de la vie et de la Terre|Sciences et technologies",
-        "Chimie|Physique|Physique, chimie|Electronique, énergie électrique, automatique|Sciences de la Terre|Sciences de la vie"
+        "Mathématiques",
+        "Sciences pour l'ingénieur",
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales",
+        "Sciences de la vie et de la Terre",
+        "Sciences et technologies",
+        "Chimie",
+        "Physique",
+        "Physique, chimie",
+        "Electronique, énergie électrique, automatique",
+        "Sciences de la Terre",
+        "Sciences de la vie"
       ],
       "admissionModes": [
         "Dossier"

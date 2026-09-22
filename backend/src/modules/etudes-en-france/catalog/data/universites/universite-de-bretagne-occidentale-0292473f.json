@@ -82,23 +82,22 @@
         "Sciences de la vie et de la terre"
       ],
       "recommendedBachelors": [
-        "Lettres|Histoire|Mathématiques|Langues, littératures et civilisations étrangères et régionales|Géographie et aménagement|Sciences et techniques des activités physiques et sportives",
+        "Lettres",
+        "Histoire",
+        "Mathématiques",
+        "Langues, littératures et civilisations étrangères et régionales",
+        "Géographie et aménagement",
+        "Sciences et techniques des activités physiques et sportives",
         "Sciences pour l'ingénieur",
         "Sciences et technologies",
-        "Langues, littératures et civilisations étrangères et régionales",
-        "Lettres",
         "Humanités",
-        "Histoire",
-        "Géographie et aménagement",
         "Economie",
         "Administration économique et sociale",
         "Sciences sociales",
         "Informatique",
-        "Mathématiques",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
         "Philosophie",
         "Etudes Européennes et Internationales",
-        "Sciences et techniques des activités physiques et sportives",
         "Toutes licences",
         "Musicologie",
         "Chimie",
@@ -756,7 +755,9 @@
       "formationCode": "1701342K",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales"
+        "Gestion",
+        "Langues étrangères appliquées",
+        "Langues, littératures et civilisations étrangères et régionales"
       ],
       "admissionModes": [
         "Dossier",
@@ -1448,7 +1449,8 @@
       "formationCode": "1701753G",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -1475,10 +1477,7 @@
         "Discriminations"
       ],
       "recommendedBachelors": [
-        "Arts|Lettres|Philosophie|Administration publique|Droit|Economie|Gestion|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sciences du langage|Sociologie|Arts du spectacle|Arts plastiques|Langues étrangères appliquées|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Administration économique et sociale|Economie et gestion|Géographie et aménagement|Humanités|Information-communication|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie|Mathématiques et informatique appliquées aux sciences humaines et sociales|Sciences pour la santé",
-        "Arts|Histoire de l'art et archéologie|Lettres|Philosophie|Droit|Economie|Science politique|Sciences sanitaires et sociales|Histoire|Psychologie|Sciences de l'éducation|Sociologie|Arts du spectacle|Arts plastiques|Langues, littératures et civilisations étrangères et régionales|Lettres, langues|Musicologie|Géographie et aménagement|Humanités|Sciences de l'Homme, anthropologie, ethnologie|Sciences sociales|Théologie",
         "Arts",
-        "Histoire de l'art et archéologie",
         "Lettres",
         "Philosophie",
         "Administration publique",
@@ -1507,7 +1506,8 @@
         "Sciences sociales",
         "Théologie",
         "Mathématiques et informatique appliquées aux sciences humaines et sociales",
-        "Sciences pour la santé"
+        "Sciences pour la santé",
+        "Histoire de l'art et archéologie"
       ],
       "admissionModes": [
         "Dossier",
@@ -1726,13 +1726,12 @@
         "Sûreté, Urgence, Sécurité"
       ],
       "recommendedBachelors": [
-        "Administration publique|Droit|Economie|Science politique|Administration économique et sociale|Economie et gestion",
         "Administration publique",
+        "Droit",
         "Economie",
         "Science politique",
         "Administration économique et sociale",
-        "Economie et gestion",
-        "Droit"
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier"
@@ -1785,7 +1784,6 @@
         "Enseignement dans le supérieur"
       ],
       "recommendedBachelors": [
-        "Physique|Physique, chimie",
         "Physique",
         "Physique, chimie"
       ],
@@ -2085,7 +2083,8 @@
       ],
       "recommendedBachelors": [
         "Toutes licences",
-        "Psychologie|Sociologie"
+        "Psychologie",
+        "Sociologie"
       ],
       "admissionModes": [
         "Dossier"
@@ -2258,7 +2257,8 @@
       "formationCode": "1702902F",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2320,7 +2320,8 @@
       "formationCode": "1702674H",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2598,7 +2599,7 @@
       "tracks": [],
       "recommendedBachelors": [
         "Mathématiques",
-        "Mathématiques|Mathématiques et informatique appliquées aux sciences humaines et sociales"
+        "Mathématiques et informatique appliquées aux sciences humaines et sociales"
       ],
       "admissionModes": [
         "Dossier"
@@ -2751,7 +2752,8 @@
       "formationCode": "1702774S",
       "tracks": [],
       "recommendedBachelors": [
-        "Gestion|Economie et gestion"
+        "Gestion",
+        "Economie et gestion"
       ],
       "admissionModes": [
         "Dossier",
@@ -2779,7 +2781,8 @@
         "Musicien intervenant"
       ],
       "recommendedBachelors": [
-        "Psychologie|Sociologie",
+        "Psychologie",
+        "Sociologie",
         "Toutes licences"
       ],
       "admissionModes": [
