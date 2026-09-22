@@ -52,7 +52,7 @@ Donc : pas de push « bourse du jour », pas de push « complète ton profil ».
 ### 3. Mises en avant, de temps en temps
 Bourses par thème (santé, ingénierie, Canada…), vidéos, témoignages et parcours inspirants, Études en France, salon, alumni. Au plus une par semaine, et seulement s'il reste de la place sous le plafond.
 - Routes utiles : `/scholarships`, `/etudes-en-france`, `/alumni`, `/salon`, `/orientation`, `/eligibility`, `/deadlines`.
-- **Attention** : `/parcours/<slug>` n'est pas ouvrable au tap aujourd'hui (l'app retombe sur l'accueil). Pour un parcours ou une vidéo, choisis la route de l'écran d'accueil `/` et dis-le dans le récapitulatif.
+- Pour un parcours ou une vidéo : `/parcours/<slug>` (le `slug` vient de `kpb_list_parcours`) ouvre le récit ou la vidéo. Un slug inconnu retombe sur la bibliothèque Parcours. Cette route n'existe que dans les builds qui contiennent la PR #284 : sur un build plus ancien, l'élève atterrit sur l'accueil. Tant que ce build n'est pas en production, signale-le dans le récapitulatif.
 
 ### 4. Bilan
 Sur demande : `kpb_announcement_history` + `kpb_campaign_stats` pour chaque campagne, et `view_outcomes` / `list_messages` OneSignal pour les taux d'ouverture. Tu rends un constat chiffré : ce qui a été ouvert, ce qui ne l'a pas été, et ce que tu changerais.

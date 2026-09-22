@@ -65,12 +65,21 @@ const QUIET_END_UTC = Number(process.env.KPB_AGENT_QUIET_END_UTC ?? 8);
 // donc ICI, au moment où l'agent peut encore la corriger.
 const KNOWN_ROUTES = new Set([
   '/', '/search', '/new-case', '/orientation', '/eligibility',
-  '/etudes-en-france', '/saved', '/deadlines', '/alumni', '/salon',
-  '/services', '/profile', '/scholarships', '/success-lab',
+  '/etudes-en-france', '/etudes-en-france/catalogue', '/saved', '/deadlines',
+  '/alumni', '/salon', '/services', '/profile', '/scholarships', '/success-lab',
 ]);
+// Routes à un segment variable (id ou slug), vide ou imbriqué refusé comme
+// dans l'app. `/parcours/<slug>` : ouvrable depuis la PR #284 — un build plus
+// ancien retombe sur l'accueil.
+const PARAM_ROUTES = [
+  /^\/scholarships\/[^/]+$/,
+  /^\/parcours\/[^/]+$/,
+  /^\/cases\/[^/]+$/,
+  /^\/success-lab\/[^/]+(\/(diagnostic|study-review|schedule|submission|outcome))?$/,
+];
 function routeIsNavigable(route) {
   if (KNOWN_ROUTES.has(route)) return true;
-  return /^\/scholarships\/[^/]+$/.test(route);
+  return PARAM_ROUTES.some((re) => re.test(route));
 }
 
 // ── État local : nouveautés déjà vues, annonces faites, brouillons ─────────
@@ -341,7 +350,7 @@ server.registerTool(
       reason: z.enum(['new_scholarship', 'new_institution', 'content_highlight', 'other']),
       title: localized(50),
       body: localized(150),
-      route: z.string().describe("Écran ouvert au tap, ex. /scholarships/<id>, /etudes-en-france, /alumni"),
+      route: z.string().describe("Écran ouvert au tap, ex. /scholarships/<id>, /parcours/<slug>, /etudes-en-france, /alumni"),
       ...audienceSchema,
       scheduledFor: z.string().datetime().optional().describe('ISO 8601 UTC. Absent = envoi immédiat au feu vert.'),
       contentIds: z.array(z.string()).default([]).describe('Ids du contenu annoncé (bourse, établissement…), pour l\'historique anti-doublon.'),
@@ -353,7 +362,7 @@ server.registerTool(
     if (!routeIsNavigable(d.route)) {
       problems.push(
         `Route « ${d.route} » non navigable dans l'app : l'élève atterrirait sur l'accueil. ` +
-          `Routes valides : ${[...KNOWN_ROUTES].join(', ')}, /scholarships/<id>.`,
+          `Routes valides : ${[...KNOWN_ROUTES].join(', ')}, /scholarships/<id>, /parcours/<slug>.`,
       );
     }
     const state = loadState();
