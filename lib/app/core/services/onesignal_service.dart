@@ -67,7 +67,8 @@ class OneSignalService {
   }
 
   /// Link this device to a known KPB user (external id = profile id) and attach
-  /// targeting tags. Called on login / profile completion.
+  /// targeting tags (empty values remove the tag). Called on login, profile
+  /// completion and profile edits.
   Future<void> login({
     required String userId,
     // Retained for source compatibility only. Email is deliberately ignored
@@ -78,11 +79,7 @@ class OneSignalService {
     if (!_initialized || userId.trim().isEmpty) return;
     try {
       OneSignal.login(userId.trim());
-      final cleaned = <String, String>{
-        for (final entry in tags.entries)
-          if (entry.value.trim().isNotEmpty) entry.key: entry.value.trim(),
-      };
-      if (cleaned.isNotEmpty) OneSignal.User.addTags(cleaned);
+      _applyTags(tags);
     } catch (error) {
       debugPrint('[OneSignal] login failed: $error');
     }
@@ -98,22 +95,37 @@ class OneSignalService {
     }
   }
 
-  /// Update targeting tags (e.g. when the profile changes).
+  /// Update targeting tags (e.g. when the profile changes). An empty value
+  /// removes that tag.
   Future<void> setTags(Map<String, String> tags) async {
     if (!_initialized) return;
-    final cleaned = <String, String>{
-      for (final entry in tags.entries)
-        if (entry.value.trim().isNotEmpty) entry.key: entry.value.trim(),
-    };
-    if (cleaned.isEmpty) return;
     try {
-      OneSignal.User.addTags(cleaned);
+      _applyTags(tags);
     } catch (error) {
       debugPrint('[OneSignal] setTags failed: $error');
     }
   }
 
   // ── Internal ────────────────────────────────────────────────────────────
+
+  /// Non-empty values are set; empty ones are REMOVED rather than skipped, so
+  /// a value that disappears from the profile (no more target country, an
+  /// unrecognised level) doesn't linger in OneSignal and keep the user inside
+  /// a segment that no longer describes them.
+  void _applyTags(Map<String, String> tags) {
+    final toSet = <String, String>{};
+    final toRemove = <String>[];
+    for (final entry in tags.entries) {
+      final value = entry.value.trim();
+      if (value.isEmpty) {
+        toRemove.add(entry.key);
+      } else {
+        toSet[entry.key] = value;
+      }
+    }
+    if (toSet.isNotEmpty) OneSignal.User.addTags(toSet);
+    if (toRemove.isNotEmpty) OneSignal.User.removeTags(toRemove);
+  }
 
   void _onNotificationClicked(OSNotificationClickEvent event) {
     final data = event.notification.additionalData;

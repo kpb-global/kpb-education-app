@@ -228,4 +228,32 @@ void main() {
     // rendrait cette déclaration fausse.
     expect(sent, _declaredTags.keys.toSet());
   });
+
+  test('une étiquette vide est retirée, pas ignorée', () async {
+    // Sans pays visé ni niveau reconnu, l'ancienne valeur ne doit pas rester
+    // côté OneSignal : l'utilisateur resterait dans un segment périmé.
+    await OneSignalService.instance.login(
+      userId: 'usr-42',
+      tags: const {
+        'account_type': 'student',
+        'level': '',
+        'target_country': '',
+        'locale': 'fr',
+      },
+    );
+
+    final added = calls
+        .where((call) => call.method == 'OneSignal#addTags')
+        .single
+        .arguments as Map;
+    expect(added.keys.toSet(), {'account_type', 'locale'});
+
+    final removed =
+        calls.where((call) => call.method == 'OneSignal#removeTags').toList();
+    expect(removed, hasLength(1), reason: 'removeTags attendu : $calls');
+    expect(
+      _payloadStrings(removed.single.arguments).toSet(),
+      {'level', 'target_country'},
+    );
+  });
 }

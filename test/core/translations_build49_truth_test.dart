@@ -27,7 +27,7 @@
 //   · la description de la dictée est confrontée à la présence, dans
 //     `speech_input_service.dart`, du chemin réseau `allowPlatformService` ;
 //   · la puce OneSignal est confrontée aux étiquettes réellement envoyées par
-//     `AppController.syncOneSignalIdentity()` ;
+//     `AppController.syncOneSignalIdentity()` (via `oneSignalTargetingTags()`) ;
 //   · le libellé de l'interrupteur d'analyse est confronté au fait que
 //     `AnalyticsService.setCollectionEnabled` coupe bien Crashlytics.
 //
@@ -316,11 +316,22 @@ void main() {
       expect(sync, isNotNull,
           reason: 'syncOneSignalIdentity() introuvable : garde morte.');
       expect(sync, contains('OneSignalService.instance.login('));
+      // Les étiquettes sont construites par `oneSignalTargetingTags()` ; on
+      // suit le fil jusqu'à la map réellement renvoyée.
+      expect(sync, contains('tags: oneSignalTargetingTags('),
+          reason: 'syncOneSignalIdentity() n\'envoie plus les étiquettes de '
+              'oneSignalTargetingTags() : repointez cette garde.');
+      final builder =
+          _codeWithoutComments('lib/app/core/services/onesignal_tags.dart');
+      final returned = RegExp(r'return\s*\{(.*?)\};', dotAll: true)
+          .firstMatch(builder)
+          ?.group(1);
+      expect(returned, isNotNull,
+          reason: 'map renvoyée par oneSignalTargetingTags() introuvable : '
+              'garde morte.');
 
       final tags = RegExp(r"'([a-z_]+)':")
-          .allMatches(RegExp(r'tags:\s*\{(.*?)\},', dotAll: true)
-              .firstMatch(sync!)!
-              .group(1)!)
+          .allMatches(returned!)
           .map((m) => m.group(1)!)
           .toSet();
 

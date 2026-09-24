@@ -88,7 +88,11 @@ StudentLevel? normalizeStudentLevel(String? raw) {
   final s = _slug(raw);
   if (s.isEmpty) return null;
 
-  if (s.contains('terminale') || s == 'bac' || s.contains('lycee')) {
+  // « High school » est le jeton que l'onboarding persiste pour le lycée.
+  if (s.contains('terminale') ||
+      s == 'bac' ||
+      s.contains('lycee') ||
+      s.contains('highschool')) {
     return StudentLevel.terminale;
   }
   if (s.contains('doctorat') || s.contains('phd') || s.contains('these')) {
