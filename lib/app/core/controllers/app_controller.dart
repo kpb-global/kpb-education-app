@@ -35,6 +35,7 @@ import '../data/content_api_codec.dart';
 import '../services/catalog_remote_sync.dart';
 import '../services/catalog_cache_service.dart';
 import '../services/onesignal_service.dart';
+import '../services/onesignal_tags.dart';
 import '../services/sync_conflict_merge.dart';
 import '../services/sync_telemetry.dart';
 import '../services/auth_service.dart';
@@ -990,6 +991,9 @@ abstract class _AppControllerBase extends GetxController {
     _profileNeedsPush = true;
     _persist();
     update();
+    // Niveau ou pays visé modifié → les segments OneSignal doivent suivre
+    // maintenant, pas au prochain lancement.
+    unawaited(syncOneSignalIdentity());
     await _pushProfileUpdate();
   }
 
@@ -1931,21 +1935,13 @@ abstract class _AppControllerBase extends GetxController {
   Future<void> syncOneSignalIdentity() async {
     final current = profile;
     if (current == null) return;
-    final countryId = current.targetCountryIds.isNotEmpty
-        ? current.targetCountryIds.first
-        : current.countryOfResidence;
     await OneSignalService.instance.login(
       // Pas d'`email:` — OneSignal ne recevait cette adresse que pour ses
       // propres campagnes courriel, que nous n'utilisons pas (Resend et Mautic
       // s'en chargent). Le service l'ignore désormais ; ne pas la lui donner
       // non plus, sinon la prochaine lecture croira qu'elle part.
       userId: current.id,
-      tags: {
-        'account_type': current.accountType.name,
-        'level': current.currentLevel ?? '',
-        'target_country': countryId,
-        'locale': localeCode,
-      },
+      tags: oneSignalTargetingTags(current, localeCode: localeCode),
     );
   }
 

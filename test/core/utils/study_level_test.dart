@@ -18,6 +18,10 @@ void main() {
       expect(normalizeStudentLevel('L3 / Bachelor 3'), StudentLevel.bachelor3);
     });
 
+    test('maps the onboarding "High school" token to Terminale', () {
+      expect(normalizeStudentLevel('High school'), StudentLevel.terminale);
+    });
+
     test('is accent/case insensitive', () {
       expect(normalizeStudentLevel('licence 2'), StudentLevel.bachelor2);
       expect(normalizeStudentLevel('  MASTER 1  '), StudentLevel.master1);
