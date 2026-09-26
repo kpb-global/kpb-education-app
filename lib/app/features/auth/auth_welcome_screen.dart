@@ -135,7 +135,7 @@ class _AuthWelcomeScreenState extends State<AuthWelcomeScreen> {
                       const SizedBox(height: 30),
                       _BenefitRow(
                         icon: Icons.percent_rounded,
-                        label: 'auth_intelligence_benefit_probability'.tr,
+                        label: 'auth_intelligence_benefit_fit'.tr,
                       ),
                       const SizedBox(height: 17),
                       _BenefitRow(

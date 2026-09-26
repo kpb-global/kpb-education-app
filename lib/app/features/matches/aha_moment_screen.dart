@@ -6,13 +6,14 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/data/match_api_codec.dart';
 import '../../core/models/app_models.dart';
 import '../../core/navigation/shell_tabs.dart';
-import '../../core/ui/components/match_badge.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/ui/app_tokens.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 /// Post-onboarding AHA moment (Phase 0 / P0-D — kit US-003): the first thing
-/// a student sees after completing their profile is where their chances are
-/// best, with an explainable admission probability per school.
+/// a student sees after completing their profile is the schools that best
+/// match it, each with a qualitative fit tier (never a percentage or an
+/// admission probability — brand compliance).
 ///
 /// Primary source is the backend `GET /matches/aha-moment` (deterministic
 /// algorithm v1). If the call fails (offline, guest token edge, server down),
@@ -56,7 +57,7 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
   }
 
   /// Offline/degraded path: reuse the local affinity score (0–98) and map it
-  /// onto match zones through the MatchBadge thresholds (80/60).
+  /// onto match zones through the [ProfileFit] thresholds (70/50).
   List<SchoolMatch> _localFallback() {
     final institutions = _ctrl.recommendedInstitutions.take(3);
     return institutions.map((institution) {
@@ -67,9 +68,9 @@ class _AhaMomentScreenState extends State<AhaMomentScreen> {
         programId: '',
         programName: const LocalizedText(fr: '', en: ''),
         probability: score / 100,
-        zone: score >= 80
+        zone: score >= 70
             ? SchoolMatchZone.green
-            : score >= 60
+            : score >= 50
                 ? SchoolMatchZone.yellow
                 : SchoolMatchZone.blue,
         isEstimate: true,
@@ -303,7 +304,9 @@ class _MatchCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              MatchBadge(score: match.probabilityPercent),
+              // Palier qualitatif seulement : la probabilité serveur sert au
+              // tri, jamais à l'affichage (conformité : aucun pourcentage).
+              ProfileFitBadge(fit: ProfileFit.fromZone(match.zone)),
             ],
           ),
           if (location.isNotEmpty) ...[

@@ -527,11 +527,12 @@ class AppTranslations extends Translations {
           'compare_picker_empty':
               'Aucune université ne correspond à ta recherche.',
           'compare_verdict_higher_match':
-              'Meilleure compatibilité d\'admission : @name (@hi % contre @lo %)',
+              '@name correspond mieux à ton profil.',
           'compare_verdict_partner': '@name est un partenaire vérifié KPB.',
           'compare_verdict_more_programs':
               '@name propose plus de programmes (@hi contre @lo).',
-          'compare_share_line': '🏛 @name — compatibilité @score%\n',
+          'compare_share_line': '🏛 @name — @fit\n',
+          'compare_share_line_plain': '🏛 @name\n',
           'compare_share_tuition': '   Frais : @tuition\n',
           'compare_share_language': '   Langue : @lang\n\n',
           'community_empty_articles_for_tag': 'Aucun article pour #@tag',
@@ -847,7 +848,7 @@ class AppTranslations extends Translations {
           'deadlines_status_past': 'Passée',
           'deadlines_status_today_tomorrow': 'Aujourd’hui / demain',
           'compare_title': 'Comparer',
-          'compare_row_match': 'Compatibilité',
+          'compare_row_match': 'Match profil',
           'compare_row_location': 'Localisation',
           'compare_row_tuition': 'Frais',
           'compare_row_language': 'Langue',
@@ -904,14 +905,14 @@ class AppTranslations extends Translations {
           'community_featured_badge': '📌 À la une',
           'community_safety_note':
               'Modération IA + signalements. Signale toute « offre de bourse » privée payante — c\'est une arnaque.',
-          'match_card_eyebrow': 'TES CHANCES D\'ADMISSION',
+          'match_card_eyebrow': 'MON MATCH ÉCOLE',
           'match_card_applying_via': '@name · candidature avec KPB Education',
           'match_card_student_fallback': 'Futur·e étudiant·e',
-          'match_card_domain_tagline': 'calcule tes chances',
+          'match_card_domain_tagline': 'trouve tes écoles',
           'match_card_share_whatsapp': 'Partager sur WhatsApp',
           'match_card_download': 'Télécharger',
           'match_card_whatsapp_prefill':
-              'Mes chances d\'admission à @school : @pct %. Calcule les tiennes sur Karatou : @link',
+              '@school : @fit pour mon profil. Trouve les écoles qui te correspondent sur Karatou : @link',
           'match_card_share_error': 'Impossible de générer la carte. Réessaie.',
           'forum_no_articles_tagged':
               'Aucun article marqué pour l\'instant. Rejoins le groupe WhatsApp pour poser tes questions.',
@@ -1169,8 +1170,6 @@ class AppTranslations extends Translations {
           'scholarship_detail_funding_label': 'Financement : ',
           'scholarship_detail_deadline_label': 'Date limite : ',
           'scholarship_apply_with_kpb': 'Candidater avec KPB',
-          'scholarship_admission_chances_low': 'Chances d\'admission : Faibles',
-          'scholarship_boost_to_85': 'Booster mon dossier à 85%',
           'scholarship_academy_continue': 'Continue ta formation',
           'scholarship_academy_prepare':
               'Prépare ta candidature avec des experts',
@@ -1769,7 +1768,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Espace partenaire',
           'home_active_cases_title': 'Dossiers actifs',
           'see_all': 'Voir tout',
-          'home_recommended_universities_title': 'Tes meilleures chances',
+          'home_recommended_universities_title': 'Écoles pour ton profil',
           'home_hero_title_partner': 'Développons\nvotre réseau',
           'home_hero_title_parent': 'Accompagnez\nvotre enfant',
           'home_hero_title_student': 'Votre parcours\nvers l\'étranger',
@@ -2374,9 +2373,9 @@ class AppTranslations extends Translations {
           'auth_intelligence_title':
               'KPB Intelligence, ton guide pour étudier à l’étranger',
           'auth_intelligence_body':
-              'Réponds à 12 questions et découvre tes chances réelles d’admission, université par université.',
-          'auth_intelligence_benefit_probability':
-              'Probabilité d’admission chiffrée par université',
+              'Réponds à 12 questions et découvre les universités qui correspondent à ton profil.',
+          'auth_intelligence_benefit_fit':
+              'Universités classées selon ton profil',
           // Ne nomme QUE le coach, seule surface KPB Intelligence en ligne en
           // build 49. La version précédente promettait « lettre, entretien » :
           // le générateur de lettres et le simulateur d'entretien sont masqués
@@ -2755,19 +2754,20 @@ class AppTranslations extends Translations {
           'aha_title': 'Tes écoles compatibles',
           'aha_title_named': '@name, voici tes @count écoles compatibles',
           'aha_subtitle':
-              'Basé sur ton profil, voici où tes chances sont les meilleures.',
+              'Basé sur ton profil, voici les écoles qui te correspondent le mieux.',
           'aha_empty_body':
               'Pas encore de match — explore le catalogue pour découvrir les écoles.',
           'aha_estimate_note':
               'Estimation — complète ton profil pour plus de précision.',
-          'aha_zone_green': 'Chances élevées',
-          'aha_zone_yellow': 'Jouable avec un bon dossier',
-          'aha_zone_blue': 'Ambitieux pour ton profil actuel',
+          'aha_zone_green': 'Correspond très bien à ton profil',
+          'aha_zone_yellow': 'Correspond en partie à ton profil',
+          'aha_zone_blue': 'Moins aligné avec ton profil actuel',
           'aha_cta': 'Découvrir mon espace',
           'aha_see_all_cta': 'Voir toutes les universités',
           // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
-          'uni_list_subtitle':
-              'Triées par probabilité d\'admission — calculée pour toi',
+          'uni_list_subtitle': 'Meilleurs matchs en tête, selon ton profil',
+          'uni_list_subtitle_no_profile':
+              'Complète ton profil pour voir tes meilleurs matchs',
           'uni_filter_matches': 'Meilleurs matchs',
           'uni_filter_france': '🇫🇷 France',
           'uni_filter_canada': '🇨🇦 Canada',
@@ -2778,10 +2778,16 @@ class AppTranslations extends Translations {
           'school_fees_per_year': 'FRAIS / AN',
           'school_intake': 'RENTRÉE',
           'school_intake_on_request': 'Sur demande',
-          'match_zone_tap_hint': 'Touche pour voir les 5 facteurs du calcul',
-          'match_zone_strong': 'Très bon profil pour cette école',
-          'match_zone_good': 'Bon profil pour cette école',
-          'match_zone_stretch': 'École ambitieuse pour ton profil',
+          'match_zone_tap_hint': 'Touche pour voir pourquoi',
+          'match_zone_strong': 'Correspond bien à ton profil',
+          'match_zone_good': 'Correspond en partie à ton profil',
+          'match_zone_stretch': 'Peu de points communs avec ton profil',
+          'match_zone_no_profile': 'Complète ton profil pour voir ton match',
+          // Paliers qualitatifs d'adéquation au profil — jamais de % ni de
+          // « chances d'admission » (conformité marque).
+          'profile_fit_strong': 'Très bon match',
+          'profile_fit_good': 'Bon match',
+          'profile_fit_explore': 'À explorer',
           'create_application': 'Créer un dossier',
           'ask_kpb_counselor': 'Poser une question à un conseiller KPB',
           'country_guide_badge': 'GUIDE PAYS',
@@ -3692,11 +3698,12 @@ class AppTranslations extends Translations {
           'compare_search_hint': 'Search a university…',
           'compare_picker_empty': 'No university matches your search.',
           'compare_verdict_higher_match':
-              'Higher admission match: @name (@hi% vs @lo%)',
+              '@name is a better match for your profile.',
           'compare_verdict_partner': '@name is a verified KPB partner.',
           'compare_verdict_more_programs':
               '@name offers more programs (@hi vs @lo).',
-          'compare_share_line': '🏛 @name — compatibility @score%\n',
+          'compare_share_line': '🏛 @name — @fit\n',
+          'compare_share_line_plain': '🏛 @name\n',
           'compare_share_tuition': '   Fees: @tuition\n',
           'compare_share_language': '   Language: @lang\n\n',
           'community_empty_articles_for_tag': 'No articles for #@tag',
@@ -3976,7 +3983,7 @@ class AppTranslations extends Translations {
           'deadlines_status_past': 'Past',
           'deadlines_status_today_tomorrow': 'Today / tomorrow',
           'compare_title': 'Compare',
-          'compare_row_match': 'Match',
+          'compare_row_match': 'Profile match',
           'compare_row_location': 'Location',
           'compare_row_tuition': 'Tuition',
           'compare_row_language': 'Language',
@@ -4027,14 +4034,14 @@ class AppTranslations extends Translations {
           'community_featured_badge': '📌 Featured',
           'community_safety_note':
               'AI moderation + reports. Report any paid private « scholarship offer » — it is a scam.',
-          'match_card_eyebrow': 'YOUR ADMISSION CHANCES',
+          'match_card_eyebrow': 'MY SCHOOL MATCH',
           'match_card_applying_via': '@name · applying with KPB Education',
           'match_card_student_fallback': 'Future student',
-          'match_card_domain_tagline': 'compute your chances',
+          'match_card_domain_tagline': 'find your schools',
           'match_card_share_whatsapp': 'Share on WhatsApp',
           'match_card_download': 'Download',
           'match_card_whatsapp_prefill':
-              'My admission chances at @school: @pct%. Compute yours on Karatou: @link',
+              '@school: @fit for my profile. Find the schools that match you on Karatou: @link',
           'match_card_share_error': 'Could not generate the card. Try again.',
           'forum_no_articles_tagged':
               'No articles tagged yet. Join the WhatsApp group to ask questions.',
@@ -4278,8 +4285,6 @@ class AppTranslations extends Translations {
           'scholarship_detail_funding_label': 'Funding: ',
           'scholarship_detail_deadline_label': 'Deadline: ',
           'scholarship_apply_with_kpb': 'Apply with KPB',
-          'scholarship_admission_chances_low': 'Admission chances: Low',
-          'scholarship_boost_to_85': 'Boost my application to 85%',
           'scholarship_academy_continue': 'Continue your course',
           'scholarship_academy_prepare':
               'Prepare your application with experts',
@@ -4819,7 +4824,7 @@ class AppTranslations extends Translations {
           'home_subtitle_partner': 'Partner space',
           'home_active_cases_title': 'Active cases',
           'see_all': 'See all',
-          'home_recommended_universities_title': 'Your best chances',
+          'home_recommended_universities_title': 'Schools for your profile',
           'home_hero_title_partner': 'Let\'s grow\\nyour network',
           'home_hero_title_parent': 'Support\\nyour child',
           'home_hero_title_student': 'Your journey\\nto study abroad',
@@ -5389,9 +5394,9 @@ class AppTranslations extends Translations {
           'auth_intelligence_title':
               'KPB Intelligence, your guide to studying abroad',
           'auth_intelligence_body':
-              'Answer 12 questions and discover your real admission chances, university by university.',
-          'auth_intelligence_benefit_probability':
-              'A quantified admission probability for each university',
+              'Answer 12 questions and discover the universities that match your profile.',
+          'auth_intelligence_benefit_fit':
+              'Universities ranked for your profile',
           // Voir le commentaire du bloc `fr` : ne nomme que le coach, la seule
           // surface KPB Intelligence atteignable en build 49.
           'auth_intelligence_benefit_ai':
@@ -5747,19 +5752,20 @@ class AppTranslations extends Translations {
           'aha_title_named':
               '@name, here are your @count matching universities',
           'aha_subtitle':
-              'Based on your profile, here is where your chances look best.',
+              'Based on your profile, here are the schools that match you best.',
           'aha_empty_body':
               'No matches yet — explore the catalog to discover schools.',
           'aha_estimate_note':
               'Estimate — complete your profile for more precision.',
-          'aha_zone_green': 'Strong chances',
-          'aha_zone_yellow': 'Within reach with a solid application',
-          'aha_zone_blue': 'Ambitious for your current profile',
+          'aha_zone_green': 'Closely matches your profile',
+          'aha_zone_yellow': 'Partly matches your profile',
+          'aha_zone_blue': 'Less aligned with your current profile',
           'aha_cta': 'Explore my home',
           'aha_see_all_cta': 'See all universities',
           // ── PR2 · Écoles / Destinations / Fiche restyle (App-engagement) ──
-          'uni_list_subtitle':
-              'Sorted by admission probability — computed for you',
+          'uni_list_subtitle': 'Best matches first, based on your profile',
+          'uni_list_subtitle_no_profile':
+              'Complete your profile to see your best matches',
           'uni_filter_matches': 'Best matches',
           'uni_filter_france': '🇫🇷 France',
           'uni_filter_canada': '🇨🇦 Canada',
@@ -5770,10 +5776,14 @@ class AppTranslations extends Translations {
           'school_fees_per_year': 'TUITION / YR',
           'school_intake': 'INTAKE',
           'school_intake_on_request': 'On request',
-          'match_zone_tap_hint': 'Tap to see the 5 factors behind the score',
-          'match_zone_strong': 'Strong match for your profile',
-          'match_zone_good': 'Good match for your profile',
-          'match_zone_stretch': 'Ambitious pick for your profile',
+          'match_zone_tap_hint': 'Tap to see why',
+          'match_zone_strong': 'Closely matches your profile',
+          'match_zone_good': 'Partly matches your profile',
+          'match_zone_stretch': 'Few points in common with your profile',
+          'match_zone_no_profile': 'Complete your profile to see your match',
+          'profile_fit_strong': 'Great match',
+          'profile_fit_good': 'Good match',
+          'profile_fit_explore': 'Worth exploring',
           'create_application': 'Create an application',
           'ask_kpb_counselor': 'Ask a KPB counselor a question',
           'country_guide_badge': 'COUNTRY GUIDE',

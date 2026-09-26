@@ -763,7 +763,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
             final inst = institutions[index];
             final saved = ctrl.isSaved(SavedItemType.institution, inst.id);
             final inCompare = _compareSet.contains(inst.id);
-            final score = ctrl.institutionMatch(inst);
+            final fit = ctrl.institutionFit(inst);
 
             return _InstitutionCard(
               institution: inst,
@@ -771,7 +771,7 @@ class _InstitutionsCatalogTabState extends State<InstitutionsCatalogTab> {
               saved: saved,
               inCompare: inCompare,
               compareDisabled: !inCompare && _compareSet.length >= 2,
-              score: score,
+              fit: fit,
               onSave: () =>
                   ctrl.toggleSaved(SavedItemType.institution, inst.id),
               onCompare: () => _toggleCompare(inst.id),
@@ -883,7 +883,7 @@ class _InstitutionCard extends StatelessWidget {
     required this.saved,
     required this.inCompare,
     required this.compareDisabled,
-    required this.score,
+    required this.fit,
     required this.onSave,
     required this.onCompare,
     required this.onShare,
@@ -895,18 +895,13 @@ class _InstitutionCard extends StatelessWidget {
   final bool saved;
   final bool inCompare;
   final bool compareDisabled;
-  final int score;
+
+  /// Null (no badge) without a student profile.
+  final ProfileFit? fit;
   final VoidCallback onSave;
   final VoidCallback onCompare;
   final VoidCallback onShare;
   final VoidCallback onApply;
-
-  Color _scoreColor(BuildContext context) {
-    if (score >= 85) return KpbColors.success;
-    if (score >= 70) return KpbColors.blue;
-    if (score >= 50) return KpbColors.gold;
-    return context.kpb.gray400;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -998,23 +993,7 @@ class _InstitutionCard extends StatelessWidget {
             // Action bar
             Row(
               children: [
-                // Match score
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _scoreColor(context).withValues(alpha: 0.1),
-                    borderRadius: KpbRadius.pillBr,
-                  ),
-                  child: Text(
-                    '$score%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _scoreColor(context),
-                    ),
-                  ),
-                ),
+                if (fit != null) ProfileFitBadge(fit: fit!, fontSize: 11),
                 const Spacer(),
                 // Share
                 _ActionIcon(
@@ -1472,7 +1451,7 @@ class _InstitutionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const score = 85; // Mock score for now
+    final fit = controller.institutionFit(institution);
     final logoUrl = commonsRasterDisplayUrl(institution.logoUrl);
     final showLogoCredit = logoRequiresAttribution(institution.logoLicence) &&
         isOpenableWebUrl(institution.logoSourceUrl);
@@ -1582,13 +1561,11 @@ class _InstitutionDetailSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: KpbSpacing.lg),
 
-                  // Admission Meter
-                  const AdmissionMeter(
-                    score: score,
-                    size: 80,
-                    strokeWidth: 8,
-                  ),
-                  const SizedBox(height: KpbSpacing.lg),
+                  // Profile fit — was a hard-coded « 85 % » gauge.
+                  if (fit != null) ...[
+                    ProfileFitBadge(fit: fit, fontSize: 14),
+                    const SizedBox(height: KpbSpacing.lg),
+                  ],
 
                   // Overview
                   KpbCard(

@@ -3,49 +3,10 @@ import 'package:get/get.dart';
 
 import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
+import '../../core/models/app_models.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/ui/kpb_theme_ext.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Match score badge (reusable)
-// ─────────────────────────────────────────────────────────────────────────────
-class MatchScoreBadge extends StatelessWidget {
-  const MatchScoreBadge({super.key, required this.score, this.size = 36});
-
-  final int score;
-  final double size;
-
-  Color _color(BuildContext context) {
-    if (score >= 85) return KpbColors.success;
-    if (score >= 70) return KpbColors.blue;
-    if (score >= 50) return KpbColors.warning;
-    return context.kpb.gray400;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _color(context);
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
-      ),
-      child: Center(
-        child: Text(
-          '$score%',
-          style: TextStyle(
-            fontSize: size * 0.28,
-            fontWeight: FontWeight.w800,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Match explanation bottom sheet
@@ -53,7 +14,7 @@ class MatchScoreBadge extends StatelessWidget {
 void showMatchExplanation(
   BuildContext context,
   String title,
-  int score,
+  ProfileFit? fit,
   List<String> reasons,
   AppController controller,
 ) {
@@ -77,9 +38,12 @@ void showMatchExplanation(
               borderRadius: KpbRadius.pillBr,
             ),
           ),
-          // Score ring
-          MatchScoreBadge(score: score, size: 64),
-          const SizedBox(height: KpbSpacing.md),
+          // Qualitative fit (no badge without a profile — the reasons then
+          // invite the student to complete it).
+          if (fit != null) ...[
+            ProfileFitBadge(fit: fit, fontSize: 15),
+            const SizedBox(height: KpbSpacing.md),
+          ],
           // Title
           Text(
             title,

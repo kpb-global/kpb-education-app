@@ -7,6 +7,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/share_card_service.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/utils/country_utils.dart';
@@ -29,20 +30,14 @@ class _Palette {
   static const heartPink = Color(0xFFFCA5A5); // kpb-allow-color: accent favori
 }
 
-(Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
-  if (score >= 70) {
-    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
-  }
-  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
-  return (KpbColors.surfaceMuted, KpbColors.textMuted);
-}
-
-String _zoneLabel(int score) {
-  if (score >= 85) return 'match_zone_strong'.tr;
-  if (score >= 70) return 'match_zone_good'.tr;
-  return 'match_zone_stretch'.tr;
-}
+/// One-line description of a fit tier — describes the profile match, never
+/// the odds of being admitted.
+String _zoneLabel(ProfileFit? fit) => switch (fit) {
+      ProfileFit.strong => 'match_zone_strong'.tr,
+      ProfileFit.good => 'match_zone_good'.tr,
+      ProfileFit.explore => 'match_zone_stretch'.tr,
+      null => 'match_zone_no_profile'.tr,
+    };
 
 class ProgramDetailScreen extends StatelessWidget {
   const ProgramDetailScreen({super.key, required this.programId});
@@ -85,7 +80,7 @@ class ProgramDetailScreen extends StatelessWidget {
 
     final description =
         institution != null ? controller.resolve(institution.overview) : '';
-    final score = controller.programMatch(program);
+    final fit = controller.programFit(program);
 
     final applicationSteps = [
       'program_step_eligibility_choice'.tr,
@@ -107,7 +102,7 @@ class ProgramDetailScreen extends StatelessWidget {
             flag: countryFlag(program.countryId),
             name: controller.resolve(program.name),
             subtitle: city.isNotEmpty ? '$level · $city' : level,
-            score: score,
+            fit: fit,
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -299,7 +294,7 @@ class _Header extends StatelessWidget {
     required this.flag,
     required this.name,
     required this.subtitle,
-    required this.score,
+    required this.fit,
   });
 
   final AppController controller;
@@ -308,30 +303,28 @@ class _Header extends StatelessWidget {
   final String flag;
   final String name;
   final String subtitle;
-  final int score;
 
-  /// Present the shareable "admission chances" match card (App-engagement
-  /// handoff). Every value is real: the match % + zone come from the live
-  /// [AppController.institutionMatch] for the institution whose detail launched
-  /// this (falling back to the program match when no institution is attached),
+  /// Null without a student profile.
+  final ProfileFit? fit;
+
+  /// Present the shareable profile-match card (App-engagement handoff). Every
+  /// value is real: the fit tier comes from the live
+  /// [AppController.institutionFit] for the institution whose detail launched
+  /// this (falling back to the program fit when no institution is attached),
   /// the name/flag from the real institution/country, the student first name
   /// from the real profile, and the brand line from [AppConfig].
-  void _share(BuildContext context) {
-    final matchScore =
-        institution != null ? controller.institutionMatch(institution!) : score;
+  void _share(BuildContext context, ProfileFit shareFit) {
     final schoolName =
         institution != null ? controller.resolve(institution!.name) : name;
     final firstName = _firstName(controller.profile?.fullName);
-    final (_, zoneFg) = _zoneColors(matchScore);
 
     showDialog<void>(
       context: context,
       barrierColor: KpbColors.brandNavy.withValues(alpha: 0.65),
       builder: (_) => _ShareMatchCard(
         flag: flag,
-        score: matchScore,
-        zoneLabel: _zoneLabel(matchScore),
-        zoneColor: zoneFg,
+        fit: shareFit,
+        zoneLabel: _zoneLabel(shareFit),
         schoolName: schoolName,
         studentLine: 'match_card_applying_via'.trParams({'name': firstName}),
       ),
@@ -349,7 +342,8 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final saved = controller.isSaved(SavedItemType.program, program.id);
-    final (zoneBg, zoneFg) = _zoneColors(score);
+    final shareFit =
+        institution != null ? controller.institutionFit(institution!) : fit;
 
     return Container(
       color: KpbColors.brandNavy,
@@ -369,12 +363,15 @@ class _Header extends StatelessWidget {
                 onTap: () => Get.back(),
               ),
               const Spacer(),
-              _RoundButton(
-                icon: Icons.ios_share_rounded,
-                onTap: () => _share(context),
-                semanticLabel: 'a11y_share'.tr,
-              ),
-              const SizedBox(width: 10),
+              // Rien de personnel à partager sans profil : pas de carte.
+              if (shareFit != null) ...[
+                _RoundButton(
+                  icon: Icons.ios_share_rounded,
+                  onTap: () => _share(context, shareFit),
+                  semanticLabel: 'a11y_share'.tr,
+                ),
+                const SizedBox(width: 10),
+              ],
               _RoundButton(
                 icon: saved
                     ? Icons.favorite_rounded
@@ -424,7 +421,7 @@ class _Header extends StatelessWidget {
             onTap: () => showMatchExplanation(
               context,
               name,
-              score,
+              fit,
               controller.matchExplanation(SearchResultType.program, program.id),
               controller,
             ),
@@ -437,30 +434,17 @@ class _Header extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: zoneBg,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Text(
-                      '$score%',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: zoneFg,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+                  if (fit != null) ...[
+                    ProfileFitBadge(fit: fit!, fontSize: 13),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _zoneLabel(score),
+                          _zoneLabel(fit),
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
@@ -895,17 +879,15 @@ void _openCaseTunnel(
 class _ShareMatchCard extends StatefulWidget {
   const _ShareMatchCard({
     required this.flag,
-    required this.score,
+    required this.fit,
     required this.zoneLabel,
-    required this.zoneColor,
     required this.schoolName,
     required this.studentLine,
   });
 
   final String flag;
-  final int score;
+  final ProfileFit fit;
   final String zoneLabel;
-  final Color zoneColor;
   final String schoolName;
   final String studentLine;
 
@@ -946,7 +928,7 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
       referralCode: _referralCode,
     );
     return 'match_card_whatsapp_prefill'.trParams({
-      'pct': '${widget.score}',
+      'fit': widget.fit.labelKey.tr,
       'school': widget.schoolName,
       'domain': AppConfig.brandDomain,
       'link': link,
@@ -1105,22 +1087,22 @@ class _ShareMatchCardState extends State<_ShareMatchCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${widget.score}%',
+                      widget.fit.labelKey.tr,
                       style: const TextStyle(
-                        fontSize: 44,
+                        fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: -1.5,
-                        height: 1,
+                        letterSpacing: -0.6,
+                        height: 1.1,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       widget.zoneLabel,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: widget.zoneColor,
+                        color: KpbColors.decorSky,
                       ),
                     ),
                   ],

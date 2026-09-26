@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:karatou/app/core/translations/app_translations.dart';
-import 'package:karatou/app/core/ui/components/match_badge.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 import 'package:karatou/app/features/matches/aha_moment_screen.dart';
 
 import '../widget_test_helpers.dart';
@@ -45,7 +45,7 @@ void main() {
   });
   tearDown(resetGetxSingleton);
 
-  testWidgets('renders server matches with probability badge and narrative',
+  testWidgets('renders server matches with a qualitative fit and narrative',
       (tester) async {
     final api = MockApiClient();
     when(() => api.getAhaMatches()).thenAnswer(
@@ -60,7 +60,11 @@ void main() {
 
     expect(find.text('Université Test'), findsOneWidget);
     expect(find.text('Master Informatique'), findsOneWidget);
-    expect(find.text('74%'), findsOneWidget);
+    // Zone serveur rendue en palier qualitatif — la probabilité (0,74) ne
+    // s'affiche jamais (conformité : aucun pourcentage d'admission).
+    expect(find.text('74%'), findsNothing);
+    expect(find.textContaining('%'), findsNothing);
+    expect(find.byType(ProfileFitBadge), findsOneWidget);
     expect(find.text('Ton profil correspond très bien.'), findsOneWidget);
     // Not an estimate → no precision note.
     expect(
@@ -99,7 +103,9 @@ void main() {
     // The initial snapshot still carries the bundled mock catalog, so the
     // local AppSearchService fallback produces scored cards (flagged as
     // estimates) instead of a dead end.
-    expect(find.byType(MatchBadge), findsWidgets);
+    expect(find.byType(ProfileFitBadge), findsWidgets);
+    // Conformité : aucun pourcentage affiché sur les cartes d'écoles.
+    expect(find.textContaining('%'), findsNothing);
     expect(find.textContaining('Estimation'), findsOneWidget);
     // CTA is always present.
     expect(find.text('Découvrir mon espace'), findsOneWidget);

@@ -229,10 +229,20 @@ class _HousingEstimatorScreenState extends State<HousingEstimatorScreen> {
                     onSelected: (selected) {
                       if (selected) setState(() => _selectedCity = city);
                     },
-                    backgroundColor: context.kpb.cardBg,
-                    selectedColor: isDark
-                        ? KpbColors.blueMid.withValues(alpha: 0.3)
-                        : KpbColors.skyLight,
+                    // `color`, pas `selectedColor`/`backgroundColor` : le
+                    // chipTheme global définit `color` (actionPrimary une fois
+                    // sélectionnée) et RawChip le fait passer AVANT
+                    // `selectedColor`. Le libellé bleu se retrouvait sur fond
+                    // bleu — seule la coche blanche restait visible (Paris).
+                    color: WidgetStatePropertyAll(
+                      isSelected
+                          ? (isDark
+                              ? KpbColors.blueMid.withValues(alpha: 0.3)
+                              : KpbColors.skyLight)
+                          : context.kpb.cardBg,
+                    ),
+                    checkmarkColor:
+                        isDark ? Colors.white : KpbColors.actionPrimary,
                     labelStyle: TextStyle(
                       color: isSelected
                           ? (isDark ? Colors.white : KpbColors.blue)
