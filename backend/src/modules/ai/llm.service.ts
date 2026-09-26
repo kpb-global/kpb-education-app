@@ -27,10 +27,56 @@ type ProviderChatResponse = {
     completion_tokens?: number;
     total_tokens?: number;
     prompt_tokens_details?: { cached_tokens?: number };
+    completion_tokens_details?: { reasoning_tokens?: number };
   };
 };
 
 export type JsonSchema = Readonly<Record<string, unknown>>;
+
+/**
+ * Hidden-reasoning setting for a structured call. `off` disables it, the
+ * efforts bound it, `provider_default` sends nothing. Omitted on a request, it
+ * resolves per model (see `defaultStructuredReasoning`).
+ */
+export const STRUCTURED_REASONING_MODES = [
+  'off',
+  'low',
+  'medium',
+  'high',
+  'provider_default',
+] as const;
+export type StructuredReasoningMode =
+  (typeof STRUCTURED_REASONING_MODES)[number];
+
+/** Env value → mode; blank or unknown values mean "per-model default". */
+export function parseStructuredReasoningMode(
+  raw: string | undefined,
+): StructuredReasoningMode | undefined {
+  const value = raw?.trim().toLowerCase();
+  return STRUCTURED_REASONING_MODES.find((mode) => mode === value);
+}
+
+/**
+ * Measured on prod (26/09/2026, the exact completeStructured body with
+ * max_tokens=220, synthetic inputs):
+ * - deepseek/deepseek-v4-flash, provider default: 6/12 runs truncated — the
+ *   OpenInference and Parasail endpoints spent all 220 tokens on hidden
+ *   reasoning (`finish_reason: length`, empty content). With
+ *   `reasoning.enabled: false`: 8/8 valid, 0 reasoning tokens.
+ * - openai/gpt-oss-120b rejects `enabled: false` with a 400 ("Reasoning is
+ *   mandatory for this endpoint"), truncates 2/2 at the provider default, and
+ *   passes 2/2 with `effort: low` (88–98 reasoning tokens, so 220 is tight).
+ * Models that were not measured keep the provider default: disabling or
+ * bounding reasoning can be rejected, and the one-attempt policy has no retry
+ * to recover from a 400.
+ */
+export function defaultStructuredReasoning(
+  model: string,
+): StructuredReasoningMode {
+  if (/^deepseek\/deepseek-v4-flash(?::|$)/.test(model)) return 'off';
+  if (/^openai\/gpt-oss-/.test(model)) return 'low';
+  return 'provider_default';
+}
 
 export type StructuredCompletionRequest<T> = {
   feature: 'success_lab_diagnostic';
@@ -44,6 +90,8 @@ export type StructuredCompletionRequest<T> = {
   maxTokens: number;
   promptVersion: string;
   model: string;
+  /** Ops override (e.g. KPB_AI_DIAGNOSTIC_REASONING); per-model when unset. */
+  reasoning?: StructuredReasoningMode;
 };
 
 export type StructuredCompletionResult<T> = {
@@ -152,6 +200,16 @@ export class LlmService {
       return {};
     }
     return { reasoning: { enabled: false } };
+  }
+
+  /// OpenRouter-only: Groq does not take the `reasoning` object.
+  private structuredReasoningPolicy(
+    name: LlmProviderName,
+    mode: StructuredReasoningMode,
+  ): Record<string, unknown> {
+    if (name !== 'openrouter' || mode === 'provider_default') return {};
+    if (mode === 'off') return { reasoning: { enabled: false } };
+    return { reasoning: { effort: mode } };
   }
 
   /// Per-request upper bound so a stalled provider connection can never hang
@@ -298,6 +356,10 @@ export class LlmService {
         },
       },
       ...this.routingPolicy(config.name),
+      ...this.structuredReasoningPolicy(
+        config.name,
+        params.reasoning ?? defaultStructuredReasoning(model),
+      ),
       messages: [
         {
           role: 'system',
@@ -354,6 +416,22 @@ export class LlmService {
           outcome: 'refused',
           fallbackReason: 'provider_refusal',
         };
+      }
+
+      if (payload.choices?.[0]?.finish_reason === 'length') {
+        // Cut at max_tokens: the JSON is incomplete, or never started when
+        // hidden reasoning took the whole budget. Recorded apart from an empty
+        // or malformed answer so the ledger shows the budget was the cause.
+        this.logger.warn(
+          `${config.name} structured response truncated at max_tokens (feature=${params.feature}, prompt=${params.promptVersion}, completion_tokens=${usage?.completion_tokens ?? '?'}, reasoning_tokens=${usage?.completion_tokens_details?.reasoning_tokens ?? '?'}).`,
+        );
+        return this.invalidStructuredResponse(
+          params,
+          config.name,
+          payload,
+          latencyMs,
+          'provider_truncated',
+        );
       }
 
       const raw = payload.choices?.[0]?.message?.content?.trim();

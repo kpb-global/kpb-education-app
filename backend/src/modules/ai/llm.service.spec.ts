@@ -1,6 +1,11 @@
 import { Logger } from '@nestjs/common';
 
-import { LlmService, StructuredCompletionRequest } from './llm.service';
+import {
+  defaultStructuredReasoning,
+  LlmService,
+  parseStructuredReasoningMode,
+  StructuredCompletionRequest,
+} from './llm.service';
 
 type Diagnostic = {
   strength: string;
@@ -306,6 +311,193 @@ describe('LlmService.completeStructured', () => {
     expect(output).toContain('openrouter call failed');
     expect(output).not.toContain('student@example.test');
     expect(output).not.toContain('secret-token');
+  });
+});
+
+describe('LlmService.completeStructured reasoning policy', () => {
+  const previousEnv = Object.fromEntries(
+    PROVIDER_ENV_VARS.map((name) => [name, process.env[name]]),
+  );
+  const originalFetch = global.fetch;
+  const valid: Diagnostic = {
+    strength: 'Objectif clair',
+    priorityImprovement: 'Ajouter une preuve chiffrée',
+    rationale: 'Le critère demande un exemple vérifiable.',
+    nextAction: 'Ajoute un résultat mesurable.',
+  };
+  const reply = (choice: Record<string, unknown>, usage?: object) =>
+    new Response(
+      JSON.stringify({ id: 'provider-3', choices: [choice], usage }),
+      {
+        status: 200,
+      },
+    );
+
+  beforeEach(() => {
+    for (const name of PROVIDER_ENV_VARS) delete process.env[name];
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    global.fetch = originalFetch;
+    for (const name of PROVIDER_ENV_VARS) {
+      const value = previousEnv[name];
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  });
+
+  const sentBody = () =>
+    JSON.parse(
+      ((global.fetch as jest.Mock).mock.calls[0] as [string, RequestInit])[1]
+        .body as string,
+    ) as Record<string, unknown>;
+
+  async function send(
+    overrides: Partial<StructuredCompletionRequest<Diagnostic>>,
+  ) {
+    global.fetch = jest.fn().mockResolvedValue(
+      reply({
+        finish_reason: 'stop',
+        message: { content: JSON.stringify(valid) },
+      }),
+    );
+    const result = await new LlmService().completeStructured({
+      ...request,
+      ...overrides,
+    });
+    return { result, body: sentBody() };
+  }
+
+  it('disables reasoning for deepseek-v4-flash, whose thinking endpoints ate the 220 tokens', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    const { result, body } = await send({
+      model: 'deepseek/deepseek-v4-flash',
+    });
+    expect(body.reasoning).toEqual({ enabled: false });
+    expect(result.outcome).toBe('success');
+  });
+
+  it('bounds gpt-oss to low effort instead of disabling it (OpenRouter answers 400)', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    const { body } = await send({ model: 'openai/gpt-oss-120b' });
+    expect(body.reasoning).toEqual({ effort: 'low' });
+  });
+
+  it('leaves an unmeasured model on the provider default', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    const { body } = await send({ model: 'mistralai/mistral-small-3.2' });
+    expect(body).not.toHaveProperty('reasoning');
+  });
+
+  it('lets ops override the per-model default in both directions', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    expect(
+      (
+        await send({
+          model: 'deepseek/deepseek-v4-flash',
+          reasoning: 'provider_default',
+        })
+      ).body,
+    ).not.toHaveProperty('reasoning');
+    expect(
+      (await send({ model: 'mistralai/mistral-small-3.2', reasoning: 'off' }))
+        .body.reasoning,
+    ).toEqual({ enabled: false });
+    expect(
+      (await send({ model: 'openai/gpt-oss-120b', reasoning: 'medium' })).body
+        .reasoning,
+    ).toEqual({ effort: 'medium' });
+  });
+
+  it('sends no OpenRouter-only reasoning object to Groq, even for gpt-oss', async () => {
+    process.env.GROQ_API_KEY = 'groq-key';
+    const { body } = await send({
+      model: 'openai/gpt-oss-20b',
+      reasoning: 'off',
+    });
+    expect(body).not.toHaveProperty('reasoning');
+  });
+
+  it('records a max_tokens cut as provider_truncated, apart from an empty answer', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    const warn = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    const usage = {
+      prompt_tokens: 380,
+      completion_tokens: 220,
+      total_tokens: 600,
+      completion_tokens_details: { reasoning_tokens: 220 },
+    };
+    // Exactly what the OpenInference endpoint returned on prod.
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(
+        reply({ finish_reason: 'length', message: { content: '' } }, usage),
+      )
+      .mockResolvedValueOnce(
+        reply(
+          { finish_reason: 'length', message: { content: '{"strength":"Obj' } },
+          usage,
+        ),
+      )
+      // Counter-proof: the same empty body, stopped normally, keeps its reason.
+      .mockResolvedValueOnce(
+        reply({ finish_reason: 'stop', message: { content: '' } }, usage),
+      );
+    const service = new LlmService();
+    const flash = { ...request, model: 'deepseek/deepseek-v4-flash' };
+
+    await expect(service.completeStructured(flash)).resolves.toEqual(
+      expect.objectContaining({
+        data: fallback,
+        provider: 'openrouter',
+        outcome: 'error',
+        fallbackReason: 'provider_truncated',
+        outputTokens: 220,
+        providerRequestId: 'provider-3',
+      }),
+    );
+    await expect(service.completeStructured(flash)).resolves.toEqual(
+      expect.objectContaining({ fallbackReason: 'provider_truncated' }),
+    );
+    await expect(service.completeStructured(flash)).resolves.toEqual(
+      expect.objectContaining({ fallbackReason: 'provider_empty_response' }),
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('truncated at max_tokens'),
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('reasoning_tokens=220'),
+    );
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('"strength":"Obj');
+  });
+});
+
+describe('structured reasoning helpers', () => {
+  it('maps env values to modes and treats unknown values as unset', () => {
+    expect(parseStructuredReasoningMode(' OFF ')).toBe('off');
+    expect(parseStructuredReasoningMode('provider_default')).toBe(
+      'provider_default',
+    );
+    expect(parseStructuredReasoningMode('none')).toBeUndefined();
+    expect(parseStructuredReasoningMode('')).toBeUndefined();
+    expect(parseStructuredReasoningMode(undefined)).toBeUndefined();
+  });
+
+  it('keeps per-model defaults to the measured models only', () => {
+    expect(defaultStructuredReasoning('deepseek/deepseek-v4-flash')).toBe(
+      'off',
+    );
+    expect(defaultStructuredReasoning('deepseek/deepseek-v4-flash:nitro')).toBe(
+      'off',
+    );
+    expect(defaultStructuredReasoning('openai/gpt-oss-20b')).toBe('low');
+    // Not measured: a `deepseek/` prefix match would guess for it.
+    expect(defaultStructuredReasoning('deepseek/deepseek-r1')).toBe(
+      'provider_default',
+    );
   });
 });
 

@@ -1,3 +1,8 @@
+import {
+  parseStructuredReasoningMode,
+  STRUCTURED_REASONING_MODES,
+} from '../modules/ai/llm.service';
+
 type Environment = Record<string, string | undefined>;
 
 function enabled(value: string | undefined): boolean {
@@ -131,6 +136,13 @@ export function validateCompetitionReadinessEnvironment(
     0,
     Number.MAX_SAFE_INTEGER,
   );
+  const reasoning = env.KPB_AI_DIAGNOSTIC_REASONING?.trim();
+  if (reasoning && !parseStructuredReasoningMode(reasoning)) {
+    // A typo would otherwise fall back to the per-model default silently.
+    throw new Error(
+      `KPB_AI_DIAGNOSTIC_REASONING must be one of ${STRUCTURED_REASONING_MODES.join(', ')} (or empty for the per-model default).`,
+    );
+  }
   integerInRange(env, 'KPB_OUTBOX_BATCH_SIZE', 10, 1, 100);
   integerInRange(env, 'KPB_OUTBOX_LEASE_MS', 300_000, 5_000, 900_000);
   integerInRange(env, 'KPB_OUTBOX_MAX_ATTEMPTS', 8, 1, 50);
