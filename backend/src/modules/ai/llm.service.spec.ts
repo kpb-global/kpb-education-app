@@ -1,3 +1,5 @@
+import { Logger } from '@nestjs/common';
+
 import { LlmService, StructuredCompletionRequest } from './llm.service';
 
 type Diagnostic = {
@@ -304,5 +306,135 @@ describe('LlmService.completeStructured', () => {
     expect(output).toContain('openrouter call failed');
     expect(output).not.toContain('student@example.test');
     expect(output).not.toContain('secret-token');
+  });
+});
+
+describe('LlmService.completeJson', () => {
+  const ENV = [...PROVIDER_ENV_VARS, 'LLM_REASONING_ENABLED', 'LLM_TIMEOUT_MS'];
+  const previousEnv = Object.fromEntries(
+    ENV.map((name) => [name, process.env[name]]),
+  );
+  const originalFetch = global.fetch;
+  const params = {
+    system: 'Personnalise la lettre.',
+    user: 'Domaine : Informatique',
+    maxTokens: 1500,
+    fallback: { fr: 'MODELE', en: 'MODELE' },
+  };
+  const okResponse = () =>
+    new Response(
+      JSON.stringify({
+        choices: [
+          {
+            finish_reason: 'stop',
+            message: { content: '{"fr":"Lettre","en":"Letter"}' },
+          },
+        ],
+      }),
+      { status: 200 },
+    );
+
+  beforeEach(() => {
+    for (const name of ENV) delete process.env[name];
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    global.fetch = originalFetch;
+    for (const name of ENV) {
+      const value = previousEnv[name];
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  });
+
+  const sentBody = () =>
+    JSON.parse(
+      ((global.fetch as jest.Mock).mock.calls[0] as [string, RequestInit])[1]
+        .body as string,
+    ) as Record<string, unknown>;
+
+  it('disables hidden reasoning on OpenRouter so it cannot eat max_tokens', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    global.fetch = jest.fn().mockResolvedValue(okResponse());
+
+    await expect(new LlmService().completeJson(params)).resolves.toEqual({
+      data: { fr: 'Lettre', en: 'Letter' },
+      model: 'deepseek/deepseek-v4-flash',
+    });
+    expect(sentBody().reasoning).toEqual({ enabled: false });
+  });
+
+  it('lets ops restore the provider reasoning default', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    process.env.LLM_REASONING_ENABLED = 'true';
+    global.fetch = jest.fn().mockResolvedValue(okResponse());
+
+    await new LlmService().completeJson(params);
+    expect(sentBody()).not.toHaveProperty('reasoning');
+  });
+
+  it('sends no OpenRouter-only reasoning field to Groq', async () => {
+    process.env.GROQ_API_KEY = 'groq-key';
+    global.fetch = jest.fn().mockResolvedValue(okResponse());
+
+    await new LlmService().completeJson(params);
+    expect(sentBody()).not.toHaveProperty('reasoning');
+  });
+
+  it('reports a max_tokens truncation instead of degrading silently', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    const warn = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    global.fetch = jest.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ finish_reason: 'length', message: { content: '{"fr":"Lettre tronq' } }],
+          usage: { completion_tokens: 1500 },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(new LlmService().completeJson(params)).resolves.toEqual({
+      data: params.fallback,
+      model: 'local-fallback',
+    });
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('truncated at max_tokens'),
+    );
+  });
+
+  it('honours a per-call timeout longer than the env default', async () => {
+    process.env.LLM_API_KEY = 'openrouter-key';
+    process.env.LLM_TIMEOUT_MS = '20';
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    // Answers after 60 ms, but gives up as soon as the caller aborts.
+    global.fetch = jest.fn(
+      (_url: string, init: RequestInit) =>
+        new Promise<Response>((resolve, reject) => {
+          const timer = setTimeout(() => resolve(okResponse()), 60);
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timer);
+            const error = new Error('aborted');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }),
+    ) as unknown as typeof fetch;
+
+    // Env default (20 ms) aborts both attempts: the harness CAN fail.
+    await expect(new LlmService().completeJson(params)).resolves.toEqual({
+      data: params.fallback,
+      model: 'local-fallback',
+    });
+    // The per-call budget lets the same slow provider answer.
+    await expect(
+      new LlmService().completeJson({ ...params, timeoutMs: 500 }),
+    ).resolves.toEqual({
+      data: { fr: 'Lettre', en: 'Letter' },
+      model: 'deepseek/deepseek-v4-flash',
+    });
   });
 });

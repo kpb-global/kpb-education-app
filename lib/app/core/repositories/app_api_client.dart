@@ -16,8 +16,10 @@ import '../models/app_models.dart';
 import '../navigation/app_boot_screen.dart';
 
 class AppApiClient {
-  AppApiClient({Dio? dio})
-      : _dio = dio ??
+  AppApiClient({Dio? dio, Duration? aiReceiveTimeout})
+      : _aiReceiveTimeout = aiReceiveTimeout ??
+            const Duration(seconds: AppConfig.aiRequestTimeoutInSeconds),
+        _dio = dio ??
             Dio(
               BaseOptions(
                 baseUrl: AppConfig.apiBaseUrl,
@@ -40,6 +42,12 @@ class AppApiClient {
   }
 
   final Dio _dio;
+  final Duration _aiReceiveTimeout;
+
+  /// Per-request override for AI generation calls: only the wait for the
+  /// response grows; connect/send keep the short default, so a real network
+  /// failure is still reported quickly.
+  Options get _aiOptions => Options(receiveTimeout: _aiReceiveTimeout);
 
   /// True when an authenticated Supabase session is present.
   Future<bool> hasAuthSession() async {
@@ -66,6 +74,20 @@ class AppApiClient {
     final response = await _dio.post<Map<String, dynamic>>(
       _normalizePath(path),
       data: payload,
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// POST to an AI generation endpoint (`/tools/*`): same as [post], with the
+  /// long AI receive timeout ([AppConfig.aiRequestTimeoutInSeconds]).
+  Future<Map<String, dynamic>> postAi(
+    String path,
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      _normalizePath(path),
+      data: payload,
+      options: _aiOptions,
     );
     return response.data ?? <String, dynamic>{};
   }
@@ -484,7 +506,7 @@ class AppApiClient {
         if (applicationExcerpt?.trim().isNotEmpty == true)
           'applicationExcerpt': applicationExcerpt!.trim(),
       },
-      options: Options(
+      options: _aiOptions.copyWith(
         headers: <String, dynamic>{'Idempotency-Key': idempotencyKey},
       ),
     );
@@ -1013,6 +1035,8 @@ class AppApiClient {
     final response = await _dio.post<Map<String, dynamic>>(
       '/orientation/submit',
       data: payload,
+      // Ranking is local, but the explanations come from the LLM.
+      options: _aiOptions,
     );
     return response.data ?? <String, dynamic>{};
   }
@@ -1816,6 +1840,7 @@ class AppApiClient {
     final response = await _dio.post<Map<String, dynamic>>(
       '/document-review',
       data: {'kind': kind, 'text': text, 'language': language},
+      options: _aiOptions,
     );
     return response.data ?? <String, dynamic>{};
   }

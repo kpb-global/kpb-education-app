@@ -219,10 +219,11 @@ class _LetterCardState extends State<_LetterCard> {
 
       // Leading slash required: Dio concatenates `baseUrl + path`, and the base
       // ends with `/api`, so 'tools/…' resolved to `/apitools/…` → 404.
-      final result = await _ctrl.apiClient.post('/tools/personalize-letter', {
+      final result = await _ctrl.apiClient.postAi('/tools/personalize-letter', {
         'templateKey': widget.template.key,
         'templateBody': widget.template.bodyFr,
-        'name': p?.fullName ?? '',
+        // No `name`: the server never put it in the prompt (IA-T2) and has no
+        // other use for it, so it no longer leaves the device at all.
         'fieldOfStudy': field,
         'targetCountry': country,
         'strengths': _strengthsCtrl.text.trim(),

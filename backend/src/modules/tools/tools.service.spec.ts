@@ -1,13 +1,14 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 
 import { LlmService } from '../ai/llm.service';
-import { CvSummaryDto, ToolsService } from './tools.service';
+import { CvSummaryDto, LETTER_TIMEOUT_MS, ToolsService } from './tools.service';
 
 type CompleteJsonParams = {
   system: string;
   user: string;
   maxTokens?: number;
   fallback: { fr: string; en: string };
+  timeoutMs?: number;
 };
 
 function buildService(isConfigured: boolean) {
@@ -115,5 +116,35 @@ describe('ToolsService.personalizeLetters', () => {
     expect(user).not.toContain('Nom :');
     expect(user).toContain('Informatique');
     expect(user).toContain('France');
+  });
+
+  it('gives the long FR+EN generation more than the short-call timeout', async () => {
+    const { service, completeJson } = buildService(true);
+    await service.personalizeLetters({
+      templateKey: 'admission_master',
+      templateBody: 'Madame, Monsieur,',
+      fieldOfStudy: 'Informatique',
+    });
+
+    expect(completeJson.mock.calls[0][0].timeoutMs).toBe(LETTER_TIMEOUT_MS);
+    // Two provider attempts must still fit in the app's 90 s AI timeout.
+    expect(2 * LETTER_TIMEOUT_MS).toBeLessThan(90_000);
+  });
+
+  it('answers 503 rather than passing the untouched template off as personalised', async () => {
+    const { service, completeJson } = buildService(true);
+    completeJson.mockImplementationOnce(async (params: CompleteJsonParams) => ({
+      data: params.fallback,
+      model: 'local-fallback',
+      params,
+    }));
+
+    await expect(
+      service.personalizeLetters({
+        templateKey: 'admission_master',
+        templateBody: 'Madame, Monsieur,',
+        fieldOfStudy: 'Informatique',
+      }),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 });

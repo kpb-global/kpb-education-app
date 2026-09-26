@@ -25,7 +25,8 @@ export interface CvSummaryDto {
 export interface LetterPersonalizeDto {
   templateKey: string;
   templateBody: string;
-  name: string;
+  /// Ignored. Older app builds still send it; it never reaches the prompt.
+  name?: string;
   fieldOfStudy: string;
   targetCountry?: string;
   targetInstitution?: string;
@@ -54,6 +55,12 @@ export interface InterviewFeedback {
   improvements: string[];
   modelAnswer: string;
 }
+
+/// Per-attempt provider timeout for the FR+EN letter. Measured on prod with
+/// reasoning disabled: 5–19 s depending on the routed endpoint, so the 18 s env
+/// default aborted healthy generations. Two attempts ⇒ 80 s worst case, under
+/// the app's 90 s AI receive timeout.
+export const LETTER_TIMEOUT_MS = 40_000;
 
 @Injectable()
 export class ToolsService {
@@ -146,8 +153,16 @@ export class ToolsService {
         'Retourne un JSON { "fr": "...", "en": "..." }.',
       user: `Informations étudiant :\n${context}\n\nModèle à personnaliser :\n${dto.templateBody}`,
       maxTokens: 1500,
+      timeoutMs: LETTER_TIMEOUT_MS,
       fallback: { fr: dto.templateBody, en: dto.templateBody },
     });
+
+    // The fallback IS the untouched template: returning it as if it were the
+    // personalised letter showed students their own blank model under a
+    // « personnalisée » label. Say the generation failed instead.
+    if (result.model === 'local-fallback') {
+      throw new ServiceUnavailableException('AI generation failed.');
+    }
 
     return result.data;
   }
