@@ -186,6 +186,21 @@ describe('validateCompetitionReadinessEnvironment', () => {
     ).toThrow('must use distinct values');
   });
 
+  it('rejects a mistyped diagnostic reasoning mode instead of ignoring it', () => {
+    expect(() =>
+      validateCompetitionReadinessEnvironment(
+        productionEnv({ KPB_AI_DIAGNOSTIC_REASONING: 'none' }),
+      ),
+    ).toThrow('KPB_AI_DIAGNOSTIC_REASONING');
+    for (const value of ['', 'off', 'LOW', 'provider_default']) {
+      expect(() =>
+        validateCompetitionReadinessEnvironment(
+          productionEnv({ KPB_AI_DIAGNOSTIC_REASONING: value }),
+        ),
+      ).not.toThrow();
+    }
+  });
+
   it('does not enforce production-only settings in development', () => {
     expect(() =>
       validateCompetitionReadinessEnvironment({ NODE_ENV: 'development' }),

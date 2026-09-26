@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { Prisma, type ApplicationArtifactKind } from "@prisma/client";
 
-import { LlmService } from "../../ai/llm.service";
+import { LlmService, parseStructuredReasoningMode } from "../../ai/llm.service";
 import { PrismaService } from "../../prisma/prisma.service";
 import {
   CompetitionReadinessHttpException,
@@ -341,6 +341,9 @@ export class AiDiagnosticsService {
         ),
         promptVersion,
         model,
+        reasoning: parseStructuredReasoningMode(
+          process.env.KPB_AI_DIAGNOSTIC_REASONING,
+        ),
       });
 
     try {

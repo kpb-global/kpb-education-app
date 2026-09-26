@@ -12,6 +12,7 @@ describe("AiDiagnosticsService", () => {
   const previousEnv = {
     model: process.env.KPB_AI_DIAGNOSTIC_MODEL,
     study: process.env.KPB_STUDY_REVIEW_ENABLED,
+    reasoning: process.env.KPB_AI_DIAGNOSTIC_REASONING,
   };
   const now = new Date("2026-07-17T12:00:00.000Z");
   const workspace = {
@@ -69,12 +70,184 @@ describe("AiDiagnosticsService", () => {
 
   beforeEach(() => {
     delete process.env.KPB_AI_DIAGNOSTIC_MODEL;
+    delete process.env.KPB_AI_DIAGNOSTIC_REASONING;
     process.env.KPB_STUDY_REVIEW_ENABLED = "true";
   });
 
   afterAll(() => {
     restore("KPB_AI_DIAGNOSTIC_MODEL", previousEnv.model);
     restore("KPB_STUDY_REVIEW_ENABLED", previousEnv.study);
+    restore("KPB_AI_DIAGNOSTIC_REASONING", previousEnv.reasoning);
+  });
+
+  it("forwards the reasoning override and stores a truncation as its own fallback reason", async () => {
+    process.env.KPB_AI_DIAGNOSTIC_MODEL = "deepseek/deepseek-v4-flash";
+    process.env.KPB_AI_DIAGNOSTIC_REASONING = "provider_default";
+    const updates: Array<Record<string, unknown>> = [];
+    const client = {
+      scholarshipWorkspace: {
+        findFirst: jest.fn().mockResolvedValue({
+          ...workspace,
+          // Fresh so the criteria never age out of the 180-day window.
+          scholarship: { ...workspace.scholarship, lastVerifiedAt: new Date() },
+        }),
+      },
+      consentReceipt: {
+        findFirst: jest.fn().mockResolvedValue({ id: "consent-1" }),
+      },
+      aiDiagnostic: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest
+          .fn()
+          .mockResolvedValue(diagnosticRow({ status: "pending" })),
+        update: jest
+          .fn()
+          .mockImplementation(({ data }: { data: Record<string, unknown> }) => {
+            updates.push(data);
+            return Promise.resolve(diagnosticRow(data));
+          }),
+      },
+    };
+    const reservation = { allowed: true };
+    const settle = jest.fn().mockResolvedValue(BigInt(0));
+    const completeStructured = jest.fn(
+      (params: { fallback: unknown; model: string }) =>
+        Promise.resolve({
+          data: params.fallback,
+          provider: "openrouter",
+          model: params.model,
+          outputTokens: 220,
+          latencyMs: 1900,
+          outcome: "error",
+          fallbackReason: "provider_truncated",
+        }),
+    );
+    const service = new AiDiagnosticsService(
+      {
+        isEnabled: true,
+        execute: jest.fn(
+          async (operation: (value: typeof client) => Promise<unknown>) =>
+            operation(client),
+        ),
+      } as unknown as PrismaService,
+      {
+        evaluate: jest.fn().mockResolvedValue({
+          allowed: true,
+          feature: "ai_diagnostic",
+        }),
+      } as unknown as FeatureAccessService,
+      {
+        reserve: jest.fn().mockResolvedValue(reservation),
+        settle,
+      } as unknown as AiBudgetService,
+      {
+        isConfigured: true,
+        providerName: "openrouter",
+        completeStructured,
+      } as unknown as LlmService,
+      acquiredIdempotency().service,
+    );
+
+    const result = await service.create(
+      "student-1",
+      "workspace-1",
+      { language: "fr", consentReceiptId: "consent-1" },
+      "diagnostic-key-truncated",
+    );
+
+    expect(completeStructured).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "deepseek/deepseek-v4-flash",
+        reasoning: "provider_default",
+      }),
+    );
+    expect(settle).toHaveBeenCalledWith(
+      reservation,
+      expect.objectContaining({ fallbackReason: "provider_truncated" }),
+    );
+    expect(updates).toContainEqual(
+      expect.objectContaining({
+        status: "deterministic_fallback",
+        fallbackReason: "provider_truncated",
+      }),
+    );
+    expect(result.body).toMatchObject({
+      status: "deterministic_fallback",
+      fallbackReason: "provider_truncated",
+    });
+  });
+
+  it("leaves the reasoning mode to the per-model default when the env is unset or mistyped", async () => {
+    process.env.KPB_AI_DIAGNOSTIC_MODEL = "deepseek/deepseek-v4-flash";
+    process.env.KPB_AI_DIAGNOSTIC_REASONING = "none";
+    const client = {
+      scholarshipWorkspace: {
+        findFirst: jest.fn().mockResolvedValue({
+          ...workspace,
+          scholarship: { ...workspace.scholarship, lastVerifiedAt: new Date() },
+        }),
+      },
+      consentReceipt: {
+        findFirst: jest.fn().mockResolvedValue({ id: "consent-1" }),
+      },
+      aiDiagnostic: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest
+          .fn()
+          .mockResolvedValue(diagnosticRow({ status: "pending" })),
+        update: jest
+          .fn()
+          .mockImplementation(({ data }: { data: Record<string, unknown> }) =>
+            Promise.resolve(diagnosticRow(data)),
+          ),
+      },
+    };
+    const completeStructured = jest.fn(
+      (params: { fallback: unknown; model: string }) =>
+        Promise.resolve({
+          data: params.fallback,
+          provider: "openrouter",
+          model: params.model,
+          latencyMs: 1,
+          outcome: "success",
+        }),
+    );
+    const service = new AiDiagnosticsService(
+      {
+        isEnabled: true,
+        execute: jest.fn(
+          async (operation: (value: typeof client) => Promise<unknown>) =>
+            operation(client),
+        ),
+      } as unknown as PrismaService,
+      {
+        evaluate: jest.fn().mockResolvedValue({
+          allowed: true,
+          feature: "ai_diagnostic",
+        }),
+      } as unknown as FeatureAccessService,
+      {
+        reserve: jest.fn().mockResolvedValue({ allowed: true }),
+        settle: jest.fn().mockResolvedValue(BigInt(0)),
+      } as unknown as AiBudgetService,
+      {
+        isConfigured: true,
+        providerName: "openrouter",
+        completeStructured,
+      } as unknown as LlmService,
+      acquiredIdempotency().service,
+    );
+
+    await service.create(
+      "student-1",
+      "workspace-1",
+      { language: "en", consentReceiptId: "consent-1" },
+      "diagnostic-key-default",
+    );
+
+    expect(completeStructured).toHaveBeenCalledWith(
+      expect.objectContaining({ reasoning: undefined }),
+    );
   });
 
   it("stores one deterministic fallback without calling a provider when unconfigured", async () => {
