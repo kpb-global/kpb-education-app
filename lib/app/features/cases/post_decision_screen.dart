@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/ui/components/verified_advisor_sheet.dart';
 import '../explore/explore_screen.dart' show openInstitutionDetail;
 import '../../core/ui/app_tokens.dart';
@@ -18,13 +19,15 @@ class _Alt {
     required this.flag,
     required this.name,
     required this.why,
-    required this.pct,
+    required this.fit,
     required this.institution,
   });
   final String? flag;
   final String name;
   final String why;
-  final int pct;
+
+  /// Null (no badge) without a student profile.
+  final ProfileFit? fit;
 
   /// Backing catalog institution — tapping the row opens its real detail
   /// sheet (handoff: plan B rows deep-link to the university).
@@ -290,22 +293,10 @@ class PostDecisionScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-            decoration: BoxDecoration(
-              color: KpbColors.successLight,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              '${alt.pct}%',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: KpbColors.success,
-              ),
-            ),
-          ),
+          if (alt.fit != null) ...[
+            const SizedBox(width: 8),
+            ProfileFitBadge(fit: alt.fit!, fontSize: 11),
+          ],
           const SizedBox(width: 4),
           const Icon(Icons.chevron_right_rounded,
               size: 16, color: KpbColors.textMuted),
@@ -404,7 +395,7 @@ class PostDecisionScreen extends StatelessWidget {
             why: location.isNotEmpty
                 ? location
                 : (country != null ? ctrl.resolve(country.name) : ''),
-            pct: ctrl.institutionMatch(inst),
+            fit: ctrl.institutionFit(inst),
             institution: inst,
           );
         })

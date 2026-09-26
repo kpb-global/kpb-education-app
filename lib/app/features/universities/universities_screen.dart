@@ -22,16 +22,6 @@ import '../explore/program_detail_screen.dart';
 /// advanced catalog filters remain available from the trailing `Filtres` chip.
 enum _QuickFilter { matches, france, canada, saved, budget }
 
-/// Zone background + foreground for an admission-probability badge.
-(Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
-  if (score >= 70) {
-    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
-  }
-  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
-  return (KpbColors.surfaceMuted, KpbColors.textMuted);
-}
-
 /// M6 — Écoles list: destinations carousel, filters and a match-ranked list of
 /// formations. Visual restyle to the App-engagement handoff; the GetX
 /// controller, catalog filtering and pagination are unchanged.
@@ -196,6 +186,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Header(
+                  hasProfile: controller.profile != null,
                   onCompare: controller.institutions.length >= 2
                       ? () => _openCompare(controller)
                       : null,
@@ -248,7 +239,11 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
 // Fixed header — title + subtitle + Compare pill (opens the comparator).
 // ─────────────────────────────────────────────────────────────────────────────
 class _Header extends StatelessWidget {
-  const _Header({this.onCompare});
+  const _Header({required this.hasProfile, this.onCompare});
+
+  /// Sans profil, le tri n'est pas personnalisé : on invite à le compléter
+  /// plutôt que d'annoncer un classement qui n'existe pas.
+  final bool hasProfile;
   final VoidCallback? onCompare;
 
   @override
@@ -276,7 +271,9 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'uni_list_subtitle'.tr,
+                  hasProfile
+                      ? 'uni_list_subtitle'.tr
+                      : 'uni_list_subtitle_no_profile'.tr,
                   style: const TextStyle(
                     fontSize: 11.5,
                     color: KpbColors.textMuted,
@@ -445,7 +442,7 @@ class _Body extends StatelessWidget {
             subtitle: city.isNotEmpty ? '$level · $city' : level,
             feesLabel: tuition,
             feesEquivalent: tuitionEquivalent,
-            score: controller.programMatch(program),
+            fit: controller.programFit(program),
             saved: controller.isSaved(SavedItemType.program, program.id),
             onSave: () =>
                 controller.toggleSaved(SavedItemType.program, program.id),
@@ -889,7 +886,7 @@ class _SchoolRow extends StatelessWidget {
     required this.subtitle,
     required this.feesLabel,
     this.feesEquivalent,
-    required this.score,
+    required this.fit,
     required this.saved,
     required this.onSave,
     required this.onTap,
@@ -911,15 +908,14 @@ class _SchoolRow extends StatelessWidget {
   /// les deux moitiés forçait un ellipsis qui mangeait justement le prix ajouté.
   final String? feesEquivalent;
 
-  final int score;
+  /// Qualitative profile fit — null (no badge) without a student profile.
+  final ProfileFit? fit;
   final bool saved;
   final VoidCallback onSave;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final (zoneBg, zoneFg) = _zoneColors(score);
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -997,6 +993,13 @@ class _SchoolRow extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                   ],
+                  // Sous les frais, pas dans la colonne de droite : le libellé
+                  // (« Très bon match ») est plus large que l'ancien « 40 % » et
+                  // y rognait le prix — mesuré par universities_tuition_display.
+                  if (fit != null) ...[
+                    const SizedBox(height: 6),
+                    ProfileFitBadge(fit: fit!, fontSize: 11),
+                  ],
                 ],
               ),
             ),
@@ -1004,23 +1007,6 @@ class _SchoolRow extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: zoneBg,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    '$score%',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: zoneFg,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
                 Semantics(
                   button: true,
                   label: 'a11y_save'.tr,

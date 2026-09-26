@@ -456,8 +456,12 @@ class _Chip extends StatelessWidget {
         fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         color: selected ? KpbColors.actionPrimary : context.kpb.textPrimary,
       ),
-      selectedColor: KpbColors.actionPrimarySoft,
-      backgroundColor: context.kpb.cardBg,
+      // `color` et non `selectedColor` : le chipTheme global fixe `color`
+      // (actionPrimary si sélectionnée), prioritaire dans RawChip — le libellé
+      // actionPrimary devenait invisible sur fond actionPrimary.
+      color: WidgetStatePropertyAll(
+        selected ? KpbColors.actionPrimarySoft : context.kpb.cardBg,
+      ),
       side: BorderSide(
         color: selected
             ? KpbColors.actionPrimary.withValues(alpha: 0.3)

@@ -41,7 +41,8 @@ class SchoolMatch {
   final String programId;
   final LocalizedText programName;
 
-  /// 0..1 — deterministic admission probability (see backend matching.ts).
+  /// 0..1 — deterministic backend score (see backend matching.ts). Ranking
+  /// input only: the UI shows [zone] as a qualitative tier, never this number.
   final double probability;
   final SchoolMatchZone zone;
 
@@ -50,6 +51,4 @@ class SchoolMatch {
   final String algorithmVersion;
   final List<MatchFactorResult> factors;
   final LocalizedText narrative;
-
-  int get probabilityPercent => (probability * 100).round();
 }

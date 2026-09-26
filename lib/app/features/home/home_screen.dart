@@ -348,7 +348,7 @@ class HomeScreen extends StatelessWidget {
                           location: controller.resolve(institution.location),
                           tuition: controller.resolve(institution.tuitionLabel),
                           isPartner: institution.isPartner,
-                          score: controller.institutionMatch(institution),
+                          fit: controller.institutionFit(institution),
                           onTap: () =>
                               controller.goToTab(StudentShellTab.universities),
                         );
@@ -385,7 +385,7 @@ class HomeScreen extends StatelessWidget {
                           name: controller.resolve(s.name),
                           flag: _flag(s.countryId),
                           funding: controller.resolve(s.typeOfFunding),
-                          score: controller.scholarshipMatch(s),
+                          fit: controller.scholarshipFit(s),
                           onTap: () => Get.toNamed(AppRoutes.scholarships),
                         );
                       },
@@ -1530,7 +1530,7 @@ class _InstitutionCard extends StatelessWidget {
     required this.location,
     required this.tuition,
     required this.isPartner,
-    required this.score,
+    required this.fit,
     required this.onTap,
   });
 
@@ -1539,7 +1539,9 @@ class _InstitutionCard extends StatelessWidget {
   final String location;
   final String tuition;
   final bool isPartner;
-  final int score;
+
+  /// Null without a student profile — no badge then.
+  final ProfileFit? fit;
   final VoidCallback onTap;
 
   @override
@@ -1562,8 +1564,14 @@ class _InstitutionCard extends StatelessWidget {
               children: [
                 Text(flag, style: const TextStyle(fontSize: 24)),
                 const Spacer(),
-                AdmissionMeter(
-                    score: score, size: 30, strokeWidth: 3, showLabel: false),
+                if (fit != null)
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: ProfileFitBadge(fit: fit!, fontSize: 10.5),
+                    ),
+                  ),
                 if (isPartner) ...[
                   const SizedBox(width: 6),
                   Flexible(
@@ -1625,14 +1633,14 @@ class _ScholarshipCard extends StatelessWidget {
     required this.name,
     required this.flag,
     required this.funding,
-    required this.score,
+    required this.fit,
     required this.onTap,
   });
 
   final String name;
   final String flag;
   final String funding;
-  final int score;
+  final ProfileFit fit;
   final VoidCallback onTap;
 
   @override
@@ -1655,7 +1663,7 @@ class _ScholarshipCard extends StatelessWidget {
               children: [
                 Text(flag, style: const TextStyle(fontSize: 24)),
                 const Spacer(),
-                MatchBadge(score: score),
+                Flexible(child: ProfileFitBadge(fit: fit, fontSize: 10.5)),
               ],
             ),
             const SizedBox(height: 10),

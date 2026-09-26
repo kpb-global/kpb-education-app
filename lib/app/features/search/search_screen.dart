@@ -419,31 +419,31 @@ class _SearchResultTile extends StatelessWidget {
   final AppController controller;
   final VoidCallback onTap;
 
-  int? get _matchScore {
+  ProfileFit? get _fit {
     switch (result.type) {
       case SearchResultType.field:
         try {
-          return controller.fieldMatch(controller.fieldById(result.id));
+          return controller.fieldFit(controller.fieldById(result.id));
         } catch (_) {
           return null;
         }
       case SearchResultType.program:
         try {
-          return controller.programMatch(controller.programById(result.id));
+          return controller.programFit(controller.programById(result.id));
         } catch (_) {
           return null;
         }
       case SearchResultType.institution:
         try {
           return controller
-              .institutionMatch(controller.institutionById(result.id));
+              .institutionFit(controller.institutionById(result.id));
         } catch (_) {
           return null;
         }
       case SearchResultType.scholarship:
         try {
           return controller
-              .scholarshipMatch(controller.scholarshipById(result.id));
+              .scholarshipFit(controller.scholarshipById(result.id));
         } catch (_) {
           return null;
         }
@@ -454,7 +454,7 @@ class _SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final score = _matchScore;
+    final fit = _fit;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -500,16 +500,16 @@ class _SearchResultTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (score != null)
+            if (fit != null)
               GestureDetector(
                 onTap: () => showMatchExplanation(
                   context,
                   result.title,
-                  score,
+                  fit,
                   controller.matchExplanation(result.type, result.id),
                   controller,
                 ),
-                child: MatchScoreBadge(score: score),
+                child: ProfileFitBadge(fit: fit, fontSize: 10.5),
               ),
             const SizedBox(width: 4),
             Icon(Icons.chevron_right_rounded,

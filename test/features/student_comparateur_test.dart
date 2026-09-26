@@ -7,6 +7,7 @@ import 'package:karatou/app/core/controllers/app_controller.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/translations/app_translations.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 import 'package:karatou/app/features/compare/institution_compare_screen.dart';
 
 import '../widget_test_helpers.dart';
@@ -160,6 +161,11 @@ void main() {
     expect(find.text('EPITA Lyon'), findsWidgets);
     expect(find.textContaining('8 850'), findsWidgets); // real tuition row
     expect(find.text('CHOISIR'), findsNWidgets(2)); // one PICK per column
+    // Conformité : ligne « Match profil » en paliers qualitatifs — jamais de
+    // « COMPATIBILITÉ 40 % » ni de verdict chiffré.
+    expect(find.text('MATCH PROFIL'), findsOneWidget); // libellés en capitales
+    expect(find.byType(ProfileFitBadge), findsNWidgets(2));
+    expect(find.textContaining('%'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

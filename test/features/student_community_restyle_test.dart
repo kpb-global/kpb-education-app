@@ -15,7 +15,8 @@ import '../widget_test_helpers.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Smoke tests for the App-engagement Community restyle (PR7):
-//   • the net-new shareable match card presents real match% + school + student
+//   • the net-new shareable match card presents a real profile fit + school +
+//     student (never a percentage — brand compliance)
 //   • Community + ForumCategory render the honest article/topic surfaces.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -150,7 +151,7 @@ void main() {
   tearDown(resetGetxSingleton);
 
   testWidgets(
-      'share action presents the shareable match card with real match%, '
+      'share action presents the shareable match card with a real fit, '
       'school and student — plus WhatsApp + Download', (tester) async {
     await _seedController();
     await tester
@@ -165,7 +166,14 @@ void main() {
     expect(find.text('match_card_eyebrow'.tr), findsOneWidget);
     expect(find.text('ECE Paris'), findsWidgets); // real institution name
     expect(find.textContaining('Awa'), findsOneWidget); // real first name
-    expect(find.textContaining('%'), findsWidgets); // real match figure
+    // Qualitative fit tier, never an admission percentage.
+    expect(find.textContaining('%'), findsNothing);
+    expect(
+      find.text('profile_fit_strong'.tr).evaluate().isNotEmpty ||
+          find.text('profile_fit_good'.tr).evaluate().isNotEmpty ||
+          find.text('profile_fit_explore'.tr).evaluate().isNotEmpty,
+      isTrue,
+    );
     // Both share affordances are present.
     expect(find.text('match_card_share_whatsapp'.tr), findsOneWidget);
     expect(find.text('match_card_download'.tr), findsOneWidget);
