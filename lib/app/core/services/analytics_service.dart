@@ -714,6 +714,10 @@ class AnalyticsService {
   /// whatever language the student reads in. [countryId] and [institutionId]
   /// let views roll up per destination and per school without a join.
   ///
+  /// The same parameter map goes to PostHog and, as event-level parameters, to
+  /// Firebase — the item list alone would drop `country_id` / `institution_id`
+  /// from GA4 and BigQuery.
+  ///
   /// The mirror runs BEFORE the Firebase call: in a unit test (no Firebase
   /// app) the Firebase call throws, and a mirror placed after it would never
   /// run — the test would then prove nothing about what reaches PostHog.
@@ -723,7 +727,7 @@ class AnalyticsService {
     String? countryId,
     String? institutionId,
   }) async {
-    _mirror(AnalyticsEventName.viewItem, {
+    final parameters = <String, Object>{
       AnalyticsParamKey.itemId: programId,
       AnalyticsParamKey.itemCategory: 'program',
       if (programName != null && programName.isNotEmpty)
@@ -732,7 +736,8 @@ class AnalyticsService {
         AnalyticsParamKey.countryId: countryId,
       if (institutionId != null && institutionId.isNotEmpty)
         AnalyticsParamKey.institutionId: institutionId,
-    });
+    };
+    _mirror(AnalyticsEventName.viewItem, parameters);
     try {
       await _analytics.logViewItem(
         items: [
@@ -742,6 +747,7 @@ class AnalyticsService {
             itemCategory: 'program',
           ),
         ],
+        parameters: parameters,
       );
     } catch (e, s) {
       _logError('logViewProgram', e, s);
@@ -752,13 +758,15 @@ class AnalyticsService {
   /// (`normalizeCountryId`) so legacy aliases do not split one country across
   /// several rows.
   Future<void> logViewCountry(String countryId) async {
-    _mirror(AnalyticsEventName.viewItem, {
+    final parameters = <String, Object>{
       AnalyticsParamKey.itemId: countryId,
       AnalyticsParamKey.itemCategory: 'country',
-    });
+    };
+    _mirror(AnalyticsEventName.viewItem, parameters);
     try {
       await _analytics.logViewItem(
         items: [AnalyticsEventItem(itemId: countryId, itemCategory: 'country')],
+        parameters: parameters,
       );
     } catch (e, s) {
       _logError('logViewCountry', e, s);
