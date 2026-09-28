@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -44,15 +46,37 @@ String _zoneLabel(int score) {
   return 'match_zone_stretch'.tr;
 }
 
-class ProgramDetailScreen extends StatelessWidget {
+class ProgramDetailScreen extends StatefulWidget {
   const ProgramDetailScreen({super.key, required this.programId});
 
   final String programId;
 
   @override
+  State<ProgramDetailScreen> createState() => _ProgramDetailScreenState();
+}
+
+class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Once per opening, not per rebuild: GetX rebuilds this screen on every
+    // controller update, which would inflate the view count.
+    final program =
+        Get.find<AppController>().programByIdOrNull(widget.programId);
+    unawaited(AnalyticsService.instance.logViewProgram(
+      programId: widget.programId,
+      programName: program == null
+          ? null
+          : (program.name.fr.isNotEmpty ? program.name.fr : program.name.en),
+      countryId: program == null ? null : normalizeCountryId(program.countryId),
+      institutionId: program?.institutionId,
+    ));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = Get.find<AppController>();
-    final program = controller.programByIdOrNull(programId);
+    final program = controller.programByIdOrNull(widget.programId);
     if (program == null) {
       return Scaffold(
         backgroundColor: KpbColors.canvas,

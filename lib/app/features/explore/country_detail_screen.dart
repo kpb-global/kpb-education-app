@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/intake_calendar.dart';
 import '../../core/models/app_models.dart';
+import '../../core/services/analytics_service.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/utils/country_utils.dart';
@@ -35,6 +38,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
   void initState() {
     super.initState();
     _controller = Get.find<AppController>();
+    unawaited(AnalyticsService.instance.logViewCountry(_countryKey));
     _load();
   }
 
