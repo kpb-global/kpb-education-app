@@ -238,3 +238,73 @@ appliquée (« All migrations have been successfully applied »), et
   points d'entrée se masquent — même mécanique que le masquage des outils IA. Le
   déploiement couplé reste dû, maintenant pour deux raisons : `AiConsentGuard`
   et la table `EefInterest`.
+
+## Déploiements backend sans build
+
+Un déploiement du backend seul ne consomme aucun numéro de build : il n'a donc
+pas de ligne sous **Consommés**, ni sous le numéro courant. Il est consigné ici
+pour que l'ordre de livraison (`docs/DEPLOYMENT.md`, « le backend d'abord, le
+mobile ensuite ») reste lisible.
+
+### 29/09/2026 — frontière de l'import « Études en France » et auteur des avis conseillers
+
+**État : prêt, PAS déployé.** Sur la branche `claude/campus-france-space-98orw9`,
+non fusionné. La production tourne au SHA `113cc55a39cf` (démarrée le
+22/09/2026) ; trois commits de `main` n'y sont pas non plus (#285, #286 —
+étiquettes OneSignal pour la segmentation —, #291 — l'email manquant bloquait
+toute la synchro du profil).
+
+**Couplage : `tolerates-old`.** Aucune route nouvelle, aucun champ que les
+builds installées (49 à 53) devraient envoyer.
+
+- `GET /catalog/institutions`, `GET /catalog/programs` et `/matches/*` cessent de
+  servir des lignes de l'import « Études en France ». **Aucune n'est publiée
+  aujourd'hui : rien ne change à l'écran.** La garde est posée AVANT la première
+  publication, ce qui est tout son sens (voir `docs/eef-catalog-pipeline.md`,
+  § 2ter).
+- `POST /counsellors/:id/reviews` : l'auteur vient du jeton. Le corps
+  qu'envoient les builds 49 à 53 (`rating`, `body`, `reviewerName`, `caseId`) est
+  **accepté tel quel** — `reviewerName` est déclaré et ignoré, sans quoi la
+  validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis.
+  Ce qui change de leur point de vue : un avis sur un dossier qui n'est pas
+  terminé (409), qui n'est pas le leur (404) ou qu'un autre conseiller a traité
+  (403) est refusé, alors qu'il était enregistré. L'app ne propose de noter
+  qu'un dossier terminé, traité par son conseiller : ces refus ne correspondent
+  à aucun parcours de l'app.
+- `GET /admin/catalog/verification-due` : `total` et `truncated` s'ajoutent, et
+  la file est plafonnée à 500 éléments. Additif pour l'admin déjà déployé ; la
+  page `/verification` de l'admin de ce lot affiche l'avertissement.
+
+**Une migration s'applique :** `20260929120000_counsellor_review_author_backfill`.
+Des DONNÉES seulement — un `UPDATE` qui rattache les avis déjà enregistrés sans
+auteur au propriétaire du dossier noté — sans changement de schéma,
+idempotente, sur une table de quelques lignes. Appliquée par le
+`prisma migrate deploy` du déploiement `scope=full`. L'ordre entre la migration
+et le remplacement des conteneurs est sans conséquence, avec une réserve : entre
+les deux, l'ancien code peut encore créer un avis sans auteur ; rejouer le SQL de
+la migration (idempotent) le rattache.
+
+Validée à la main sur PostgreSQL 16 — les 65 migrations sur base neuve, puis un
+`migrate deploy` sur une base peuplée de 7 avis (2 rattachés, 4 laissés à
+`NULL` faute de correspondance, 1 déjà attribué et non écrasé), rejeu à
+`UPDATE 0`, et trois mutants de la clause `WHERE` tous détectés — parce que la
+CI ne l'exécute pas tant que son pas unitaire est rouge (voir ci-dessous).
+
+**Bloqué aujourd'hui par la CI.** `.github/workflows/deploy.yml` exige, avant
+tout, un `success` de `backend-ci.yml` pour le SHA EXACT déployé
+(`scripts/require-workflow-success.sh`) ; il n'existe aucune dérogation. Or
+`Backend CI` est rouge sur `main` à cause d'un seul test :
+`scholarship-catalog.validator.spec.ts › reste importable à la date du jour
+(fraîcheur des vérifications)`. Le catalogue de bourses a été vérifié en une
+passe le 24/08/2026 et le validateur refuse toute source contrôlée il y a plus de
+30 jours : 34 fiches, 5 sources chacune, sont périmées depuis le 23/09/2026. Le
+test est **conçu pour casser** à ce moment-là (son commentaire le dit). Le
+remède est un travail humain : rouvrir les sources officielles des 34 fiches,
+puis porter la nouvelle date dans `checkedAt` — **jamais** repousser la date
+sans avoir relu les pages, sous peine de faire affirmer au catalogue une
+vérification qui n'a pas eu lieu. Tant que ce n'est pas fait, aucun
+déploiement backend ne part : ni ce lot, ni les trois commits ci-dessus.
+
+Et tant que ce pas unitaire est rouge, la CI **saute** les étapes sur Postgres
+(migrations sur base neuve, suites d'intégration, semis, démarrage) : un run
+rouge pour cette raison n'est pas un run qui a exercé la migration.

@@ -31,6 +31,16 @@ Purpose:
 Purpose:
 - feed Explore, Scholarships, and recommendation surfaces
 
+**Frontière de l'import « Études en France ».** `GET /catalog/institutions` et
+`GET /catalog/programs` ne servent **jamais** une ligne créée par cet import
+(identifiants `eef-univ-…` / `eef-prog-…`), qu'elle soit publiée ou non : le
+paramètre `institutionId` ne la fait pas réapparaître. C'est la surface de
+TOUTES les builds installées, qui la chargent en un seul appel (`limit=1000`,
+trié par nom) ; y laisser des lignes EEF actives aurait évincé des formations
+partenaires de la liste de tout le monde. L'espace « Études en France » a ses
+propres routes (`/etudes-en-france/*`). La règle vit en un seul endroit :
+`backend/src/common/eef-provenance.ts`.
+
 ## Matches (Phase 0 / P0-D — kit US-003/US-004)
 
 - `GET /matches/aha-moment?limit=3` (student auth)
@@ -66,6 +76,12 @@ Response item shape:
 `aha-moment` wraps items as `{ "items": [...], "isEstimate": bool }`.
 Zones: green > 0.70 · yellow 0.30–0.70 · blue < 0.30. Missing inputs score a
 neutral 0.5 with `isEstimate`; ≥2 missing caps probability at 0.65.
+
+Les formations et établissements de l'import « Études en France » ne sont
+**jamais** recommandés ici, publiés ou non : `GET /matches/school/:institutionId`
+sur l'un d'eux répond 404 `Institution not found.`. L'espace a sa propre
+shortlist (`GET /etudes-en-france/shortlist`). Même règle, même fichier que le
+catalogue général.
 
 ## Content
 
@@ -125,6 +141,62 @@ Purpose:
 
 Purpose:
 - persist saved countries, fields, programs, institutions, and scholarships
+
+## Avis sur un conseiller
+
+- `GET /counsellors/:id` (public) — fiche d'un conseiller approuvé, avec ses
+  20 derniers avis **publiés**
+- `POST /counsellors/:id/reviews` (auth étudiant) — laisser un avis
+- `PATCH /admin/counsellors/reviews/:reviewId/publish` (admin) — publier ou
+  dépublier
+
+Corps de `POST /counsellors/:id/reviews` :
+
+```json
+{ "rating": 5, "body": "…", "caseId": "…", "reviewerName": "…" }
+```
+
+| Champ | Règle |
+|---|---|
+| `rating` | entier de 1 à 5 |
+| `body` | texte de 1 000 caractères au plus ; **peut être vide** — la note seule suffit |
+| `caseId` | obligatoire, 64 caractères au plus |
+| `reviewerName` | **accepté et ignoré** : les builds 49 à 53 l'envoient encore, et la validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis si le champ n'était pas déclaré |
+
+**L'auteur et le nom affiché viennent du jeton**, jamais du corps. Le nom
+publié est le `fullName` du profil vérifié (« KPB » s'il est vide). Un
+`reviewerUserId` dans le corps est refusé en 400 : il n'est pas ignoré en
+silence. Auparavant le corps était un type en ligne, effacé à l'exécution, et
+le service recopiait ce que le client envoyait ; l'app n'envoyait jamais
+l'auteur, donc les avis n'en avaient aucun en base, la suppression de compte
+(`deleteMany WHERE reviewerUserId = …`) ne les trouvait pas, et le nom civil de
+l'étudiant survivait à l'effacement de son compte.
+
+**Le dossier prouve le droit de noter.** Il doit exister, appartenir à
+l'appelant, avoir été traité par CE conseiller, et être terminé — exactement ce
+que l'app ne propose qu'à ce moment-là.
+
+| Réponse | Cas |
+|---|---|
+| `201` | avis enregistré, **en modération** (`isPublished = false`) |
+| `400` | corps invalide : note hors 1–5, `caseId` absent, champ non déclaré… |
+| `401` | jeton absent ou invalide |
+| `403` | le dossier est celui de l'appelant, mais un autre conseiller l'a traité |
+| `404` | dossier inconnu **ou appartenant à quelqu'un d'autre** — même réponse, pour ne pas confirmer l'existence du dossier d'autrui |
+| `409` | dossier pas encore terminé |
+| `503` | base indisponible — jamais un `201` au corps vide |
+
+Les avis publiés que `GET /counsellors/:id` sert ne portent que `id`,
+`counsellorId`, `reviewerName`, `rating`, `body` et `createdAt` — comme
+`GET /impact/reviews`. L'identifiant interne de l'auteur et celui du dossier
+n'en sortent pas : depuis que l'auteur est renseigné, les servir aurait publié
+une clé de rattachement au profil.
+
+**Reprise de l'existant.** La migration
+`20260929120000_counsellor_review_author_backfill` rattache les avis déjà
+enregistrés sans auteur au propriétaire du dossier noté — seulement si ce
+dossier a bien été traité par le conseiller noté. Les autres restent sans
+auteur : l'aveu « auteur inconnu », que la modération voit déjà.
 
 ## Partner leads
 
@@ -234,6 +306,14 @@ la France, résolue en base par son **code** — `FRA` comme `FR`, le référent
 M5 étant en ISO 3166-1 alpha-3 — et jamais par un identifiant écrit en dur. La
 règle est partagée avec l'import (`eef-country.ts`) : elle vivait en double, et
 c'est pour cela que l'erreur y vivait aussi.
+
+**Une formation n'est servie que si son établissement est publié**
+(`Institution.isActive = true`, même pays). `Program` n'a aucune relation vers
+`Institution` : la garde est une clause `institutionId IN (établissements
+publiés)`, lue UNE fois puis appliquée à la page, au total et aux six facettes,
+qui décrivent donc le même ensemble. Une formation activée sous une université
+que personne n'a relue n'est pas servie ; publier l'université la fait
+apparaître. Aucun établissement publié ⇒ la liste est vide, jamais « tout ».
 
 ## Shortlist « Études en France » (Phase 2)
 
@@ -434,6 +514,11 @@ base réelle : catalogue non relu ⇒ **0 servi sur 10 247** — et rattachées 
 France résolue par son **code**, par la règle partagée avec l'import et la
 recherche (`eef-country.ts`).
 
+Comme la recherche, elle exige un **établissement publié** : une recommandation
+nominative dont l'établissement n'a jamais été relu serait la pire surface
+possible pour cette barrière. La liste des établissements publiés est lue une
+fois et sert à chaque étage et à chaque total.
+
 Les étages et leurs totaux sont lus dans **une seule transaction**
 `RepeatableRead` : servis séparément, une publication concurrente ferait
 apparaître la même formation dans deux colonnes, ou dans aucune.
@@ -589,6 +674,54 @@ L'export est servi en `text/csv; charset=utf-8` avec
 `Content-Disposition: attachment`, un BOM UTF-8 (sans lui Excel sous Windows
 rend « Côte d'Ivoire » en « CÃ´te d'Ivoire »), et chaque cellule neutralisée
 contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
+
+## Admin — file de revérification du catalogue
+
+- `GET /admin/catalog/verification-due` (rôles `admin`, `super_admin`, `content_manager`)
+
+Les fiches **publiées** dont la revérification est due : jamais vérifiées, ou
+vérifiées il y a plus que la cadence de leur catégorie (pays et bourses 30
+jours ; établissements et formations 180 jours).
+
+```json
+{
+  "items": [
+    {
+      "entityType": "institution",
+      "id": "…",
+      "label": "…",
+      "context": "…",
+      "category": "institution_scolarite",
+      "categoryLabel": "…",
+      "cadenceDays": 180,
+      "owner": "…",
+      "lastVerifiedAt": null,
+      "verifiedByName": null,
+      "sourceUrl": null,
+      "dueAt": null,
+      "daysSinceVerification": null,
+      "isOverdue": true
+    }
+  ],
+  "total": 1234,
+  "truncated": true,
+  "policies": [ … ]
+}
+```
+
+- **`items` est plafonné à 500**, les plus urgents d'abord (jamais vérifiés,
+  puis les plus anciens). **`total`** est le compte COMPLET ; **`truncated`**
+  vaut `true` quand il en reste. `total` et `truncated` sont additifs : un
+  client qui ne les lit pas voit la réponse d'avant. La page `/verification` de
+  l'admin affiche un avertissement quand la file est tronquée.
+- **Les lignes de l'import « Études en France » encore en attente n'y sont
+  pas** (identifiant `eef-…` ET `isActive = false`) : leur revue est le flux de
+  PUBLICATION, avec son propre outil, pas la cadence. Une ligne EEF publiée y
+  entre normalement ; une fiche non EEF désactivée à la main, aussi.
+- **Une seule définition** (`backend/src/modules/admin-catalog/verification-due.ts`)
+  sert la file, le SLA quotidien de 07 h et le compteur « Action immédiate
+  requise » du tableau de bord. Le SLA compte sur la file COMPLÈTE, jamais sur la
+  version plafonnée.
 
 ## Admin content operations
 

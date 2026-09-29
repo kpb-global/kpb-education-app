@@ -171,9 +171,10 @@ Ce qui tient la promesse maintenant :
 
 | Surface | Règle |
 |---|---|
-| `GET /catalog/programs` | `isActive: true`, jamais optionnel |
-| `GET /catalog/institutions` | `isActive: true`, jamais optionnel |
-| `MatchesService` (recommandations) | `isActive: true` |
+| `GET /catalog/programs` | `isActive: true`, jamais optionnel — et **aucune ligne EEF, publiée ou non** (§ 2ter) |
+| `GET /catalog/institutions` | `isActive: true`, jamais optionnel — et **aucune ligne EEF, publiée ou non** (§ 2ter) |
+| `MatchesService` (recommandations) | `isActive: true` — et **aucune ligne EEF** (§ 2ter) |
+| `GET /etudes-en-france/search` et `/shortlist` | `isActive: true` **et établissement publié** (§ 2ter) |
 | `Institution.programIds` servi | privé des identifiants connus comme inactifs |
 | `PATCH /admin/catalog/programs/:id` et `/institutions/:id` | acceptent `isActive` — c'est le chemin de publication |
 
@@ -198,13 +199,95 @@ publication d'une université et d'une de ses formations : 1 établissement,
 
 ---
 
+## 2ter. La frontière : ce que le catalogue général ne sert JAMAIS
+
+Ajouté le 29/09/2026, la veille de l'ouverture de la campagne. § 2bis garantissait
+que l'inactif ne se sert pas. Restait ce qui se passe **après publication** :
+`isActive` ne dit pas d'où vient une ligne, et le catalogue général n'a que ce
+drapeau.
+
+### Le défaut
+
+Chaque build installée charge le catalogue d'un seul appel —
+`GET /catalog/programs?limit=1000`, trié par nom — et le serveur ne voit aucun
+en-tête de version pour distinguer les clients. Le débordement commence à
+**367 lignes EEF actives** (1 000 moins les 634 formations partenaires servies
+aujourd'hui), alors qu'une seule université en compte jusqu'à 414. Mesuré : avec
+les 10 502 lignes actives, il ne reste que **121 des 634** formations
+partenaires (OMNES, ICN, Mundiapolis) dans l'instantané. Personne n'aurait vu
+d'erreur : des fiches disparaissent, c'est tout — dans l'app de tout le monde,
+sans mise à jour possible côté client.
+
+### La règle
+
+Le catalogue général, les recommandations (`MatchesService`, y compris son repli
+`loadPrograms({})` quand le profil est inexploitable) et — pour la file de
+revérification — les lignes en attente **excluent la provenance EEF**. Elle se
+reconnaît à l'identifiant que l'import écrit : `eef-univ-…` pour les
+établissements, `eef-prog-…` pour les formations. Les deux préfixes et les
+clauses qui les excluent vivent dans **un seul fichier**,
+`backend/src/common/eef-provenance.ts`, importé aussi par le constructeur de
+l'import.
+
+Pourquoi le préfixe et non la procédure : le code connaissait déjà trois façons
+de dire « ceci est une ligne EEF » (`procedureType IS NOT NULL`, `cycle IN (…)`,
+l'identifiant). Le préfixe est la seule qui ne dépende d'aucune décision future :
+le schéma prévoit `hors_eef`, qualifier un jour les 133 formations partenaires
+(aujourd'hui `NULL`) est plausible, et un établissement privé partenaire a lui
+aussi un code UAI. Le seed OMNES délimite déjà ses lignes de la même façon
+(`omnes-`, `omnes-p-`).
+
+| Surface | Provenance EEF | Établissement non publié |
+|---|---|---|
+| `/catalog/institutions`, `/catalog/programs` | jamais servie | — |
+| `/matches/aha-moment`, `/matches/school/:id` | jamais chargée | — |
+| `/etudes-en-france/search`, `/shortlist` | servie | formation **non servie** |
+| file `/verification`, SLA de 07 h, compteur du tableau de bord | comptée **si publiée**, pas si en attente | — |
+
+### L'établissement publié
+
+`Program` n'a aucune relation vers `Institution`. Sans garde, une formation
+activée sous une université que personne n'a relue était recherchée et
+recommandée, avec pour établissement une fiche non vérifiée. La recherche et la
+shortlist lisent donc une fois les établissements publiés du pays, puis
+appliquent `institutionId IN (…)` à la page, au total, aux facettes et à chaque
+étage. Une liste vide se lit « rien », jamais « tout » — et la liste n'est jamais
+omise de la clause.
+
+### La file de revérification
+
+La règle « à revérifier » existait en **deux copies** (la file admin et le
+compteur du tableau de bord) qui devaient rester identiques sans que rien ne le
+garantisse. Elle vit désormais dans `verification-due.ts` et exclut les lignes
+EEF **en attente** : l'import en dépose 10 500 « jamais vérifiées », dont la
+revue est le flux de PUBLICATION. Sans cela la page admin aurait rendu un champ
+et deux boutons par ligne (elle sert aussi à revérifier les bourses) et
+l'alerte de 07 h aurait annoncé chaque matin « 10 5xx never verified ». Une
+ligne publiée y entre normalement, à sa cadence. La réponse est plafonnée à 500
+éléments, avec `total` et `truncated`.
+
+### Ce que ça ne fait pas, et ce qui reste ouvert
+
+- **Publier une université ne la fait pas apparaître dans Explore des builds
+  actuelles.** C'est voulu : son espace est `/etudes-en-france/*`. Qu'elle
+  apparaisse un jour dans Explore, le comparateur ou le « moment aha » est une
+  décision produit, qui se prendra dans `eef-provenance.ts`, en un endroit.
+- La page `/verification` n'a pas de pagination : elle avertit quand la file est
+  tronquée. Valider des lignes puis recharger fait apparaître les suivantes.
+- Une **quatrième surface** qui lirait `Program` ou `Institution` sans portée
+  ferait échouer `eef-provenance.spec.ts` (voir § 3), qui scanne les sources.
+
+---
+
 ## 3. Ce que la CI vérifie
 
 | Porte | Quand | Ce qu'elle juge |
 |---|---|---|
 | `eef:validate:structure` | chaque PR (`backend-ci.yml`) | forme : sources HTTPS, identifiants uniques, référentiels fermés, cohérence du manifeste |
 | `eef-catalog.data.spec.ts` | suite de tests | les 70 fichiers réels passent les portes **strictes** |
-| `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris |
+| `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris, et aucune ligne EEF |
+| `eef-provenance.spec.ts` | suite de tests | l'import n'écrit que des identifiants que les clauses reconnaissent ; **aucun service ne lit `program` ni `institution` sans portée** (scan des sources — un service qui lit le catalogue sans jeton de portée fait échouer le test) |
+| `eef-provenance.postgres.spec.ts` | `Backend CI`, étape « PostgreSQL Études en France provenance integration » | sur un vrai Postgres : catalogue, recommandations, recherche, shortlist, file, SLA et compteur — `NOT`, `AND`, `IN ()` sont acceptés par Prisma **et filtrent** |
 | `verify:eef` | avant tout import | planchers de volume, plafond de repli, couverture |
 
 Le plafond de repli mérite un mot : le domaine d'une formation (`d01..d12`) est
@@ -252,6 +335,9 @@ dérive fasse du bruit tôt.
    les écrit ; rien ne les lit encore. `isActive`, lui, est bien lu (§ 2bis).
 10. **La file de vérification en admin** ne propose pas encore de bouton
    « publier » : le champ est accepté par l'API, l'interface reste à câbler.
+   Depuis le 29/09/2026 elle ne liste plus les lignes en attente (§ 2ter) : le
+   flux de publication en masse reste donc **un outil à construire**, pas une
+   page à filtrer.
 
 ---
 
