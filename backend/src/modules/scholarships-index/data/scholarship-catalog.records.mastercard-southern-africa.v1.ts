@@ -88,7 +88,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['secondary', 'bachelor', 'master', 'africa', 'mastercard-foundation', 'partner-managed', 'no-central-deadline', 'fully-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 76,
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'uct_international_refugee_2027',
@@ -99,8 +99,8 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     fundingLabel: ['Complément partiel au coût des études', 'Partial contribution towards the cost of attendance'],
     fundingType: 'partially_funded',
     deadlineLabel: [
-      'Aucun appel 2027 publié — l’avis officiel en ligne indique que « l’appel à candidatures n’ouvrira pas » faute de financement ; la fenêtre affichée est une projection',
-      'No published 2027 call — the official online notice states the “call for applications will not open” due to funding constraints; the window shown is a projection',
+      'Aucun appel 2027 publié au 29 septembre 2026 — le dernier avis officiel indique que l’appel 2026 « n’ouvrira pas » faute de financement ; la fenêtre affichée est une projection',
+      'No 2027 call published as of 29 September 2026 — the latest official notice states the call for 2026 “will not open, due to funding constraints”; the window shown is a projection',
     ],
     description: [
       'Nombre limité de bourses annuelles pour étudiants internationaux et réfugiés, en postgrade et dans toute discipline à UCT, avec un seul appel par an. Deux avertissements figurent noir sur blanc sur la page officielle : ces bourses sont un simple complément au coût des études, et le candidat doit déjà avoir les moyens de financer ses études. Au 10 août 2026 la page n’annonce toujours aucun appel : le dernier avis publié est que l’appel n’ouvrira pas faute de financement. À traiter comme une piste secondaire, derrière le NRF et les financements de département.',
@@ -154,7 +154,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['master', 'south-africa', 'uct', 'international-students', 'refugees', 'no-published-call', 'partially-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 70,
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'up_mastercard_scholars_2027',
@@ -233,6 +233,10 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['bachelor', 'master', 'south-africa', 'university-of-pretoria', 'mastercard-foundation', 'january-intake', 'fully-funded'],
     relatedFieldIds: ['d02', 'd03', 'd07', 'd08', 'd09'],
     baseMatch: 80,
+    // NON rafraîchie le 29/09/2026, délibérément : les quatre pages up.ac.za
+    // renvoient 403 (Cloudflare) au fetch comme au navigateur sans session, et
+    // aucune page officielle équivalente n'a pu être lue. Relecture au
+    // navigateur nécessaire avant de porter une nouvelle date ici.
     checkedAt: '2026-08-24T18:45:00.000Z',
   }),
 ];

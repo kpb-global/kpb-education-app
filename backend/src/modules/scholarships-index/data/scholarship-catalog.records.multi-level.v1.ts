@@ -21,7 +21,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Frais de scolarité pris en charge', 'Tuition fees covered'],
       ['Résidence universitaire en Licence ; en Master, un an de résidence puis allocation logement de 5 000 à 6 000 TL par mois. Assurance santé et billet d’avion aller-retour unique', 'University dormitory for Bachelor; for Master, one year of dormitory then a TRY 5,000–6,000 monthly housing allowance. Health insurance and a one-time round-trip flight'],
       ['Cours de turc pendant un an', 'One-year Turkish language course'],
-      ['Allocation mensuelle officielle : 4 500 TL en Licence et 6 500 TL en Master', 'Published monthly stipend: TRY 4,500 for Bachelor and TRY 6,500 for Master'],
+      ['Allocation mensuelle officielle : 6 500 TL en Licence et 9 500 TL en Master', 'Published monthly stipend: TRY 6,500 for Bachelor and TRY 9,500 for Master'],
     ],
     eligibility: [
       ['Être ressortissant de n’importe quel pays et ne pas être citoyen turc ou ancien citoyen turc', 'Be a national of any country and not be a Turkish citizen or former Turkish citizen'],
@@ -59,7 +59,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.turkiyeburslari.gov.tr/calendar',
     },
     tags: ['bachelor', 'master', 'turkiye', 'government', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'turkiye_isdb_joint_2027_forecast',
@@ -109,13 +109,13 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     },
     sources: {
       overview: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
-      eligibility: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
+      eligibility: 'https://www.turkiyeburslari.gov.tr/scholarshipsprograms',
       benefits: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
       application: 'https://tbbs.turkiyeburslari.gov.tr/',
       cycle: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
     },
     tags: ['bachelor', 'master', 'turkiye', 'isdb', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'stipendium_hungaricum_2027_forecast',
@@ -173,7 +173,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://stipendiumhungaricum.hu/apply/',
     },
     tags: ['bachelor', 'master', 'hungary', 'government', 'sending-partner'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'romania_mfa_scholarship_2027_forecast',
@@ -230,7 +230,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://scholarships.studyinromania.gov.ro/scholarship-about',
     },
     tags: ['bachelor', 'master', 'romania', 'government', 'romanian-language'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'brunei_government_scholarship_2027_forecast',
@@ -288,7 +288,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.mfa.gov.bn/pages/online-bdgs.aspx',
     },
     tags: ['bachelor', 'master', 'brunei', 'government', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'kazakhstan_foreign_students_2027_forecast',
@@ -346,7 +346,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://oq.gov.kz/en/news/1504',
     },
     tags: ['bachelor', 'master', 'kazakhstan', 'government', 'tuition'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'heydar_aliyev_grant_2027_forecast',
@@ -404,7 +404,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf',
     },
     tags: ['bachelor', 'master', 'azerbaijan', 'government', 'nomination', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'taiwan_icdf_2027',
@@ -457,13 +457,13 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     },
     sources: {
       overview: 'https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505',
-      eligibility: 'https://www.icdf.org.tw/wSite/np?ctNode=31563&CtUnit=365&BaseDSD=7&mp=2',
+      eligibility: 'https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf',
       benefits: 'https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach',
       application: 'https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338',
       cycle: 'https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505',
     },
     tags: ['bachelor', 'master', 'taiwan', 'icdf', 'future-cycle', 'fully-funded'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'open_doors_russia_2027',
@@ -473,7 +473,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
     fundingLabel: ['Frais de scolarité couverts ; vie et voyage non couverts', 'Tuition covered; living and travel costs excluded'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prochain cycle confirmé — inscriptions du 20 août au 1er novembre 2026', 'Confirmed next cycle — registration from 20 August to 1 November 2026'],
+    deadlineLabel: ['Ouvert — inscriptions jusqu’au 1er novembre 2026 (ouvertes depuis le 20 août 2026)', 'Open — registration closes 1 November 2026 (opened 20 August 2026)'],
     description: [
       'Olympiade internationale gratuite et en ligne donnant accès, selon le classement, à des études sans frais dans des universités russes participantes.',
       'Free online international competition providing tuition-free access, according to ranking, to programmes at participating Russian universities.',
@@ -483,7 +483,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Année préparatoire de russe gratuite lorsque le cursus est en russe', 'Free Russian-language preparatory year when the programme is taught in Russian'],
       ['Candidature et étapes de sélection entièrement en ligne', 'Application and selection stages fully online'],
       ['Choix coordonné de domaines, programmes et universités', 'Coordinated choice of subject areas, programmes and universities'],
-      ['Voyage, logement, assurance et dépenses personnelles restent à la charge du lauréat', 'Travel, accommodation, insurance and personal costs remain the winner’s responsibility'],
+      ['Allocation mensuelle versée avec la bourse selon la FAQ officielle', 'Monthly stipend provided with the scholarship according to the official FAQ'],
+      ['Voyage, logement, repas, communications et assurance médicale restent à la charge du lauréat', 'Travel, accommodation, food, communication services and medical insurance remain the winner’s responsibility'],
     ],
     eligibility: [
       ['Être citoyen étranger ou apatride', 'Be a foreign citizen or stateless person'],
@@ -506,7 +507,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'forecast',
+      status: 'open',
       dateConfidence: 'confirmed',
       opensAt: '2026-08-20T00:00:00.000Z',
       closesAt: '2026-11-01T23:59:59.000Z',
@@ -519,7 +520,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       application: 'https://od.globaluni.ru/',
       cycle: 'https://od.globaluni.ru/',
     },
-    tags: ['bachelor', 'master', 'russia', 'olympiad', 'future-cycle', 'tuition'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    tags: ['bachelor', 'master', 'russia', 'olympiad', 'open', 'tuition'],
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
 ];

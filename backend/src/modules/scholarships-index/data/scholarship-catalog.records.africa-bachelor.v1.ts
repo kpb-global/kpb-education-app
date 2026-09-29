@@ -172,7 +172,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
     record({
       id: 'alu_scholarship_2027',
@@ -193,12 +193,12 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       fundingType: 'partially_funded',
       applicationRequirement: 'automatic',
       deadlineLabel: [
-        'Ouverture estimée — dépôt en continu ; échéance estimée vers le 18 juin 2027 pour la rentrée de septembre 2027',
-        'Estimated opening — year-round applications; deadline estimated around 18 June 2027 for the September 2027 intake',
+        'Dépôt en continu — rentrée de janvier 2027 ouverte jusqu’au 30 novembre 2026 ; échéance de septembre 2027 non publiée (estimée vers la mi-juin 2027)',
+        'Rolling applications — January 2027 intake open until 30 November 2026; September 2027 deadline not yet published (estimated around mid-June 2027)',
       ],
       description: [
-        'Aide financière propre à l’African Leadership University : les ALU Grants exonèrent les frais de scolarité, et des bourses complètes financées avec des partenaires couvrent la scolarité et un soutien complémentaire. Les candidatures sont ouvertes toute l’année avec trois échéances annuelles, qui tombent environ deux mois avant le début de chaque trimestre. Les rentrées et échéances publiées concernent le campus de Kigali ; ALC Maurice n’accueille pas de nouvelle cohorte de Licence pour l’instant.',
-        'The African Leadership University’s own financial aid: ALU Grants waive tuition fees, and full-ride scholarships funded with partners cover tuition plus additional support. Applications are open year-round with three deadlines per year, falling about two months before the start of each term. The published intakes and deadlines concern the Kigali campus; ALC Mauritius is not welcoming a new undergraduate cohort for now.',
+        'Aide financière propre à l’African Leadership University : les ALU Grants exonèrent les frais de scolarité, et des bourses complètes financées avec des partenaires couvrent la scolarité et un soutien complémentaire. Les candidatures sont examinées en continu, avec une échéance par rentrée ; la seule échéance publiée à ce jour est le 30 novembre 2026 pour la rentrée de janvier 2027. Les rentrées et échéances publiées concernent le campus de Kigali ; ALC Maurice n’accueille pas de nouvelle cohorte de Licence pour l’instant.',
+        'The African Leadership University’s own financial aid: ALU Grants waive tuition fees, and full-ride scholarships funded with partners cover tuition plus additional support. Applications are reviewed on a rolling basis with one deadline per intake; the only deadline currently published is 30 November 2026 for the January 2027 intake. The published intakes and deadlines concern the Kigali campus; ALC Mauritius is not welcoming a new undergraduate cohort for now.',
       ],
       advantages: [
         [
@@ -310,8 +310,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         dateConfidence: 'estimated',
         estimatedOpenAt: '2026-12-01T00:00:00.000Z',
         estimatedCloseAt: '2027-06-18T00:00:00.000Z',
-        sourceUrl:
-          'https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-',
+        sourceUrl: 'https://www.alueducation.com/apply-now/',
       },
       sources: {
         overview: 'https://www.alueducation.com/financial-aid-at-alu/',
@@ -319,8 +318,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
           'https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-',
         benefits: 'https://www.alueducation.com/financial-aid-at-alu/',
         application: 'https://www.alueducation.com/apply-now/',
-        cycle:
-          'https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-',
+        cycle: 'https://www.alueducation.com/apply-now/',
       },
       tags: [
         'bachelor',
@@ -333,7 +331,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
     record({
       id: 'auc_excellence_2027',
@@ -353,12 +351,12 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       fundingType: 'partially_funded',
       deadlineLabel: [
-        'Ouverture estimée — admission anticipée vers le 1er mars 2027, admission régulière vers le 1er juin 2027',
-        'Estimated opening — early admission around 1 March 2027, regular admission around 1 June 2027',
+        'Échéances d’admission Fall 2027 publiées : admission anticipée le 1er février 2027, admission régulière le 1er juin 2027 — dates de bourse 2027 pas encore affichées sur la page Excellence',
+        'Fall 2027 admission deadlines published: early admission 1 February 2027, regular admission 1 June 2027 — 2027 scholarship dates not yet posted on the Excellence page',
       ],
       description: [
-        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Aucune date 2027–2028 n’est publiée : la page du programme, mise à jour le 16 octobre 2025, ne liste que les échéances Spring 2026 et Fall 2026, et la page des exigences de Licence n’affiche pour l’instant qu’une échéance datée du 1er novembre pour Spring 2027.',
-        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. No 2027–2028 date is published: the programme page, last updated on 16 October 2025, lists only the Spring 2026 and Fall 2026 deadlines, and the undergraduate requirements page currently shows only a dated 1 November deadline for Spring 2027.',
+        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Aucune date de bourse 2027–2028 n’est publiée : la page du programme, mise à jour le 7 septembre 2026, ne liste encore que les échéances Spring 2026 et Fall 2026, tandis que la page des exigences de Licence (mise à jour le 24 septembre 2026) publie le 1er novembre pour Spring 2027, le 1er février pour l’admission anticipée Fall 2027 et le 1er juin pour l’admission régulière Fall 2027.',
+        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. No 2027–2028 scholarship date is published: the programme page, last updated on 7 September 2026, still lists only the Spring 2026 and Fall 2026 deadlines, while the undergraduate requirements page (updated 24 September 2026) publishes 1 November for Spring 2027, 1 February for Fall 2027 early admission and 1 June for Fall 2027 regular admission.',
       ],
       advantages: [
         [
@@ -382,8 +380,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
           'Leadership and Community Service category: 20% to 30%',
         ],
         [
-          'Catégorie majeures d’arts libéraux sélectionnées : 20 % à 30 % (anthropologie, études arabes, égyptologie, littérature, cinéma, histoire, études du Moyen-Orient, musique, philosophie, sociologie, théâtre, arts visuels)',
-          'Selected liberal arts majors category: 20% to 30% (anthropology, Arabic studies, Egyptology, literature, film, history, Middle East studies, music, philosophy, sociology, theatre, visual arts)',
+          'Catégorie majeures d’arts libéraux sélectionnées : 20 % à 30 % (anthropologie, études arabes, égyptologie, littérature anglaise et comparée, cinéma, histoire, études du Moyen-Orient, technologie musicale, arts musicaux (interprétation), philosophie, sociologie, théâtre, arts visuels)',
+          'Selected liberal arts majors category: 20% to 30% (Anthropology, Arabic Studies, Egyptology, English and Comparative Literature, Film, History, Middle East Studies, Music Technology, Musical Arts in Performance, Philosophy, Sociology, Theatre, Visual Arts)',
         ],
       ],
       eligibility: [
@@ -501,6 +499,6 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'd11',
       ],
       baseMatch: 79,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
   ];
