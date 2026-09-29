@@ -19,8 +19,16 @@
 --     rattacher au propriétaire de ce dossier attribuerait à un innocent un
 --     avis qu'il n'a pas écrit, et le supprimerait avec son compte.
 --
--- Les avis qui ne remplissent pas ces conditions restent à NULL : c'est
--- l'aveu honnête « auteur inconnu », que la modération voit déjà.
+-- Les avis qui ne remplissent pas ces conditions restent à NULL. Ils ne sont pas
+-- pour autant hors de portée de l'effacement : la suppression d'un compte efface
+-- aussi les avis SANS auteur qui portent l'un de SES dossiers, et l'export les
+-- lui rend (`profiles.service.ts`, `reviewsOfUser`) — sans la contrainte de
+-- conseiller ci-dessus, qui ne protège que la publication : un rattachement rend
+-- l'avis éligible au carrousel au titre du consentement de CE propriétaire.
+--
+-- Restent ceux dont le dossier n'existe plus (compte déjà supprimé) ou n'a
+-- jamais été renseigné : leur auteur est irrécupérable. Les anonymiser ou les
+-- supprimer est une décision d'exploitation, pas une reprise automatique.
 
 UPDATE "CounsellorReview" AS r
 SET "reviewerUserId" = c."userId"

@@ -256,19 +256,38 @@ export class CounsellorsService {
    * trouvait aucun, et le nom civil de l'étudiant survivait à l'effacement de
    * son compte. Et un client pouvait poster au nom de n'importe qui.
    *
-   * ## Le dossier prouve le droit de noter
+   * Le nom est celui du PROFIL, que l'utilisateur maîtrise (`PATCH /profiles/me`) :
+   * ce que ce code garantit, c'est que la requête ne le déclare pas — pas qu'il
+   * soit civil ou exact.
+   *
+   * ## Le dossier lie l'avis à un parcours réel — il ne le PROUVE pas
    *
    * L'avis n'est accepté que si le dossier existe, appartient à l'appelant, a été
-   * traité par CE conseiller et est terminé — c'est exactement ce que l'app ne
-   * propose qu'à ce moment-là. Un dossier introuvable ET un dossier d'un autre
-   * répondent la même chose (404) : on ne confirme pas l'existence du dossier
-   * d'autrui.
+   * traité par CE conseiller et est terminé — exactement ce que l'app ne propose
+   * qu'à ce moment-là. Un dossier introuvable ET un dossier d'un autre répondent
+   * la même chose (404) : on ne confirme pas l'existence du dossier d'autrui.
+   *
+   * Honnêtement : « terminé » n'est pas une preuve. `PATCH /cases/:id` laisse le
+   * propriétaire fixer lui-même le `status` de son dossier (aucun client de l'app
+   * ne le fait). Ce contrôle écarte les avis incohérents, pas un utilisateur qui
+   * le veut ; les défenses réelles sont la propriété du dossier et la modération
+   * (un avis naît non publié).
+   *
+   * ## Un avis par dossier
+   *
+   * Un second avis sur le même dossier est refusé (409). Sans contrainte d'unicité
+   * en base, la garde est au mieux-effort : deux requêtes simultanées peuvent
+   * toutes deux passer. Elle borne le cas ordinaire — un double envoi, un
+   * utilisateur qui insiste — sans migration de schéma.
    *
    * ## Base absente : 503, jamais une réponse d'apparence normale
    *
    * `execute` rend `null` quand aucune base n'est configurée. L'ancien code
    * renvoyait alors ce `null` : un 201 au corps vide, donc un étudiant persuadé
-   * d'avoir noté son conseiller alors que rien n'avait été écrit.
+   * d'avoir noté son conseiller alors que rien n'avait été écrit. En pratique le
+   * garde d'authentification répond 401 avant d'arriver ici quand la base manque ;
+   * ce 503 est la défense en profondeur d'un service qui ne doit jamais
+   * confondre « rien n'a été écrit » et « c'est fait ».
    */
   async createReview(
     counsellorId: string,
@@ -284,10 +303,16 @@ export class CounsellorsService {
         where: { id: input.caseId },
         select: { userId: true, counsellorId: true, status: true },
       }),
+      // Tout avis qui porte ce dossier, quel que soit son auteur : ceux d'avant
+      // l'auteur-par-jeton n'en ont pas, et ils comptent autant.
+      alreadyReviewed: await prisma.counsellorReview.findFirst({
+        where: { caseId: input.caseId },
+        select: { id: true },
+      }),
     }));
     if (lookup === null) throw reviewsUnavailable();
 
-    const { found } = lookup;
+    const { found, alreadyReviewed } = lookup;
     if (!found || found.userId !== reviewer.id) {
       throw new NotFoundException('Case not found.');
     }
@@ -301,13 +326,16 @@ export class CounsellorsService {
         'A counsellor can be reviewed once the case is completed.',
       );
     }
+    if (alreadyReviewed) {
+      throw new ConflictException('This case has already been reviewed.');
+    }
 
     const review = await this.prismaService.execute(async (prisma) => {
       const created = await prisma.counsellorReview.create({
         data: {
           counsellorId,
-          // Le nom affiché est celui du profil vérifié, pas celui que le client
-          // déclare : sinon n'importe qui signerait « Marie Curie ».
+          // Le nom affiché est celui du profil vérifié, pas celui que la requête
+          // déclare : elle ne peut plus signer « Marie Curie » d'un seul appel.
           reviewerName: reviewer.fullName?.trim() || 'KPB',
           reviewerUserId: reviewer.id,
           caseId: input.caseId,
