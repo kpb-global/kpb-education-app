@@ -162,6 +162,22 @@ C'est le point le plus sensible du lot : se tromper de procédure envoie un
 étudiant sur le mauvais calendrier. Il mérite une relecture métier avant la
 publication.
 
+### 2.6bis Les logos : Wikimedia ne sert que des largeurs standard (corrigé le 29/09/2026)
+
+L'import transforme le SVG d'un logo en miniature PNG Commons (Flutter ne décode
+pas le SVG). La largeur demandée était **320 px, que Wikimedia refuse**
+(HTTP 400) : mesuré le 29/09/2026 sur un même fichier, 20, 40, 60, 120, 250, 330
+et 500 px répondent 200 ; 200, 300, 320, 400 et 640 px répondent 400. Sur les
+26 logos qui sont des SVG, l'écran aurait affiché son repli, sans aucune erreur.
+
+`commonsRasterDisplayUrl` (backend et app) ne produit plus que des largeurs de la
+liste standard (330 par défaut) et **ramène à la voisine une miniature déjà
+stockée en 320 px** : les lignes importées avant le correctif sont donc servies
+correctement sans réécrire la base. Une build déjà installée affiche l'URL que
+le serveur lui envoie telle quelle : le correctif du backend suffit pour elle.
+Le contrôle réel (HTTP 200 sur les 40 logos, depuis un réseau qui atteint
+Wikimedia) reste à faire après l'import : `curl -I` sur chaque `logoUrl`.
+
 ### 2.7 Les douze domaines sont ceux de l'orientation (corrigé le 29/09/2026)
 
 Le classement en domaines `d01..d12` parlait un autre vocabulaire que le reste de

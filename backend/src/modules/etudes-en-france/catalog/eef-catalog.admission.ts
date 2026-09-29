@@ -96,15 +96,47 @@ export function logoLicenceAllowsCommercialReuse(licence: string): boolean {
 }
 
 /**
+ * Les largeurs de miniature que Wikimedia accepte de fabriquer. Toute autre est
+ * REFUSÉE (HTTP 400) : mesuré le 29/09/2026 sur un même fichier, 20, 40, 60, 120,
+ * 250, 330 et 500 px répondent 200, alors que 200, 300, 320, 400 et 640 px
+ * répondent 400. Le 320 px que ce dépôt demandait jusque-là n'affichait donc AUCUN
+ * logo — l'app affiche alors son repli, sans erreur visible.
+ */
+export const COMMONS_STANDARD_THUMB_WIDTHS: readonly number[] = [
+  20, 40, 60, 120, 250, 330, 500, 960, 1280, 1920, 3840,
+];
+
+/** La plus petite largeur standard qui contient `width` (la plus grande sinon). */
+export function commonsStandardThumbWidth(width: number): number {
+  const widths = COMMONS_STANDARD_THUMB_WIDTHS;
+  return widths.find((standard) => standard >= width) ?? widths[widths.length - 1];
+}
+
+const COMMONS_THUMB_URL =
+  /^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+\/thumb\/[0-9a-f]\/[0-9a-f]{2}\/[^/?#]+\/)(\d+)px-([^/?#]+)$/i;
+
+/**
  * Flutter et le codec raster d'`Image.network` ne décodent pas le SVG.
  * Commons publie un PNG miniature pour chaque SVG : on s'en sert à l'affichage,
  * le fichier source (et sa page) restent la référence de licence.
+ *
+ * Une miniature DÉJÀ stockée à une largeur que Wikimedia refuse (les lignes
+ * importées avec l'ancien 320 px) est ramenée à la largeur standard voisine :
+ * la base n'a pas besoin d'être réécrite pour que l'écran s'affiche.
  */
 export function commonsRasterDisplayUrl(
   fileUrl: string,
-  width = 320,
+  width = 330,
 ): string {
   const cleaned = fileUrl.split('?')[0] ?? fileUrl;
+  const thumb = cleaned.match(COMMONS_THUMB_URL);
+  if (thumb) {
+    const [, prefix, storedWidth, filename] = thumb;
+    const standard = Number(storedWidth);
+    return COMMONS_STANDARD_THUMB_WIDTHS.includes(standard)
+      ? fileUrl
+      : `${prefix}${commonsStandardThumbWidth(standard)}px-${filename}`;
+  }
   if (!/\.svg$/i.test(cleaned)) return fileUrl;
   const match = cleaned.match(
     /^https:\/\/upload\.wikimedia\.org\/wikipedia\/([^/]+)\/([0-9a-f])\/([0-9a-f]{2})\/([^/?#]+)$/i,
@@ -113,7 +145,7 @@ export function commonsRasterDisplayUrl(
   const [, project, hash1, hash2, filename] = match;
   return (
     `https://upload.wikimedia.org/wikipedia/${project}/thumb/`
-    + `${hash1}/${hash2}/${filename}/${width}px-${filename}.png`
+    + `${hash1}/${hash2}/${filename}/${commonsStandardThumbWidth(width)}px-${filename}.png`
   );
 }
 

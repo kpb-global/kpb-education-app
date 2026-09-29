@@ -319,6 +319,12 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   nombre de lignes montrées sur le total réel, et invite à recharger une fois le
   lot validé.
 
+- **Logos des établissements : 320 px → 330 px.** Wikimedia refuse les largeurs
+  hors liste standard (HTTP 400) : les 26 logos SVG de l'import ne s'affichaient
+  pas. Le serveur sert désormais 330 px, y compris pour une ligne importée avec
+  l'ancien 320 px. Les builds installées affichent l'URL du serveur telle quelle :
+  elles en profitent sans mise à jour ; le client Flutter est aligné pour la
+  prochaine build. Détail : `docs/eef-catalog-pipeline.md` § 2.6bis.
 - **Domaines de l'import « Études en France » réalignés sur l'orientation.**
   Dix domaines sur douze de l'import portaient le nom d'un autre (`d03` était
   « Finance », `d05` « Ingénierie »…). Les 10 502 formations versionnées sont
