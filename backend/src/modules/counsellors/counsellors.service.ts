@@ -1,6 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+/// Aucune base configurée : on ne prétend pas avoir enregistré l'avis.
+function reviewsUnavailable(): ServiceUnavailableException {
+  return new ServiceUnavailableException('Reviews are temporarily unavailable.');
+}
 
 type CounsellorInput = {
   fullName?: string;
@@ -94,6 +105,19 @@ export class CounsellorsService {
             where: { isPublished: true },
             orderBy: { createdAt: 'desc' },
             take: 20,
+            // Ce que `/impact/reviews` sert déjà, et rien de plus. Sans `select`,
+            // Prisma rend TOUTES les colonnes — `reviewerUserId`, la clé de
+            // rattachement au profil, et `caseId` sortaient donc sur cette route
+            // publique. Tant que l'auteur restait nul (l'app ne l'envoyait pas),
+            // la première ne pouvait rien révéler ; il est renseigné désormais.
+            select: {
+              id: true,
+              counsellorId: true,
+              reviewerName: true,
+              rating: true,
+              body: true,
+              createdAt: true,
+            },
           },
         },
       }),
@@ -220,28 +244,75 @@ export class CounsellorsService {
     return updated;
   }
 
+  /**
+   * Un étudiant note le conseiller qui a traité SON dossier terminé.
+   *
+   * ## L'auteur est celui du jeton
+   *
+   * `reviewer` vient du jeton vérifié par `StudentAuthGuard` — jamais du corps.
+   * Le service recopiait auparavant `reviewerUserId` depuis ce que le client
+   * envoyait. L'app ne l'envoyait pas : les avis n'avaient aucun auteur en base,
+   * la suppression de compte (`deleteMany WHERE reviewerUserId = …`) n'en
+   * trouvait aucun, et le nom civil de l'étudiant survivait à l'effacement de
+   * son compte. Et un client pouvait poster au nom de n'importe qui.
+   *
+   * ## Le dossier prouve le droit de noter
+   *
+   * L'avis n'est accepté que si le dossier existe, appartient à l'appelant, a été
+   * traité par CE conseiller et est terminé — c'est exactement ce que l'app ne
+   * propose qu'à ce moment-là. Un dossier introuvable ET un dossier d'un autre
+   * répondent la même chose (404) : on ne confirme pas l'existence du dossier
+   * d'autrui.
+   *
+   * ## Base absente : 503, jamais une réponse d'apparence normale
+   *
+   * `execute` rend `null` quand aucune base n'est configurée. L'ancien code
+   * renvoyait alors ce `null` : un 201 au corps vide, donc un étudiant persuadé
+   * d'avoir noté son conseiller alors que rien n'avait été écrit.
+   */
   async createReview(
     counsellorId: string,
-    input: {
-      rating: number;
-      body: string;
-      reviewerName: string;
-      reviewerUserId?: string;
-      caseId?: string;
-    },
+    input: { rating: number; body: string; caseId: string },
+    reviewer: { id: string; fullName: string },
   ) {
-    if (input.rating < 1 || input.rating > 5) {
-      throw new NotFoundException('Rating must be between 1 and 5.');
+    // Le résultat est EMBALLÉ : `findUnique` rend légitimement `null` pour un
+    // dossier inconnu, et `execute` rend aussi `null` quand la base est absente.
+    // Sans emballage, les deux se confondraient — un 404 métier prendrait le
+    // masque d'une panne, ou l'inverse.
+    const lookup = await this.prismaService.execute(async (prisma) => ({
+      found: await prisma.case.findUnique({
+        where: { id: input.caseId },
+        select: { userId: true, counsellorId: true, status: true },
+      }),
+    }));
+    if (lookup === null) throw reviewsUnavailable();
+
+    const { found } = lookup;
+    if (!found || found.userId !== reviewer.id) {
+      throw new NotFoundException('Case not found.');
     }
+    if (found.counsellorId !== counsellorId) {
+      throw new ForbiddenException(
+        'This case was not handled by this counsellor.',
+      );
+    }
+    if (found.status !== 'completed') {
+      throw new ConflictException(
+        'A counsellor can be reviewed once the case is completed.',
+      );
+    }
+
     const review = await this.prismaService.execute(async (prisma) => {
       const created = await prisma.counsellorReview.create({
         data: {
           counsellorId,
-          reviewerName: input.reviewerName,
-          reviewerUserId: input.reviewerUserId,
+          // Le nom affiché est celui du profil vérifié, pas celui que le client
+          // déclare : sinon n'importe qui signerait « Marie Curie ».
+          reviewerName: reviewer.fullName?.trim() || 'KPB',
+          reviewerUserId: reviewer.id,
           caseId: input.caseId,
           rating: input.rating,
-          body: input.body,
+          body: input.body.trim(),
           // Reviews are unpublished by default — moderators approve them. Cuts
           // down on fake/abusive reviews during beta.
           isPublished: false,
@@ -263,6 +334,7 @@ export class CounsellorsService {
       });
       return created;
     });
+    if (review === null) throw reviewsUnavailable();
     return review;
   }
 
