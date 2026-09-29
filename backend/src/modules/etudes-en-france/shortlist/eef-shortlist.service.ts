@@ -26,6 +26,7 @@ import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
 import { mapProgram } from '../../catalog/catalog.mapper';
 import { PrismaService } from '../../prisma/prisma.service';
 import { resolveFranceCountryId } from '../catalog/eef-country';
+import { loadPublishedInstitutionIds } from '../catalog/eef-published-institutions';
 import { resolveEefPath, type EefDeclaration } from './eef-shortlist.path';
 import {
   EEF_CANDIDATE_STRATA,
@@ -133,6 +134,13 @@ export class EefShortlistService {
     const declaredFieldIds = declaration?.fieldIds ?? [];
     const countryId = await this.resolveCountryId();
 
+    // Lus UNE fois puis passés à chaque requête d'étage et de total : ils
+    // décrivent ainsi tous le même ensemble d'établissements. Une formation dont
+    // l'établissement n'a jamais été relu ne se recommande pas.
+    const publishedInstitutionIds = await this.run((prisma) =>
+      loadPublishedInstitutionIds(prisma, countryId),
+    );
+
     // Une seule transaction pour les étages ET leurs totaux : servis
     // séparément, un import concurrent rendrait « 412 formations » au-dessus
     // d'un étage qui en montre cinq autres.
@@ -151,6 +159,7 @@ export class EefShortlistService {
                 declaredFieldIds,
                 tier,
                 stratum,
+                publishedInstitutionIds,
               }),
               // La ligne ENTIÈRE : `mapProgram` sert le même objet que la
               // recherche, et servir une fiche amputée obligerait le client à
@@ -172,6 +181,7 @@ export class EefShortlistService {
                 // `linked` seule aurait pu annoncer un total inférieur au
                 // nombre servi.
                 stratum: 'any',
+                publishedInstitutionIds,
               }),
             }),
           ),

@@ -249,10 +249,18 @@ export interface BuildWhereOptions {
  * `isActive: true` et `countryId` ne sont jamais optionnels : le premier est la
  * frontière entre ce qui est relu et ce qui ne l'est pas, le second empêche
  * la recherche d'un catalogue français de rendre une école marocaine.
+ *
+ * Il en va de même de `publishedInstitutionIds`, et pour la même raison : une
+ * formation n'est publique que si SON ÉTABLISSEMENT l'est. `Program` n'a pas de
+ * relation vers `Institution`, donc rien en base ne l'impose — c'est cette
+ * clause, ou personne. Le paramètre est positionnel et OBLIGATOIRE : un appel qui
+ * l'oublie ne compile pas, au lieu de servir en silence des fiches dont le
+ * parent n'a jamais été relu.
  */
 export function buildEefSearchWhere(
   params: EefSearchParams,
   countryId: string,
+  publishedInstitutionIds: readonly string[],
   options: BuildWhereOptions = {},
 ): Record<string, unknown> {
   const where: Record<string, unknown> = {
@@ -304,7 +312,17 @@ export function buildEefSearchWhere(
     });
   }
 
-  if (and.length > 0) where.AND = and;
+  // L'établissement publié va dans `AND`, jamais à plat sur `institutionId` :
+  // la facette du même nom écrit déjà cette clé plus haut, et la seconde
+  // affectation écraserait la première sans un mot. `AND` rend la collision
+  // impossible plutôt que de compter sur la vigilance de la prochaine personne
+  // qui touchera à cette fonction — c'est le défaut qu'a connu la shortlist.
+  //
+  // Placée en DERNIER et posée sans condition : `and` n'est donc jamais vide, et
+  // la clause accompagne aussi bien la page que le total et chaque facette.
+  and.push({ institutionId: { in: [...publishedInstitutionIds] } });
+
+  where.AND = and;
   return where;
 }
 

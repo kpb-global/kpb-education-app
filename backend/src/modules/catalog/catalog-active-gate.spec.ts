@@ -114,7 +114,7 @@ describe('CatalogService — la barrière relu / non relu', () => {
     );
 
     await service.getPrograms();
-    expect(captured.programs).toEqual({ isActive: true });
+    expect((captured.programs as Record<string, unknown>).isActive).toBe(true);
 
     await service.getPrograms({ fieldId: 'd07', countryId: 'france', q: 'droit' });
     expect((captured.programs as Record<string, unknown>).isActive).toBe(true);
@@ -127,10 +127,84 @@ describe('CatalogService — la barrière relu / non relu', () => {
     );
 
     await service.getInstitutions();
-    expect(captured.institutions).toEqual({ isActive: true });
+    expect((captured.institutions as Record<string, unknown>).isActive).toBe(true);
 
     await service.getInstitutions({ countryId: 'france', partnerOnly: true });
     expect((captured.institutions as Record<string, unknown>).isActive).toBe(true);
+  });
+
+  // ── La frontière avec l'espace « Études en France » ────────────────────────
+  //
+  // `isActive` sépare le relu du non relu. Il ne sépare PAS le catalogue général
+  // de l'espace EEF : le jour où une université est publiée, ses lignes seraient
+  // servies ici, dans l'instantané de 1 000 formations que chaque build installée
+  // charge d'un appel et que le serveur ne peut pas adapter à la build (aucun
+  // en-tête de version). Elles chasseraient les formations partenaires.
+  //
+  // Ces tests regardent la clause envoyée à Prisma, pour chaque combinaison de
+  // filtres : l'exclusion ne doit dépendre d'aucun paramètre de requête.
+  const EXCLUDES_EEF_PROGRAMS = { id: { startsWith: 'eef-prog-' } };
+  const EXCLUDES_EEF_INSTITUTIONS = { id: { startsWith: 'eef-univ-' } };
+
+  it('n’envoie au catalogue général aucune formation de l’import EEF', async () => {
+    const captured: Captured = {};
+    prismaService.execute.mockImplementation((op: (p: PrismaClient) => unknown) =>
+      op(fakePrisma(captured)),
+    );
+
+    const combinations = [
+      {},
+      { q: 'droit' },
+      { fieldId: 'd07', countryId: 'france' },
+      // Le paramètre qui pourrait « ouvrir la porte » : demander explicitement
+      // les formations d'une université EEF ne doit pas les faire sortir.
+      { institutionId: 'eef-univ-0353074b' },
+      { q: 'droit', fieldId: 'd07', countryId: 'france', institutionId: 'x', limit: 50 },
+    ];
+    for (const query of combinations) {
+      await service.getPrograms(query);
+      const where = captured.programs as Record<string, unknown>;
+      expect(where.isActive).toBe(true);
+      expect(where.NOT).toEqual(EXCLUDES_EEF_PROGRAMS);
+    }
+  });
+
+  it('n’envoie au catalogue général aucun établissement de l’import EEF', async () => {
+    const captured: Captured = {};
+    prismaService.execute.mockImplementation((op: (p: PrismaClient) => unknown) =>
+      op(fakePrisma(captured, { institutions: [institutionRow()] })),
+    );
+
+    for (const query of [
+      {},
+      { countryId: 'france' },
+      { partnerOnly: true },
+      { countryId: 'france', partnerOnly: true },
+    ]) {
+      await service.getInstitutions(query);
+      const where = captured.institutions as Record<string, unknown>;
+      expect(where.isActive).toBe(true);
+      expect(where.NOT).toEqual(EXCLUDES_EEF_INSTITUTIONS);
+    }
+  });
+
+  it('laisse passer une formation partenaire, même qualifiée par une procédure', async () => {
+    // Le critère est la PROVENANCE, pas `procedureType`. Le schéma prévoit la
+    // valeur `hors_eef` : le jour où l'exploitation qualifie les 133 formations
+    // partenaires, un filtre sur la procédure les ferait disparaître d'Explore.
+    // La clause ne mentionne donc aucune colonne de procédure.
+    const captured: Captured = {};
+    prismaService.execute.mockImplementation((op: (p: PrismaClient) => unknown) =>
+      op(fakePrisma(captured, { institutions: [institutionRow()] })),
+    );
+
+    await service.getPrograms({ countryId: 'france' });
+    await service.getInstitutions({ countryId: 'france' });
+
+    for (const where of [captured.programs, captured.institutions]) {
+      const text = JSON.stringify(where);
+      expect(text).not.toMatch(/procedureType|uaiCode|institutionType|cycle/);
+    }
   });
 
   it('retire de programIds les formations non relues', async () => {

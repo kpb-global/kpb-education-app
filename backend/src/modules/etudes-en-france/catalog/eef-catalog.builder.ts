@@ -22,9 +22,14 @@ import type {
   EefInstitutionRecord,
   EefProgramRecord,
 } from './eef-catalog.types';
-
-export const INSTITUTION_ID_PREFIX = 'eef-univ-';
-export const PROGRAM_ID_PREFIX = 'eef-prog-';
+// Les préfixes ne sont PAS définis ici : ils sont la frontière entre l'import
+// et le catalogue général, que `common/eef-provenance.ts` exclut de ses
+// surfaces. Les redéfinir ici permettrait à l'import de produire un identifiant
+// que personne n'exclut — et ce serait le catalogue général qui l'apprendrait.
+import {
+  EEF_INSTITUTION_ID_PREFIX as INSTITUTION_ID_PREFIX,
+  EEF_PROGRAM_ID_PREFIX as PROGRAM_ID_PREFIX,
+} from '../../../common/eef-provenance';
 
 /// Une ligne écartée, et pourquoi. Le générateur les compte par motif et les
 /// recopie dans le manifeste : c'est le seul moyen de voir un jeu de données

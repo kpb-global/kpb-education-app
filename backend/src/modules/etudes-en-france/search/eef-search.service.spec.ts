@@ -37,11 +37,35 @@ function programRow(over: Record<string, unknown> = {}) {
 
 type Captured = { calls: Record<string, unknown>[] };
 
+/// L'établissement par défaut des lignes de test : publié, sauf demande contraire.
+const PUBLISHED_INSTITUTION = 'eef-univ-0353074b';
+
+/**
+ * Vrai si la clause porte `institutionId IN ()` — c'est-à-dire qu'aucune ligne
+ * ne peut la satisfaire.
+ *
+ * La doublure l'honore : sans cela, elle rendrait les mêmes lignes à chaque
+ * requête, et « sans établissement publié, rien ne sort » ne serait testé par
+ * rien — le test passerait aussi bien si la clause avait disparu.
+ */
+function noInstitutionAllowed(where: unknown): boolean {
+  const and = ((where as Record<string, unknown>)?.AND ?? []) as Record<
+    string,
+    { in?: unknown[] }
+  >[];
+  return and.some(
+    (clause) =>
+      Array.isArray(clause.institutionId?.in) && clause.institutionId.in.length === 0,
+  );
+}
+
 function serviceWith(opts: {
   rows?: Record<string, unknown>[];
   total?: number;
   facets?: Record<string, { value: string | null; count: number }[]>;
   countries?: { id: string; code: string }[];
+  /// Les établissements publiés que la base répond. Par défaut, un seul.
+  publishedInstitutions?: string[];
   isEnabled?: boolean;
   throws?: boolean;
 }) {
@@ -52,17 +76,28 @@ function serviceWith(opts: {
       findMany: async () =>
         opts.countries ?? [{ id: 'france', code: 'FR' }],
     },
+    institution: {
+      findMany: async (args: Record<string, unknown>) => {
+        captured.calls.push({ kind: 'institution', ...args });
+        return (opts.publishedInstitutions ?? [PUBLISHED_INSTITUTION]).map(
+          (id) => ({ id }),
+        );
+      },
+    },
     program: {
       findMany: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'findMany', ...args });
-        return opts.rows ?? [];
+        return noInstitutionAllowed(args.where) ? [] : (opts.rows ?? []);
       },
       count: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'count', ...args });
-        return opts.total ?? (opts.rows ?? []).length;
+        return noInstitutionAllowed(args.where)
+          ? 0
+          : (opts.total ?? (opts.rows ?? []).length);
       },
       groupBy: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'groupBy', ...args });
+        if (noInstitutionAllowed(args.where)) return [];
         const facet = (args.by as string[])[0];
         return (facets[facet] ?? []).map((entry) => ({
           [facet]: entry.value,
@@ -165,20 +200,103 @@ describe('EefSearchService', () => {
   });
 
   it('n’applique jamais le curseur au total ni aux facettes', async () => {
-    // Ils décrivent « ce qu'il y a », pas « ce qui reste ».
+    // Ils décrivent « ce qu'il y a », pas « ce qui reste ». Leur `AND` ne porte
+    // donc QUE la clause de publication — aucun morceau de curseur.
     const { service, captured } = serviceWith({ rows: [programRow()] });
     await service.search({
       cursor: encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-1' }),
     });
     const reads = captured.calls.filter(
-      (c) => c.kind !== 'findMany' && c.where !== undefined,
+      (c) =>
+        c.kind !== 'findMany' && c.kind !== 'institution' && c.where !== undefined,
     );
     expect(reads.length).toBeGreaterThan(0);
     for (const call of reads) {
-      expect((call.where as Record<string, unknown>).AND).toBeUndefined();
+      expect((call.where as Record<string, unknown>).AND).toEqual([
+        { institutionId: { in: [PUBLISHED_INSTITUTION] } },
+      ]);
     }
     const findMany = captured.calls.find((c) => c.kind === 'findMany')!;
-    expect((findMany.where as Record<string, unknown>).AND).toBeDefined();
+    const pageAnd = (findMany.where as Record<string, unknown>).AND as unknown[];
+    expect(pageAnd).toHaveLength(2);
+    expect(JSON.stringify(pageAnd)).toContain('"gt"');
+  });
+
+  // ── Le parent doit être publié ────────────────────────────────────────────
+  //
+  // `Program` n'a pas de relation vers `Institution` : une formation publiée
+  // sous une université que personne n'a relue était servie, avec pour parent
+  // une fiche non vérifiée. Ces tests regardent la question posée à la base.
+  describe('l’établissement doit être publié', () => {
+    it('lit les établissements actifs du pays, et rien d’autre', async () => {
+      const { service, captured } = serviceWith({ rows: [programRow()] });
+      await service.search({});
+      const asked = captured.calls.filter((c) => c.kind === 'institution');
+      expect(asked).toHaveLength(1);
+      expect(asked[0].where).toEqual({ isActive: true, countryId: 'france' });
+    });
+
+    it('passe la MÊME liste à la page, au total et à chaque facette', async () => {
+      // Une liste lue une fois, huit clauses : elles décrivent le même ensemble
+      // d'établissements même si l'un d'eux est publié pendant la transaction.
+      const { service, captured } = serviceWith({
+        rows: [programRow()],
+        publishedInstitutions: ['eef-univ-a', 'eef-univ-b'],
+      });
+      await service.search({});
+
+      const programReads = captured.calls.filter(
+        (c) => c.kind !== 'institution' && c.where !== undefined,
+      );
+      // 1 page + 1 total + 6 facettes.
+      expect(programReads).toHaveLength(8);
+      for (const call of programReads) {
+        expect((call.where as Record<string, unknown>).AND).toContainEqual({
+          institutionId: { in: ['eef-univ-a', 'eef-univ-b'] },
+        });
+      }
+    });
+
+    it('lit les établissements AVANT la transaction, une seule fois', async () => {
+      const { service, captured } = serviceWith({ rows: [programRow()] });
+      await service.search({});
+      const kinds = captured.calls.map((c) => c.kind);
+      expect(kinds.filter((k) => k === 'institution')).toHaveLength(1);
+      expect(kinds.indexOf('institution')).toBeLessThan(
+        kinds.indexOf('transaction'),
+      );
+    });
+
+    it('sans aucun établissement publié, ne sert rien — c’est l’état de la production', async () => {
+      // La liste vide ne doit surtout pas DISPARAÎTRE de la clause : l'omettre
+      // servirait tout le catalogue. La doublure honore `IN ()`, donc ce test
+      // échoue si la clause est absente.
+      const { service } = serviceWith({
+        rows: [programRow()],
+        total: 42,
+        publishedInstitutions: [],
+        facets: { cycle: [{ value: 'master', count: 42 }] },
+      });
+      const result = await service.search({});
+      expect(result.items).toEqual([]);
+      expect(result.total).toBe(0);
+      expect(result.page.hasMore).toBe(false);
+      expect(result.facets.cycle).toEqual([]);
+    });
+
+    it('ne sert pas non plus quand l’établissement demandé n’est pas publié', async () => {
+      // Le client peut demander n'importe quel identifiant d'établissement :
+      // demander un parent non publié ne doit pas le rendre servable.
+      const { service, captured } = serviceWith({
+        rows: [programRow()],
+        publishedInstitutions: ['eef-univ-a'],
+      });
+      await service.search({ institutionId: 'eef-univ-non-publiee' });
+      const findMany = captured.calls.find((c) => c.kind === 'findMany')!;
+      const where = findMany.where as Record<string, unknown>;
+      expect(where.institutionId).toEqual({ in: ['eef-univ-non-publiee'] });
+      expect(where.AND).toContainEqual({ institutionId: { in: ['eef-univ-a'] } });
+    });
   });
 
   it('écarte la valeur nulle d’une facette', async () => {

@@ -36,6 +36,10 @@ export default function VerificationPage() {
   const { session } = useAdminAuth();
   const { t, locale } = useLocale();
   const [items, setItems] = useState<VerificationQueueItem[]>([]);
+  // Le compte COMPLET de la file : le serveur plafonne la réponse, donc
+  // `items.length` n'est plus le nombre d'éléments à revoir.
+  const [total, setTotal] = useState(0);
+  const [truncated, setTruncated] = useState(false);
   const [policies, setPolicies] = useState<VerificationPolicy[]>([]);
   const [sourceInputs, setSourceInputs] = useState<Record<string, string>>({});
   const [pendingKey, setPendingKey] = useState<string | null>(null);
@@ -58,6 +62,8 @@ export default function VerificationPage() {
     try {
       const response = await fetchVerificationDue();
       setItems(response.items);
+      setTotal(response.total ?? response.items.length);
+      setTruncated(response.truncated === true);
       setPolicies(response.policies);
       setSourceInputs(
         Object.fromEntries(
@@ -112,6 +118,8 @@ export default function VerificationPage() {
               entry.id !== item.id || entry.entityType !== item.entityType,
           ),
         );
+        // Une ligne validée sort de la file : le compte complet baisse aussi.
+        setTotal((current) => Math.max(0, current - 1));
       } else {
         setItems((current) =>
           current.map((entry) =>
@@ -150,6 +158,13 @@ export default function VerificationPage() {
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
+        {truncated ? (
+          <Alert variant="warning">
+            {t('verification.truncatedNotice')
+              .replace('{shown}', String(items.length))
+              .replace('{total}', String(total))}
+          </Alert>
+        ) : null}
 
         <div
           style={{
@@ -181,7 +196,9 @@ export default function VerificationPage() {
         </div>
 
         <AdminTable
-          title={`${t('verification.queueTitle')} — ${items.length} ${t('verification.openSuffix')}`}
+          title={`${t('verification.queueTitle')} — ${
+            truncated ? `${items.length} / ${total}` : items.length
+          } ${t('verification.openSuffix')}`}
           columns={[
             t('verification.colItem'),
             t('verification.colCategory'),

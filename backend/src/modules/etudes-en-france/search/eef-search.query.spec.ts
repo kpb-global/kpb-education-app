@@ -1,5 +1,6 @@
 import {
   EEF_SEARCH_DEFAULT_LIMIT,
+  EEF_SEARCH_FACETS,
   EEF_SEARCH_MAX_FILTER_VALUES,
   EEF_SEARCH_MAX_LIMIT,
   EEF_SEARCH_MAX_TERMS,
@@ -9,6 +10,7 @@ import {
   decodeEefCursor,
   encodeEefCursor,
   parseEefSearchInput,
+  type EefSearchParams,
 } from './eef-search.query';
 
 describe('parseEefSearchInput', () => {
@@ -145,19 +147,97 @@ describe('buildEefSearchWhere', () => {
     institutionId: 'eef-univ-0353074b',
   });
 
+  /// Les établissements PUBLIÉS que le service a lus. Toute clause construite
+  /// ici doit en dépendre : la formation n'est publique que si son parent l'est.
+  const PUBLISHED = ['eef-univ-0353074b', 'eef-univ-0751724s'];
+  const PUBLISHED_CLAUSE = { institutionId: { in: PUBLISHED } };
+
+  /// Ce qui reste de `AND` une fois la clause de publication retirée : les mots
+  /// et le curseur. Les tests du curseur et des mots regardent CELA, pas la
+  /// forme complète du tableau — la clause de publication n'a rien à voir avec
+  /// eux et ne doit pas les rendre fragiles.
+  const withoutPublished = (where: Record<string, unknown>) =>
+    ((where.AND as Record<string, unknown>[] | undefined) ?? []).filter(
+      (clause) => !('institutionId' in clause),
+    );
+
   it('impose toujours la relecture et le pays', () => {
-    const where = buildEefSearchWhere(params, 'france');
+    const where = buildEefSearchWhere(params, 'france', PUBLISHED);
     expect(where.isActive).toBe(true);
     expect(where.countryId).toBe('france');
     // Les formations des écoles privées partenaires n'ont pas de procédure :
     // elles ont leur propre espace et n'ont rien à faire ici.
     expect(where.procedureType).toEqual({ in: ['eef'] });
-    expect(buildEefSearchWhere(parseEefSearchInput({}), 'france').procedureType)
-      .toEqual({ not: null });
+    expect(
+      buildEefSearchWhere(parseEefSearchInput({}), 'france', PUBLISHED)
+        .procedureType,
+    ).toEqual({ not: null });
+  });
+
+  // ── Le parent doit être publié ────────────────────────────────────────────
+  //
+  // `Program` n'a pas de relation vers `Institution` : rien en base n'impose
+  // que l'établissement d'une formation publiée le soit aussi. Une formation
+  // publiée sous une université que personne n'a relue était servie, avec pour
+  // parent une fiche non vérifiée. Ces tests regardent la clause, dans CHAQUE
+  // variante qu'un appel construit — page, total, chaque facette.
+  describe('l’établissement doit être publié', () => {
+    const variants: [string, (p: EefSearchParams) => Record<string, unknown>][] = [
+      ['la page', (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { withCursor: true })],
+      ['le total', (p) => buildEefSearchWhere(p, 'france', PUBLISHED)],
+      ...EEF_SEARCH_FACETS.map((facet): [string, (p: EefSearchParams) => Record<string, unknown>] => [
+        `la facette ${facet}`,
+        (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { excludeFacet: facet }),
+      ]),
+    ];
+
+    it.each(variants)('accompagne %s', (_label, build) => {
+      for (const input of [{}, { q: 'droit' }, { institutionId: 'eef-univ-0353074b' }]) {
+        const where = build(parseEefSearchInput(input));
+        expect(where.AND).toContainEqual(PUBLISHED_CLAUSE);
+      }
+    });
+
+    it('ne se laisse pas remplacer par la facette « établissement »', () => {
+      // Le défaut qu'a connu la shortlist : deux conditions sur la même clé,
+      // fusionnées à plat, dont la seconde efface la première. La facette du
+      // même nom écrit `institutionId` à plat ; la clause de publication doit
+      // donc vivre AILLEURS, dans `AND`.
+      const asked = parseEefSearchInput({ institutionId: 'eef-univ-inconnue' });
+      const where = buildEefSearchWhere(asked, 'france', PUBLISHED);
+      expect(where.institutionId).toEqual({ in: ['eef-univ-inconnue'] });
+      expect(where.AND).toContainEqual(PUBLISHED_CLAUSE);
+
+      // Et la facette qui compte les établissements garde la publication même
+      // sans son propre filtre.
+      const counting = buildEefSearchWhere(asked, 'france', PUBLISHED, {
+        excludeFacet: 'institutionId',
+      });
+      expect(counting.institutionId).toBeUndefined();
+      expect(counting.AND).toContainEqual(PUBLISHED_CLAUSE);
+    });
+
+    it('sans aucun établissement publié, aucune formation ne peut sortir', () => {
+      // `IN ()` ne rend rien : c'est l'état d'aujourd'hui en production, et le
+      // bon. La liste vide ne doit surtout pas DISPARAÎTRE de la clause —
+      // l'omettre servirait tout le catalogue.
+      const where = buildEefSearchWhere(parseEefSearchInput({}), 'france', []);
+      expect(where.AND).toContainEqual({ institutionId: { in: [] } });
+    });
+
+    it('copie la liste au lieu de la partager', () => {
+      // Le service passe UNE liste à huit clauses : si l'une d'elles la
+      // modifiait, les sept autres décriraient un autre ensemble.
+      const shared = [...PUBLISHED];
+      const where = buildEefSearchWhere(parseEefSearchInput({}), 'france', shared);
+      const clause = (where.AND as { institutionId: { in: string[] } }[])[0];
+      clause.institutionId.in.push('intrus');
+      expect(shared).toEqual(PUBLISHED);
+    });
   });
 
   it('exige chaque mot, dans l’intitulé OU dans la ville', () => {
-    const where = buildEefSearchWhere(params, 'france');
+    const where = buildEefSearchWhere(params, 'france', PUBLISHED);
     const and = where.AND as Record<string, unknown>[];
     const termClauses = and.filter((clause) => 'OR' in clause);
     expect(termClauses).toHaveLength(2);
@@ -173,7 +253,7 @@ describe('buildEefSearchWhere', () => {
     // Sans cela, choisir « master » ferait tomber à zéro le compte de toutes
     // les autres valeurs du même sélecteur : l'étudiant ne pourrait plus voir
     // combien de licences existent sans défaire son filtre.
-    const where = buildEefSearchWhere(params, 'france', {
+    const where = buildEefSearchWhere(params, 'france', PUBLISHED, {
       excludeFacet: 'cycle',
     });
     expect(where.cycle).toBeUndefined();
@@ -184,11 +264,15 @@ describe('buildEefSearchWhere', () => {
     const withCursor = parseEefSearchInput({
       cursor: encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-042' }),
     });
-    const total = buildEefSearchWhere(withCursor, 'france');
-    expect(total.AND).toBeUndefined();
+    // Le total ne porte AUCUN morceau de curseur : il décrit « ce qu'il y a »,
+    // pas « ce qui reste ».
+    const total = buildEefSearchWhere(withCursor, 'france', PUBLISHED);
+    expect(withoutPublished(total)).toEqual([]);
 
-    const page = buildEefSearchWhere(withCursor, 'france', { withCursor: true });
-    expect(page.AND).toEqual([
+    const page = buildEefSearchWhere(withCursor, 'france', PUBLISHED, {
+      withCursor: true,
+    });
+    expect(withoutPublished(page)).toEqual([
       {
         OR: [
           { nameFr: { gt: 'L1 - Droit' } },
@@ -206,6 +290,7 @@ describe('buildEefSearchWhere', () => {
         cursor: encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-010' }),
       }),
       'france',
+      PUBLISHED,
       { withCursor: true },
     );
     const clause = (page.AND as Record<string, unknown>[])[0].OR as Record<

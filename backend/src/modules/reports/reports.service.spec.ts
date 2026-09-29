@@ -106,6 +106,90 @@ describe('ReportsService — verified outcomes', () => {
   });
 });
 
+/**
+ * Le compteur « Action immédiate requise » du tableau de bord.
+ *
+ * Il additionne pays, établissements, formations et bourses à revérifier. Sa
+ * règle « à revérifier » vivait en DEUX exemplaires, l'un dans la file admin,
+ * l'autre ici — et la revue de l'import « Études en France » n'avait d'abord
+ * trouvé que le premier. Sans exclusion, ce chiffre aurait affiché « 10 600 »
+ * dès l'import, pour des fiches qui n'ont jamais été publiées.
+ */
+describe('ReportsService — compteur « Action immédiate requise »', () => {
+  function dashboardDb(counts: {
+    institutions?: number;
+    programs?: number;
+    countries?: number;
+    scholarships?: number;
+  }) {
+    const wheres: Record<string, unknown[]> = { institution: [], program: [] };
+    const db = {
+      case: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(0),
+      },
+      country: { count: jest.fn().mockResolvedValue(counts.countries ?? 0) },
+      institution: {
+        count: jest.fn(async (args: { where: unknown }) => {
+          wheres.institution.push(args.where);
+          return counts.institutions ?? 0;
+        }),
+      },
+      program: {
+        count: jest.fn(async (args: { where: unknown }) => {
+          wheres.program.push(args.where);
+          return counts.programs ?? 0;
+        }),
+      },
+      scholarship: {
+        count: jest.fn().mockResolvedValue(counts.scholarships ?? 0),
+      },
+      forumModerationAction: { count: jest.fn().mockResolvedValue(0) },
+    };
+    return { db, wheres };
+  }
+
+  it('additionne les quatre familles à revérifier', async () => {
+    const { db } = dashboardDb({
+      countries: 1,
+      institutions: 2,
+      programs: 30,
+      scholarships: 4,
+    });
+    const result = await new ReportsService(prismaFor(db)).getDashboardActivation();
+    expect(result.urgent.verificationDue).toBe(37);
+  });
+
+  it('ne compte jamais une ligne EEF importée et pas encore publiée', async () => {
+    const { db, wheres } = dashboardDb({});
+
+    await new ReportsService(prismaFor(db)).getDashboardActivation();
+
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
+  });
+
+  it('utilise la MÊME règle de cadence que la file admin', async () => {
+    // Deux copies de la règle finissent par diverger. Ici, la clause de cadence
+    // est celle que `verification-due.ts` construit pour les deux services.
+    const { db, wheres } = dashboardDb({});
+    await new ReportsService(prismaFor(db)).getDashboardActivation();
+    const clause = (wheres.program[0] as { AND: Record<string, unknown>[] }).AND[0];
+    expect(clause.OR).toEqual([
+      { lastVerifiedAt: null },
+      { lastVerifiedAt: { lt: expect.any(Date) } },
+    ]);
+  });
+});
+
 function prismaFor(client: object): PrismaService {
   return {
     isEnabled: true,

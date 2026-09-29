@@ -755,7 +755,8 @@
     "empty": "Aucune ligne catalogue à revoir.",
     "never": "Jamais",
     "notProvided": "Non renseigné",
-    "tableNote": "Frais, deadlines et infos programmes sont recontrôlés selon la cadence définie par catégorie ci-dessus."
+    "tableNote": "Frais, deadlines et infos programmes sont recontrôlés selon la cadence définie par catégorie ci-dessus.",
+    "truncatedNotice": "La file est longue : {shown} lignes sur {total} sont affichées, les plus urgentes d'abord. Validez-en, puis rechargez la page pour voir les suivantes."
   },
   "scholarships": {
     "title": "Modération des bourses",

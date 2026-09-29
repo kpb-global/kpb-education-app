@@ -328,6 +328,9 @@ function prismaDouble(opts: {
   /// DEMANDE compte autant que ce qu'il reçoit : une recommandation est une
   /// surface publique, et le filtre « relu » doit s'y voir.
   const programQueries: Array<Record<string, unknown>> = [];
+  /// Idem pour les établissements : `schoolMatch` reçoit leur identifiant du
+  /// client, donc c'est une porte d'entrée comme les autres.
+  const institutionQueries: Array<Record<string, unknown>> = [];
   const client = {
     userProfile: {
       findUnique: async () =>
@@ -344,10 +347,12 @@ function prismaDouble(opts: {
       },
     },
     institution: {
-      findMany: async () =>
-        fail.has('institutions')
+      findMany: async (args?: Record<string, unknown>) => {
+        if (args) institutionQueries.push(args);
+        return fail.has('institutions')
           ? boom()
-          : (opts.institutionRows ?? [DB_INSTITUTION]),
+          : (opts.institutionRows ?? [DB_INSTITUTION]);
+      },
     },
     match: {
       upsert: async (args: Record<string, unknown>) => {
@@ -373,16 +378,18 @@ function prismaDouble(opts: {
       }
     }),
   };
-  return { prisma, upserts, programQueries };
+  return { prisma, upserts, programQueries, institutionQueries };
 }
 
 function serviceWith(opts: Parameters<typeof prismaDouble>[0]) {
-  const { prisma, upserts, programQueries } = prismaDouble(opts);
+  const { prisma, upserts, programQueries, institutionQueries } =
+    prismaDouble(opts);
   return {
     service: new MatchesService(prisma as unknown as PrismaService),
     prisma,
     upserts,
     programQueries,
+    institutionQueries,
   };
 }
 
@@ -444,6 +451,67 @@ describe('MatchesService', () => {
       for (const query of programQueries) {
         expect((query.where as Record<string, unknown>).isActive).toBe(true);
       }
+    });
+
+    // ── La frontière avec l'espace « Études en France » ──────────────────────
+    //
+    // Sans profil exploitable, `ahaMoment` se replie sur `loadPrograms({})`, donc
+    // sur TOUT le catalogue actif, sans limite. Le jour où une université est
+    // publiée, ses formations (facteurs neutres : ni frais ni note minimale)
+    // entreraient en concurrence avec les écoles partenaires dans le « moment
+    // aha », et chaque requête chargerait des milliers de lignes. L'espace EEF a
+    // sa propre shortlist.
+    const EXCLUDES_EEF_PROGRAMS = { id: { startsWith: 'eef-prog-' } };
+    const EXCLUDES_EEF_INSTITUTIONS = { id: { startsWith: 'eef-univ-' } };
+
+    it('n’envoie au moteur aucune formation de l’import EEF, repli compris', async () => {
+      // `programRows: []` force le repli : les DEUX requêtes de formations
+      // doivent porter l'exclusion, pas seulement la première.
+      const { service, programQueries } = serviceWith({
+        programRows: [],
+        institutionRows: [],
+      });
+
+      await service.ahaMoment('user-1');
+
+      expect(programQueries).toHaveLength(2);
+      for (const query of programQueries) {
+        const where = query.where as Record<string, unknown>;
+        expect(where.isActive).toBe(true);
+        expect(where.NOT).toEqual(EXCLUDES_EEF_PROGRAMS);
+      }
+    });
+
+    it('n’envoie au moteur aucun établissement de l’import EEF', async () => {
+      const { service, institutionQueries } = serviceWith({});
+
+      await service.ahaMoment('user-1');
+      await service.schoolMatch('user-1', 'db-inst-1');
+
+      expect(institutionQueries.length).toBeGreaterThan(0);
+      for (const query of institutionQueries) {
+        expect((query.where as Record<string, unknown>).NOT).toEqual(
+          EXCLUDES_EEF_INSTITUTIONS,
+        );
+      }
+    });
+
+    it('schoolMatch ne retrouve pas une université EEF par son identifiant', async () => {
+      // L'identifiant vient du client. La requête envoyée à la base doit donc
+      // exclure la provenance EEF quel que soit l'identifiant demandé — c'est
+      // elle qui rend « établissement introuvable », pas une confiance dans ce
+      // que le client demande.
+      const { service, institutionQueries } = serviceWith({
+        institutionRows: [],
+      });
+
+      await expect(
+        service.schoolMatch('user-1', 'eef-univ-0353074b'),
+      ).rejects.toThrow(NotFoundException);
+
+      const where = institutionQueries[0].where as Record<string, unknown>;
+      expect(where.id).toEqual({ in: ['eef-univ-0353074b'] });
+      expect(where.NOT).toEqual(EXCLUDES_EEF_INSTITUTIONS);
     });
 
     it('an empty database is not a degradation: no items, no fixtures', async () => {

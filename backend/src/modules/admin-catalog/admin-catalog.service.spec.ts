@@ -1,7 +1,10 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-import { AdminCatalogService } from './admin-catalog.service';
+import {
+  AdminCatalogService,
+  VERIFICATION_QUEUE_LIMIT,
+} from './admin-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -283,6 +286,162 @@ describe('AdminCatalogService — verification SLA (KPB-161)', () => {
     expect(sla.totalOverdue).toBe(0);
     expect(sla.neverVerified).toBe(0);
     expect(sla.byCategory.scholarship_deadline.overdue).toBe(0);
+  });
+});
+
+/**
+ * La file de revérification face à l'import « Études en France ».
+ *
+ * L'import crée 10 500 lignes INACTIVES, toutes « jamais vérifiées ». La file
+ * liste des fiches PUBLIÉES dont la cadence est échue : sans exclusion, ces
+ * lignes y entraient d'un coup. La page admin rend un champ par ligne (et sert
+ * aussi à revérifier les bourses), et l'alerte de 07 h annonçait chaque matin
+ * « SLA breach : 10 5xx never verified » jusqu'à ne plus rien vouloir dire.
+ *
+ * Ces tests regardent la clause envoyée à la base, pas ce qu'elle rend : la
+ * régression se voit à l'endroit où elle se produit.
+ */
+describe('AdminCatalogService — file de revérification et import EEF', () => {
+  function neverVerifiedProgram(index: number) {
+    return {
+      id: `prog-${index}`,
+      nameFr: `Formation ${index}`,
+      nameEn: `Programme ${index}`,
+      countryId: 'fra',
+      institutionId: 'inst-1',
+      lastVerifiedAt: null,
+      verifiedByName: null,
+      sourceUrl: null,
+    };
+  }
+
+  function makeService(rows: { programs?: unknown[]; institutions?: unknown[] } = {}) {
+    const wheres: Record<string, unknown[]> = {
+      institution: [],
+      program: [],
+    };
+    const client = {
+      country: { findMany: async () => [] },
+      institution: {
+        findMany: async (args: { where: unknown }) => {
+          wheres.institution.push(args.where);
+          return rows.institutions ?? [];
+        },
+      },
+      program: {
+        findMany: async (args: { where: unknown }) => {
+          wheres.program.push(args.where);
+          return rows.programs ?? [];
+        },
+      },
+      scholarship: { findMany: async () => [] },
+      $transaction: async (ps: Promise<unknown>[]) => Promise.all(ps),
+    };
+    const prisma = {
+      isEnabled: true,
+      execute: async (fn: (c: typeof client) => unknown) => fn(client),
+    } as unknown as PrismaService;
+    return { service: new AdminCatalogService(prisma), wheres };
+  }
+
+  it('ne met jamais en file une ligne EEF importée et pas encore publiée', async () => {
+    const { service, wheres } = makeService();
+
+    await service.listVerificationDue();
+
+    // « importée par l'EEF ET inactive » — ni plus (les lignes EEF PUBLIÉES
+    // doivent être revérifiées à leur cadence), ni moins.
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
+  });
+
+  it('garde la cadence : jamais vérifié, ou vérifié avant la limite', async () => {
+    const { service, wheres } = makeService();
+    await service.listVerificationDue();
+    const clause = (wheres.program[0] as { AND: Record<string, unknown>[] }).AND[0];
+    expect(clause.OR).toEqual([
+      { lastVerifiedAt: null },
+      { lastVerifiedAt: { lt: expect.any(Date) } },
+    ]);
+  });
+
+  it('applique la même exclusion au calcul du SLA de 07 h', async () => {
+    // Le SLA se calcule sur la file : si la file exclut les lignes en attente,
+    // l'alerte aussi — c'est ce qui l'empêche d'annoncer 10 5xx lignes.
+    const { service, wheres } = makeService();
+    await service.verificationSlaSummary();
+    expect(JSON.stringify(wheres.program[0])).toContain('eef-prog-');
+    expect(JSON.stringify(wheres.institution[0])).toContain('eef-univ-');
+  });
+
+  describe('plafond de la réponse', () => {
+    it('ne tronque pas sous le plafond, et le dit', async () => {
+      const { service } = makeService({
+        programs: Array.from({ length: 3 }, (_, i) => neverVerifiedProgram(i)),
+      });
+      const queue = await service.listVerificationDue();
+      expect(queue.items).toHaveLength(3);
+      expect(queue.total).toBe(3);
+      expect(queue.truncated).toBe(false);
+    });
+
+    it('plafonne la réponse, donne le compte COMPLET et dit qu’il en reste', async () => {
+      // Une page qui rend un champ par ligne cesse de s'ouvrir bien avant dix
+      // mille lignes, et elle sert aussi à revérifier les bourses.
+      const { service } = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 100 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const queue = await service.listVerificationDue();
+      expect(queue.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(queue.total).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(queue.truncated).toBe(true);
+    });
+
+    it('garde ce qui presse le plus : les jamais-vérifiés passent avant les anciens', async () => {
+      const DAY = 24 * 60 * 60 * 1000;
+      const old = Array.from({ length: VERIFICATION_QUEUE_LIMIT }, (_, i) => ({
+        ...neverVerifiedProgram(10_000 + i),
+        lastVerifiedAt: new Date(Date.now() - 400 * DAY),
+        verifiedByName: 'Amina',
+      }));
+      const fresh = Array.from({ length: 5 }, (_, i) => neverVerifiedProgram(i));
+      // Les anciens sont listés AVANT les jamais-vérifiés : c'est le tri, pas
+      // l'ordre de la base, qui doit décider de ce que le plafond garde.
+      const { service } = makeService({ programs: [...old, ...fresh] });
+
+      const queue = await service.listVerificationDue();
+
+      expect(queue.items.slice(0, 5).map((item) => item.id)).toEqual(
+        fresh.map((row) => row.id),
+      );
+      expect(queue.truncated).toBe(true);
+    });
+
+    it('calcule le SLA sur la file COMPLÈTE, pas sur la version plafonnée', async () => {
+      // Un SLA sur la réponse plafonnée annoncerait « 500 en retard » quand il
+      // y en a 600 — l'alarme minimiserait précisément le jour où elle compte.
+      const { service } = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 100 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const sla = await service.verificationSlaSummary();
+      expect(sla.totalOverdue).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(sla.neverVerified).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(sla.byCategory.program_scolarite.overdue).toBe(
+        VERIFICATION_QUEUE_LIMIT + 100,
+      );
+    });
   });
 });
 

@@ -24,6 +24,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
 import { resolveFranceCountryId } from '../catalog/eef-country';
+import { loadPublishedInstitutionIds } from '../catalog/eef-published-institutions';
 import { mapProgram } from '../../catalog/catalog.mapper';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -94,10 +95,26 @@ export class EefSearchService {
 
     const countryId = await this.resolveCountryId();
     const result = await this.run(async (prisma) => {
-      const pageWhere = buildEefSearchWhere(params, countryId, {
-        withCursor: true,
-      });
-      const totalWhere = buildEefSearchWhere(params, countryId);
+      // Lus UNE fois, avant la transaction, puis passés à TOUTES les clauses de
+      // cette réponse : la page, le total et les six facettes décrivent ainsi le
+      // même ensemble d'établissements, même si l'un d'eux est publié pendant
+      // que la transaction s'exécute. Sans cette liste, une formation dont
+      // l'établissement n'a jamais été relu était servie.
+      const publishedInstitutionIds = await loadPublishedInstitutionIds(
+        prisma,
+        countryId,
+      );
+      const pageWhere = buildEefSearchWhere(
+        params,
+        countryId,
+        publishedInstitutionIds,
+        { withCursor: true },
+      );
+      const totalWhere = buildEefSearchWhere(
+        params,
+        countryId,
+        publishedInstitutionIds,
+      );
 
       // Une seule transaction : le total, la page et les six facettes doivent
       // décrire le MÊME instant. Servis séparément, un import concurrent
@@ -115,9 +132,12 @@ export class EefSearchService {
         ...EEF_SEARCH_FACETS.map((facet) =>
           prisma.program.groupBy({
             by: [facet],
-            where: buildEefSearchWhere(params, countryId, {
-              excludeFacet: facet,
-            }),
+            where: buildEefSearchWhere(
+              params,
+              countryId,
+              publishedInstitutionIds,
+              { excludeFacet: facet },
+            ),
             _count: { _all: true },
             orderBy: { _count: { [facet]: 'desc' } },
             take: OPEN_FACETS.has(facet) ? OPEN_FACET_LIMIT + 1 : undefined,

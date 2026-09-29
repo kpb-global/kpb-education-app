@@ -755,7 +755,8 @@
     "empty": "No catalog row to review.",
     "never": "Never",
     "notProvided": "Not provided",
-    "tableNote": "Fees, deadlines, and program facts are re-checked on the cadence defined per category above."
+    "tableNote": "Fees, deadlines, and program facts are re-checked on the cadence defined per category above.",
+    "truncatedNotice": "The queue is long: {shown} of {total} rows are shown, most urgent first. Validate some, then reload the page to bring in the next ones."
   },
   "scholarships": {
     "title": "Scholarship moderation",

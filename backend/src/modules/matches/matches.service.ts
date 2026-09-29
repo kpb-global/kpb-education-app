@@ -12,6 +12,10 @@ import {
   type CatalogSource,
 } from '../../common/degraded-mode';
 import {
+  notEefInstitution,
+  notEefProgram,
+} from '../../common/eef-provenance';
+import {
   ALGORITHM_VERSION,
   MatchScore,
   ScoringProfile,
@@ -208,7 +212,18 @@ export class MatchesService {
     // Une recommandation est une surface publique comme une autre : proposer
     // à un étudiant une formation que personne n'a relue est exactement ce que
     // le drapeau doit empêcher.
-    const where: Record<string, unknown> = { isActive: true };
+    //
+    // Et le moteur ne connaît pas l'import « Études en France » : sans profil
+    // exploitable il se replie sur `loadPrograms({})`, donc sur TOUT le catalogue
+    // actif, sans limite. Dès la première université publiée, ses formations
+    // (facteurs neutres : ni frais ni note minimale) se retrouveraient en
+    // concurrence avec la dizaine d'écoles partenaires dans le « moment aha »,
+    // et chaque requête chargerait des milliers de lignes en mémoire. L'espace
+    // EEF a sa propre shortlist ; voir `common/eef-provenance.ts`.
+    const where: Record<string, unknown> = {
+      isActive: true,
+      ...notEefProgram(),
+    };
     if (filter.institutionId) where.institutionId = filter.institutionId;
     if (filter.countryIds?.length) where.countryId = { in: filter.countryIds };
     if (filter.fieldIds?.length) where.fieldId = { in: filter.fieldIds };
@@ -240,8 +255,14 @@ export class MatchesService {
     if (ids.length === 0) {
       return { institutions: [], source: CATALOG_SOURCE_DATABASE };
     }
+    // `schoolMatch` reçoit un identifiant d'établissement du client : sans
+    // cette clause, celui d'une université EEF (publiée ou non) était lu ici,
+    // et seul le filtre des formations, plus loin, l'empêchait d'aboutir — une
+    // protection à un endroit, quand la lecture voisine en avait besoin aussi.
     const rows = await this.readOrDegrade('institutions', (prisma) =>
-      prisma.institution.findMany({ where: { id: { in: ids } } }),
+      prisma.institution.findMany({
+        where: { id: { in: ids }, ...notEefInstitution() },
+      }),
     );
     if (rows) {
       return {

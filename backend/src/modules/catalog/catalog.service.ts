@@ -3,6 +3,10 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { mockCatalog } from '../../common/data/mock-catalog';
+import {
+  notEefInstitution,
+  notEefProgram,
+} from '../../common/eef-provenance';
 import { publicScholarshipWhere } from '../../common/public-scholarship-where';
 import {
   CATALOG_SOURCE_DATABASE,
@@ -65,7 +69,16 @@ export class CatalogService {
     // `isActive` n'est pas un filtre de requête : c'est la frontière entre ce
     // qui est relu et ce qui ne l'est pas. Elle n'est donc jamais optionnelle
     // ici — la surface publique ne sert que du relu.
-    const where: Prisma.InstitutionWhereInput = { isActive: true };
+    //
+    // Les établissements de l'import « Études en France » sont exclus de cette
+    // surface, PUBLIÉS OU NON : leur espace est `/etudes-en-france/*`. Les
+    // laisser ici ferait apparaître 84 universités dans Explore des builds déjà
+    // installées, avec des compteurs de formations dont presque aucune n'est
+    // joignable. Voir `common/eef-provenance.ts`.
+    const where: Prisma.InstitutionWhereInput = {
+      isActive: true,
+      ...notEefInstitution(),
+    };
     if (query.countryId) where.countryId = query.countryId;
     if (query.partnerOnly) where.isPartner = true;
 
@@ -128,7 +141,17 @@ export class CatalogService {
     // non relue ne doit apparaître ni dans une liste, ni dans une recherche,
     // ni — surtout — dans les 1 000 lignes de l'instantané mobile, où elle
     // prendrait la place d'une fiche publiée.
-    const where: Prisma.ProgramWhereInput = { isActive: true };
+    //
+    // Et une formation de l'import « Études en France » n'y apparaît JAMAIS,
+    // relue ou non. Chaque build installée charge cette liste d'un seul appel
+    // (`limit=1000`, trié par nom) : dès plus de 366 lignes EEF actives, elles
+    // chasseraient des formations partenaires de l'app de tout le monde. Le
+    // serveur ne sait pas quelle build l'appelle — aucun en-tête de version —,
+    // la garde doit donc valoir pour tous.
+    const where: Prisma.ProgramWhereInput = {
+      isActive: true,
+      ...notEefProgram(),
+    };
     if (query.fieldId) where.fieldId = query.fieldId;
     if (query.countryId) where.countryId = query.countryId;
     if (query.institutionId) where.institutionId = query.institutionId;

@@ -27,6 +27,11 @@ import { Prisma } from '@prisma/client';
 
 import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  institutionVerificationDueWhere,
+  programVerificationDueWhere,
+  verificationDueWhere,
+} from './verification-due';
 
 /// Clean canonical degree label. Mirror of the Flutter referential.
 function normalizeDegreeLevel(raw: string): string {
@@ -88,6 +93,19 @@ export const VERIFICATION_POLICIES = {
 
 type VerificationPolicyName = keyof typeof VERIFICATION_POLICIES;
 type VerificationEntity = 'country' | 'institution' | 'program' | 'scholarship';
+
+/// Nombre maximal d'éléments que la file de revérification RENVOIE à la page
+/// admin. Elle est triée « jamais vérifié d'abord, puis le plus ancien » : ce
+/// que le plafond garde est donc ce qui presse le plus.
+///
+/// Ce n'est pas de la prudence abstraite. La page rend un champ de saisie et
+/// deux boutons par ligne, sur une réponse qui n'avait aucune borne : le jour où
+/// des milliers de lignes reviennent à échéance ensemble — un lot publié en une
+/// fois, dont la cadence de 180 jours tombe le même matin — la page qui sert
+/// aussi à revérifier les BOURSES cesse de s'ouvrir. Le plafond borne la
+/// réponse ; `total` et `truncated` disent honnêtement qu'il en reste, et le SLA
+/// compte sur la file COMPLÈTE, jamais sur celle-ci.
+export const VERIFICATION_QUEUE_LIMIT = 500;
 
 interface VerificationSlaCategory {
   label: string;
@@ -308,13 +326,6 @@ export class AdminCatalogService {
     ) as T;
   }
 
-  private verificationDueWhere(cadenceDays: number, now = new Date()) {
-    const cutoff = new Date(now.getTime() - cadenceDays * DAY_MS);
-    return {
-      OR: [{ lastVerifiedAt: null }, { lastVerifiedAt: { lt: cutoff } }],
-    };
-  }
-
   private verificationData(
     verified: boolean,
     sourceUrl?: unknown,
@@ -414,15 +425,31 @@ export class AdminCatalogService {
     }
   }
 
+  /// La file de revérification telle que l'ADMIN la reçoit : les éléments les
+  /// plus urgents d'abord, au plus [VERIFICATION_QUEUE_LIMIT]. `total` est le
+  /// compte COMPLET et `truncated` dit s'il en reste : une page qui n'en montre
+  /// que la moitié sans l'écrire ferait croire que la file est vide de l'autre.
   async listVerificationDue() {
+    const { items, policies } = await this.collectVerificationDue();
+    return {
+      items: items.slice(0, VERIFICATION_QUEUE_LIMIT),
+      total: items.length,
+      truncated: items.length > VERIFICATION_QUEUE_LIMIT,
+      policies,
+    };
+  }
+
+  /// La file COMPLÈTE, triée. C'est d'elle que le SLA compte : un SLA calculé
+  /// sur la version plafonnée annoncerait « 500 en retard » quand il y en a
+  /// dix mille.
+  private async collectVerificationDue(now = new Date()) {
     this.assertDb();
-    const now = new Date();
     const result = await this.prisma.execute((db) =>
       db.$transaction([
         db.country.findMany({
           where: {
             isActive: true,
-            ...this.verificationDueWhere(
+            ...verificationDueWhere(
               VERIFICATION_POLICIES.countryVisa.cadenceDays,
               now,
             ),
@@ -438,10 +465,10 @@ export class AdminCatalogService {
           },
         }),
         db.institution.findMany({
-          where: this.verificationDueWhere(
+          where: institutionVerificationDueWhere(
             VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
             now,
-          ) as Prisma.InstitutionWhereInput,
+          ),
           orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
           select: {
             id: true,
@@ -454,10 +481,10 @@ export class AdminCatalogService {
           },
         }),
         db.program.findMany({
-          where: this.verificationDueWhere(
+          where: programVerificationDueWhere(
             VERIFICATION_POLICIES.programScolarite.cadenceDays,
             now,
-          ) as Prisma.ProgramWhereInput,
+          ),
           orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
           select: {
             id: true,
@@ -474,7 +501,7 @@ export class AdminCatalogService {
           where: {
             isActive: true,
             moderationStatus: 'approved',
-            ...this.verificationDueWhere(
+            ...verificationDueWhere(
               VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
               now,
             ),
@@ -557,11 +584,7 @@ export class AdminCatalogService {
       );
     });
 
-    return {
-      items,
-      total: items.length,
-      policies: Object.values(VERIFICATION_POLICIES),
-    };
+    return { items, policies: Object.values(VERIFICATION_POLICIES) };
   }
 
   /// Aggregate the verification queue into an SLA view: how many catalog items
@@ -569,7 +592,9 @@ export class AdminCatalogService {
   /// oldest age and the count never verified. Derived from the same source as
   /// the admin queue, so counts always match what admins see.
   async verificationSlaSummary(now = new Date()): Promise<VerificationSlaSummary> {
-    const { items } = await this.listVerificationDue();
+    // La file COMPLÈTE, pas celle que la page reçoit : un SLA calculé sur la
+    // version plafonnée annoncerait « 500 en retard » quand il y en a dix mille.
+    const { items } = await this.collectVerificationDue(now);
     const byCategory: Record<string, VerificationSlaCategory> = {};
     for (const policy of Object.values(VERIFICATION_POLICIES)) {
       byCategory[policy.key] = {
