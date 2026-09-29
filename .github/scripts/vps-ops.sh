@@ -657,6 +657,77 @@ case "$ACTION" in
     fi
     ;;
 
+  eef-import)
+    # Importe le catalogue « Études en France » (lignes INACTIVES, jamais
+    # vérifiées) puis comble les colonnes des versions 1.1 et 1.2.
+    #
+    # Ce que l'action ne fait PAS : publier. Une ligne importée n'est visible de
+    # personne ; la publication, par établissement et par cycle, passe par
+    # l'admin (`POST /admin/catalog/eef/institutions/:id/publish`), sous le nom du
+    # vérificateur authentifié — pas par un texte libre saisi ici.
+    #
+    # `eef:import` est CRÉATION SEULE : une ligne dont l'identifiant existe déjà
+    # n'est jamais mise à jour (`existingNotUpdated`). Corriger une règle après
+    # l'import passe par `eef-purge-pending`, puis un nouvel import.
+    #
+    # Garde : l'import n'a de sens que sur un backend qui EXCLUT ces lignes du
+    # catalogue général, des recommandations et de la file de revérification
+    # (`common/eef-provenance`). Sans lui, les ~10 500 lignes s'ajouteraient à la
+    # file `/verification` comme « jamais vérifiées ». On refuse donc d'écrire
+    # tant que le conteneur ne porte pas ce fichier.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run eef:import:dry-run
+      docker compose exec -T api npm run eef:backfill:cycle:dry-run
+      docker compose exec -T api npm run eef:backfill:admission:dry-run
+      docker compose exec -T api npm run eef:backfill -- --dry-run
+    else
+      if ! docker compose exec -T api test -f dist/common/eef-provenance.js; then
+        echo "::error::Le backend déployé ne porte pas la frontière de l'import « Études en France » (dist/common/eef-provenance.js absent). Déployer le backend d'abord : importer maintenant ajouterait ~10 500 lignes à la file /verification."
+        exit 1
+      fi
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run eef:import
+      docker compose exec -T api npm run eef:backfill:cycle
+      docker compose exec -T api npm run eef:backfill:admission
+      docker compose exec -T api npm run eef:backfill -- --apply
+      echo
+      echo "── Preuve : un second passage ne crée plus rien ──"
+      docker compose exec -T api npm run eef:import:dry-run
+    fi
+    ;;
+
+  eef-purge-pending)
+    # Supprime les lignes de l'import « Études en France » qui n'ont JAMAIS été
+    # publiées ni vérifiées, pour qu'un nouvel `eef-import` les recrée avec les
+    # règles corrigées (domaine, procédure…). Voir `eef-pending-purge.ts`.
+    #
+    # Refuse de toucher une ligne publiée, vérifiée, ou référencée par
+    # l'utilisateur (favoris, comparaison, dossiers, correspondances). Une
+    # simulation dit exactement ce qui serait supprimé, et ce qui est protégé.
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run eef:purge-pending -- --dry-run
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run eef:purge-pending -- --apply
+    fi
+    ;;
+
+  reviews-purge-orphans)
+    # Supprime les avis conseillers ORPHELINS : sans auteur, dossier disparu ou
+    # jamais renseigné. Ne touche ni un avis signé ni un avis sans auteur dont le
+    # dossier existe encore. N'imprime que des décomptes. Voir
+    # `orphan-reviews.ts` pour le pourquoi (et pourquoi supprimer).
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run reviews:purge-orphans -- --dry-run
+    else
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run reviews:purge-orphans -- --apply
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2

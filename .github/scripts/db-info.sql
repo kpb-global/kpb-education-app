@@ -45,4 +45,39 @@ SELECT COUNT(*)                                              AS profils,
        COUNT(*) FILTER (WHERE cardinality("fieldIds") > 0)    AS avec_domaines_choisis
 FROM "UserProfile";
 
+\echo ''
+\echo '=== 7. Catalogue « Études en France » : ce qui est en base ==='
+\echo '    Identifiants eef-univ-% / eef-prog-% : les lignes de l import. Aucune'
+\echo '    donnee nominative, uniquement des compteurs.'
+SELECT "isActive"              AS publie,
+       (id LIKE 'eef-univ-%')  AS import_eef,
+       COUNT(*)                AS etablissements,
+       COUNT(*) FILTER (WHERE "lastVerifiedAt" IS NOT NULL) AS verifies
+FROM "Institution"
+GROUP BY 1, 2 ORDER BY 2 DESC, 1 DESC;
+
+SELECT "isActive"                     AS publie,
+       (id LIKE 'eef-prog-%')         AS import_eef,
+       ("procedureType" IS NOT NULL)  AS avec_procedure,
+       COUNT(*)                       AS formations,
+       COUNT(*) FILTER (WHERE "lastVerifiedAt" IS NOT NULL) AS verifiees
+FROM "Program"
+GROUP BY 1, 2, 3 ORDER BY 2 DESC, 1 DESC, 3 DESC;
+
+\echo ''
+\echo '=== 8. Les lignes de l import, par cycle et par procedure ==='
+SELECT "cycle", "procedureType", COUNT(*) AS formations,
+       COUNT(*) FILTER (WHERE "isActive") AS publiees
+FROM "Program"
+WHERE id LIKE 'eef-prog-%'
+GROUP BY 1, 2 ORDER BY 3 DESC;
+
+\echo ''
+\echo '=== 9. Avis conseillers sans auteur (a traiter par reviews-purge-orphans) ==='
+SELECT COUNT(*) AS sans_auteur,
+       COUNT(*) FILTER (WHERE NOT EXISTS (
+         SELECT 1 FROM "Case" c WHERE c."id" = r."caseId")) AS dont_orphelins
+FROM "CounsellorReview" r
+WHERE r."reviewerUserId" IS NULL;
+
 COMMIT;
