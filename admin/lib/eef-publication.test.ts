@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   applyBody,
   canApply,
+  genericSourceCount,
   plannedCount,
   readableApiError,
   refusalMessageKey,
@@ -15,7 +16,12 @@ const plan = (over: Partial<PublicationPlan> = {}): PublicationPlan => ({
   institutionId: 'eef-univ-1',
   institutionName: 'Université',
   institution: { alreadyActive: false, willActivate: true, refusals: [] },
-  programs: { toPublish: ['a', 'b', 'c'], alreadyActive: 0, refused: [] },
+  programs: {
+    toPublish: ['a', 'b', 'c'],
+    alreadyActive: 0,
+    refused: [],
+    genericSource: { ministryPortal: 0, ministryDataset: 0 },
+  },
   publishable: true,
   nothingToDo: null,
   ...over,
@@ -73,6 +79,21 @@ describe('canApply', () => {
     expect(canApply('unpublish', removal())).toBe(true);
     expect(canApply('unpublish', removal({ nothingToDo: true }))).toBe(false);
     expect(canApply('unpublish', removal({ refusals: ['institution_not_from_import'] }))).toBe(false);
+  });
+});
+
+describe('genericSourceCount', () => {
+  it('additionne les deux familles de sources génériques', () => {
+    const generic = plan({
+      programs: {
+        toPublish: ['a', 'b', 'c'],
+        alreadyActive: 0,
+        refused: [],
+        genericSource: { ministryPortal: 2, ministryDataset: 1 },
+      },
+    });
+    expect(genericSourceCount(generic)).toBe(3);
+    expect(genericSourceCount(plan())).toBe(0);
   });
 });
 

@@ -70,9 +70,10 @@ humain ne vérifiera avant la campagne — c'est exactement ainsi que
 « Bourse McCall MacBain », qui n'existe nulle part, a atteint un appareil de
 production (`lib/app/core/data/catalog_source.dart:1-9`).
 
-Les jeux du ministère, eux, **sont** la source. Chaque formation porte le lien
-de sa fiche officielle (Parcoursup, ou le site de l'université), et la collecte
-est rejouable à l'identique : le manifeste garde la requête exacte.
+Les jeux du ministère, eux, **sont** la source, et la collecte est rejouable à
+l'identique : le manifeste garde la requête exacte. Chaque formation porte un lien
+de source — mais **ce n'est la fiche de la formation que pour 60 % d'entre elles**
+(§ 2.8).
 
 ### 2.2 Licence Ouverte seulement — l'Onisep est écarté
 
@@ -112,7 +113,7 @@ Depuis 2019, une université peut appliquer des droits différenciés aux
 aucun jeu ouvert ne dit laquelle s'applique où. Annoncer un montant serait donc
 faux pour une moitié du catalogue.
 
-Les lignes portent la règle et renvoient à la fiche officielle ;
+Les lignes portent la règle et renvoient à leur source (§ 2.8) ;
 `tuitionMinEur` reste `null`, ce que le scoring de budget traite déjà comme un
 facteur neutre (`Program.tuitionMinEur` est nullable exprès).
 
@@ -177,6 +178,42 @@ correctement sans réécrire la base. Une build déjà installée affiche l'URL 
 le serveur lui envoie telle quelle : le correctif du backend suffit pour elle.
 Le contrôle réel (HTTP 200 sur les 40 logos, depuis un réseau qui atteint
 Wikimedia) reste à faire après l'import : `curl -I` sur chaque `logoUrl`.
+
+### 2.8 Ce que `sourceUrl` désigne réellement (corrigé le 29/09/2026)
+
+Ce document, la SOP et le README des données disaient « chaque ligne porte sa
+fiche officielle ». C'est faux pour 4 212 lignes sur 10 502 (40,1 %), mesurées sur
+les fichiers versionnés :
+
+| Jeu | Cycle | Lignes | `sourceUrl` | Fiche de la formation ? |
+| --- | --- | ---: | --- | --- |
+| Parcoursup 2025 | L1, BUT, PASS, DEUST, ingénieur (+ 16 masters de Sciences Po) | 4 140 | `dossierappel.parcoursup.fr/…afficherFicheFormation?g_ta_cod=…` | **oui** |
+| Trouver Mon Master | master | 2 150 | page du site de l'établissement | oui, non relue une à une |
+| Trouver Mon Master | master | **1 078** | `https://www.monmaster.gouv.fr/` (repli `MASTER_PORTAL_SEARCH`) | **non** : la page d'accueil du portail |
+| Principaux diplômes préparés | L2 (1 497), L3 (1 637) | **3 134** | vue filtrée de `data.enseignementsup-recherche.gouv.fr` | **non** : un jeu de données, pas une page candidat |
+
+Pourquoi ce n'est pas un défaut de collecte : pour ces deux familles, aucun jeu
+ouvert ne publie l'adresse de la page de la formation. Le lien prouve que la
+formation EXISTE (c'est la source de la donnée), pas où s'y inscrire. L'app
+l'affiche pourtant comme « Voir la source officielle » (`source_link.dart`), ce
+qui promet une page de formation.
+
+Ce que fait le code aujourd'hui : rien de plus que d'exiger une source HTTPS (le
+validateur et l'outil de publication). L'outil de publication **compte** les
+formations concernées pour chaque établissement (`programs.genericSource`) et
+l'écran de l'admin l'affiche avant la confirmation. Il ne les refuse pas.
+
+Ce qui reste à décider (contenu, pas code) :
+
+1. **Première vague sans ces lignes**, ou avec elles ? Les exclure revient à ne
+   publier que les 6 290 lignes à fiche : toutes les entrées en 1re année
+   (L1, BUT, PASS, DEUST, ingénieur) et 2 166 des 3 244 masters, aucune L2/L3 — or
+   c'est le cas le plus courant du public visé (§ 2.5).
+2. **Libellé honnête** pour les autres : « Données publiques du ministère » plutôt
+   que « Voir la source officielle » (client Flutter, textes FR/EN).
+3. **Re-sourcer d'abord les L2 et L3** des universités qu'on publie, à la main :
+   chercher la page de la formation sur le site de l'établissement et l'écrire dans
+   `sourceUrl` (l'écran de publication ne le fait pas).
 
 ### 2.7 Les douze domaines sont ceux de l'orientation (corrigé le 29/09/2026)
 
@@ -442,7 +479,14 @@ dérive fasse du bruit tôt.
    plan (§ 12.1) : une personne réelle. Sans elle, ces 10 247 lignes restent
    inactives pour toujours, ce qui est le comportement correct mais pas le
    comportement utile.
-2. **La relecture métier du partage DAP / Études en France** (§ 2.5).
+2. **La relecture métier du partage DAP / Études en France** (§ 2.6). Le dossier est
+   prêt, avec les 7 points à trancher, leurs comptes et des lignes d'exemple :
+   `docs/eef-dossier-relecture-procedures.md`.
+3. **La décision sur les sources qui ne sont pas des fiches** (§ 2.8) : 4 212 lignes
+   sur 10 502. Elle ne bloque pas le code (l'écran de publication les compte), elle
+   décide ce qu'on promet à l'étudiant qui touche « Voir la source officielle ».
+4. **La validation juridique des logos**, seulement pour l'AFFICHAGE des logos
+   (l'espace fonctionne sans) : `docs/eef-dossier-juridique-logos.md`.
 
 ### Dans le catalogue
 

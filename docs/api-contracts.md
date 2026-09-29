@@ -760,7 +760,8 @@ Réponse d'une simulation de publication :
     "programs": {
       "toPublish": ["eef-prog-…"],
       "alreadyActive": 0,
-      "refused": [{ "id": "…", "nameFr": "…", "reasons": ["program_procedure_missing"] }]
+      "refused": [{ "id": "…", "nameFr": "…", "reasons": ["program_procedure_missing"] }],
+      "genericSource": { "ministryPortal": 0, "ministryDataset": 0 }
     },
     "publishable": true,
     "nothingToDo": null
@@ -774,6 +775,11 @@ non HTTPS). Refus de formation : `program_unknown`, `program_not_from_import`,
 `program_wrong_institution`, `program_source_missing`,
 `program_procedure_missing`, `program_field_unknown`. Un établissement refusé
 annonce `toPublish: []`. Une écriture sans rien à publier répond 422 avec le plan.
+
+`programs.genericSource` compte, parmi les formations à publier, celles dont la
+source n'est pas la fiche de la formation : racine du portail Mon Master
+(`ministryPortal`) ou page du jeu de données ouvert (`ministryDataset`). C'est un
+signal, jamais un refus (`docs/eef-catalog-pipeline.md` § 2.8).
 
 Une écriture réussie répond `mode: "applied"` avec `programsPublished`,
 `institutionActivated`, `verifiedBy` (`id`, `name`) et `verifiedAt`. Elle pose

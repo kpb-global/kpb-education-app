@@ -37,10 +37,26 @@ changent la façon de les relire :
   ouvertes datent de 2021 et peuvent avoir fermé depuis. Les 2e et 3e années
   de licence, elles, sont attestées par les effectifs de la rentrée 2024 :
   elles vieillissent moins vite.
-- **La source est déjà attachée.** Chaque ligne porte sa fiche officielle
-  (Parcoursup ou site de l'université) dans `sourceUrl`. La vérification
-  consiste à confirmer que la fiche existe toujours et dit la même chose —
-  pas à retrouver une source.
+- **La source est attachée, mais ce n'est PAS toujours la fiche de la formation**
+  (corrigé le 29/09/2026 : cette procédure affirmait le contraire). Sur 10 502
+  lignes, `sourceUrl` désigne :
+
+  | Ce que la source est | Lignes | Ce que vérifier veut dire |
+  | --- | ---: | --- |
+  | la fiche Parcoursup de la formation | 4 140 | confirmer que la fiche existe toujours et dit la même chose |
+  | une page de l'établissement (master) | 2 150 | idem — mais la page n'a pas été relue une à une |
+  | **la racine du portail `monmaster.gouv.fr`** (masters) | **1 078** | **il n'y a pas de fiche à relire** : il faut en trouver une |
+  | **la page du jeu de données ouvert** (L2 et L3) | **3 134** | idem : c'est la preuve que la formation existe, pas une page candidat |
+
+  Soit **4 212 lignes (40 %) sans fiche de formation**. Pour elles, « confirmer la
+  fiche » n'a pas d'objet : le relecteur doit retrouver la page de la formation sur
+  le site de l'université (elle devient alors le `sourceUrl`), ou publier la ligne
+  en sachant que l'étudiant qui touche « Voir la source officielle » arrive sur un
+  portail ou un tableur. L'écran de publication de l'admin annonce ce nombre pour
+  chaque établissement AVANT d'écrire ; il ne bloque pas, parce que refuser ces
+  lignes reviendrait à ne rien publier du tout tant qu'on n'a pas re-sourcé
+  3 134 L2/L3 à la main — c'est une décision de contenu (voir
+  `docs/eef-catalog-pipeline.md` § 2.8), pas de code.
 
 Le pipeline, ses limites et ses portes de CI : `docs/eef-catalog-pipeline.md`.
 

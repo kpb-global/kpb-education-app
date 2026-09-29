@@ -10,6 +10,7 @@ import { programRequirements } from './eef-catalog.copy';
 import { loadEefCatalog } from './eef-catalog.loader';
 import { planEefImport } from './eef-catalog.importer';
 import { resolveFieldId } from './eef-catalog.normalize';
+import { classifyProgramSource } from '../publication/eef-publication.plan';
 import { validateEefCatalog } from './eef-catalog.validator';
 
 describe('catalogue « Études en France » versionné', () => {
@@ -62,6 +63,24 @@ describe('catalogue « Études en France » versionné', () => {
         hasFormations: true,
       });
     }
+  });
+
+  it('ne compte pas plus de sources génériques que la documentation ne le dit', () => {
+    // 4 212 formations (40 %) n'ont pas pour `sourceUrl` la fiche de la formation :
+    // 1 078 masters pointent la racine du portail Mon Master, 3 134 L2/L3 la page
+    // du jeu de données ouvert (`docs/eef-catalog-pipeline.md` § 2.8). Ce nombre
+    // ne doit que BAISSER (on re-source à la main) : une recollecte qui en ajoute
+    // doit faire du bruit, et la documentation doit être corrigée avec elle.
+    const counts = { formation_page: 0, ministry_portal: 0, ministry_dataset: 0 };
+    for (const file of catalog.universities) {
+      for (const program of file.programs) {
+        counts[classifyProgramSource(program.sourceUrl)] += 1;
+      }
+    }
+    expect(counts.ministry_portal).toBeLessThanOrEqual(1078);
+    expect(counts.ministry_dataset).toBeLessThanOrEqual(3134);
+    expect(counts.formation_page + counts.ministry_portal + counts.ministry_dataset)
+      .toBe(result.stats.programs);
   });
 
   it('couvre les universités publiques et leurs deux cycles', () => {

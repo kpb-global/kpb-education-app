@@ -1099,6 +1099,7 @@
       "program_source_missing": "source missing or not HTTPS",
       "program_procedure_missing": "procedure not qualified",
       "program_field_unknown": "field outside the reference list"
-    }
+    },
+    "genericSources": "{n} of the programmes to publish link to a generic source, not to the programme's own page (Mon Master portal: {portal}, ministry dataset: {dataset}). A student tapping “See the official source” will land on that page."
   }
 }

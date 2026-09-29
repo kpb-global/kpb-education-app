@@ -96,8 +96,11 @@ portent la règle et renvoient à la fiche officielle ; `tuitionMinEur` est
 
 ## Ce que chaque ligne garantit
 
-- une **fiche officielle HTTPS** par formation (Parcoursup, ou le site de
-  l'établissement pour un master) — refusée sinon ;
+- une **source HTTPS** par formation — refusée sinon. C'est la fiche de la
+  formation pour 60 % des lignes seulement (Parcoursup, ou le site de
+  l'établissement pour un master) ; pour 1 078 masters c'est la page d'accueil de
+  `monmaster.gouv.fr`, et pour les 3 134 L2/L3 la page du jeu de données ouvert
+  (`docs/eef-catalog-pipeline.md` § 2.8) ;
 - un **UAI** sur l'établissement, qui est la clé de re-vérification ;
 - une **procédure** explicite : `dap_blanche` pour une 1re année de licence et
   pour PASS, `dap_jaune` pour l'architecture, `eef` pour BUT / DEUST / licence

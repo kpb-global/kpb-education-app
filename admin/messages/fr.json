@@ -1099,6 +1099,7 @@
       "program_source_missing": "source absente ou non HTTPS",
       "program_procedure_missing": "procédure non qualifiée",
       "program_field_unknown": "domaine hors référentiel"
-    }
+    },
+    "genericSources": "{n} des formations à publier renvoient à une source générique, pas à la fiche de la formation (portail Mon Master : {portal}, jeu de données du ministère : {dataset}). L'étudiant qui touche « Voir la source officielle » arrivera sur cette page."
   }
 }

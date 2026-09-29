@@ -1,4 +1,5 @@
 import {
+  classifyProgramSource,
   planEefPublication,
   planEefUnpublication,
   type PublicationInstitution,
@@ -189,6 +190,73 @@ describe('planEefPublication', () => {
 
       expect(result.programs.toPublish).toEqual(['eef-prog-0001']);
     });
+  });
+});
+
+describe('classifyProgramSource', () => {
+  it.each([
+    ['https://www.monmaster.gouv.fr/', 'ministry_portal'],
+    ['https://www.monmaster.gouv.fr', 'ministry_portal'],
+    ['https://monmaster.gouv.fr/', 'ministry_portal'],
+    ['HTTPS://WWW.MONMASTER.GOUV.FR/', 'ministry_portal'],
+    ['https://data.enseignementsup-recherche.gouv.fr/explore/assets/x/?refine.a=b', 'ministry_dataset'],
+    // Une page PROFONDE du portail est une vraie fiche de master.
+    ['https://www.monmaster.gouv.fr/formation/12345', 'formation_page'],
+    ['https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=8899', 'formation_page'],
+    ['https://www.univ-lyon2.fr/master-1-mondes-medievaux-1', 'formation_page'],
+    // Un hôte qui ressemble au portail n'est pas le portail.
+    ['https://www.monmaster.gouv.fr.evil.example/', 'formation_page'],
+    ['https://exemple.fr/?u=https://www.monmaster.gouv.fr/', 'formation_page'],
+    ['pas une url', 'formation_page'],
+  ])('%s → %s', (url, kind) => {
+    expect(classifyProgramSource(url)).toBe(kind);
+  });
+
+  it('range l’absence de source avec les fiches (elle est refusée ailleurs)', () => {
+    expect(classifyProgramSource(null)).toBe('formation_page');
+  });
+});
+
+describe('planEefPublication — sources génériques', () => {
+  it('compte, parmi les formations À PUBLIER, celles dont la source n’est pas une fiche', () => {
+    const result = plan([
+      program(1),
+      program(2, { sourceUrl: 'https://www.monmaster.gouv.fr/' }),
+      program(3, { sourceUrl: 'https://www.monmaster.gouv.fr/' }),
+      program(4, { sourceUrl: 'https://data.enseignementsup-recherche.gouv.fr/explore/x' }),
+    ]);
+
+    expect(result.programs.toPublish).toHaveLength(4);
+    expect(result.programs.genericSource).toEqual({ ministryPortal: 2, ministryDataset: 1 });
+  });
+
+  it('ne compte ni une formation refusée ni une formation déjà publiée', () => {
+    const dataset = 'https://data.enseignementsup-recherche.gouv.fr/explore/x';
+    const result = plan([
+      program(1, { sourceUrl: 'https://www.monmaster.gouv.fr/', procedureType: null }),
+      program(2, { sourceUrl: 'https://www.monmaster.gouv.fr/', isActive: true }),
+      program(4, { sourceUrl: dataset, procedureType: null }),
+      program(5, { sourceUrl: dataset, isActive: true }),
+      program(3),
+    ]);
+
+    expect(result.programs.toPublish).toEqual(['eef-prog-0003']);
+    expect(result.programs.genericSource).toEqual({ ministryPortal: 0, ministryDataset: 0 });
+  });
+
+  it('ne bloque PAS la publication : c’est un signal, pas un refus', () => {
+    const result = plan([program(1, { sourceUrl: 'https://www.monmaster.gouv.fr/' })]);
+
+    expect(result.publishable).toBe(true);
+    expect(result.programs.refused).toEqual([]);
+  });
+
+  it('annonce zéro pour un établissement refusé', () => {
+    const result = plan([program(1, { sourceUrl: 'https://www.monmaster.gouv.fr/' })], {
+      institution: { sourceUrl: null },
+    });
+
+    expect(result.programs.genericSource).toEqual({ ministryPortal: 0, ministryDataset: 0 });
   });
 });
 

@@ -20,6 +20,7 @@ import { apiFetch } from '../../../lib/api-client';
 import {
   applyBody,
   canApply,
+  genericSourceCount,
   plannedCount,
   readableApiError,
   refusalMessageKey,
@@ -308,6 +309,31 @@ export default function EefPublicationPage() {
                 {t(
                   `eefPub.nothing.${(selected.plan as PublicationPlan).nothingToDo}`,
                 )}
+              </Alert>
+            ) : null}
+
+            {selected.action === 'publish' &&
+            genericSourceCount(selected.plan as PublicationPlan) > 0 ? (
+              <Alert variant="warning">
+                {t('eefPub.genericSources')
+                  .replace(
+                    '{n}',
+                    String(genericSourceCount(selected.plan as PublicationPlan)),
+                  )
+                  .replace(
+                    '{portal}',
+                    String(
+                      (selected.plan as PublicationPlan).programs.genericSource
+                        .ministryPortal,
+                    ),
+                  )
+                  .replace(
+                    '{dataset}',
+                    String(
+                      (selected.plan as PublicationPlan).programs.genericSource
+                        .ministryDataset,
+                    ),
+                  )}
               </Alert>
             ) : null}
 

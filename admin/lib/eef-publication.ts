@@ -52,6 +52,11 @@ export interface PublicationPlan {
     toPublish: string[];
     alreadyActive: number;
     refused: RefusedProgram[];
+    /**
+     * Parmi les formations À PUBLIER, celles dont la source n'est pas la fiche de
+     * la formation (portail Mon Master, jeu de données ouvert). Informatif.
+     */
+    genericSource: { ministryPortal: number; ministryDataset: number };
   };
   publishable: boolean;
   nothingToDo: 'no_publishable_program' | 'already_published' | null;
@@ -95,6 +100,14 @@ export type PublicationAction = 'publish' | 'unpublish';
 /** Le corps d'une simulation : `apply` absent, le serveur ne lit qu'un plan. */
 export function simulationBody(programIds?: string[]): Record<string, unknown> {
   return programIds && programIds.length > 0 ? { programIds } : {};
+}
+
+/** Combien de formations à publier renvoient à une source générique. */
+export function genericSourceCount(plan: PublicationPlan): number {
+  return (
+    plan.programs.genericSource.ministryPortal +
+    plan.programs.genericSource.ministryDataset
+  );
 }
 
 /** Le nombre de formations que ce plan écrirait — celui à confirmer. */

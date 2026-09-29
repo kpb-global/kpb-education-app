@@ -328,6 +328,13 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   part AVANT l'admin (un admin plus ancien n'a simplement pas l'écran). L'écran a
   été exercé dans un navigateur contre un faux serveur qui réutilise le vrai plan
   du backend (parcours complet, refus, retrait), pas contre une base de production.
+- **Documentation des sources corrigée, deux dossiers de décision ouverts.** La SOP
+  et le pipeline affirmaient « chaque ligne porte sa fiche officielle » : c'est faux
+  pour 4 212 lignes sur 10 502 (portail Mon Master, jeu de données ouvert) —
+  `docs/eef-catalog-pipeline.md` § 2.8. L'écran de publication compte ces lignes
+  avant de demander la signature (`programs.genericSource`). À faire trancher :
+  `docs/eef-dossier-relecture-procedures.md` (partage DAP / Études en France) et
+  `docs/eef-dossier-juridique-logos.md`.
 - **Logos des établissements : 320 px → 330 px.** Wikimedia refuse les largeurs
   hors liste standard (HTTP 400) : les 26 logos SVG de l'import ne s'affichaient
   pas. Le serveur sert désormais 330 px, y compris pour une ligne importée avec

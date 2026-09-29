@@ -63,6 +63,41 @@ export type ProgramRefusal =
   | 'program_procedure_missing'
   | 'program_field_unknown';
 
+/**
+ * Ce que désigne le `sourceUrl` d'une formation. Pour 40 % de l'import il ne
+ * s'agit PAS de la fiche de la formation : 1 078 masters pointent la page
+ * d'accueil du portail Mon Master, 3 134 L2/L3 la page du jeu de données ouvert
+ * (`docs/eef-catalog-pipeline.md` § 2.8). Ces sources prouvent que la formation
+ * existe ; elles ne disent pas où s'y inscrire.
+ */
+export type SourceKind =
+  | 'formation_page'
+  | 'ministry_portal'
+  | 'ministry_dataset';
+
+const MINISTRY_PORTAL_HOSTS: ReadonlySet<string> = new Set([
+  'monmaster.gouv.fr',
+  'www.monmaster.gouv.fr',
+]);
+const MINISTRY_DATASET_HOST = 'data.enseignementsup-recherche.gouv.fr';
+
+export function classifyProgramSource(url: string | null): SourceKind {
+  if (url === null) return 'formation_page';
+  try {
+    const parsed = new URL(url.trim());
+    const host = parsed.hostname.toLowerCase();
+    if (host === MINISTRY_DATASET_HOST) return 'ministry_dataset';
+    // La racine du portail seulement : une page profonde de `monmaster.gouv.fr`
+    // (une fiche de master) est une vraie source.
+    if (MINISTRY_PORTAL_HOSTS.has(host) && parsed.pathname.replace(/\/+$/, '') === '') {
+      return 'ministry_portal';
+    }
+  } catch {
+    // Une URL illisible est refusée ailleurs (`program_source_missing`).
+  }
+  return 'formation_page';
+}
+
 export interface RefusedProgram {
   readonly id: string;
   readonly nameFr: string | null;
@@ -83,6 +118,15 @@ export interface PublicationPlan {
     readonly toPublish: readonly string[];
     readonly alreadyActive: number;
     readonly refused: readonly RefusedProgram[];
+    /**
+     * Parmi les formations à publier, celles dont la source n'est pas la fiche de
+     * la formation. INFORMATIF : le plan ne les refuse pas (voir
+     * `docs/eef-catalog-pipeline.md` § 2.8), il les montre avant la signature.
+     */
+    readonly genericSource: {
+      readonly ministryPortal: number;
+      readonly ministryDataset: number;
+    };
   };
   /** Il y a quelque chose à écrire, et rien ne l'interdit. */
   readonly publishable: boolean;
@@ -190,6 +234,12 @@ export function planEefPublication(input: {
   // sous une fiche qui ne le sera pas ferait lire un plan qui n'aura pas lieu.
   const blocked = institutionRefusals.length > 0;
   if (blocked) toPublish.length = 0;
+  const sourceKinds = new Map(
+    input.programs.map((program) => [
+      program.id,
+      classifyProgramSource(program.sourceUrl),
+    ]),
+  );
   const publishable = !blocked && toPublish.length > 0;
   let nothingToDo: PublicationPlan['nothingToDo'] = null;
   if (!blocked && toPublish.length === 0) {
@@ -207,7 +257,19 @@ export function planEefPublication(input: {
       willActivate: publishable && !institution.isActive,
       refusals: institutionRefusals,
     },
-    programs: { toPublish, alreadyActive, refused },
+    programs: {
+      toPublish,
+      alreadyActive,
+      refused,
+      genericSource: {
+        ministryPortal: toPublish.filter(
+          (id) => sourceKinds.get(id) === 'ministry_portal',
+        ).length,
+        ministryDataset: toPublish.filter(
+          (id) => sourceKinds.get(id) === 'ministry_dataset',
+        ).length,
+      },
+    },
     publishable,
     nothingToDo,
   };
