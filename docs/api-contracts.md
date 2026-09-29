@@ -716,6 +716,77 @@ L'export est servi en `text/csv; charset=utf-8` avec
 rend « Côte d'Ivoire » en « CÃ´te d'Ivoire »), et chaque cellule neutralisée
 contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
 
+## Admin — publication de l'import « Études en France »
+
+- `GET  /admin/etudes-en-france/publication/institutions`
+- `POST /admin/etudes-en-france/publication/institutions/:id/publish`
+- `POST /admin/etudes-en-france/publication/institutions/:id/unpublish`
+
+Rôles : `admin`, `super_admin` **seulement** — `content_manager` édite le
+catalogue mais ne signe pas sa publication. Sans session administrateur la route
+répond 401 : le relecteur inscrit est celui de la SESSION, jamais un identifiant
+fabriqué. Publier est l'acte qui rend visibles, à un étudiant sans compte
+(`/etudes-en-france/search` est publique), des fiches que personne n'avait relues.
+
+Corps de `publish` et `unpublish` (tout est optionnel) :
+
+```json
+{ "apply": false, "programIds": ["eef-prog-…"], "expectedPrograms": 153 }
+```
+
+- **`apply` absent ou faux : simulation.** La réponse est le PLAN, rien n'est
+  écrit. `apply` doit être le booléen `true` (une chaîne ou un nombre → 400).
+- **Pour écrire, `expectedPrograms` doit valoir exactement le nombre annoncé par la
+  simulation** (`plan.programs.toPublish.length`, ou `toDeactivate.length` au
+  retrait). Absent → 400 ; différent → 409 et rien n'est écrit. C'est une
+  confirmation saisie et un contrôle de concurrence à la fois.
+- `programIds` restreint l'acte à ces formations (au moins une, sans doublon,
+  5 000 au plus). Sans lui : toutes les formations encore inactives de
+  l'établissement — au retrait, toutes les formations publiées ET l'établissement.
+  Avec lui, l'établissement reste publié au retrait.
+- Le plan est **recalculé dans la transaction d'écriture** ; une formation qui
+  n'est plus publiable, ou que quelqu'un d'autre a publiée entre-temps, annule
+  l'ensemble (409).
+
+Réponse d'une simulation de publication :
+
+```json
+{
+  "mode": "dry-run",
+  "plan": {
+    "institutionId": "eef-univ-…",
+    "institutionName": "…",
+    "institution": { "alreadyActive": false, "willActivate": true, "refusals": [] },
+    "programs": {
+      "toPublish": ["eef-prog-…"],
+      "alreadyActive": 0,
+      "refused": [{ "id": "…", "nameFr": "…", "reasons": ["program_procedure_missing"] }]
+    },
+    "publishable": true,
+    "nothingToDo": null
+  }
+}
+```
+
+Refus d'établissement : `institution_not_from_import` (une fiche partenaire n'est
+jamais publiable par cette voie), `institution_source_missing` (source absente ou
+non HTTPS). Refus de formation : `program_unknown`, `program_not_from_import`,
+`program_wrong_institution`, `program_source_missing`,
+`program_procedure_missing`, `program_field_unknown`. Un établissement refusé
+annonce `toPublish: []`. Une écriture sans rien à publier répond 422 avec le plan.
+
+Une écriture réussie répond `mode: "applied"` avec `programsPublished`,
+`institutionActivated`, `verifiedBy` (`id`, `name`) et `verifiedAt`. Elle pose
+`isActive`, `lastVerifiedAt`, `verifiedById` et `verifiedByName` sur chaque
+formation publiée, et sur l'établissement **quand il devient visible ou n'avait
+aucun tampon** : le relecteur d'hier n'est pas écrasé. Le retrait ne touche PAS
+aux tampons, et annonce `plan.savedByStudents` : le nombre d'étudiants qui
+perdent la formation de leur liste (leur enregistrement, lui, n'est pas supprimé).
+
+`GET …/institutions` liste les établissements de l'import (jamais un partenaire)
+avec `programsPending`, `programsPublished`, `hasLogo`, la source et le dernier
+relecteur, plus les totaux.
+
 ## Admin — file de revérification du catalogue
 
 - `GET /admin/catalog/verification-due` (rôles `admin`, `super_admin`, `content_manager`)

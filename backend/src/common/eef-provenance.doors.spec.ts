@@ -360,6 +360,17 @@ const DOORS: Readonly<Record<string, Door>> = {
     },
     unscoped: '*',
   },
+  'modules/etudes-en-france/publication/eef-publication.service.ts': {
+    reason:
+      'L’acte de PUBLICATION de l’import, par un administrateur : il lit et écrit '
+      + 'les lignes de l’import, jamais le catalogue général. Sa portée est '
+      + 'l’identifiant (préfixe de l’import) et l’établissement demandé, répétés '
+      + 'dans le plan pur comme dans chaque écriture ; le plan est recalculé DANS la '
+      + 'transaction. Il ne sert rien à un étudiant.',
+    scoped: {},
+    unscoped: '*',
+    accesses: 10,
+  },
   'modules/etudes-en-france/catalog/eef-pending-purge.ts': {
     reason:
       'L’outil d’exploitation qui supprime les lignes de l’import JAMAIS '

@@ -523,6 +523,26 @@ des lignes de cache de 24 heures. **Après la première publication, ne pas
 l'utiliser** : ce qui est publié n'est jamais candidat, et le réalignement des
 lignes publiées demande `eef:reconcile`.
 
+**Publier** (API admin, `docs/api-contracts.md` § « Admin — publication de
+l'import »). Il n'y a pas de commande en ligne : le relecteur inscrit est
+l'administrateur connecté, ce qu'un script ne peut pas être. Par établissement :
+simulation (`apply` absent), lecture du plan — formations refusées et pourquoi —,
+puis écriture avec `expectedPrograms` égal au nombre annoncé. Le retrait est
+l'inverse exact et annonce combien d'étudiants perdent la formation de leur liste.
+
+Ce que l'outil vérifie : l'établissement et chaque formation viennent de l'import,
+portent une source HTTPS, la formation une procédure qualifiée et un domaine du
+référentiel. Ce qu'il **ne peut pas** vérifier, et que le relecteur signe en
+appuyant : que la procédure Études en France / DAP est la bonne (§ 2.6), et que la
+source est la fiche de la formation plutôt que la page d'accueil de
+l'établissement. Les deux préalables du § 4 (un propriétaire nommé de la file,
+la relecture métier de la procédure) restent des décisions humaines que le code
+ne remplace pas.
+
+Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche est
+publique, donc dès qu'un établissement est publié ses formations sont servies à
+qui interroge `/etudes-en-france/search`, l'espace fût-il éteint dans l'app.
+
 Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
 `catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs
 nouveaux de cette version. Une correction d'intitulé ou de procédure dans le
