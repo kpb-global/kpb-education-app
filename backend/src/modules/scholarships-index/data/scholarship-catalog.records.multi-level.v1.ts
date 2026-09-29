@@ -471,7 +471,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     name: ['Open Doors Russie 2027', 'Open Doors Russian Scholarship 2027'],
     country: ['rus', 'Russie', 'Russia'],
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
-    fundingLabel: ['Frais de scolarité couverts ; vie et voyage non couverts', 'Tuition covered; living and travel costs excluded'],
+    fundingLabel: ['Frais de scolarité et allocation mensuelle ; voyage, logement et assurance non couverts', 'Tuition and monthly stipend; travel, accommodation and insurance excluded'],
     fundingType: 'partially_funded',
     deadlineLabel: ['Ouvert — inscriptions jusqu’au 1er novembre 2026 (ouvertes depuis le 20 août 2026)', 'Open — registration closes 1 November 2026 (opened 20 August 2026)'],
     description: [

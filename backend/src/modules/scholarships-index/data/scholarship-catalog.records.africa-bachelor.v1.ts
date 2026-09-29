@@ -193,8 +193,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       fundingType: 'partially_funded',
       applicationRequirement: 'automatic',
       deadlineLabel: [
-        'Dépôt en continu — rentrée de janvier 2027 ouverte jusqu’au 30 novembre 2026 ; échéance de septembre 2027 non publiée (estimée vers la mi-juin 2027)',
-        'Rolling applications — January 2027 intake open until 30 November 2026; September 2027 deadline not yet published (estimated around mid-June 2027)',
+        'Rentrée de septembre 2027 — échéance non publiée, estimée vers la mi-juin 2027 ; dépôt en continu',
+        'September 2027 intake — deadline not yet published, estimated around mid-June 2027; rolling applications',
       ],
       description: [
         'Aide financière propre à l’African Leadership University : les ALU Grants exonèrent les frais de scolarité, et des bourses complètes financées avec des partenaires couvrent la scolarité et un soutien complémentaire. Les candidatures sont examinées en continu, avec une échéance par rentrée ; la seule échéance publiée à ce jour est le 30 novembre 2026 pour la rentrée de janvier 2027. Les rentrées et échéances publiées concernent le campus de Kigali ; ALC Maurice n’accueille pas de nouvelle cohorte de Licence pour l’instant.',
