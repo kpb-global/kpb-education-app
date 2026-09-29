@@ -58,12 +58,12 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'EUR 1,200 monthly allowance at Master level, the amount applicable since January 2026',
         ],
         [
-          'Bourse versée de 12 à 36 mois selon le diplôme et l’année d’inscription : 12 mois en Master 2, 24 mois en Master 1',
-          'Funding paid for 12 to 36 months depending on the degree and year of enrolment: 12 months in Master 2, 24 months in Master 1',
+          'Bourse versée de 12 à 36 mois selon le diplôme et l’année d’inscription : au maximum 12 mois en Master 2, 24 mois en Master 1 et 36 mois pour un diplôme d’ingénieur',
+          'Funding paid for 12 to 36 months depending on the degree and year of enrolment: a maximum of 12 months in Master 2, 24 months in Master 1 and 36 months for an engineering degree',
         ],
         [
-          'Prise en charge du voyage international vers la France et du retour, ainsi que du transport national jusqu’au lieu d’études',
-          'Coverage of international travel to France and the return trip, plus national transport to the place of study',
+          'Prise en charge du voyage international vers la France et du retour, remboursé sur justificatifs dans la limite de 50 % du barème maximal fixé par le ministère, ainsi que du transport national jusqu’au lieu d’études',
+          'Coverage of international travel to France and the return trip, reimbursed on receipts up to 50% of the maximum rate set by the ministry, plus national transport to the place of study',
         ],
         [
           'Couverture santé assurée par Campus France jusqu’à l’activation de la sécurité sociale étudiante, puis affiliation obligatoire et gratuite',
@@ -187,7 +187,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'estimated-open-date',
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd07', 'd08', 'd09'],
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:07:35.000Z',
     }),
     record({
       id: 'daad_epos_2027',
@@ -224,8 +224,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Health, accident and personal liability insurance covered',
         ],
         [
-          'Forfait voyage vers l’Allemagne et retour pris en charge par le DAAD',
-          'Travel allowance to Germany and back covered by DAAD',
+          'Forfait voyage vers l’Allemagne et retour, sauf si ces frais sont couverts par le pays d’origine ou une autre source de financement',
+          'Travel allowance to Germany and back, unless these expenses are covered by the home country or another source of funding',
         ],
         [
           'Subvention de loyer et allocations familiales possibles selon la situation personnelle',
@@ -258,8 +258,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Hold a latest degree that should normally not be more than six years old',
         ],
         [
-          'Ne pas avoir séjourné en Allemagne plus de quinze mois à la date de la candidature',
-          'Not have resided in Germany for more than fifteen months at the date of application',
+          'Ne pas avoir séjourné en Allemagne plus de quinze mois à la date limite de candidature',
+          'Not have resided in Germany for more than fifteen months at the application deadline',
         ],
         [
           'Satisfaire les exigences de langue du cursus visé : en règle générale IELTS 6 ou TOEFL 550 papier / 213 ordinateur / 80 internet ; pour les cursus en allemand, niveau B1 à la candidature puis DSH 2 ou TestDaF 4 pour l’inscription',
@@ -349,7 +349,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'estimated-open-date',
       ],
       relatedFieldIds: ['d02', 'd03', 'd04', 'd05', 'd08', 'd09'],
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:12:42.000Z',
     }),
     record({
       id: 'erasmus_mundus_joint_masters_2027',
@@ -428,8 +428,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Meet the consortium’s own admission criteria published on the Master website: language, transcripts, subject prerequisites',
         ],
         [
-          'Postuler à un master figurant au catalogue Erasmus Mundus : seuls ces programmes ouvrent droit à la bourse',
-          'Apply to a Master listed in the Erasmus Mundus catalogue: only those programmes carry the scholarship',
+          'Postuler à un master figurant au catalogue Erasmus Mundus : seuls ces programmes peuvent offrir la bourse, mais certains masters du catalogue n’en proposent pas',
+          'Apply to a Master listed in the Erasmus Mundus catalogue: only those programmes can carry the scholarship, but some catalogue Masters do not offer one',
         ],
       ],
       requirements: [
@@ -526,6 +526,6 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'd09',
         'd11',
       ],
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:07:54.000Z',
     }),
   ];

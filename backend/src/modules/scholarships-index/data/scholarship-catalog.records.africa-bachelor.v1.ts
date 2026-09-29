@@ -3,16 +3,22 @@ import { buildVerifiedScholarshipRecord as record } from './scholarship-catalog.
 
 /**
  * Pan-African bachelor opportunities hosted on the continent, verified against
- * the institutions' own sites on 10 August 2026.
+ * the institutions' own sites on 10 August 2026 and re-read on 29 September
+ * 2026.
  *
- * Calendar caveat shared by the three records: none of the three institutions
- * publishes a dated 2027–2028 campaign yet. All three run rolling or
- * multi-round admissions and only publish the deadline of the cycle currently
- * being processed (Ashesi: 16 November 2026 for the January 2027 intake — ALU:
- * 30 November 2026 for the January 2027 intake — AUC: 1 November for Spring
- * 2027). The 2027–2028 windows below are therefore `estimated`, deduced from
- * the round/intake pattern the institutions do publish, and every deadline
- * label says so in both languages.
+ * Calendar caveat: Ashesi and ALU publish no dated 2027–2028 campaign yet. Both
+ * run rolling or multi-round admissions and only publish the deadline of the
+ * cycle currently being processed (Ashesi: 16 November 2026 for the January
+ * 2027 intake — ALU: 30 November 2026 for the January 2027 intake). Their
+ * 2027–2028 windows below are therefore `estimated`, deduced from the
+ * round/intake pattern the institutions do publish, and every deadline label
+ * says so in both languages.
+ *
+ * AUC changed on 24 September 2026: its undergraduate requirements page now
+ * prints the Fall 2027 ADMISSION deadlines (early 1 February 2027, regular
+ * 1 June 2027), so its window is `confirmed`. The scholarship page itself
+ * (last updated 7 September 2026) still lists only 2026 deadlines, and the
+ * label says so.
  */
 export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] =
   [
@@ -135,8 +141,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         [
           'Compléter le formulaire d’aide financière',
           'Complete the financial aid form',
-          'Joindre le formulaire d’aide au dossier d’admission et indiquer le montant nécessaire ; l’aide ne peut plus être demandée une fois l’admission prononcée.',
-          'Attach the financial aid form to the admissions file and state the amount required; aid can no longer be requested once admission has been decided.',
+          'Joindre le formulaire d’aide au dossier d’admission et indiquer le montant nécessaire ; l’université demande de remplir ce formulaire pour pouvoir recevoir une aide.',
+          'Attach the financial aid form to the admissions file and state the amount required; the university asks applicants to complete this form in order to receive assistance.',
         ],
         [
           'Passer l’entretien et attendre la décision',
@@ -172,7 +178,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:08:11.000Z',
     }),
     record({
       id: 'alu_scholarship_2027',
@@ -191,7 +197,10 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'Tuition fee waiver, up to full funding',
       ],
       fundingType: 'partially_funded',
-      applicationRequirement: 'automatic',
+      // Relu le 29/09/2026 : l'étape « Finances » dit si l'on PEUT DEMANDER l'aide, et
+      // le guide officiel ALU décrit un dossier d'aide distinct (« Submit the
+      // financial aid application (if eligible) ») — ce n'est donc pas « automatic ».
+      applicationRequirement: 'separate_application',
       deadlineLabel: [
         'Ouverture estimée — dépôt en continu ; échéance estimée vers le 18 juin 2027 pour la rentrée de septembre 2027',
         'Estimated opening — year-round applications; deadline estimated around 18 June 2027 for the September 2027 intake',
@@ -214,8 +223,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
           'Full-ride scholarships covering full tuition and additional financial support throughout the journey',
         ],
         [
-          'Aide évaluée dans la même candidature, à l’étape « Finances », sans dossier de bourse séparé',
-          'Aid assessed inside the same application, at the Finances stage, with no separate scholarship file',
+          'Éligibilité à l’aide vérifiée dans la même candidature, à l’étape « Finances », qui indique si l’on peut demander une aide financière ALU',
+          'Aid eligibility checked inside the same application, at the Finances stage, which shows whether you qualify to apply for ALU financial aid',
         ],
         [
           'Frais de scolarité de référence bas : environ 3 000 US$ par an, 4 000 US$ pour International Business & Trade',
@@ -333,7 +342,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       relatedFieldIds: ['d01', 'd02', 'd07'],
       baseMatch: 80,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:08:48.000Z',
     }),
     record({
       id: 'auc_excellence_2027',
@@ -353,12 +362,12 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       fundingType: 'partially_funded',
       deadlineLabel: [
-        'Ouverture estimée — admission anticipée vers le 1er mars 2027, admission régulière vers le 1er juin 2027',
-        'Estimated opening — early admission around 1 March 2027, regular admission around 1 June 2027',
+        'Prévision 2027-2028 — admission anticipée le 1er février 2027, admission régulière le 1er juin 2027 (échéances d’admission Fall 2027 ; la page des bourses n’affiche pas encore ses propres dates)',
+        '2027-2028 forecast — early admission 1 February 2027, regular admission 1 June 2027 (Fall 2027 admission deadlines; the scholarship page does not yet show its own dates)',
       ],
       description: [
-        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Aucune date 2027–2028 n’est publiée : la page du programme, mise à jour le 16 octobre 2025, ne liste que les échéances Spring 2026 et Fall 2026, et la page des exigences de Licence n’affiche pour l’instant qu’une échéance datée du 1er novembre pour Spring 2027.',
-        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. No 2027–2028 date is published: the programme page, last updated on 16 October 2025, lists only the Spring 2026 and Fall 2026 deadlines, and the undergraduate requirements page currently shows only a dated 1 November deadline for Spring 2027.',
+        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Les échéances d’admission Fall 2027 sont publiées sur la page des exigences de Licence (mise à jour le 24 septembre 2026) : admission anticipée le 1er février 2027 et admission régulière le 1er juin 2027, après l’échéance du 1er novembre 2026 pour Spring 2027. La page du programme de bourses, mise à jour le 7 septembre 2026, ne liste encore que les échéances Spring 2026 et Fall 2026 : les règles de priorité et de liste d’attente décrites s’appuient sur ce cycle et restent à reconfirmer pour 2027.',
+        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. The Fall 2027 admission deadlines are published on the undergraduate requirements page (updated 24 September 2026): early admission on 1 February 2027 and regular admission on 1 June 2027, after the 1 November 2026 deadline for Spring 2027. The scholarship programme page, last updated on 7 September 2026, still lists only the Spring 2026 and Fall 2026 deadlines: the priority and waiting-list rules described rely on that cycle and remain to be reconfirmed for 2027.',
       ],
       advantages: [
         [
@@ -466,10 +475,14 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       cycle: {
         academicYear: '2027-2028',
+        // « confirmed » porte sur les échéances d'ADMISSION Fall 2027, écrites en
+        // toutes lettres sur la page des exigences de Licence (relue le
+        // 29/09/2026, mise à jour le 24/09). Aucune date d'ouverture n'y figure :
+        // `opensAt` reste absent plutôt que deviné. Le statut reste `forecast` —
+        // la page ne dit pas que les candidatures Fall 2027 sont ouvertes.
         status: 'forecast',
-        dateConfidence: 'estimated',
-        estimatedOpenAt: '2026-11-01T00:00:00.000Z',
-        estimatedCloseAt: '2027-06-01T00:00:00.000Z',
+        dateConfidence: 'confirmed',
+        closesAt: '2027-06-01T00:00:00.000Z',
         sourceUrl: 'https://www.aucegypt.edu/admissions/undergraduate',
       },
       sources: {
@@ -488,7 +501,6 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'university',
         'merit-and-need',
         'tuition',
-        'estimated-open-date',
       ],
       relatedFieldIds: [
         'd01',
@@ -501,6 +513,6 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'd11',
       ],
       baseMatch: 79,
-      checkedAt: '2026-08-24T19:15:00.000Z',
+      checkedAt: '2026-09-29T15:09:32.000Z',
     }),
   ];

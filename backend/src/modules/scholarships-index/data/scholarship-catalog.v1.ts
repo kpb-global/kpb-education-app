@@ -17,7 +17,7 @@ import { VERIFIED_SCHOLARSHIP_RECORDS_V1 } from './scholarship-catalog.records.v
  */
 export const SCHOLARSHIP_CATALOG_V1: VersionedScholarshipCatalog = {
   schemaVersion: 1,
-  catalogVersion: '1.3.0',
+  catalogVersion: '1.4.0',
   // Planchers, pas des plafonds : le validateur signale un déficit sous ces
   // seuils. Relevés avec la vague « Top 10 » (25 → 34 fiches).
   volumeTargets: {

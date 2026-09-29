@@ -49,6 +49,20 @@ import type { VerifiedScholarshipCatalogRecord } from './scholarship-catalog.typ
 
 const VERSION = SCHOLARSHIP_CATALOG_V1.catalogVersion;
 
+/**
+ * Un tampon de relecture HUMAINE postérieur à la vérification du dépôt.
+ *
+ * Ces tests posent « une personne a relu la fiche APRÈS le dépôt » : leur
+ * fixture doit donc rester postérieure à `record.verifiedAt`, quelle que soit la
+ * vague de re-vérification en cours. Une date écrite en dur (30/08) passait
+ * tant que le dépôt datait du 24/08, et a cessé d'être « plus récente » le jour
+ * de la vague du 29/09 — un test qui emprunte à une donnée vivante son état
+ * transitoire casse le jour où cette donnée est correctement mise à jour.
+ */
+function humanVerificationAfter(record: VerifiedScholarshipCatalogRecord): Date {
+  return new Date(Date.parse(record.verifiedAt) + 5 * 24 * 60 * 60 * 1000);
+}
+
 function recordById(id: string): VerifiedScholarshipCatalogRecord {
   const record = SCHOLARSHIP_CATALOG_V1.records.find(
     (entry) => entry.scholarship.id === id,
@@ -335,7 +349,7 @@ describe('planScholarshipReconciliation', () => {
     it('ne remplace pas une vérification humaine plus récente par un tampon plus ancien', () => {
       const record = recordById('york_pise_2027_forecast');
       const row = rowAsCreatedFrom(record);
-      row.lastVerifiedAt = new Date('2026-08-30T10:00:00.000Z');
+      row.lastVerifiedAt = humanVerificationAfter(record);
       row.verifiedById = 'admin-42';
       row.verifiedByName = 'Relecteur KPB';
       row.sourceUrl = 'https://futurestudents.yorku.ca/corrigee-par-le-relecteur';
@@ -360,7 +374,7 @@ describe('planScholarshipReconciliation', () => {
     it("garde la source consultée par le relecteur, pas celle du dépôt", () => {
       const record = recordById('york_pise_2027_forecast');
       const row = rowAsCreatedFrom(record);
-      row.lastVerifiedAt = new Date('2026-08-30T10:00:00.000Z');
+      row.lastVerifiedAt = humanVerificationAfter(record);
       row.verifiedByName = 'Relecteur KPB';
       row.sourceUrl = 'https://futurestudents.yorku.ca/corrigee-par-le-relecteur';
 

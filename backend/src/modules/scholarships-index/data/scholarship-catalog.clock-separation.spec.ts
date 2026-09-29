@@ -103,23 +103,25 @@ describe('séparation de l’horloge et de la structure', () => {
 });
 
 describe('l’alerte avant clôture', () => {
-  it('annonce Schwarzman dans sa quinzaine, et pas avant', () => {
-    // Schwarzman Scholars clôt le 09/09/2026. C'est le prochain basculement
-    // connu du catalogue, et c'est le cas qui justifie tout ce fichier.
+  it('annonce Chevening dans sa quinzaine, et pas avant', () => {
+    // Chevening clôt le 06/10/2026 à 11 h UTC. C'est le prochain basculement
+    // connu du catalogue, et c'est le cas qui justifie tout ce fichier. (Le
+    // cas d'origine était Schwarzman, clos le 09/09 : une fiche close n'est
+    // plus « bientôt close » — l'ancre suit la donnée vivante la plus proche.)
     const ids = (iso: string) => at(iso).closingSoon.map((c) => c.scholarshipId);
 
     // Vingt jours avant : hors horizon, on ne crie pas pour rien.
-    expect(ids('2026-08-20T12:00:00.000Z')).not.toContain(
-      'schwarzman_scholars_2027',
-    );
+    expect(ids('2026-09-16T12:00:00.000Z')).not.toContain('chevening_2027');
     // Dix jours avant : dans l'horizon.
-    expect(ids('2026-08-30T12:00:00.000Z')).toContain(
+    expect(ids('2026-09-26T12:00:00.000Z')).toContain('chevening_2027');
+    // Et une fiche close n'est plus annoncée, quelle que soit la date.
+    expect(ids('2026-08-30T12:00:00.000Z')).not.toContain(
       'schwarzman_scholars_2027',
     );
   });
 
   it('rend les jours restants et trie par urgence', () => {
-    const soon = at('2026-09-01T00:00:00.000Z').closingSoon;
+    const soon = at('2026-09-26T00:00:00.000Z').closingSoon;
     expect(soon.length).toBeGreaterThan(0);
     for (const entry of soon) {
       expect(entry.daysLeft).toBeGreaterThan(0);

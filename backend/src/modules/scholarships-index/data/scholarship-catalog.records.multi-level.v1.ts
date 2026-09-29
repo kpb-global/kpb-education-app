@@ -21,7 +21,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Frais de scolarité pris en charge', 'Tuition fees covered'],
       ['Résidence universitaire en Licence ; en Master, un an de résidence puis allocation logement de 5 000 à 6 000 TL par mois. Assurance santé et billet d’avion aller-retour unique', 'University dormitory for Bachelor; for Master, one year of dormitory then a TRY 5,000–6,000 monthly housing allowance. Health insurance and a one-time round-trip flight'],
       ['Cours de turc pendant un an', 'One-year Turkish language course'],
-      ['Allocation mensuelle officielle : 4 500 TL en Licence et 6 500 TL en Master', 'Published monthly stipend: TRY 4,500 for Bachelor and TRY 6,500 for Master'],
+      ['Allocation mensuelle officielle : 6 500 TL en Licence et 9 500 TL en Master', 'Published monthly stipend: TRY 6,500 for Bachelor and TRY 9,500 for Master'],
     ],
     eligibility: [
       ['Être ressortissant de n’importe quel pays et ne pas être citoyen turc ou ancien citoyen turc', 'Be a national of any country and not be a Turkish citizen or former Turkish citizen'],
@@ -59,7 +59,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.turkiyeburslari.gov.tr/calendar',
     },
     tags: ['bachelor', 'master', 'turkiye', 'government', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:03:44.000Z',
   }),
   record({
     id: 'turkiye_isdb_joint_2027_forecast',
@@ -67,8 +67,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     name: ['Programme conjoint Türkiye–BID — prévision 2027', 'Türkiye–IsDB Joint Scholarship — 2027 forecast'],
     country: ['tur', 'Turquie', 'Türkiye'],
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
-    fundingLabel: ['Financement complet', 'Fully funded'],
-    fundingType: 'fully_funded',
+    fundingLabel: ['Master : financement complet ; Licence : prêt sans intérêt remboursable après les études', 'Master: fully funded; Bachelor: interest-free loan repayable after graduation'],
+    fundingType: 'partially_funded',
     deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février 2027, à reconfirmer', '2027 forecast — approximately 10 January to 20 February 2027, to be reconfirmed'],
     description: [
       'Volet conjoint de Türkiye Scholarships et de la Banque islamique de développement pour les candidats des pays membres de la BID et des communautés musulmanes éligibles. Les dates 2027 sont estimées depuis l’appel 2026.',
@@ -80,6 +80,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Assurance santé', 'Health insurance'],
       ['Cours de turc pendant un an', 'One-year Turkish language course'],
       ['Billet aller-retour unique', 'One-time round-trip ticket'],
+      ['En Licence, le financement est un prêt à rembourser après les études et l’emploi, en versements échelonnés, auprès de l’IsDB Education Trust du pays du candidat', 'For Bachelor, the funding is a loan repaid after graduation and employment, in instalments, to the IsDB Education Trust in the candidate’s country'],
     ],
     eligibility: [
       ['Être citoyen d’un pays membre de la BID ou membre d’une communauté musulmane éligible', 'Be a citizen of an IsDB member country or member of an eligible Muslim community'],
@@ -114,8 +115,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       application: 'https://tbbs.turkiyeburslari.gov.tr/',
       cycle: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
     },
-    tags: ['bachelor', 'master', 'turkiye', 'isdb', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    tags: ['bachelor', 'master', 'turkiye', 'isdb'],
+    checkedAt: '2026-09-29T15:03:44.000Z',
   }),
   record({
     id: 'stipendium_hungaricum_2027_forecast',
@@ -127,8 +128,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     fundingType: 'partially_funded',
     deadlineLabel: ['Prévision 2027–2028 — ouverture estimée en novembre-décembre 2026, clôture estimée vers le 15 janvier 2027 à 14 h CET, à reconfirmer', '2027–2028 forecast — opening estimated in November–December 2026, closing estimated around 15 January 2027 at 2 pm CET, to be reconfirmed'],
     description: [
-      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. Au 10 août 2026, seul le cycle 2026–2027 est publié (clôture le 15 janvier 2026 à 14 h CET) : la fenêtre suivante est estimée depuis ce calendrier.',
-      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. As of 10 August 2026 only the 2026–2027 cycle is published (closing 15 January 2026 at 2 pm CET), so the next window is estimated from that schedule.',
+      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. Au 29 septembre 2026, seul le cycle 2026–2027 est publié (clôture le 15 janvier 2026 à 14 h CET) : la fenêtre suivante est estimée depuis ce calendrier.',
+      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. As of 29 September 2026 only the 2026–2027 cycle is published (closing 15 January 2026 at 2 pm CET), so the next window is estimated from that schedule.',
     ],
     advantages: [
       ['Exonération des frais de scolarité', 'Tuition-free education'],
@@ -149,7 +150,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Preuve linguistique et traductions', 'Language proof and translations'],
       ['Diplôme et relevés de notes, ou déclaration si le document final arrive plus tard', 'Diploma and transcripts, or declaration when a final document will arrive later'],
       ['Copie du document d’identité', 'Copy of identity document'],
-      ['Certificat médical uniquement à l’étape prévue pour les candidats nommés', 'Medical certificate only at the prescribed stage for nominated applicants'],
+      ['Certificat médical exigé seulement des lauréats de la bourse, à présenter en Hongrie sans le téléverser', 'Medical certificate required only from awarded scholarship holders, presented in Hungary and not uploaded'],
     ],
     steps: [
       ['Vérifier le partenaire', 'Check the sending partner', 'Confirmer son pays, les filières ouvertes et la procédure parallèle du partenaire.', 'Confirm country, available fields and any parallel sending-partner process.'],
@@ -173,7 +174,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://stipendiumhungaricum.hu/apply/',
     },
     tags: ['bachelor', 'master', 'hungary', 'government', 'sending-partner'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:05:59.000Z',
   }),
   record({
     id: 'romania_mfa_scholarship_2027_forecast',
@@ -190,7 +191,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     ],
     advantages: [
       ['Exonération des frais de dossier, de langue préparatoire et de scolarité', 'Exemption from application, preparatory-language and tuition fees'],
-      ['Bourse mensuelle selon le niveau', 'Monthly scholarship according to study level'],
+      ['Bourse mensuelle pendant l’année préparatoire puis pendant le cycle d’études, dans la limite de la durée du cycle', 'Monthly scholarship during the preparatory year and then the study cycle, up to the duration of the cycle'],
       ['Subvention d’hébergement en résidence, sous réserve de places', 'Dormitory accommodation subsidy, subject to availability'],
       ['Accès à une année préparatoire de roumain lorsque requise', 'Access to a Romanian preparatory year when required'],
     ],
@@ -204,9 +205,9 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     requirements: [
       ['Diplômes, relevés et traductions autorisées', 'Diplomas, transcripts and authorised translations'],
       ['Acte de naissance et pages du passeport', 'Birth certificate and passport pages'],
-      ['Curriculum vitae en anglais ou français', 'Curriculum vitae in English or French'],
+      ['Curriculum vitae en anglais, français ou roumain', 'Curriculum vitae in English, French or Romanian'],
       ['Documents conditionnels applicables : changement de nom, diplôme provisoire ou déclaration parentale', 'Applicable conditional documents: name change, provisional certificate or parental declaration'],
-      ['Authentification ou apostille lorsque demandée', 'Authentication or apostille where requested'],
+      ['Apostille ou authentification de tous les documents d’études par les autorités du pays d’origine', 'Apostille or authentication of all study documents by the relevant authorities in the home country'],
     ],
     steps: [
       ['Créer le compte Study in Romania', 'Create a Study in Romania account', 'S’inscrire uniquement sur la plateforme officielle.', 'Register only on the official platform.'],
@@ -230,7 +231,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://scholarships.studyinromania.gov.ro/scholarship-about',
     },
     tags: ['bachelor', 'master', 'romania', 'government', 'romanian-language'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:07:26.000Z',
   }),
   record({
     id: 'brunei_government_scholarship_2027_forecast',
@@ -288,7 +289,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.mfa.gov.bn/pages/online-bdgs.aspx',
     },
     tags: ['bachelor', 'master', 'brunei', 'government', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:04:12.000Z',
   }),
   record({
     id: 'kazakhstan_foreign_students_2027_forecast',
@@ -346,7 +347,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://oq.gov.kz/en/news/1504',
     },
     tags: ['bachelor', 'master', 'kazakhstan', 'government', 'tuition'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:21:24.000Z',
   }),
   record({
     id: 'heydar_aliyev_grant_2027_forecast',
@@ -404,7 +405,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf',
     },
     tags: ['bachelor', 'master', 'azerbaijan', 'government', 'nomination', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:05:58.000Z',
   }),
   record({
     id: 'taiwan_icdf_2027',
@@ -432,17 +433,17 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Ne pas être ressortissant taïwanais ni compatriote d’outre-mer', 'Not be a Taiwan national or overseas compatriot'],
       ['Satisfaire les conditions de l’université partenaire ainsi que celles du visa et de l’ARC', 'Meet partner-university, visa and ARC requirements'],
       ['Ne pas cumuler une autre bourse du gouvernement taïwanais la même année', 'Not hold another Taiwan government scholarship in the same year'],
-      ['Ne pas avoir eu une bourse TaiwanICDF révoquée ni avoir été expulsé d’un établissement taïwanais', 'Not have had a TaiwanICDF award revoked or been expelled from a Taiwanese institution'],
+      ['Ne jamais s’être vu retirer une bourse par une agence publique taïwanaise ou une institution liée, ni avoir été expulsé d’une université taïwanaise', 'Never have had a scholarship revoked by any ROC (Taiwan) government agency or related institution, or been expelled from any Taiwanese university'],
     ],
     requirements: [
-      ['Formulaire TaiwanICDF signé', 'Signed TaiwanICDF application form'],
+      ['Candidature en ligne TaiwanICDF complète et exacte, déposée dans le système officiel', 'Complete and accurate TaiwanICDF online application submitted through the official system'],
       ['Passeport et diplôme/relevés du niveau précédent', 'Passport and previous qualification/transcripts'],
       ['Preuve d’admission ou candidature séparée à l’université partenaire', 'Separate partner-university admission proof or application'],
       ['Documents linguistiques et autres pièces du programme choisi', 'Language and other documents required by the selected programme'],
       ['Dépôt éventuel auprès de l’ambassade ou mission taïwanaise compétente', 'Possible submission through the responsible Taiwan embassy or mission'],
     ],
     steps: [
-      ['Vérifier le pays et le niveau', 'Check country and level', 'Comparer sa nationalité et le niveau visé à la liste TaiwanICDF 2027.', 'Compare nationality and target level with the TaiwanICDF 2027 list.'],
+      ['Vérifier le pays et le niveau', 'Check country and level', 'Comparer sa nationalité et le niveau visé à la liste TaiwanICDF publiée (édition 2026 en ligne ; liste 2027 à reconfirmer).', 'Compare nationality and target level with the published TaiwanICDF list (2026 edition online; 2027 list to be reconfirmed).'],
       ['Choisir un programme partenaire', 'Choose a partner programme', 'Sélectionner un seul cursus admissible et lire ses conditions universitaires.', 'Select one eligible programme and review its university requirements.'],
       ['Faire les deux candidatures', 'Complete both applications', 'Déposer le dossier TaiwanICDF et la candidature universitaire selon les instructions.', 'Submit both TaiwanICDF and university applications as instructed.'],
       ['Transmettre à la mission', 'Submit to the mission', 'Remettre les pièces à la représentation taïwanaise lorsqu’elle est l’intermédiaire désigné.', 'Provide documents to the Taiwan mission where it is the designated channel.'],
@@ -463,7 +464,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       cycle: 'https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505',
     },
     tags: ['bachelor', 'master', 'taiwan', 'icdf', 'future-cycle', 'fully-funded'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    checkedAt: '2026-09-29T15:02:15.000Z',
   }),
   record({
     id: 'open_doors_russia_2027',
@@ -471,15 +472,16 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     name: ['Open Doors Russie 2027', 'Open Doors Russian Scholarship 2027'],
     country: ['rus', 'Russie', 'Russia'],
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
-    fundingLabel: ['Frais de scolarité couverts ; vie et voyage non couverts', 'Tuition covered; living and travel costs excluded'],
+    fundingLabel: ['Frais de scolarité couverts et allocation mensuelle (montant variable selon l’université) ; voyage, logement et assurance non couverts', 'Tuition covered plus a monthly stipend (amount varies by university); travel, accommodation and insurance excluded'],
     fundingType: 'partially_funded',
-    deadlineLabel: ['Prochain cycle confirmé — inscriptions du 20 août au 1er novembre 2026', 'Confirmed next cycle — registration from 20 August to 1 November 2026'],
+    deadlineLabel: ['Ouvert — inscriptions du 20 août au 1er novembre 2026', 'Open — registration from 20 August to 1 November 2026'],
     description: [
       'Olympiade internationale gratuite et en ligne donnant accès, selon le classement, à des études sans frais dans des universités russes participantes.',
       'Free online international competition providing tuition-free access, according to ranking, to programmes at participating Russian universities.',
     ],
     advantages: [
       ['Frais de scolarité couverts pour les lauréats', 'Tuition covered for winners'],
+      ['Allocation mensuelle versée aux lauréats (montant variable selon l’université)', 'Monthly stipend for winners (amount varies by university)'],
       ['Année préparatoire de russe gratuite lorsque le cursus est en russe', 'Free Russian-language preparatory year when the programme is taught in Russian'],
       ['Candidature et étapes de sélection entièrement en ligne', 'Application and selection stages fully online'],
       ['Choix coordonné de domaines, programmes et universités', 'Coordinated choice of subject areas, programmes and universities'],
@@ -487,8 +489,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     ],
     eligibility: [
       ['Être citoyen étranger ou apatride', 'Be a foreign citizen or stateless person'],
-      ['Pour la Licence, avoir 16 à 23 ans et achever ou avoir achevé le secondaire requis', 'For Bachelor, be 16–23 and complete or have completed qualifying secondary education'],
-      ['Pour le Master, avoir 20 à 33 ans et achever ou avoir achevé une Licence', 'For Master, be 20–33 and complete or have completed a Bachelor degree'],
+      ['Pour la Licence, avoir 16 à 23 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé le secondaire requis', 'For Bachelor, be 16–23 on the registration opening date (20 August 2026) and complete or have completed qualifying secondary education'],
+      ['Pour le Master, avoir 20 à 33 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé une Licence', 'For Master, be 20–33 on the registration opening date (20 August 2026) and complete or have completed a Bachelor degree'],
       ['Ne pas déjà détenir un diplôme du niveau ou d’un niveau supérieur exclu par le règlement', 'Not already hold a degree at an excluded same or higher level'],
       ['Pouvoir participer en russe ou en anglais', 'Be able to participate in Russian or English'],
     ],
@@ -501,12 +503,12 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     steps: [
       ['S’inscrire', 'Register', 'Créer le compte dès l’ouverture et sélectionner le niveau et le domaine.', 'Create an account when registration opens and select level and subject area.'],
       ['Construire le portfolio', 'Build the portfolio', 'Ajouter les résultats, réalisations et justificatifs demandés.', 'Add results, achievements and requested evidence.'],
-      ['Passer les étapes', 'Complete the stages', 'Première étape jusqu’au 13 novembre 2026 (portfolio et test), puis seconde étape en ligne du 13 novembre au 21 décembre 2026.', 'First stage until 13 November 2026 (portfolio and test), then the online second stage from 13 November to 21 December 2026.'],
+      ['Passer les étapes', 'Complete the stages', 'Portfolio (test d’entrée, lettre de motivation, passeport, justificatifs) à déposer avant la clôture des inscriptions le 1er novembre 2026 ; résultats de la première étape le 13 novembre 2026, puis seconde étape en ligne du 13 novembre au 21 décembre 2026.', 'Submit the portfolio (entry test, motivation letter, passport, supporting documents) before registration closes on 1 November 2026; first-stage results on 13 November 2026, then the online second stage from 13 November to 21 December 2026.'],
       ['Choisir le programme', 'Choose a programme', 'Après classement, suivre la procédure de placement et d’inscription universitaire.', 'After ranking, follow programme placement and university enrolment.'],
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'forecast',
+      status: 'open',
       dateConfidence: 'confirmed',
       opensAt: '2026-08-20T00:00:00.000Z',
       closesAt: '2026-11-01T23:59:59.000Z',
@@ -519,7 +521,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       application: 'https://od.globaluni.ru/',
       cycle: 'https://od.globaluni.ru/',
     },
-    tags: ['bachelor', 'master', 'russia', 'olympiad', 'future-cycle', 'tuition'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    tags: ['bachelor', 'master', 'russia', 'olympiad', 'open', 'tuition'],
+    checkedAt: '2026-09-29T15:06:33.000Z',
   }),
 ];

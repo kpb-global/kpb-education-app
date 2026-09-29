@@ -113,14 +113,38 @@ describe('scholarships-catalog CLI', () => {
   });
 
   describe('decidePublication', () => {
-    // 25/08 et non plus 17/08 : le catalogue porte depuis le 24/08 une seconde
-    // vague de vérification (re-lecture aux sources des 10 fiches publiées), et
-    // une horloge antérieure placerait leur `verifiedAt` dans le futur — la
-    // porte les écartait toutes, 30 tombait à 20 et 10 à 0. Aucune clôture ne
-    // tombe entre les deux horloges (seule McCall clôt en août, le 19, et son
-    // exclusion ne vient plus de l'horloge : son cycle est `closed` depuis la
-    // correction du 20/08), donc les comptes attendus ne changent pas de sens.
-    const now = new Date('2026-08-25T18:00:00.000Z');
+    // 29/09 et non plus 25/08 : le catalogue porte depuis le 29/09 une vague de
+    // re-lecture aux sources de 33 fiches sur 34, et une horloge antérieure
+    // placerait leur `verifiedAt` dans le futur — la porte les écartait toutes.
+    // (Avancer cette horloge avec la vague la plus récente est le geste normal
+    // d'un lot de re-vérification : 17/08 → 25/08 → 29/09.)
+    const now = new Date('2026-09-29T16:00:00.000Z');
+
+    // Les fiches qu'AUCUNE horloge ne rend publiables : cycle clos ou suspendu.
+    // Schwarzman en fait partie depuis le 09/09/2026 (fenêtre 2027–2028 close).
+    const NEVER_PUBLISHABLE = [
+      'daad_helmut_schmidt_2027',
+      'mccall_macbain_2027',
+      'rhodes_southern_africa_2027',
+      'schwarzman_scholars_2027',
+      'uct_international_refugee_2027',
+    ];
+
+    // Les fiches dont la vérification a plus de 30 jours à [now] : la porte de
+    // qualité les écarte (« Tant que ces anomalies durent, `catalog:publish`
+    // écarte les fiches concernées »). Calculé ici par de l'arithmétique de dates
+    // et NON lu dans la porte — ce serait s'en servir pour se tester — et non
+    // épinglé sur un identifiant : ce n'est pas une propriété de la porte que
+    // telle fiche (aujourd'hui UP Mastercard, que seul un humain peut relire)
+    // soit périmée. Le jour où elle est relue, cette liste devient vide et le
+    // test reste vrai.
+    const staleIds = () =>
+      SCHOLARSHIP_CATALOG_V1.records
+        .filter(
+          (record) =>
+            now.getTime() - Date.parse(record.verifiedAt) > 30 * 24 * 60 * 60 * 1000,
+        )
+        .map((record) => record.scholarship.id);
 
     // POURQUOI CES CHIFFRES ONT CHANGÉ LE 20/08/2026 — 31 → 30 et 11 → 10.
     //
@@ -145,31 +169,43 @@ describe('scholarships-catalog CLI', () => {
     // La valeur numérique reste le critère : si quelqu'un annule la correction
     // de la porte de qualité, ce compte tombe à 25. « Les tests passent » ne
     // l'aurait pas montré.
-    it('publishes exactly the 30 eligible records of catalog 1.3.0', () => {
+    it('publishes exactly the eligible records of catalog 1.4.0', () => {
       const decisions = SCHOLARSHIP_CATALOG_V1.records.map((_, index) =>
         decidePublication(rowFromRecord(index), now, false),
       );
       const published = decisions.filter((item) => item.publish).map((i) => i.id);
 
-      expect(published).toHaveLength(30);
+      // 34 fiches, moins 5 cycles clos ou suspendus, moins celles qui attendent
+      // une relecture humaine.
+      expect(published).toHaveLength(29 - staleIds().length);
       expect(published).not.toContain('mccall_macbain_2027');
-      expect(decisions.filter((item) => !item.publish).map((i) => i.id).sort()).toEqual([
-        'daad_helmut_schmidt_2027',
-        'mccall_macbain_2027',
-        'rhodes_southern_africa_2027',
-        'uct_international_refugee_2027',
-      ]);
+      expect(decisions.filter((item) => !item.publish).map((i) => i.id).sort()).toEqual(
+        [...NEVER_PUBLISHABLE, ...staleIds()].sort(),
+      );
     });
 
-    // 12 et non plus 10 : la re-vérification du 24/08 a promu york_pise et
-    // jj_wbgsp en dates confirmées (leurs sources publient désormais le cycle
-    // 2027 ferme).
-    it('publishes only the 12 confirmed-date records under --confirmed-only', () => {
+    // Les dates confirmées : la re-vérification du 24/08 avait promu york_pise et
+    // jj_wbgsp ; celle du 29/09 promeut AUC (échéances d'admission Fall 2027
+    // désormais publiées) et retire Schwarzman (close). L'ensemble attendu est
+    // dérivé des DONNÉES — « publiable ET dates confirmées » —, pas d'un compte
+    // épinglé qui se déplace à chaque lot.
+    it('publishes only the confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(12);
+      const excluded = new Set([...NEVER_PUBLISHABLE, ...staleIds()]);
+      const expected = SCHOLARSHIP_CATALOG_V1.records
+        .filter(
+          (record) =>
+            record.cycle.dateConfidence === 'confirmed' &&
+            !excluded.has(record.scholarship.id),
+        )
+        .map((record) => record.scholarship.id)
+        .sort();
+
+      expect(published.map((item) => item.id).sort()).toEqual(expected);
+      expect(published.length).toBeGreaterThanOrEqual(10);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
       expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });

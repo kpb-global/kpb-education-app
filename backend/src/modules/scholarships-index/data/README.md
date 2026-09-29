@@ -24,7 +24,9 @@ npm run scholarships:import:dry-run
 npm run scholarships:import
 ```
 
-Catalog version `1.2.0` contains 25 distinct opportunities and meets every
+Catalog version `1.4.0` contains 34 distinct opportunities (re-read against
+their official sources on 2026-09-29, see
+`docs/catalog-verification-2026-09-29.md`) and meets every
 launch target: at least 25 unique records, 3 secondary, 12 Bachelor and 19
 Master matches (multi-level records count once in each applicable level). The
 validator checks the unique-record minimum separately, so one multi-level
@@ -38,6 +40,7 @@ The strict validator fails on a missing volume target or any record-level
 quality issue. The structure-only command remains the fast CI check, while the
 dry-run command verifies the exact import set without writing to the database.
 
-Imports are create-only: existing database ids are reported as skipped and are
-never updated. Imported records are inactive and pending moderation, so an
+`import` is create-only: existing database ids are reported as not updated and
+are never rewritten by it. Corrections reach existing rows through
+`catalog:reconcile` (see `docs/catalog-verification-sop.md`). Imported records are inactive and pending moderation, so an
 admin must review and publish them.

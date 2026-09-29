@@ -4,24 +4,26 @@ import type {
 } from './scholarship-catalog.types';
 
 /**
- * Date on which the three UWC national-route records below had all five of
+ * Dates on which the three UWC national-route records below had all five of
  * their official sources re-opened and read page by page (bf.uwc.org,
- * ke.uwc.org, tz.uwc.org and apply.uwc.org). It replaces the initial
- * 2026-07-16 review wave, which the validator's 30-day ceiling retires on
- * 15 August 2026.
+ * ke.uwc.org, tz.uwc.org and apply.uwc.org). The previous wave (24/08/2026) is
+ * retired by the validator's 30-day ceiling on 23 September 2026.
  *
  * `checkedAt` is passed explicitly to every source rather than defaulted, so a
  * later wave that re-reads only one committee's pages cannot silently claim a
  * fresh check for the other two.
  */
-// Re-vérification aux sources officielles du 24/08/2026, en deux temps :
-// bf.uwc.org et ke.uwc.org relues à 18:45 (dates confirmées), tz.uwc.org
-// relue à 19:15 — au navigateur, la page rendant 403 au fetch direct — le
-// nouveau cycle n'y est pas encore annoncé, le forecast tient. Chaque
-// constante porte l'heure de SA relecture : une seule affirmerait pour l'une
-// une lecture faite pour l'autre.
-const CHECKED_AT_UWC_2026_08_24 = '2026-08-24T18:45:00.000Z';
-const CHECKED_AT_UWC_TZ_2026_08_24 = '2026-08-24T19:15:00.000Z';
+// Re-vérification aux sources officielles du 29/09/2026, comité par comité :
+// chaque constante porte l'heure de SA relecture (fin de la lecture des cinq
+// sources de la fiche), pour qu'une seule n'affirme pas, pour un comité, une
+// lecture faite pour un autre. tz.uwc.org, qui rendait 403 au fetch direct le
+// 24/08, s'est chargée avec un User-Agent de navigateur ; elle affiche toujours
+// « Applications are currently closed » et seulement les dates du cycle
+// précédent : le forecast tient. Les preuves (citations, statuts HTTP) sont
+// consignées dans docs/catalog-verification-2026-09-29.md.
+const CHECKED_AT_UWC_BF_2026_09_29 = '2026-09-29T15:03:27.000Z';
+const CHECKED_AT_UWC_KE_2026_09_29 = '2026-09-29T15:04:13.000Z';
+const CHECKED_AT_UWC_TZ_2026_09_29 = '2026-09-29T15:04:37.000Z';
 const VERIFIED_BY = 'KPB Education official-source review';
 
 function officialSource(
@@ -102,7 +104,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'Références d’enseignants, mentors ou responsables communautaires',
         'Relevés scolaires et autres justificatifs demandés',
         'Autorisation signée du parent ou tuteur légal',
-        'Informations financières si la candidature est retenue pour une nomination',
+        'Informations financières demandées à tous les candidats, pour déterminer l’aide en cas de nomination',
       ],
       keyRequirementsEn: [
         'Online form with personal details, academic history, activities and motivations',
@@ -110,7 +112,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'References from teachers, mentors or community leaders',
         'Academic transcripts and other requested evidence',
         'Signed permission from a parent or legal guardian',
-        'Financial information if shortlisted for nomination',
+        'Financial information requested from all applicants, to determine aid if nominated',
       ],
       relatedFieldIds: [],
       baseMatch: 80,
@@ -161,9 +163,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Participer à la sélection',
         titleEn: 'Complete selection',
         descriptionFr:
-          'Si présélectionné, participer à l’entretien de panel lors des activités de sélection de février 2027, transmettre les informations financières demandées, puis attendre les décisions finales de mars 2027.',
+          'Si présélectionné, participer à l’entretien de panel lors des activités de sélection de février 2027, puis attendre les décisions finales de mars 2027. Les informations financières sont demandées à tous les candidats, pour déterminer l’aide en cas de nomination.',
         descriptionEn:
-          'If shortlisted, attend the panel interview during the February 2027 selection activities, provide the financial information requested, then await the final decisions in March 2027.',
+          'If shortlisted, attend the panel interview during the February 2027 selection activities, then await the final decisions in March 2027. Financial information is requested from all applicants, to determine aid if nominated.',
         estimatedDurationDays: 45,
       },
     ],
@@ -172,7 +174,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       // Statut « forecast » avec dates confirmées : le comité national publie
       // les dates exactes de l'entrée 2027, mais la fenêtre n'ouvre que le
       // 1er novembre 2026 et le site affiche « Applications are currently
-      // closed » au 10 août 2026.
+      // closed » (relu le 29/09/2026).
       status: 'forecast',
       dateConfidence: 'confirmed',
       opensAt: '2026-11-01T00:00:00.000Z',
@@ -184,34 +186,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://bf.uwc.org/',
         'UWC Burkina Faso — official home page',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_BF_2026_09_29,
       ),
       officialSource(
         'eligibility',
         'https://bf.uwc.org/eligibility-criteria/',
         'UWC Burkina Faso — official eligibility criteria',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_BF_2026_09_29,
       ),
       officialSource(
         'benefits',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official nomination and funding description',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_BF_2026_09_29,
       ),
       officialSource(
         'application',
         'https://apply.uwc.org/',
         'UWC official application platform',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_BF_2026_09_29,
       ),
       officialSource(
         'cycle',
         'https://bf.uwc.org/how-to-apply/',
         'UWC Burkina Faso — official 2027-entry application dates (1 Nov 2026 – 3 Jan 2027)',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_BF_2026_09_29,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_24,
+    verifiedAt: CHECKED_AT_UWC_BF_2026_09_29,
     verifiedBy: VERIFIED_BY,
   },
   {
@@ -230,8 +232,8 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       typeOfFundingEn: 'Full or partial aid depending on placement and financial need',
       fundingType: 'partially_funded',
       applicationRequirement: 'separate_application',
-      deadlineLabelFr: 'Ouvert — clôture le 31 décembre 2026',
-      deadlineLabelEn: 'Open — closes 31 December 2026',
+      deadlineLabelFr: 'Ouvert — dépôt des pièces du 1er au 31 décembre 2026',
+      deadlineLabelEn: 'Open — submit documents from 1 to 31 December 2026',
       descriptionFr:
         'Voie de sélection du comité national UWC Kenya pour une entrée en 2027 dans un établissement UWC. Une nomination peut être entièrement ou partiellement financée selon le besoin démontré.',
       descriptionEn:
@@ -251,7 +253,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'Être citoyen ou résident du Kenya, y compris avec une double nationalité',
         'Pour les résidents au Kenya, étudier et achever actuellement le secondaire dans le pays',
         'Les candidats résidant et étudiant hors du Kenya ne peuvent postuler que via le comité national UWC Kenya, sans utiliser en parallèle un autre canal de candidature',
-        'Atteindre d’ici décembre 2026 le niveau officiel correspondant à son cursus : 8-4-4 Form 4 ou CBC Grade 12 déjà obtenus, ou cursus en cours en IGCSE Year 11, American Grade 10, IB MYP 5, German Grade 10 ou équivalent homeschool',
+        'Atteindre d’ici décembre 2026 le niveau officiel correspondant à son cursus : 8-4-4 Form 4 ou CBE Grade 10 déjà achevés, ou cursus en cours en Cambridge IGCSE Year 11, Pearson Edexcel GCSE Year 11, American Grade 10, IB MYP 5, German School Grade 10 ou équivalent homeschool',
         'Démontrer les valeurs UWC, notamment intégrité, service, respect, responsabilité, ouverture interculturelle et action personnelle',
         'Avoir une base en anglais et la volonté de progresser ; la maîtrise courante n’est pas exigée à la candidature',
         'Ne déposer qu’une seule candidature UWC par année académique',
@@ -261,28 +263,30 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'Hold Kenyan citizenship or residency, including dual citizenship',
         'Kenyan residents must be studying and currently completing secondary school in Kenya',
         'Applicants residing and studying outside Kenya may apply through the UWC Kenya national committee only, and not concurrently through another application channel',
-        'Reach by December 2026 the published stage for the relevant curriculum: 8-4-4 Form 4 or CBC Grade 12 already graduated, or ongoing IGCSE Year 11, American Grade 10, IB MYP 5, German Grade 10 or homeschool equivalent',
+        'Reach by December 2026 the published stage for the relevant curriculum: 8-4-4 Form 4 or CBE Grade 10 already completed, or ongoing Cambridge IGCSE Year 11, Pearson Edexcel GCSE Year 11, American Grade 10, IB MYP 5, German School Grade 10 or homeschool equivalent',
         'Demonstrate UWC values including integrity, service, respect, responsibility, intercultural openness and personal action',
         'Have basic English and willingness to improve; fluency is not required when applying',
         'Submit only one UWC application per academic year',
       ],
       keyRequirementsFr: [
-        'Résumé officiel des notes 2025 et 2026, signé ou tamponné par l’établissement, une page maximum par année',
+        'Formulaire d’information du candidat (Applicant Information Form), à télécharger sur la page officielle',
+        'Relevés de notes / bulletins officiels sur papier à en-tête de l’établissement, pour 2025 et 2026, couvrant tous les semestres ou trimestres jusqu’au dernier de 2026',
         'Deux lettres de recommandation : une co-curriculaire et une académique',
         'Certificats de réussite, leadership ou distinctions pertinents, si disponibles',
         'Un seul fichier PDF regroupant les pièces demandées',
         'Présence physique à Nairobi pour la journée de sélection en cas de présélection',
         'Frais de journée d’entretien de 3 000 KES, avec exonération possible au cas par cas',
-        'Informations financières pour déterminer l’aide en cas de nomination',
+        'Informations financières demandées à tous les candidats, pour déterminer l’aide en cas de nomination',
       ],
       keyRequirementsEn: [
-        'Official signed or stamped one-page transcript summary for each of 2025 and 2026',
+        'Applicant Information Form, to be downloaded from the official page',
+        'Official transcripts / report cards on school letterhead for 2025 and 2026, covering all semesters or terms up to the last one of 2026',
         'Two recommendation letters: one co-curricular and one academic',
         'Relevant achievement, leadership or award certificates, if available',
         'One combined PDF containing the requested documents',
         'Physical attendance in Nairobi for selection day if shortlisted',
         'KES 3,000 interview-day fee, with case-by-case fee waivers',
-        'Financial information to determine aid if nominated',
+        'Financial information requested from all applicants, to determine aid if nominated',
       ],
       relatedFieldIds: [],
       baseMatch: 80,
@@ -306,9 +310,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Constituer le PDF',
         titleEn: 'Build the PDF file',
         descriptionFr:
-          'Obtenir les relevés résumés et les deux recommandations, ajouter les certificats éventuels, puis fusionner les pièces en un PDF.',
+          'Télécharger le formulaire d’information du candidat sur la page officielle, obtenir les relevés de notes officiels et les deux recommandations, ajouter les certificats éventuels, puis fusionner les documents demandés en un seul PDF.',
         descriptionEn:
-          'Obtain transcript summaries and both recommendations, add any certificates, then merge the documents into one PDF.',
+          'Download the Applicant Information Form from the official page, obtain the official transcripts and both recommendations, add any certificates, then merge the requested documents into one PDF.',
         estimatedDurationDays: 21,
       },
       {
@@ -326,9 +330,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Préparer la sélection à Nairobi',
         titleEn: 'Prepare for Nairobi selection',
         descriptionFr:
-          'En cas de présélection, préparer la journée d’entretiens de janvier 2027 à Nairobi : activités de groupe, entretien de panel, présentation éventuelle d’un projet personnel et évaluation financière. Les offres sont annoncées en février 2027.',
+          'En cas de présélection, préparer la journée d’entretiens de janvier 2027 à Nairobi : activités de groupe, entretien de panel et présentation éventuelle d’un projet personnel. Les offres sont annoncées en février 2027 ; les informations financières sont demandées à tous les candidats pour déterminer l’aide.',
         descriptionEn:
-          'If shortlisted, prepare for the January 2027 interview day in Nairobi: group activities, panel interview, a possible personal-project presentation and financial assessment. Offers are announced in February 2027.',
+          'If shortlisted, prepare for the January 2027 interview day in Nairobi: group activities, panel interview and a possible personal-project presentation. Offers are announced in February 2027; financial information is requested from all applicants to determine aid.',
         estimatedDurationDays: 31,
       },
     ],
@@ -345,34 +349,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://ke.uwc.org/',
         'UWC Kenya — official home page',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_KE_2026_09_29,
       ),
       officialSource(
         'eligibility',
         'https://ke.uwc.org/eligibility-criteria/',
         'UWC Kenya — official entry 2027 eligibility criteria',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_KE_2026_09_29,
       ),
       officialSource(
         'benefits',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official nomination and needs-based funding description',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_KE_2026_09_29,
       ),
       officialSource(
         'application',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — official application instructions',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_KE_2026_09_29,
       ),
       officialSource(
         'cycle',
         'https://ke.uwc.org/how-to-apply/',
         'UWC Kenya — confirmed entry 2027 application window (1 Jul – 31 Dec 2026)',
-        CHECKED_AT_UWC_2026_08_24,
+        CHECKED_AT_UWC_KE_2026_09_29,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_2026_08_24,
+    verifiedAt: CHECKED_AT_UWC_KE_2026_09_29,
     verifiedBy: VERIFIED_BY,
   },
   {
@@ -396,9 +400,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       deadlineLabelEn:
         'Applications closed — reopening estimated December 2026, closing estimated January 2027',
       descriptionFr:
-        'Sélection du comité national UWC Tanzanie pour un placement dans le réseau UWC. La nomination peut être entièrement ou partiellement financée après évaluation du besoin. Au 10 août 2026, le site officiel affiche « Applications are currently closed » et propose de s’inscrire pour être notifié de la réouverture : aucune date d’entrée 2027 n’est publiée. Les seules dates affichées restent celles du cycle précédent (8 décembre 2025 au 16 janvier 2026), d’où une fenêtre 2027 estimée au mois près.',
+        'Sélection du comité national UWC Tanzanie pour un placement dans le réseau UWC. La nomination peut être entièrement ou partiellement financée après évaluation du besoin. Au 29 septembre 2026, le site officiel affiche « Applications are currently closed » et propose de s’inscrire pour être notifié de la réouverture : aucune date d’entrée 2027 n’est publiée. Les seules dates affichées restent celles du cycle précédent (8 décembre 2025 au 16 janvier 2026), d’où une fenêtre 2027 estimée au mois près.',
       descriptionEn:
-        'Tanzania UWC national committee selection for a placement in the UWC network. A nomination may be fully or partially funded following a needs assessment. As of 10 August 2026 the official site states "Applications are currently closed" and offers a form to be notified when they reopen: no 2027-entry date is published. The only dates still shown are those of the previous cycle (8 December 2025 to 16 January 2026), so the 2027 window is estimated to the month only.',
+        'Tanzania UWC national committee selection for a placement in the UWC network. A nomination may be fully or partially funded following a needs assessment. As of 29 September 2026 the official site states "Applications are currently closed" and offers a form to be notified when they reopen: no 2027-entry date is published. The only dates still shown are those of the previous cycle (8 December 2025 to 16 January 2026), so the 2027 window is estimated to the month only.',
       advantagesFr: [
         'Placement dans un établissement du réseau international UWC',
         'Cursus résidentiel de deux ans préparant au Baccalauréat International',
@@ -522,34 +526,34 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'overview',
         'https://tz.uwc.org/',
         'Tanzania UWC National Committee — official home page (states applications are currently closed)',
-        CHECKED_AT_UWC_TZ_2026_08_24,
+        CHECKED_AT_UWC_TZ_2026_09_29,
       ),
       officialSource(
         'eligibility',
         'https://tz.uwc.org/eligibility-criteria/',
         'Tanzania UWC National Committee — official eligibility criteria',
-        CHECKED_AT_UWC_TZ_2026_08_24,
+        CHECKED_AT_UWC_TZ_2026_09_29,
       ),
       officialSource(
         'benefits',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — nomination and funding description',
-        CHECKED_AT_UWC_TZ_2026_08_24,
+        CHECKED_AT_UWC_TZ_2026_09_29,
       ),
       officialSource(
         'application',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — official application instructions',
-        CHECKED_AT_UWC_TZ_2026_08_24,
+        CHECKED_AT_UWC_TZ_2026_09_29,
       ),
       officialSource(
         'cycle',
         'https://tz.uwc.org/how-to-apply/',
         'Tanzania UWC National Committee — previous-cycle dates only (8 Dec 2025 – 16 Jan 2026); no 2027-entry dates published',
-        CHECKED_AT_UWC_TZ_2026_08_24,
+        CHECKED_AT_UWC_TZ_2026_09_29,
       ),
     ],
-    verifiedAt: CHECKED_AT_UWC_TZ_2026_08_24,
+    verifiedAt: CHECKED_AT_UWC_TZ_2026_09_29,
     verifiedBy: VERIFIED_BY,
   },
 ];

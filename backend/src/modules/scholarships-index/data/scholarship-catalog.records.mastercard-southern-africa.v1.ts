@@ -4,6 +4,12 @@ import { buildVerifiedScholarshipRecord as record } from './scholarship-catalog.
 /**
  * Mastercard Foundation Scholars Program and Southern-African university
  * routes, verified against the institutions' own sites on 10 August 2026.
+ * The Foundation and UCT records were re-read page by page on 29 September
+ * 2026. The UP record was NOT: www.up.ac.za answers every request from the
+ * verification environment with a Cloudflare block page (403), so its five
+ * pages must be re-read by a person in a browser — its `checkedAt` is left at
+ * the last reading it actually had (24/08/2026). See
+ * docs/catalog-verification-2026-09-29.md.
  *
  * Two caveats shared by the three records:
  *
@@ -88,7 +94,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['secondary', 'bachelor', 'master', 'africa', 'mastercard-foundation', 'partner-managed', 'no-central-deadline', 'fully-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 76,
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:05:05.000Z',
   }),
   record({
     id: 'uct_international_refugee_2027',
@@ -99,12 +105,12 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     fundingLabel: ['Complément partiel au coût des études', 'Partial contribution towards the cost of attendance'],
     fundingType: 'partially_funded',
     deadlineLabel: [
-      'Aucun appel 2027 publié — l’avis officiel en ligne indique que « l’appel à candidatures n’ouvrira pas » faute de financement ; la fenêtre affichée est une projection',
-      'No published 2027 call — the official online notice states the “call for applications will not open” due to funding constraints; the window shown is a projection',
+      'Aucun appel 2027 publié — l’avis officiel en ligne indique que « l’appel à candidatures pour 2026 n’ouvrira pas » faute de financement et n’annonce rien pour 2027 ; la fenêtre affichée est une projection : aucune date n’est publiée pour cet appel, et le 10 novembre 2026 est la clôture publiée d’une autre bourse UCT, réservée aux Sud-Africains et résidents permanents',
+      'No published 2027 call — the official online notice states the “call for applications for 2026 will not open” due to funding constraints and announces nothing for 2027; the window shown is a projection: no date is published for this call, and 10 November 2026 is the published closing date of another UCT bursary, reserved for South African citizens and permanent residents',
     ],
     description: [
-      'Nombre limité de bourses annuelles pour étudiants internationaux et réfugiés, en postgrade et dans toute discipline à UCT, avec un seul appel par an. Deux avertissements figurent noir sur blanc sur la page officielle : ces bourses sont un simple complément au coût des études, et le candidat doit déjà avoir les moyens de financer ses études. Au 10 août 2026 la page n’annonce toujours aucun appel : le dernier avis publié est que l’appel n’ouvrira pas faute de financement. À traiter comme une piste secondaire, derrière le NRF et les financements de département.',
-      'A limited number of scholarships is available annually to international and refugee students for postgraduate study in any discipline at UCT, with only one call each year. Two warnings appear plainly on the official page: these awards are merely supplementary as a contribution towards the cost of attendance, and applicants must already have the means to fund their studies. As of 10 August 2026 the page still announces no call: the latest published notice is that the call will not open due to funding constraints. Treat this as a secondary route, behind NRF and departmental funding.',
+      'Nombre limité de bourses annuelles pour étudiants internationaux et réfugiés, en postgrade et dans toute discipline à UCT, avec un seul appel par an. Deux avertissements figurent noir sur blanc sur la page officielle : ces bourses sont un simple complément au coût des études, et le candidat doit déjà avoir les moyens de financer ses études. Au 29 septembre 2026 la page n’annonce toujours aucun appel 2027 : le dernier avis publié est que l’appel 2026 n’ouvrira pas faute de financement. À traiter comme une piste secondaire, derrière le NRF et les financements de département.',
+      'A limited number of scholarships is available annually to international and refugee students for postgraduate study in any discipline at UCT, with only one call each year. Two warnings appear plainly on the official page: these awards are merely supplementary as a contribution towards the cost of attendance, and applicants must already have the means to fund their studies. As of 29 September 2026 the page still announces no 2027 call: the latest published notice is that the 2026 call will not open due to funding constraints. Treat this as a secondary route, behind NRF and departmental funding.',
     ],
     advantages: [
       ['Complément financier annuel vers le coût des études, attribué sur une base concurrentielle', 'Annual financial contribution towards the cost of attendance, awarded on a competitive basis'],
@@ -131,13 +137,17 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
       ['Un dossier complet déposé à la date exacte : les dossiers tardifs ou incomplets ne sont pas examinés', 'A complete file submitted by the exact closing date: late or incomplete applications are not considered'],
     ],
     steps: [
-      ['Vérifier l’état de l’appel', 'Check the state of the call', 'La page officielle porte encore l’avis selon lequel l’appel n’ouvrira pas faute de financement : ne rien préparer avant d’y voir un appel 2027 publié.', 'The official page still carries the notice that the call will not open due to funding constraints: prepare nothing until a published 2027 call appears there.'],
+      ['Vérifier l’état de l’appel', 'Check the state of the call', 'La page officielle porte encore l’avis selon lequel l’appel 2026 n’ouvrira pas faute de financement : ne rien préparer avant d’y voir un appel 2027 publié.', 'The official page still carries the notice that the 2026 call will not open due to funding constraints: prepare nothing until a published 2027 call appears there.'],
       ['Postuler à l’admission UCT', 'Apply for UCT admission', 'Déposer une candidature d’admission à temps plein : aucun comité de financement n’examine un dossier sans candidature d’admission, et le calendrier officiel des admissions clôt le postgrade au 30 septembre 2026 pour 2027.', 'Lodge a full-time admission application: no funding committee considers a file without one, and the official admissions calendar closes postgraduate applications on 30 September 2026 for 2027.'],
       ['Mobiliser le département et le PGFO', 'Engage the department and the PGFO', 'Contacter le chef de département et un superviseur pour les financements liés à un projet, puis le Postgraduate Funding Office et son tableau d’affichage.', 'Contact the head of department and a prospective supervisor about project-linked funding, then the Postgraduate Funding Office and its noticeboard.'],
       ['Viser d’abord les alternatives datées', 'Target the dated alternatives first', 'Le NRF ferme normalement en juin/juillet pour le Master et en octobre pour l’Honours, et la plupart des financements UCT avant la mi-novembre, échéance habituelle du 10 novembre.', 'The NRF normally closes in June/July for Master’s and in October for Honours, and most UCT awards before mid-November, the usual deadline being 10 November.'],
     ],
     cycle: {
       academicYear: '2027-2028',
+      // Aucune date n'est publiée pour cet appel (relu le 29/09/2026) : les bornes
+      // ci-dessous sont une PROJECTION exigée par le validateur pour un cycle
+      // estimé, et le libellé le dit. Le 10 novembre 2026 est la clôture d'une
+      // autre bourse UCT (Sud-Africains et résidents permanents).
       status: 'suspended',
       dateConfidence: 'estimated',
       estimatedOpenAt: '2026-09-01T00:00:00.000Z',
@@ -154,7 +164,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['master', 'south-africa', 'uct', 'international-students', 'refugees', 'no-published-call', 'partially-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 70,
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T15:08:11.000Z',
   }),
   record({
     id: 'up_mastercard_scholars_2027',
