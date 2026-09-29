@@ -2,7 +2,6 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
-  IsEmail,
   IsEnum,
   IsInt,
   IsOptional,
@@ -17,8 +16,17 @@ export class UpdateProfileDto {
   @IsString()
   fullName?: string;
 
+  // Accepté puis IGNORÉ : l'email du profil est l'identité d'authentification
+  // (Supabase), `updateMe` ne l'écrit jamais. Il était validé `@IsEmail()`,
+  // or les apps déjà publiées envoient `email: ''` (profil créé par « Passer »
+  // l'onboarding) ou ce que l'étudiant a tapé à la main (« x@gmail ») : le
+  // PATCH entier partait en 400, l'app gardait le patch en attente et sautait
+  // indéfiniment le rapatriement du profil serveur — l'email restait vide,
+  // « Email » restait dans les manques à 100 %, et plus aucune modification
+  // du profil n'atteignait le serveur. Un champ ignoré ne doit pas pouvoir
+  // faire échouer la requête.
   @IsOptional()
-  @IsEmail()
+  @IsString()
   email?: string;
 
   @IsOptional()

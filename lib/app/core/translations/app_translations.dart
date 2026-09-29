@@ -1702,6 +1702,8 @@ class AppTranslations extends Translations {
           'profile_field_full_name': 'Nom complet',
           'required': 'Requis',
           'profile_field_phone': 'Téléphone',
+          'profile_field_email_helper':
+              'Email de connexion à votre compte — il ne se modifie pas ici.',
           'profile_field_country_of_residence': 'Pays de résidence',
           'profile_field_current_study_level': 'Niveau d\'études actuel',
           'profile_field_bac_series': 'Série du bac',
@@ -4756,6 +4758,8 @@ class AppTranslations extends Translations {
           'profile_field_full_name': 'Full name',
           'required': 'Required',
           'profile_field_phone': 'Phone',
+          'profile_field_email_helper':
+              'The email you sign in with — it can\'t be changed here.',
           'profile_field_country_of_residence': 'Country of residence',
           'profile_field_current_study_level': 'Current study level',
           'profile_field_bac_series': 'Baccalaureate track',

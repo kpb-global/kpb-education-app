@@ -9,6 +9,7 @@ import '../../core/config/app_config.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/i18n/app_locale.dart';
 import '../../core/navigation/app_boot_screen.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/models/app_models.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/currency_utils.dart';
@@ -1817,6 +1818,13 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   late TextEditingController _phoneCtrl;
   late TextEditingController _whatsappCtrl;
   late TextEditingController _countryCtrl;
+  // Email du compte, en LECTURE SEULE. La carte de complétion le réclame, mais
+  // cette feuille n'avait aucun champ email : quiconque avait un profil local
+  // sans email (créé par « Passer » l'onboarding) voyait « Email » dans ses
+  // manques sans pouvoir rien y faire. Ce n'est pas un champ modifiable :
+  // c'est l'identité de connexion, que le serveur n'écrit jamais via le PATCH.
+  // On l'affiche, et on recopie celui de la session si le profil l'a perdu.
+  late TextEditingController _emailCtrl;
   String? _currentLevel;
   String? _bacSeries;
   // ── Les quatre champs qui n'étaient réglables qu'à l'inscription ─────────
@@ -1851,6 +1859,9 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     _phoneCtrl = TextEditingController(text: p.phone);
     _whatsappCtrl = TextEditingController(text: p.whatsApp);
     _countryCtrl = TextEditingController(text: p.countryOfResidence);
+    _emailCtrl = TextEditingController(
+      text: p.email.trim().isNotEmpty ? p.email : _sessionEmail() ?? '',
+    );
     // Normalise legacy/raw levels ("L1", "M1"…) to a canonical label so the
     // dropdown selects the right item instead of resetting to null.
     _currentLevel = normalizeStudentLevel(p.currentLevel)?.labelFr;
@@ -1883,8 +1894,13 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
     _phoneCtrl.dispose();
     _whatsappCtrl.dispose();
     _countryCtrl.dispose();
+    _emailCtrl.dispose();
     super.dispose();
   }
+
+  static String? _sessionEmail() => Get.isRegistered<AuthService>()
+      ? Get.find<AuthService>().sessionEmail
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -1934,6 +1950,16 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
                     (v == null || v.trim().isEmpty) ? 'required'.tr : null,
               ),
               const SizedBox(height: 16),
+              if (_emailCtrl.text.isNotEmpty) ...[
+                _EditField(
+                  label: 'email'.tr,
+                  controller: _emailCtrl,
+                  icon: Icons.mail_outline_rounded,
+                  readOnly: true,
+                  helperText: 'profile_field_email_helper'.tr,
+                ),
+                const SizedBox(height: 16),
+              ],
               _EditField(
                 label: 'profile_field_phone'.tr,
                 controller: _phoneCtrl,
@@ -2195,6 +2221,7 @@ class _ProfileEditSheetState extends State<_ProfileEditSheet> {
 
     final updated = widget.controller.profile!.copyWith(
       fullName: _nameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       whatsApp: _whatsappCtrl.text.trim(),
       countryOfResidence: _countryCtrl.text.trim(),
@@ -2254,6 +2281,8 @@ class _EditField extends StatelessWidget {
     required this.icon,
     this.keyboardType,
     this.validator,
+    this.readOnly = false,
+    this.helperText,
   });
 
   final String label;
@@ -2261,6 +2290,8 @@ class _EditField extends StatelessWidget {
   final IconData icon;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final bool readOnly;
+  final String? helperText;
 
   @override
   Widget build(BuildContext context) {
@@ -2268,8 +2299,12 @@ class _EditField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
+      readOnly: readOnly,
+      style: readOnly ? const TextStyle(color: KpbColors.textMuted) : null,
       decoration: InputDecoration(
         labelText: label,
+        helperText: helperText,
+        helperMaxLines: 2,
         prefixIcon: Icon(icon, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

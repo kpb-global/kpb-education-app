@@ -619,7 +619,7 @@ abstract class _AppControllerBase extends GetxController {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       accountType: AccountType.student,
       fullName: '',
-      email: '',
+      email: _sessionEmail ?? '',
       phone: '',
       whatsApp: '',
       countryOfResidence: '',
@@ -629,6 +629,11 @@ abstract class _AppControllerBase extends GetxController {
     update();
     Get.offAllNamed(AppRoutes.home);
   }
+
+  /// Email du compte connecté (Supabase), ou `null` hors session.
+  String? get _sessionEmail => Get.isRegistered<AuthService>()
+      ? Get.find<AuthService>().sessionEmail
+      : null;
 
   bool get needsProfileCompletionBanner =>
       onboardingSkipped || (profile?.completionScore ?? 0) < 0.5;
@@ -2023,7 +2028,12 @@ abstract class _AppControllerBase extends GetxController {
   Map<String, dynamic> _userProfilePayload(UserProfile profile) {
     return <String, dynamic>{
       'fullName': profile.fullName,
-      'email': profile.email,
+      // Pas d'`email` : c'est l'identité d'authentification, le serveur ne
+      // l'écrit jamais. L'envoyer ne servait à rien et, validé `@IsEmail()`
+      // côté serveur, un email vide (profil créé par « Passer ») ou mal tapé
+      // faisait échouer le PATCH ENTIER en 400 — le patch restait en attente
+      // et `syncRemoteData` sautait à jamais le rapatriement du profil, donc
+      // l'email du compte n'était jamais restauré.
       'phone': profile.phone,
       'whatsApp': profile.whatsApp,
       'countryOfResidence': profile.countryOfResidence,
