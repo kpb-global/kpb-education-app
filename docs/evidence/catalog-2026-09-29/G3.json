@@ -1,0 +1,861 @@
+{
+ "group": "G3",
+ "records": [
+  {
+   "id": "brunei_government_scholarship_2027_forecast",
+   "readAtUtc": "2026-09-29T15:04:12.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "read": true,
+     "title": "online-bdgs",
+     "note": "Même URL que les quatre autres kinds ; page lue en entier (curl + extraction HTML)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "read": true,
+     "title": "online-bdgs",
+     "note": "Même URL que les quatre autres kinds ; page lue en entier (curl + extraction HTML)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "read": true,
+     "title": "online-bdgs",
+     "note": "Même URL que les quatre autres kinds ; page lue en entier (curl + extraction HTML)."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "read": true,
+     "title": "online-bdgs",
+     "note": "Même URL que les quatre autres kinds ; page lue en entier (curl + extraction HTML)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.mfa.gov.bn/pages/online-bdgs.aspx",
+     "read": true,
+     "title": "online-bdgs",
+     "note": "Page SharePoint lue en HTML statique (texte complet). Contenu = appel BDGS 2026/2027 (ouverture 15 décembre 2025, clôture 15 février 2026) ; aucune mention de la session 2027/2028. Bandeau d’actualités daté du 28 septembre 2026, donc page bien à jour au 29/09/2026."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : frais de scolarité, d’admission, d’examen, d’inscription et d’orientation exonérés pour la durée du programme",
+     "sourceKind": "benefits",
+     "quote": "exemption from paying tuition fees including acceptance, examination, registration and orientation fees for the duration of the programme"
+    },
+    {
+     "claim": "Financement : vols en classe économique à l’arrivée (et au départ en fin de bourse)",
+     "sourceKind": "benefits",
+     "quote": "an economy class air-ticket to Brunei Darussalam from the scholarship recipient's country of origin/ country of domicile"
+    },
+    {
+     "claim": "Financement : allocation personnelle 500 BND/mois, repas 150 BND/mois, livres 600 BND/an",
+     "sourceKind": "benefits",
+     "quote": "a monthly personal allowance of BND$500.00; a monthly meals allowance of BND$150.00; an annual book allowance of BND$600.00"
+    },
+    {
+     "claim": "Financement : résidence, assurance complète et allocation bagages",
+     "sourceKind": "benefits",
+     "quote": "accommodation at the residential college of the University/ Polytechnic"
+    },
+    {
+     "claim": "Financement : assurance complète pendant toute la bourse",
+     "sourceKind": "benefits",
+     "quote": "comprehensive insurance cover for the whole duration of the Scholarship"
+    },
+    {
+     "claim": "Financement : allocation bagages au retour (250 BND ASEAN / 500 BND hors ASEAN)",
+     "sourceKind": "benefits",
+     "quote": "baggage allowance for shipment of the scholarship recipient's personal effects to his country of origin/country of domicile upon completion of the programme"
+    },
+    {
+     "claim": "Niveaux : Diplôme, Licence et Master accessibles",
+     "sourceKind": "overview",
+     "quote": "pursue studies at the Diploma, Undergraduate Degree and Postgraduate Master's Degree level"
+    },
+    {
+     "claim": "Éligibilité : limites d’âge 25 ans (premier cycle) et 35 ans (Master)",
+     "sourceKind": "eligibility",
+     "quote": "Not exceed the age of 25, for Undergraduate and Diploma programmes, and the age of 35, for Postgraduate Master's Degree programmes"
+    },
+    {
+     "claim": "Éligibilité : date de référence de l’âge = 1er juillet de l’année de début du programme",
+     "sourceKind": "eligibility",
+     "quote": "on the first day of July on the year when the course/programme starts"
+    },
+    {
+     "claim": "Éligibilité : anglais GCE O Level crédit 6 ou IGCSE C",
+     "sourceKind": "eligibility",
+     "quote": "Be proficient in English with a Credit 6 at GCE ‘O’ Level Examination or a Grade ‘C” in IGCSE English"
+    },
+    {
+     "claim": "Éligibilité : anglais IELTS 6.0 ou TOEFL 550",
+     "sourceKind": "eligibility",
+     "quote": "an IELTS score of 6.0 or a TOEFL minimum score of 550"
+    },
+    {
+     "claim": "Éligibilité : étudiants internationaux venant pour la première fois",
+     "sourceKind": "eligibility",
+     "quote": "The Scholarship is intended primarily for international students studying for the first time in Brunei Darussalam."
+    },
+    {
+     "claim": "Éligibilité : exclusion des Brunéiens, résidents permanents et anciens étudiants de l’enseignement supérieur brunéien",
+     "sourceKind": "eligibility",
+     "quote": "Bruneians, Brunei Permanent Residents and international students studying/who have studied in Brunei tertiary institutions are NOT eligible."
+    },
+    {
+     "claim": "Pièces : diplômes, certificats et relevés certifiés conformes",
+     "sourceKind": "application",
+     "quote": "Certified true copies of academic qualifications and other supporting documents (i.e. certificates, testimonials, transcripts)."
+    },
+    {
+     "claim": "Pièces : traductions anglaises certifiées",
+     "sourceKind": "application",
+     "quote": "Certified English translations of supporting documents must be submitted for documents that are not in English."
+    },
+    {
+     "claim": "Pièces : acte de naissance et passeport certifiés",
+     "sourceKind": "application",
+     "quote": "Certified true copies of Birth Certificate and Passport."
+    },
+    {
+     "claim": "Pièces : deux références (C1 et C2)",
+     "sourceKind": "application",
+     "quote": "References and recommendations from referees. (C1 and C2)"
+    },
+    {
+     "claim": "Démarche : candidature via le formulaire en ligne indiqué sur la page",
+     "sourceKind": "application",
+     "quote": "To apply, please fill in the online Application Form at the following link – BDGS Application Form."
+    },
+    {
+     "claim": "Démarche : candidature universitaire séparée pour l’UBD",
+     "sourceKind": "application",
+     "quote": "Applicants applying to Universiti Brunei Darussalam (UBD) must also complete an online application"
+    },
+    {
+     "claim": "Démarche : candidature universitaire séparée pour l’UTB",
+     "sourceKind": "application",
+     "quote": "Applicants applying to Universiti Teknologi Brunei (UTB) must also complete an online application"
+    },
+    {
+     "claim": "Sélection : entretien et examen écrit éventuels",
+     "sourceKind": "application",
+     "quote": "An applicant may be required to appear for an interview at such place(s) as may be determined by the institutions offering the programmes"
+    },
+    {
+     "claim": "Calendrier : cycle précédent (2026/2027) ouvert le 15 décembre 2025, base de l’estimation 15 décembre 2026",
+     "sourceKind": "cycle",
+     "quote": "for the academic session 2026 / 2027 will open on 15 December 2025"
+    },
+    {
+     "claim": "Calendrier : cycle précédent clos le 15 février 2026, base de l’estimation 15 février 2027",
+     "sourceKind": "cycle",
+     "quote": "The closing date for application of the Scholarship is 15 February 2026."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "levelLabel / levels",
+     "recordSays": "Licence et Master (bachelor, master)",
+     "pageSays": "La page inclut aussi le niveau Diploma (diplôme). Omission, pas une contradiction : aucune correction proposée.",
+     "quote": "pursue studies at the Diploma, Undergraduate Degree and Postgraduate Master's Degree level",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Dates exactes de la session 2027/2028 (ouverture ~15 décembre 2026, clôture ~15 février 2027)",
+     "reason": "page silencieuse : seule la session 2026/2027 est annoncée ; la fiche reste correctement forecast + estimated"
+    },
+    {
+     "claim": "Libellé « Financement complet » (fullyFunded)",
+     "reason": "la page liste les prestations (scolarité, vols, allocations, logement, assurance) sans employer l’expression « fully funded » ; caractérisation cohérente mais non écrite telle quelle"
+    }
+   ]
+  },
+  {
+   "id": "kazakhstan_foreign_students_2027_forecast",
+   "readAtUtc": "2026-09-29T15:04:57.000Z",
+   "verdict": "not_fully_verifiable",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://oq.gov.kz/en/b-ship",
+     "httpStatus": 200,
+     "finalUrl": "https://oq.gov.kz/en/b-ship",
+     "read": true,
+     "title": "Scholarship ProgramОтандастар қоры",
+     "note": "Page générale du programme sur le site de la fondation Otandastar ; lue en entier. Donne prestations, couverture et procédure générale ; ne contient pas les dates de l’appel."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://oq.gov.kz/en/news/1504",
+     "httpStatus": 200,
+     "finalUrl": "https://oq.gov.kz/en/news/1504",
+     "read": true,
+     "title": "Отандастар қоры / Otandastar Qory / Фонд ОтандастарScholarship Program for Studying at Universities in Kazakhstan",
+     "note": "Communiqué daté du 31 mai 2026 : appel 2026 (30 mars – 31 mai 2026, 23 h 59 heure d’Astana), quotas 490/50/10, pièces et seuils Licence/Master/Doctorat. Aucune mention de 2027."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://oq.gov.kz/en/b-ship",
+     "httpStatus": 200,
+     "finalUrl": "https://oq.gov.kz/en/b-ship",
+     "read": true,
+     "title": "Scholarship ProgramОтандастар қоры",
+     "note": "Même URL que overview ; section « Scholarship COVERS / DOES NOT COVER » lue."
+    },
+    {
+     "kind": "application",
+     "url": "https://studyin.kz/admission",
+     "httpStatus": 200,
+     "finalUrl": "https://studyin.kz/admission",
+     "read": false,
+     "title": "Studyin",
+     "note": "JavaScript seul : HTTP 200 mais coquille React vide (<div id=\"root\">, « You need to enable JavaScript »). Le bundle main.bb2d379d.js a été téléchargé et inspecté : interface générique d’admission (UNT, subventions nationales), aucun texte exploitable sur la bourse pour étrangers. Le communiqué news/1504 cite bien cette URL comme lien de candidature, mais le contenu du portail n’a pas pu être lu."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://oq.gov.kz/en/news/1504",
+     "httpStatus": 200,
+     "finalUrl": "https://oq.gov.kz/en/news/1504",
+     "read": true,
+     "title": "Отандастар қоры / Otandastar Qory / Фонд ОтандастарScholarship Program for Studying at Universities in Kazakhstan",
+     "note": "Même URL que eligibility ; dates du cycle précédent lues (voir confirmed)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : frais de scolarité intégralement couverts",
+     "sourceKind": "benefits",
+     "quote": "full cost of tuition fees"
+    },
+    {
+     "claim": "Financement : allocation mensuelle selon les résultats académiques",
+     "sourceKind": "benefits",
+     "quote": "monthly allowance, depending on the academic progress"
+    },
+    {
+     "claim": "Non couvert : voyage, logement, visa et assurance",
+     "sourceKind": "benefits",
+     "quote": "travel cost; – accommodation expences; – visa, medical insurance expences."
+    },
+    {
+     "claim": "Éligibilité : citoyens étrangers, y compris Kazakhs ethniques sans citoyenneté kazakhe",
+     "sourceKind": "overview",
+     "quote": "Foreign citizen, including a person of Kazakh nationality who is not citizen of the Republic of Kazakhstan"
+    },
+    {
+     "claim": "Éligibilité : niveau d’études poursuivi pour la première fois",
+     "sourceKind": "eligibility",
+     "quote": "The applicant is eligible for the scholarship if each education level is pursued for the first time"
+    },
+    {
+     "claim": "Éligibilité Licence : secondaire achevé avec appréciation au moins « bonne »",
+     "sourceKind": "eligibility",
+     "quote": "the average score of the document confirming secondary education with a grade of at least \"good\""
+    },
+    {
+     "claim": "Éligibilité Master : diplôme précédent avec moyenne d’au moins 3,0/4,0 (appel 2026)",
+     "sourceKind": "eligibility",
+     "quote": "The document should be from an educational institution with a GPA of at least 3.0 (out of 4.0) or its equivalent"
+    },
+    {
+     "claim": "Langue Master : seuil IELTS Academic 5,5",
+     "sourceKind": "eligibility",
+     "quote": "IELTS Academic (International English Language Testing System Academic) threshold score - at least 5.5"
+    },
+    {
+     "claim": "Langue Master : seuil TOEFL iBT 46",
+     "sourceKind": "eligibility",
+     "quote": "TOEFL IBT (Test of English as a Foreign Language Internet-based test), threshold score - at least 46"
+    },
+    {
+     "claim": "Langue Master : DELF/DALF niveau B2",
+     "sourceKind": "eligibility",
+     "quote": "DELF (Diplome d'Etudes en Langue française) - level B2, DALF (Diplome Approfondi de Langue française) - level B2"
+    },
+    {
+     "claim": "Langue Master : TestDaF niveau B2",
+     "sourceKind": "eligibility",
+     "quote": "TestDaF-Prufung (Niveau B2/level B2)"
+    },
+    {
+     "claim": "Langue Master : HSK niveau 4",
+     "sourceKind": "eligibility",
+     "quote": "For proficiency in the Chinese language HSK – Hanyu Shuiping Kaushi, at least level 4"
+    },
+    {
+     "claim": "Langue Master : certificat non requis si les études précédentes étaient dans la langue du programme",
+     "sourceKind": "eligibility",
+     "quote": "An international language proficiency certificate is not required if your previous education was in the program's language."
+    },
+    {
+     "claim": "Pièces : pièce d’identité",
+     "sourceKind": "eligibility",
+     "quote": "Identity document (including a refugee certificate)"
+    },
+    {
+     "claim": "Pièces Licence : une lettre de recommandation",
+     "sourceKind": "eligibility",
+     "quote": "One letter of recommendation in Kazakh or Russian or English from the educational organization in which the applicant studied, or from the employer"
+    },
+    {
+     "claim": "Pièces Master : deux lettres de recommandation",
+     "sourceKind": "eligibility",
+     "quote": "Two letters of recommendation in Kazakh, Russian, or English from the educational institution where you studied or from your employer"
+    },
+    {
+     "claim": "Pièces : lettre de motivation",
+     "sourceKind": "eligibility",
+     "quote": "Motivational essay in Kazakh or Russian or English"
+    },
+    {
+     "claim": "Pièces : formulaire de candidature",
+     "sourceKind": "eligibility",
+     "quote": "application form; - click to download"
+    },
+    {
+     "claim": "Pièces : certificat médical incluant l’absence de VIH/SIDA",
+     "sourceKind": "eligibility",
+     "quote": "a health certificate on the absence of human immunodeficiency virus (HIV-infection) and AIDS disease"
+    },
+    {
+     "claim": "Démarche : liste des universités et domaines disponible sur le portail Study In pendant la candidature",
+     "sourceKind": "eligibility",
+     "quote": "The list of universities participating in the scholarship program, as well as the available fields of study, is available on the Study In portal"
+    },
+    {
+     "claim": "Démarche : sélection sur dossier, test en ligne d’aptitude et entretien",
+     "sourceKind": "overview",
+     "quote": "The selection of applicants is carried out on the basis of the submitted documents and the results of online testing"
+    },
+    {
+     "claim": "Programme : opérateur JSC « Center for International Programs »",
+     "sourceKind": "eligibility",
+     "quote": "The operator of the Scholarship Program is JSC \"Center for International Programs\"."
+    },
+    {
+     "claim": "Programme : 490 places en Licence, 50 en Master (2026)",
+     "sourceKind": "eligibility",
+     "quote": "Bachelor's degree – 490 2. Master's degree – 50"
+    },
+    {
+     "claim": "Calendrier : cycle 2026, du 30 mars au 31 mai 2026 jusqu’à 23 h 59 heure d’Astana, lien studyin.kz/admission (base de l’estimation 2027)",
+     "sourceKind": "cycle",
+     "quote": "Applicants can apply online from 30 March to 31 May 2026 until 23:59 Astana time at the following link: https://studyin.kz/admission."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "eligibility[2] (Master : moyenne minimale)",
+     "recordSays": "moyenne d’au moins 3,0/4,0 « selon l’appel 2026 »",
+     "pageSays": "La page générale (overview) indique 2,33/4 ; le communiqué de l’appel 2026 (news/1504) indique 3,0/4,0. La fiche suit l’appel 2026 et l’attribue à celui-ci : pas d’erreur, mais les deux pages officielles divergent. Idem pour le nombre de lettres de recommandation en Master (une sur overview, deux dans l’appel 2026). Aucune correction proposée.",
+     "quote": "having diploma of bachelor or specialist with at least 2.33 (out of 4) GPA or its equivalent in educational institutions.",
+     "sourceKind": "overview",
+     "severity": "minor"
+    },
+    {
+     "field": "steps[2] / sources.application (portail de candidature)",
+     "recordSays": "Candidater sur Study in Kazakhstan (studyin.kz/admission)",
+     "pageSays": "La page générale (overview) renvoie encore vers l’ancien portail enic-kazakhstan.edu.kz ; l’appel 2026 (news/1504) cite studyin.kz/admission. La fiche suit l’appel 2026, plus récent. Aucune correction proposée.",
+     "quote": "LINK TO SUBMIT DOCUMENTS: https://enic-kazakhstan.edu.kz/en/fellowship_programme/universities",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Contenu du portail de candidature https://studyin.kz/admission (sources.application)",
+     "reason": "JavaScript seul : coquille React vide, aucun texte servi ; source non lue, d’où le verdict not_fully_verifiable"
+    },
+    {
+     "claim": "Dates 2027 (30 mars – 31 mai 2027, 23 h 59 Astana)",
+     "reason": "page silencieuse : seules les dates 2026 sont publiées ; la fiche reste correctement forecast + estimated. La recherche restreinte à oq.gov.kz / studyin.kz / bolashak.gov.kz ne montre aucun appel 2027"
+    },
+    {
+     "claim": "« Frais de scolarité couverts pendant la durée officielle » (advantages[0])",
+     "reason": "la page dit « full cost of tuition fees » sans préciser la durée officielle des études"
+    },
+    {
+     "claim": "Pièce d’identité « valide » (eligibility[4])",
+     "reason": "la page dit « Identity document (including a refugee certificate) » sans mentionner la validité"
+    },
+    {
+     "claim": "Heure d’ouverture estimée (estimatedOpenAt 2027-03-30T00:00:00.000Z)",
+     "reason": "la page 2026 donne la date d’ouverture (30 mars) sans heure ; seule la clôture est horodatée (23 h 59 heure d’Astana = 18 h 59 UTC, cohérent avec estimatedCloseAt)"
+    }
+   ]
+  },
+  {
+   "id": "heydar_aliyev_grant_2027_forecast",
+   "readAtUtc": "2026-09-29T15:05:58.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://studyinazerbaijan.edu.az/financial-support",
+     "httpStatus": 200,
+     "finalUrl": "https://studyinazerbaijan.edu.az/financial-support",
+     "read": true,
+     "title": "Study in Azerbaijan - Discover Your Future in Azerbaijan",
+     "note": "Page rendue côté serveur (Next.js), texte complet lu : programme 2026-2027, 100 bourses par an, pays éligibles, niveaux, prestations. Les pages /news et /news/8 du même site (consultées en complément) ne montrent aucun appel 2027-2028 : dernier communiqué « 2026-2027 » du 11 février 2026."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "read": true,
+     "title": "2026-2027 — CALL FOR NOMINATIONS, Scholarship Program for Foreigners funded by the Government of Azerbaijan (PDF 10 pages ; métadonnée « PowerPoint Presentation »)",
+     "note": "PDF téléchargé (894 049 octets, 10 pages) et texte extrait avec PyMuPDF ; appel 2026-2027 (dépôt 16 février – 15 avril 2026, SIACAS 1er–10 juin 2026). Aucune mention de 2027-2028."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "read": true,
+     "title": "2026-2027 — CALL FOR NOMINATIONS, Scholarship Program for Foreigners funded by the Government of Azerbaijan (PDF 10 pages ; métadonnée « PowerPoint Presentation »)",
+     "note": "PDF téléchargé (894 049 octets, 10 pages) et texte extrait avec PyMuPDF ; appel 2026-2027 (dépôt 16 février – 15 avril 2026, SIACAS 1er–10 juin 2026). Aucune mention de 2027-2028."
+    },
+    {
+     "kind": "application",
+     "url": "https://studyinazerbaijan.edu.az/financial-support",
+     "httpStatus": 200,
+     "finalUrl": "https://studyinazerbaijan.edu.az/financial-support",
+     "read": true,
+     "title": "Study in Azerbaijan - Discover Your Future in Azerbaijan",
+     "note": "Même URL que overview. La section « Application and Selection Process » renvoie vers /heydar-aliyev-international-education-grant-program, qui ne fait qu’intégrer le même PDF (balise <object data=\"/H.Aliyev_IEG_CALL_18.04.pdf\">) : les détails de la démarche sont donc dans le PDF, lu."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://studyinazerbaijan.edu.az/H.Aliyev_IEG_CALL_18.04.pdf",
+     "read": true,
+     "title": "2026-2027 — CALL FOR NOMINATIONS, Scholarship Program for Foreigners funded by the Government of Azerbaijan (PDF 10 pages ; métadonnée « PowerPoint Presentation »)",
+     "note": "PDF téléchargé (894 049 octets, 10 pages) et texte extrait avec PyMuPDF ; appel 2026-2027 (dépôt 16 février – 15 avril 2026, SIACAS 1er–10 juin 2026). Aucune mention de 2027-2028."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Programme : 100 bourses par an",
+     "sourceKind": "overview",
+     "quote": "100 educational grants will be provided annually."
+    },
+    {
+     "claim": "Programme : institué par décret présidentiel le 8 juillet 2023",
+     "sourceKind": "eligibility",
+     "quote": "established by the decree of H.E. Ilham Aliyev, the President of the Republic of Azerbaijan on 8 July 2023"
+    },
+    {
+     "claim": "Programme : attribué annuellement pendant cinq ans",
+     "sourceKind": "eligibility",
+     "quote": "will be offered on an annual basis for a period of 5 years"
+    },
+    {
+     "claim": "Financement : frais de scolarité et cours préparatoires de langue",
+     "sourceKind": "benefits",
+     "quote": "Tuition fee and language preparatory courses (in accordance with the language of instruction) for the study period"
+    },
+    {
+     "claim": "Financement : billet aller-retour économique vers Bakou une fois par an",
+     "sourceKind": "benefits",
+     "quote": "An international economy class flight ticket to Baku, Azerbaijan (from the country of origin)"
+    },
+    {
+     "claim": "Financement : allocation de 800 AZN par mois pendant dix mois, hors juillet et août",
+     "sourceKind": "benefits",
+     "quote": "Monthly allowance of 800 AZN (470 USD)* for accommodation, daily expenses, educational materials (10 months each year, except July and August)."
+    },
+    {
+     "claim": "Financement : allocation médicale de 200 AZN par an",
+     "sourceKind": "benefits",
+     "quote": "Yearly allowance of 200 AZN (117 USD)* for the medical care and medication during the study period in the Republic of Azerbaijan."
+    },
+    {
+     "claim": "Financement : visa à entrée simple et permis de séjour temporaire pour chaque année académique",
+     "sourceKind": "benefits",
+     "quote": "A single entry visa to the Republic of Azerbaijan, as well as, a temporary residence permit for the stay in the country"
+    },
+    {
+     "claim": "Éligibilité : pays OCI, Mouvement des non-alignés, petits États insulaires, pays liés culturellement/historiquement",
+     "sourceKind": "overview",
+     "quote": "Member states of the Organization of Islamic Cooperation"
+    },
+    {
+     "claim": "Éligibilité : exclusion des citoyens et anciens citoyens azerbaïdjanais",
+     "sourceKind": "eligibility",
+     "quote": "Citizens of the Republic of Azerbaijan or individuals whose citizenship in the Republic of Azerbaijan have been terminated will not be considered for a Scholarship;"
+    },
+    {
+     "claim": "Éligibilité : âge Licence < 35 ans au 15 septembre",
+     "sourceKind": "eligibility",
+     "quote": "Undergraduate and general medicine programs – foreign nationals below 35 years as of 15.09.2026;"
+    },
+    {
+     "claim": "Éligibilité : âge Master < 40 ans au 15 septembre",
+     "sourceKind": "eligibility",
+     "quote": "Graduate and medical residency programs – foreign nationals below 40 years as of 15.09.2026;"
+    },
+    {
+     "claim": "Éligibilité : moyenne minimale 70/100 (ou 7/10) au dernier diplôme",
+     "sourceKind": "eligibility",
+     "quote": "must not be less than 70 (on a scale of 0 to 100 or 7 on a scale of 10 or equivalent)"
+    },
+    {
+     "claim": "Éligibilité : IELTS 5 en Licence",
+     "sourceKind": "eligibility",
+     "quote": "for undergraduate programs minimum IELTS 5 (TOEFL 40);"
+    },
+    {
+     "claim": "Éligibilité : IELTS 5,5 en Master",
+     "sourceKind": "eligibility",
+     "quote": "for postgraduate programs minimum IELTS 5.5 (TOEFL 50);"
+    },
+    {
+     "claim": "Éligibilité : filière russe, preuve de langue ou scolarité antérieure dans la langue",
+     "sourceKind": "eligibility",
+     "quote": "Applicants willing to study in Russian - proof of language proficiency or the language of study of the previous education must be Russian;"
+    },
+    {
+     "claim": "Pièces : formulaire de nomination pour la première étape",
+     "sourceKind": "eligibility",
+     "quote": "Completed nomination form (for the first stage of application process);"
+    },
+    {
+     "claim": "Pièces : diplômes et relevés",
+     "sourceKind": "eligibility",
+     "quote": "Copy of Diplomas and Transcripts from prior High School or Higher Education Institution;"
+    },
+    {
+     "claim": "Pièces : CV",
+     "sourceKind": "eligibility",
+     "quote": "CV or Resume;"
+    },
+    {
+     "claim": "Pièces : lettre de motivation",
+     "sourceKind": "eligibility",
+     "quote": "Motivation letter;"
+    },
+    {
+     "claim": "Pièces : certificat médical incluant VIH/SIDA et hépatites B/C, de moins de trois mois",
+     "sourceKind": "eligibility",
+     "quote": "The medical certificate has to be dated no more than 3 (three) months before the submission of application"
+    },
+    {
+     "claim": "Pièces : documents notariés dans l’une des quatre langues (azéri, turc, anglais, russe)",
+     "sourceKind": "eligibility",
+     "quote": "Documents must be in one of the following languages: Azerbaijani, Turkish, English and Russian languages and have to be notarized;"
+    },
+    {
+     "claim": "Pièces : traduction notariée en anglais pour les autres langues",
+     "sourceKind": "eligibility",
+     "quote": "Documents in a language other than those indicated above must be accompanied by a notarized translation into English;"
+    },
+    {
+     "claim": "Démarche : la page « application » renvoie vers les détails de la procédure, calendrier et pièces",
+     "sourceKind": "application",
+     "quote": "To see the details of the application process, required documents, selection criteria, and key deadlines, please click here."
+    },
+    {
+     "claim": "Démarche : première étape auprès des autorités gouvernementales du pays (nomination), 16 février – 15 avril 2026",
+     "sourceKind": "cycle",
+     "quote": "From Feb 16 to April 15, 2026"
+    },
+    {
+     "claim": "Calendrier : dernière date de dépôt le 15 avril 2026 à 18 h heure de Bakou",
+     "sourceKind": "cycle",
+     "quote": "The last date of the submission is April 15, 2026 at 6 PM Baku time."
+    },
+    {
+     "claim": "Démarche : seconde étape sur SIACAS (portal.edu.az) du 1er au 10 juin 2026",
+     "sourceKind": "cycle",
+     "quote": "apply through Study in Azerbaijan Centralized Admission Service (SIACAS) website (portal.edu.az) from June 1 to June 10, 2026"
+    },
+    {
+     "claim": "Démarche : trois spécialités dans des établissements différents",
+     "sourceKind": "cycle",
+     "quote": "Candidates can choose 3 (three) specialties at different higher educational institutions of the Republic of Azerbaijan in the appropriate channel."
+    },
+    {
+     "claim": "Calendrier : rentrée universitaire du 15 septembre (date de référence de l’âge)",
+     "sourceKind": "cycle",
+     "quote": "Start of academic year** September 15, 2026"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "levelLabel / levels",
+     "recordSays": "Licence et Master (bachelor, master)",
+     "pageSays": "Le programme couvre aussi les cours préparatoires, la médecine générale, la résidence médicale et le doctorat (PhD). Omission de périmètre, pas une contradiction : aucune correction proposée.",
+     "quote": "Bachelor’s Program General medicine Program Master’s Program Medical Residency Program Doctoral (PhD) Program",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Dates 2027-2028 (nomination ~16 février – 15 avril 2027 à 18 h Bakou ; SIACAS 1er–10 juin 2027)",
+     "reason": "page silencieuse : seul l’appel 2026-2027 est publié (PDF et /news, dernier communiqué du 11 février 2026) ; la fiche reste correctement forecast + estimated"
+    },
+    {
+     "claim": "Filière anglaise : « ou prouver une scolarité antérieure dans la langue du cursus » (eligibility[4])",
+     "reason": "pour l’anglais, le PDF liste les scores IELTS/TOEFL puis, en puce séparée sans « or », « the language of study of the previous education must be English » ; l’alternative est explicite seulement pour le russe et le turc"
+    },
+    {
+     "claim": "« permis de séjour temporaire renouvelé chaque année universitaire » (advantages[4])",
+     "reason": "le PDF dit « temporary residence permit … for the period of each academic year » ; « renouvelé » est une paraphrase non littérale (sens cohérent)"
+    }
+   ]
+  },
+  {
+   "id": "qatar_university_international_2027_forecast",
+   "readAtUtc": "2026-09-29T15:06:40.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "read": true,
+     "title": "Scholarships Types",
+     "note": "Page SharePoint lue en HTML statique (texte complet, 8 types de bourses). Section « International Students Scholarship » utilisée pour la fiche."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "read": true,
+     "title": "Scholarships Types",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/types.aspx",
+     "read": true,
+     "title": "Scholarships Types",
+     "note": "Même URL que overview ; tableau « Scholarship Details / Benefits » de l’International Students Scholarship lu."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.qu.edu.qa/en-us/students/admission/undergraduate/apply",
+     "httpStatus": 200,
+     "finalUrl": "https://www.qu.edu.qa/en-us/students/admission/undergraduate/apply",
+     "read": true,
+     "title": "Apply to QU",
+     "note": "Page « Apply to QU » (licence) lue en entier : compte en ligne, photo, passeport, frais de 200 QR, envoi de la copie certifiée du relevé."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/scholarships-timeline.aspx",
+     "httpStatus": 200,
+     "finalUrl": "https://www.qu.edu.qa/en-us/students/admission/scholarships/Pages/scholarships-timeline.aspx",
+     "read": true,
+     "title": "Scholarship Timeline",
+     "note": "Page lue en entier : ne publie que le calendrier « Fall 2026 semester » (1er au 25 mars 2026 pour les internationaux) ; aucune mention de l’automne 2027. La page /undergraduate/Pages/application-timeline.aspx (consultée en complément) est identique : Fall 2026 seulement."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : exonération des frais de scolarité et de manuels, 500 QR par mois",
+     "sourceKind": "benefits",
+     "quote": "Exemption from tuition fees Exemption from textbook fees 500 QR monthly salary"
+    },
+    {
+     "claim": "Financement : logement universitaire à deux par chambre avec transport vers le campus",
+     "sourceKind": "benefits",
+     "quote": "Student housing (two students per room) including transportation to/from campus."
+    },
+    {
+     "claim": "Financement : billet aller-retour annuel et permis de résidence sous parrainage QU",
+     "sourceKind": "benefits",
+     "quote": "Annual round trip air fare ticket Residence permit under QU sponsorship"
+    },
+    {
+     "claim": "Éligibilité : étudiants internationaux candidats en programmes de licence",
+     "sourceKind": "eligibility",
+     "quote": "International students who apply for undergraduate programs."
+    },
+    {
+     "claim": "Éligibilité : exclusion des transferts, visiteurs, non diplômants et seconde licence",
+     "sourceKind": "eligibility",
+     "quote": "visiting students, non-degree applicants and applicants seeking a second bachelor's degree are not eligible for academic scholarships"
+    },
+    {
+     "claim": "Éligibilité : certificat de fin d’études secondaires ou équivalent",
+     "sourceKind": "eligibility",
+     "quote": "The applicant must have a high school certificate or its equivalent."
+    },
+    {
+     "claim": "Éligibilité : au moins 95 % au secondaire",
+     "sourceKind": "eligibility",
+     "quote": "A minimum high school average of 95%."
+    },
+    {
+     "claim": "Éligibilité : admission finale à l’université",
+     "sourceKind": "eligibility",
+     "quote": "Applicant must receive the final acceptance in the university."
+    },
+    {
+     "claim": "Éligibilité : critères d’admission du collège choisi",
+     "sourceKind": "eligibility",
+     "quote": "The applicant must meet the admission requirements for the college that they applied to."
+    },
+    {
+     "claim": "Éligibilité : pas de cumul avec une autre bourse ou un autre parrainage",
+     "sourceKind": "eligibility",
+     "quote": "Applicant should not get benefit from this scholarship and another sponsorship/scholarship simultaneously."
+    },
+    {
+     "claim": "Maintien : moyenne cumulative 3,0/4,0",
+     "sourceKind": "eligibility",
+     "quote": "The student must maintain a minimum cumulative GPA of 3.0 out of 4.0."
+    },
+    {
+     "claim": "Maintien : 12 heures de crédit par semestre",
+     "sourceKind": "eligibility",
+     "quote": "The student must successfully complete a minimum of 12 hours per semester."
+    },
+    {
+     "claim": "Pièces : aucune pièce supplémentaire hors dossier d’admission",
+     "sourceKind": "eligibility",
+     "quote": "Applicants for this scholarship are not required to submit any documents except the documents required for admission."
+    },
+    {
+     "claim": "Pièces : tests standardisés (IELTS/TOEFL, SAT/ACT/QU Math Placer) éventuellement pris en compte par le comité",
+     "sourceKind": "eligibility",
+     "quote": "the scholarship committee may consider the applicant’s standard test scores in English (IELTS or TOEFL) and in Mathematics (SAT, ACT, QU Math Placer)"
+    },
+    {
+     "claim": "Démarche : demande d’admission en ligne obligatoire pour tous les candidats de licence",
+     "sourceKind": "application",
+     "quote": "All undergraduate applicants to Qatar University are required to apply to their intended college of study using the QU online admission application."
+    },
+    {
+     "claim": "Pièces : photo format passeport et copie du passeport pour les non-Qataris",
+     "sourceKind": "application",
+     "quote": "Upload a digital copy of your passport-size photo and a valid Qatar ID card (and a copy of the passport for non-Qataris)"
+    },
+    {
+     "claim": "Pièces : frais de candidature de 200 QR, non remboursables",
+     "sourceKind": "application",
+     "quote": "Pay the application fee (QR 200) through the online admission application."
+    },
+    {
+     "claim": "Pièces : frais payés en ligne, non remboursables",
+     "sourceKind": "application",
+     "quote": "The fee is paid electronically and is non-refundable."
+    },
+    {
+     "claim": "Pièces : copie certifiée conforme du relevé de notes du secondaire",
+     "sourceKind": "application",
+     "quote": "Submit an attested true copy of the high school transcript"
+    },
+    {
+     "claim": "Pièces : originaux après admission",
+     "sourceKind": "application",
+     "quote": "The student must submit the original documents upon acceptance to the University."
+    },
+    {
+     "claim": "Démarche : la bourse se demande dans la section « Scholarship Application » de la candidature en ligne",
+     "sourceKind": "eligibility",
+     "quote": "may apply to this scholarship through the online admission application in the “Scholarship Application” section during the announced application period."
+    },
+    {
+     "claim": "Démarche : lettre d’acceptation conditionnelle initiale aux étudiants retenus",
+     "sourceKind": "eligibility",
+     "quote": "An initial conditional acceptance letter will be sent to the nominated students."
+    },
+    {
+     "claim": "Démarche : après la décision, l’université fait les demandes de visa",
+     "sourceKind": "eligibility",
+     "quote": "After receiving admission decision in the university, the university will apply for visas and the students will be notified accordingly."
+    },
+    {
+     "claim": "Calendrier : catégorie « nouveaux étudiants internationaux de licence candidatant depuis l’extérieur du Qatar »",
+     "sourceKind": "cycle",
+     "quote": "New international undergraduate students applying to QU from outside Qatar"
+    },
+    {
+     "claim": "Calendrier : ouverture de la candidature à la bourse internationale le 1er mars 2026 (base de l’estimation)",
+     "sourceKind": "cycle",
+     "quote": "March 1, 2026 1. Start online application for these Scholarships"
+    },
+    {
+     "claim": "Calendrier : clôture le 25 mars 2026 pour la bourse des étudiants internationaux (base de l’estimation)",
+     "sourceKind": "cycle",
+     "quote": "Last day for online application for International Students Scholarship through the online admission application"
+    },
+    {
+     "claim": "Calendrier : la page ne publie que le semestre d’automne 2026",
+     "sourceKind": "cycle",
+     "quote": "Timeline to apply for scholarship in Fall 2026 semester"
+    },
+    {
+     "claim": "Calendrier : date de décision de la bourse internationale non fixée",
+     "sourceKind": "cycle",
+     "quote": "TBD Announce International scholarship decisions"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "requirements[1] (passeport / carte qatarie)",
+     "recordSays": "Photo format passeport et copie du passeport (ou carte qatarie pour les Qataris)",
+     "pageSays": "La page cite « a valid Qatar ID card (and a copy of the passport for non-Qataris) ». La formulation est ambiguë pour un candidat hors du Qatar ; la paraphrase de la fiche est une lecture plausible, non contredite. Aucune correction proposée.",
+     "quote": "Upload a digital copy of your passport-size photo and a valid Qatar ID card (and a copy of the passport for non-Qataris)",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "requirements[2] (relevé de notes)",
+     "recordSays": "Copie certifiée conforme du relevé de notes du secondaire ; originaux après admission",
+     "pageSays": "La page « types » dit que les internationaux doivent envoyer « the original high school transcript » pendant la période de candidature, alors que la page « Apply to QU » demande une copie certifiée et les originaux à l’acceptation. La fiche suit la page « Apply to QU ». Divergence interne entre pages officielles ; aucune correction proposée.",
+     "quote": "International students must submit the original high school transcript and required documents during the application period",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Calendrier 2027 (automne 2027) : « L’université n’a pas encore publié son calendrier 2027 »",
+     "reason": "page silencieuse : absence de tout calendrier 2027 constatée sur scholarships-timeline.aspx et application-timeline.aspx (seul Fall 2026 est publié) ; la fiche reste correctement forecast + estimated"
+    },
+    {
+     "claim": "Heure de clôture estimée (estimatedCloseAt 2027-03-25T23:59:59Z)",
+     "reason": "la page 2026 donne la date du 25 mars sans heure ni fuseau ; l’horodatage de la fiche est une hypothèse"
+    },
+    {
+     "claim": "Statut « premier diplôme de Licence » (eligibility[0])",
+     "reason": "la page exclut la seconde licence, les transferts, visiteurs et non-diplômants, ce qui implique un premier diplôme, mais n’emploie pas l’expression « first Bachelor degree »"
+    }
+   ]
+  }
+ ]
+}

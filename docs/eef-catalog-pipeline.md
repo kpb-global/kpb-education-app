@@ -268,15 +268,20 @@ lignes en place : sur une base neuve « rien » et « pas de filtre » donnent t
 deux zéro, et sur une base semée la liste n'est jamais vide.
 
 **La liste contient les établissements ACTIFS du pays, partenaires compris**
-(ESSEC, OMNES…), pas seulement ceux de l'import. Ce qui garde aujourd'hui leurs
-formations hors de l'espace, ce sont les autres clauses — `procedureType IS NOT
-NULL` pour la recherche, `cycle IN (…)` pour la shortlist — que ces formations
-(procédure « non qualifiée ») ne remplissent pas. Il reste donc **trois
-définitions de « EEF »** : l'exclusion se fait par préfixe, l'inclusion par
-procédure et par cycle. Si l'exploitation qualifie un jour une formation
-partenaire, elle entrera dans l'espace ET restera dans le catalogue général.
-C'est une décision de produit à prendre en connaissance de cause, pas un défaut
-d'aujourd'hui.
+(ESSEC, OMNES…), pas seulement ceux de l'import. Ce n'est pas elle qui garde
+leurs formations hors de l'espace : c'est la **provenance**, posée dans la
+recherche comme dans la shortlist (`eefProgramWhere`, la clause dont
+`notEefProgram` est le contraire). Il n'y a donc qu'**une définition de
+« EEF »**, dans les deux sens : le catalogue général exclut les lignes de
+l'import, cet espace ne sert QUE ces lignes. Avant, l'exclusion se faisait par
+préfixe et l'inclusion par `procedureType` / `cycle` : le jour où l'exploitation
+aurait qualifié une formation partenaire, elle serait entrée dans l'espace ET
+restée dans le catalogue général. Prouvé sur une base réelle : une formation
+partenaire active, dotée d'une procédure, d'un cycle et d'une modalité, sous un
+établissement partenaire présent dans la liste des publiés, n'est ni cherchée ni
+recommandée — et reste servie par `/catalog/programs`. `procedureType IS NOT
+NULL` subsiste comme garde-fou de données (une ligne de l'import sans procédure
+n'est pas servie), plus comme définition.
 
 ### La file de revérification
 

@@ -1,0 +1,859 @@
+{
+ "group": "G2",
+ "records": [
+  {
+   "id": "turkiye_scholarships_2027_forecast",
+   "readAtUtc": "2026-09-29T15:03:44.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/fulltimeprograms",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/fulltimeprograms",
+     "read": true,
+     "title": "Türkiye Scholarships",
+     "note": "Page Full-Time Scholarships lue en entier (HTML rendu côté serveur). Elle donne la bourse mensuelle (6.500 / 9.500 / 13.000 TL) et la fenêtre annuelle du 10 janvier au 20 février."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "httpStatus": 200,
+     "finalUrl": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "read": true,
+     "title": "Türkiye Scholarships | Criteria & Scholarship Programs",
+     "note": "Critères de candidature (notes minimales, âges, groupes éligibles et exclus) lus en entier."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "read": true,
+     "title": "Türkiye Scholarships | Why Türkiye Scholarships?",
+     "note": "Avantages, montants de la bourse, logement et 12 choix lus en entier."
+    },
+    {
+     "kind": "application",
+     "url": "https://tbbs.turkiyeburslari.gov.tr/",
+     "httpStatus": 200,
+     "finalUrl": "https://tbbs.turkiyeburslari.gov.tr/",
+     "read": true,
+     "title": "Türkiye Bursları Sisteme Giriş Ekranı",
+     "note": "Simple écran de connexion / inscription TBBS : il confirme l’inscription gratuite mais ne détaille ni les pièces ni les étapes. Les pièces et l’évaluation ont été recoupées avec https://www.turkiyeburslari.gov.tr/applysteps et https://www.turkiyeburslari.gov.tr/evaluationandselectionprocess (même site officiel, hors des cinq URLs de la fiche), signalées par le champ url des citations."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.turkiyeburslari.gov.tr/calendar",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/calendar",
+     "read": true,
+     "title": "Türkiye Scholarships | Application Calendar",
+     "note": "Calendrier générique sans année : période générale du 10 janvier au 20 février, évaluation mars-avril, entretiens avril-juin, résultats début août. Aucun appel 2027 publié ; l’annonce de l’appel 2026 (12/29/2025) est la plus récente du site."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Frais de scolarité pris en charge",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "Covers tuition fees."
+    },
+    {
+     "claim": "Placement dans une université et un programme, avec jusqu’à 12 choix",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "Candidates are given the opportunity to select between 12 choices in online applications through the Türkiye Scholarships Application System (TBBS)."
+    },
+    {
+     "claim": "Résidence universitaire en Licence",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "Students who are awarded scholarships at the undergraduate level can stay in dormitories for the duration of their studies."
+    },
+    {
+     "claim": "En Master, un an de résidence puis allocation logement de 5 000 à 6 000 TL",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "a housing allowance of 6.000 TL for students studying in Istanbul and Ankara and 5.000 TL for those studying in other cities"
+    },
+    {
+     "claim": "Cours de turc pendant un an",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "Allows you to learn the language of the country by studying a 1-year Turkish language course."
+    },
+    {
+     "claim": "Billet d’avion unique et assurance santé",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/whyturkiyescholarships",
+     "quote": "Türkiye Scholarships also cover the health insurance of all our international students"
+    },
+    {
+     "claim": "Ressortissant de n’importe quel pays, hors citoyens turcs ou anciens citoyens turcs",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "Turkish citizens and individuals who have lost Turkish citizenship"
+    },
+    {
+     "claim": "Notes minimales 70 % (Licence), 75 % (Master), 90 % (médecine, dentaire, pharmacie)",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "For candidates of Health Sciences (Medicine, Dentistry and Pharmacy): 90%"
+    },
+    {
+     "claim": "Moins de 21 ans en Licence, moins de 30 ans en Master",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "For master’s programs: being under the age of 30"
+    },
+    {
+     "claim": "Diplômé ou en dernière année, diplôme obtenu avant août",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "Graduates or those who will graduate at the end of the current academic year (before August)"
+    },
+    {
+     "claim": "Ne pas être déjà inscrit en Turquie au même niveau d’études",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "Individuals who are currently enrolled in programs in Turkish universities at the level of education will apply."
+    },
+    {
+     "claim": "Inscription TBBS gratuite",
+     "sourceKind": "application",
+     "url": "https://tbbs.turkiyeburslari.gov.tr/",
+     "quote": "Signing up is free of charge and will take approximately 2 minutes."
+    },
+    {
+     "claim": "Pièces : identité/passeport, photo récente, résultats d’examens nationaux si existants, diplôme ou attestation provisoire, relevés",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/applysteps",
+     "quote": "Diploma or temporary graduation certificate"
+    },
+    {
+     "claim": "Projet de recherche uniquement pour les candidatures doctorales",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/applysteps",
+     "quote": "A proposal for a research topic and a written example of the research you have carried out (only for PhD applications)"
+    },
+    {
+     "claim": "Sélection des universités et programmes proposés dans le système",
+     "sourceKind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/fulltimeprograms",
+     "quote": "Candidates can only choose from the universities and departments offered to them in the system."
+    },
+    {
+     "claim": "Évaluation puis entretiens éventuels",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/evaluationandselectionprocess",
+     "quote": "Candidates selected from more than 100 countries in the final list are evaluated by interview committees consisting of academics and experts."
+    },
+    {
+     "claim": "Fenêtre annuelle de candidature du 10 janvier au 20 février (Licence)",
+     "sourceKind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/fulltimeprograms",
+     "quote": "are received between 10 January and 20 February, which is the application period every year"
+    },
+    {
+     "claim": "Calendrier officiel : période générale du 10 janvier au 20 février",
+     "sourceKind": "cycle",
+     "url": "https://www.turkiyeburslari.gov.tr/calendar",
+     "quote": "January 10 – February 20"
+    },
+    {
+     "claim": "Base de l’estimation : l’appel 2026 a couru du 10 janvier au 20 février 2026",
+     "sourceKind": "cycle",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/turkiye-scholarships-2026-applications-121",
+     "quote": "applications will be open between 10th January- 20th February 2026 for international students from all countries."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "advantages[4] (allocation mensuelle)",
+     "recordSays": "Allocation mensuelle officielle : 4 500 TL en Licence et 6 500 TL en Master",
+     "pageSays": "6.500 TL en Licence (et Associate), 9.500 TL en Master, 13.000 TL en Doctorat",
+     "quote": "Monthly Stipend Undergraduate : 6.500 TL, Master’s: 9.500 TL, PhD: 13.000 TL",
+     "sourceKind": "overview",
+     "severity": "blocking"
+    },
+    {
+     "field": "advantages[4] (allocation mensuelle) — deuxième source concordante",
+     "recordSays": "4 500 TL (Licence) / 6 500 TL (Master)",
+     "pageSays": "6.500 TL (Licence) / 9.500 TL (Master) / 13.000 TL (Doctorat)",
+     "quote": "A monthly stipend of 6.500 TL at undergraduate level, 9.500 TL at master’s level, and 13.000 TL at doctorate level",
+     "sourceKind": "benefits",
+     "severity": "blocking"
+    },
+    {
+     "field": "eligibility[1] (nuance, sans correction imposée)",
+     "recordSays": "90 % pour médecine, dentaire et pharmacie (critère général)",
+     "pageSays": "Le volet Master ne décerne pas de bourse en sciences de la santé ; le seuil de 90 % reste correct sur la page des critères",
+     "quote": "Türkiye Scholarships does not award scholarships in the field of health sciences.",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "advantages[4]",
+     "newFr": "Allocation mensuelle officielle : 6 500 TL en Licence et 9 500 TL en Master",
+     "newEn": "Published monthly stipend: TRY 6,500 for Bachelor and TRY 9,500 for Master",
+     "justificationQuote": "Monthly Stipend Undergraduate : 6.500 TL, Master’s: 9.500 TL, PhD: 13.000 TL"
+    }
+   ],
+   "cycleAssessment": {
+    "statusAt2026-09-29": "forecast + estimated : inchangé",
+    "why": "Aucune page ne publie de dates 2027. Le calendrier officiel est générique (sans année) et l’appel 2026 (annoncé le 12/29/2025, soit 12 jours avant l’ouverture) a couru du 10 janvier au 20 février 2026. Estimation 2027 du 10 janvier au 20 février conservée, avec mention « à reconfirmer ».",
+    "checkedAtAdvice": "checkedAt peut être repoussé à readAtUtc pour cette fiche une fois la correction de l’allocation appliquée."
+   },
+   "unverified": [
+    {
+     "claim": "Étapes 2 et 3 (compléter le profil : parcours, résultats, activités ; choisir les programmes) dans le détail",
+     "reason": "l’écran TBBS est une simple page de connexion ; le détail du formulaire n’est visible qu’après authentification"
+    },
+    {
+     "claim": "Résultats d’examens internationaux ou de langue « lorsque le programme les exige »",
+     "reason": "confirmé uniquement sur /applysteps (hors des cinq URLs) ; les cinq pages de la fiche sont silencieuses"
+    }
+   ]
+  },
+  {
+   "id": "turkiye_isdb_joint_2027_forecast",
+   "readAtUtc": "2026-09-29T15:03:44.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "read": true,
+     "title": "Türkiye Scholarships (annonce « YTB – Islamic Development Bank (ISDB) Joint Scholarship Program 2026 Applicaiton Period », 1/29/2026)",
+     "note": "Annonce courte de l’appel 2026 ; c’est la seule page des quatre URLs partagées. Elle ne mentionne ni critères d’âge/notes, ni pièces, ni le remboursement du prêt."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "read": true,
+     "title": "Türkiye Scholarships (même annonce 2026)",
+     "note": "Même URL que overview : seule la phrase sur les pays membres de la BID et les communautés musulmanes concerne l’éligibilité ; les critères d’âge, de notes et de diplomation ne sont pas sur cette page."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "read": true,
+     "title": "Türkiye Scholarships (même annonce 2026)",
+     "note": "Liste des prestations lue ; la page ne dit rien du caractère remboursable du financement en Licence. Ce point vient de https://www.turkiyeburslari.gov.tr/partneredprograms (même site officiel, hors des cinq URLs) et de l’annonce 2025 https://www.turkiyeburslari.gov.tr/announcements/ytbisdb-joint-scholarship-program-2025-applications-116."
+    },
+    {
+     "kind": "application",
+     "url": "https://tbbs.turkiyeburslari.gov.tr/",
+     "httpStatus": 200,
+     "finalUrl": "https://tbbs.turkiyeburslari.gov.tr/",
+     "read": true,
+     "title": "Türkiye Bursları Sisteme Giriş Ekranı",
+     "note": "Écran de connexion / inscription TBBS seulement (inscription gratuite). Pièces exigées recoupées avec https://www.turkiyeburslari.gov.tr/applysteps (hors des cinq URLs)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "httpStatus": 200,
+     "finalUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "read": true,
+     "title": "Türkiye Scholarships (même annonce 2026)",
+     "note": "Dates de l’appel 2026 : 10 janvier – 20 février 2026. Aucune annonce 2027 sur le site ; les publications récentes s’arrêtent au 2/2/2026."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Programme conjoint YTB (Türkiye Scholarships) et Banque islamique de développement",
+     "sourceKind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "co-funded by the Presidency for Turks Abroad and Related Communities (YTB) and the Islamic Development Bank (IsDB)"
+    },
+    {
+     "claim": "Prestations : allocation mensuelle, logement, frais de scolarité, assurance santé, cours de turc d’un an, billet aller-retour unique",
+     "sourceKind": "benefits",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "The scholarship covers a monthly stipend, accommodation support, tuition fees, health insurance, a one-year Turkish language course, and a one-time round-trip airfare."
+    },
+    {
+     "claim": "Niveaux proposés : Licence et Master (ainsi que Associate et Doctorat)",
+     "sourceKind": "overview",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "scholarships are offered at the Associate, Bachelor, Master’s, and PhD levels."
+    },
+    {
+     "claim": "Public visé : pays membres de la BID et communautés musulmanes",
+     "sourceKind": "eligibility",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "Applications are open to successful international students from IsDB member countries as well as Muslim communities around the world."
+    },
+    {
+     "claim": "Candidature uniquement via le site officiel Türkiye Scholarships",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "Applications to the joint scholarship program are accepted only through the Türkiye Scholarships official website."
+    },
+    {
+     "claim": "Répondre « Oui » à la rubrique Joint Scholarship Programs",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "must select “Yes” under the “Joint Scholarship Programs” section on the application screen in order to apply for the joint program."
+    },
+    {
+     "claim": "Ouverture d’un dossier gratuit dans TBBS",
+     "sourceKind": "application",
+     "url": "https://tbbs.turkiyeburslari.gov.tr/",
+     "quote": "Signing up is free of charge and will take approximately 2 minutes."
+    },
+    {
+     "claim": "Pièces : passeport ou pièce d’identité, diplômes, relevés, résultats de tests applicables",
+     "sourceKind": "application",
+     "url": "https://www.turkiyeburslari.gov.tr/applysteps",
+     "quote": "International language test results such as TOEFL, DELF if required by the chosen university or program"
+    },
+    {
+     "claim": "Base de l’estimation : appel 2026 du 10 janvier au 20 février 2026",
+     "sourceKind": "cycle",
+     "url": "https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122",
+     "quote": "Application Dates: 10 January – 20 February 2026"
+    },
+    {
+     "claim": "Critères d’âge et de notes du niveau Türkiye Scholarships demandé (via le site général)",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "For associate and bachelor's degree programmes: Under 21 years of age."
+    },
+    {
+     "claim": "Diplômé ou en dernière année, diplôme obtenu avant août (site général)",
+     "sourceKind": "eligibility",
+     "url": "https://turkiyeburslari.gov.tr/scholarshipsprograms",
+     "quote": "Graduates or those who will graduate at the end of the current academic year (before August)"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "fundingLabel / fundingType / advantages",
+     "recordSays": "« Financement complet » (fundingType fully_funded), sans mention d’un remboursement",
+     "pageSays": "Au niveau Associate et Licence, le financement est un prêt que l’étudiant rembourse après ses études et son emploi, au fonds fiduciaire IsDB Education Trust de son pays. La page annonce de l’appel 2026 est silencieuse sur ce point ; il figure sur la page officielle des programmes conjoints du même site.",
+     "quote": "Associate degree and bachelor degree students are required to repay the loan after graduation and employment, in easy installments",
+     "sourceKind": "benefits",
+     "severity": "blocking",
+     "sourceUrl": "https://www.turkiyeburslari.gov.tr/partneredprograms",
+     "sourceNote": "Page hors des cinq URLs de la fiche mais sur le site officiel turkiyeburslari.gov.tr ; l’annonce 2025 confirme (voir corroboration)."
+    },
+    {
+     "field": "fundingLabel / fundingType / advantages (corroboration)",
+     "recordSays": "Financement complet",
+     "pageSays": "Annonce officielle 2025 : pour Associate et Licence, la bourse est un prêt sans intérêt (Qard-Hasan) au bénéficiaire",
+     "quote": "For associate and bachelor’s degrees, the scholarship is an interest-free loan (Qard-Hasan) to the students",
+     "sourceKind": "benefits",
+     "severity": "blocking",
+     "sourceUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytbisdb-joint-scholarship-program-2025-applications-116",
+     "sourceNote": "Annonce 2025 du même site officiel, hors des cinq URLs."
+    },
+    {
+     "field": "cycle.estimatedOpenAt / estimatedCloseAt (fragilité de l’estimation)",
+     "recordSays": "Ouverture du 10 janvier au 20 février 2027 « estimée depuis l’appel 2026 »",
+     "pageSays": "L’appel 2026 a bien couru du 10 janvier au 20 février 2026, mais l’appel 2025 du même programme avait couru du 10 au 20 mars 2025 : le calendrier du volet conjoint n’est pas fixe d’une année à l’autre. Aucune date 2027 n’est publiée.",
+     "quote": "APPLICATION DATES: 10 March 2025 - 20 March 2025",
+     "sourceKind": "cycle",
+     "severity": "minor",
+     "sourceUrl": "https://www.turkiyeburslari.gov.tr/announcements/ytbisdb-joint-scholarship-program-2025-applications-116",
+     "sourceNote": "Annonce 2025 hors des cinq URLs ; le libellé « à reconfirmer » de la fiche reste approprié, aucune modification de dates nécessaire."
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "fundingLabel",
+     "newFr": "Master : financement complet ; Licence : prêt sans intérêt remboursable après les études",
+     "newEn": "Master: fully funded; Bachelor: interest-free loan repayable after graduation",
+     "justificationQuote": "Associate degree and bachelor degree students are required to repay the loan after graduation and employment, in easy installments"
+    },
+    {
+     "field": "fundingType",
+     "newFr": "partially_funded",
+     "newEn": "partially_funded",
+     "justificationQuote": "For associate and bachelor’s degrees, the scholarship is an interest-free loan (Qard-Hasan) to the students"
+    },
+    {
+     "field": "advantages (ajouter une ligne en fin de liste)",
+     "newFr": "En Licence, le financement est un prêt à rembourser après les études et l’emploi, en versements échelonnés, auprès de l’IsDB Education Trust du pays du candidat",
+     "newEn": "For Bachelor, the funding is a loan repaid after graduation and employment, in instalments, to the IsDB Education Trust in the candidate’s country",
+     "justificationQuote": "Associate degree and bachelor degree students are required to repay the loan after graduation and employment, in easy installments"
+    }
+   ],
+   "cycleAssessment": {
+    "statusAt2026-09-29": "forecast + estimated : inchangé",
+    "why": "Aucune annonce 2027 ; dernière publication du site le 2/2/2026. Les dates estimées (10 janvier – 20 février 2027) reposent sur l’unique appel 2026 ; l’appel 2025 était du 10 au 20 mars 2025. Libellé « à reconfirmer » déjà présent et à conserver.",
+    "checkedAtAdvice": "checkedAt peut être repoussé à readAtUtc pour cette fiche une fois la correction de financement appliquée."
+   },
+   "unverified": [
+    {
+     "claim": "Satisfaire les critères académiques et d’âge du niveau Türkiye Scholarships demandé",
+     "reason": "page annonce silencieuse ; critères généraux confirmés seulement sur la page générale, sans mention qu’ils s’appliquent tels quels au volet conjoint"
+    },
+    {
+     "claim": "Ne pas être citoyen turc ni déjà inscrit en Turquie au même niveau (volet conjoint)",
+     "reason": "page annonce silencieuse ; règle générale confirmée sur /scholarshipsprograms uniquement"
+    },
+    {
+     "claim": "Placement universitaire (avantage 1)",
+     "reason": "l’annonce parle d’universités prestigieuses de Türkiye mais n’emploie pas le mot placement"
+    },
+    {
+     "claim": "« choisir Türkiye–IsDB » et « réponses complètes au profil et aux motivations sur TBBS »",
+     "reason": "la page dit seulement de répondre Yes sous Joint Scholarship Programs ; le formulaire est derrière l’authentification"
+    },
+    {
+     "claim": "Liste des pays et filières éligibles",
+     "reason": "renvoyée vers un PDF (storagetbbsweb.blob.core.windows.net/tbbsweb/Contents/ListofCountriesProgramsandDepartments.pdf) non lu"
+    }
+   ]
+  },
+  {
+   "id": "stipendium_hungaricum_2027_forecast",
+   "readAtUtc": "2026-09-29T15:05:59.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "httpStatus": 200,
+     "finalUrl": "https://stipendiumhungaricum.hu/about/",
+     "read": true,
+     "title": "About - Stipendium Hungaricum",
+     "note": "Page lue en entier : missions, prestations (43 700 HUF, 40 000 HUF, 65 000 HUF) et avertissement sur la contribution partielle. Taux de change cité : 13 octobre 2025."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://stipendiumhungaricum.hu/apply/",
+     "read": true,
+     "title": "Apply - Stipendium Hungaricum",
+     "note": "Page lue en entier (chronologie en 8 étapes du cycle 2026/2027, seuil de 56 points). Les critères détaillés (diplômes, âge, exclusions) sont dans l’appel à candidatures PDF lié depuis cette page : https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf (HTTP 200, 29 pages, lu ; hors des cinq URLs, signalé par le champ url)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "httpStatus": 200,
+     "finalUrl": "https://stipendiumhungaricum.hu/about/",
+     "read": true,
+     "title": "About - Stipendium Hungaricum",
+     "note": "Même URL que overview. Les montants concordent avec le §1.3 de l’appel 2026/2027."
+    },
+    {
+     "kind": "application",
+     "url": "https://apply.stipendiumhungaricum.hu/",
+     "httpStatus": 200,
+     "finalUrl": "https://apply.stipendiumhungaricum.hu/",
+     "read": true,
+     "title": "Apply online! - Stipendium Hungaricum",
+     "note": "Portail DreamApply : page d’accueil (recherche de programmes, connexion/inscription, actualités). Actualité du 17 Nov 2025 : ouverture du système pour 2026/2027. Le détail du formulaire est derrière la connexion ; pièces recoupées avec le §3.2 de l’appel PDF."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://stipendiumhungaricum.hu/apply/",
+     "read": true,
+     "title": "Apply - Stipendium Hungaricum",
+     "note": "Même URL qu’eligibility. Seul le cycle 2026/2027 est publié (clôture 15 janvier 2026, 14 h CET). Aucun appel 2027/2028 sur /apply/, sur le portail ni sur /news/ (dernière actualité du 29 septembre 2026, sans rapport avec le prochain appel)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Exonération des frais de scolarité",
+     "sourceKind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "quote": "Tuition-free education – exemption from the payment of tuition fee"
+    },
+    {
+     "claim": "Allocation mensuelle de 43 700 HUF pour Licence et Master",
+     "sourceKind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "quote": "Monthly stipend – non-degree, bachelor’s, master’s and one-tier master’s level: monthly amount of HUF 43,700"
+    },
+    {
+     "claim": "Place en résidence ou contribution logement de 40 000 HUF par mois",
+     "sourceKind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "quote": "free dormitory place or a contribution of HUF 40,000/month (cca EUR 100) to accommodation costs for the whole duration of the scholarship period"
+    },
+    {
+     "claim": "Couverture santé et assurance complémentaire jusqu’à 65 000 HUF par an",
+     "sourceKind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "quote": "supplementary medical insurance for up to HUF 65,000 (cca EUR 165) a year/person"
+    },
+    {
+     "claim": "Les prestations sont des contributions et peuvent ne pas couvrir toutes les dépenses",
+     "sourceKind": "benefits",
+     "url": "https://stipendiumhungaricum.hu/about/",
+     "quote": "Please bear in mind that these provisions are only a contribution to the living expenses of the Scholarship Holders."
+    },
+    {
+     "claim": "Candidature aussi auprès du partenaire d’envoi, avec ses propres délais et exigences",
+     "sourceKind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "Applications shall also be submitted to the responsible authority of the sending partner."
+    },
+    {
+     "claim": "Éligibilité conditionnée à la nomination du partenaire d’envoi",
+     "sourceKind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "Applications will be considered eligible only if the responsible authorities of the Sending Partner nominate the applicant."
+    },
+    {
+     "claim": "Diplôme requis : fin du secondaire pour la Licence, Licence pour le Master",
+     "sourceKind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "master-level full-time programmes: scanned copy of the original bachelor’s degree certificate or equivalent AND its translation"
+    },
+    {
+     "claim": "Exigences linguistiques et académiques de l’établissement d’accueil",
+     "sourceKind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "Applicants are eligible to apply only if they meet the minimum language criteria set by the chosen Host Institution."
+    },
+    {
+     "claim": "Au moins 56 points sur 100 à l’examen d’entrée",
+     "sourceKind": "eligibility",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "Your exam scores must be a minimum of 56 out of 100 points"
+    },
+    {
+     "claim": "Deux choix de programmes au maximum",
+     "sourceKind": "application",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "You can browse 30 universities and colleges (more than 900 study programmes), but only 2 choices are allowed."
+    },
+    {
+     "claim": "Lettre de motivation exigée",
+     "sourceKind": "application",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "minimum 1 page, typed in Times New Roman 12-point letters"
+    },
+    {
+     "claim": "Diplôme non encore obtenu : déclaration signée au dépôt puis document ensuite",
+     "sourceKind": "application",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "must upload a signed declaration stating that they will obtain and upload the missing document(s)"
+    },
+    {
+     "claim": "Copie du document d’identité",
+     "sourceKind": "application",
+     "url": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "quote": "a scanned copy of the passport’s data page should be uploaded"
+    },
+    {
+     "claim": "Nomination par le partenaire d’envoi à la fin de février",
+     "sourceKind": "cycle",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "Sending partners will nominate the best applicants by the end of February"
+    },
+    {
+     "claim": "Dernier cycle publié : clôture le 15 janvier 2026 à 14 h CET",
+     "sourceKind": "cycle",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "15th January 2026, 2 pm (CET)"
+    },
+    {
+     "claim": "Dernier cycle publié : choix du programme puis inscription en novembre-décembre 2025",
+     "sourceKind": "cycle",
+     "url": "https://stipendiumhungaricum.hu/apply/",
+     "quote": "November - December 2025"
+    },
+    {
+     "claim": "Le portail de candidature a ouvert le 17 novembre 2025 pour 2026/2027",
+     "sourceKind": "application",
+     "url": "https://apply.stipendiumhungaricum.hu/",
+     "quote": "application for the Stipendium Hungaricum Scholarship Programme as well as the Students at Risk Subprogramme for the 2026/2027 academic year has started!"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "requirements[4] (certificat médical)",
+     "recordSays": "Certificat médical uniquement à l’étape prévue pour les candidats nommés",
+     "pageSays": "Le certificat médical n’est obligatoire que pour les personnes qui reçoivent la bourse ; les nommés sont seulement invités à s’y prendre à l’avance. Il n’est pas téléversé dans le système : il est apporté en Hongrie.",
+     "quote": "mandatory only for those who will receive a scholarship.",
+     "sourceKind": "application",
+     "severity": "minor",
+     "sourceUrl": "https://stipendiumhungaricum.hu/wp-content/uploads/2025/10/BA_MA_OTM_Call_for_Applications_2026_27.pdf",
+     "sourceNote": "Appel à candidatures 2026/2027 (PDF lié depuis /apply/), §3.2.1 ; hors des cinq URLs."
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "requirements[4]",
+     "newFr": "Certificat médical exigé seulement des lauréats de la bourse, à présenter en Hongrie sans le téléverser",
+     "newEn": "Medical certificate required only from awarded scholarship holders, presented in Hungary and not uploaded",
+     "justificationQuote": "Scholarship holders should not upload the certificate to the online system, but they must bring it to Hungary"
+    }
+   ],
+   "cycleAssessment": {
+    "statusAt2026-09-29": "forecast + estimated : inchangé",
+    "why": "Aucune page (/apply/, portail, /news/) n’annonce un appel 2027/2028 : /apply/ présente toujours l’appel 2026/2027 (clôture 15 janvier 2026, 14 h CET). L’affirmation de la description (« seul le cycle 2026–2027 est publié ») reste exacte au 29 septembre 2026 ; seule sa date d’ancrage (« Au 10 août 2026 ») est antérieure à cette relecture. Estimation conservée : clôture vers le 15 janvier 2027 à 14 h CET (= 13:00 UTC, cohérent avec estimatedCloseAt), ouverture novembre-décembre (le portail 2026/2027 s’est ouvert le 17 novembre 2025, l’appel a été publié le 28 octobre 2025).",
+    "checkedAtAdvice": "checkedAt peut être repoussé à readAtUtc pour cette fiche.",
+    "observations": "Hors périmètre de la fiche mais utile au public cible : l’appel 2026/2027 liste les partenaires d’envoi éligibles (par exemple Burkina Faso, Mali, Tchad, RDC, Burundi, Madagascar, Rwanda, Maroc, Algérie, Tunisie) et exclut les personnes nées après le 31 août 2008 ; il indique aussi « we highly suggest not to apply through any agencies »."
+   },
+   "unverified": [
+    {
+     "claim": "Dates du cycle 2027–2028 (ouverture novembre-décembre 2026, clôture vers le 15 janvier 2027 à 14 h CET)",
+     "reason": "page silencieuse : aucun appel 2027/2028 publié ; la fiche reste correctement « estimée »"
+    },
+    {
+     "claim": "Formulaire de candidature et étapes internes du portail",
+     "reason": "portail derrière connexion (DreamApply) ; pièces recoupées avec l’appel PDF"
+    },
+    {
+     "claim": "Nomination « lorsque cette étape s’applique »",
+     "reason": "l’appel dit que seules les candidatures nommées sont considérées, avec une exception (lauréats de la conférence scientifique étudiante nationale) ; le libellé de la fiche reste défendable"
+    }
+   ]
+  },
+  {
+   "id": "romania_mfa_scholarship_2027_forecast",
+   "readAtUtc": "2026-09-29T15:07:26.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "httpStatus": 200,
+     "finalUrl": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "read": true,
+     "title": "About Romania Government Scholarships 2025 | Study in Romania",
+     "note": "Page lue en entier (conditions générales, documents, dates, droits et obligations). Le titre de la page dit « 2025 » mais le contenu donne les dates 2026 (16 février – 31 mars 2026, résultats vers le 15 juillet 2026)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "httpStatus": 200,
+     "finalUrl": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "read": true,
+     "title": "About Romania Government Scholarships 2025 | Study in Romania",
+     "note": "Même URL que overview. Recoupée avec la FAQ officielle https://scholarships.studyinromania.gov.ro/scholarship-faq (HTTP 200, hors des cinq URLs) : pas de limite d’âge."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "httpStatus": 200,
+     "finalUrl": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "read": true,
+     "title": "About Romania Government Scholarships 2025 | Study in Romania",
+     "note": "Même URL que overview (§5 Scholars’ rights). Le montant de la bourse mensuelle n’est indiqué ni sur cette page ni dans la FAQ."
+    },
+    {
+     "kind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/",
+     "httpStatus": 200,
+     "finalUrl": "https://scholarships.studyinromania.gov.ro/",
+     "read": true,
+     "title": "Apply for Romania Government Scholarships | Study in Romania",
+     "note": "Page d’accueil de la plateforme : quatre étapes (créer un compte, candidater, réponse, études), renvoie vers /scholarship-about pour les documents. Page de création de compte lue : https://scholarships.studyinromania.gov.ro/scholarship-create-account (HTTP 200)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "httpStatus": 200,
+     "finalUrl": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "read": true,
+     "title": "About Romania Government Scholarships 2025 | Study in Romania",
+     "note": "Même URL que overview. Seul le cycle 2026 est publié (16 février – 31 mars 2026) ; aucune mention de 2027 dans les pages lues (about, home, FAQ, création de compte)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Bourse du ministère des Affaires étrangères pour ressortissants de pays hors Union européenne",
+     "sourceKind": "overview",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "the Romanian Government, through the Ministry of Foreign Affairs, provides a number of scholarships to citizens from non-EU countries"
+    },
+    {
+     "claim": "Exonération des frais de dossier et de tests",
+     "sourceKind": "benefits",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "exemption from the payment of registration fees or any other fees required by application processing"
+    },
+    {
+     "claim": "Financement de la scolarité de l’année préparatoire de roumain",
+     "sourceKind": "benefits",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "financing the tuition expenses for the Romanian language preparatory year;"
+    },
+    {
+     "claim": "Financement de la scolarité du cycle d’études, dans la limite de la durée du cycle",
+     "sourceKind": "benefits",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "financing the tuition expenses for the actual studies, but not more than the duration of a university cycle"
+    },
+    {
+     "claim": "Subvention d’hébergement en résidence, sous réserve de places",
+     "sourceKind": "benefits",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "accommodation will be provided to the extent of available places"
+    },
+    {
+     "claim": "Ressortissant d’un État hors Union européenne, sauf catégories exclues",
+     "sourceKind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "Foreign citizens from all non-EU countries, with the following exceptions:"
+    },
+    {
+     "claim": "Moyenne du dernier diplôme d’au moins 7 (mention « Bien »)",
+     "sourceKind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "an average of the study years, for the last graduated school, of at least 7 (seven)"
+    },
+    {
+     "claim": "Documents d’études d’établissements reconnus, dossier complet",
+     "sourceKind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "present study documents issued by accredited/recognized education institutions in the country where they were issued"
+    },
+    {
+     "claim": "Aucune bourse en médecine, médecine dentaire ni pharmacie",
+     "sourceKind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "Please note that scholarships are NOT awarded in the fields of MEDICINE, DENTAL MEDICINE and PHARMACY."
+    },
+    {
+     "claim": "Licence et Master uniquement en roumain",
+     "sourceKind": "eligibility",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "For Bachelor and Master, only study programs in Romanian are available"
+    },
+    {
+     "claim": "Année préparatoire de roumain pour les non-locuteurs",
+     "sourceKind": "overview",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "A preparatory year in Romanian is also granted prior to enrolling in the study program of choice, for those not speaking Romanian."
+    },
+    {
+     "claim": "Candidature uniquement via la plateforme officielle Study in Romania",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "The scholarship application can be sent ONLY through the Study in Romania platform."
+    },
+    {
+     "claim": "Création d’un compte sur la plateforme",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-create-account",
+     "quote": "In order to apply for a scholarship you need to create an account. It only takes 2 minutes."
+    },
+    {
+     "claim": "Pièces : acte de naissance et pages du passeport",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "Copy of the first three pages of the valid passport."
+    },
+    {
+     "claim": "Pièces conditionnelles : déclaration parentale notariée (mineurs)",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "Copy of the notarized declaration of parental consent in the case of candidates who have not reached the age of 18"
+    },
+    {
+     "claim": "Diplôme provisoire : attestation de réussite à l’examen",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "for graduates who do not hold yet the diploma"
+    },
+    {
+     "claim": "Pièces à téléverser en PDF, scannées une à une",
+     "sourceKind": "application",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "The documents must be scanned individually, after the original, in .pdf format."
+    },
+    {
+     "claim": "Base de l’estimation : appel 2026 du 16 février au 31 mars 2026",
+     "sourceKind": "cycle",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "The enrolment period begins on 16 February 2026. The deadline for submitting applications is 31 March 2026."
+    },
+    {
+     "claim": "Résultats annoncés vers le 15 juillet (cycle 2026)",
+     "sourceKind": "cycle",
+     "url": "https://scholarships.studyinromania.gov.ro/scholarship-about",
+     "quote": "The results of the scholarship selection process will be announced by e-mail, around 15 July 2026"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "requirements[4] (apostille / authentification)",
+     "recordSays": "Authentification ou apostille lorsque demandée",
+     "pageSays": "L’apostille ou l’authentification est exigée pour tous les documents d’études, sans condition « lorsque demandée ».",
+     "quote": "All study documents must be apostilled under the Hague Convention or authenticated by the relevant authorities in the home country",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "requirements[2] (langue du CV)",
+     "recordSays": "Curriculum vitae en anglais ou français",
+     "pageSays": "Le CV peut aussi être rédigé en roumain.",
+     "quote": "Curriculum Vitae in English, French or Romanian.",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "advantages[1] (bourse mensuelle « selon le niveau »)",
+     "recordSays": "Bourse mensuelle selon le niveau",
+     "pageSays": "La page prévoit une bourse mensuelle pendant l’année préparatoire et pendant le cycle d’études, mais ne donne aucun montant et ne distingue pas de barème par niveau.",
+     "quote": "receiving a monthly scholarship, for students enrolled in Bachelor, Master or doctoral studies, but not more than the duration of a university cycle",
+     "sourceKind": "benefits",
+     "severity": "minor",
+     "sourceUrl": "https://scholarships.studyinromania.gov.ro/scholarship-faq",
+     "sourceNote": "Citation de la FAQ officielle (hors des cinq URLs) ; la page /scholarship-about dit la même chose en d’autres termes (granting a monthly scholarship, for students enrolled in bachelor's, master's or doctoral studies)."
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "requirements[4]",
+     "newFr": "Apostille ou authentification de tous les documents d’études par les autorités du pays d’origine",
+     "newEn": "Apostille or authentication of all study documents by the relevant authorities in the home country",
+     "justificationQuote": "All study documents must be apostilled under the Hague Convention or authenticated by the relevant authorities in the home country"
+    },
+    {
+     "field": "requirements[2]",
+     "newFr": "Curriculum vitae en anglais, français ou roumain",
+     "newEn": "Curriculum vitae in English, French or Romanian",
+     "justificationQuote": "Curriculum Vitae in English, French or Romanian."
+    },
+    {
+     "field": "advantages[1]",
+     "newFr": "Bourse mensuelle pendant l’année préparatoire puis pendant le cycle d’études, dans la limite de la durée du cycle",
+     "newEn": "Monthly scholarship during the preparatory year and then the study cycle, up to the duration of the cycle",
+     "justificationQuote": "receiving a monthly scholarship, for students enrolled in Bachelor, Master or doctoral studies, but not more than the duration of a university cycle"
+    }
+   ],
+   "cycleAssessment": {
+    "statusAt2026-09-29": "forecast + estimated : inchangé",
+    "why": "Aucune page lue (about, accueil de la plateforme, FAQ, création de compte) ne mentionne 2027. Le dernier cycle publié est celui de 2026 : inscription du 16 février au 31 mars 2026, résultats vers le 15 juillet 2026. La fiche estime 2027 avec la même fenêtre (16 février – 31 mars 2027) et le libellé « à reconfirmer » : cohérent, à conserver. La FAQ précise que l’appel est ouvert seulement quand il est lancé (« only when the call for applications is launched »).",
+    "checkedAtAdvice": "checkedAt peut être repoussé à readAtUtc pour cette fiche une fois les corrections mineures appliquées (ou telles quelles, aucune n’étant bloquante).",
+    "observations": "Le titre de la page /scholarship-about reste « 2025 » alors que son contenu donne les dates 2026. La FAQ officielle indique « no age limit »."
+   },
+   "unverified": [
+    {
+     "claim": "Montant de la bourse mensuelle, et sa variation « selon le niveau »",
+     "reason": "page silencieuse : « monthly financial aid, in accordance with the legislation in force » sans chiffre"
+    },
+    {
+     "claim": "Dates du cycle 2027–2028 (16 février – 31 mars 2027)",
+     "reason": "page silencieuse : aucun appel 2027 publié ; la fiche reste correctement « estimée »"
+    },
+    {
+     "claim": "Contenu détaillé du formulaire de candidature (choix du niveau, du domaine et des établissements)",
+     "reason": "formulaire derrière la connexion ; la FAQ mentionne « preferred study domains » mais pas la sélection d’établissements"
+    }
+   ]
+  }
+ ]
+}

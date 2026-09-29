@@ -1,0 +1,633 @@
+{
+ "group": "G10",
+ "records": [
+  {
+   "id": "mastercard_foundation_scholars_2027",
+   "readAtUtc": "2026-09-29T15:05:05.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/",
+     "httpStatus": 200,
+     "finalUrl": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/",
+     "read": true,
+     "title": "Mastercard Foundation Scholars Program",
+     "note": ""
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "httpStatus": 200,
+     "finalUrl": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "read": true,
+     "title": "Becoming a Mastercard Foundation Scholar",
+     "note": ""
+    },
+    {
+     "kind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "httpStatus": 200,
+     "finalUrl": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "read": true,
+     "title": "Frequently Asked Questions | Mastercard Foundation",
+     "note": ""
+    },
+    {
+     "kind": "application",
+     "url": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/where-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/where-to-apply/",
+     "read": true,
+     "title": "Institutions | Mastercard Foundation",
+     "note": "The partner list is rendered client-side (static HTML shows only the filters and 'Error loading data'). Read the page's own filter labels in the HTML plus the first-party JSON feed the page fetches (https://mastercardfdn.org/assets/json/institution.json, HTTP 200, 58 entries EN+FR)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "httpStatus": 200,
+     "finalUrl": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "read": true,
+     "title": "Frequently Asked Questions | Mastercard Foundation",
+     "note": "Same page as benefits. It states that partners set their own deadlines and gives no programme-wide cycle or date."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Not a direct application: managed through partner universities and NGOs (fiche description, both languages)",
+     "sourceKind": "overview",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "The Mastercard Foundation Scholars Program is managed through our partner universities and non-governmental organizations."
+    },
+    {
+     "claim": "Decision-making is done by the partners, no central committee",
+     "sourceKind": "overview",
+     "url": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/",
+     "quote": "The application process and decision-making are managed by our partners."
+    },
+    {
+     "claim": "No single deadline: each partner sets its own (deadlineLabel)",
+     "sourceKind": "cycle",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "Each partner in the Mastercard Foundation Scholars Program sets their own deadline."
+    },
+    {
+     "claim": "Levels covered: secondary, undergraduate, master's; no PhD (levelLabel / eligibility[2])",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "provides scholarships at the secondary, undergraduate, and master’s levels. However, scholarships are not currently available to PhD candidates."
+    },
+    {
+     "claim": "Bachelor age limit 29",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "For an undergraduate (Bachelor’s) degree, candidates must be 29 years old or under when they apply."
+    },
+    {
+     "claim": "Master age limit 35",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "For a graduate (Master’s) degree, candidates must be 35 years old or under when they apply."
+    },
+    {
+     "claim": "Eligibility question on financial need: academic ambitions exceeding financial resources (eligibility[3])",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "Are you a committed young person whose academic ambitions exceed your financial resources?"
+    },
+    {
+     "claim": "Programme targets primarily young Africans",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "highly talented, service-oriented young people, primarily young Africans"
+    },
+    {
+     "claim": "Priority groups: women, disability, forcibly displaced (fiche: priorité affichée)",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "specifically emphasizes recruiting young women, persons with disabilities, and forcibly displaced young people."
+    },
+    {
+     "claim": "Admission to a partner does not guarantee selection",
+     "sourceKind": "eligibility",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "Gaining admission to a partner institution does not guarantee selection for the Program."
+    },
+    {
+     "claim": "Funding: tuition, accommodation, books and scholastic materials",
+     "sourceKind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "Financial support includes, but is not limited to, tuition fees, accommodation, books and other scholastic materials"
+    },
+    {
+     "claim": "Funding: return air ticket to country of origin if necessary",
+     "sourceKind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "a return air ticket to a Mastercard Foundation Scholar’s country of origin if necessary"
+    },
+    {
+     "claim": "Financial, psychosocial and academic support (fiche: soutien psychosocial, mentorat, accompagnement académique)",
+     "sourceKind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "provides financial, psychosocial, and academic support to Mastercard Foundation Scholars."
+    },
+    {
+     "claim": "Application fees reimbursed if selected",
+     "sourceKind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "the fees will be reimbursed if the candidate is selected for the Program."
+    },
+    {
+     "claim": "Tests: SAT/TOEFL for North American partners, not required by Africa-based partners",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "Other university partners do not require these to be completed."
+    },
+    {
+     "claim": "Recommendation letters, sometimes submitted online by the referee",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "Most universities will require recommendation letters."
+    },
+    {
+     "claim": "Admission requirements first; take tests several months ahead",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "Every applicant must first meet the university admissions requirements before being considered for the Mastercard Foundation Scholars Program."
+    },
+    {
+     "claim": "Late or incomplete applications are not considered",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/articles/becoming-a-mastercard-foundation-scholar/",
+     "quote": "A late or incomplete application will not be considered by the Mastercard Foundation Scholars Program partners."
+    },
+    {
+     "claim": "Applying to several partners is allowed but costly in effort",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "candidates can apply to as many universities as they wish."
+    },
+    {
+     "claim": "Directory 'Where to apply' has a filter on application window (open / closed)",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/where-to-apply/",
+     "quote": "Applications Open Applications Closed"
+    },
+    {
+     "claim": "Directory filters include level of study and country (labels embedded in the page)",
+     "sourceKind": "application",
+     "url": "https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/where-to-apply/",
+     "quote": "window.CLIENT_TYPE_DICTIONARY.level_of_study=\"Level of study\""
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "cycle.estimatedOpenAt 2026-08-10 and estimatedCloseAt 2027-06-30",
+     "reason": "page silencieuse — no source gives a programme-wide window (partners set their own). The window is an editorial projection; the deadlineLabel already says so ('purement indicative'), so status forecast + estimated is coherent. estimatedOpenAt equals the date of the first verification, not a date published anywhere."
+    },
+    {
+     "claim": "Advantages[4] 'accès au réseau des Scholars et Alumni'",
+     "reason": "not on the FAQ (benefits source); present on the overview page as the Alumni Network — minor, no edit needed"
+    },
+    {
+     "claim": "Individual partner windows and criteria (e.g. UP, UCT)",
+     "reason": "out of scope of this record; the Foundation's feed lists UP as 'open' in English and 'closed' in French, so use partner sites for dates"
+    },
+    {
+     "claim": "Fiche step 1 wording 'filtres pays, niveau d’étude et fenêtre' — country filter",
+     "reason": "the country filter label is only in embedded script, not visible text, because the list itself is JavaScript-rendered"
+    }
+   ],
+   "notes": "No edit needed. Every claim in the fiche that maps to the Foundation's pages is confirmed; the cycle is honestly labelled as indicative. Nothing contradicts the record. The state 'forecast' should stay: the Foundation itself publishes no cycle."
+  },
+  {
+   "id": "uct_international_refugee_2027",
+   "readAtUtc": "2026-09-29T15:08:11.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "read": true,
+     "title": "International and refugee scholarships | Applicants & Students",
+     "note": "Page states its own scope in the meta description: 'announcements for the 2026 academic year'. Only notice: the 2026 call will not open. No 2027 call, no dates."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "read": true,
+     "title": "UCT Financial Assistance for Postgraduate Study and Postdoctoral Research 2027 (Handbook 14) — PDF, 112 pages, no embedded title",
+     "note": "Text extracted with pypdf (all 112 pages). Handbook 14 edition 2027; describes international/refugee awards in one short paragraph, gives no call, no form and no date for them."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "read": true,
+     "title": "International and refugee scholarships | Applicants & Students",
+     "note": "Same page as overview."
+    },
+    {
+     "kind": "application",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "httpStatus": 200,
+     "finalUrl": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "read": true,
+     "title": "Applications and requirements | Applicants & Students",
+     "note": "General postgraduate funding procedure; not specific to international/refugee awards."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "read": true,
+     "title": "International and refugee scholarships | Applicants & Students",
+     "note": "Same page as overview. Additional pages read for the calendar: UCT key-dates page and the postgraduate funding noticeboard (see confirmed[] urls)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Limited number of annual scholarships for international and refugee students, postgraduate, any discipline",
+     "sourceKind": "overview",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "A limited number of scholarships are available annually to international and refugee students for postgraduate study in any discipline at UCT."
+    },
+    {
+     "claim": "Only one call per year",
+     "sourceKind": "overview",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "As there is only one call for applications each year, it is important that the application procedure is strictly followed."
+    },
+    {
+     "claim": "Funding is partial: a supplementary contribution, and applicants must already be able to fund their studies",
+     "sourceKind": "benefits",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "All UCT international and refugee students' scholarships are supplementary as a contribution towards the cost of attendance."
+    },
+    {
+     "claim": "Applicant must have own means",
+     "sourceKind": "eligibility",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "Students who apply must have the means to fund their studies."
+    },
+    {
+     "claim": "Competitive award, preference to senior candidates",
+     "sourceKind": "eligibility",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "These scholarships are awarded on a competitive basis, and preference is given to senior candidates."
+    },
+    {
+     "claim": "Full-time admission application required via Admissions Office or Faculty Office",
+     "sourceKind": "eligibility",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "Applicants must apply for full-time admission through the UCT admissions office or the faculty office."
+    },
+    {
+     "claim": "Country of origin irrelevant; proof of refugee status required",
+     "sourceKind": "eligibility",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "The applicant's country of origin has no bearing on the award of scholarships, but proof of refugee status is required."
+    },
+    {
+     "claim": "Published exclusion: no support beyond funding tenure (3rd-year Master's and above, 4th-year Doctoral and above)",
+     "sourceKind": "eligibility",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "quote": "this applies to 3rd year Masters degrees and above, and 4th year Doctoral degrees and above."
+    },
+    {
+     "claim": "Award tenure: one year Honours, first two years Master's, first three years Doctoral",
+     "sourceKind": "benefits",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "quote": "Allocations are made for one year at Honours level; for the first and second years of Master’s study"
+    },
+    {
+     "claim": "Renewable subject to satisfactory progress",
+     "sourceKind": "benefits",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "quote": "The scholarships are renewable for the duration of the course of study subject to satisfactory progress being maintained."
+    },
+    {
+     "claim": "Funding applications not considered without an admission application",
+     "sourceKind": "application",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "quote": "Applications for funding cannot be considered unless applicants apply for admission through the UCT Admissions Office or the Faculty Office."
+    },
+    {
+     "claim": "Full-time employment above 20 h/week makes an applicant ineligible for UCT postgraduate funding",
+     "sourceKind": "eligibility",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "quote": "Individuals who are employed full-time (more than 20 hours per week) are not eligible for UCT postgraduate funding support."
+    },
+    {
+     "claim": "The online PG funding form is reserved for South African and permanent-resident applicants; international students use other forms",
+     "sourceKind": "application",
+     "url": "https://www.uct.ac.za/sites/default/files/media/documents/uct-handbook-14-2027-final.pdf",
+     "quote": "The PG Online funding form is a general application through which South African and permanent resident postgraduate Honours, Master’s and Doctoral applicants apply for funding."
+    },
+    {
+     "claim": "Research master's/doctorate: supervisor and project identified ideally 7 months ahead",
+     "sourceKind": "application",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "quote": "Ideally, you should do this at least 7 months before you intend to begin your degree."
+    },
+    {
+     "claim": "NRF deadlines: June/July for Master's, October for Honours",
+     "sourceKind": "application",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "quote": "The application deadline for these awards is normally in June/July for master's degrees and in October for honours degrees."
+    },
+    {
+     "claim": "Most UCT award deadlines before mid-November",
+     "sourceKind": "application",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "quote": "The deadlines for most of these awards are before mid-November."
+    },
+    {
+     "claim": "Postgraduate admission applications close 30 September 2026 (supports fiche step 2; page outside the five sources)",
+     "sourceKind": "application",
+     "url": "https://uct.ac.za/students/applications/key-dates",
+     "quote": "30 September 2026 Postgraduate applications close. We do not consider late application requests."
+    },
+    {
+     "claim": "Funding office offers a one-on-one session and a noticeboard",
+     "sourceKind": "benefits",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding/applications-and-requirements",
+     "quote": "You may also request a one-on-one session with PGFO staff."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "deadlineLabel (FR+EN), description, steps[0] — year of the 'call will not open' notice",
+     "recordSays": "Label: « l’appel à candidatures n’ouvrira pas » / “call for applications will not open”, presented as the answer for the 2027 cycle (‘Aucun appel 2027 publié — l’avis officiel … indique …’); step 1 and description say the same without a year.",
+     "pageSays": "The notice is about the 2026 call, not 2027. The page's meta description also frames the page as covering the 2026 academic year. The page says nothing at all about a 2027 call: neither opening nor cancellation.",
+     "quote": "The call for applications for 2026 will not open, due to funding constraints.",
+     "sourceKind": "cycle",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "severity": "blocking"
+    },
+    {
+     "field": "cycle.estimatedCloseAt (2026-11-10T21:59:00.000Z) and estimatedOpenAt (2026-09-01)",
+     "recordSays": "Projected window 1 Sept – 10 Nov 2026 for the international/refugee call.",
+     "pageSays": "No page or handbook gives any date for an international/refugee call (the 2026 call never opened, so there is no earlier dated call to extrapolate from). The only published 10 Nov 2026 closing date is for the UCT Postgraduate Financial Aid Bursary reserved for SA citizens/permanent residents; the handbook's 'usually November 10' concerns the online funding form of the same audience. The 1 Sept opening has no support anywhere.",
+     "quote": "2027 UCT Postgraduate Financial Aid Bursary for SA Citizens or Permanent residents Honours, Masters, Doctoral Open to all fields 10 Nov 2026",
+     "sourceKind": "cycle",
+     "url": "https://uct.ac.za/students/current-students-funding-postgraduate-degree-funding/postgraduate-degree-funding-noticeboard",
+     "severity": "minor"
+    },
+    {
+     "field": "description / deadlineLabel — 'As of 10 August 2026'",
+     "recordSays": "Au 10 août 2026 la page n’annonce toujours aucun appel",
+     "pageSays": "Re-read 29 Sept 2026: still no call; same 2026 notice, unchanged. Date in the text is simply stale.",
+     "quote": "NOTICES The call for applications for 2026 will not open, due to funding constraints.",
+     "sourceKind": "cycle",
+     "url": "https://uct.ac.za/students/fees-funding-postgraduate-degree-funding-bursaries-scholarships/international-and-refugee-scholarships",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "deadlineLabel",
+     "newFr": "Aucun appel 2027 publié — l’avis officiel en ligne indique que « l’appel à candidatures pour 2026 n’ouvrira pas » faute de financement et n’annonce rien pour 2027 ; la fenêtre affichée est une projection : aucune date n’est publiée pour cet appel, et le 10 novembre 2026 est la clôture publiée d’une autre bourse UCT, réservée aux Sud-Africains et résidents permanents",
+     "newEn": "No published 2027 call — the official online notice states the “call for applications for 2026 will not open” due to funding constraints and announces nothing for 2027; the window shown is a projection: no date is published for this call, and 10 November 2026 is the published closing date of another UCT bursary, reserved for South African citizens and permanent residents",
+     "justificationQuote": "The call for applications for 2026 will not open, due to funding constraints.",
+     "justificationQuote2": "2027 UCT Postgraduate Financial Aid Bursary for SA Citizens or Permanent residents Honours, Masters, Doctoral Open to all fields 10 Nov 2026"
+    },
+    {
+     "field": "description (only the third sentence changes)",
+     "newFr": "Nombre limité de bourses annuelles pour étudiants internationaux et réfugiés, en postgrade et dans toute discipline à UCT, avec un seul appel par an. Deux avertissements figurent noir sur blanc sur la page officielle : ces bourses sont un simple complément au coût des études, et le candidat doit déjà avoir les moyens de financer ses études. Au 29 septembre 2026 la page n’annonce toujours aucun appel 2027 : le dernier avis publié est que l’appel 2026 n’ouvrira pas faute de financement. À traiter comme une piste secondaire, derrière le NRF et les financements de département.",
+     "newEn": "A limited number of scholarships is available annually to international and refugee students for postgraduate study in any discipline at UCT, with only one call each year. Two warnings appear plainly on the official page: these awards are merely supplementary as a contribution towards the cost of attendance, and applicants must already have the means to fund their studies. As of 29 September 2026 the page still announces no 2027 call: the latest published notice is that the 2026 call will not open due to funding constraints. Treat this as a secondary route, behind NRF and departmental funding.",
+     "justificationQuote": "The call for applications for 2026 will not open, due to funding constraints."
+    },
+    {
+     "field": "steps[0] (descriptionFr / descriptionEn)",
+     "newFr": "La page officielle porte encore l’avis selon lequel l’appel 2026 n’ouvrira pas faute de financement : ne rien préparer avant d’y voir un appel 2027 publié.",
+     "newEn": "The official page still carries the notice that the 2026 call will not open due to funding constraints: prepare nothing until a published 2027 call appears there.",
+     "justificationQuote": "The call for applications for 2026 will not open, due to funding constraints."
+    },
+    {
+     "field": "cycle",
+     "newFr": "status: 'suspended' (inchangé) ; dateConfidence: 'estimated' (inchangé) ; estimatedOpenAt '2026-09-01T00:00:00.000Z' et estimatedCloseAt '2026-11-10T21:59:00.000Z' inchangés : le validateur exige les deux bornes pour un cycle estimé, aucune date de remplacement n’est publiée, et le libellé ci-dessus dit désormais d’où vient la projection",
+     "newEn": "status: 'suspended' (unchanged); dateConfidence: 'estimated' (unchanged); estimatedOpenAt '2026-09-01T00:00:00.000Z' and estimatedCloseAt '2026-11-10T21:59:00.000Z' unchanged: the validator requires both bounds for an estimated cycle, no replacement date is published, and the label above now says where the projection comes from",
+     "justificationQuote": "The call for applications for 2026 will not open, due to funding constraints."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Any 2027 (or 2027–2028) international/refugee call: opening date, closing date, application form, supporting-document list",
+     "reason": "page silencieuse — the page, Handbook 14 (2027 edition) and the funding noticeboard list no such call"
+    },
+    {
+     "claim": "requirements[3] 'Relevés et pièces justificatives exigés par l’appel et le manuel de financement'",
+     "reason": "no call published, so no document list for this scheme exists on the sources"
+    },
+    {
+     "claim": "Value of the award ('complément partiel') in rand",
+     "reason": "page silencieuse; the fiche does not state an amount"
+    },
+    {
+     "claim": "Whether the 2027 call will reopen or is cancelled",
+     "reason": "page silencieuse; the notice concerns 2026 only. Status 'suspended' is kept as the closest of the four catalogue statuses (a suspension notice is still displayed and no call is open), not because the page says 2027 is suspended"
+    }
+   ],
+   "notes": "All five sources read (three distinct URLs + PDF handbook). The fiche's substantive claims about eligibility, tenure, exclusions, PGFO support and the general funding procedure are confirmed. The one blocking point is that the 'will not open' notice is dated to the 2026 call, and the catalogue text presents it as the state of the 2027 call. Postgraduate admission closes 30 Sept 2026 (tomorrow), which makes the fiche's step 2 urgent for anyone still intending to apply for UCT admission for 2027; the text is correct today and becomes obsolete on 1 Oct 2026."
+  },
+  {
+   "id": "up_mastercard_scholars_2027",
+   "readAtUtc": "2026-09-29T15:07:09.000Z",
+   "verdict": "not_fully_verifiable",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.up.ac.za/mastercard-foundation-scholars-program",
+     "httpStatus": 403,
+     "finalUrl": "https://www.up.ac.za/mastercard-foundation-scholars-program",
+     "read": false,
+     "title": "Attention Required! | Cloudflare",
+     "note": "Cloudflare block page ('Sorry, you have been blocked', title 'Attention Required! | Cloudflare'). curl with two different User-Agents, WebFetch and WebSearch (restricted to up.ac.za) : HTML content never delivered; WebSearch only returned model-written summaries with no verbatim page text, which were NOT used as citations. No content of this page was read."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.up.ac.za/mastercard-foundation-scholars-program/application-instructions",
+     "httpStatus": 403,
+     "finalUrl": "https://www.up.ac.za/mastercard-foundation-scholars-program/application-instructions",
+     "read": false,
+     "title": "Attention Required! | Cloudflare",
+     "note": "Cloudflare block page ('Sorry, you have been blocked', title 'Attention Required! | Cloudflare'). curl with two different User-Agents, WebFetch and WebSearch (restricted to up.ac.za) : HTML content never delivered; WebSearch only returned model-written summaries with no verbatim page text, which were NOT used as citations. No content of this page was read."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.up.ac.za/mastercard-foundation-scholars-program/what-program-covers",
+     "httpStatus": 403,
+     "finalUrl": "https://www.up.ac.za/mastercard-foundation-scholars-program/what-program-covers",
+     "read": false,
+     "title": "Attention Required! | Cloudflare",
+     "note": "Cloudflare block page ('Sorry, you have been blocked', title 'Attention Required! | Cloudflare'). curl with two different User-Agents, WebFetch and WebSearch (restricted to up.ac.za) : HTML content never delivered; WebSearch only returned model-written summaries with no verbatim page text, which were NOT used as citations. No content of this page was read."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.up.ac.za/mastercard-foundation-scholars-program/how-apply",
+     "httpStatus": 403,
+     "finalUrl": "https://www.up.ac.za/mastercard-foundation-scholars-program/how-apply",
+     "read": false,
+     "title": "Attention Required! | Cloudflare",
+     "note": "Cloudflare block page ('Sorry, you have been blocked', title 'Attention Required! | Cloudflare'). curl with two different User-Agents, WebFetch and WebSearch (restricted to up.ac.za) : HTML content never delivered; WebSearch only returned model-written summaries with no verbatim page text, which were NOT used as citations. No content of this page was read."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.up.ac.za/mastercard-foundation-scholars-program/how-apply",
+     "httpStatus": 403,
+     "finalUrl": "https://www.up.ac.za/mastercard-foundation-scholars-program/how-apply",
+     "read": false,
+     "title": "Attention Required! | Cloudflare",
+     "note": "Cloudflare block page ('Sorry, you have been blocked', title 'Attention Required! | Cloudflare'). curl with two different User-Agents, WebFetch and WebSearch (restricted to up.ac.za) : HTML content never delivered; WebSearch only returned model-written summaries with no verbatim page text, which were NOT used as citations. No content of this page was read."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Postgraduate deadline 30 September 2026 and admission application by 30 June 2026 (2027 postgraduate form, official UP PDF published April 2026 and linked from the application page; NOT one of the five source URLs)",
+     "sourceKind": "cycle",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "ensure that the university receives all required documentation no later than September 30 September 2026. Apply by 30 June 2026 for admission into a faculty."
+    },
+    {
+     "claim": "Undergraduate deadline 31 August 2026 (2027 undergraduate form, official UP PDF; not one of the five source URLs)",
+     "sourceKind": "cycle",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Undergraduate%202027%20form.pdf",
+     "quote": "ensure that the University receives all required documentation no later than 31st August 2026."
+    },
+    {
+     "claim": "Submission by e-mail to mcfsp@up.ac.za as a single PDF, after provisional acceptance (postgraduate form)",
+     "sourceKind": "application",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "complete the application form attached to the link below and submit with subletting document as a single PDF file to mcfsp@up.ac.za"
+    },
+    {
+     "claim": "Admission to UP first: only admitted students are considered",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "Only students admitted to the University of Pretoria will be considered for this Program."
+    },
+    {
+     "claim": "Full-time degree programmes only (undergraduate form)",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Undergraduate%202027%20form.pdf",
+     "quote": "Only students in full-time degree programmes and not extended or non-degree purposes are eligible for this Program."
+    },
+    {
+     "claim": "Financial-need criterion: the Program is for students who cannot afford tertiary study",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "This Program is limited to students who cannot afford to study at a tertiary institution."
+    },
+    {
+     "claim": "U-student number needed to complete the form (fiche: 'numéro d’étudiant UP')",
+     "sourceKind": "application",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "You will need your U-student number to complete this application form."
+    },
+    {
+     "claim": "Proof of provisional admission letter is a required document (fiche: 'Preuve d’admission à UP, au moins provisoire')",
+     "sourceKind": "application",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "Proof of your provisional admission letter from the University of Pretoria if admitted before 30 September 2026"
+    },
+    {
+     "claim": "Postgraduate: applicants from outside South Africa must meet SAQA requirements (fiche: vérification SAQA)",
+     "sourceKind": "application",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "Applicants from countries outside the borders of South Africa should meet the requirements of the South African Qualifications Authority (SAQA)"
+    },
+    {
+     "claim": "Family-financial evidence: pay slips, bank statements, tax returns, loan documents (fiche: relevés bancaires, bulletins de salaire, documents de prêt)",
+     "sourceKind": "application",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "quote": "pay slips for the last 3 months, proof of income, bank account statements for each account, tax returns, loan documents"
+    },
+    {
+     "claim": "Foundation-level (NOT UP-specific) coverage: tuition, accommodation, books, return air ticket — consistent with the fiche's benefits list but does not confirm UP's stipend, medical aid, internship, visa fees",
+     "sourceKind": "benefits",
+     "url": "https://mastercardfdn.org/en/frequently-asked-questions/",
+     "quote": "Financial support includes, but is not limited to, tuition fees, accommodation, books and other scholastic materials, mentoring, counselling, leadership development, and a return air ticket"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "eligibility[5] (postgraduate faculties)",
+     "recordSays": "Postgrade : cursus limité aux facultés Natural and Agricultural Sciences, Economic and Management Sciences, Humanities en Honours ou Master de Political Studies ou International Studies uniquement, et Engineering pour les étudiants déjà en cursus",
+     "pageSays": "The official 2027 postgraduate form lists six faculties: Economic and Management Sciences; Natural and Agricultural Sciences; Engineering, Built Environment and Information Technology; Humanities; Law; Education. No 'continuing students only' or 'Political/International Studies only' restriction appears in the form. (Source is the 2027 PG form, not the HTML page, which could not be read.)",
+     "quote": "Humanities (with the exception of Psychology degrees)",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "severity": "blocking"
+    },
+    {
+     "field": "levels / levelLabel / eligibility[1] (postgraduate level)",
+     "recordSays": "Licence, Honours et Master à temps plein ; « Ouvert aux niveaux Licence, Honours et Master »",
+     "pageSays": "The 2027 postgraduate form restricts postgraduate applicants to first-year master's students and excludes anyone who already holds a Master's; Honours is not mentioned. (Source is the form, not the HTML page.)",
+     "quote": "open to African students who are first -year master's students with a grade point average (GPA) of at least 70%",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "severity": "blocking"
+    },
+    {
+     "field": "eligibility (minimum GPA — omitted)",
+     "recordSays": "No academic threshold mentioned in eligibility",
+     "pageSays": "Both 2027 forms state a minimum GPA of 70% (undergraduate: 'with a grade point average (GPA) of at least 70%').",
+     "quote": "open to African students with a grade point average (GPA) of at least 70%",
+     "sourceKind": "eligibility",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Undergraduate%202027%20form.pdf",
+     "severity": "minor"
+    },
+    {
+     "field": "cycle.closesAt / deadlineLabel — clock note (not a discrepancy today)",
+     "recordSays": "open, confirmed, closesAt 2026-09-30T21:59:00.000Z (= 23:59 SAST on 30 Sept)",
+     "pageSays": "Both official 2027 forms still give 30 Sept 2026 (postgraduate) and 31 Aug 2026 (undergraduate); neither states a time of day. At 29/09/2026 the cycle is still open; from 2026-09-30T22:00Z the repo validator (open_cycle_already_closed) will require status 'closed' and a rewritten deadlineLabel.",
+     "quote": "no later than September 30 September 2026",
+     "sourceKind": "cycle",
+     "url": "https://drupalwebprod-files.up.ac.za/Public/2026-04/Postgraduate%202027%20form.pdf",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Content of the five UP HTML pages (overview, application-instructions, what-program-covers, how-apply) on 29/09/2026, including the wording 'Undergraduate: 31 August 2026, Postgraduate: 30 September 2026' on /how-apply",
+     "reason": "403 Cloudflare block on every fetch route; only the two 2027 PDF forms (hosted on drupalwebprod-files.up.ac.za, HTTP 200) could be read"
+    },
+    {
+     "claim": "Benefits: full tuition, residence and meals, monthly stipend, start-up funds, visa fees, textbooks, medical aid, flights, Africa-based summer internship, counselling/tutoring/advisor",
+     "reason": "what-program-covers page blocked (403); the forms do not list programme benefits"
+    },
+    {
+     "claim": "'Un entretien précède toute admission au programme' and 'sans réponse d’UP, la candidature doit être considérée comme non retenue'",
+     "reason": "not stated in either 2027 form; page blocked"
+    },
+    {
+     "claim": "Programme history claims (at UP since January 2014, phase 2 since December 2023) and phone +27 (0)12 420 4297",
+     "reason": "page blocked; not in the forms"
+    },
+    {
+     "claim": "'Passeport permettant une demande de visa sans délai' as a document requirement",
+     "reason": "not in the forms' document list; page blocked"
+    },
+    {
+     "claim": "Statement that no opening date is published and that another UP page contradicts how-apply on the opening window",
+     "reason": "pages blocked; cannot re-read"
+    },
+    {
+     "claim": "Foundation directory cross-check: mastercardfdn.org where-to-apply JSON feed lists University of Pretoria (UP) with application_window 'open' in the English feed but 'closed' in the French feed",
+     "reason": "informational only, a third-party listing of UP, not UP's own statement"
+    }
+   ],
+   "notes": "Verdict not_fully_verifiable: all four distinct UP HTML URLs returned Cloudflare 403 from this environment (up.ac.za robots.txt was reachable, the pages were not). Do NOT push checkedAt for this record on the strength of this report: the catalogue would claim a page read that did not happen. The dates that matter (31 Aug / 30 Sept 2026) are corroborated by two official UP 2027 PDF forms read in full on 2026-09-29. Closing is TOMORROW (30 Sept 2026): status 'open' is still correct today; flip to 'closed' + new deadlineLabel from 2026-09-30T22:00Z. A human with a normal browser should re-read /how-apply today or tomorrow morning, and decide on the eligibility discrepancies above (they come from the 2027 forms, which are more recent than the fiche's wording)."
+  }
+ ]
+}

@@ -1,0 +1,680 @@
+{
+ "group": "G1",
+ "records": [
+  {
+   "id": "uwc_burkina_faso_2027_forecast",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://bf.uwc.org/",
+     "httpStatus": 200,
+     "finalUrl": "https://bf.uwc.org/",
+     "read": true,
+     "title": "Homepage - UWC Burkina Faso",
+     "note": "Lu par curl (User-Agent Chrome), HTML complet. Bandeau : candidatures actuellement closes, formulaire de notification."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://bf.uwc.org/eligibility-criteria/",
+     "httpStatus": 200,
+     "finalUrl": "https://bf.uwc.org/eligibility-criteria/",
+     "read": true,
+     "title": "Eligibility Criteria - UWC Burkina Faso",
+     "note": ""
+    },
+    {
+     "kind": "benefits",
+     "url": "https://bf.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://bf.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Burkina Faso",
+     "note": "Même page que le kind cycle. Décrit les trois étapes (candidature, sélection, nomination) et les dates importantes."
+    },
+    {
+     "kind": "application",
+     "url": "https://apply.uwc.org/",
+     "httpStatus": 200,
+     "finalUrl": "https://apply.uwc.org/",
+     "read": true,
+     "title": "United World Colleges",
+     "note": "Page d’accueil de la plateforme (SurveyMonkey Apply) lue en entier ; le tableau de bord candidat est derrière une connexion, donc l’ouverture effective de la voie Burkina Faso n’y est pas visible."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://bf.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://bf.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Burkina Faso",
+     "note": "Même page que le kind benefits."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : place potentiellement entièrement ou partiellement financée selon le besoin démontré",
+     "sourceKind": "benefits",
+     "quote": "Receive an offer for a UWC placement, which may be fully or partially funded depending on demonstrated need"
+    },
+    {
+     "claim": "Avantage : aide financière complète ou partielle pour la majorité des élèves sélectionnés par un comité national",
+     "sourceKind": "overview",
+     "quote": "Over 80% of IBDP students selected by a UWC national committee receive full or partial financial support."
+    },
+    {
+     "claim": "Éligibilité : âge de 16 à 18 ans à l’inscription",
+     "sourceKind": "eligibility",
+     "quote": "Applicants must be between 16 and 18 years old at the time of enrolment."
+    },
+    {
+     "claim": "Éligibilité : niveau Seconde à Terminale, en cours ou récemment achevé",
+     "sourceKind": "eligibility",
+     "quote": "Applicants should be currently enrolled in, or have recently completed, “Seconde to Terminale”."
+    },
+    {
+     "claim": "Éligibilité : citoyenneté et résidence permanente au Burkina Faso",
+     "sourceKind": "eligibility",
+     "quote": "Be a citizen of Burkina Faso, Hold permanent residency in Burkina Faso."
+    },
+    {
+     "claim": "Éligibilité : anglais, base seulement, maîtrise courante non exigée à la candidature",
+     "sourceKind": "eligibility",
+     "quote": "While fluency is not required at the time of application, applicants are advised to attain a basic proficiency in English"
+    },
+    {
+     "claim": "Éligibilité : une seule candidature UWC par année académique",
+     "sourceKind": "eligibility",
+     "quote": "you are only allowed to submit one application per academic year to study at UWC"
+    },
+    {
+     "claim": "Éligibilité : impact positif dans la communauté, résilience et adaptabilité",
+     "sourceKind": "eligibility",
+     "quote": "The resilience and adaptability needed for an international and rigorous residential educational experience."
+    },
+    {
+     "claim": "Pièces : formulaire en ligne (informations personnelles, parcours, activités, motivations)",
+     "sourceKind": "benefits",
+     "quote": "Completing an online application form with personal details, academic background, extracurricular activities, and motivations for applying to UWC."
+    },
+    {
+     "claim": "Pièces : essais ou réponses courtes",
+     "sourceKind": "benefits",
+     "quote": "Submitting essays or short responses to demonstrate critical thinking and commitment to UWC values."
+    },
+    {
+     "claim": "Pièces : références d’enseignants, mentors ou responsables communautaires",
+     "sourceKind": "benefits",
+     "quote": "Providing references from teachers, mentors, or community leaders."
+    },
+    {
+     "claim": "Pièces : relevés scolaires et autres documents demandés",
+     "sourceKind": "benefits",
+     "quote": "Uploading academic transcripts and other required documents."
+    },
+    {
+     "claim": "Pièces : autorisation signée du parent ou tuteur légal",
+     "sourceKind": "benefits",
+     "quote": "Signed permission from the parent or legal guardian."
+    },
+    {
+     "claim": "Démarche : la candidature se dépose sur la plateforme apply.uwc.org (création de compte puis profil d’éligibilité)",
+     "sourceKind": "application",
+     "quote": "Step 1: Create a new account using the 'Register' button to the right."
+    },
+    {
+     "claim": "Démarche : voie par le comité national du pays de résidence ou de citoyenneté",
+     "sourceKind": "application",
+     "quote": "Through the UWC national committee (NC) in your country of residence or citizenship"
+    },
+    {
+     "claim": "Sélection : entretien de panel pour les candidats présélectionnés",
+     "sourceKind": "benefits",
+     "quote": "Individual Interviews: A panel interview where applicants discuss their motivations, aspirations, and alignment with UWC’s values."
+    },
+    {
+     "claim": "Calendrier : ouverture des candidatures le 1er novembre 2026",
+     "sourceKind": "cycle",
+     "quote": "Application Open: November 1st, 2026"
+    },
+    {
+     "claim": "Calendrier : clôture le 3 janvier 2027",
+     "sourceKind": "cycle",
+     "quote": "Application Deadline: January 3rd, 2027"
+    },
+    {
+     "claim": "Calendrier : activités de sélection en février 2027, décisions finales en mars 2027",
+     "sourceKind": "cycle",
+     "quote": "Selection Activities: February 2027 Final Decisions Announced: March 2027"
+    },
+    {
+     "claim": "Statut au 29/09/2026 : les candidatures ne sont pas encore ouvertes, donc « forecast » avec dates confirmées reste correct",
+     "sourceKind": "overview",
+     "quote": "Applications are currently closed. Register your interest and get notified once applications open."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "scholarship.keyRequirementsFr[5] / keyRequirementsEn[5] et applicationSteps[3].description",
+     "recordSays": "« Informations financières si la candidature est retenue pour une nomination » ; étape 4 : « Si présélectionné, … transmettre les informations financières demandées »",
+     "pageSays": "La page demande les informations financières à tous les candidats, pas seulement aux présélectionnés ou aux nommés.",
+     "quote": "all applicants will be requested to submit financial information to this effect",
+     "sourceKind": "benefits",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "scholarship.keyRequirementsFr[5] / scholarship.keyRequirementsEn[5]",
+     "newFr": "Informations financières demandées à tous les candidats, pour déterminer l’aide en cas de nomination",
+     "newEn": "Financial information requested from all applicants, to determine aid if nominated",
+     "justificationQuote": "all applicants will be requested to submit financial information to this effect"
+    },
+    {
+     "field": "applicationSteps[stepNumber 4].descriptionFr / descriptionEn",
+     "newFr": "Si présélectionné, participer à l’entretien de panel lors des activités de sélection de février 2027, puis attendre les décisions finales de mars 2027. Les informations financières sont demandées à tous les candidats, pour déterminer l’aide en cas de nomination.",
+     "newEn": "If shortlisted, attend the panel interview during the February 2027 selection activities, then await the final decisions in March 2027. Financial information is requested from all applicants, to determine aid if nominated.",
+     "justificationQuote": "all applicants will be requested to submit financial information to this effect"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Avantage « cursus résidentiel de deux ans préparant au Baccalauréat International »",
+     "reason": "page silencieuse sur la durée du programme IB : seuls figurent « final two years of secondary education », « residential » et « IB Diploma Programme » (apply.uwc.org), sans phrase qui relie les trois"
+    },
+    {
+     "claim": "Heures exactes d’ouverture et de clôture (00:00:00 le 1er novembre 2026 ; 23:59:59 le 3 janvier 2027) et fuseau horaire",
+     "reason": "page silencieuse : seules les dates sont écrites ; l’heure retenue par la fiche est une convention du dépôt"
+    },
+    {
+     "claim": "Présence de la voie « Burkina Faso » dans le tableau de bord apply.uwc.org à l’ouverture du 1er novembre 2026",
+     "reason": "connexion requise ; la page publique de la plateforme est générique et ne liste aucune voie nationale"
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:03:27.000Z"
+  },
+  {
+   "id": "uwc_kenya_entry_2027",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://ke.uwc.org/",
+     "httpStatus": 200,
+     "finalUrl": "https://ke.uwc.org/",
+     "read": true,
+     "title": "Homepage - UWC Kenya",
+     "note": "Lu par curl (User-Agent Chrome). Page d’accueil générique : aucune date ni critère propre au Kenya (fiche appuyée sur les pages eligibility-criteria et how-to-apply)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://ke.uwc.org/eligibility-criteria/",
+     "httpStatus": 200,
+     "finalUrl": "https://ke.uwc.org/eligibility-criteria/",
+     "read": true,
+     "title": "Eligibility Criteria - UWC Kenya",
+     "note": ""
+    },
+    {
+     "kind": "benefits",
+     "url": "https://ke.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://ke.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Kenya",
+     "note": "Même page que les kinds application et cycle."
+    },
+    {
+     "kind": "application",
+     "url": "https://ke.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://ke.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Kenya",
+     "note": "Même page que benefits et cycle. Le dépôt se fait par courriel (adresse masquée par Cloudflare dans le HTML) avec un PDF unique ; le formulaire « Applicant Information Form » est un .docx à télécharger. Le lien « apply online » n’est pas un lien dans le HTML."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://ke.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://ke.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Kenya",
+     "note": "Même page que benefits et application ; la fenêtre est aussi écrite sur la page eligibility-criteria."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Calendrier : fenêtre de candidature entrée 2027 du 1er juillet au 31 décembre 2026, actuellement ouverte",
+     "sourceKind": "cycle",
+     "quote": "Entry 2027 application window is now open from 1st July – 31st December 2026."
+    },
+    {
+     "claim": "Calendrier : les pièces se déposent uniquement du 1er au 31 décembre 2026",
+     "sourceKind": "cycle",
+     "quote": "Do NOT submit your application documents before 1st December 2026 or after 31st December 2026"
+    },
+    {
+     "claim": "Calendrier : examen des candidatures du 1er au 31 décembre 2026",
+     "sourceKind": "eligibility",
+     "quote": "Applications will be reviewed from 1st December – 31st December 2026."
+    },
+    {
+     "claim": "Calendrier : journées d’entretien en janvier 2027",
+     "sourceKind": "cycle",
+     "quote": "Stage 2: Interview day(s): January 2027"
+    },
+    {
+     "claim": "Calendrier : offres annoncées en février 2027",
+     "sourceKind": "cycle",
+     "quote": "Stage 3: Shortlist and offers: February 2027"
+    },
+    {
+     "claim": "Financement : place entièrement ou partiellement financée selon le besoin démontré",
+     "sourceKind": "benefits",
+     "quote": "Receive an offer for a UWC placement, which may be fully or partially funded depending on demonstrated need"
+    },
+    {
+     "claim": "Avantage : aide financière complète ou partielle pour la majorité des élèves sélectionnés par un comité national",
+     "sourceKind": "overview",
+     "quote": "Over 80% of IBDP students selected by a UWC national committee receive full or partial financial support."
+    },
+    {
+     "claim": "Éligibilité : âge, 19 ans en 2027 seulement après le 1er septembre 2027",
+     "sourceKind": "eligibility",
+     "quote": "Applicants turning 19 years in 2027 must do so after 1st September 2027."
+    },
+    {
+     "claim": "Éligibilité : citoyenneté ou résidence kenyane, double nationalité comprise",
+     "sourceKind": "eligibility",
+     "quote": "All applicants must hold Kenyan citizenship or residency, including dual citizens."
+    },
+    {
+     "claim": "Éligibilité : les résidents au Kenya doivent y étudier et y achever le secondaire",
+     "sourceKind": "eligibility",
+     "quote": "Applicants who are residents of Kenya must be studying and currently completing their high school education within the country."
+    },
+    {
+     "claim": "Éligibilité : candidats hors du Kenya, comité national UWC Kenya uniquement et pas de canal parallèle",
+     "sourceKind": "eligibility",
+     "quote": "Applicants residing and studying outside of Kenya may apply via the UWC Kenya National Committee only, but not via other application channels, concurrently."
+    },
+    {
+     "claim": "Éligibilité : 8-4-4 Form 4 achevé",
+     "sourceKind": "eligibility",
+     "quote": "8-4-4 curriculum – Form 4 (graduated)"
+    },
+    {
+     "claim": "Éligibilité : IGCSE Year 11 en cours",
+     "sourceKind": "eligibility",
+     "quote": "Cambridge IGCSE – Year 11(ongoing)"
+    },
+    {
+     "claim": "Éligibilité : cursus américain Grade 10 en cours",
+     "sourceKind": "eligibility",
+     "quote": "American curriculum – Grade 10 (ongoing)"
+    },
+    {
+     "claim": "Éligibilité : IB MYP 5 en cours",
+     "sourceKind": "eligibility",
+     "quote": "International Baccalaureate – MYP 5 (ongoing)"
+    },
+    {
+     "claim": "Éligibilité : école allemande Grade 10 en cours",
+     "sourceKind": "eligibility",
+     "quote": "German School – Grade 10 (ongoing)"
+    },
+    {
+     "claim": "Éligibilité : équivalent homeschool selon le cursus",
+     "sourceKind": "eligibility",
+     "quote": "Homeschooling – equivalent to above based on curriculum"
+    },
+    {
+     "claim": "Éligibilité : valeurs UWC (intégrité, service, respect, action personnelle)",
+     "sourceKind": "eligibility",
+     "quote": "Personal responsibility and integrity"
+    },
+    {
+     "claim": "Éligibilité : anglais, base seulement, maîtrise courante non exigée à la candidature",
+     "sourceKind": "eligibility",
+     "quote": "While fluency is not required at the time of application, applicants are advised to attain a basic proficiency in English"
+    },
+    {
+     "claim": "Éligibilité : une seule candidature UWC par année académique",
+     "sourceKind": "eligibility",
+     "quote": "you are only allowed to submit one application per academic year to study at UWC"
+    },
+    {
+     "claim": "Pièces : deux lettres de recommandation, l’une co-curriculaire",
+     "sourceKind": "application",
+     "quote": "One from a co-curricular referee (e.g. coach, club leader, mentor)"
+    },
+    {
+     "claim": "Pièces : deux lettres de recommandation, l’une académique",
+     "sourceKind": "application",
+     "quote": "One from an academic referee (e.g. teacher)"
+    },
+    {
+     "claim": "Pièces : certificats de réussite, leadership ou distinctions, si disponibles",
+     "sourceKind": "application",
+     "quote": "Any certificates of achievement, leadership, or awards relevant to your academic or extracurricular experience."
+    },
+    {
+     "claim": "Démarche : un seul fichier PDF envoyé par courriel",
+     "sourceKind": "application",
+     "quote": "Combine all the above documents into one pdf document and submit to:"
+    },
+    {
+     "claim": "Sélection : présence physique à Nairobi pour la journée d’entretien",
+     "sourceKind": "application",
+     "quote": "Shortlisted applicants will physically attend a full day of interactive sessions in Nairobi, Kenya; date and location to be advised."
+    },
+    {
+     "claim": "Sélection : entretien de panel",
+     "sourceKind": "application",
+     "quote": "Individual interviews: A panel interview where applicants discuss their motivations, aspirations, and alignment with UWC’s values."
+    },
+    {
+     "claim": "Sélection : présentation éventuelle d’un projet personnel",
+     "sourceKind": "application",
+     "quote": "Candidates may be asked to present a personal project or initiative they have worked on that reflects their commitment to making a positive impact."
+    },
+    {
+     "claim": "Frais : 3 000 KES pour la journée d’entretien, exonération au cas par cas",
+     "sourceKind": "application",
+     "quote": "UWC Kenya Trust charges a non-refundable fee of KES 3,000.00 for attending the interview day (*fee waivers are considered on a case-by-case basis)"
+    },
+    {
+     "claim": "Statut au 29/09/2026 : fenêtre ouverte, clôture (31/12/2026) dans le futur, donc « open » avec dates confirmées reste correct",
+     "sourceKind": "cycle",
+     "quote": "Entry 2027 application window is now open from 1st July – 31st December 2026."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "scholarship.eligibilityFr[4] / eligibilityEn[4]",
+     "recordSays": "8-4-4 Form 4 ou « CBC Grade 12 » déjà obtenus ; la liste des cursus en cours omet Pearson Edexcel GCSE",
+     "pageSays": "Pour le cursus CBE, le niveau exigé est le Grade 10 (achevé), pas le Grade 12 ; la page ajoute Pearson Edexcel GCSE Year 11 (en cours) ; les candidats de « tous les parcours reconnus » sont admis",
+     "quote": "CBE curriculum – Grade 10 (completed)",
+     "sourceKind": "eligibility",
+     "severity": "blocking"
+    },
+    {
+     "field": "scholarship.keyRequirementsFr[0] / keyRequirementsEn[0] et applicationSteps[1].description",
+     "recordSays": "« Résumé officiel des notes 2025 et 2026, signé ou tamponné par l’établissement, une page maximum par année » ; étape 2 : « relevés résumés »",
+     "pageSays": "La page exige des relevés de notes / bulletins officiels sur papier à en-tête de l’établissement, pour 2025 et 2026, tous les semestres jusqu’au dernier de 2026. Ni « résumé », ni « signé ou tamponné », ni « une page maximum » n’y figurent.",
+     "quote": "official transcripts / report cards on your school letterhead of your grades for 2 years (2025 and 2026) for ALL semesters",
+     "sourceKind": "application",
+     "severity": "blocking"
+    },
+    {
+     "field": "scholarship.keyRequirements (pièce manquante) et applicationSteps[1]",
+     "recordSays": "Aucune mention du formulaire de candidature à remplir ; les pièces se limitent aux relevés, recommandations, certificats et PDF",
+     "pageSays": "L’étape 1 commence par le téléchargement de l’« Applicant Information Form », avant la liste des pièces justificatives",
+     "quote": "STAGE 1: DOWNLOAD THE APPLICANT INFORMATION FORM BELOW",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "scholarship.keyRequirementsFr[6] / keyRequirementsEn[6] et applicationSteps[3].description",
+     "recordSays": "Informations financières « en cas de nomination » ; journée d’entretien de janvier avec « évaluation financière »",
+     "pageSays": "La liste des activités de la journée d’entretien ne comporte pas d’évaluation financière ; les informations financières sont demandées à tous les candidats, à l’étape des offres",
+     "quote": "all applicants will be requested to submit financial information to this effect",
+     "sourceKind": "benefits",
+     "severity": "minor"
+    },
+    {
+     "field": "scholarship.deadlineLabelFr / deadlineLabelEn",
+     "recordSays": "« Ouvert — clôture le 31 décembre 2026 »",
+     "pageSays": "La fenêtre est ouverte depuis le 1er juillet, mais aucun dossier ne doit être déposé avant le 1er décembre 2026 ; le libellé peut faire croire qu’on peut déposer dès maintenant",
+     "quote": "Do NOT submit your application documents before 1st December 2026 or after 31st December 2026",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "scholarship.eligibilityFr[4] / scholarship.eligibilityEn[4]",
+     "newFr": "Atteindre d’ici décembre 2026 le niveau officiel correspondant à son cursus : 8-4-4 Form 4 ou CBE Grade 10 déjà achevés, ou cursus en cours en Cambridge IGCSE Year 11, Pearson Edexcel GCSE Year 11, American Grade 10, IB MYP 5, German School Grade 10 ou équivalent homeschool",
+     "newEn": "Reach by December 2026 the published stage for the relevant curriculum: 8-4-4 Form 4 or CBE Grade 10 already completed, or ongoing Cambridge IGCSE Year 11, Pearson Edexcel GCSE Year 11, American Grade 10, IB MYP 5, German School Grade 10 or homeschool equivalent",
+     "justificationQuote": "CBE curriculum – Grade 10 (completed)"
+    },
+    {
+     "field": "scholarship.keyRequirementsFr[0] / scholarship.keyRequirementsEn[0]",
+     "newFr": "Relevés de notes / bulletins officiels sur papier à en-tête de l’établissement, pour 2025 et 2026, couvrant tous les semestres ou trimestres jusqu’au dernier de 2026",
+     "newEn": "Official transcripts / report cards on school letterhead for 2025 and 2026, covering all semesters or terms up to the last one of 2026",
+     "justificationQuote": "official transcripts / report cards on your school letterhead of your grades for 2 years (2025 and 2026) for ALL semesters"
+    },
+    {
+     "field": "scholarship.keyRequirementsFr / keyRequirementsEn (nouvel élément à insérer en première position)",
+     "newFr": "Formulaire d’information du candidat (Applicant Information Form), à télécharger sur la page officielle",
+     "newEn": "Applicant Information Form, to be downloaded from the official page",
+     "justificationQuote": "STAGE 1: DOWNLOAD THE APPLICANT INFORMATION FORM BELOW"
+    },
+    {
+     "field": "applicationSteps[stepNumber 2].descriptionFr / descriptionEn",
+     "newFr": "Télécharger le formulaire d’information du candidat sur la page officielle, obtenir les relevés de notes officiels et les deux recommandations, ajouter les certificats éventuels, puis fusionner les documents demandés en un seul PDF.",
+     "newEn": "Download the Applicant Information Form from the official page, obtain the official transcripts and both recommendations, add any certificates, then merge the requested documents into one PDF.",
+     "justificationQuote": "Combine all the above documents into one pdf document and submit to:"
+    },
+    {
+     "field": "scholarship.keyRequirementsFr[6] / scholarship.keyRequirementsEn[6]",
+     "newFr": "Informations financières demandées à tous les candidats, pour déterminer l’aide en cas de nomination",
+     "newEn": "Financial information requested from all applicants, to determine aid if nominated",
+     "justificationQuote": "all applicants will be requested to submit financial information to this effect"
+    },
+    {
+     "field": "applicationSteps[stepNumber 4].descriptionFr / descriptionEn",
+     "newFr": "En cas de présélection, préparer la journée d’entretiens de janvier 2027 à Nairobi : activités de groupe, entretien de panel et présentation éventuelle d’un projet personnel. Les offres sont annoncées en février 2027 ; les informations financières sont demandées à tous les candidats pour déterminer l’aide.",
+     "newEn": "If shortlisted, prepare for the January 2027 interview day in Nairobi: group activities, panel interview and a possible personal-project presentation. Offers are announced in February 2027; financial information is requested from all applicants to determine aid.",
+     "justificationQuote": "Activities on the interview day included, but are not limited to:"
+    },
+    {
+     "field": "scholarship.deadlineLabelFr / deadlineLabelEn (facultatif ; cycle.status reste « open », dates inchangées : opensAt 2026-07-01T00:00:00.000Z, closesAt 2026-12-31T23:59:59.000Z)",
+     "newFr": "Ouvert — dépôt des pièces du 1er au 31 décembre 2026",
+     "newEn": "Open — submit documents from 1 to 31 December 2026",
+     "justificationQuote": "Do NOT submit your application documents before 1st December 2026 or after 31st December 2026"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Avantage « cursus UWC de deux ans centré sur le Baccalauréat International »",
+     "reason": "page silencieuse sur la durée : les pages du Kenya parlent de « I.B. curriculum » sans écrire « deux ans »"
+    },
+    {
+     "claim": "Adresse exacte de dépôt du PDF",
+     "reason": "adresse masquée par la protection anti-spam de la page (« [email protected] ») ; la fiche renvoie à la page officielle, ce qui est correct"
+    },
+    {
+     "claim": "Heures exactes d’ouverture et de clôture (00:00:00 le 1er juillet 2026 ; 23:59:59 le 31 décembre 2026) et fuseau horaire",
+     "reason": "page silencieuse : seules les dates sont écrites ; l’heure retenue par la fiche est une convention du dépôt"
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:04:13.000Z"
+  },
+  {
+   "id": "uwc_tanzania_2027_forecast",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://tz.uwc.org/",
+     "httpStatus": 200,
+     "finalUrl": "https://tz.uwc.org/",
+     "read": true,
+     "title": "Homepage - UWC Tanzania",
+     "note": "Lu par curl avec un User-Agent Chrome : 200 et HTML complet le 29/09/2026 (le 403 signalé au fetch direct le 24/08 ne s’est pas reproduit). Bandeau : candidatures actuellement closes, formulaire de notification."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://tz.uwc.org/eligibility-criteria/",
+     "httpStatus": 200,
+     "finalUrl": "https://tz.uwc.org/eligibility-criteria/",
+     "read": true,
+     "title": "Eligibility Criteria - UWC Tanzania",
+     "note": ""
+    },
+    {
+     "kind": "benefits",
+     "url": "https://tz.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://tz.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Tanzania",
+     "note": "Même page que les kinds application et cycle."
+    },
+    {
+     "kind": "application",
+     "url": "https://tz.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://tz.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Tanzania",
+     "note": "Même page que benefits et cycle. Le lien « online application form » pointe vers un lien court externe (shorturl.at/EyxkT) qui répond 403 à curl ; non lu, hors des cinq sources, et lié à l’ancien cycle."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://tz.uwc.org/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://tz.uwc.org/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - UWC Tanzania",
+     "note": "Même page que benefits et application. Elle n’affiche que les dates du cycle précédent (décembre 2025 – février 2026)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Statut au 29/09/2026 : candidatures closes, inscription pour être notifié de la réouverture (donc « forecast » et non « suspended »)",
+     "sourceKind": "overview",
+     "quote": "Applications are currently closed. Register your interest and get notified once applications open."
+    },
+    {
+     "claim": "Calendrier : la seule ouverture affichée est celle du cycle précédent (8 décembre 2025)",
+     "sourceKind": "cycle",
+     "quote": "Application open: December 8th, 2025"
+    },
+    {
+     "claim": "Calendrier : la seule clôture affichée est celle du cycle précédent (16 janvier 2026)",
+     "sourceKind": "cycle",
+     "quote": "Application deadline: January 16th, 2026"
+    },
+    {
+     "claim": "Calendrier : sélection et décisions du cycle précédent (7 et 27 février 2026), aucune date 2027 sur la page",
+     "sourceKind": "cycle",
+     "quote": "Selection activities: February 7th, 2026 Final decisions announced: February 27th, 2026"
+    },
+    {
+     "claim": "Financement : place entièrement ou partiellement financée selon le besoin démontré",
+     "sourceKind": "benefits",
+     "quote": "Receive an offer for a UWC place, which may be fully or partially funded depending on demonstrated need"
+    },
+    {
+     "claim": "Avantage : aide financière complète ou partielle pour la majorité des élèves sélectionnés par un comité national",
+     "sourceKind": "overview",
+     "quote": "Over 80% of IBDP students selected by a UWC national committee receive full or partial financial support."
+    },
+    {
+     "claim": "Éligibilité : âge de 16 à 18 ans à l’inscription",
+     "sourceKind": "eligibility",
+     "quote": "Applicants must be between 16 and 18 years old at the time of enrolment."
+    },
+    {
+     "claim": "Éligibilité : Form Four CSEE achevé ou IGCSE/GCSE, MYP en cours",
+     "sourceKind": "eligibility",
+     "quote": "must have completed their Form Four CSEE education or expect to complete IGCSE/GCSE, MYP (Middle Years Programme)."
+    },
+    {
+     "claim": "Éligibilité : citoyen tanzanien ou résident permanent en Tanzanie",
+     "sourceKind": "eligibility",
+     "quote": "Be a citizen of Tanzania, or Hold permanent residency in Tanzania."
+    },
+    {
+     "claim": "Éligibilité : présence physique à Dar es Salaam pour tous les entretiens et évaluations financières, entretiens vers février",
+     "sourceKind": "eligibility",
+     "quote": "Candidates must be able to physically attend ALL interviews and financial assessments (if selected) in Dar es Salaam. The interviews usually happen around February."
+    },
+    {
+     "claim": "Éligibilité : anglais, base seulement, maîtrise courante non exigée à la candidature",
+     "sourceKind": "eligibility",
+     "quote": "While fluency is not required at the time of application, applicants are advised to attain a basic proficiency in English"
+    },
+    {
+     "claim": "Éligibilité : une seule candidature UWC par année académique",
+     "sourceKind": "eligibility",
+     "quote": "you are only allowed to submit one application per academic year to study at UWC"
+    },
+    {
+     "claim": "Éligibilité : impact communautaire positif, résilience et adaptabilité",
+     "sourceKind": "eligibility",
+     "quote": "The resilience and adaptability needed for an international and rigorous residential educational experience."
+    },
+    {
+     "claim": "Pièces : formulaire en ligne (informations personnelles, parcours, activités, motivations)",
+     "sourceKind": "application",
+     "quote": "Completing an online application form with personal details, academic background, extracurricular activities, and motivations for applying to UWC."
+    },
+    {
+     "claim": "Pièces : essais ou réponses courtes",
+     "sourceKind": "application",
+     "quote": "Submitting essays or short responses to demonstrate critical thinking and commitment to UWC values."
+    },
+    {
+     "claim": "Pièces : références d’enseignants, mentors ou responsables communautaires",
+     "sourceKind": "application",
+     "quote": "Providing references from teachers, mentors, or community leaders."
+    },
+    {
+     "claim": "Pièces : relevés scolaires et autres documents demandés",
+     "sourceKind": "application",
+     "quote": "Uploading academic transcripts and other required documents."
+    },
+    {
+     "claim": "Pièces : autorisation signée du parent ou tuteur légal",
+     "sourceKind": "application",
+     "quote": "Signed permission from the parent or legal guardian."
+    },
+    {
+     "claim": "Sélection : tests écrits (raisonnement logique, résolution de problèmes, anglais)",
+     "sourceKind": "benefits",
+     "quote": "Tests and written assessments: These may assess logical reasoning, problem-solving skills, and English proficiency."
+    },
+    {
+     "claim": "Sélection : entretien de panel",
+     "sourceKind": "benefits",
+     "quote": "Individual interviews: A panel interview where applicants discuss their motivations, aspirations, and alignment with UWC’s values."
+    },
+    {
+     "claim": "Sélection : présentation éventuelle d’un projet personnel",
+     "sourceKind": "benefits",
+     "quote": "Candidates may be asked to present a personal project or initiative they have worked on that reflects their commitment to making a positive impact."
+    },
+    {
+     "claim": "Démarche : le lien de candidature est publié par le comité national ; la page actuelle renvoie à un lien court du cycle précédent",
+     "sourceKind": "application",
+     "quote": "To start your application, please visit https://shorturl.at/EyxkT or contact us at"
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "Fenêtre 2027 estimée (ouverture 8 décembre 2026, clôture 16 janvier 2027)",
+     "reason": "page silencieuse sur l’entrée 2027 : seules les dates du cycle précédent (8 décembre 2025 – 16 janvier 2026) figurent, et la fiche les décale d’un an en les déclarant « estimées », ce qui reste honnête ; rien à requalifier"
+    },
+    {
+     "claim": "Avantage « cursus résidentiel de deux ans préparant au Baccalauréat International »",
+     "reason": "page silencieuse sur la durée du programme : seuls figurent « final two years of secondary education » et « residential » (eligibility) et la mention IBDP sur l’accueil"
+    },
+    {
+     "claim": "Lien de candidature du nouveau cycle",
+     "reason": "le lien court shorturl.at/EyxkT (cycle 2025-2026) répond 403 et n’est pas une des cinq sources ; la page ne publie aucun lien pour l’entrée 2027"
+    },
+    {
+     "claim": "Heures exactes des bornes estimées et fuseau horaire",
+     "reason": "page silencieuse : bornes estimées reprises du cycle précédent, heure choisie par convention du dépôt"
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:04:37.000Z"
+  }
+ ]
+}

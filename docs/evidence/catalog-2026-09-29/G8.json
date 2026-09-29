@@ -1,0 +1,990 @@
+{
+ "group": "G8",
+ "records": [
+  {
+   "id": "eth_zurich_esop_2027",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "httpStatus": 200,
+     "finalUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "read": true,
+     "title": "Excellence Scholarship & Opportunity Programme – Student portal | ETH Zurich",
+     "note": "Page HTML statique lue en entier (texte extrait). Les cinq kinds partagent la même URL."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "httpStatus": 200,
+     "finalUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "read": true,
+     "title": "Excellence Scholarship & Opportunity Programme – Student portal | ETH Zurich",
+     "note": "Page HTML statique lue en entier (texte extrait). Les cinq kinds partagent la même URL."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "httpStatus": 200,
+     "finalUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "read": true,
+     "title": "Excellence Scholarship & Opportunity Programme – Student portal | ETH Zurich",
+     "note": "Page HTML statique lue en entier (texte extrait). Les cinq kinds partagent la même URL."
+    },
+    {
+     "kind": "application",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "httpStatus": 200,
+     "finalUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "read": true,
+     "title": "Excellence Scholarship & Opportunity Programme – Student portal | ETH Zurich",
+     "note": "Page HTML statique lue en entier (texte extrait). Les cinq kinds partagent la même URL."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "httpStatus": 200,
+     "finalUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "read": true,
+     "title": "Excellence Scholarship & Opportunity Programme – Student portal | ETH Zurich",
+     "note": "Page HTML statique lue en entier (texte extrait). Les cinq kinds partagent la même URL."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Programme réservé aux Masters réguliers d’ETH Zurich, hors MAS",
+     "sourceKind": "overview",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "ETH Zurich supports excellent Master's students (no MAS) with the following scholarship programme:"
+    },
+    {
+     "claim": "Financement complet des études et de la vie, avec mentorat et réseau de l’ETH Foundation",
+     "sourceKind": "benefits",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "The scholarship covers the full study and living costs during the Master’s degree course."
+    },
+    {
+     "claim": "Exonération des frais de scolarité en plus de l’allocation semestrielle",
+     "sourceKind": "benefits",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "a scholarship covering living and study expenses (CHF 12'000 per semester, from HS27 onwards 13'500 CHF) as well as a tuition fee waiver"
+    },
+    {
+     "claim": "Financement pour la durée normale du Master, trois ou quatre semestres",
+     "sourceKind": "benefits",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "ESOP is awarded for the regular duration of the Master’s programme (three or four semesters)."
+    },
+    {
+     "claim": "Environ 60 bourses pour la rentrée 2027/28",
+     "sourceKind": "overview",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "For the start in the academic year 2027/28 there will be assigned approximately 60 ESOP scholarships."
+    },
+    {
+     "claim": "Décision communiquée à la fin du mois de mars",
+     "sourceKind": "benefits",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "The decision is communicated at the end of March."
+    },
+    {
+     "claim": "Résultats de Licence : top 10 % / grade A, sur autoévaluation",
+     "sourceKind": "eligibility",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "Very good result in Bachelor’s degree programme (top 10% of Bachelor’s degree programme = grade A; this is based on self-assessment)."
+    },
+    {
+     "claim": "Exclusion des étudiants déjà inscrits en Master à ETH ou déjà titulaires d’un Master",
+     "sourceKind": "eligibility",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "If you are already enrolled in a Master's degree programme at ETH Zurich, or hold a Master degree, you are not eligible for ESOP."
+    },
+    {
+     "claim": "Il faut postuler dans la première fenêtre de candidature Master",
+     "sourceKind": "eligibility",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "For an ESOP Scholarship you must apply within the first application window."
+    },
+    {
+     "claim": "Candidature ESOP déposée via eApply (candidature Master en ligne)",
+     "sourceKind": "application",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "ESOP applications are supplied via eApply (online Master application)."
+    },
+    {
+     "claim": "Pré-projet de mémoire de Master rédigé personnellement, à téléverser en plus du dossier d’admission",
+     "sourceKind": "application",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "In addition to the documents for the Master admission you will need to upload a pre-proposal for your master thesis"
+    },
+    {
+     "claim": "Deux professeurs référents si le cursus ne demande pas déjà de références",
+     "sourceKind": "application",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "If your study programme does not ask for references you must name two reference persons (professors) for your ESOP application."
+    },
+    {
+     "claim": "Entretien téléphonique ou vidéo possible en février : rester joignable",
+     "sourceKind": "application",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "the selection process might include a phone/VC interview in February"
+    },
+    {
+     "claim": "Fenêtre de candidature du 1er au 30 novembre 2026 pour une entrée en HS27",
+     "sourceKind": "cycle",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "quote": "The next application window is open Nov, 1 - Nov, 30 2026, 11.59h, MEZ for a start in the Master programme in HS27."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "advantages[0] (allocation semestrielle)",
+     "recordSays": "12 000 CHF par semestre pour les dépenses d’études et de vie (aucune mention du relèvement)",
+     "pageSays": "12 000 CHF par semestre, mais 13 500 CHF à partir de HS27 (rentrée 2027/28, celle que couvre la fiche)",
+     "quote": "CHF 12'000 per semester, from HS27 onwards 13'500 CHF",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "sourceKind": "benefits",
+     "severity": "blocking"
+    },
+    {
+     "field": "cycle.closesAt (heure de clôture, source interne incohérente)",
+     "recordSays": "2026-11-30T10:59:00.000Z (11 h 59 CET) ; deadlineLabel « 11 h 59 CET »",
+     "pageSays": "La phrase d’introduction en gras dit 11.59h MEZ ; un paragraphe plus bas dit 12.59 MEZ. Le jour (30 novembre 2026) est identique dans les deux.",
+     "quote": "November 1 - 30 (12.59 MEZ)",
+     "url": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "advantages[0]",
+     "newFr": "Bourse de 13 500 CHF par semestre pour les dépenses d’études et de vie à partir du semestre HS27 (rentrée 2027–2028) ; 12 000 CHF auparavant",
+     "newEn": "CHF 13,500 per semester for study and living expenses from semester HS27 (2027–2028 intake); CHF 12,000 previously",
+     "justificationQuote": "CHF 12'000 per semester, from HS27 onwards 13'500 CHF",
+     "justificationUrl": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Heure exacte de clôture le 30 novembre 2026 (11 h 59 vs 12 h 59 CET)",
+     "reason": "La page se contredit (11.59h dans la phrase principale, 12.59 plus bas). Aucune modification proposée : la fiche suit la phrase principale ; à surveiller avant la clôture. Le jour est confirmé."
+    },
+    {
+     "claim": "CV comme pièce du dossier",
+     "reason": "Page silencieuse sur la liste des pièces d’admission Master (renvoie aux « documents for the Master admission ») ; seule mention indirecte : « telephone number specified in your CV »."
+    },
+    {
+     "claim": "Statut « forecast » au 29/09/2026",
+     "reason": "Cohérent : la fenêtre ouvre le 1er novembre 2026, donc pas encore ouverte. La page écrit pourtant « is open » au présent (formulation de la source). Dates de type « confirmed » car écrites sur la page."
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:06:09.000Z"
+  },
+  {
+   "id": "jj_wbgsp_2027_forecast",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "httpStatus": 200,
+     "finalUrl": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "read": true,
+     "title": "World Bank Scholarships Program - JJ/WBGSP",
+     "note": "Page HTML lue en entier. Le bloc « 2027 Application Cycle » annonce les deux fenêtres 2027."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://thedocs.worldbank.org/en/doc/912b7c054651373f33bb2e3ef1757772-0050052025/original/2026-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://thedocs.worldbank.org/en/doc/912b7c054651373f33bb2e3ef1757772-0050052025/original/2026-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "read": true,
+     "title": "2026 Application Guidelines for JJ/WBGSP Scholarship for Developing Country Nationals — Window 1 Programs (Updated October 2025)",
+     "note": "PDF de 18 pages lu (texte extrait). ATTENTION : c’est le guide du cycle 2026 (date limite 27/02/2026). La page overview renvoie désormais au guide 2027 fenêtre 1, lu aussi : https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf (HTTP 200, « Updated August 2026 », date limite 26/02/2027). Différences 2026 vs 2027 : dates et annexes pays uniquement."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "httpStatus": 200,
+     "finalUrl": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "read": true,
+     "title": "World Bank Scholarships Program - JJ/WBGSP",
+     "note": "Sections « Scholarship Benefits » et exclusions lues sur la page."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "httpStatus": 200,
+     "finalUrl": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "read": true,
+     "title": "World Bank Scholarships Program - JJ/WBGSP",
+     "note": "Sections « How to Apply » / fenêtres lues sur la page ; procédure détaillée lue dans le guide 2027 fenêtre 1."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "httpStatus": 200,
+     "finalUrl": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "read": true,
+     "title": "World Bank Scholarships Program - JJ/WBGSP",
+     "note": "Dates des deux fenêtres 2027 écrites sur la page. Aucune heure de clôture n’est publiée."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Avantages : scolarité, allocation mensuelle, vol aller-retour, assurance santé, allocation de voyage",
+     "sourceKind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "A JJ/WBGSP scholarship provides tuition, a monthly living stipend, round-trip airfare, health insurance, and travel allowance."
+    },
+    {
+     "claim": "Frais de scolarité et assurance médicale de base via l’université",
+     "sourceKind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Tuition for your graduate program and the cost of basic medical insurance obtained through the university."
+    },
+    {
+     "claim": "Allocation de voyage de 600 USD pour chacun des deux trajets",
+     "sourceKind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "In addition to the two-way air travel, scholars will receive a US $600 travel allowance for each trip;"
+    },
+    {
+     "claim": "Allocation mensuelle couvrant logement, nourriture, livres et dépenses de vie",
+     "sourceKind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "a monthly subsistence allowance to cover all living expenses (accommodations, food, etc., including books)"
+    },
+    {
+     "claim": "Durée : cursus ou deux ans maximum",
+     "sourceKind": "benefits",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Please note all JJ/WBGSP scholarships cover the duration of the graduate program or two years, whichever is less."
+    },
+    {
+     "claim": "Double nationalité d’un pays développé exclue",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Not hold dual citizenship of any developed country;"
+    },
+    {
+     "claim": "Bonne santé exigée",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Be in good health;"
+    },
+    {
+     "claim": "Licence obtenue au moins trois ans avant la date limite",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Hold a bachelor’s (or equivalent) degree earned at least 3 years prior to the Application Deadline date;"
+    },
+    {
+     "claim": "Emploi rémunéré à temps plein lié au développement au dépôt",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Be employed in development-related work in a paid full- time position at the time of submitting the scholarship application."
+    },
+    {
+     "claim": "Trois ans d’emploi rémunéré admissible dans les six dernières années (prise en compte des pays fragiles)",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Have at least 3 years of paid development-related employment since earning a bachelor’s degree (or equivalent university degree)"
+    },
+    {
+     "claim": "Liste 2027 des pays éligibles publiée le 15 juillet 2026 ; les dix pays cités (Bénin, Burkina Faso, Cameroun, Côte d’Ivoire, Guinée, Mali, Niger, Sénégal, Tchad, Togo) y figurent, ainsi que dans l’annexe 1 du guide 2027",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/brief/countries-eligible-for-jjwbgsp-scholarship",
+     "quote": "Countries Eligible for the JJWBGSP Scholarship in 2027"
+    },
+    {
+     "claim": "Date de publication de la liste des pays éligibles 2027",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/brief/countries-eligible-for-jjwbgsp-scholarship",
+     "quote": "July 15, 2026"
+    },
+    {
+     "claim": "Admission inconditionnelle (sauf financement) dans un Master participant hors pays de citoyenneté et de résidence",
+     "sourceKind": "eligibility",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "located outside of the applicant’s country of citizenship and country of residence"
+    },
+    {
+     "claim": "Exclusion des dirigeants, suppléants et personnels du Groupe Banque mondiale et de leurs proches",
+     "sourceKind": "eligibility",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Not be an Executive Director, his/her alternate, and/or staff of any type of appointment of the World Bank Group"
+    },
+    {
+     "claim": "Deux recommandations professionnelles, déposées en ligne",
+     "sourceKind": "application",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "Two recommendation letters, submitted online, from people who have direct knowledge of the applicant’s professional work experience."
+    },
+    {
+     "claim": "CV au format prescrit (annexe 4)",
+     "sourceKind": "application",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "C.V. using the format provided in Annex 4"
+    },
+    {
+     "claim": "Traductions anglaises des pièces non anglophones (non certifiées)",
+     "sourceKind": "application",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "if document(s) are not in English, they must be translated into English."
+    },
+    {
+     "claim": "Formulaire accessible uniquement après admission inconditionnelle et présélection par l’université",
+     "sourceKind": "application",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "The link to the JJ/WBGSP application form will only be communicated to candidates admitted unconditionally (except for finance)"
+    },
+    {
+     "claim": "Présélection par l’université participante avant transmission du lien privé",
+     "sourceKind": "application",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "shortlisted as eligible JJ/WBGSP applicants by the participating university"
+    },
+    {
+     "claim": "Une seule candidature autorisée (plusieurs = disqualification)",
+     "sourceKind": "application",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "Individuals who submit more than one application will be disqualified."
+    },
+    {
+     "claim": "Candidature à faire depuis un ordinateur, pas un téléphone",
+     "sourceKind": "application",
+     "url": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "quote": "DO NOT USE A CELL PHONE TO APPLY, AS THE SOFTWARE IS DESIGNED ONLY TO BE ACCESSED BY A COMPUTER."
+    },
+    {
+     "claim": "Fenêtre 1 : 18 janvier au 26 février 2027",
+     "sourceKind": "cycle",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Application Window #1 from January 18 to February 26, 2027"
+    },
+    {
+     "claim": "Fenêtre 2 : 29 mars au 21 mai 2027",
+     "sourceKind": "cycle",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Application Window #2 from March 29 to May 21, 2027"
+    },
+    {
+     "claim": "La page annonce désormais les dates 2027 (cycle forecast avec dates confirmées, non encore ouvert au 29/09/2026)",
+     "sourceKind": "cycle",
+     "url": "https://www.worldbank.org/en/programs/scholarships/jj-wbgsp",
+     "quote": "Dates of the 2027 application windows for developing country nationals have been announced."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "sources.eligibility",
+     "recordSays": "Guide 2026 fenêtre 1 (mis à jour octobre 2025), qui donne comme date limite le 27 février 2026",
+     "pageSays": "La page officielle renvoie au guide 2027 fenêtre 1 (mis à jour août 2026), date limite 26 février 2027 ; contenu identique à 2026 hors dates et annexes pays",
+     "quote": "Application Deadline: February 27, 2026 (for Window 1 programs only)",
+     "url": "https://thedocs.worldbank.org/en/doc/912b7c054651373f33bb2e3ef1757772-0050052025/original/2026-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "description / steps[0] (programmes participants « à reconfirmer »)",
+     "recordSays": "La liste des programmes participants et les critères détaillés restent à reconfirmer à l’ouverture",
+     "pageSays": "La liste des programmes participants 2027 est publiée (page datée du 21 août 2026) et les lignes directrices 2027 fenêtre 1 sont publiées (« Updated August 2026 »)",
+     "quote": "JJ/WBGSP Participating Programs for 2027 Scholarship Applications",
+     "url": "https://www.worldbank.org/en/programs/scholarships/brief/jjwbgsp-participating-programs",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "sources.eligibility",
+     "newFr": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "newEn": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf",
+     "justificationQuote": "Application Deadline: February 26, 2027 (for Window 1 programs only)",
+     "justificationUrl": "https://thedocs.worldbank.org/en/doc/fb18adc82a2cc6746503a520fe18a3f9-0050052026/original/2027-Application-Guidelines-for-DevelopingCountryNationals-W1.pdf"
+    },
+    {
+     "field": "description",
+     "newFr": "Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026, la liste des programmes participants 2027 est datée du 21 août 2026 (44 Masters participants), et la source annonce les deux fenêtres 2027 (relevé le 29/09/2026) : du 18 janvier au 26 février, puis du 29 mars au 21 mai. Les lignes directrices 2027 de la fenêtre 1 (mises à jour en août 2026) sont publiées ; la source précise que les critères d’éligibilité ne changent pas pendant un appel ouvert.",
+     "newEn": "Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026, the 2027 participating-programme list is dated 21 August 2026 (44 participating Masters), and the source announces both 2027 windows (checked 29/09/2026): 18 January – 26 February, then 29 March – 21 May. The 2027 Window 1 application guidelines (updated August 2026) are published; the source states that eligibility criteria will not change during an open call.",
+     "justificationQuote": "JJ/WBGSP Participating Programs for 2027 Scholarship Applications",
+     "justificationUrl": "https://www.worldbank.org/en/programs/scholarships/brief/jjwbgsp-participating-programs"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Heure de clôture de la fenêtre 1 (closesAt 2027-02-26T23:59:59Z)",
+     "reason": "Page et guide donnent seulement « February 26, 2027 », sans heure ni fuseau ; la fiche l’indique déjà (fin de journée UTC retenue). Aucune modification."
+    },
+    {
+     "claim": "Fenêtre applicable à chaque Master participant (1 ou 2)",
+     "reason": "Les listes par fenêtre sont sur des pages liées (non lues) ; la page overview dit seulement que le processus est organisé en deux tours selon le calendrier académique des programmes."
+    },
+    {
+     "claim": "Liste des fragile states / FAQ fenêtre 1 (comptage du temps partiel)",
+     "reason": "FAQ 2027 non lue (hors des cinq sources de la fiche)."
+    },
+    {
+     "claim": "steps[0] : « activer l’alerte pour reconfirmer les programmes participants et les critères dès l’ouverture »",
+     "reason": "Conseil de prudence, non contredit ; la liste des programmes est désormais publiée mais l’ouverture (18/01/2027) n’a pas eu lieu. Modification optionnelle non proposée."
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:06:54.000Z"
+  },
+  {
+   "id": "eiffel_excellence_master_2027",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "httpStatus": 200,
+     "finalUrl": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "read": true,
+     "title": "France Excellence Eiffel scholarship program | Campus France",
+     "note": "Page lue en entier. Elle affiche toujours le calendrier de la session 2026 (« Call for application 2026 is open. ») ; aucune mention de 2027 dans le HTML brut."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "httpStatus": 200,
+     "finalUrl": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "read": true,
+     "title": "The France Excellence Eiffel scholarship program | Campus France",
+     "note": "Page lue en entier ; aucune mention de 2027. (Note hors fiche : cette page donne 2 100 EUR pour le doctorat, la page implementation 2 000 EUR.)"
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "httpStatus": 200,
+     "finalUrl": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "read": true,
+     "title": "France Excellence Eiffel Scholarship - Implementation | Campus France",
+     "note": "Page lue en entier (règlement des boursiers, renvoie au « Eiffel program rules 2025 »)."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "httpStatus": 200,
+     "finalUrl": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "read": true,
+     "title": "FAQ programme de bourses Eiffel | Campus France",
+     "note": "FAQ en français destinée aux établissements, lue en entier ; titre de page : « FAQ : Appel à candidature à la bourse Eiffel »."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "read": true,
+     "title": "Plaquette Eiffel – Master - EN (PDF, 2 pages)",
+     "note": "PDF lu en entier (texte extrait). Le calendrier y est donné sous forme de régime récurrent, sans année : c’est la base de l’estimation 2027–2028."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Bourse du ministère de l’Europe et des Affaires étrangères, gérée par Campus France",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "The Eiffel Excellence Scholarship Program was established by the French Ministry for Europe and Foreign Affairs"
+    },
+    {
+     "claim": "Âge maximal 29 ans au niveau Master",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "applicants from foreign countries up to 29 years old at master’s level"
+    },
+    {
+     "claim": "Seuls les établissements français déposent les candidatures",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "Only applications submitted by French higher education institutions are accepted."
+    },
+    {
+     "claim": "Session 2026 (base de l’estimation) : ouverture du 1er octobre 2025",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "Opening of the call for applications: October 1, 2025"
+    },
+    {
+     "claim": "Session 2026 : clôture de réception par Campus France le 8 janvier 2026",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "Deadline for the reception of applications by Campus France: January 8, 2026 included."
+    },
+    {
+     "claim": "Session 2026 : résultats à partir du 30 mars 2026",
+     "sourceKind": "overview",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program",
+     "quote": "Publication of results: from the 30th of March, 2026"
+    },
+    {
+     "claim": "Sept domaines d’étude prioritaires pour les volets Master et doctorat",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "cover the following seven areas of study for the Master's and Doctorate elements"
+    },
+    {
+     "claim": "Durée maximale de 12 mois en M2",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "a maximum of 12 months when enrolling in an M2"
+    },
+    {
+     "claim": "Durée maximale de 24 mois en M1",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "a maximum of 24 months when enrolling in an M1"
+    },
+    {
+     "claim": "Durée maximale de 36 mois pour un diplôme d’ingénieur",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "a maximum of 36 months for the completion of an engineering degree"
+    },
+    {
+     "claim": "Allocation mensuelle de 1 200 EUR au niveau Master depuis janvier 2026",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "receive a monthly allowance of €1,200 (from January 2026)"
+    },
+    {
+     "claim": "Frais de scolarité non couverts par le programme lui-même",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "For both elements of the program, tuition fees are not covered by the France Excellence Eiffel program."
+    },
+    {
+     "claim": "Candidatures directes d’étudiants ou d’établissements étrangers inéligibles",
+     "sourceKind": "eligibility",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "quote": "Applications sent directly by students or by foreign institutions will be declared ineligible."
+    },
+    {
+     "claim": "Exonération des droits d’inscription pour diplômes nationaux et ingénieur en établissement public",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "are exempt from tuition charges for programs leading to a national diploma (master, doctorate) or accredited engineering degree in public institutions"
+    },
+    {
+     "claim": "Voyage aérien en classe la moins chère pris en charge",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "Airfare in the least-expensive class available is covered by the scholarship."
+    },
+    {
+     "claim": "Remboursement du transport national jusqu’au lieu d’études",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "Recipients may also claim reimbursement of the cost of domestic travel to reach their academic location in France."
+    },
+    {
+     "claim": "Assurance santé temporaire par Campus France puis sécurité sociale gratuite et obligatoire",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "enrolled by Campus France in a temporary health insurance plan until their coverage by the French national scheme (Sécurité Sociale) takes effect"
+    },
+    {
+     "claim": "Logement en résidence CROUS ou dans le parc privé",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "Campus France offers recipients a choice of housing in student dormitories managed by CROUS (the national student housing agency) or in private homes."
+    },
+    {
+     "claim": "Activités culturelles et de loisirs organisées par Campus France",
+     "sourceKind": "benefits",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "quote": "Campus France offers weekend outings to allow recipients to relax for a few days and meet other Eiffel recipients:"
+    },
+    {
+     "claim": "Tous les établissements français peuvent déposer des candidatures",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "Tous les établissements d'enseignement supérieur français peuvent soumettre des candidatures."
+    },
+    {
+     "claim": "Formations accréditées par l’État, master ou diplôme d’ingénieur uniquement",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "Les candidatures soumises ne doivent concerner que des formations accréditées par l'Etat français"
+    },
+    {
+     "claim": "Formation continue, apprentissage et professionnalisation exclus",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "ne sont pas éligibles à la bourse Eiffel."
+    },
+    {
+     "claim": "Limite de 40 candidatures par établissement, par domaine et par volet",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "chaque établissement ne pourra présenter plus de 40 candidatures par domaine et par volet."
+    },
+    {
+     "claim": "Volet Master : seuls les candidats résidant à l’étranger sont éligibles",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "Sur le volet Master, seuls les candidats résidant actuellement à l'étranger sont éligibles."
+    },
+    {
+     "claim": "Non-cumul avec une autre bourse du gouvernement français",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "La bourse Eiffel n'est pas cumulable avec une autre bourse du gouvernement français"
+    },
+    {
+     "claim": "Carte d’identité acceptée à titre provisoire à la place du passeport",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "la copie de la carte d'identité peut être jointe en remplacement"
+    },
+    {
+     "claim": "Justificatifs de langue facultatifs au dossier Eiffel",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "Les questions relatives au niveau de langue sont optionnelles dans le formulaire"
+    },
+    {
+     "claim": "Sélection par sept collèges d’experts, un par domaine",
+     "sourceKind": "application",
+     "url": "https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel",
+     "quote": "La sélection est effectuée par une commission composée de sept collèges d'experts (un par domaine d'études)."
+    },
+    {
+     "claim": "Calendrier récurrent : appel fin septembre",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Online call for applications: end of September"
+    },
+    {
+     "claim": "Calendrier récurrent : dépôt des établissements première semaine de janvier",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Deadline for institutions to send applications to Campus France: 1st week of January"
+    },
+    {
+     "claim": "Calendrier récurrent : résultats en mars",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Publication of results: March"
+    },
+    {
+     "claim": "Binationaux dont une nationalité française inéligibles",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Candidates with dual nationality, one of which is French, are not eligible."
+    },
+    {
+     "claim": "Candidats déjà en études en France inéligibles au niveau Master",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Candidates currently studying in France are ineligible."
+    },
+    {
+     "claim": "Frais de visa non facturés lorsque applicable",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Where applicable, no visa fees"
+    },
+    {
+     "claim": "Engagement de l’établissement d’accueil à inscrire les lauréats",
+     "sourceKind": "cycle",
+     "url": "https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf",
+     "quote": "Host French institutions commit to register awardees in the programme for which they were selected."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "advantages[2] (voyage international)",
+     "recordSays": "Prise en charge du voyage international vers la France et du retour, ainsi que du transport national",
+     "pageSays": "Billet remboursé sur justificatifs, plafonné à 50 % du tarif maximal fixé par le ministère pour le pays concerné (aller comme retour)",
+     "quote": "reimbursed in an amount not to exceed 50% of the maximum rate set by the Ministry for Europe and Foreign Affairs",
+     "url": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation",
+     "sourceKind": "benefits",
+     "severity": "minor"
+    },
+    {
+     "field": "advantages[1] (durée)",
+     "recordSays": "12 mois en Master 2, 24 mois en Master 1 (durées présentées comme fixes ; ingénieur omis)",
+     "pageSays": "Ce sont des maxima (12 / 24 / 36 mois pour un diplôme d’ingénieur)",
+     "quote": "a maximum of 12 months when enrolling in an M2",
+     "url": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "advantages[1]",
+     "newFr": "Bourse versée de 12 à 36 mois selon le diplôme et l’année d’inscription : au maximum 12 mois en Master 2, 24 mois en Master 1 et 36 mois pour un diplôme d’ingénieur",
+     "newEn": "Funding paid for 12 to 36 months depending on the degree and year of enrolment: a maximum of 12 months in Master 2, 24 months in Master 1 and 36 months for an engineering degree",
+     "justificationQuote": "a maximum of 12 months when enrolling in an M2",
+     "justificationUrl": "https://www.campusfrance.org/en/the-france-excellence-eiffel-scholarship-program"
+    },
+    {
+     "field": "advantages[2]",
+     "newFr": "Prise en charge du voyage international vers la France et du retour, remboursé sur justificatifs dans la limite de 50 % du barème maximal fixé par le ministère, ainsi que du transport national jusqu’au lieu d’études",
+     "newEn": "Coverage of international travel to France and the return trip, reimbursed on receipts up to 50% of the maximum rate set by the ministry, plus national transport to the place of study",
+     "justificationQuote": "reimbursed in an amount not to exceed 50% of the maximum rate set by the Ministry for Europe and Foreign Affairs",
+     "justificationUrl": "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-implementation"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Dates du cycle 2027–2028 (ouverture estimée 2026-09-30, clôture estimée 2027-01-08)",
+     "reason": "Page silencieuse : aucune mention de 2027 dans les cinq sources (HTML brut compris) ; le site affiche encore la session 2026. La fiche reste correctement « forecast » + « estimated » ; l’estimation repose sur la brochure (fin septembre / 1re semaine de janvier / mars) et sur la session 2026 (1er octobre 2025, 8 janvier 2026, 30 mars 2026), toutes deux relues. À noter : si l’appel n’ouvre pas d’ici le 30/09/2026, le libellé « appel attendu fin septembre 2026 » sera à rediscuter."
+    },
+    {
+     "claim": "Montant de 1 200 EUR pour la promotion 2027–2028",
+     "reason": "Les pages datent le montant « from January 2026 » ; rien sur 2027."
+    },
+    {
+     "claim": "Pièces du dossier : diplômes, relevés, CV, lettre de motivation situant le projet dans un domaine prioritaire",
+     "reason": "Page silencieuse : la liste des pièces figure dans le guide pratique réservé aux établissements (non public). Seuls passeport/carte d’identité et niveau de langue sont documentés."
+    },
+    {
+     "claim": "Date limite interne de l’établissement « largement antérieure » à la date nationale",
+     "reason": "Les pages disent seulement de contacter l’établissement pour connaître ses procédures et dates limites."
+    },
+    {
+     "claim": "« l’établissement classe ses candidats »",
+     "reason": "La brochure écrit « pre-selected by their institution » ; la notion de classement n’apparaît pas dans les pages lues."
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:07:35.000Z"
+  },
+  {
+   "id": "erasmus_mundus_joint_masters_2027",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "httpStatus": 200,
+     "finalUrl": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "read": true,
+     "title": "Erasmus Mundus Joint Masters (students) - Erasmus+",
+     "note": "Page lue en entier (dernière mise à jour affichée : 26 juin 2025)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "httpStatus": 200,
+     "finalUrl": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "read": true,
+     "title": "Erasmus Mundus action - Erasmus+",
+     "note": "Guide du programme (Part B, KA2), lu en entier ; appels ERASMUS-EDU-2026-…, règles de financement des bourses étudiantes lues."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "httpStatus": 200,
+     "finalUrl": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "read": true,
+     "title": "Erasmus Mundus action - Erasmus+",
+     "note": "Même page ; section « Student scholarships » et bourses ciblées (NDICI / IPA III)."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "httpStatus": 200,
+     "finalUrl": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "read": true,
+     "title": "Erasmus Mundus Catalogue - European Education and Culture Executive Agency",
+     "note": "Page lue ; le catalogue (218 projets) est chargé côté serveur et filtrable par année de sélection 2018–2025."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "httpStatus": 200,
+     "finalUrl": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "read": true,
+     "title": "Erasmus Mundus Catalogue - European Education and Culture Executive Agency",
+     "note": "Même page : elle donne la fenêtre générale octobre–janvier, sans calendrier daté 2027–2028."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Pas de candidature centralisée : on postule directement à l’établissement qui pilote le master",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "Students apply directly to the institution running their chosen programme."
+    },
+    {
+     "claim": "Consortium d’au moins trois établissements de trois pays",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "They involve at least 3 institutions from at least 3 different countries"
+    },
+    {
+     "claim": "Bourses complètes pour les meilleurs classés dans le monde",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "Masters may also offer full scholarships to the best-ranked students worldwide."
+    },
+    {
+     "claim": "Durée de 1 à 2 années académiques (60, 90 ou 120 ECTS)",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "1 to 2 academic years (60, 90 or 120 ECTS credits)."
+    },
+    {
+     "claim": "Candidatures en général d’octobre à janvier pour la rentrée suivante",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "In most cases, you should submit your application between October and January for courses starting the following academic year."
+    },
+    {
+     "claim": "Licence exigée ou dernière année de Licence, diplôme obtenu avant le début du master",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "have a bachelor’s degree (first degree), or be in your last year of bachelor studies"
+    },
+    {
+     "claim": "Diplômé avant le début du master",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "graduate before the master’s programme starts"
+    },
+    {
+     "claim": "Chaque site de master détaille critères d’entrée et démarches",
+     "sourceKind": "overview",
+     "url": "https://erasmus-plus.ec.europa.eu/opportunities/individuals/students/erasmus-mundus-joint-masters",
+     "quote": "Each master's website has all the details about the course of study, the list of the participating universities, the entry requirements"
+    },
+    {
+     "claim": "Premier diplôme du supérieur ou niveau équivalent reconnu",
+     "sourceKind": "eligibility",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "An EMJM enrols students at Master level who have obtained a first higher education degree or demonstrate a recognised equivalent level of learning"
+    },
+    {
+     "claim": "Sélection sous la seule responsabilité du consortium",
+     "sourceKind": "eligibility",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "The selection, recruitment and monitoring of individual students fall under the sole responsibility of the EMJM consortium."
+    },
+    {
+     "claim": "Pas de nouvelle bourse pour qui a déjà obtenu une bourse EMJM",
+     "sourceKind": "eligibility",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "Students who have previously obtained an EMJM scholarship are not eligible to apply for an additional scholarship under the EMJM."
+    },
+    {
+     "claim": "Bourses ouvertes aux étudiants du monde entier",
+     "sourceKind": "eligibility",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "EMJM scholarships can be offered to students from all over the world."
+    },
+    {
+     "claim": "Plafond de 10 % par nationalité (hors bourses ciblées)",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "no more than 10% of the total number of scholarships awarded during project implementation should be awarded to candidates from the same nationality"
+    },
+    {
+     "claim": "Coût unitaire de 1 400 EUR par mois",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "The scholarship is calculated as: 1 400 Euros/month x DS"
+    },
+    {
+     "claim": "Bourse couvrant voyage, visa, installation et subsistance",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "shall cover travel, visa, installation and subsistence costs"
+    },
+    {
+     "claim": "Bourse sur toute la durée du master (12, 18 ou 24 mois)",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "The scholarship is awarded for full-time enrolment, and will cover the entire duration of the Master programme (i.e. 12, 18, 24 months)."
+    },
+    {
+     "claim": "Réduction possible par reconnaissance d’acquis, minimum une année académique",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "A reduced duration of the scholarship is applicable in case of recognition of prior learning (with a minimum scholarship duration of one academic year)."
+    },
+    {
+     "claim": "Aucun frais de scolarité ou frais obligatoires facturés aux boursiers",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "projects cannot charge tuition fees or other mandatory costs related to student participation in the course to Erasmus Mundus scholarship holders"
+    },
+    {
+     "claim": "Jusqu’à 18 bourses supplémentaires Global Europe (NDICI)",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "up to 18 additional scholarships (including the corresponding institutional costs) funded by the Neighbourhood, Development and International Cooperation – Global Europe Instrument (NDICI)"
+    },
+    {
+     "claim": "Jusqu’à 3 bourses supplémentaires IPA III",
+     "sourceKind": "benefits",
+     "url": "https://erasmus-plus.ec.europa.eu/programme-guide/part-b/key-action-2/erasmus-mundus-action",
+     "quote": "up to 3 additional scholarships (including the corresponding institutional costs) funded by the Instrument for Pre-Accession Assistance (IPA III)"
+    },
+    {
+     "claim": "Il faut contacter directement le consortium pour cours, démarches et bourses",
+     "sourceKind": "application",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "quote": "Interested students should visit the program's official website and directly contact the consortium for information on courses, application procedures, and scholarship availability."
+    },
+    {
+     "claim": "Catalogue officiel mis à jour chaque année",
+     "sourceKind": "application",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "quote": "which is updated annually and lists the master’s programmes currently supported by the European Union"
+    },
+    {
+     "claim": "Calendrier : octobre à janvier pour la plupart des masters",
+     "sourceKind": "cycle",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "quote": "Most master’s programmes require applications to be submitted between October and January for courses commencing the following academic year."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "eligibility[5] (master du catalogue = bourse)",
+     "recordSays": "Postuler à un master figurant au catalogue Erasmus Mundus : seuls ces programmes ouvrent droit à la bourse (lecture possible : tout master du catalogue offre une bourse)",
+     "pageSays": "Certains masters du catalogue n’offrent pas de bourse (fin de période de financement ou usage temporaire du label)",
+     "quote": "While many programs offer Erasmus Mundus scholarships, some do not",
+     "url": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
+     "sourceKind": "application",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "eligibility[5]",
+     "newFr": "Postuler à un master figurant au catalogue Erasmus Mundus : seuls ces programmes peuvent offrir la bourse, mais certains masters du catalogue n’en proposent pas",
+     "newEn": "Apply to a Master listed in the Erasmus Mundus catalogue: only those programmes can carry the scholarship, but some catalogue Masters do not offer one",
+     "justificationQuote": "While many programs offer Erasmus Mundus scholarships, some do not",
+     "justificationUrl": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Dates du cycle 2027–2028 (estimatedOpenAt 2026-10-01, estimatedCloseAt 2027-01-31)",
+     "reason": "Page silencieuse sur des dates précises : chaque consortium a son calendrier. Seule la fenêtre générale « October and January » est écrite ; la fiche reste correctement « forecast » + « estimated » et le libellé le dit."
+    },
+    {
+     "claim": "La nouvelle promotion du catalogue apparaît « à l’automne »",
+     "reason": "Les pages disent seulement « added to the list each year » / « updated annually » ; la saison n’est pas écrite. Le filtre du catalogue s’arrête à l’année de sélection 2025 au 29/09/2026."
+    },
+    {
+     "claim": "Pièces du dossier (preuve de langue, CV, lettre de motivation, recommandations, passeport, visa)",
+     "reason": "Page silencieuse : chaque consortium publie sa propre liste sur le site du master. La fiche le dit déjà."
+    },
+    {
+     "claim": "Le consortium notifie lui-même le résultat",
+     "reason": "Seule la responsabilité exclusive de la sélection est écrite, pas la notification."
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:07:54.000Z"
+  }
+ ]
+}

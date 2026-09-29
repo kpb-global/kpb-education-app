@@ -265,6 +265,11 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   aujourd'hui : rien ne change à l'écran.** La garde est posée AVANT la première
   publication, ce qui est tout son sens (voir `docs/eef-catalog-pipeline.md`,
   § 2ter).
+- `GET /etudes-en-france/search` et `/shortlist` ne servent plus QUE les lignes de
+  l'import (même définition que l'exclusion ci-dessus) : une formation d'école
+  partenaire que l'exploitation qualifierait d'une procédure resterait dans le
+  catalogue général, et n'entrerait pas dans l'espace. Aucune ligne n'est publiée
+  aujourd'hui : rien ne change à l'écran.
 - `POST /counsellors/:id/reviews` : l'auteur vient du jeton. Le corps
   qu'envoient les builds 49 à 53 (`rating`, `body`, `reviewerName`, `caseId`) est
   **accepté tel quel** — `reviewerName` est déclaré et ignoré, sans quoi la
@@ -279,7 +284,17 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   l'app. « Un avis par dossier » est une garde au mieux-effort — aucune contrainte
   d'unicité en base.
 - `GET /counsellors/:id` ne sert plus la clé de rattachement (`reviewerUserId`,
-  `caseId`) des avis publiés.
+  `caseId`) des avis publiés, et ne sert que ceux dont l'auteur a un reçu
+  `public_testimonial` actif — la porte de `/impact/reviews`. Aucun client de
+  l'app n'appelle cette fiche.
+- `PATCH /cases/:id` **côté étudiant est supprimé** (404). Il laissait le
+  propriétaire fixer `status`, `assignedAdvisorName` et le texte de la prochaine
+  étape de son propre dossier — donc se déclarer « terminé » et ouvrir le droit de
+  noter un conseiller. Le client de l'app définissait `updateCase` sans qu'aucun
+  écran ni test ne l'appelle (constaté sur l'historique disponible, qui remonte
+  au 23/08/2026 : les builds antérieures ne peuvent pas être relues d'ici) ;
+  l'équipe passe par `PATCH /admin/cases/:id`, inchangé. Si une build installée
+  l'appelait, elle recevrait un 404.
 - `GET /profiles/me/export` gagne un champ `counsellorReviews` (les avis que
   l'utilisateur a laissés) ; la suppression de compte efface ses avis, signés ou
   restés sans auteur mais posés sur l'un de ses dossiers. Additif.
@@ -336,21 +351,34 @@ mutants de la clause `WHERE` tous détectés — parce que la CI ne l'exécute p
 tant que son pas unitaire est rouge (voir ci-dessous). La CI, elle, tourne sur
 PostgreSQL 15 et Node 20 : ces deux versions n'ont pas pu être exercées ici.
 
-**Bloqué aujourd'hui par la CI.** `.github/workflows/deploy.yml` exige, avant
-tout, un `success` de `backend-ci.yml` pour le SHA EXACT déployé
-(`scripts/require-workflow-success.sh`) ; il n'existe aucune dérogation. Or
-`Backend CI` est rouge sur `main` à cause d'un seul test :
-`scholarship-catalog.validator.spec.ts › reste importable à la date du jour
-(fraîcheur des vérifications)`. Le catalogue de bourses a été vérifié en une
-passe le 24/08/2026 et le validateur refuse toute source contrôlée il y a plus de
-30 jours : 34 fiches, 5 sources chacune, sont périmées depuis le 23/09/2026. Le
-test est **conçu pour casser** à ce moment-là (son commentaire le dit). Le
-remède est un travail humain : rouvrir les sources officielles des 34 fiches,
-puis porter la nouvelle date dans `checkedAt` — **jamais** repousser la date
-sans avoir relu les pages, sous peine de faire affirmer au catalogue une
-vérification qui n'a pas eu lieu. Tant que ce n'est pas fait, aucun
-déploiement backend ne part : ni ce lot, ni les trois commits ci-dessus.
+**Catalogue de bourses relu le 29/09/2026 (version 1.4.0) — un seul blocage
+reste.** Le validateur refuse toute source contrôlée il y a plus de 30 jours :
+les 34 fiches, relues en une passe le 24/08/2026, étaient périmées depuis le
+23/09 et ce seul test (`scholarship-catalog.validator.spec.ts › reste importable
+à la date du jour`) tenait `Backend CI` rouge sur `main`. 33 fiches sur 34 ont
+été rouvertes sur leurs pages officielles le 29/09 ; leur `checkedAt` est
+l'heure réelle de la lecture, propre à chaque fiche, et le contenu a été
+corrigé là où la page disait autre chose. Les preuves (extraits mot pour mot,
+statuts HTTP, ce qui n'a PAS pu être lu) sont dans
+`docs/catalog-verification-2026-09-29.md` et
+`docs/evidence/catalog-2026-09-29/`.
 
-Et tant que ce pas unitaire est rouge, la CI **saute** les étapes sur Postgres
-(migrations sur base neuve, suites d'intégration, semis, démarrage) : un run
-rouge pour cette raison n'est pas un run qui a exercé la migration.
+- **Reste `up_mastercard_scholars_2027`** (Université de Pretoria) : le site
+  répond par un écran anti-robot (Cloudflare) qu'on ne contourne pas ; sa date
+  reste celle du 24/08 et le test de fraîcheur échoue donc **tant qu'une personne
+  n'a pas relu ses 5 pages dans un navigateur ordinaire** (la clôture est le
+  30/09/2026). Il faut aussi y réconcilier les écarts entre le PDF et la page.
+  Si la fiche ne peut pas être relue à temps, la retirer du catalogue est une
+  décision légitime ; repousser sa date sans lecture ne l'est pas.
+- **Trois clôtures proches** : UP (30/09), Chevening et Knight-Hennessy
+  (06/10). Le workflow quotidien `catalog-freshness.yml` (issue #270) les
+  signale ; `catalog:publish` saute les fiches périmées.
+- **La production ne bénéficie pas de ces corrections toute seule.**
+  Les lignes de bourses en base datent de l'import d'août (catalogue 1.3.0 mesuré le 31/08) : après le déploiement,
+  lancer `publish-catalog` (VPS ops) — `import` → `reconcile` → `switch`, dans
+  cet ordre — pour les réaligner. `import` seul ne corrige rien.
+- Tant que ce test est rouge, aucun déploiement backend ne part
+  (`deploy.yml` exige un `Backend CI` vert sur le SHA exact) et la CI **saute**
+  les étapes sur Postgres (migrations sur base neuve, suites d'intégration,
+  semis, démarrage) : un run rouge pour cette raison n'est pas un run qui a
+  exercé la migration.

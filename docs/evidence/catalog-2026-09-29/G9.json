@@ -1,0 +1,778 @@
+{
+ "group": "G9",
+ "records": [
+  {
+   "id": "ashesi_scholarship_2027",
+   "readAtUtc": "2026-09-29T15:08:11.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "httpStatus": 200,
+     "finalUrl": "https://ashesi.edu.gh/scholarships/",
+     "read": true,
+     "title": "Scholarships - Ashesi University",
+     "note": ""
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "httpStatus": 200,
+     "finalUrl": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "read": true,
+     "title": "First Year Student - Ashesi University",
+     "note": "Portail DreamApply (page rendue côté serveur, texte complet présent dans le HTML). Le portail devine la nationalité (États-Unis) mais les exigences pour Ghanéens et internationaux sont toutes deux affichées."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "httpStatus": 200,
+     "finalUrl": "https://ashesi.edu.gh/scholarships/",
+     "read": true,
+     "title": "Scholarships - Ashesi University",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://ashesi.edu.gh/how-to-apply/",
+     "read": true,
+     "title": "How to Apply - Ashesi University",
+     "note": ""
+    },
+    {
+     "kind": "cycle",
+     "url": "https://ashesi.edu.gh/our-two-intake-cycle/",
+     "httpStatus": 200,
+     "finalUrl": "https://ashesi.edu.gh/our-two-intake-cycle/",
+     "read": true,
+     "title": "Understanding Our Two-Intake Cycle - Ashesi University",
+     "note": "Premier essai : connexion réinitialisée par le pair (curl 35) ; second essai HTTP 200."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : l’aide peut couvrir une partie des frais de scolarité ou la totalité du coût des études, selon le besoin démontré",
+     "sourceKind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "Ashesi’s scholarships can cover a part of tuition fees, or at the entire cost of studying at Ashesi."
+    },
+    {
+     "claim": "Avantages : certaines catégories couvrent aussi logement, repas sur le campus, matériel pédagogique et dépenses de vie de base",
+     "sourceKind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "Some categories of scholarships cover not only the full tuition, but also cover housing, meals on campus, learning materials, and support for basic living expenses."
+    },
+    {
+     "claim": "Conditions de la bourse notifiées dans le dossier d’admission",
+     "sourceKind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "Applicants who are awarded scholarships will be informed of the conditions of their scholarship, in their admissions package."
+    },
+    {
+     "claim": "Environ 50 % des étudiants reçoivent une aide",
+     "sourceKind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "~50% of all students receive some form of scholarships covering either partial or all fees."
+    },
+    {
+     "claim": "25 % des étudiants ne paient aucun frais",
+     "sourceKind": "benefits",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "25% of students pay zero in fees at Ashesi thanks to scholarships."
+    },
+    {
+     "claim": "Bourses d’urgence pour obstacles financiers imprévus",
+     "sourceKind": "overview",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "emergency scholarships for students who face unexpected barriers."
+    },
+    {
+     "claim": "Éligibilité : première étape need-blind, puis évaluation du besoin financier",
+     "sourceKind": "overview",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "The initial selection process is need-blind."
+    },
+    {
+     "claim": "Éligibilité : quatre catégories de besoin (extrême, élevé, moyen, faible)",
+     "sourceKind": "overview",
+     "url": "https://ashesi.edu.gh/scholarships/",
+     "quote": "applicants are placed into one of four categories: Extreme Need, High Need, Medium Need or Low Need."
+    },
+    {
+     "claim": "Éligibilité : aucune bourse au mérite en Licence, toutes les aides de premier cycle sont fondées sur le besoin",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "Please note that Ashesi does not grant merit-based scholarships for undergraduate programs."
+    },
+    {
+     "claim": "Éligibilité : WASSCE avec au moins C6 dans chaque matière",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "A minimum grade of C6 in each subject is required to apply."
+    },
+    {
+     "claim": "Éligibilité : autres examens acceptés (IGCSE/A-Level, IB, diplôme américain/canadien, baccalauréat français, équivalents approuvés)",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "French Baccalaureate (a certified copy of the original score and a certified translated copy in English)"
+    },
+    {
+     "claim": "Éligibilité internationale : preuve de maîtrise de l’anglais (TOEFL, IELTS) si l’anglais n’était pas la langue d’enseignement",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "must submit evidence of English language proficiency, including but not limited to the Test of English as a Foreign Language (TOEFL)"
+    },
+    {
+     "claim": "Éligibilité internationale : traduction certifiée des documents non anglophones",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "in a language other than English must be translated and certified as copies of the original document(s)."
+    },
+    {
+     "claim": "Éligibilité : pas de candidature avec bourse pendant la période Late Admissions",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "We also do not accept scholarship and international applications for the Late Admissions period."
+    },
+    {
+     "claim": "Pièces : relevés du lycée sur au moins six trimestres",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "High School transcripts or report cards for at least six terms."
+    },
+    {
+     "claim": "Pièces : frais de dossier 150 GHs (Ghanéens) et 25 US$ (internationaux)",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "The cost of application is GHs150 for Ghanaian applicants and $25 for international applicants."
+    },
+    {
+     "claim": "Pièces : exonération des frais de dossier possible sur demande par courriel après questionnaire",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "Your eligibility for a waiver will be determined after the admissions team reviews your responses to a short questionnaire."
+    },
+    {
+     "claim": "Pièces : formulaire d’aide financière à remplir avec indication du montant demandé",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "To receive such assistance, be sure to complete the financial aid form and indicate the amount of assistance required."
+    },
+    {
+     "claim": "Démarche : soumission obligatoire via le bouton submit avant toute évaluation",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "The admissions committee will not begin evaluating your application until you have pressed the submit button."
+    },
+    {
+     "claim": "Démarche : entretien des candidats présélectionnés",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "The admissions committee reviews all submitted applications and invites shortlisted candidates for an interview."
+    },
+    {
+     "claim": "Démarche : aide attribuée selon les preuves fournies et les fonds disponibles",
+     "sourceKind": "application",
+     "url": "https://ashesi.edu.gh/how-to-apply/",
+     "quote": "Financial aid awards will be made on the basis of evidence provided and availability of funds."
+    },
+    {
+     "claim": "Démarche : les candidats à une bourse sont encouragés à postuler tôt",
+     "sourceKind": "cycle",
+     "url": "https://ashesi.edu.gh/our-two-intake-cycle/",
+     "quote": "Students applying for scholarships, for either intake, are also encouraged to apply sooner."
+    },
+    {
+     "claim": "Calendrier : rentrée de septembre = dépôt complet avant l’échéance d’août ; rentrée de janvier = avant l’échéance de décembre (quatre tours juin, août, octobre, décembre)",
+     "sourceKind": "cycle",
+     "url": "https://ashesi.edu.gh/our-two-intake-cycle/",
+     "quote": "Students looking to join the January intake must submit all documents by the December deadline."
+    },
+    {
+     "claim": "Calendrier : échéance datée du portail pour l’entrée de janvier 2027 (année 2026/27) = 16 novembre 2026, cohérente avec la description de la fiche",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "Nov 16, 2026, 11:59:59 PM"
+    },
+    {
+     "claim": "Calendrier : base de l’estimation mi-août 2027 = échéance « Mid Aug » de la rentrée de septembre publiée pour 2026/27",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "September Intake (Deadline: Mid Aug)"
+    },
+    {
+     "claim": "Calendrier : le portail n’affiche que l’année académique 2026/27 (aucune date 2027-2028 publiée, la fiche reste forecast/estimated)",
+     "sourceKind": "eligibility",
+     "url": "https://admissions.ashesi.edu.gh/courses/course/257-first-year-student",
+     "quote": "Apply Academic year 2026/27"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "eligibility[3] (organisme validant les équivalents)",
+     "recordSays": "équivalent approuvé par la GTEC",
+     "pageSays": "La page kind=eligibility (portail) écrit « National Accreditation Board of Ghana » alors que la page kind=application (how-to-apply) écrit « Ghana Tertiary Education Commission » ; la fiche suit how-to-apply. Écart entre deux pages officielles, pas une erreur de la fiche : aucune modification proposée.",
+     "quote": "Other equivalent exam results approved by the National Accreditation Board of Ghana.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "steps[2].detail (aide non demandable après l’admission)",
+     "recordSays": "l’aide ne peut plus être demandée une fois l’admission prononcée",
+     "pageSays": "Aucune des cinq pages ne contient cette règle ; elles disent seulement de remplir le formulaire d’aide et d’indiquer le montant. Affirmation non étayée, non contredite.",
+     "quote": "To receive such assistance, be sure to complete the financial aid form and indicate the amount of assistance required.",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "cycle (échéance de la rentrée de janvier)",
+     "recordSays": "quatre tours juin/août/octobre/décembre (steps[0]) et échéance 16 novembre 2026 (description)",
+     "pageSays": "Deux pages officielles divergent entre elles : la page des deux rentrées dit « December deadline » pour janvier, le portail dit « Mid Nov » / 16 novembre 2026. La fiche cite les deux sans les confondre ; observation, pas de modification proposée.",
+     "quote": "January Intake (Deadline: Mid Nov)",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "steps[2].detail",
+     "newFr": "Joindre le formulaire d’aide au dossier d’admission et indiquer le montant nécessaire ; l’université demande de remplir ce formulaire pour pouvoir recevoir une aide.",
+     "newEn": "Attach the financial aid form to the admissions file and state the amount required; the university asks applicants to complete this form in order to receive assistance.",
+     "justificationQuote": "To receive such assistance, be sure to complete the financial aid form and indicate the amount of assistance required.",
+     "note": "Retire la clause « l’aide ne peut plus être demandée une fois l’admission prononcée », introuvable sur les cinq pages. Correction mineure ; les autres champs restent inchangés (cycle forecast/estimated, deadlineLabel, dates)."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "steps[2] : « l’aide ne peut plus être demandée une fois l’admission prononcée »",
+     "reason": "page silencieuse (introuvable sur les cinq pages lues ; voir proposedEdits)"
+    },
+    {
+     "claim": "cycle.estimatedOpenAt = 2026-09-01 (ouverture de la fenêtre 2027-2028)",
+     "reason": "page silencieuse : aucune date d’ouverture de fenêtre publiée ; le portail montre seulement l’année 2026/27"
+    },
+    {
+     "claim": "Dates exactes des tours 2027-2028 (mi-août 2027 pour septembre 2027)",
+     "reason": "page silencieuse pour 2027-2028 ; seule l’échéance « Mid Aug » de la rentrée de septembre du cycle 2026/27 est publiée, sans jour ni année"
+    },
+    {
+     "claim": "requirements[0] : formulaire de candidature « complété puis soumis sur le portail »",
+     "reason": "confirmé pour la soumission en ligne ; la page ajoute que les candidats de Licence peuvent aussi déposer un dossier papier (PDF) par courriel ou en personne, non mentionné par la fiche (omission, pas une contradiction)"
+    }
+   ]
+  },
+  {
+   "id": "alu_scholarship_2027",
+   "readAtUtc": "2026-09-29T15:08:48.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.alueducation.com/financial-aid-at-alu/",
+     "read": true,
+     "title": "Financial Aid - ALU Scholarships and Grants",
+     "note": ""
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-",
+     "httpStatus": 200,
+     "finalUrl": "https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-",
+     "read": true,
+     "title": "Who is eligible for financial aid? : Admissions Portal",
+     "note": "Article modifié le 25 sept. 2025 (affiche « Aged 23 and below »)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.alueducation.com/financial-aid-at-alu/",
+     "read": true,
+     "title": "Financial Aid - ALU Scholarships and Grants",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.alueducation.com/apply-now/",
+     "read": true,
+     "title": "Apply Now - African Leadership University",
+     "note": "Affiche « January 2027 – Applications closes 30 November 2026 ». La liste déroulante de rentrée du formulaire est périmée (janvier et mai 2026 encore proposés) : non utilisée comme preuve."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "httpStatus": 200,
+     "finalUrl": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "read": true,
+     "title": "What are the application deadlines? : Admissions Portal",
+     "note": "Article modifié le lundi 28 sept. (veille de la relecture) : annonce la rentrée de janvier 2027 ouverte et renvoie à « the deadlines in the table below », mais AUCUN tableau n’existe dans le HTML servi ; le renvoi final pointe vers la page apply-now pour les dates."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : les ALU Grants exonèrent uniquement les frais de scolarité, appliqués comme remise sur la facture",
+     "sourceKind": "benefits",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "Our grants apply to tuition fees only and are applied as a fee waiver to a student’s invoice only, and are not redeemable in cash."
+    },
+    {
+     "claim": "Financement : exonération maintenue pendant la durée minimale du diplôme, non remboursable",
+     "sourceKind": "benefits",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "These grants hold for the duration of the minimum degree completion time and students will not be required to pay this back at any point."
+    },
+    {
+     "claim": "Financement : bourses complètes couvrant scolarité et soutien complémentaire",
+     "sourceKind": "benefits",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "Scholarships offered at ALU are full-ride scholarships covering full tuition and additional financial support throughout the scholars’ journey at ALU"
+    },
+    {
+     "claim": "Éligibilité : d’abord satisfaire les critères d’admission d’ALU",
+     "sourceKind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "To be eligible to apply for any Financial aid at ALU, one must first meet the Admissions requirements."
+    },
+    {
+     "claim": "Éligibilité : ne pas pouvoir financer la scolarité sans aide (ALU Grants)",
+     "sourceKind": "eligibility",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-",
+     "quote": "Applicants must be otherwise unable to afford ALU tuition without some financial aid."
+    },
+    {
+     "claim": "Éligibilité : besoin financier et désavantage socio-économique vérifiables (bourses complètes)",
+     "sourceKind": "eligibility",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-",
+     "quote": "Individuals must demonstrate financial need and socio-economic disadvantage, which acceptable supporting documents can verify."
+    },
+    {
+     "claim": "Éligibilité : résultats aux examens nationaux d’au moins B (bourses complètes)",
+     "sourceKind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "Strong National Exam Scores of at least a B"
+    },
+    {
+     "claim": "Éligibilité : âge publié à 26 ans ou moins sur la page Financial Aid",
+     "sourceKind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "Aged 26 and below."
+    },
+    {
+     "claim": "Éligibilité : âge publié à 23 ans ou moins sur le centre d’aide (divergence signalée par la fiche)",
+     "sourceKind": "eligibility",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012922-who-is-eligible-for-financial-aid-",
+     "quote": "Aged 23 and below."
+    },
+    {
+     "claim": "Éligibilité : leadership et engagement communautaire ; publics encouragés (réfugiés, déplacés)",
+     "sourceKind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "Active contributors in their communities and commitment to leverage this opportunity to give back to their communities"
+    },
+    {
+     "claim": "Éligibilité : places d’aide limitées par rentrée",
+     "sourceKind": "overview",
+     "url": "https://www.alueducation.com/financial-aid-at-alu/",
+     "quote": "For each category of aid, there are limited slots available per intake, and therefore, not everyone who is found to be eligible will receive aid."
+    },
+    {
+     "claim": "Démarche : candidature en trois étapes (Introduction, informations complémentaires, Finances)",
+     "sourceKind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "quote": "Here’s what our 3-step application process entails:"
+    },
+    {
+     "claim": "Démarche : l’étape Finances indique si l’on peut demander l’aide financière ALU",
+     "sourceKind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "quote": "you will find out if you qualify to apply for ALU financial aid"
+    },
+    {
+     "claim": "Démarche : aucun frais ni agent payant pour la candidature",
+     "sourceKind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "quote": "ALU does not charge any fees or rewards for application services, nor authorizes any agents or individuals to act on your behalf."
+    },
+    {
+     "claim": "Avantage : frais de scolarité de référence 3 000 US$ (BEL, BSE) et 4 000 US$ (IBT) par an",
+     "sourceKind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "quote": "ALU’s tuition is $3000 for BEL and BSE and $4000 for IBT per year."
+    },
+    {
+     "claim": "Démarche : dépôt en continu, examen au fil de l’eau",
+     "sourceKind": "cycle",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "quote": "Please note that applications are reviewed on a rolling basis. Hence, you may apply at any point."
+    },
+    {
+     "claim": "Démarche : un dossier tardif est en général reporté à la rentrée suivante",
+     "sourceKind": "cycle",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "quote": "any late applications will generally be considered for the next intake."
+    },
+    {
+     "claim": "Calendrier : rentrée de janvier 2027 ouverte au 28/09/2026 (année 2026-2027, hors périmètre 2027-2028 de la fiche)",
+     "sourceKind": "cycle",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "quote": "Applications are currently open for our January 2027 intake at ALU Rwanda."
+    },
+    {
+     "claim": "Calendrier : clôture datée du 30 novembre 2026 pour janvier 2027 (cohérente avec le commentaire d’en-tête du fichier)",
+     "sourceKind": "application",
+     "url": "https://www.alueducation.com/apply-now/",
+     "quote": "January 2027 Applications closes 30 November 2026"
+    },
+    {
+     "claim": "Calendrier : IBT seulement aux rentrées de mai et septembre",
+     "sourceKind": "cycle",
+     "url": "https://help.alueducation.com/support/solutions/articles/204000012913-what-are-the-application-deadlines-",
+     "quote": "Please note that IBT is only available for May and September intakes."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "advantages[3] et applicationRequirement",
+     "recordSays": "« Aide évaluée dans la même candidature, à l’étape « Finances », sans dossier de bourse séparé » ; applicationRequirement: automatic",
+     "pageSays": "La page de candidature dit que l’étape Finances indique si l’on peut DEMANDER l’aide, donc une demande d’aide suit. Le guide officiel ALU (hors des cinq URLs : https://www.alueducation.com/admissions-application-guide/) décrit un portail d’aide distinct : « Receive a Financial Aid Portal link » puis « Submit the financial aid application (if eligible) ». « Sans dossier séparé » n’est pas étayé par les cinq pages.",
+     "quote": "Additionally, you will find out if you qualify to apply for ALU financial aid.",
+     "sourceKind": "application",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "advantages[3]",
+     "newFr": "Éligibilité à l’aide vérifiée dans la même candidature, à l’étape « Finances », qui indique si l’on peut demander une aide financière ALU",
+     "newEn": "Aid eligibility checked inside the same application, at the Finances stage, which shows whether you qualify to apply for ALU financial aid",
+     "justificationQuote": "Additionally, you will find out if you qualify to apply for ALU financial aid.",
+     "note": "Retire « sans dossier de bourse séparé » (non étayé, contredit par le guide officiel ALU hors des cinq URLs)."
+    },
+    {
+     "field": "applicationRequirement",
+     "newFr": "separate_application",
+     "newEn": "separate_application",
+     "justificationQuote": "Additionally, you will find out if you qualify to apply for ALU financial aid.",
+     "note": "À ARBITRER par l’éditeur : la valeur actuelle est « automatic ». Le guide ALU (hors des cinq URLs) décrit un portail et un dossier d’aide séparés (« Submit the financial aid application (if eligible) »). Si « automatic » signifie « aucune démarche distincte », il n’est pas exact."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "description : « trois échéances annuelles, qui tombent environ deux mois avant le début de chaque trimestre »",
+     "reason": "page silencieuse : les cinq pages ne donnent ni le nombre d’échéances par an ni le délai avant le trimestre (le tableau annoncé par l’article des échéances est absent du HTML servi). Seules Jan/Mai/Sept apparaissent, indirectement (IBT mai et septembre)"
+    },
+    {
+     "claim": "cycle.estimatedCloseAt = 2027-06-18 (échéance estimée pour septembre 2027) et sa base, l’échéance de septembre 2026",
+     "reason": "page silencieuse : l’article des échéances renvoie à « the deadlines in the table below » mais aucun tableau n’est présent ; la page apply-now n’affiche que janvier 2027 (30 nov. 2026). Les dates du cycle précédent sur lesquelles repose l’estimation n’ont donc pas pu être relues. Aucune date 2027-2028 publiée : la fiche reste correctement forecast/estimated"
+    },
+    {
+     "claim": "cycle.estimatedOpenAt = 2026-12-01",
+     "reason": "page silencieuse : aucune date d’ouverture publiée pour 2027-2028"
+    },
+    {
+     "claim": "description : « ALC Maurice n’accueille pas de nouvelle cohorte de Licence pour l’instant »",
+     "reason": "page silencieuse : les cinq pages ne parlent que d’ALU Rwanda (« currently open … at ALU Rwanda ») ; rien sur ALC Maurice"
+    },
+    {
+     "claim": "steps[3] : « Les décisions sont rendues en général sous deux semaines »",
+     "reason": "absent des cinq URLs ; confirmé sur un article voisin du centre d’aide (…204000012921, modifié le 25 sept.) : « you can expect your admission decision within two weeks after the deadline » — la fiche omet « après l’échéance »"
+    },
+    {
+     "claim": "Rentrée visée par la fiche : septembre 2027",
+     "reason": "page silencieuse : la liste de rentrées du formulaire apply-now s’arrête à mai 2027 (liste par ailleurs périmée) ; aucune rentrée de septembre 2027 n’est annoncée"
+    }
+   ]
+  },
+  {
+   "id": "auc_excellence_2027",
+   "readAtUtc": "2026-09-29T15:09:32.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.aucegypt.edu/admissions/scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://www.aucegypt.edu/admissions/scholarships",
+     "read": true,
+     "title": "Scholarships | The American University in Cairo",
+     "note": "Page d’aiguillage vers le programme d’excellence ; pas de date « Last Updated » affichée."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "httpStatus": 200,
+     "finalUrl": "https://www.aucegypt.edu/admissions/undergraduate-requirements",
+     "read": true,
+     "title": "Undergraduate Requirements | The American University in Cairo",
+     "note": "Redirigée (HTTP 301 suivie) vers /undergraduate-requirements. « Last Updated : Sep 24, 2026 ». Les échéances sont dans un bloc « important-dates » avec attributs datetime (01/11/2026, 01/02/2027, 01/06/2027 au format jj/mm/aaaa)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.aucegypt.edu/admissions/tuition-and-financial-assistance",
+     "httpStatus": 200,
+     "finalUrl": "https://www.aucegypt.edu/admissions/tuition-and-financial-assistance",
+     "read": true,
+     "title": "Tuition and Financial Assistance | The American University in Cairo",
+     "note": "« Last Updated : Jul 29, 2026 »."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "httpStatus": 200,
+     "finalUrl": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "read": true,
+     "title": "Excellence Scholarship | The American University in Cairo",
+     "note": "« Last Updated : Sep 07, 2026 » (la fiche disait 16 octobre 2025). Liste toujours les échéances Spring 2026 / Fall 2026 uniquement."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "httpStatus": 200,
+     "finalUrl": "https://www.aucegypt.edu/admissions/undergraduate-requirements",
+     "read": true,
+     "title": "Undergraduate Requirements | The American University in Cairo",
+     "note": "Même URL que eligibility ; voir sa note."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : plusieurs bourses cumulables jusqu’à 100 % des frais de scolarité",
+     "sourceKind": "benefits",
+     "url": "https://www.aucegypt.edu/admissions/tuition-and-financial-assistance",
+     "quote": "The more scholarships you combine, the higher the percentage of your tuition coverage — up to 100%."
+    },
+    {
+     "claim": "Financement : couverture totale de 20 % à 100 % pour les meilleurs étudiants",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "may provide tuition coverage from 20% to 100% in total, for the very best students eligible in the various categories."
+    },
+    {
+     "claim": "Financement : réussite académique de 20 % à 60 % (comparaison entre pairs du même certificat)",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Students will compete against peers of the same or similar certificate. Coverage ranges from 20% to 60%."
+    },
+    {
+     "claim": "Avantage : catégorie talents de 20 % à 30 % (sport, musique, arts de la scène, arts)",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "AUC recognizes students who have distinguished themselves in the areas of Athletics, Music and Performing Arts, Arts. Coverage ranges from 20% to 30%."
+    },
+    {
+     "claim": "Éligibilité : bourses fondées sur l’excellence et le besoin financier",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "These highly competitive scholarships are based on excellence and financial need."
+    },
+    {
+     "claim": "Éligibilité : catégorie diversité internationale réservée aux candidats déposant comme étudiants internationaux",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Applicants to the International Diversity category must apply to AUC as an international student."
+    },
+    {
+     "claim": "Éligibilité : transferts avec moins de 60 crédits (moins de deux ans) admissibles",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Transfer applicants who completed less than 60 credit hours (less than two years) in an accredited university are eligible to apply"
+    },
+    {
+     "claim": "Éligibilité : anglais académique par TOEFL international, IELTS académique ou Duolingo",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "English placement depends on your International TOEFL, Academic IELTS or Duolingo test scores."
+    },
+    {
+     "claim": "Éligibilité : aucune exemption d’anglais liée à la nationalité ou à un lycée anglophone",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "The University does not exempt applicants from this requirement solely on the basis of citizenship or graduation from an English-medium secondary school."
+    },
+    {
+     "claim": "Pièces : TOEFL envoyé au code AUC 0903",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "The AUC code for sending TOEFL scores is 0903."
+    },
+    {
+     "claim": "Pièces : déclaration personnelle originale contrôlée anti-plagiat",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "The personal statement should be the applicant’s original work, as they will be checked for plagiarism."
+    },
+    {
+     "claim": "Pièces : lettres de recommandation par enseignants ou conseillers du lycée, envoyées directement à l’AUC",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "Recommendation letters should be written by high school teachers and/or counselors."
+    },
+    {
+     "claim": "Pièces : documents téléversés dans le portail, pas par courriel",
+     "sourceKind": "eligibility",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "Upload all required documents through the online portal, as they are not considered via email."
+    },
+    {
+     "claim": "Démarche : case bourse à cocher dans la candidature d’admission en ligne",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Applicants interested in the AUC Excellence Scholarship should check the box in the online admission application under the scholarship section."
+    },
+    {
+     "claim": "Démarche : formulaire de bourse distinct, lien envoyé par courriel après la soumission",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "After submission of the admissions application, applicants will receive an email with a link to the scholarship application."
+    },
+    {
+     "claim": "Démarche : sans case cochée, aucune autre occasion de demander une bourse",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "If the box is not checked, you will not be considered for AUC scholarships and there will not be another opportunity later on to apply"
+    },
+    {
+     "claim": "Démarche : priorité aux pourcentages les plus élevés pour l’admission anticipée (règle du cycle Fall 2026)",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Priority for scholarship slots with higher percentages is given to students who submit admission and scholarship applications by the March 1, 2026 early admissions deadline."
+    },
+    {
+     "claim": "Démarche : après l’échéance régulière, liste d’attente selon les places (règle du cycle Fall 2026)",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Any applications submitted after June 1, 2026, will be put on a waiting list pending the availability of vacant slots."
+    },
+    {
+     "claim": "Calendrier (cycle précédent, base de l’estimation) : Fall 2026 anticipée 1er mars 2026, régulière 1er juin 2026",
+     "sourceKind": "application",
+     "url": "https://www.aucegypt.edu/admissions/scholarships/excellence-program",
+     "quote": "Early Admission: March 1, 2026"
+    },
+    {
+     "claim": "Calendrier : échéance Spring 2027 publiée au 1er novembre (attribut datetime 01/11/2026)",
+     "sourceKind": "cycle",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "1 Nov Spring 2027"
+    },
+    {
+     "claim": "Calendrier NOUVEAU : admission anticipée Fall 2027 le 1er février 2027 (attribut datetime 01/02/2027)",
+     "sourceKind": "cycle",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "1 Feb Fall 2027 Early Admission"
+    },
+    {
+     "claim": "Calendrier NOUVEAU : admission régulière Fall 2027 le 1er juin 2027 (attribut datetime 01/06/2027)",
+     "sourceKind": "cycle",
+     "url": "https://www.aucegypt.edu/admissions/undergraduate",
+     "quote": "1 Jun Fall 2027 Regular Admission"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "cycle.dateConfidence / cycle.estimatedCloseAt",
+     "recordSays": "estimated ; clôture estimée 2027-06-01",
+     "pageSays": "La page du cycle publie désormais l’admission régulière Fall 2027 au 1er juin 2027 (datetime=\"01/06/2027\"). La date de clôture de la fiche est exacte mais n’est plus une estimation.",
+     "quote": "1 Jun Fall 2027 Regular Admission",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "deadlineLabel (admission anticipée)",
+     "recordSays": "admission anticipée vers le 1er mars 2027 (estimée)",
+     "pageSays": "La page publie l’admission anticipée Fall 2027 au 1er février 2027 (datetime=\"01/02/2027\"), pas au 1er mars.",
+     "quote": "1 Feb Fall 2027 Early Admission",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "description (« Aucune date 2027–2028 n’est publiée … n’affiche pour l’instant qu’une échéance datée du 1er novembre pour Spring 2027 »)",
+     "recordSays": "Aucune date 2027–2028 n’est publiée",
+     "pageSays": "Faux depuis la mise à jour du 24 sept. 2026 : la page des exigences de Licence liste Fall 2027 anticipée (1er février 2027) et régulière (1er juin 2027) en plus de Spring 2027 (1er novembre 2026).",
+     "quote": "1 Nov Spring 2027",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "description (« la page du programme, mise à jour le 16 octobre 2025 »)",
+     "recordSays": "mise à jour le 16 octobre 2025",
+     "pageSays": "La page du programme affiche maintenant « Last Updated : Sep 07, 2026 » ; elle liste toujours uniquement Spring 2026 et Fall 2026 (l’affirmation « ne liste que les échéances Spring 2026 et Fall 2026 » reste vraie).",
+     "quote": "Last Updated : Sep 07, 2026",
+     "sourceKind": "application",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "cycle.dateConfidence",
+     "newFr": "confirmed",
+     "newEn": "confirmed",
+     "justificationQuote": "1 Jun Fall 2027 Regular Admission",
+     "note": "Le bloc important-dates porte datetime=\"01/06/2027 00:00:00\" (jj/mm/aaaa) : la date est écrite dans la page. Les dates publiées sont celles de l’ADMISSION ; la page des bourses n’a pas encore de dates Fall 2027 propres. Si l’éditeur juge que cela ne suffit pas pour « confirmed », garder « estimated » mais corriger l’échéance anticipée à 1er février 2027 (voir deadlineLabel)."
+    },
+    {
+     "field": "cycle.status",
+     "newFr": "forecast (inchangé)",
+     "newEn": "forecast (unchanged)",
+     "justificationQuote": "1 Jun Fall 2027 Regular Admission",
+     "note": "La page ne dit pas que les candidatures Fall 2027 sont ouvertes : ne pas passer à « open ». Précédent dans le dépôt : forecast + confirmed (york_pise_2027_forecast)."
+    },
+    {
+     "field": "cycle.closesAt",
+     "newFr": "2027-06-01T00:00:00.000Z",
+     "newEn": "2027-06-01T00:00:00.000Z",
+     "justificationQuote": "1 Jun Fall 2027 Regular Admission",
+     "note": "Remplace estimatedCloseAt (même valeur). Le validateur exige closesAt pour un cycle confirmed."
+    },
+    {
+     "field": "cycle.opensAt",
+     "newFr": "(non renseigné)",
+     "newEn": "(not set)",
+     "justificationQuote": "1 Jun Fall 2027 Regular Admission",
+     "note": "Aucune date d’ouverture n’est écrite sur les pages : ne pas en inventer ; opensAt est facultatif pour un cycle confirmed. Retirer estimatedOpenAt (2026-11-01, non étayé) et estimatedCloseAt."
+    },
+    {
+     "field": "deadlineLabel",
+     "newFr": "Prévision 2027-2028 — admission anticipée le 1er février 2027, admission régulière le 1er juin 2027 (échéances d’admission Fall 2027 ; la page des bourses n’affiche pas encore ses propres dates)",
+     "newEn": "2027-2028 forecast — early admission 1 February 2027, regular admission 1 June 2027 (Fall 2027 admission deadlines; the scholarship page does not yet show its own dates)",
+     "justificationQuote": "1 Feb Fall 2027 Early Admission"
+    },
+    {
+     "field": "description",
+     "newFr": "Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Les échéances d’admission Fall 2027 sont publiées sur la page des exigences de Licence (mise à jour le 24 septembre 2026) : admission anticipée le 1er février 2027 et admission régulière le 1er juin 2027, après l’échéance du 1er novembre 2026 pour Spring 2027. La page du programme de bourses, mise à jour le 7 septembre 2026, ne liste encore que les échéances Spring 2026 et Fall 2026 : les règles de priorité et de liste d’attente décrites s’appuient sur ce cycle et restent à reconfirmer pour 2027.",
+     "newEn": "Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. The Fall 2027 admission deadlines are published on the undergraduate requirements page (updated 24 September 2026): early admission on 1 February 2027 and regular admission on 1 June 2027, after the 1 November 2026 deadline for Spring 2027. The scholarship programme page, last updated on 7 September 2026, still lists only the Spring 2026 and Fall 2026 deadlines: the priority and waiting-list rules described rely on that cycle and remain to be reconfirmed for 2027.",
+     "justificationQuote": "1 Feb Fall 2027 Early Admission",
+     "note": "Le commentaire d’en-tête du fichier scholarship-catalog.records.africa-bachelor.v1.ts (AUC : « 1 November for Spring 2027 » ; « 2027–2028 windows … estimated ») est aussi à mettre à jour pour AUC."
+    },
+    {
+     "field": "cycle.sourceUrl",
+     "newFr": "https://www.aucegypt.edu/admissions/undergraduate-requirements",
+     "newEn": "https://www.aucegypt.edu/admissions/undergraduate-requirements",
+     "justificationQuote": "1 Jun Fall 2027 Regular Admission",
+     "note": "Facultatif : l’URL actuelle redirige vers cette adresse ; les deux fonctionnent."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "cycle.estimatedOpenAt = 2026-11-01 (ouverture de la fenêtre 2027-2028)",
+     "reason": "page silencieuse : aucune date d’ouverture des candidatures Fall 2027 n’est écrite"
+    },
+    {
+     "claim": "Dates propres du programme de bourses pour Fall 2027 (priorité, liste d’attente)",
+     "reason": "page silencieuse : la page du programme (application, mise à jour 07/09/2026) ne liste encore que Spring 2026 / Fall 2026 ; la règle « priorité à l’échéance anticipée » est écrite pour Fall 2026 seulement"
+    },
+    {
+     "claim": "Bourse d’excellence 2027-2028 : mêmes catégories et pourcentages qu’en 2025-2026",
+     "reason": "page silencieuse sur 2027 : les catégories et pourcentages lus sont ceux de la page du programme, dont le bloc « By the Numbers (2025 - 2026) » est vide dans le HTML servi (JavaScript) et qui précise « may vary between cohorts »"
+    }
+   ]
+  }
+ ]
+}

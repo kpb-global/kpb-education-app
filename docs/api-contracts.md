@@ -108,7 +108,6 @@ Purpose:
 - `GET /cases`
 - `GET /cases/:id`
 - `POST /cases`
-- `PATCH /cases/:id`
 - `GET /cases/:id/messages`
 - `POST /cases/:id/messages`
 - `POST /cases/:id/documents`
@@ -180,9 +179,11 @@ son compte.
 **Le dossier lie l'avis à un parcours réel — il ne le prouve pas.** Il doit
 exister, appartenir à l'appelant, avoir été traité par CE conseiller, et être
 terminé : exactement ce que l'app ne propose qu'à ce moment-là. « Terminé » reste
-un contrôle de cohérence, pas une preuve : `PATCH /cases/:id` laisse le
-propriétaire fixer lui-même le `status` de son dossier (aucun client de l'app ne
-le fait). Les défenses réelles sont la propriété du dossier et la modération.
+un contrôle de cohérence : le statut d'un dossier n'est fixé que par l'équipe
+(`PATCH /admin/cases/:id`) — il n'existe plus de `PATCH /cases/:id` côté
+étudiant, qui laissait le propriétaire se déclarer « terminé » lui-même (aucun
+écran de l'app ne l'appelait). Ce n'est pas une preuve de la qualité du
+parcours ; la modération reste la défense de fond.
 
 | Réponse | Cas |
 |---|---|
@@ -200,13 +201,18 @@ colonnes que `GET /impact/reviews`. L'identifiant interne de l'auteur et celui
 du dossier n'en sortent pas : depuis que l'auteur est renseigné, les servir aurait
 publié une clé de rattachement au profil.
 
-> **Réserve ouverte.** Seules les *colonnes* sont alignées sur `/impact/reviews`,
-> pas la *porte*. Ce dernier ne publie un avis que si son auteur a un reçu
-> `public_testimonial` actif ; `GET /counsellors/:id`, lui, sert `reviewerName`
-> dès que la modération a basculé `isPublished`. Aucun client de l'app n'appelle
-> cette fiche, et aucun écran admin ne liste les avis à publier : l'exposition
-> est latente. À aligner (retirer `reviews` de la fiche, ou appliquer la même
-> porte) avant d'outiller la modération.
+**La même porte que `/impact/reviews`.** Un avis publié n'apparaît sur la fiche
+que si son AUTEUR a un reçu `public_testimonial` actif (notice en vigueur à
+l'accord, non retirée ; reçu non révoqué ; pour un mineur, autorisation parentale
+vérifiée, non révoquée, non expirée). La règle est écrite une fois
+(`impact/public-testimonial-consent.ts`) et importée par les deux surfaces. Deux
+conséquences : la modération (`isPublished`) est nécessaire mais pas suffisante,
+et un avis sans auteur — ceux d'avant la reprise, ou dont le dossier a disparu —
+ne s'y affiche jamais. Retirer son accord fait disparaître l'avis de la fiche
+sans toucher à la modération. La lecture est bornée : les 200 avis publiés les
+plus récents sont examinés, les 20 premiers consentants sont servis, et seuls les
+reçus de leurs auteurs sont lus. Aucun client de l'app n'appelle cette fiche
+(`getCounsellor` existe dans le client mais aucun écran ne s'en sert).
 
 **Effacement et export.** La suppression de compte efface les avis que
 l'utilisateur a signés ET ceux, sans auteur, qui portent l'un de ses dossiers
@@ -344,11 +350,11 @@ base réelle, lignes en place).
 
 La liste contient les établissements ACTIFS du pays — partenaires compris (ESSEC,
 OMNES…), pas seulement ceux de l'import. Ce qui garde leurs formations hors de
-cette recherche aujourd'hui, ce sont les autres clauses (`procedureType IS NOT
-NULL`, et `cycle IN (…)` pour la shortlist), que ces formations — procédure « non
-qualifiée » — ne remplissent pas. Si l'exploitation qualifie un jour une
-formation partenaire, elle entrera dans l'espace ET restera dans le catalogue
-général : décision de produit à prendre en connaissance de cause.
+cette recherche est la **provenance** : la recherche ne sert que les lignes de
+l'import (identifiant `eef-prog-…`, ou établissement `eef-univ-…`) — la clause
+dont le catalogue général est le contraire. Une formation partenaire, même
+qualifiée d'une procédure et d'un cycle, n'y entre donc jamais et reste dans
+`/catalog/programs` : une ligne, un espace. La shortlist suit la même règle.
 
 ## Shortlist « Études en France » (Phase 2)
 

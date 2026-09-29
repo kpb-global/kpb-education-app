@@ -1,0 +1,950 @@
+{
+ "group": "G5",
+ "records": [
+  {
+   "id": "york_pise_2027_forecast",
+   "readAtUtc": "2026-09-29T15:00:59.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "httpStatus": 200,
+     "finalUrl": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "read": true,
+     "title": "President’s International Scholarship of Excellence | Future Students | York University",
+     "note": "HTML lu en entier via curl. La page présente encore les guides « Fall 2026 » (texte non mis à jour) ; les dates 2027 sont sur la page des guides."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "httpStatus": 200,
+     "finalUrl": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "read": true,
+     "title": "President's International Scholarship of Excellence: Application Guides | Future Students | York University",
+     "note": "Contient le guide étudiant Fall 2027 et le guide enseignant (titre « 2026 » mais critères Fall 2027)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "read": true,
+     "title": "Scholarships and Awards for International Students | Future Students | York University",
+     "note": "Section PISE lue ; tableaux des bourses automatiques Fall 2025 / Fall 2026 sans objet pour la fiche."
+    },
+    {
+     "kind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "httpStatus": 200,
+     "finalUrl": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "read": true,
+     "title": "President's International Scholarship of Excellence: Application Guides | Future Students | York University",
+     "note": "Même page que eligibility."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "httpStatus": 200,
+     "finalUrl": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "read": true,
+     "title": "President's International Scholarship of Excellence: Application Guides | Future Students | York University",
+     "note": "Même page que eligibility. Le HTML contient « The scholarship application is now closed » et « Application is now closed! » ; le bouton APPLY NOW est commenté dans le HTML."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement : 180 000 CAD sur quatre ans, soit 45 000 CAD par an",
+     "sourceKind": "overview",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "quote": "$180,000 CAD valued over four years ($45,000/year)"
+    },
+    {
+     "claim": "Valeur totale de 180 000 CAD (45 000 x 4 ans)",
+     "sourceKind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "quote": "International award valued at $180,000 ($45,000 x 4 years)"
+    },
+    {
+     "claim": "Non cumulable avec les bourses d’entrée : la bourse la plus élevée est versée",
+     "sourceKind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "quote": "a high-value award that cannot be combined with entrance scholarships"
+    },
+    {
+     "claim": "Si le boursier est retenu, il reçoit l’award de plus grande valeur",
+     "sourceKind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "quote": "if successful, you will receive the higher value award"
+    },
+    {
+     "claim": "Inscription gratuite à la Career Ready Conference annuelle pendant toutes les études",
+     "sourceKind": "overview",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "quote": "complimentary registration for York's annual Career Ready Conference every year throughout your studies"
+    },
+    {
+     "claim": "Mentorat dès la première année",
+     "sourceKind": "overview",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "quote": "From day one, you'll be matched with mentors who support your transition to university"
+    },
+    {
+     "claim": "Réseautage avec les professeurs et la direction des facultés",
+     "sourceKind": "overview",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence",
+     "quote": "Access engagement opportunities with senior leaders and professors across our faculties"
+    },
+    {
+     "claim": "Communauté de boursiers internationaux, les « President’s International Scholars »",
+     "sourceKind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "quote": "will be referred to as 'President's International Scholars'"
+    },
+    {
+     "claim": "Éligibilité : lycéen entrant en première année de Licence à York (Fall 2027)",
+     "sourceKind": "eligibility",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Be a high-school student entering the first year of undergraduate degree at York in Fall 2027."
+    },
+    {
+     "claim": "Éligibilité : statut d’étudiant international et frais de scolarité internationaux",
+     "sourceKind": "eligibility",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Hold international student status and be subject to international tuition fees during their studies at York."
+    },
+    {
+     "claim": "Éligibilité : moyenne finale d’admission minimale de 80 % (A) ou équivalent",
+     "sourceKind": "eligibility",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Have a minimum final admission average of 80% (A) or equivalent."
+    },
+    {
+     "claim": "Nomination officielle par un conseiller, directeur ou responsable ; deux nominations par lycée et par an au maximum",
+     "sourceKind": "eligibility",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Be officially nominated by a guidance counsellor, principal or senior school official. Maximum of two nominations per school in each year are accepted."
+    },
+    {
+     "claim": "Numéro de référence York obtenu après la demande d’admission, utilisé pour se connecter au portail de bourse",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "you’ll be assigned a York University Reference Number, which you’ll use to log in to the scholarship application portal"
+    },
+    {
+     "claim": "Déclaration personnelle de 500 mots maximum",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "The maximum word count for this statement is 500 words."
+    },
+    {
+     "claim": "Liste de trois activités parascolaires au maximum",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "A list of Extracurricular Activities & Community Involvement (maximum of 3)."
+    },
+    {
+     "claim": "Liste de trois distinctions au maximum",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "A list of Previous Awards (maximum of 3)."
+    },
+    {
+     "claim": "Lettre de référence supplémentaire sur l’engagement communautaire facultative",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "(Optional) Additional reference letter highlighting your community involvement."
+    },
+    {
+     "claim": "Profil financier sur trois à quatre ans d’études",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "A financial profile indicating the estimated total amount of funding you will have to support your studies over the next three to four years."
+    },
+    {
+     "claim": "Lettre du nominateur signée, sur papier à en-tête de l’école",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "The reference letter must be signed and appear on the school’s official letterhead."
+    },
+    {
+     "claim": "Le nominateur reçoit un lien de York pour confirmer la nomination et déposer la lettre après la soumission étudiante",
+     "sourceKind": "application",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "York University will email a link to your nominator with instructions to complete the official nomination form and submit a reference letter"
+    },
+    {
+     "claim": "Clôture étudiante : 27 janvier 2027 à 23 h 59 (heure de l’Est, EST) — date de la fiche confirmée, 2027-01-28T04:59:00Z correct",
+     "sourceKind": "cycle",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Student Application Deadline: January 27, 2027 at 11:59 p.m. EST"
+    },
+    {
+     "claim": "Nomination et lettre : 4 février 2027 à 23 h 59 EST",
+     "sourceKind": "cycle",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "Nomination & Reference Submission Deadline: February 4, 2027 at 11:59 p.m. EST"
+    },
+    {
+     "claim": "Formulaire de bourse non rouvert (statut forecast cohérent) ; aucune date d’ouverture publiée",
+     "sourceKind": "cycle",
+     "url": "https://futurestudents.yorku.ca/presidents-international-scholarship-excellence-application-guides",
+     "quote": "The scholarship application is now closed."
+    },
+    {
+     "claim": "Dates de clôture reprises par la page bourses internationales",
+     "sourceKind": "benefits",
+     "url": "https://futurestudents.yorku.ca/financing-your-degree/international-scholarships",
+     "quote": "Student Application Deadline: January 27, 2027 Nominee’s Deadline: February 4, 2027"
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "« dépenses restantes possibles » (fundingLabel) et fundingType partially_funded",
+     "reason": "page silencieuse : elle donne 180 000 CAD sur quatre ans mais ne dit pas si cela couvre l’ensemble des coûts (seuls des témoignages d’étudiants l’évoquent)"
+    },
+    {
+     "claim": "Ouverture du formulaire 2027-2028 (statut forecast)",
+     "reason": "la page affiche les dates Fall 2027 mais aussi « The scholarship application is now closed » et « Application is now closed! » ; aucune date d’ouverture n’est écrite. Le texte « closed » est peut-être hérité du cycle 2026 ; la fiche ne déduit rien et reste forecast (cohérent avec la page)."
+    }
+   ],
+   "remarks": [
+    "Page d’aperçu (overview) : les liens « Student Guide / Educator Guide » parlent encore de « Fall 2026 » alors que la page des guides applique Fall 2027 ; incohérence interne à la source, sans effet sur la fiche.",
+    "La description de la fiche contient une date en dur « (relevé le 24/08/2026) » / « (checked 24/08/2026) » : si checkedAt est repoussé au 29/09/2026 par le rédacteur, cette mention devrait suivre.",
+    "cycle.status=forecast, dateConfidence=confirmed, closesAt=2027-01-28T04:59:00.000Z, pas d’opensAt : tout cela reste correct au 29/09/2026 ; deadlineLabel FR/EN inchangés."
+   ]
+  },
+  {
+   "id": "uoft_lester_b_pearson_2027",
+   "readAtUtc": "2026-09-29T15:07:39.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://future.utoronto.ca/pearson-scholarships",
+     "read": true,
+     "title": "Lester B Pearson International Student Scholarships | Future Students. University of Toronto",
+     "note": "Page unique lue en entier via curl (HTML rendu côté serveur). Les cinq kinds partagent cette URL."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://future.utoronto.ca/pearson-scholarships",
+     "read": true,
+     "title": "Lester B Pearson International Student Scholarships | Future Students. University of Toronto",
+     "note": "Même page."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://future.utoronto.ca/pearson-scholarships",
+     "read": true,
+     "title": "Lester B Pearson International Student Scholarships | Future Students. University of Toronto",
+     "note": "Même page."
+    },
+    {
+     "kind": "application",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://future.utoronto.ca/pearson-scholarships",
+     "read": true,
+     "title": "Lester B Pearson International Student Scholarships | Future Students. University of Toronto",
+     "note": "Même page."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "httpStatus": 200,
+     "finalUrl": "https://future.utoronto.ca/pearson-scholarships",
+     "read": true,
+     "title": "Lester B Pearson International Student Scholarships | Future Students. University of Toronto",
+     "note": "Même page. Bloc « Important dates and deadlines » lu. La section FAQ pour lycées est restée sur le cycle 2025 (échéance 10 octobre 2025) : périmée, sans lien avec la fiche."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement complet sur quatre ans : scolarité, manuels, frais accessoires, résidence complète",
+     "sourceKind": "benefits",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "cover tuition, books, incidental fees and full residence support for four years"
+    },
+    {
+     "claim": "Bourse utilisable uniquement à l’Université de Toronto, en première entrée de premier cycle",
+     "sourceKind": "benefits",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "The scholarship is tenable only at the University of Toronto for first-entry, undergraduate programs."
+    },
+    {
+     "claim": "Environ 37 boursiers par an",
+     "sourceKind": "overview",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Each year approximately 37 students will be named Pearson Scholars."
+    },
+    {
+     "claim": "Un seul élève nommé par lycée et par an",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "High schools can only nominate one student per year."
+    },
+    {
+     "claim": "Éligibilité : étudiant international non canadien nécessitant un permis d’études",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "an international student (i.e. a non-Canadian requiring a study permit);"
+    },
+    {
+     "claim": "Éligibilité : dernière année du secondaire en 2026/2027 ou diplômé au plus tôt en juin 2026",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "enrolled in your final year of senior secondary school in 2026/2027 or have graduated no earlier than June 2026"
+    },
+    {
+     "claim": "Éligibilité : début des études à l’Université de Toronto en septembre 2027",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "beginning your studies at the University of Toronto in September 2027."
+    },
+    {
+     "claim": "Exclusion : déjà inscrit dans le postsecondaire",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Students who are already attending post-secondary studies"
+    },
+    {
+     "claim": "Nomination uniquement par le lycée actuel via le processus en ligne ; pas d’agence ni d’« agent »",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "does not interact with agencies or educational \"agents\" to recruit students or offer scholarships"
+    },
+    {
+     "claim": "Seul le lycée actuel peut nommer",
+     "sourceKind": "eligibility",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Pearson Scholarship recipients can only be nominated by their current secondary school through our online process"
+    },
+    {
+     "claim": "Qualités attendues : excellence scolaire, créativité, potentiel de leadership et d’impact",
+     "sourceKind": "overview",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "It recognizes outstanding academic achievement, creativity and leadership potential."
+    },
+    {
+     "claim": "Postuler à au moins un programme de premier cycle ; bourse limitée au premier choix de programme",
+     "sourceKind": "application",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "restricted to your top choice of program at the time our scholarship decisions are made."
+    },
+    {
+     "claim": "Formulaire Pearson privé reçu par lien personnel après la nomination",
+     "sourceKind": "application",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "You will receive a private link to the Lester B. Pearson International Student Scholarship application when you have been nominated by your school."
+    },
+    {
+     "claim": "Accès au formulaire de nomination dès le 6 juillet 2026 pour les lycées déjà participants",
+     "sourceKind": "application",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Schools that have previously participated will receive access to the nomination form beginning July 6, 2026."
+    },
+    {
+     "claim": "Un lycée non participant peut demander à rejoindre le programme jusqu’au 9 octobre 2026 à midi (EST)",
+     "sourceKind": "application",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "they can apply to join the program by noon (EST) October 9th 2026."
+    },
+    {
+     "claim": "Échéance de nomination du lycée : 9 octobre 2026",
+     "sourceKind": "cycle",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "School nomination deadline: October 9, 2026"
+    },
+    {
+     "claim": "Échéance de la demande d’admission OUAC : 16 octobre 2026",
+     "sourceKind": "cycle",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Student OUAC admission application deadline: October 16, 2026"
+    },
+    {
+     "claim": "Échéance de la candidature Pearson et des pièces : 6 novembre 2026 (clôture du cycle, futur au 29/09/2026 donc open)",
+     "sourceKind": "cycle",
+     "url": "https://future.utoronto.ca/pearson-scholarships",
+     "quote": "Student scholarship application deadline and documentation submission deadline: November 6, 2026"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "eligibility[3] (FR/EN)",
+     "recordSays": "« ne pas commencer ailleurs en janvier 2027 » / « not begin elsewhere in January 2027 »",
+     "pageSays": "La page exclut un début d’études postsecondaires en janvier 2027 à l’Université de Toronto OU dans un autre établissement ; « ailleurs » ne couvre que le second cas.",
+     "quote": "students who are starting their post-secondary studies in January 2027 at U of T or another post-secondary institution",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "eligibility[3] (correction mineure, optionnelle)",
+     "newFr": "Ne pas être déjà inscrit dans le postsecondaire et ne pas commencer d’études postsecondaires en janvier 2027, à l’Université de Toronto ou ailleurs",
+     "newEn": "Not already be in post-secondary study and not begin post-secondary studies in January 2027, at the University of Toronto or elsewhere",
+     "justificationQuote": "students who are starting their post-secondary studies in January 2027 at U of T or another post-secondary institution"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Statut « open » du cycle",
+     "reason": "la page n’emploie pas le mot « open » ; le statut découle des dates écrites (accès au formulaire de nomination dès le 6 juillet 2026, échéances 9 octobre / 16 octobre / 6 novembre 2026 toutes futures au 29/09/2026). Cohérent, aucune modification."
+    },
+    {
+     "claim": "cycle.opensAt = 2026-07-06T00:00:00.000Z",
+     "reason": "le 6 juillet 2026 est la date d’accès au formulaire de nomination pour les lycées déjà participants, pas une ouverture côté étudiant ; la page ne publie pas de date d’ouverture étudiante."
+    },
+    {
+     "claim": "cycle.closesAt = 2026-11-06T23:59:59.000Z (heure de clôture)",
+     "reason": "la page donne seulement « November 6, 2026 », sans heure ni fuseau ; l’heure de la fiche est une convention, non une donnée de la page."
+    }
+   ],
+   "remarks": [
+    "Le vrai goulot pratique est plus proche que closesAt : la nomination par le lycée doit être déposée avant le 9 octobre 2026 (10 jours au 29/09/2026) et l’admission OUAC avant le 16 octobre 2026. La fiche les reprend déjà dans deadlineLabel et requirements.",
+    "La page interdit l’IA générative dans le contenu de candidature (« is prohibited when creating content for any University of Toronto undergraduate award application ») : information non reprise par la fiche, pas proposée en modification.",
+    "deadlineLabel FR/EN, cycle.status=open, dateConfidence=confirmed, closesAt : inchangés et confirmés par la page."
+   ]
+  },
+  {
+   "id": "mccall_macbain_2027",
+   "readAtUtc": "2026-09-29T15:01:38.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://mccallmacbainscholars.org/",
+     "httpStatus": 200,
+     "finalUrl": "https://mccallmacbainscholars.org/",
+     "read": true,
+     "title": "Home | McCall MacBain Scholars",
+     "note": "HTML lu en entier. ATTENTION : la page d’accueil dit encore « Applications are open for Summer/Fall 2027 entry. », en contradiction avec les pages apply et portail (closes). Texte d’accueil périmé."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://mccallmacbainscholars.org/apply/",
+     "read": true,
+     "title": "Apply | McCall MacBain Scholars",
+     "note": "HTML lu en entier. Critères et dates limites 2027 au passé (« needed to meet », « had the following deadline »)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "httpStatus": 200,
+     "finalUrl": "https://mccallmacbainscholars.org/faq/",
+     "read": true,
+     "title": "FAQ | McCall MacBain Scholars",
+     "note": "HTML lu en entier. La FAQ contient aussi des entrées anciennes en doublon (admission 2023, allocation 2 000 CAD) ; la première entrée « What does the scholarship cover? » (2 300 CAD) est la version actuelle."
+    },
+    {
+     "kind": "application",
+     "url": "https://apply.mccallmacbainscholars.org/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://apply.mccallmacbainscholars.org/apply/",
+     "read": true,
+     "title": "McCall MacBain Scholarship Application",
+     "note": "Portail : seule une page statique « Applications are closed for the 2027 cohort » est lisible ; le formulaire lui-même n’est pas accessible (candidatures closes)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://mccallmacbainscholars.org/apply/",
+     "read": true,
+     "title": "Apply | McCall MacBain Scholars",
+     "note": "Même page que eligibility. Aucune date pour la cohorte 2028 sur les pages lues (apply, accueil, FAQ, program, news-updates)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Statut du cycle 2027 : candidatures closes (fiche cycle.status=closed correct au 29/09/2026)",
+     "sourceKind": "cycle",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "Applications for Summer/Fall 2027 are closed."
+    },
+    {
+     "claim": "Portail de candidature : cohorte 2027 close",
+     "sourceKind": "application",
+     "url": "https://apply.mccallmacbainscholars.org/apply/",
+     "quote": "Applications are closed for the 2027 cohort of McCall MacBain Scholars."
+    },
+    {
+     "claim": "Clôture internationale : 19 août 2026 à 16 h heure de l’Est (= 2026-08-19T20:00:00Z en heure d’été, closesAt de la fiche correct)",
+     "sourceKind": "cycle",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "August 19, 2026 4:00 PM Eastern Time"
+    },
+    {
+     "claim": "Clôture Canada/États-Unis : 23 septembre 2026 à 16 h heure de l’Est (date aussi passée)",
+     "sourceKind": "cycle",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "September 23, 2026 4:00 PM Eastern Time"
+    },
+    {
+     "claim": "Financement complet : master ou diplôme professionnel à McGill",
+     "sourceKind": "overview",
+     "url": "https://mccallmacbainscholars.org/",
+     "quote": "pursuing a fully funded master’s or professional degree at McGill University"
+    },
+    {
+     "claim": "Couverture : frais de scolarité et droits du programme admissible",
+     "sourceKind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "covers tuition and fees for an eligible master’s program or a second-entry professional undergraduate program at McGill"
+    },
+    {
+     "claim": "Allocation de vie de 2 300 CAD par mois pendant les trimestres académiques",
+     "sourceKind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "a living stipend of $2,300 CAD per month during academic terms"
+    },
+    {
+     "claim": "Subvention unique de déménagement",
+     "sourceKind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "a one-time relocation grant"
+    },
+    {
+     "claim": "Financement d’été jusqu’à 5 000 $ pour les boursiers non inscrits à temps plein",
+     "sourceKind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "Scholars not enrolled full-time may apply for up to $5,000 to partially fund meaningful research or impact work."
+    },
+    {
+     "claim": "Programme de développement du leadership, mentors et conseillers, ateliers et conférences",
+     "sourceKind": "benefits",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "connect with mentors and advisors, and attend a breadth of workshops and talks"
+    },
+    {
+     "claim": "Jusqu’à 30 bourses complètes et 100 prix d’admission chaque année",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "Each year up to 30 full scholarships and 100 entrance awards will be offered to the top candidates."
+    },
+    {
+     "claim": "Éligibilité, voie 1 : premier diplôme avant août 2027",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "You are a current student on track to earn your first bachelor’s degree by August 2027"
+    },
+    {
+     "claim": "Éligibilité, voie 2 : premier diplôme depuis janvier 2021",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "You earned your first bachelor’s degree in the last five years (January 2021 or later)"
+    },
+    {
+     "claim": "Éligibilité, voie 3 : diplôme plus ancien et 30 ans ou moins au 1er janvier 2026",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "were 30 years or younger on January 1st, 2026"
+    },
+    {
+     "claim": "Exigences minimales de diplôme et de langue d’un programme McGill",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "You will also need to meet the minimum degree and language requirements for McGill master’s program admission."
+    },
+    {
+     "claim": "Critère : esprit entrepreneurial",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "Entrepreneurial spirit"
+    },
+    {
+     "claim": "Critère : force académique et curiosité intellectuelle",
+     "sourceKind": "eligibility",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "Academic strength and intellectual curiosity"
+    },
+    {
+     "claim": "Formulaire de bourse distinct de l’admission McGill ; deux formulaires de référence",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "It is separate from McGill admissions, and two reference forms are required."
+    },
+    {
+     "claim": "Candidature séparée aux programmes McGill compatibles",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "You’ll need to apply separately to compatible programs at McGill University."
+    },
+    {
+     "claim": "Finaliste : candidature McGill en décembre même si la date limite du programme est plus tardive",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/apply/",
+     "quote": "you'll need to apply to McGill in December even if the program deadline is later"
+    },
+    {
+     "claim": "Endossement universitaire lorsque la procédure l’exige",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "If a university endorsement is required in your situation, your application will not be considered without it."
+    },
+    {
+     "claim": "Relevés de notes (non officiels) téléversés avec le dossier de bourse",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "You will need to upload an unofficial transcript as part of your online scholarship application."
+    },
+    {
+     "claim": "Deux référents (un académique, un communautaire) via formulaire en ligne",
+     "sourceKind": "application",
+     "url": "https://mccallmacbainscholars.org/faq/",
+     "quote": "One academic reference from someone who knows your academic work"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "deadlineLabel (FR et EN)",
+     "recordSays": "FR : « Ouvert — clôture pour les candidats internationaux le 19 août 2026 à 16 h (heure de l’Est) » ; EN : « Open — international deadline 19 August 2026 at 4:00 PM Eastern Time »",
+     "pageSays": "Les candidatures 2027 sont closes ; les deux dates limites (19 août et 23 septembre 2026) sont passées. cycle.status=closed est correct, mais le libellé affiche toujours « Ouvert » / « Open ».",
+     "quote": "Applications for Summer/Fall 2027 are closed.",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "description (FR et EN)",
+     "recordSays": "Présente les deux dates limites au présent (« publie deux dates limites ») sans dire que les candidatures sont closes",
+     "pageSays": "Les candidatures sont closes ; les dates sont au passé (« had the following deadline »).",
+     "quote": "Students and graduates of universities located in other countries had the following deadline:",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    },
+    {
+     "field": "source overview (page d’accueil) vs pages apply / portail",
+     "recordSays": "cycle.status=closed (appuyé sur apply et portail)",
+     "pageSays": "La page d’accueil affirme encore le contraire ; c’est le texte d’accueil qui est périmé : apply et portail sont concordants et les dates limites sont passées. Aucun changement de fiche, à signaler seulement.",
+     "quote": "Applications are open for Summer/Fall 2027 entry.",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "deadlineLabel",
+     "newFr": "Clôturé — les candidatures 2027 ont fermé le 19 août 2026 à 16 h (heure de l’Est) pour les candidats internationaux et le 23 septembre 2026 à 16 h (heure de l’Est) pour le Canada et les États-Unis",
+     "newEn": "Closed — 2027 applications closed on 19 August 2026 at 4:00 PM Eastern Time for international applicants and on 23 September 2026 at 4:00 PM Eastern Time for Canada and the United States",
+     "justificationQuote": "Applications for Summer/Fall 2027 are closed."
+    },
+    {
+     "field": "description (correction mineure, optionnelle)",
+     "newFr": "Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible, pour une entrée à l’été ou à l’automne 2027. Les candidatures 2027 sont closes : la source officielle avait fixé deux dates limites, le 19 août 2026 pour les candidats des universités hors Canada et États-Unis et le 23 septembre 2026 pour le Canada et les États-Unis. Jusqu’à 30 bourses complètes et 100 prix d’admission sont offerts chaque année.",
+     "newEn": "McGill leadership scholarship for an eligible Master or professional degree, for Summer/Fall 2027 entry. 2027 applications are closed: the official source set two deadlines, 19 August 2026 for applicants from universities outside Canada and the United States and 23 September 2026 for Canada and the United States. Up to 30 full scholarships and 100 entrance awards are offered each year.",
+     "justificationQuote": "Applications for Summer/Fall 2027 are closed."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Réponses courtes, essais et CV dans le dossier de bourse (requirements[2], partie « Réponses courtes, essais, CV »)",
+     "reason": "page silencieuse : seuls les relevés de notes non officiels et les deux références sont décrits (FAQ) ; le formulaire du portail n’est pas lisible, les candidatures étant closes"
+    },
+    {
+     "claim": "Informations personnelles, parcours d’études et activités de leadership (requirements[1])",
+     "reason": "page silencieuse / portail fermé : contenu du formulaire non consultable"
+    },
+    {
+     "claim": "Dates du cycle suivant (cohorte 2028)",
+     "reason": "page silencieuse : aucune date de réouverture ni de clôture pour 2028 sur apply, accueil, FAQ, program ni news-updates. La fiche n’en invente aucune et n’a pas à en ajouter."
+    }
+   ],
+   "remarks": [
+    "cycle.status=closed, dateConfidence=confirmed, closesAt=2026-08-19T20:00:00.000Z restent corrects (19 août 2026 16 h ET = 20 h UTC en heure d’été) ; pas d’opensAt (la FAQ dit « Applications will open in June 2026 » mais sans jour : rien à ajouter).",
+    "Le libellé « Ouvert » alors que cycle.status est closed est précisément le défaut que le validateur décrit (« Set status to \"closed\" and refresh the deadline label »).",
+    "steps[2] (« soumettre avant le 19 août à 16 h ET ») et requirements sont rédigés comme pour un cycle ouvert ; non corrigés ici, car ils décrivent la démarche du cycle, mais ils sont désormais historiques.",
+    "Clause « prochain cycle » volontairement absente de la proposition de deadlineLabel : aucune source ne donne de dates 2028."
+   ]
+  },
+  {
+   "id": "chevening_2027",
+   "readAtUtc": "2026-09-29T15:09:19.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.chevening.org/scholarships/",
+     "httpStatus": 403,
+     "finalUrl": "https://www.chevening.org/scholarships/",
+     "read": true,
+     "title": "Scholarships | Chevening",
+     "note": "curl : 403 « Access Denied » (Akamai, refus IP/agent, aucun contournement tenté). Lue via WebFetch (extraction markdown de la page par un modèle ; pas de HTML brut). Citations recoupées sur au moins deux appels indépendants. Titre relevé dans les résultats WebSearch du domaine."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "httpStatus": null,
+     "finalUrl": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "read": true,
+     "title": "Chevening eligibility criteria | Chevening",
+     "note": "curl : erreur HTTP/2 INTERNAL_ERROR puis délai dépassé, aucun statut HTTP obtenu. Lue via WebFetch (extraction markdown de la page par un modèle ; pas de HTML brut). Citations recoupées sur trois appels."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "httpStatus": 403,
+     "finalUrl": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "read": true,
+     "title": "What does a Chevening Scholarship cover? | Chevening",
+     "note": "curl : 403 « Access Denied ». Lue via WebFetch (extraction markdown de la page par un modèle ; pas de HTML brut). Liste des prestations identique sur trois appels. Voir unverified : un extrait WebSearch de cette même URL évoque « part award » et plafond MBA, que l’extraction WebFetch ne retrouve pas."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.chevening.org/apply/",
+     "httpStatus": null,
+     "finalUrl": "https://www.chevening.org/apply/",
+     "read": true,
+     "title": "Apply | Chevening",
+     "note": "curl : erreur HTTP/2 INTERNAL_ERROR puis délai dépassé. Lue via WebFetch (extraction markdown de la page par un modèle ; pas de HTML brut). Page = annuaire des pays avec la mention de date limite ; le détail de la démarche (essais, référents, trois cours) est sur des pages voisines (lues en complément : https://www.chevening.org/resource-hub/guidance/online-application-system/ et https://www.chevening.org/resource-hub/guidance/references/, non comptées parmi les cinq)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.chevening.org/scholarships/application-timeline/",
+     "httpStatus": 403,
+     "finalUrl": "https://www.chevening.org/scholarships/application-timeline/",
+     "read": true,
+     "title": "Application timeline | Chevening",
+     "note": "curl : 403 « Access Denied ». Lue via WebFetch (extraction markdown de la page par un modèle ; pas de HTML brut). Dates recoupées sur quatre appels indépendants."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Bourse d’un an de Master au Royaume-Uni pour futurs leaders",
+     "sourceKind": "overview",
+     "url": "https://www.chevening.org/scholarships/",
+     "quote": "Chevening Scholarships enable outstanding emerging leaders from all over the world to pursue one-year master's degrees in the UK."
+    },
+    {
+     "claim": "Financement complet",
+     "sourceKind": "overview",
+     "url": "https://www.chevening.org/scholarships/",
+     "quote": "Chevening Scholarships are fully-funded"
+    },
+    {
+     "claim": "Campagne annoncée ouverte sur la page bourses",
+     "sourceKind": "overview",
+     "url": "https://www.chevening.org/scholarships/",
+     "quote": "Applications for Chevening Scholarships are now open!"
+    },
+    {
+     "claim": "Éligibilité : citoyen d’un pays ou territoire Chevening éligible",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Be a citizen of a Chevening-eligible country or territory."
+    },
+    {
+     "claim": "Éligibilité : résidence dans un pays éligible à l’APD pour une bourse d’un pays éligible à l’APD",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "If applying for an award from an ODA-eligible country, be resident in an ODA-eligible country."
+    },
+    {
+     "claim": "Engagement de retour d’au moins deux ans",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Commit to returning to your home country (country of award) for at least two years after your scholarship ends."
+    },
+    {
+     "claim": "Expérience : deux ans après la Licence, équivalant à 2 800 heures",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Have at least two years' work experience, acquired after completing your undergraduate degree, equivalent to 2,800 hours."
+    },
+    {
+     "claim": "Licence permettant l’admission en Master britannique, achevée au moins deux ans avant la date limite",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "You must have finished your undergraduate studies at least two years before our application deadline, even if you have not yet received your certificate."
+    },
+    {
+     "claim": "Certificat de Licence exigé au plus tard à l’entretien",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "However, you will need to have your certificate by the time of your interview."
+    },
+    {
+     "claim": "Trois cursus britanniques différents et éligibles",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Apply to three different and eligible UK university courses."
+    },
+    {
+     "claim": "Offre inconditionnelle d’au moins un des trois cursus avant l’échéance du calendrier",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "You must have received an unconditional offer from at least one of these course choices"
+    },
+    {
+     "claim": "Exclusion : citoyenneté britannique",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Hold British or dual British citizenship"
+    },
+    {
+     "claim": "Exclusion : résidence au Royaume-Uni lors de la candidature",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Are resident in the UK at the time of application (excluding the British Overseas Territories)."
+    },
+    {
+     "claim": "Exclusion : emploi dans un ministère, le British Council ou une université partenaire (et proches)",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "of a government department, the British Council, a partner UK university, or any of their wholly owned subsidiaries."
+    },
+    {
+     "claim": "Exclusion : bourse britannique financée par l’État antérieure",
+     "sourceKind": "eligibility",
+     "url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+     "quote": "Have previously studied in the UK on a UK government-funded scholarship"
+    },
+    {
+     "claim": "Prestation : frais de scolarité",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "Payment of tuition fees"
+    },
+    {
+     "claim": "Prestation : voyage aller-retour en classe économique pour le boursier seul",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "Economy travel to and from your country of residence by an approved route for you only"
+    },
+    {
+     "claim": "Prestation : allocation d’arrivée",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "An arrival allowance"
+    },
+    {
+     "claim": "Prestation : allocation de départ",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "A departure allowance"
+    },
+    {
+     "claim": "Prestation : allocation complémentaire de voyage",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "A travel top up allowance"
+    },
+    {
+     "claim": "Prestation : coût d’une demande de visa (boursier seul)",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "The cost of an entry clearance (visa) application for you only"
+    },
+    {
+     "claim": "Prestation : contribution jusqu’à 75 £ au test tuberculose",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "A contribution of up to £75 for TB testing, where this is required"
+    },
+    {
+     "claim": "Allocation mensuelle de vie, taux selon Londres / hors Londres",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "The monthly stipend will depend on whether you are studying inside or outside London."
+    },
+    {
+     "claim": "Programme d’engagement et réseau",
+     "sourceKind": "benefits",
+     "url": "https://www.chevening.org/faqs/what-does-a-chevening-scholarship-cover/",
+     "quote": "a tailored engagement programme creating opportunities for scholars to network with each other as well as alumni"
+    },
+    {
+     "claim": "Page « Apply » : date limite affichée pour les bourses de chaque pays (6 octobre 2026, 11 h UTC)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/apply/",
+     "quote": "Open for applications until 6 October 2026, at 11:00 (UTC)"
+    },
+    {
+     "claim": "Dépôt exclusivement via le système de candidature en ligne (page complémentaire, hors des cinq sources)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/resource-hub/guidance/online-application-system/",
+     "quote": "All applications for Chevening must be completed via the online application system."
+    },
+    {
+     "claim": "Trois choix de cours (page complémentaire)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/resource-hub/guidance/online-application-system/",
+     "quote": "Submit details of your top three UK master's degree course choices."
+    },
+    {
+     "claim": "Quatre essais sur leadership, réseau, choix de cours et projet professionnel (page complémentaire)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/resource-hub/guidance/online-application-system/",
+     "quote": "Respond to the four Chevening essay questions related to leadership, relationship-building, your course choices, and future career goals."
+    },
+    {
+     "claim": "Deux référents nommés dans le formulaire (page complémentaire)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/resource-hub/guidance/online-application-system/",
+     "quote": "submit the names, job details, and contact details of two referees"
+    },
+    {
+     "claim": "Lettres de référence téléversées seulement si convoqué à l’entretien (page complémentaire)",
+     "sourceKind": "application",
+     "url": "https://www.chevening.org/resource-hub/guidance/online-application-system/",
+     "quote": "If you are invited to interview, you will need to upload two letters written by your chosen referees"
+    },
+    {
+     "claim": "Ouverture : 4 août 2026 à 11 h UTC (opensAt de la fiche correct)",
+     "sourceKind": "cycle",
+     "url": "https://www.chevening.org/scholarships/application-timeline/",
+     "quote": "4 August 2026 Applications open at 11:00 UTC"
+    },
+    {
+     "claim": "Clôture : 6 octobre 2026 à 11 h UTC (closesAt de la fiche correct ; cycle encore ouvert au 29/09/2026)",
+     "sourceKind": "cycle",
+     "url": "https://www.chevening.org/scholarships/application-timeline/",
+     "quote": "The deadline for applications is 6 October 2026 at 11:00 UTC."
+    },
+    {
+     "claim": "Entretiens en mars-avril 2027 ; pièces à téléverser au moins sept jours ouvrés avant l’entretien",
+     "sourceKind": "cycle",
+     "url": "https://www.chevening.org/scholarships/application-timeline/",
+     "quote": "upload all their documentation to the online application system at least seven working days before their interview"
+    },
+    {
+     "claim": "Offre inconditionnelle avant le 8 juillet 2027 à 17 h BST",
+     "sourceKind": "cycle",
+     "url": "https://www.chevening.org/scholarships/application-timeline/",
+     "quote": "The deadline to receive and submit at least one unconditional UK university offer is 17:00 BST (UK time) on 8 July 2027."
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "requirements[4] : « Passeport/pièce d’identité et diplômes/relevés selon les étapes »",
+     "reason": "page silencieuse sur la liste exacte des pièces : les pages lues disent seulement « upload all their documentation » avant l’entretien ; le numéro de passeport est saisi dans le formulaire (page complémentaire). Aucune correction proposée."
+    },
+    {
+     "claim": "Nuance sur « Financement complet » : bourses partielles (« part award ») et plafond de frais pour un MBA",
+     "reason": "un extrait de résultat WebSearch attaché à l’URL de la FAQ « What does a Chevening Scholarship cover? » mentionne ces deux points, mais l’extraction WebFetch de la page ne les retrouve pas (demandés explicitement, réponse « not literally on the page »). Non confirmé, non contredit : la page bourses dit « fully-funded ». À contrôler à l’œil sur la page si le rédacteur y tient."
+    },
+    {
+     "claim": "Citations lues via extraction WebFetch, pas via HTML brut",
+     "reason": "chevening.org refuse curl (403 Akamai) ; aucun contournement tenté. Les citations retenues sont celles reproduites à l’identique dans au moins deux appels indépendants."
+    }
+   ],
+   "remarks": [
+    "Cycle : status=open, dateConfidence=confirmed, opensAt=2026-08-04T11:00:00.000Z, closesAt=2026-10-06T11:00:00.000Z exacts et cohérents avec la page ; clôture dans 7 jours au 29/09/2026 (aucune correction, mais fiche à repasser en closed après le 6 octobre 2026 à 11 h UTC).",
+    "deadlineLabel FR/EN (« Ouvert — clôture le 6 octobre 2026 à 11 h UTC » / « Open — closes 6 October 2026 at 11:00 UTC ») confirmés.",
+    "La page timeline précise aussi : annonce des présélectionnés à la mi-février 2027 et résultats à la mi-juin 2027 ; la fiche ne les reprend pas, aucune correction requise."
+   ]
+  }
+ ]
+}

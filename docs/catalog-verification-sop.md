@@ -54,6 +54,39 @@ Use official school, government, scholarship, Campus France, embassy, or partner
 > propriétaire et le badge « Vérifié » reste vert sans que personne ne soit tenu
 > de le rouvrir.
 
+## La relecture mensuelle des bourses (mode d'emploi, écrit le 29/09/2026)
+
+Le validateur refuse toute source (`checkedAt`) ou vérification (`verifiedAt`)
+de plus de 30 jours : chaque mois, chaque fiche doit être rouverte. Ce qui a
+fonctionné le 29/09 (33 fiches, dix relecteurs en parallèle, ~3 fiches chacun) :
+
+1. **Lire, ne pas recopier.** Ouvrir les cinq pages officielles de la fiche
+   (présentation, éligibilité, avantages, candidature, dates du cycle) et
+   comparer champ par champ : dates, montants, niveaux, pays éligibles, statut
+   du cycle (ouvert, clos, prévu). Une citation par affirmation vérifiée, copiée
+   mot pour mot.
+2. **`checkedAt` = l'heure réelle de la lecture** (`date -u` au moment où la
+   page est lue), une par fiche. Ne jamais poser une date « du jour » sur des
+   fiches qu'on n'a pas relues : c'est faire affirmer au catalogue une
+   vérification qui n'a pas eu lieu.
+3. **Une page illisible n'est pas une page relue.** Écran anti-robot, PDF
+   introuvable, page qui ne charge pas : la fiche garde sa date, le test de
+   fraîcheur reste rouge pour elle, et une personne la relit dans un navigateur
+   ordinaire. On ne contourne pas le blocage.
+4. **Un cycle dont la clôture est passée devient `closed`** (avec sa date de
+   clôture confirmée) ; il ne reste jamais `open`. Les URL du contenu doivent
+   être celles de la source correspondante — le validateur le vérifie.
+5. **Contrôler les preuves.** Chaque citation d'un rapport de relecteur doit se
+   retrouver mot pour mot dans la page enregistrée (le 29/09 : 858 sur 858
+   retrouvées ; les citations d'une lecture faite par un outil qui résume la
+   page, comme `WebFetch`, ne sont pas vérifiables de cette façon et sont
+   signalées comme telles dans le journal).
+6. **Déployer, puis réaligner la production** : `publish-catalog` (import →
+   reconcile → switch). Sans `reconcile`, les lignes déjà en base gardent
+   l'ancien contenu.
+
+Les preuves de la vague du 29/09 : `docs/catalog-verification-2026-09-29.md`.
+
 ## Publier le catalogue vérifié en production
 
 Le catalogue vérifié vit dans le dépôt (`backend/src/modules/scholarships-index/data/`).
