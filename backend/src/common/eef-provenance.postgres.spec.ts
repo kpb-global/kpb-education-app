@@ -107,6 +107,9 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     partnerInst: `it-partner-inst-${sfx}`,
     partnerProg: `it-partner-prog-${sfx}`,
     partnerProgOff: `it-partner-prog-off-${sfx}`,
+    // Une formation partenaire à laquelle l'exploitation a fini par donner une
+    // procédure et un cycle : tout ce que la recherche et la shortlist filtrent.
+    partnerQualified: `it-partner-prog-qualified-${sfx}`,
     eefInstLive: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-live`,
     eefProgLive: `${EEF_PROGRAM_ID_PREFIX}${sfx}-live`,
     eefInstPending: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-pending`,
@@ -131,6 +134,7 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
   const programIds = [
     ids.partnerProg,
     ids.partnerProgOff,
+    ids.partnerQualified,
     ids.eefProgLive,
     ids.eefProgOrphan,
     ids.eefProgPending,
@@ -433,6 +437,13 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
         program(ids.partnerProgOff, ids.partnerInst, 'Partenaire désactivée', {
           isActive: false,
         }),
+        program(ids.partnerQualified, ids.partnerInst, 'Partenaire qualifiée', {
+          isActive: true,
+          procedureType: 'eef',
+          cycle: 'master',
+          campusCity: 'Rennes',
+          admissionModes: ['Dossier'],
+        }),
         program(ids.eefProgLive, ids.eefInstLive, 'Master publié', {
           isActive: true,
           procedureType: 'eef',
@@ -511,16 +522,18 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       const served = (response.items as Array<{ id: string }>).map((p) => p.id);
 
       expect(response.source).toBe('database');
-      // Le témoin, et lui seul : la publiée du partenaire.
-      expect(served).toEqual([ids.partnerProg]);
-      expect(response.total).toBe(1);
+      // Les témoins, et eux seuls : les deux formations actives du partenaire,
+      // y compris celle qu'une procédure a qualifiée — elle RESTE dans le
+      // catalogue général, et n'est que là (voir la recherche plus bas).
+      expect(served.sort()).toEqual([ids.partnerProg, ids.partnerQualified].sort());
+      expect(response.total).toBe(2);
     });
 
     it("n'ajoute rien au total non filtré que chaque build charge d'un appel", async () => {
       // C'est la liste de `limit=1000` triée par nom : c'est elle que des lignes
       // EEF actives auraient fini par évincer.
       const response = await catalog.getPrograms();
-      expect(response.total - before.catalogPrograms).toBe(1);
+      expect(response.total - before.catalogPrograms).toBe(2);
     });
   });
 
@@ -532,6 +545,18 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       expect(result.source).toBe('database');
       expect(await searchIds()).toEqual([ids.eefProgLive]);
       expect(result.total).toBe(1);
+    });
+
+    it("ne sert pas la formation d'une école partenaire, même qualifiée d'une procédure", async () => {
+      // Elle est active, sous un établissement actif de la France, avec
+      // procédure, cycle et modalité : tout ce que la recherche filtre. Seule la
+      // provenance la tient dehors — et le catalogue général la sert (voir plus
+      // haut) : une ligne, un espace.
+      expect(await searchIds()).not.toContain(ids.partnerQualified);
+      const facets = (await search.search({ q: sfx, limit: '50' })).facets;
+      expect(facets.institutionId.map((f: { value: string }) => f.value)).not.toContain(
+        ids.partnerInst,
+      );
     });
 
     it('compte les facettes sur ce même ensemble', async () => {
@@ -565,6 +590,9 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       expect(result.ids).not.toContain(ids.eefProgPending);
       // Une formation partenaire n'a aucune procédure : elle n'a pas de cycle.
       expect(result.ids).not.toContain(ids.partnerProg);
+      // Et celle d'une école partenaire qualifiée n'entre pas non plus : la
+      // provenance, pas le cycle, dit ce qui vient de l'import.
+      expect(result.ids).not.toContain(ids.partnerQualified);
       expect(result.total - before.shortlistTotal).toBe(1);
     });
 
@@ -617,18 +645,18 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
 
   // ── La file de revérification, le SLA et le compteur ──────────────────────
   describe('la file de revérification, le SLA quotidien et le compteur du tableau de bord', () => {
-    // Neuf lignes entrent dans la file :
-    //   • sept JAMAIS vérifiées — les trois du partenaire (l'établissement, la
-    //     formation, la formation désactivée à la main) et quatre publiées de
-    //     l'import (établissement, formation, formation sous un parent en
-    //     attente, formation saisie à la main) ;
+    // Dix lignes entrent dans la file :
+    //   • huit JAMAIS vérifiées — les quatre du partenaire (l'établissement, la
+    //     formation, la formation désactivée à la main, la formation qualifiée)
+    //     et quatre publiées de l'import (établissement, formation, formation
+    //     sous un parent en attente, formation saisie à la main) ;
     //   • deux vérifiées il y a 400 jours, au-delà de la cadence de 180.
     // N'y entrent pas : les deux lignes EN ATTENTE de l'import (l'établissement
     // et la formation — onze sans la règle), et les deux vérifiées il y a 100
     // jours, DANS la cadence. Ces dernières sont les seules à piloter la coupure :
     // une coupure dans le mauvais sens, ou à 30 jours au lieu de 180, les ferait
     // compter.
-    const EXPECTED_DUE = 9;
+    const EXPECTED_DUE = 10;
 
     it('ne comptent que ce qui a été publié, et pas ce que le pipeline a déposé', async () => {
       const queue = await admin.listVerificationDue();
@@ -681,6 +709,7 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
         [
           ids.partnerProg,
           ids.partnerProgOff,
+          ids.partnerQualified,
           ids.eefProgLive,
           ids.eefProgOrphan,
           ids.manualUnderEef,
@@ -710,6 +739,18 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
 
       expect(withNone).toBe(0);
       expect(withLive).toBe(1);
+
+      // L'établissement partenaire est, lui aussi, dans la liste des publiés
+      // (« actif, en France ») : la formation partenaire qualifiée passe donc la
+      // clause de l'établissement, la procédure et le pays. Seule la provenance
+      // la retient — sans elle ce compte serait de deux.
+      const withPartner = await prisma.program.count({
+        where: buildEefSearchWhere(params, franceId, [
+          ids.eefInstLive,
+          ids.partnerInst,
+        ]) as never,
+      });
+      expect(withPartner).toBe(1);
     });
 
     it('la shortlist ne sert aucune ligne, alors que les lignes existent', async () => {
@@ -724,9 +765,17 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
         }) as never;
 
       expect(await prisma.program.count({ where: where([]) })).toBe(0);
+      const live = await prisma.program.count({
+        where: where([ids.eefInstLive]),
+      });
+      expect(live).toBeGreaterThanOrEqual(1);
+      // Même contre-épreuve que pour la recherche : avec l'établissement
+      // partenaire dans la liste, la formation qualifiée reste dehors.
       expect(
-        await prisma.program.count({ where: where([ids.eefInstLive]) }),
-      ).toBeGreaterThanOrEqual(1);
+        await prisma.program.count({
+          where: where([ids.eefInstLive, ids.partnerInst]),
+        }),
+      ).toBe(live);
     });
   });
 });

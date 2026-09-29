@@ -117,6 +117,12 @@ function evaluate(
     } else if ('isEmpty' in op) {
       const list = (actual as unknown[]) ?? [];
       parts.push((list.length === 0) === op.isEmpty);
+    } else if ('startsWith' in op) {
+      if (actual === null || actual === undefined) parts.push(null);
+      else
+        parts.push(
+          typeof actual === 'string' && actual.startsWith(op.startsWith as string),
+        );
     } else {
       throw new Error(`opérateur non pris en charge dans le test : ${
         JSON.stringify(op)}`);
@@ -318,6 +324,60 @@ describe('buildShortlistWhere', () => {
           }).toEqual({ tier, stratum, served: false });
         }
       }
+    });
+
+    // ── La provenance : une seule définition de « EEF » ─────────────────────
+    //
+    // `cycle` filtre sur des valeurs qu'une formation partenaire pourrait aussi
+    // porter le jour où l'exploitation la qualifie. Seule la PROVENANCE dit
+    // « cette ligne vient de l'import » — la même que celle que le catalogue
+    // général exclut.
+    describe('la formation vient de l’import', () => {
+      const PARTNER = 'omnes-essec';
+      const both = { ...base, publishedInstitutionIds: [PUBLISHED, PARTNER] };
+      const servedBy = (row: Record<string, unknown>) => {
+        const served: string[] = [];
+        for (const tier of EEF_SHORTLIST_TIERS) {
+          for (const stratum of ['linked', 'open', 'any'] as const) {
+            const where = buildShortlistWhere({ ...both, tier, stratum });
+            if (matchesWhere(where, { ...eligible, fieldId: 'd02', ...row })) {
+              served.push(`${tier}/${stratum}`);
+            }
+          }
+        }
+        return served;
+      };
+
+      it('ne recommande pas la formation d’une école partenaire publiée, même qualifiée', () => {
+        // Établissement actif (donc dans la liste des publiés), cycle et domaine
+        // compatibles : seule la provenance l'écarte.
+        expect(
+          servedBy({ id: 'omnes-p-42', institutionId: PARTNER }),
+        ).toEqual([]);
+        // Un identifiant généré (saisie manuelle) sous un établissement
+        // partenaire ne change rien.
+        expect(
+          servedBy({ id: 'cm1abcdef0000', institutionId: PARTNER }),
+        ).toEqual([]);
+      });
+
+      it('recommande une formation de l’import', () => {
+        expect(
+          servedBy({ id: 'eef-prog-0387ffdcaab99c8a', institutionId: PUBLISHED })
+            .length,
+        ).toBeGreaterThan(0);
+      });
+
+      it('compte aussi une formation saisie à la main sous une université de l’import', () => {
+        // Même règle que `notEefProgram` : le parent EEF fait la ligne EEF.
+        expect(
+          servedBy({ id: 'cm1abcdef0000', institutionId: PUBLISHED }).length,
+        ).toBeGreaterThan(0);
+      });
+
+      it('exclut une ligne dont on ne sait rien', () => {
+        expect(servedBy({ id: undefined, institutionId: null })).toEqual([]);
+      });
     });
 
     it('ne recommande pas une formation sans établissement connu', () => {

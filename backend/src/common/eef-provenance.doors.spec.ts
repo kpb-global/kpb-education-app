@@ -360,6 +360,16 @@ const DOORS: Readonly<Record<string, Door>> = {
     },
     unscoped: '*',
   },
+  'modules/etudes-en-france/catalog/eef-pending-purge.ts': {
+    reason:
+      'L’outil d’exploitation qui supprime les lignes de l’import JAMAIS '
+      + 'publiées ni vérifiées. Il ne sert rien à personne : sa portée est le '
+      + 'préfixe de l’import (`startsWith`) et l’état « inactive, jamais vérifiée », '
+      + 'répétés dans chaque suppression — jamais une ligne du catalogue général.',
+    scoped: {},
+    unscoped: ['purgePendingEefRows'],
+    accesses: 6,
+  },
   'modules/competition-readiness/admin/admin-partnerships.service.ts': {
     reason:
       'Lecture par identifiant d’un établissement, par un administrateur qui gère '

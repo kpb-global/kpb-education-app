@@ -1,5 +1,6 @@
 import { BadRequestException, HttpException } from '@nestjs/common';
 
+import { eefProgramWhere } from '../../../common/eef-provenance';
 import { EefSearchService } from './eef-search.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { decodeEefCursor, encodeEefCursor } from './eef-search.query';
@@ -201,7 +202,8 @@ describe('EefSearchService', () => {
 
   it('n’applique jamais le curseur au total ni aux facettes', async () => {
     // Ils décrivent « ce qu'il y a », pas « ce qui reste ». Leur `AND` ne porte
-    // donc QUE la clause de publication — aucun morceau de curseur.
+    // donc QUE les clauses de PORTÉE — l'établissement publié et la provenance —,
+    // aucun morceau de curseur.
     const { service, captured } = serviceWith({ rows: [programRow()] });
     await service.search({
       cursor: encodeEefCursor({ nameFr: 'L1 - Droit', id: 'p-1' }),
@@ -214,11 +216,13 @@ describe('EefSearchService', () => {
     for (const call of reads) {
       expect((call.where as Record<string, unknown>).AND).toEqual([
         { institutionId: { in: [PUBLISHED_INSTITUTION] } },
+        eefProgramWhere(),
       ]);
     }
     const findMany = captured.calls.find((c) => c.kind === 'findMany')!;
     const pageAnd = (findMany.where as Record<string, unknown>).AND as unknown[];
-    expect(pageAnd).toHaveLength(2);
+    // Le curseur, puis la portée (publié + provenance).
+    expect(pageAnd).toHaveLength(3);
     expect(JSON.stringify(pageAnd)).toContain('"gt"');
   });
 

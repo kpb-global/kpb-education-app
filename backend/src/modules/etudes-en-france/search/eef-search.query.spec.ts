@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from 'node:util';
 
+import { eefProgramWhere } from '../../../common/eef-provenance';
 import {
   EEF_SEARCH_DEFAULT_LIMIT,
   EEF_SEARCH_FACETS,
@@ -153,19 +154,33 @@ describe('buildEefSearchWhere', () => {
   /// ici doit en dépendre : la formation n'est publique que si son parent l'est.
   const PUBLISHED = ['eef-univ-0353074b', 'eef-univ-0751724s'];
   const PUBLISHED_CLAUSE = { institutionId: { in: PUBLISHED } };
+  /// La PROVENANCE : cet espace ne sert que les lignes de l'import.
+  const PROVENANCE_CLAUSE = eefProgramWhere();
 
-  /// Ce qui reste de `AND` une fois la clause de publication retirée : les mots
-  /// et le curseur. Les tests du curseur et des mots regardent CELA, pas la
-  /// forme complète du tableau — la clause de publication n'a rien à voir avec
-  /// eux et ne doit pas les rendre fragiles.
+  /// Chaque variante qu'un appel construit : la page, le total, chaque facette.
+  const variants = (): [string, (p: EefSearchParams) => Record<string, unknown>][] => [
+    ['la page', (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { withCursor: true })],
+    ['le total', (p) => buildEefSearchWhere(p, 'france', PUBLISHED)],
+    ...EEF_SEARCH_FACETS.map((facet): [string, (p: EefSearchParams) => Record<string, unknown>] => [
+      `la facette ${facet}`,
+      (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { excludeFacet: facet }),
+    ]),
+  ];
+
+  /// Ce qui reste de `AND` une fois les clauses de PORTÉE retirées (établissement
+  /// publié, provenance) : les mots et le curseur. Les tests du curseur et des
+  /// mots regardent CELA, pas la forme complète du tableau — la portée n'a rien à
+  /// voir avec eux et ne doit pas les rendre fragiles.
   ///
-  /// On retire EXACTEMENT la clause de publication — égalité profonde —, pas « tout
-  /// ce qui porte la clé `institutionId` » : ce dernier filtre aurait aussi
-  /// avalé une clause de curseur ou de facette qui se tromperait de clé, et les
-  /// tests du curseur n'auraient rien vu.
-  const withoutPublished = (where: Record<string, unknown>) =>
+  /// On retire EXACTEMENT ces clauses — égalité profonde —, pas « tout ce qui
+  /// porte la clé `institutionId` » ni « tout ce qui porte un `OR` » : ces
+  /// filtres auraient aussi avalé une clause de curseur, de mot ou de facette
+  /// qui se tromperait de clé, et les tests n'auraient rien vu.
+  const withoutScope = (where: Record<string, unknown>) =>
     ((where.AND as Record<string, unknown>[] | undefined) ?? []).filter(
-      (clause) => !isDeepStrictEqual(clause, PUBLISHED_CLAUSE),
+      (clause) =>
+        !isDeepStrictEqual(clause, PUBLISHED_CLAUSE) &&
+        !isDeepStrictEqual(clause, PROVENANCE_CLAUSE),
     );
 
   it('impose toujours la relecture et le pays', () => {
@@ -189,16 +204,7 @@ describe('buildEefSearchWhere', () => {
   // parent une fiche non vérifiée. Ces tests regardent la clause, dans CHAQUE
   // variante qu'un appel construit — page, total, chaque facette.
   describe('l’établissement doit être publié', () => {
-    const variants: [string, (p: EefSearchParams) => Record<string, unknown>][] = [
-      ['la page', (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { withCursor: true })],
-      ['le total', (p) => buildEefSearchWhere(p, 'france', PUBLISHED)],
-      ...EEF_SEARCH_FACETS.map((facet): [string, (p: EefSearchParams) => Record<string, unknown>] => [
-        `la facette ${facet}`,
-        (p) => buildEefSearchWhere(p, 'france', PUBLISHED, { excludeFacet: facet }),
-      ]),
-    ];
-
-    it.each(variants)('accompagne %s', (_label, build) => {
+    it.each(variants())('accompagne %s', (_label, build) => {
       for (const input of [{}, { q: 'droit' }, { institutionId: 'eef-univ-0353074b' }]) {
         const where = build(parseEefSearchInput(input));
         expect(where.AND).toContainEqual(PUBLISHED_CLAUSE);
@@ -243,10 +249,51 @@ describe('buildEefSearchWhere', () => {
     });
   });
 
+  // ── La provenance : une seule définition de « EEF » ───────────────────────
+  //
+  // Le catalogue général EXCLUT les lignes de l'import par leur identifiant ;
+  // cet espace les INCLUAIT par `procedureType`. Deux définitions : le jour où
+  // l'exploitation qualifie une formation partenaire d'une procédure, elle
+  // entrait ici ET restait dans le catalogue général. L'espace exige désormais la
+  // même provenance que celle que le catalogue général exclut.
+  describe('la formation vient de l’import', () => {
+    it.each(variants())('accompagne %s', (_label, build) => {
+      for (const input of [{}, { q: 'droit' }, { procedureType: 'eef' }]) {
+        expect(build(parseEefSearchInput(input)).AND).toContainEqual(PROVENANCE_CLAUSE);
+      }
+    });
+
+    it('est la même clause que celle que le catalogue général exclut', () => {
+      // Identité de valeur, pas de ressemblance : les deux surfaces partent de
+      // `eefProgramWhere`.
+      expect(PROVENANCE_CLAUSE).toEqual({
+        OR: [
+          { id: { startsWith: 'eef-prog-' } },
+          { institutionId: { startsWith: 'eef-univ-' } },
+        ],
+      });
+    });
+
+    it('ne se laisse pas remplacer par la procédure', () => {
+      // `procedureType` reste un garde-fou de données, mais aucune valeur qu'on
+      // lui donne ne dispense de la provenance.
+      for (const procedure of ['eef', 'dap_blanche', 'hors_eef']) {
+        const where = buildEefSearchWhere(
+          parseEefSearchInput({ procedureType: procedure }),
+          'france',
+          PUBLISHED,
+        );
+        expect(where.AND).toContainEqual(PROVENANCE_CLAUSE);
+      }
+    });
+  });
+
   it('exige chaque mot, dans l’intitulé OU dans la ville', () => {
     const where = buildEefSearchWhere(params, 'france', PUBLISHED);
     const and = where.AND as Record<string, unknown>[];
-    const termClauses = and.filter((clause) => 'OR' in clause);
+    const termClauses = and.filter(
+      (clause) => 'OR' in clause && !isDeepStrictEqual(clause, PROVENANCE_CLAUSE),
+    );
     expect(termClauses).toHaveLength(2);
     expect(termClauses[0]).toEqual({
       OR: [
@@ -274,12 +321,12 @@ describe('buildEefSearchWhere', () => {
     // Le total ne porte AUCUN morceau de curseur : il décrit « ce qu'il y a »,
     // pas « ce qui reste ».
     const total = buildEefSearchWhere(withCursor, 'france', PUBLISHED);
-    expect(withoutPublished(total)).toEqual([]);
+    expect(withoutScope(total)).toEqual([]);
 
     const page = buildEefSearchWhere(withCursor, 'france', PUBLISHED, {
       withCursor: true,
     });
-    expect(withoutPublished(page)).toEqual([
+    expect(withoutScope(page)).toEqual([
       {
         OR: [
           { nameFr: { gt: 'L1 - Droit' } },

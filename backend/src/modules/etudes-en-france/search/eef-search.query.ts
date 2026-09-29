@@ -26,6 +26,7 @@
 // insertion ailleurs dans la liste ne décale rien, et chaque page coûte le
 // même prix parce que l'index la trouve directement.
 // ─────────────────────────────────────────────────────────────────────────────
+import { eefProgramWhere } from '../../../common/eef-provenance';
 import {
   EEF_CYCLES,
   EEF_PROCEDURE_TYPES,
@@ -268,6 +269,8 @@ export function buildEefSearchWhere(
     countryId,
     // Une ligne sans procédure n'appartient pas à ce catalogue : ce sont les
     // formations des écoles privées partenaires, qui ont leur propre espace.
+    // C'est un garde-fou de DONNÉES, pas la définition de ce qui est « EEF » :
+    // celle-ci est la PROVENANCE, posée plus bas (`eefProgramWhere`).
     procedureType: { not: null },
   };
   const and: Record<string, unknown>[] = [];
@@ -321,6 +324,16 @@ export function buildEefSearchWhere(
   // Placée en DERNIER et posée sans condition : `and` n'est donc jamais vide, et
   // la clause accompagne aussi bien la page que le total et chaque facette.
   and.push({ institutionId: { in: [...publishedInstitutionIds] } });
+
+  // La PROVENANCE, dans le sens de l'inclusion. Le catalogue général exclut les
+  // lignes de l'import par leur identifiant (`notEefProgram`) ; cet espace ne
+  // sert QUE ces lignes. Sans cette clause, deux définitions de « EEF »
+  // cohabitaient : l'exclusion par préfixe et l'inclusion par `procedureType`.
+  // Le jour où l'exploitation qualifie une formation partenaire (OMNES, ICN…)
+  // d'une procédure, elle serait entrée ici — et serait restée dans le
+  // catalogue général : dans les deux espaces à la fois. Maintenant elle reste
+  // dans un seul : le sien.
+  and.push(eefProgramWhere());
 
   where.AND = and;
   return where;

@@ -18,6 +18,7 @@
     "import:universiapolis": "ts-node scripts/import-universiapolis.ts",
     "fix:mundiapolis-levels": "ts-node scripts/fix-mundiapolis-levels.ts",
     "backfill:tuition-eur": "ts-node scripts/backfill-tuition-min-eur.ts",
+    "reviews:purge-orphans": "ts-node scripts/purge-orphan-reviews.ts",
     "backfill:seed-institutions": "ts-node scripts/backfill-seed-institutions.ts",
     "import:partners": "ts-node scripts/import-partner-universities.ts",
     "seed:partners": "ts-node scripts/seed-partner-schools.ts",
@@ -36,6 +37,7 @@
     "eef:backfill:admission:dry-run": "ts-node scripts/backfill-eef-admission.ts --dry-run",
     "eef:backfill:admission": "ts-node scripts/backfill-eef-admission.ts --apply",
     "eef:backfill": "ts-node scripts/backfill-eef-enrichment.ts",
+    "eef:purge-pending": "ts-node scripts/purge-eef-pending.ts",
     "scholarships:validate:structure": "ts-node scripts/validate-scholarship-catalog.ts --structure-only",
     "scholarships:validate:merge-gate": "ts-node scripts/validate-scholarship-catalog.ts --structure-only --ignore-clock",
     "verify:scholarships": "ts-node scripts/validate-scholarship-catalog.ts",
@@ -48,10 +50,10 @@
     "catalog:switch": "node dist/cli/scholarships-catalog.cli.js switch",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest",
-    "test:integration:privacy": "jest --runInBand src/modules/profiles/profiles.postgres.spec.ts src/modules/competition-readiness/analytics/storage-purge-reconciliation.postgres.spec.ts src/modules/counsellors/counsellors.reviews.postgres.spec.ts",
+    "test:integration:privacy": "jest --runInBand src/modules/profiles/profiles.postgres.spec.ts src/modules/competition-readiness/analytics/storage-purge-reconciliation.postgres.spec.ts src/modules/counsellors/counsellors.reviews.postgres.spec.ts src/modules/counsellors/orphan-reviews.postgres.spec.ts",
     "test:integration:catalog-reads": "jest --runInBand src/modules/scholarships-index/scholarships-public-reads.postgres.spec.ts",
     "test:integration:catalog-reconcile": "jest --runInBand src/cli/scholarships-catalog.reconcile.postgres.spec.ts",
-    "test:integration:eef-provenance": "KPB_RUN_POSTGRES_INTEGRATION=true jest --runInBand src/common/eef-provenance.postgres.spec.ts",
+    "test:integration:eef-provenance": "KPB_RUN_POSTGRES_INTEGRATION=true jest --runInBand src/common/eef-provenance.postgres.spec.ts src/modules/etudes-en-france/catalog/eef-pending-purge.postgres.spec.ts",
     "test:integration:migration-upgrade": "ts-node scripts/verify-competition-readiness-populated-upgrade.ts"
   },
   "dependencies": {

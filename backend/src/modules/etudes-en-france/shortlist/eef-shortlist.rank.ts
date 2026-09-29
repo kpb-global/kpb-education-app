@@ -13,6 +13,7 @@
 // nombre opaque que cette fonctionnalité refuse — « 72 % » dont personne ne
 // sait s'il parle du dossier ou de la filière.
 // ─────────────────────────────────────────────────────────────────────────────
+import { eefProgramWhere } from '../../../common/eef-provenance';
 import {
   ANY_BACHELOR_LABEL,
   acceptsAnyBachelor,
@@ -273,6 +274,12 @@ export function buildShortlistWhere(
   // L'établissement publié est le TROISIÈME élément de ce `AND`, après l'étage
   // et la strate : les tests indexent les deux premiers, et il n'a rien à
   // partager avec eux — pas de `OR`, pas de `NOT`, donc aucune collision.
+  //
+  // La PROVENANCE est le QUATRIÈME, pour la même raison : elle porte un `OR`
+  // (identifiant de la formation, ou de son établissement) qui n'a pas à
+  // partager de clé avec l'étage ni la strate. `cycle` ci-dessus filtre sur des
+  // valeurs qu'une formation partenaire pourrait aussi porter ; c'est cette
+  // clause, et elle seule, qui dit « cette ligne vient de l'import ».
   return {
     isActive: true,
     countryId,
@@ -281,6 +288,7 @@ export function buildShortlistWhere(
       tierWhere(tier, path),
       stratumClause,
       { institutionId: { in: [...publishedInstitutionIds] } },
+      eefProgramWhere(),
     ],
   };
 }
