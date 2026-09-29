@@ -28,13 +28,13 @@ import {
 // vérification réelle » en fin de fichier, qui interroge l'horloge du système.
 const NOW = new Date('2026-08-10T12:00:00.000Z');
 
-// Le catalogue REEL porte deux vagues de vérification : l'initiale du
-// 10/08/2026 et la re-vérification aux sources du 24/08/2026 (les 10 fiches
-// publiées). Les tests qui valident SCHOLARSHIP_CATALOG_V1 entier ont besoin
-// d'une horloge postérieure à la vague la plus récente — sous [NOW], la
-// seconde vague serait « dans le futur » et le validateur la signalerait.
-// [NOW] reste l'horloge des fixtures synthétiques, qui datent du 10/08.
-const CATALOG_NOW = new Date('2026-08-25T12:00:00.000Z');
+// Le catalogue REEL porte les vagues de vérification successives ; la plus
+// récente est la re-vérification aux sources du 29/09/2026. Les tests qui
+// valident SCHOLARSHIP_CATALOG_V1 entier ont besoin d'une horloge postérieure
+// à la vague la plus récente — sous [NOW], elle serait « dans le futur » et le
+// validateur la signalerait. [NOW] reste l'horloge des fixtures synthétiques,
+// qui datent du 10/08.
+const CATALOG_NOW = new Date('2026-09-29T18:00:00.000Z');
 
 function validRecord(): VerifiedScholarshipCatalogRecord {
   const checkedAt = '2026-07-15T12:00:00.000Z';

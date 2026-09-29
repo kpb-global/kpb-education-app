@@ -120,7 +120,11 @@ describe('scholarships-catalog CLI', () => {
     // tombe entre les deux horloges (seule McCall clôt en août, le 19, et son
     // exclusion ne vient plus de l'horloge : son cycle est `closed` depuis la
     // correction du 20/08), donc les comptes attendus ne changent pas de sens.
-    const now = new Date('2026-08-25T18:00:00.000Z');
+    // 29/09 depuis la re-vérification aux sources du même jour (nouvelle vague
+    // de `verifiedAt`, même raison que ci-dessus). Entre les deux horloges,
+    // Schwarzman a clos (09/09) et sa fiche est passée `closed` : elle sort des
+    // publiables comme McCall avant elle — d'où 29 et 11.
+    const now = new Date('2026-09-29T18:00:00.000Z');
 
     // POURQUOI CES CHIFFRES ONT CHANGÉ LE 20/08/2026 — 31 → 30 et 11 → 10.
     //
@@ -145,31 +149,32 @@ describe('scholarships-catalog CLI', () => {
     // La valeur numérique reste le critère : si quelqu'un annule la correction
     // de la porte de qualité, ce compte tombe à 25. « Les tests passent » ne
     // l'aurait pas montré.
-    it('publishes exactly the 30 eligible records of catalog 1.3.0', () => {
+    it('publishes exactly the 29 eligible records of catalog 1.3.0', () => {
       const decisions = SCHOLARSHIP_CATALOG_V1.records.map((_, index) =>
         decidePublication(rowFromRecord(index), now, false),
       );
       const published = decisions.filter((item) => item.publish).map((i) => i.id);
 
-      expect(published).toHaveLength(30);
+      expect(published).toHaveLength(29);
       expect(published).not.toContain('mccall_macbain_2027');
       expect(decisions.filter((item) => !item.publish).map((i) => i.id).sort()).toEqual([
         'daad_helmut_schmidt_2027',
         'mccall_macbain_2027',
         'rhodes_southern_africa_2027',
+        'schwarzman_scholars_2027',
         'uct_international_refugee_2027',
       ]);
     });
 
     // 12 et non plus 10 : la re-vérification du 24/08 a promu york_pise et
     // jj_wbgsp en dates confirmées (leurs sources publient désormais le cycle
-    // 2027 ferme).
-    it('publishes only the 12 confirmed-date records under --confirmed-only', () => {
+    // 2027 ferme). 11 depuis le 29/09 : Schwarzman, confirmé, est clos.
+    it('publishes only the 11 confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(12);
+      expect(published).toHaveLength(11);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
       expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });

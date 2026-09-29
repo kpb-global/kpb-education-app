@@ -62,7 +62,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://www.chevening.org/scholarships/application-timeline/',
     },
     tags: ['master', 'uk', 'government', 'open', 'fully-funded'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'mccall_macbain_2027',
@@ -73,8 +73,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
     deadlineLabel: [
-      'Ouvert — clôture pour les candidats internationaux le 19 août 2026 à 16 h (heure de l’Est)',
-      'Open — international deadline 19 August 2026 at 4:00 PM Eastern Time',
+      'Clôturé — les candidatures de la cohorte 2027 ont fermé (candidats internationaux le 19 août 2026, Canada/États-Unis le 23 septembre 2026, à 16 h heure de l’Est) ; prochain cycle attendu vers juin 2027, date non publiée',
+      'Closed — 2027 cohort applications closed (international deadline 19 August 2026, Canada/US 23 September 2026, 4:00 PM ET); next cycle expected around June 2027, date not published',
     ],
     description: [
       'Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible, pour une entrée à l’été ou à l’automne 2027. La source officielle publie deux dates limites : 19 août 2026 pour les candidats des universités hors Canada et États-Unis, 23 septembre 2026 pour le Canada et les États-Unis. Jusqu’à 30 bourses complètes et 100 prix d’admission sont offerts chaque année.',
@@ -135,7 +135,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://mccallmacbainscholars.org/apply/',
     },
     tags: ['master', 'canada', 'mcgill', 'closed', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'schwarzman_scholars_2027',
@@ -145,7 +145,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     levelLabel: ['Master en affaires mondiales', 'Master in Global Affairs'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — clôture le 9 septembre 2026 à 15 h EDT', 'Open — closes 9 September 2026 at 3:00 PM EDT'],
+    deadlineLabel: ['Clôturé — la campagne 2027–2028 a fermé le 9 septembre 2026 ; la campagne 2028–2029 est annoncée d’avril à septembre 2027', 'Closed — the 2027–2028 window closed on 9 September 2026; the 2028–2029 U.S./Global application is announced for April–September 2027'],
     description: [
       'Programme résidentiel d’un an à Tsinghua University formant une cohorte internationale au leadership et aux affaires mondiales.',
       'One-year residential programme at Tsinghua University bringing an international cohort together around leadership and global affairs.',
@@ -181,7 +181,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'open',
+      status: 'closed',
       dateConfidence: 'confirmed',
       opensAt: '2026-04-08T00:00:00.000Z',
       closesAt: '2026-09-09T19:00:00.000Z',
@@ -194,8 +194,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://www.schwarzmanscholars.org/admissions/application-instructions/',
       cycle: 'https://www.schwarzmanscholars.org/admissions/application-instructions/',
     },
-    tags: ['master', 'china', 'tsinghua', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    tags: ['master', 'china', 'tsinghua', 'closed', 'leadership', 'fully-funded'],
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'si_global_professionals_2027_forecast',
@@ -257,7 +257,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/',
     },
     tags: ['master', 'sweden', 'government', 'leadership', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'daad_helmut_schmidt_2027',
@@ -328,7 +328,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       cycle: 'https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf',
     },
     tags: ['master', 'germany', 'daad', 'closed', 'governance', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'australia_awards_africa_2028_forecast',
@@ -339,12 +339,12 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
     deadlineLabel: [
-      'Prévision prochain cycle — environ du 1er février au 30 avril 2027, à reconfirmer',
-      'Next-cycle forecast — approximately 1 February to 30 April 2027, to be reconfirmed',
+      'Prochain cycle (rentrée 2028) — ouverture officiellement annoncée le 1er février 2027 ; clôture estimée vers le 30 avril 2027, à reconfirmer',
+      'Next cycle (2028 intake) — opening officially announced for 1 February 2027; closing estimated around 30 April 2027, to be reconfirmed',
     ],
     description: [
-      'Bourses du gouvernement australien pour professionnels africains de niveau intermédiaire à senior, adossées au partenariat Australie-Afrique 2025-2030. Le portail OASIS confirme que la rentrée 2027 est close et aucune suspension ni coupe budgétaire n’est annoncée sur les pages officielles. Les dates et critères affichés comme prévision sont dérivés du document officiel pour les études débutant en 2027, dont l’appel courait du 1er février au 30 avril 2026, et doivent être reconfirmés pour l’appel suivant.',
-      'Australian Government scholarships for mid- to senior-level African professionals, backed by the 2025-2030 Australia-Africa partnership. The OASIS portal confirms the 2027 intake has closed and no suspension or budget cut is announced on the official pages. Forecast dates and criteria are derived from the official 2027-intake document, whose call ran from 1 February to 30 April 2026, and must be reconfirmed for the next call.',
+      'Bourses du gouvernement australien pour professionnels africains de niveau intermédiaire à senior. Le portail OASIS confirme que la rentrée 2027 est close et aucune suspension ni coupe budgétaire n’est annoncée sur les pages officielles. Les dates et critères affichés comme prévision sont dérivés du document officiel pour les études débutant en 2027, dont l’appel courait du 1er février au 30 avril 2026, et doivent être reconfirmés pour l’appel suivant.',
+      'Australian Government scholarships for mid- to senior-level African professionals. The OASIS portal confirms the 2027 intake has closed and no suspension or budget cut is announced on the official pages. Forecast dates and criteria are derived from the official 2027-intake document, whose call ran from 1 February to 30 April 2026, and must be reconfirmed for the next call.',
     ],
     advantages: [
       ['Frais de scolarité complets', 'Full tuition fees'],
@@ -388,13 +388,13 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       sourceUrl: 'https://australiaawardsafrica.org/awards/apply/',
     },
     sources: {
-      overview: 'https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa',
+      overview: 'https://australiaawardsafrica.org/awards/types-of-awards/',
       eligibility: 'https://australiaawardsafrica.org/awards/apply/',
-      benefits: 'https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa',
+      benefits: 'https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf',
       application: 'https://oasis.dfat.gov.au/',
       cycle: 'https://australiaawardsafrica.org/awards/apply/',
     },
     tags: ['master', 'australia', 'africa', 'government', 'forecast', 'fully-funded'],
-    checkedAt: '2026-08-24T19:15:00.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
 ];
