@@ -22,9 +22,14 @@ KPB-47 turns the verification badge into an operational promise: every sensitive
 ## Le catalogue « Études en France » (ajouté le 20/09/2026)
 
 10 247 formations dans 70 universités publiques françaises sont désormais
-importables, et arrivent **inactives**. Elles entrent dans la cadence
-« Formations » ci-dessus (180 jours), avec deux différences qui changent la
-façon de les relire :
+importables, et arrivent **inactives**. Tant qu'elles le sont, elles **ne sont
+PAS dans la file `/verification`** (mise à jour du 29/09/2026) : cette file liste
+les fiches PUBLIÉES dont la cadence est échue, et les 10 500 lignes en attente
+n'ont jamais été publiées. Leur revue est le flux de PUBLICATION, qui demande un
+outil dédié — à construire ; valider une ligne dans `/verification` ne pose que le
+tampon de vérification, jamais `isActive`. Une fois publiées, elles entrent dans
+la cadence « Formations » ci-dessus (180 jours), avec deux différences qui
+changent la façon de les relire :
 
 - **Le volume interdit la relecture ligne à ligne.** Ce qui doit être relu en
   priorité, c'est ce que la machine ne peut pas juger : le partage DAP /

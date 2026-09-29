@@ -254,8 +254,9 @@ non fusionné. La production tourne au SHA `113cc55a39cf` (démarrée le
 étiquettes OneSignal pour la segmentation —, #291 — l'email manquant bloquait
 toute la synchro du profil).
 
-**Couplage : `tolerates-old`.** Aucune route nouvelle, aucun champ que les
-builds installées (49 à 53) devraient envoyer.
+**Couplage : `tolerates-old` côté mobile.** Aucune route nouvelle, aucun champ
+que les builds installées (49 à 53) devraient envoyer. **Côté admin, le
+déploiement est couplé** : voir la file `/verification` ci-dessous.
 
 - `GET /catalog/institutions`, `GET /catalog/programs` et `/matches/*` cessent de
   servir des lignes de l'import « Études en France ». **Aucune n'est publiée
@@ -266,14 +267,40 @@ builds installées (49 à 53) devraient envoyer.
   qu'envoient les builds 49 à 53 (`rating`, `body`, `reviewerName`, `caseId`) est
   **accepté tel quel** — `reviewerName` est déclaré et ignoré, sans quoi la
   validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis.
-  Ce qui change de leur point de vue : un avis sur un dossier qui n'est pas
-  terminé (409), qui n'est pas le leur (404) ou qu'un autre conseiller a traité
-  (403) est refusé, alors qu'il était enregistré. L'app ne propose de noter
-  qu'un dossier terminé, traité par son conseiller : ces refus ne correspondent
-  à aucun parcours de l'app.
-- `GET /admin/catalog/verification-due` : `total` et `truncated` s'ajoutent, et
-  la file est plafonnée à 500 éléments. Additif pour l'admin déjà déployé ; la
-  page `/verification` de l'admin de ce lot affiche l'avertissement.
+  Un texte trop long est **tronqué à 1 000 caractères** (sans couper un emoji en
+  deux) et non refusé : le champ de saisie de l'app n'a aucune limite, un 400 lui
+  ferait perdre le texte. Ce qui change de leur point de vue : un avis sur un
+  dossier qui n'est pas terminé (409), qui n'est pas le leur (404), qu'un autre
+  conseiller a traité (403) ou qui est déjà noté (409) est refusé, alors qu'il
+  était enregistré. L'app ne propose de noter qu'un dossier terminé, traité par
+  son conseiller, une fois : ces refus ne correspondent à aucun parcours de
+  l'app. « Un avis par dossier » est une garde au mieux-effort — aucune contrainte
+  d'unicité en base.
+- `GET /counsellors/:id` ne sert plus la clé de rattachement (`reviewerUserId`,
+  `caseId`) des avis publiés.
+- `GET /profiles/me/export` gagne un champ `counsellorReviews` (les avis que
+  l'utilisateur a laissés) ; la suppression de compte efface ses avis, signés ou
+  restés sans auteur mais posés sur l'un de ses dossiers. Additif.
+- `GET /admin/catalog/verification-due` : les lignes de l'import « Études en
+  France » **encore inactives** en sortent, ainsi que du compteur du tableau de
+  bord et de l'alerte de 07 h — elles n'ont jamais été publiées, ce ne sont pas
+  des fiches à REvérifier. Si l'import a été appliqué en production (le plan de
+  livraison en mesure 10 247 formations, inactives), le code actuel les y liste
+  comme « jamais vérifiées » : la page et l'alerte s'allègent d'autant le jour du
+  déploiement. `total` et `truncated` s'ajoutent ; la file est plafonnée à
+  500 éléments **sans qu'aucune catégorie soit affamée** (chacune de celles qui
+  ont des lignes reçoit au moins 500 ÷ leur nombre de places — 125 avec les
+  quatre) et triée dans un ordre total (jamais-vérifiés et plus périssables
+  d'abord, puis échéance la plus ancienne). Les quatre catégories (pays,
+  établissements, formations, bourses) partagent désormais UNE définition avec le
+  compteur du tableau de bord et l'alerte de 07 h.
+
+  **L'admin doit partir avec l'API (`scope=full`).** Un admin qui ne serait pas
+  redéployé ignore `total` et `truncated` : il afficherait « 500 ouvertes »
+  sans le moindre avertissement, alors qu'il en reste davantage. C'est le seul
+  couplage de ce lot ; la page `/verification` de l'admin fourni ici affiche le
+  nombre de lignes montrées sur le total réel, et invite à recharger une fois le
+  lot validé.
 
 **Une migration s'applique :** `20260929120000_counsellor_review_author_backfill`.
 Des DONNÉES seulement — un `UPDATE` qui rattache les avis déjà enregistrés sans
@@ -281,14 +308,31 @@ auteur au propriétaire du dossier noté — sans changement de schéma,
 idempotente, sur une table de quelques lignes. Appliquée par le
 `prisma migrate deploy` du déploiement `scope=full`. L'ordre entre la migration
 et le remplacement des conteneurs est sans conséquence, avec une réserve : entre
-les deux, l'ancien code peut encore créer un avis sans auteur ; rejouer le SQL de
-la migration (idempotent) le rattache.
+les deux — et après tout retour à l'ancien code — l'ancien service peut encore
+créer un avis sans auteur ; rejouer le SQL de la migration (idempotent) le
+rattache. Ce n'est pas un trou d'effacement : la suppression de compte et l'export
+retrouvent aussi les avis sans auteur par le dossier de l'utilisateur.
 
-Validée à la main sur PostgreSQL 16 — les 65 migrations sur base neuve, puis un
-`migrate deploy` sur une base peuplée de 7 avis (2 rattachés, 4 laissés à
-`NULL` faute de correspondance, 1 déjà attribué et non écrasé), rejeu à
-`UPDATE 0`, et trois mutants de la clause `WHERE` tous détectés — parce que la
-CI ne l'exécute pas tant que son pas unitaire est rouge (voir ci-dessous).
+**Avis orphelins — une décision à prendre, avec son chiffre.** Un avis dont le
+dossier n'existe plus (compte déjà supprimé) ou n'a jamais été renseigné n'a plus
+d'auteur retrouvable ; il peut porter un nom civil. Le compter avant de décider
+(anonymiser `reviewerName`, ou supprimer) :
+
+```sql
+SELECT count(*) AS orphelins,
+       count(*) FILTER (WHERE r."isPublished") AS dont_publies
+FROM "CounsellorReview" AS r
+WHERE r."reviewerUserId" IS NULL
+  AND NOT EXISTS (SELECT 1 FROM "Case" AS c WHERE c."id" = r."caseId");
+```
+
+Validée à la main sur PostgreSQL 16 — les 64 migrations sur base neuve (puis
+« No pending migrations to apply » au second passage), et un `migrate deploy` sur
+une base peuplée de 7 avis (2 rattachés, 4 laissés à `NULL` faute de
+correspondance, 1 déjà attribué et non écrasé), rejeu à `UPDATE 0`, et trois
+mutants de la clause `WHERE` tous détectés — parce que la CI ne l'exécute pas
+tant que son pas unitaire est rouge (voir ci-dessous). La CI, elle, tourne sur
+PostgreSQL 15 et Node 20 : ces deux versions n'ont pas pu être exercées ici.
 
 **Bloqué aujourd'hui par la CI.** `.github/workflows/deploy.yml` exige, avant
 tout, un `success` de `backend-ci.yml` pour le SHA EXACT déployé

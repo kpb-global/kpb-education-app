@@ -34,7 +34,10 @@ Purpose:
 **Frontière de l'import « Études en France ».** `GET /catalog/institutions` et
 `GET /catalog/programs` ne servent **jamais** une ligne créée par cet import
 (identifiants `eef-univ-…` / `eef-prog-…`), qu'elle soit publiée ou non : le
-paramètre `institutionId` ne la fait pas réapparaître. C'est la surface de
+paramètre `institutionId` ne la fait pas réapparaître. Une formation dont
+l'ÉTABLISSEMENT est de l'import en est aussi, même saisie à la main (identifiant
+généré, active par défaut) : sans cette règle elle serait servie sur une carte
+sans école, l'école étant, elle, exclue. C'est la surface de
 TOUTES les builds installées, qui la chargent en un seul appel (`limit=1000`,
 trié par nom) ; y laisser des lignes EEF actives aurait évincé des formations
 partenaires de la liste de tout le monde. L'espace « Études en France » a ses
@@ -159,44 +162,67 @@ Corps de `POST /counsellors/:id/reviews` :
 | Champ | Règle |
 |---|---|
 | `rating` | entier de 1 à 5 |
-| `body` | texte de 1 000 caractères au plus ; **peut être vide** — la note seule suffit |
+| `body` | texte ; **tronqué à 1 000 caractères, pas refusé** (le champ de saisie de l'app n'a aucune limite, et un 400 lui ferait perdre le texte) ; **peut être vide** — la note seule suffit |
 | `caseId` | obligatoire, 64 caractères au plus |
-| `reviewerName` | **accepté et ignoré** : les builds 49 à 53 l'envoient encore, et la validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis si le champ n'était pas déclaré |
+| `reviewerName` | **accepté et ignoré**, de toute longueur : les builds 49 à 53 l'envoient encore, et la validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis si le champ n'était pas déclaré |
 
 **L'auteur et le nom affiché viennent du jeton**, jamais du corps. Le nom
-publié est le `fullName` du profil vérifié (« KPB » s'il est vide). Un
-`reviewerUserId` dans le corps est refusé en 400 : il n'est pas ignoré en
-silence. Auparavant le corps était un type en ligne, effacé à l'exécution, et
-le service recopiait ce que le client envoyait ; l'app n'envoyait jamais
-l'auteur, donc les avis n'en avaient aucun en base, la suppression de compte
-(`deleteMany WHERE reviewerUserId = …`) ne les trouvait pas, et le nom civil de
-l'étudiant survivait à l'effacement de son compte.
+publié est le `fullName` du profil vérifié (« KPB » s'il est vide) — un nom que
+l'utilisateur maîtrise via `PATCH /profiles/me` : la requête ne peut plus le
+déclarer, ce qui ne dit pas qu'il est civil ou exact. Un `reviewerUserId` dans
+le corps est refusé en 400 : il n'est pas ignoré en silence. Auparavant le corps
+était un type en ligne, effacé à l'exécution, et le service recopiait ce que le
+client envoyait ; l'app n'envoyait jamais l'auteur, donc les avis n'en avaient
+aucun en base, la suppression de compte (`deleteMany WHERE reviewerUserId = …`)
+ne les trouvait pas, et le nom civil de l'étudiant survivait à l'effacement de
+son compte.
 
-**Le dossier prouve le droit de noter.** Il doit exister, appartenir à
-l'appelant, avoir été traité par CE conseiller, et être terminé — exactement ce
-que l'app ne propose qu'à ce moment-là.
+**Le dossier lie l'avis à un parcours réel — il ne le prouve pas.** Il doit
+exister, appartenir à l'appelant, avoir été traité par CE conseiller, et être
+terminé : exactement ce que l'app ne propose qu'à ce moment-là. « Terminé » reste
+un contrôle de cohérence, pas une preuve : `PATCH /cases/:id` laisse le
+propriétaire fixer lui-même le `status` de son dossier (aucun client de l'app ne
+le fait). Les défenses réelles sont la propriété du dossier et la modération.
 
 | Réponse | Cas |
 |---|---|
 | `201` | avis enregistré, **en modération** (`isPublished = false`) |
 | `400` | corps invalide : note hors 1–5, `caseId` absent, champ non déclaré… |
-| `401` | jeton absent ou invalide |
+| `401` | jeton absent ou invalide — y compris quand la base est absente : le garde d'authentification répond avant le service |
 | `403` | le dossier est celui de l'appelant, mais un autre conseiller l'a traité |
 | `404` | dossier inconnu **ou appartenant à quelqu'un d'autre** — même réponse, pour ne pas confirmer l'existence du dossier d'autrui |
-| `409` | dossier pas encore terminé |
-| `503` | base indisponible — jamais un `201` au corps vide |
+| `409` | dossier pas encore terminé, **ou déjà noté** (un avis par dossier ; sans contrainte d'unicité en base, la garde est au mieux-effort) |
+| `503` | défense en profondeur du service quand `execute` rend `null` — jamais un `201` au corps vide. Atteignable seulement si le garde laisse passer |
 
 Les avis publiés que `GET /counsellors/:id` sert ne portent que `id`,
-`counsellorId`, `reviewerName`, `rating`, `body` et `createdAt` — comme
-`GET /impact/reviews`. L'identifiant interne de l'auteur et celui du dossier
-n'en sortent pas : depuis que l'auteur est renseigné, les servir aurait publié
-une clé de rattachement au profil.
+`counsellorId`, `reviewerName`, `rating`, `body` et `createdAt` — les mêmes
+colonnes que `GET /impact/reviews`. L'identifiant interne de l'auteur et celui
+du dossier n'en sortent pas : depuis que l'auteur est renseigné, les servir aurait
+publié une clé de rattachement au profil.
+
+> **Réserve ouverte.** Seules les *colonnes* sont alignées sur `/impact/reviews`,
+> pas la *porte*. Ce dernier ne publie un avis que si son auteur a un reçu
+> `public_testimonial` actif ; `GET /counsellors/:id`, lui, sert `reviewerName`
+> dès que la modération a basculé `isPublished`. Aucun client de l'app n'appelle
+> cette fiche, et aucun écran admin ne liste les avis à publier : l'exposition
+> est latente. À aligner (retirer `reviews` de la fiche, ou appliquer la même
+> porte) avant d'outiller la modération.
+
+**Effacement et export.** La suppression de compte efface les avis que
+l'utilisateur a signés ET ceux, sans auteur, qui portent l'un de ses dossiers
+(`reviewsOfUser`, `profiles.service.ts`) ; les compteurs du conseiller sont
+recalculés. L'export RGPD les rend à leur auteur (`counsellorReviews`). Un avis
+sans auteur posé sur le dossier d'un AUTRE n'est jamais touché.
 
 **Reprise de l'existant.** La migration
 `20260929120000_counsellor_review_author_backfill` rattache les avis déjà
 enregistrés sans auteur au propriétaire du dossier noté — seulement si ce
-dossier a bien été traité par le conseiller noté. Les autres restent sans
-auteur : l'aveu « auteur inconnu », que la modération voit déjà.
+dossier a bien été traité par le conseiller noté : un rattachement rend l'avis
+éligible à la publication au titre du consentement de CE propriétaire. Les
+autres restent sans auteur ; l'effacement et l'export les retrouvent par leur
+dossier tant qu'il existe. Restent les avis dont le dossier a disparu (compte
+déjà supprimé) ou n'a jamais été renseigné : leur auteur est irrécupérable, et
+les anonymiser ou les supprimer est une décision d'exploitation.
 
 ## Partner leads
 
@@ -313,7 +339,16 @@ c'est pour cela que l'erreur y vivait aussi.
 publiés)`, lue UNE fois puis appliquée à la page, au total et aux six facettes,
 qui décrivent donc le même ensemble. Une formation activée sous une université
 que personne n'a relue n'est pas servie ; publier l'université la fait
-apparaître. Aucun établissement publié ⇒ la liste est vide, jamais « tout ».
+apparaître. Une liste vide sert **zéro** ligne, jamais « tout » (prouvé sur une
+base réelle, lignes en place).
+
+La liste contient les établissements ACTIFS du pays — partenaires compris (ESSEC,
+OMNES…), pas seulement ceux de l'import. Ce qui garde leurs formations hors de
+cette recherche aujourd'hui, ce sont les autres clauses (`procedureType IS NOT
+NULL`, et `cycle IN (…)` pour la shortlist), que ces formations — procédure « non
+qualifiée » — ne remplissent pas. Si l'exploitation qualifie un jour une
+formation partenaire, elle entrera dans l'espace ET restera dans le catalogue
+général : décision de produit à prendre en connaissance de cause.
 
 ## Shortlist « Études en France » (Phase 2)
 
@@ -679,9 +714,12 @@ contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
 
 - `GET /admin/catalog/verification-due` (rôles `admin`, `super_admin`, `content_manager`)
 
-Les fiches **publiées** dont la revérification est due : jamais vérifiées, ou
-vérifiées il y a plus que la cadence de leur catégorie (pays et bourses 30
-jours ; établissements et formations 180 jours).
+Les fiches dont la revérification est due : jamais vérifiées, ou vérifiées il y a
+plus que la cadence de leur catégorie (pays et bourses 30 jours ; établissements
+et formations 180 jours). Pays et bourses : actifs seulement (les bourses aussi
+APPROUVÉES). Établissements et formations : actifs ou non — une fiche non EEF que
+l'équipe a désactivée à la main reste dans la file —, à l'exception des lignes de
+l'import encore en attente (voir plus bas).
 
 ```json
 {
@@ -709,19 +747,39 @@ jours ; établissements et formations 180 jours).
 }
 ```
 
-- **`items` est plafonné à 500**, les plus urgents d'abord (jamais vérifiés,
-  puis les plus anciens). **`total`** est le compte COMPLET ; **`truncated`**
-  vaut `true` quand il en reste. `total` et `truncated` sont additifs : un
-  client qui ne les lit pas voit la réponse d'avant. La page `/verification` de
-  l'admin affiche un avertissement quand la file est tronquée.
+- **`items` est plafonné à 500.** L'ordre est TOTAL : les jamais-vérifiés d'abord
+  (les plus périssables en tête — une bourse à 30 jours avant une formation à 180),
+  puis les vérifiées par ÉCHÉANCE la plus ancienne, puis par identifiant. Par
+  échéance et non par âge : une bourse vérifiée il y a 100 jours est en retard de
+  70 jours, une formation vérifiée il y a 181 jours l'est de un.
+  **Le plafond n'affame aucune catégorie** : chacune de celles qui ont des lignes
+  reçoit au moins 500 ÷ (nombre de catégories présentes) places — 125 avec les
+  quatre —, le reste se remplit dans l'ordre global, et la réponse garde l'ordre
+  global. Sans cela, deux universités publiées d'un coup (plus de 800 formations
+  « jamais vérifiées ») chassaient toutes les bourses en retard de la page.
+  **`total`** est le compte COMPLET ; **`truncated`** vaut `true` quand il en
+  reste (strictement plus de 500).
+- `total` et `truncated` sont additifs pour la FORME de la réponse, pas pour son
+  contenu : l'admin déjà déployé afficherait « 500 ouvertes » sans avertissement
+  pour une file de 10 599. Déployer l'API et l'admin ensemble (`deploy.yml`, scope
+  `full`, remplace les deux). Côté admin, l'absence de `total` se lit « la longueur
+  de la liste » : un nouvel admin sur un ancien backend fonctionne.
+- La page `/verification` affiche un avis quand la file est tronquée, ne baisse
+  le compte qu'UNE fois par ligne validée (un double clic ne le fausse plus), et
+  distingue « tout est traité » de « les lignes affichées sont traitées, d'autres
+  attendent » (bouton pour recharger).
 - **Les lignes de l'import « Études en France » encore en attente n'y sont
   pas** (identifiant `eef-…` ET `isActive = false`) : leur revue est le flux de
-  PUBLICATION, avec son propre outil, pas la cadence. Une ligne EEF publiée y
-  entre normalement ; une fiche non EEF désactivée à la main, aussi.
-- **Une seule définition** (`backend/src/modules/admin-catalog/verification-due.ts`)
-  sert la file, le SLA quotidien de 07 h et le compteur « Action immédiate
-  requise » du tableau de bord. Le SLA compte sur la file COMPLÈTE, jamais sur la
-  version plafonnée.
+  PUBLICATION, qui demande un outil dédié — **à construire**. Valider une ligne
+  ici ne pose que le tampon de vérification (`lastVerifiedAt`, `verifiedByName`),
+  jamais `isActive`. Une ligne EEF publiée y entre normalement ; une fiche non
+  EEF désactivée à la main, aussi.
+- **Une seule définition** (`backend/src/modules/admin-catalog/verification-due.ts`,
+  les QUATRE catégories : pays, établissements, formations, bourses) sert la file,
+  le SLA quotidien de 07 h et le compteur « Action immédiate requise » du tableau
+  de bord. Un test fait tourner les trois sur une horloge figée et exige les
+  mêmes clauses, catégorie par catégorie. Le SLA compte sur la file COMPLÈTE,
+  jamais sur la version plafonnée.
 
 ## Admin content operations
 

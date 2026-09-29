@@ -232,8 +232,11 @@ Le catalogue général, les recommandations (`MatchesService`, y compris son rep
 `loadPrograms({})` quand le profil est inexploitable) et — pour la file de
 revérification — les lignes en attente **excluent la provenance EEF**. Elle se
 reconnaît à l'identifiant que l'import écrit : `eef-univ-…` pour les
-établissements, `eef-prog-…` pour les formations. Les deux préfixes et les
-clauses qui les excluent vivent dans **un seul fichier**,
+établissements, `eef-prog-…` pour les formations. Une formation dont
+l'ÉTABLISSEMENT porte `eef-univ-…` en est aussi, même saisie à la main
+(identifiant généré, active par défaut) : sans cela elle serait servie par le
+catalogue général sur une carte sans école, l'école étant, elle, exclue. Les deux
+préfixes et les clauses qui les excluent vivent dans **un seul fichier**,
 `backend/src/common/eef-provenance.ts`, importé aussi par le constructeur de
 l'import.
 
@@ -260,7 +263,20 @@ recommandée, avec pour établissement une fiche non vérifiée. La recherche et
 shortlist lisent donc une fois les établissements publiés du pays, puis
 appliquent `institutionId IN (…)` à la page, au total, aux facettes et à chaque
 étage. Une liste vide se lit « rien », jamais « tout » — et la liste n'est jamais
-omise de la clause.
+omise de la clause. Cette propriété est prouvée DIRECTEMENT sur une base réelle,
+lignes en place : sur une base neuve « rien » et « pas de filtre » donnent tous
+deux zéro, et sur une base semée la liste n'est jamais vide.
+
+**La liste contient les établissements ACTIFS du pays, partenaires compris**
+(ESSEC, OMNES…), pas seulement ceux de l'import. Ce qui garde aujourd'hui leurs
+formations hors de l'espace, ce sont les autres clauses — `procedureType IS NOT
+NULL` pour la recherche, `cycle IN (…)` pour la shortlist — que ces formations
+(procédure « non qualifiée ») ne remplissent pas. Il reste donc **trois
+définitions de « EEF »** : l'exclusion se fait par préfixe, l'inclusion par
+procédure et par cycle. Si l'exploitation qualifie un jour une formation
+partenaire, elle entrera dans l'espace ET restera dans le catalogue général.
+C'est une décision de produit à prendre en connaissance de cause, pas un défaut
+d'aujourd'hui.
 
 ### La file de revérification
 
@@ -272,7 +288,12 @@ revue est le flux de PUBLICATION. Sans cela la page admin aurait rendu un champ
 et deux boutons par ligne (elle sert aussi à revérifier les bourses) et
 l'alerte de 07 h aurait annoncé chaque matin « 10 5xx never verified ». Une
 ligne publiée y entre normalement, à sa cadence. La réponse est plafonnée à 500
-éléments, avec `total` et `truncated`.
+éléments, avec `total` et `truncated` — et le plafond **n'affame aucune
+catégorie** : deux universités publiées d'un coup (`updateProgram` ne pose pas
+`lastVerifiedAt`) ajoutent plus de 800 formations « jamais vérifiées », qui
+passaient devant les bourses en retard et les chassaient de la page. L'ordre est
+total (jamais-vérifiés d'abord, puis échéance la plus ancienne, puis identifiant),
+et les quatre catégories partagent une seule définition.
 
 ### Ce que ça ne fait pas, et ce qui reste ouvert
 
@@ -282,8 +303,22 @@ ligne publiée y entre normalement, à sa cadence. La réponse est plafonnée à
   décision produit, qui se prendra dans `eef-provenance.ts`, en un endroit.
 - La page `/verification` n'a pas de pagination : elle avertit quand la file est
   tronquée. Valider des lignes puis recharger fait apparaître les suivantes.
-- Une **quatrième surface** qui lirait `Program` ou `Institution` sans portée
-  ferait échouer `eef-provenance.spec.ts` (voir § 3), qui scanne les sources.
+- **L'admin ne liste plus les lignes de l'import.** Ses pages catalogue lisent les
+  routes publiques `/catalog/*`, qui les excluent : une ligne EEF PUBLIÉE ne s'y
+  affiche plus, et une ligne en attente ne s'y est jamais affichée. Il n'existe
+  donc aucun écran pour retrouver, corriger ou DÉPUBLIER une ligne de l'import ;
+  seuls la file `/verification` (plafonnée) ou un `PATCH` par identifiant y
+  mènent. L'outil de publication à construire doit lister ces lignes, publier
+  ET dépublier.
+- **Les cartes de l'espace n'ont pas le nom de l'établissement.** La recherche et
+  la shortlist servent des formations dont l'`institutionId` renvoie à un
+  établissement que `/catalog/institutions` ne sert plus. L'écran de l'espace
+  doit donc recevoir l'établissement (nom, ville, logo) avec la formation, ou par
+  une route dédiée : c'est une dépendance de l'écran, pas un défaut de la
+  frontière.
+- Une **nouvelle surface** qui lirait `Program` ou `Institution` sans portée
+  ferait échouer `eef-provenance.doors.spec.ts` (voir § 3), qui lit le code par
+  son arbre syntaxique.
 
 ---
 
@@ -294,7 +329,9 @@ ligne publiée y entre normalement, à sa cadence. La réponse est plafonnée à
 | `eef:validate:structure` | chaque PR (`backend-ci.yml`) | forme : sources HTTPS, identifiants uniques, référentiels fermés, cohérence du manifeste |
 | `eef-catalog.data.spec.ts` | suite de tests | les 70 fichiers réels passent les portes **strictes** |
 | `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris, et aucune ligne EEF |
-| `eef-provenance.spec.ts` | suite de tests | l'import n'écrit que des identifiants que les clauses reconnaissent ; **aucun service ne lit `program` ni `institution` sans portée** (scan des sources — un service qui lit le catalogue sans jeton de portée fait échouer le test) |
+| `eef-provenance.spec.ts` | suite de tests | l'import n'écrit que des identifiants que les clauses reconnaissent, sur les vrais fichiers de données |
+| `eef-provenance.doors.spec.ts` | suite de tests | **aucune méthode ne lit `program` ni `institution` sans APPELER sa fonction de portée** : lecture du code par son arbre syntaxique (pas par des expressions régulières — un `/*` cité dans un commentaire de ligne avalait le code et rendait le catalogue général et la recherche invisibles), registre explicite fichier → méthode → fonction, nombre d'accès épinglé, alias / déstructuration / SQL brut refusés. Le scanner se teste lui-même. |
+| `verification-due.spec.ts`, `verification-due.consumers.spec.ts` | suite de tests | les quatre prédicats « à revérifier » (coupure, cadence, actif / approuvé), l'ordre de la file, le plafond équitable — et que la file et le compteur envoient à la base les MÊMES clauses, sur une horloge figée |
 | `eef-provenance.postgres.spec.ts` | `Backend CI`, étape « PostgreSQL Études en France provenance integration » | sur un vrai Postgres : catalogue, recommandations, recherche, shortlist, file, SLA et compteur — `NOT`, `AND`, `IN ()` sont acceptés par Prisma **et filtrent** |
 | `verify:eef` | avant tout import | planchers de volume, plafond de repli, couverture |
 
