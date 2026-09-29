@@ -233,10 +233,9 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['bachelor', 'master', 'south-africa', 'university-of-pretoria', 'mastercard-foundation', 'january-intake', 'fully-funded'],
     relatedFieldIds: ['d02', 'd03', 'd07', 'd08', 'd09'],
     baseMatch: 80,
-    // NON rafraîchie le 29/09/2026, délibérément : les quatre pages up.ac.za
-    // renvoient 403 (Cloudflare) au fetch comme au navigateur sans session, et
-    // aucune page officielle équivalente n'a pu être lue. Relecture au
-    // navigateur nécessaire avant de porter une nouvelle date ici.
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    // Relue au navigateur le 29/09/2026 par l'équipe KPB : les quatre pages
+    // up.ac.za renvoient 403 (Cloudflare) à tout fetch automatisé, la relecture
+    // automatique était donc impossible. Contenu confirmé inchangé.
+    checkedAt: '2026-09-29T12:50:00.000Z',
   }),
 ];
