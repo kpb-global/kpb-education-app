@@ -249,7 +249,9 @@ mobile ensuite ») reste lisible.
 ### 29/09/2026 — frontière de l'import « Études en France » et auteur des avis conseillers
 
 **État : prêt, PAS déployé.** Sur la branche `claude/campus-france-space-98orw9`,
-non fusionné. La production tourne au SHA `113cc55a39cf` (démarrée le
+non fusionné, sans PR : la CI ne se déclenche que sur `main` et sur les PR vers
+`main`, elle n'a donc PAS encore tourné sur ces commits (le dernier run de la
+branche date du 22/08/2026). La production tourne au SHA `113cc55a39cf` (démarrée le
 22/09/2026) ; trois commits de `main` n'y sont pas non plus (#285, #286 —
 étiquettes OneSignal pour la segmentation —, #291 — l'email manquant bloquait
 toute la synchro du profil).
