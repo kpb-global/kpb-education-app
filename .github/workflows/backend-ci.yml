@@ -127,6 +127,17 @@ jobs:
           KPB_RUN_POSTGRES_INTEGRATION: 'true'
         run: npm run test:integration:catalog-reconcile
 
+      # La frontière de l'import « Études en France » vit, elle aussi, dans des
+      # `where` Prisma : le catalogue général, la recherche, la shortlist, les
+      # recommandations et la file de revérification l'appliquent chacun à leur
+      # manière. Les tests unitaires prouvent la QUESTION posée ; seule une base
+      # réelle dit si Prisma l'accepte et si elle répond ce qu'on croit — y
+      # compris `institutionId IN ()`, la liste vide, sur une base neuve.
+      - name: PostgreSQL Études en France provenance integration
+        env:
+          KPB_RUN_POSTGRES_INTEGRATION: 'true'
+        run: npm run test:integration:eef-provenance
+
       - name: Seed active countries + base catalog
         run: |
           npm run seed:countries-m5
