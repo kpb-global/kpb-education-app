@@ -296,9 +296,13 @@ export class CasesService {
     return mapped;
   }
 
-  async update(id: string, input: UpdateCaseDto, ownerUserId?: string) {
+  /**
+   * Mise à jour par l'ÉQUIPE (`PATCH /admin/cases/:id`). Il n'y a plus de chemin
+   * étudiant : voir `CasesController`.
+   */
+  async update(id: string, input: UpdateCaseDto) {
     this.assertDb();
-    await this.requireDbCase(id, ownerUserId);
+    await this.requireDbCase(id);
 
     const updated = await this.prismaService.execute((prisma) =>
       prisma.$transaction(async (tx) => {
@@ -340,7 +344,7 @@ export class CasesService {
     if (!updated) {
       throw new ServiceUnavailableException('Failed to update case.');
     }
-    const mapped = this.mapDbCase(updated, { includeInternal: !ownerUserId });
+    const mapped = this.mapDbCase(updated, { includeInternal: true });
     this.broadcastCaseUpdate(id, mapped as Record<string, unknown>);
     return mapped;
   }

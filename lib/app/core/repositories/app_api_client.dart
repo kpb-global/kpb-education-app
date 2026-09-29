@@ -1468,17 +1468,6 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> updateCase(
-    String caseId,
-    Map<String, dynamic> payload,
-  ) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/cases/$caseId',
-      data: payload,
-    );
-    return response.data ?? <String, dynamic>{};
-  }
-
   Future<List<dynamic>> listCaseMessages(String caseId) async {
     final response = await _dio.get<List<dynamic>>('/cases/$caseId/messages');
     return response.data ?? <dynamic>[];
