@@ -1,5 +1,8 @@
+import { ORIENTATION_FIELDS } from '../../orientation/orientation-fields.data';
 import {
+  FIELD_FALLBACK_BY_DOMAIN,
   FIELD_KEYWORD_RULES,
+  KNOWN_FIELD_IDS,
   PARCOURSUP_FAMILIES,
   normalizeCityName,
   normalizeLabel,
@@ -37,8 +40,9 @@ describe('resolveFieldId', () => {
       fieldId: 'd07',
       isFallback: false,
     });
+    // La finance est dans « Commerce & Management », pas dans « Ingénierie ».
     expect(resolveFieldId('Master — Monnaie, banque, finance')).toEqual({
-      fieldId: 'd03',
+      fieldId: 'd02',
       isFallback: false,
     });
   });
@@ -70,13 +74,104 @@ describe('resolveFieldId', () => {
   });
 
   it('ne produit que des domaines du référentiel d01..d12', () => {
-    const known = new Set([
-      'd01', 'd02', 'd03', 'd04', 'd05', 'd06',
-      'd07', 'd08', 'd09', 'd10', 'd11', 'd12',
-    ]);
     for (const rule of FIELD_KEYWORD_RULES) {
-      expect(known.has(rule.fieldId)).toBe(true);
+      expect(KNOWN_FIELD_IDS.has(rule.fieldId)).toBe(true);
     }
+    for (const fieldId of Object.values(FIELD_FALLBACK_BY_DOMAIN)) {
+      expect(KNOWN_FIELD_IDS.has(fieldId)).toBe(true);
+    }
+  });
+
+  it('parle des domaines de l’orientation — les mêmes que ceux que l’étudiant déclare', () => {
+    // Le référentiel est UNE liste : celle de l'orientation. Un domaine ajouté ou
+    // retiré là-bas doit se répercuter ici sans qu'on recopie une seule liste.
+    expect([...KNOWN_FIELD_IDS].sort()).toEqual(
+      ORIENTATION_FIELDS.map((field) => field.id).sort(),
+    );
+  });
+
+  it('atteint CHAQUE domaine de l’orientation : aucun ne reste sans formation', () => {
+    const reachable = new Set(FIELD_KEYWORD_RULES.map((rule) => rule.fieldId));
+    for (const field of ORIENTATION_FIELDS) {
+      expect({ id: field.id, name: field.nameFr, reachable: reachable.has(field.id) })
+        .toEqual({ id: field.id, name: field.nameFr, reachable: true });
+    }
+  });
+
+  // L'ANCRAGE : ce test ne nomme aucun numéro. Il dit « une formation de finance
+  // est dans Commerce & Management », puis va lire le nom que l'orientation donne
+  // au domaine renvoyé. Une règle qui glisserait sur le mauvais numéro — c'est ce
+  // qui s'était produit : dix domaines sur douze portaient le nom d'un autre —
+  // ne peut plus passer.
+  const nameOf = (label: string, domain?: string) => {
+    const resolved = resolveFieldId(label, domain);
+    if (!resolved) return null;
+    return (
+      ORIENTATION_FIELDS.find((field) => field.id === resolved.fieldId)?.nameFr
+      ?? `inconnu:${resolved.fieldId}`
+    );
+  };
+
+  it.each([
+    ['Master Informatique', 'Informatique & Intelligence Artificielle'],
+    ['Master Finance d’entreprise et de marché', 'Commerce & Management'],
+    ['Master Marketing, vente', 'Commerce & Management'],
+    ['Licence Gestion', 'Commerce & Management'],
+    ['Génie mécanique', 'Ingénierie & Sciences'],
+    ['L1 - Chimie', 'Ingénierie & Sciences'],
+    ['L1 - Physique', 'Ingénierie & Sciences'],
+    ['L1 - Sciences de la vie', 'Santé & Sciences de la Vie'],
+    ['Biochimie, biologie moléculaire', 'Santé & Sciences de la Vie'],
+    ['Master Santé', 'Santé & Sciences de la Vie'],
+    ['Sciences du médicament et des produits de santé', 'Santé & Sciences de la Vie'],
+    ['L2 STAPS : entraînement sportif', 'Santé & Sciences de la Vie'],
+    ['BUT - Génie civil - Construction durable', 'Architecture & BTP'],
+    ['Urbanisme et aménagement', 'Architecture & BTP'],
+    ['Communication des organisations', 'Design, Médias & Communication'],
+    ['BUT - Métiers du multimédia et de l’internet', 'Informatique & Intelligence Artificielle'],
+    ['Cinéma et audiovisuel', 'Design, Médias & Communication'],
+    ['Master Journalisme', 'Design, Médias & Communication'],
+    ['L1 - Droit', 'Droit & Relations Internationales'],
+    ['Droit du patrimoine', 'Droit & Relations Internationales'],
+    ['Master Environnement et développement durable', 'Environnement & Agriculture'],
+    ['Agronomie et agroalimentaire', 'Environnement & Agriculture'],
+    ['Viticulture et oenologie', 'Environnement & Agriculture'],
+    ['Master Histoire', 'Sciences Humaines & Éducation'],
+    ['L1 - Psychologie', 'Sciences Humaines & Éducation'],
+    ['L2 - Lettres', 'Sciences Humaines & Éducation'],
+    ['L1 - Tourisme', 'Hôtellerie & Tourisme'],
+    ['Hôtellerie et restauration', 'Hôtellerie & Tourisme'],
+    ['L1 - Arts du spectacle', 'Arts & Culture'],
+    ['Musicologie', 'Arts & Culture'],
+    ['Patrimoine et musées', 'Arts & Culture'],
+    ['Gestion de patrimoine', 'Commerce & Management'],
+    ['Supply chain et logistique', 'Logistique & Supply Chain'],
+    ['Transport, mobilités, réseaux', 'Logistique & Supply Chain'],
+    ['Gestion de production, logistique, achats', 'Logistique & Supply Chain'],
+  ])('« %s » est dans « %s »', (label, name) => {
+    expect(nameOf(label)).toBe(name);
+  });
+
+  it('ne range pas en environnement ce qui contient « eau » dans un autre mot', () => {
+    // « réseaux », « bureaux » : 43 formations de transport et de réseaux étaient
+    // classées en environnement pour cette seule raison.
+    expect(nameOf('BUT - Réseaux Opérateurs et Multimédia'))
+      .toBe('Informatique & Intelligence Artificielle');
+    expect(nameOf('BUT - Bureaux d’études Conception')).toBe('Ingénierie & Sciences');
+    // … et « eau » comme mot entier reste de l'environnement.
+    expect(nameOf('Sciences de l’eau')).toBe('Environnement & Agriculture');
+    expect(nameOf('Gestion des eaux')).toBe('Environnement & Agriculture');
+  });
+
+  it('ne range pas en design « modélisation », mais garde « mode »', () => {
+    expect(nameOf('BUT - Exploration et modélisation statistique')).toBe('Ingénierie & Sciences');
+    expect(nameOf('Mode et création')).toBe('Design, Médias & Communication');
+  });
+
+  it('classe les repli par grand domaine sur les domaines de l’orientation', () => {
+    expect(nameOf('Zzz', 'SCIENCES, TECHNOLOGIES, SANTE')).toBe('Ingénierie & Sciences');
+    expect(nameOf('Zzz', 'SCIENCES DE LA SANTE')).toBe('Santé & Sciences de la Vie');
+    expect(nameOf('Zzz', 'CULTURE ET COMMUNICATION')).toBe('Design, Médias & Communication');
   });
 
   it('n’a aucune règle vide, qui capterait tout', () => {

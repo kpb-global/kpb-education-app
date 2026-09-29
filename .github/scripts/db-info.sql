@@ -80,4 +80,16 @@ SELECT COUNT(*) AS sans_auteur,
 FROM "CounsellorReview" r
 WHERE r."reviewerUserId" IS NULL;
 
+\echo ''
+\echo '=== 10. Domaines d01..d12 : la liste que l app affiche, contre les formations de l import ==='
+-- Les formations de l import portent le nom canonique de l orientation
+-- (Informatique, Commerce & Management, Ingenierie & Sciences, Sante...).
+-- Si un nom ci-dessous en differe, NE PAS reimporter avant d avoir compris pourquoi.
+SELECT f."id", f."nameFr",
+       COUNT(p."id")                            AS formations_import,
+       COUNT(p."id") FILTER (WHERE p."isActive") AS publiees
+FROM "Field" f
+LEFT JOIN "Program" p ON p."fieldId" = f."id" AND p."id" LIKE 'eef-prog-%'
+GROUP BY 1, 2 ORDER BY 1;
+
 COMMIT;

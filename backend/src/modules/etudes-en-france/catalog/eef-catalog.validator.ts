@@ -24,6 +24,7 @@
 //   c'est une collecte cassée.
 // ─────────────────────────────────────────────────────────────────────────────
 import { logoLicenceAllowsCommercialReuse } from './eef-catalog.admission';
+import { KNOWN_FIELD_IDS } from './eef-catalog.normalize';
 import {
   EEF_CYCLES,
   EEF_INSTITUTION_KINDS,
@@ -33,10 +34,6 @@ import {
   type EefLogo,
 } from './eef-catalog.types';
 
-const KNOWN_FIELD_IDS = new Set([
-  'd01', 'd02', 'd03', 'd04', 'd05', 'd06',
-  'd07', 'd08', 'd09', 'd10', 'd11', 'd12',
-]);
 const KNOWN_LEVELS = new Set(['Bac+2', 'Bachelor', 'Master', 'Doctorat']);
 const KNOWN_SELECTIVITY = new Set(['selective', 'non_selective']);
 const KNOWN_DATASETS = new Set([

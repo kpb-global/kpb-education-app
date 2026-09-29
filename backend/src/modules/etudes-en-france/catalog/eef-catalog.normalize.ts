@@ -8,6 +8,16 @@
 // de douze domaines (d01..d12) et de quatre niveaux. Il faut donc traduire, et
 // une traduction se trompe.
 //
+// LES DOUZE DOMAINES SONT CEUX DE L'ORIENTATION (`ORIENTATION_FIELDS`), pas un
+// référentiel propre à l'import : c'est l'identifiant que l'étudiant déclare en
+// choisissant ses domaines (`EefInterest.fieldIds`), celui du catalogue général
+// et de l'import des écoles partenaires. Une règle qui rangerait « Finance » en
+// `d03` parce que l'import l'appelait ainsi rangerait la formation sous
+// « Ingénierie & Sciences » pour tout le reste de l'app, et le classement de la
+// shortlist (`field_declared`) mettrait en avant un master de finance à un futur
+// ingénieur. Voir `eef-catalog.normalize.spec.ts` : chaque règle y est ancrée sur
+// le NOM canonique du domaine, pas sur son numéro.
+//
 // CE QUI EST DÉLIBÉRÉ ICI
 //
 // 1. Les familles Parcoursup sont une table FERMÉE. Une famille inconnue
@@ -30,6 +40,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { createHash } from 'node:crypto';
 
+import { ORIENTATION_FIELDS } from '../../orientation/orientation-fields.data';
 import type {
   EefCycle,
   EefLevel,
@@ -95,15 +106,26 @@ export function normalizeCityName(raw: string): string {
     .join('');
 }
 
+/// Les identifiants de domaine que l'import a le droit de porter : ceux de
+/// l'orientation, jamais une liste recopiée (validateur et recherche la partagent).
+export const KNOWN_FIELD_IDS: ReadonlySet<string> = new Set(
+  ORIENTATION_FIELDS.map((field) => field.id),
+);
+
 /// Domaines du catalogue KPB, dans l'ordre d'évaluation. L'ordre est le
 /// classement : « informatique médicale » doit tomber en santé avant de tomber
 /// en informatique, donc d04 passe avant d01.
+///
+/// Chaque `fieldId` est un domaine de `ORIENTATION_FIELDS` ; le commentaire en
+/// donne le nom canonique. Un domaine peut porter plusieurs règles, à des rangs
+/// différents : la biologie est en santé (d04) mais ne doit passer qu'APRÈS
+/// l'environnement et l'agriculture, qui la contiennent souvent.
 export const FIELD_KEYWORD_RULES: readonly {
   readonly fieldId: string;
   readonly keywords: readonly string[];
 }[] = [
   {
-    fieldId: 'd04', // Santé & Sciences Médicales
+    fieldId: 'd04', // Santé & Sciences de la Vie
     keywords: [
       'pass', 'parcours d acces specifique sante', 'acces sante', 'medecine',
       'maieutique', 'sage femme', 'odontolog', 'pharmac', 'kinesitherap',
@@ -112,10 +134,14 @@ export const FIELD_KEYWORD_RULES: readonly {
       'psychomotric', 'ergotherap', 'pedicure', 'podolog', 'soins',
       'medical', 'biomedical', 'sante et societe', 'cancerolog', 'neurosciences',
       'imagerie medicale', 'ethique medicale', 'vieillissement', 'handicap',
+      // Masters publiés par un intitulé court que ni « santé publique » ni « sciences
+      // pour la santé » ne couvrent : « Santé », « Sciences du médicament… ».
+      'sante', 'medicament', 'toxicolog', 'immunolog', 'epidemiolog',
+      'sciences du vivant', 'sciences de la vision',
     ],
   },
   {
-    fieldId: 'd01', // Informatique & IA
+    fieldId: 'd01', // Informatique & Intelligence Artificielle
     keywords: [
       'informatique', 'intelligence artificielle', 'cybersecur',
       'reseaux et telecom', 'developpement web', 'genie logiciel',
@@ -125,17 +151,22 @@ export const FIELD_KEYWORD_RULES: readonly {
       'realisation d applications', 'deploiement d applications',
       'outils decisionnels', 'internet des objets', 'webmaster',
       'systemes communicants',
+      // Deux intitulés qui ne tenaient jusque-là que par « eau » dans « réseaux ».
+      'reseaux operateurs', 'images et reseaux',
     ],
   },
   {
-    fieldId: 'd03', // Finance, Banque & Comptabilité
+    fieldId: 'd02', // Commerce & Management (finance, banque, assurance)
     keywords: [
       'comptab', 'audit', 'finance', 'banque', 'assurance', 'actuar', 'fiscal',
-      'controle de gestion', 'monnaie', 'expertise comptable', 'patrimoine',
+      'controle de gestion', 'monnaie', 'expertise comptable',
+      // « patrimoine » seul rangeait 58 formations d'histoire, de musées et de
+      // droit du patrimoine en finance : il est en Arts & Culture plus bas.
+      'gestion de patrimoine',
     ],
   },
   {
-    fieldId: 'd07', // Droit & Sciences Politiques
+    fieldId: 'd07', // Droit & Relations Internationales
     keywords: [
       'droit', 'juridique', 'justice', 'notarial', 'science politique',
       'sciences politiques', 'relations internationales',
@@ -144,7 +175,7 @@ export const FIELD_KEYWORD_RULES: readonly {
     ],
   },
   {
-    fieldId: 'd11', // Architecture, BTP & Urbanisme
+    fieldId: 'd05', // Architecture & BTP (urbanisme compris)
     keywords: [
       'architecture', 'genie civil', 'btp', 'urbanis', 'travaux batiment',
       'batiment', 'construction', 'travaux publics', 'amenagement du territoire',
@@ -152,17 +183,17 @@ export const FIELD_KEYWORD_RULES: readonly {
     ],
   },
   {
-    fieldId: 'd08', // Énergie, Environnement & Développement durable
+    fieldId: 'd08', // Environnement & Agriculture (énergie, eau, climat)
     keywords: [
       'environnement', 'ecolog', 'energie', 'developpement durable', 'climat',
       'biodiversite', 'geosciences', 'sciences de la terre', 'sciences marines',
       'sciences de la mer', 'oceanograph', 'hydrolog', 'risques et environnement',
-      'eau', 'dechets', 'transition ecologique', 'maitrise de l energie',
+      'eau', 'eaux', 'dechets', 'transition ecologique', 'maitrise de l energie',
       'genie de l environnement',
     ],
   },
   {
-    fieldId: 'd10', // Agriculture & Agroalimentaire
+    fieldId: 'd08', // Environnement & Agriculture (agronomie, forêt, élevage)
     keywords: [
       'agronom', 'agricult', 'agroalimentaire', 'sciences de l aliment', 'agro',
       'viticult', 'vigne et du vin', 'horticult', 'forest', 'elevage',
@@ -170,24 +201,35 @@ export const FIELD_KEYWORD_RULES: readonly {
     ],
   },
   {
-    fieldId: 'd12', // Hôtellerie, Tourisme & Luxe
+    fieldId: 'd10', // Hôtellerie & Tourisme
     keywords: [
       'tourisme', 'hotell', 'luxe', 'gastronom', 'oenolog', 'loisirs',
       'evenementiel',
     ],
   },
   {
-    fieldId: 'd06', // Marketing, Communication & Arts
+    fieldId: 'd06', // Design, Médias & Communication
     keywords: [
-      'marketing', 'communication', 'publicite', 'journalis', 'arts', 'art',
-      'design', 'cinema', 'audiovisuel', 'musicolog', 'musique', 'theatre',
-      'theatral', 'spectacle', 'patrimoine culturel', 'mediation culturelle',
-      'edition', 'creation numerique', 'mode', 'photograph', 'danse',
-      'strategie de marque', 'vente', 'commercialisation', 'commerce',
+      'communication', 'publicite', 'journalis', 'design', 'cinema',
+      'audiovisuel', 'edition', 'creation numerique', 'photograph', 'mode',
     ],
   },
   {
-    fieldId: 'd09', // Éducation, Sciences Humaines & Langues
+    fieldId: 'd11', // Arts & Culture
+    keywords: [
+      'arts', 'art', 'musicolog', 'musique', 'theatre', 'theatral', 'spectacle',
+      'patrimoine', 'mediation culturelle', 'danse',
+    ],
+  },
+  {
+    fieldId: 'd02', // Commerce & Management (marketing, vente)
+    keywords: [
+      'marketing', 'strategie de marque', 'vente', 'commercialisation',
+      'commerce',
+    ],
+  },
+  {
+    fieldId: 'd09', // Sciences Humaines & Éducation
     keywords: [
       'enseignement', 'meef', 'professorat', 'education', 'langues', 'lettres',
       'linguistique', 'sciences du langage', 'traduction', 'interpretariat',
@@ -202,17 +244,32 @@ export const FIELD_KEYWORD_RULES: readonly {
     ],
   },
   {
-    fieldId: 'd02', // Gestion, Business & Management
+    fieldId: 'd12', // Logistique & Supply Chain
+    keywords: ['logistique', 'transport', 'achat', 'supply chain'],
+  },
+  {
+    fieldId: 'd02', // Commerce & Management
     keywords: [
       'management', 'gestion', 'administration economique', 'entrepreneur',
-      'ressources humaines', 'logistique', 'transport', 'achat', 'qualite',
-      'economie', 'econometrie', 'supply chain', 'strategie', 'innovation',
-      'affaires internationales', 'international business', 'business',
-      'entreprise et association', 'echanges internationaux',
+      'ressources humaines', 'qualite', 'economie', 'econometrie', 'strategie',
+      'innovation', 'affaires internationales', 'international business',
+      'business', 'entreprise et association', 'echanges internationaux',
     ],
   },
   {
-    fieldId: 'd05', // Ingénierie & Sciences Appliquées
+    // Rang volontairement AVANT l'ingénierie : « biochimie » contient « chimie »
+    // et doit rester en sciences de la vie. Le sport n'a pas de domaine propre
+    // dans le référentiel ; les STAPS forment à l'activité physique adaptée à la
+    // santé autant qu'à l'enseignement — décision à confirmer par l'exploitation.
+    fieldId: 'd04', // Santé & Sciences de la Vie (biologie, sport)
+    keywords: [
+      'sciences de la vie', 'biolog', 'biotechnolog', 'microbiolog',
+      'biochimie', 'genetique', 'sport', 'activites physiques', 'staps',
+      'metiers de la forme',
+    ],
+  },
+  {
+    fieldId: 'd03', // Ingénierie & Sciences
     keywords: [
       'ingenieur', 'ingenierie', 'mecanique', 'electroniq', 'electricite',
       'electrotechniq', 'automatiq', 'robotiq', 'materiaux', 'physique',
@@ -221,13 +278,29 @@ export const FIELD_KEYWORD_RULES: readonly {
       'plasturgie', 'metrolog', 'instrumentation', 'sciences pour l ingenieur',
       'genie des procedes', 'genie industriel', 'conception et production durables',
       'synthese', 'optique', 'photonique', 'acoustique', 'textile', 'emballage',
-      'systemes embarques', 'systemes complexes', 'sciences de la vie', 'biolog',
-      'biotechnolog', 'microbiolog', 'biochimie', 'genetique',
-      'sciences et technologies', 'sport', 'activites physiques', 'staps',
-      'metiers de la forme',
+      'systemes embarques', 'systemes complexes', 'sciences et technologies',
+      'bureaux d etudes',
     ],
   },
 ];
+
+/// Les mots-clés qui ne comptent QUE comme mot entier. « eau » est dans
+/// « réseaux » et « bureaux » : 43 masters de transport et de réseaux étaient
+/// rangés en environnement pour cette seule raison. « mode » est dans
+/// « modélisation » : des masters de statistique auraient été rangés en design.
+const WHOLE_WORD_KEYWORDS: ReadonlySet<string> = new Set([
+  'eau', 'eaux', 'mode', 'sante',
+]);
+
+function matchesKeyword(
+  normalized: string,
+  words: ReadonlySet<string>,
+  keyword: string,
+): boolean {
+  return WHOLE_WORD_KEYWORDS.has(keyword)
+    ? words.has(keyword)
+    : normalized.includes(keyword);
+}
 
 /// Repli par grand domaine universitaire, tel que Trouver Mon Master le publie.
 /// Il ne sert que lorsqu'aucun mot-clé ne tombe, et il est compté à part.
@@ -236,10 +309,10 @@ export const FIELD_FALLBACK_BY_DOMAIN: Readonly<Record<string, string>> = {
   'sciences humaines et sociales': 'd09',
   'droit, economie, gestion': 'd02',
   'droit, economie, gestion et science politique': 'd07',
-  'sciences, technologies, sante': 'd05',
-  'sciences et technologies': 'd05',
+  'sciences, technologies, sante': 'd03',
+  'sciences et technologies': 'd03',
   'sciences de la sante': 'd04',
-  'sciences et techniques des activites physiques et sportives': 'd05',
+  'sciences et techniques des activites physiques et sportives': 'd04',
   'sciences politiques et sociales': 'd07',
   'culture et communication': 'd06',
   'sciences de la vie et de l environnement': 'd08',
@@ -267,9 +340,10 @@ export function resolveFieldId(
 ): FieldResolution | null {
   const normalized = normalizeLabel(label);
   if (normalized !== '') {
+    const words = new Set(normalized.split(/[^a-z0-9]+/).filter(Boolean));
     for (const rule of FIELD_KEYWORD_RULES) {
       for (const keyword of rule.keywords) {
-        if (normalized.includes(keyword)) {
+        if (matchesKeyword(normalized, words, keyword)) {
           return { fieldId: rule.fieldId, isFallback: false };
         }
       }

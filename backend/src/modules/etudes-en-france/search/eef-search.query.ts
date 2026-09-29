@@ -27,6 +27,7 @@
 // même prix parce que l'index la trouve directement.
 // ─────────────────────────────────────────────────────────────────────────────
 import { eefProgramWhere } from '../../../common/eef-provenance';
+import { KNOWN_FIELD_IDS } from '../catalog/eef-catalog.normalize';
 import {
   EEF_CYCLES,
   EEF_PROCEDURE_TYPES,
@@ -46,10 +47,6 @@ export const EEF_SEARCH_MAX_FILTER_VALUES = 20;
 /// barre de recherche devienne une requête à cinquante branches.
 export const EEF_SEARCH_MAX_TERMS = 6;
 
-const KNOWN_FIELD_IDS = new Set([
-  'd01', 'd02', 'd03', 'd04', 'd05', 'd06',
-  'd07', 'd08', 'd09', 'd10', 'd11', 'd12',
-]);
 const KNOWN_SELECTIVITY = new Set(['selective', 'non_selective']);
 const KNOWN_PROCEDURES = new Set<string>(EEF_PROCEDURE_TYPES);
 const KNOWN_CYCLES = new Set<string>(EEF_CYCLES);

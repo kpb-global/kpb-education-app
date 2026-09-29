@@ -5,9 +5,11 @@
 // leur applique les portes strictes : c'est lui qui échoue si une collecte
 // rapporte un catalogue amputé, si une source disparaît, ou si un identifiant
 // se met à doubler.
+import { ORIENTATION_FIELDS } from '../../orientation/orientation-fields.data';
 import { programRequirements } from './eef-catalog.copy';
 import { loadEefCatalog } from './eef-catalog.loader';
 import { planEefImport } from './eef-catalog.importer';
+import { resolveFieldId } from './eef-catalog.normalize';
 import { validateEefCatalog } from './eef-catalog.validator';
 
 describe('catalogue « Études en France » versionné', () => {
@@ -16,6 +18,50 @@ describe('catalogue « Études en France » versionné', () => {
 
   it('passe le validateur strict', () => {
     expect(result.errors).toEqual([]);
+  });
+
+  it('range chaque formation dans le domaine que donnent les règles ACTUELLES', () => {
+    // Les fichiers sont des données générées : une règle de domaine corrigée dans
+    // le code n'atteint pas les 10 502 lignes tant qu'on ne les a pas
+    // régénérées. Ce test échoue alors, avec l'intitulé — au lieu de laisser
+    // l'import créer des formations classées par une règle qui n'existe plus.
+    const stale: string[] = [];
+    for (const file of catalog.universities) {
+      for (const program of file.programs) {
+        const resolved = resolveFieldId(program.nameFr);
+        const byKeyword = resolved !== null && !resolved.isFallback;
+        if (byKeyword) {
+          // Classée par mot-clé : le domaine est celui que les règles donnent.
+          if (program.fieldIsFallback || program.fieldId !== resolved.fieldId) {
+            stale.push(`${program.nameFr} : ${program.fieldId} → ${resolved.fieldId}`);
+          }
+        } else if (!program.fieldIsFallback) {
+          // Aucun mot-clé ne la classe, et elle ne se dit pas classée par repli.
+          stale.push(`${program.nameFr} : ${program.fieldId} sans mot-clé`);
+        }
+      }
+    }
+    expect(stale.slice(0, 20)).toEqual([]);
+  });
+
+  it('ne sert que des domaines de l’orientation — et les sert tous', () => {
+    const known = new Set(ORIENTATION_FIELDS.map((field) => field.id));
+    const seen = new Map<string, number>();
+    for (const file of catalog.universities) {
+      for (const program of file.programs) {
+        expect(known.has(program.fieldId)).toBe(true);
+        seen.set(program.fieldId, (seen.get(program.fieldId) ?? 0) + 1);
+      }
+    }
+    // Un domaine sans une seule formation est un domaine que l'étudiant peut
+    // déclarer sans jamais rien recevoir : c'était le cas de deux domaines sur
+    // douze avant le réalignement sur l'orientation.
+    for (const field of ORIENTATION_FIELDS) {
+      expect({ name: field.nameFr, hasFormations: (seen.get(field.id) ?? 0) > 0 }).toEqual({
+        name: field.nameFr,
+        hasFormations: true,
+      });
+    }
   });
 
   it('couvre les universités publiques et leurs deux cycles', () => {

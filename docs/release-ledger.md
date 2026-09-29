@@ -319,6 +319,16 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   nombre de lignes montrées sur le total réel, et invite à recharger une fois le
   lot validé.
 
+- **Domaines de l'import « Études en France » réalignés sur l'orientation.**
+  Dix domaines sur douze de l'import portaient le nom d'un autre (`d03` était
+  « Finance », `d05` « Ingénierie »…). Les 10 502 formations versionnées sont
+  réécrites (3 134 changent) et la recherche, le validateur et le classement de la
+  shortlist ne parlent plus qu'une liste. Aucun effet à l'écran aujourd'hui
+  (rien n'est publié). **Les lignes déjà importées en production gardent
+  l'ancien domaine** : avant toute publication, `eef-purge-pending` puis
+  `eef-import` (VPS ops, dry-run d'abord), après avoir lu `db-info` section 10.
+  Détail et choix à confirmer : `docs/eef-catalog-pipeline.md` § 2.7.
+
 **Une migration s'applique :** `20260929120000_counsellor_review_author_backfill`.
 Des DONNÉES seulement — un `UPDATE` qui rattache les avis déjà enregistrés sans
 auteur au propriétaire du dossier noté — sans changement de schéma,

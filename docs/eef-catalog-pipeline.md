@@ -25,7 +25,7 @@ Le noyau reste les 70 universités à typologie MESR. Le 21 septembre 2026, quat
 | dont 2e et 3e années de licence | 3 134 |
 | dont mentions de master | 3 244 |
 | Par procédure | `eef` 7 260 · `dap_blanche` 3 133 · `dap_jaune` 29 · `hors_eef` 80 |
-| Classement de domaine par repli | 2,28 % (plafond CI : 8 %) |
+| Classement de domaine par repli | 1,86 % — 195 formations sur 10 502 (plafond CI : 8 %) |
 | Profils d'admission Parcoursup 2025 | 3 525 formations |
 | Logos Commons réutilisables | 40 établissements |
 | Sources | jeux MESR en **Licence Ouverte v2.0**, logos sous la licence de chaque fichier |
@@ -161,6 +161,75 @@ inconnue de la table n'est **pas** devinée : la ligne est écartée et comptée
 C'est le point le plus sensible du lot : se tromper de procédure envoie un
 étudiant sur le mauvais calendrier. Il mérite une relecture métier avant la
 publication.
+
+### 2.7 Les douze domaines sont ceux de l'orientation (corrigé le 29/09/2026)
+
+Le classement en domaines `d01..d12` parlait un autre vocabulaire que le reste de
+l'app : l'import appelait `d03` « Finance, Banque & Comptabilité » et `d05`
+« Ingénierie & Sciences Appliquées », alors que l'orientation — donc les
+domaines que l'étudiant choisit, `EefInterest.fieldIds` — appelle `d03`
+« Ingénierie & Sciences » et `d05` « Architecture & BTP ». Dix domaines sur
+douze portaient le nom d'un autre, deux (`d11` Arts & Culture, `d12` Logistique)
+ne recevaient qu'un contresens. Conséquence : la recherche filtrait par
+domaine, et le classement de la shortlist (`field_declared`) proposait un master
+de finance à qui avait déclaré l'ingénierie.
+
+**Pourquoi l'orientation est la référence.** Le seed `seed-catalogue-unique` écrit
+les lignes `Field` du serveur depuis `ORIENTATION_FIELDS` ; la migration
+`20260705180000_remap_legacy_field_ids` appelle ces identifiants « canoniques »
+(`d01` Informatique, `d02` Commerce & Management, `d03` Ingénierie & Sciences) ;
+l'import des écoles partenaires (`FIELD_BY_LABEL`) et le scoreur d'orientation
+parlent la même langue. Les anciens noms de l'import venaient du catalogue Dart
+hors ligne (`lib/app/core/data/mock_catalog/fields_data.dart`), qui n'a jamais
+été réaligné. **À contrôler en production avant le réimport** (je n'y ai pas
+accès) : `db-info`, section 10, liste `Field` (id, nom) — les noms doivent être
+ceux de l'orientation. **Écart hors périmètre, à traiter à part** : ce mock Dart
+sert quand le cache du catalogue est vide (premier lancement hors ligne) et
+affiche encore `d03` « Finance, Banque & Comptabilité » là où le serveur dit
+« Ingénierie & Sciences » ; le réaligner demande de réécrire le contenu de onze
+domaines, pas seulement leurs noms.
+
+La référence est désormais **une seule liste**, `ORIENTATION_FIELDS`
+(`KNOWN_FIELD_IDS` en dérive ; le validateur et la recherche n'en recopient
+plus). Les règles de mots-clés (`FIELD_KEYWORD_RULES`) rangent chaque intitulé
+sous le domaine qui porte son nom canonique, et le test qui les garde ne
+nomme **aucun numéro** : il dit « la finance est dans Commerce & Management »
+puis va lire le nom que l'orientation donne au domaine renvoyé. Deuxième filet :
+`eef-catalog.data.spec.ts` exige que chacune des 10 502 lignes versionnées porte
+le domaine que donnent les règles **actuelles** — une règle changée sans
+régénération des fichiers fait échouer la CI avec l'intitulé.
+
+Ce qui a changé sur les 10 502 lignes (3 134 le sont) : la santé et les sciences
+de la vie passent en `d04` (684 : sciences de la vie, biologie, STAPS), les arts et l'histoire
+de l'art en `d11` (399), la logistique et les transports en `d12` (72),
+l'architecture et le bâtiment en `d05` (124), l'ingénierie en `d03` (1 234), le
+tourisme en `d10` (75), l'agriculture en `d08` (46), la finance et le commerce
+en `d02` (277). Quatre défauts de mots-clés ont été corrigés au passage parce
+qu'ils faussaient le résultat : « eau » captait « réseaux » et « bureaux » (43
+formations de transport rangées en environnement), « mode » captait
+« modélisation », « patrimoine » rangeait 58 formations d'histoire, de musées et de droit
+du patrimoine en finance, et une quarantaine de masters de santé (« Santé », « Sciences du
+médicament… ») ne tenaient que par le repli.
+
+**Deux choix à faire confirmer par l'exploitation**, parce qu'aucun mot-clé ne
+les tranche : les **STAPS** sont rangées en santé (`d04`), faute de domaine
+« sport » dans l'orientation ; et le mot entier « santé » range en `d04` ce qui
+le contient, « Droit de la santé » comprise (15 formations) — la santé passe
+avant le droit, comme elle passe avant l'informatique.
+
+Les fichiers ont été réécrits **hors ligne**, sans `eef:fetch` : les règles
+appliquées à l'intitulé reproduisaient les 10 263 lignes classées par mot-clé à
+l'identique avant la correction, donc le résultat est celui qu'aurait produit le
+générateur. Les 239 lignes classées par repli n'ont pas gardé leur grand domaine
+source ; 44 ont trouvé un mot-clé, les autres gardent leur repli (seul `d05` →
+`d03` change). Un prochain `eef:fetch` recalcule tout, repli compris.
+
+**Les lignes déjà en base ne suivent pas.** `eef:import` est création seule : les
+10 247 formations importées inactives gardent l'ancien domaine, et
+`eef:backfill` ne comble que des colonnes vides. Tant qu'aucune n'est publiée,
+personne ne les a relues ni enregistrées : les supprimer puis réimporter est le
+réalignement (§ 5, `eef:purge-pending`). Après la première publication, il
+faudra un `eef:reconcile` que personne n'a encore écrit.
 
 ---
 
@@ -344,7 +413,7 @@ Le plafond de repli mérite un mot : le domaine d'une formation (`d01..d12`) est
 déduit de mots-clés de son intitulé. Tant que le taux de repli reste bas, la
 déduction est marginale ; s'il monte, c'est que la source a changé de
 vocabulaire et que le classement ne veut plus rien dire. Le plafond est à 8 %,
-la valeur actuelle est 3,28 % — la marge est volontairement étroite pour que la
+la valeur actuelle est 1,86 % — la marge est volontairement étroite pour que la
 dérive fasse du bruit tôt.
 
 ---
@@ -416,6 +485,27 @@ Commons (si les trois colonnes sont encore vides) et réécrit description +
 repère d'admission sur les formations encore inactives, jamais vérifiées, et
 dont la prose de procédure est encore celle de l'import. Il n'écrit ni
 `isActive` ni `lastVerifiedAt`.
+
+**Réaligner des lignes déjà importées** (règle de domaine, procédure, intitulé
+corrigés dans le dépôt) tant qu'AUCUNE n'est publiée :
+
+```bash
+docker compose exec -T api npm run eef:purge-pending            # dry-run par défaut
+docker compose exec -T api npm run eef:purge-pending -- --apply
+docker compose exec -T api npm run eef:import -- --dry-run
+docker compose exec -T api npm run eef:import
+```
+
+ou, sans accès SSH, GitHub Actions → **VPS ops** → `eef-purge-pending` puis
+`eef-import` (`dry_run` reste vrai par défaut ; lire le décompte avant de
+l'enlever). L'outil ne supprime qu'une ligne portant le préfixe de l'import,
+inactive ET jamais vérifiée ; il protège et compte à part une formation
+enregistrée par un étudiant, un établissement qui garde une formation non
+supprimée, qu'un accord de partenariat référence ou qu'on a enregistré. Les
+correspondances (`Match`) d'une formation supprimée partent avec elle : ce sont
+des lignes de cache de 24 heures. **Après la première publication, ne pas
+l'utiliser** : ce qui est publié n'est jamais candidat, et le réalignement des
+lignes publiées demande `eef:reconcile`.
 
 Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
 `catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs
