@@ -43,8 +43,16 @@ données ouvertes MESR
   → eef-catalog.validator.ts           (portes strictes ; CI + avant import)
   → scripts/import-eef-catalog.ts      (--dry-run | --apply, jamais de défaut)
   → Institution / Program, isActive = false
-  → file /verification en admin        ← le seul endroit où une ligne devient visible
+  → outil de publication en admin      ← le seul endroit où une ligne devient visible
+                                         (À CONSTRUIRE ; en attendant, l'API :
+                                         PATCH /admin/catalog/…/:id { isActive })
+  → file /verification en admin        ← ne liste que les lignes DÉJÀ publiées, à leur cadence (§ 2ter)
 ```
+
+La file `/verification` n'a jamais été le chemin de publication : valider une
+ligne y pose le tampon de vérification (`lastVerifiedAt`, `verifiedByName`),
+jamais `isActive`. Une ligne importée qu'on y « validait » sortait donc de la
+file sans devenir visible.
 
 C'est, trait pour trait, le pipeline des bourses
 (`backend/src/modules/scholarships-index/data/`). Le dépôt l'a déjà éprouvé, et

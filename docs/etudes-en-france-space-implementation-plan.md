@@ -351,8 +351,14 @@ recherches IA  →  fichiers de données versionnés dans le dépôt
                →  validateur strict (sources + vérificateur + fraîcheur)
                →  CLI import --dry-run  puis  --apply   (création seule)
                →  lignes INACTIVES, en attente de modération
-               →  file /verification en admin  →  publication
+               →  outil de publication en admin  →  publication
 ```
+
+> **Précision du 29/09/2026.** La file `/verification` ne fait pas partie de ce
+> chemin : valider une ligne n'y pose que le tampon de vérification, jamais
+> `isActive`, et elle ne liste plus les lignes en attente (elle ne montre que les
+> fiches publiées dont la cadence est échue). Voir `docs/eef-catalog-pipeline.md`,
+> § 2ter. L'outil de publication en masse reste à construire.
 
 Concrètement, en miroir de `backend/src/modules/scholarships-index/data/` :
 
@@ -536,8 +542,9 @@ comme une panne.
   avec un **propriétaire réel nommé**. Le SOP signale lui-même que « Amina KPB »
   et « Fatou Admin » sont des personnages de jeu de test : sans propriétaire, la
   file de vérification reste verte sans que personne n'ait à la rouvrir.
-- Admin : file `/verification` étendue + écran catalogue + export de la liste
-  d'intérêt.
+- Admin : outil de publication en masse + écran catalogue + export de la liste
+  d'intérêt. (La file `/verification` n'est pas « étendue » aux lignes en
+  attente : elle reste la file de RE-vérification des fiches publiées.)
 - Entonnoir à suivre : `eef_teaser_viewed` → `eef_interest_declared` →
   `eef_catalog_search` → `eef_shortlist_generated` → `premium_viewed` →
   `purchase`.
