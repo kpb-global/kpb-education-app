@@ -756,7 +756,9 @@
     "never": "Never",
     "notProvided": "Not provided",
     "tableNote": "Fees, deadlines, and program facts are re-checked on the cadence defined per category above.",
-    "truncatedNotice": "The queue is long: {shown} of {total} rows are shown, most urgent first. Validate some, then reload the page to bring in the next ones."
+    "truncatedNotice": "The queue is long. Rows shown: {shown} of {total}, most urgent first. Validate some, then reload the page to bring in the next ones.",
+    "batchDone": "The rows shown are done. Reload the queue to bring in the next ones.",
+    "reloadCta": "Reload the queue"
   },
   "scholarships": {
     "title": "Scholarship moderation",

@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { VERIFICATION_POLICIES } from '../admin-catalog/admin-catalog.service';
 import {
+  countryVerificationDueWhere,
   institutionVerificationDueWhere,
   programVerificationDueWhere,
-  verificationDueWhere,
+  scholarshipVerificationDueWhere,
 } from '../admin-catalog/verification-due';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -191,19 +192,17 @@ export class ReportsService {
           select: { createdAt: true },
         }),
         prisma.case.count({ where: { status: 'documents_needed' } }),
+        // Les QUATRE prédicats viennent de `verification-due.ts`, les mêmes que
+        // ceux de la file admin — pays et bourses compris, qui étaient recopiés
+        // ici. Lignes EEF en attente exclues : sans cela, ce compteur annonçait
+        // « 10 600 à revérifier » dès l'import, pour des fiches qui n'ont jamais
+        // été publiées.
         prisma.country.count({
-          where: {
-            isActive: true,
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.countryVisa.cadenceDays,
-              now,
-            ),
-          },
+          where: countryVerificationDueWhere(
+            VERIFICATION_POLICIES.countryVisa.cadenceDays,
+            now,
+          ),
         }),
-        // La MÊME règle que la file admin (`verification-due.ts`), lignes EEF en
-        // attente exclues : sans elle, ce compteur annonçait « 10 600 à
-        // revérifier » dès l'import, pour des fiches qui n'ont jamais été
-        // publiées.
         prisma.institution.count({
           where: institutionVerificationDueWhere(
             VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
@@ -217,14 +216,10 @@ export class ReportsService {
           ),
         }),
         prisma.scholarship.count({
-          where: {
-            isActive: true,
-            moderationStatus: 'approved',
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
-              now,
-            ),
-          },
+          where: scholarshipVerificationDueWhere(
+            VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+            now,
+          ),
         }),
         prisma.forumModerationAction.count(),
       ]);

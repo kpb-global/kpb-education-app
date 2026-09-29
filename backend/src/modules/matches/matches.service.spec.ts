@@ -461,7 +461,12 @@ describe('MatchesService', () => {
     // entreraient en concurrence avec les écoles partenaires dans le « moment
     // aha », et chaque requête chargerait des milliers de lignes. L'espace EEF a
     // sa propre shortlist.
-    const EXCLUDES_EEF_PROGRAMS = { id: { startsWith: 'eef-prog-' } };
+    const EXCLUDES_EEF_PROGRAMS = {
+      OR: [
+        { id: { startsWith: 'eef-prog-' } },
+        { institutionId: { startsWith: 'eef-univ-' } },
+      ],
+    };
     const EXCLUDES_EEF_INSTITUTIONS = { id: { startsWith: 'eef-univ-' } };
 
     it('n’envoie au moteur aucune formation de l’import EEF, repli compris', async () => {

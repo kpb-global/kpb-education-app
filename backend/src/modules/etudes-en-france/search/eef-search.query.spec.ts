@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from 'node:util';
+
 import {
   EEF_SEARCH_DEFAULT_LIMIT,
   EEF_SEARCH_FACETS,
@@ -156,9 +158,14 @@ describe('buildEefSearchWhere', () => {
   /// et le curseur. Les tests du curseur et des mots regardent CELA, pas la
   /// forme complète du tableau — la clause de publication n'a rien à voir avec
   /// eux et ne doit pas les rendre fragiles.
+  ///
+  /// On retire EXACTEMENT la clause de publication — égalité profonde —, pas « tout
+  /// ce qui porte la clé `institutionId` » : ce dernier filtre aurait aussi
+  /// avalé une clause de curseur ou de facette qui se tromperait de clé, et les
+  /// tests du curseur n'auraient rien vu.
   const withoutPublished = (where: Record<string, unknown>) =>
     ((where.AND as Record<string, unknown>[] | undefined) ?? []).filter(
-      (clause) => !('institutionId' in clause),
+      (clause) => !isDeepStrictEqual(clause, PUBLISHED_CLAUSE),
     );
 
   it('impose toujours la relecture et le pays', () => {

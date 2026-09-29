@@ -27,8 +27,12 @@ export interface VerificationQueueItem {
 export interface VerificationDueResponse {
   /** Les éléments les plus urgents d'abord, plafonnés côté serveur. */
   items: VerificationQueueItem[];
-  /** Le compte COMPLET de la file, pas le nombre d'éléments renvoyés. */
-  total: number;
+  /**
+   * Le compte COMPLET de la file, pas le nombre d'éléments renvoyés. Optionnel
+   * pour la même raison que `truncated` : l'admin et l'API se déploient
+   * séparément, et un serveur plus ancien ne l'envoie pas.
+   */
+  total?: number;
   /**
    * Vrai si la file est plus longue que `items`. Optionnel : un serveur plus
    * ancien ne l'envoie pas, et l'absence veut alors dire « rien n'est tronqué ».

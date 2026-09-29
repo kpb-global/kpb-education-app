@@ -32,8 +32,20 @@ import type { PrismaClient } from '@prisma/client';
  * apparaîtront dans cet espace, elles ne disparaîtront pas pour une raison
  * d'identifiant.
  *
+ * Conséquence à connaître : la liste contient AUSSI les établissements
+ * partenaires actifs du pays (ESSEC, OMNES…). Ce qui garde aujourd'hui leurs
+ * formations hors de l'espace, ce n'est donc pas cette liste mais les autres
+ * clauses — `procedureType IS NOT NULL` pour la recherche, `cycle IN (…)` pour la
+ * shortlist — que ces formations (procédure « non qualifiée ») ne remplissent
+ * pas. Si l'exploitation qualifie un jour une formation partenaire, elle entrera
+ * dans l'espace ET restera dans le catalogue général : c'est une décision de
+ * produit à prendre en connaissance de cause (voir `common/eef-provenance.ts`).
+ *
  * Liste vide (aucun établissement publié) ⇒ `institutionId IN ()` ⇒ aucun
- * résultat. C'est l'état d'aujourd'hui en production, et c'est le bon.
+ * résultat, jamais « tout ». Elle l'est sur une base neuve ; elle ne l'est PAS
+ * sur la base de production, où les partenaires sont actifs. La branche vide est
+ * donc prouvée directement (`eef-provenance.postgres.spec.ts`), pas déduite de
+ * l'état d'une base.
  */
 export async function loadPublishedInstitutionIds(
   prisma: Pick<PrismaClient, 'institution'>,

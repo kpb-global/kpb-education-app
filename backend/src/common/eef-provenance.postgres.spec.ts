@@ -9,11 +9,20 @@ import {
   programVerificationDueWhere,
 } from '../modules/admin-catalog/verification-due';
 import { CatalogService } from '../modules/catalog/catalog.service';
+import {
+  buildEefSearchWhere,
+  parseEefSearchInput,
+} from '../modules/etudes-en-france/search/eef-search.query';
 import { EefSearchService } from '../modules/etudes-en-france/search/eef-search.service';
+import { buildShortlistWhere } from '../modules/etudes-en-france/shortlist/eef-shortlist.rank';
 import { EefShortlistService } from '../modules/etudes-en-france/shortlist/eef-shortlist.service';
 import { MatchesService } from '../modules/matches/matches.service';
 import type { PrismaService } from '../modules/prisma/prisma.service';
 import { ReportsService } from '../modules/reports/reports.service';
+import {
+  FRANCE_COUNTRY_CODES,
+  resolveFranceCountryId,
+} from '../modules/etudes-en-france/catalog/eef-country';
 import {
   EEF_INSTITUTION_ID_PREFIX,
   EEF_PROGRAM_ID_PREFIX,
@@ -29,7 +38,7 @@ import {
  * `scholarships-public-reads.postgres.spec.ts`) : la règle vit dans un `where`,
  * donc seule une base réelle dit si elle filtre.
  *
- * ## Les huit lignes, et ce que chacune prouve
+ * ## Les lignes, et ce que chacune prouve
  *
  *   partenaire, publiée         le témoin : rien ne doit l'écarter. Sans lui, un
  *                               filtre trop large passerait pour un succès.
@@ -41,21 +50,42 @@ import {
  *                               doit servir — et que le catalogue général ne doit
  *                               JAMAIS servir.
  *   EEF, établissement en attente + formation publiée dessous
- *                               l'état exact de CAT-13 : une formation activée
- *                               sous une université que personne n'a relue.
+ *                               le défaut de la recherche et de la shortlist :
+ *                               une formation activée sous une université que
+ *                               personne n'a relue.
  *   EEF, formation en attente sous un établissement publié
  *                               le tri inverse.
  *   EEF, établissement en attente
  *                               ce que l'import dépose : ni servi, ni à revérifier.
+ *   formation créée À LA MAIN sous un établissement de l'import
+ *                               identifiant généré, active par défaut : elle est de
+ *                               l'import par son parent, et le catalogue général
+ *                               ne doit pas la servir sur une carte sans école.
+ *   EEF publiés, vérifiés il y a 100 et 400 jours
+ *                               la cadence de 180 jours : la coupure doit tomber
+ *                               entre les deux, dans le bon sens. Ce sont les seules
+ *                               lignes qui pilotent la DATE — les autres sont
+ *                               « jamais vérifiées ».
  *
- * ## Hypothèse assumée
+ * ## Ce que le test suppose, et ne peut pas garantir
  *
  * Les comptes sont des ÉCARTS (avant / après l'insertion), jamais des valeurs
  * absolues : la suite tourne sur une base qui peut porter d'autres lignes. Les
- * identifiants, eux, sont uniques par exécution. Un catalogue EEF déjà importé
- * n'invalide donc pas le test — mais il ne le rend pas hermétique non plus : les
- * lectures par identifiant supposent qu'aucune autre formation n'occupe les
- * premières places d'une page de dix.
+ * identifiants, les jetons de recherche (`q`) et le domaine (`FIELD`) sont
+ * uniques par exécution, donc un catalogue EEF déjà importé n'invalide pas les
+ * lectures. Restent trois hypothèses, non vérifiables d'ici :
+ *
+ *   • exactement UN pays actif de code FR ou FRA — c'est la règle du service
+ *     (`resolveFranceCountryId`), reprise telle quelle ;
+ *   • AUCUN autre écrivain entre la mesure de départ et les écarts : lancée en
+ *     parallèle d'une suite qui insère une bourse approuvée jamais vérifiée, la
+ *     file gagnerait une ligne de plus. D'où `--runInBand` dans le script npm ;
+ *   • une base migrée. Sur base neuve la France est créée puis retirée ; sur base
+ *     semée elle est réutilisée.
+ *
+ * Les restes d'une exécution interrompue (SIGKILL, annulation de la CI) sont
+ * purgés au démarrage par des motifs que ne peut satisfaire aucun identifiant
+ * d'import réel (`eef-prog-<hex>` n'a pas de suffixe).
  */
 const describePostgres =
   process.env.KPB_RUN_POSTGRES_INTEGRATION === 'true'
@@ -82,11 +112,21 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     eefInstPending: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-pending`,
     eefProgOrphan: `${EEF_PROGRAM_ID_PREFIX}${sfx}-orphan`,
     eefProgPending: `${EEF_PROGRAM_ID_PREFIX}${sfx}-pending`,
+    // Une formation saisie à la main sous une université de l'import : son
+    // identifiant n'a pas le préfixe, son établissement l'a.
+    manualUnderEef: `it-manual-under-eef-${sfx}`,
+    // Les âges de vérification (cadence des établissements et des formations : 180 j).
+    eefInstFresh: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-fresh`,
+    eefInstStale: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-stale`,
+    eefProgFresh: `${EEF_PROGRAM_ID_PREFIX}${sfx}-fresh`,
+    eefProgStale: `${EEF_PROGRAM_ID_PREFIX}${sfx}-stale`,
   };
   const institutionIds = [
     ids.partnerInst,
     ids.eefInstLive,
     ids.eefInstPending,
+    ids.eefInstFresh,
+    ids.eefInstStale,
   ];
   const programIds = [
     ids.partnerProg,
@@ -94,7 +134,13 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     ids.eefProgLive,
     ids.eefProgOrphan,
     ids.eefProgPending,
+    ids.manualUnderEef,
+    ids.eefProgFresh,
+    ids.eefProgStale,
   ];
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const daysAgo = (days: number) => new Date(Date.now() - days * DAY_MS);
 
   const prismaService = {
     isEnabled: true,
@@ -217,16 +263,74 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     dashboard: 0,
   };
 
-  beforeAll(async () => {
-    // ── La France : réutilisée si la base est semée, créée sinon ────────────
-    const existing = await prisma.country.findMany({
-      where: { code: { in: ['FR', 'FRA'] } },
-      select: { id: true, code: true, isActive: true },
+  /// Les lignes d'une exécution interrompue. Chaque motif est impossible pour un
+  /// identifiant d'import réel (`eef-prog-<hex>`, `eef-univ-<hex>` : aucun
+  /// suffixe) comme pour une fiche partenaire réelle.
+  const LEFTOVER_SUFFIXES = ['-live', '-orphan', '-pending', '-fresh', '-stale'];
+  async function purgeLeftovers() {
+    const eefLeftovers = (prefix: string) =>
+      LEFTOVER_SUFFIXES.map((suffix) => ({
+        AND: [{ id: { startsWith: prefix } }, { id: { endsWith: suffix } }],
+      }));
+    await prisma.match.deleteMany({
+      where: { userProfileId: { startsWith: 'it-user-' } },
     });
-    const active = existing.filter((country) => country.isActive);
-    if (active.length === 1) {
-      franceId = active[0].id;
-    } else if (existing.length === 0) {
+    await prisma.eefInterest.deleteMany({
+      where: { userId: { startsWith: 'it-user-' } },
+    });
+    await prisma.userProfile.deleteMany({
+      where: { id: { startsWith: 'it-user-' } },
+    });
+    await prisma.program.deleteMany({
+      where: {
+        OR: [
+          { id: { startsWith: 'it-partner-prog-' } },
+          { id: { startsWith: 'it-manual-under-eef-' } },
+          ...eefLeftovers(EEF_PROGRAM_ID_PREFIX),
+        ],
+      },
+    });
+    await prisma.institution.deleteMany({
+      where: {
+        OR: [
+          { id: { startsWith: 'it-partner-inst-' } },
+          ...eefLeftovers(EEF_INSTITUTION_ID_PREFIX),
+        ],
+      },
+    });
+    await prisma.country.deleteMany({ where: { id: { startsWith: 'it-fra-' } } });
+  }
+
+  beforeAll(async () => {
+    await purgeLeftovers();
+
+    // ── La France : réutilisée si la base est semée, créée sinon ────────────
+    // Même règle que le service (`eef-country.ts`) : les pays ACTIFS dont le
+    // code, normalisé, est FR ou FRA.
+    const activeCountries = await prisma.country.findMany({
+      where: { isActive: true },
+      select: { id: true, code: true },
+    });
+    const frances = activeCountries.filter((country) =>
+      (FRANCE_COUNTRY_CODES as readonly string[]).includes(
+        (country.code ?? '').trim().toUpperCase(),
+      ),
+    );
+    if (frances.length === 1) {
+      franceId = resolveFranceCountryId(activeCountries);
+    } else if (frances.length === 0) {
+      // Un pays INACTIF de même code bloquerait la création (`code` est unique).
+      const inactive = await prisma.country.findFirst({
+        where: { code: { in: [...FRANCE_COUNTRY_CODES] } },
+        select: { id: true, code: true },
+      });
+      if (inactive) {
+        throw new Error(
+          `Base inutilisable pour ce test : le pays ${inactive.id} (${inactive.code}) `
+            + 'existe mais est inactif, donc la France ne se résout pas et ne '
+            + 'peut pas être recréée.',
+        );
+      }
       createdCountryId = `it-fra-${sfx}`;
       await prisma.country.create({
         data: {
@@ -252,11 +356,9 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       franceId = createdCountryId;
     } else {
       throw new Error(
-        `Base inutilisable pour ce test : ${existing.length} pays de code FR/FRA `
-          + `(${existing
-            .map((c) => `${c.id}:${c.code}:${c.isActive ? 'actif' : 'inactif'}`)
-            .join(', ')}), dont ${active.length} actif(s). La résolution de la `
-          + "France en exige exactement un.",
+        `Base inutilisable pour ce test : ${frances.length} pays actifs de code `
+          + `FR/FRA (${frances.map((c) => `${c.id}:${c.code}`).join(', ')}). La `
+          + "résolution de la France en exige exactement un.",
       );
     }
 
@@ -286,9 +388,10 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     });
 
     // ── L'état de départ, AVANT toute ligne de catalogue ────────────────────
-    // Sur une base neuve, l'établissement publié n'existe pas encore : la
-    // shortlist interroge donc `institutionId IN ()` — la liste vide — et Prisma
-    // doit répondre « rien », pas lever.
+    // Sur une base neuve, aucun établissement n'est publié : la shortlist
+    // interroge donc `institutionId IN ()` — la liste vide — et Prisma doit
+    // répondre « rien », pas lever. (Que « rien » soit bien la réponse est prouvé
+    // plus bas, lignes en place ; ici on ne prouve que l'absence d'erreur.)
     before.catalogInstitutions = (await catalog.getInstitutions()).total;
     before.catalogPrograms = (await catalog.getPrograms()).total;
     before.shortlistTotal = (await shortlistOf()).total;
@@ -297,7 +400,7 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
     before.dashboard = (await reports.getDashboardActivation()).urgent
       .verificationDue;
 
-    // ── Les huit lignes ─────────────────────────────────────────────────────
+    // ── Les lignes ──────────────────────────────────────────────────────────
     await prisma.institution.createMany({
       data: [
         institution(ids.partnerInst, { isPartner: true, isActive: true }),
@@ -308,6 +411,17 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
         institution(ids.eefInstPending, {
           institutionType: 'universite_publique',
           isActive: false,
+        }),
+        // Publiés, vérifiés il y a 100 jours (dans la cadence) et 400 (hors).
+        institution(ids.eefInstFresh, {
+          institutionType: 'universite_publique',
+          isActive: true,
+          lastVerifiedAt: daysAgo(100),
+        }),
+        institution(ids.eefInstStale, {
+          institutionType: 'universite_publique',
+          isActive: true,
+          lastVerifiedAt: daysAgo(400),
         }),
       ],
     });
@@ -340,20 +454,40 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
           campusCity: 'Rennes',
           admissionModes: ['Dossier'],
         }),
+        // Sans procédure ni cycle : ni la recherche ni la shortlist ne la
+        // servent ; seule la frontière du catalogue général et la file la voient.
+        program(ids.manualUnderEef, ids.eefInstLive, 'Saisie à la main', {
+          isActive: true,
+        }),
+        program(ids.eefProgFresh, ids.eefInstLive, 'Vérifiée récente', {
+          isActive: true,
+          lastVerifiedAt: daysAgo(100),
+        }),
+        program(ids.eefProgStale, ids.eefInstLive, 'Vérifiée ancienne', {
+          isActive: true,
+          lastVerifiedAt: daysAgo(400),
+        }),
       ],
     });
   }, 60_000);
 
   afterAll(async () => {
-    await prisma.match.deleteMany({ where: { userProfileId: USER_ID } });
-    await prisma.eefInterest.deleteMany({ where: { userId: USER_ID } });
-    await prisma.userProfile.deleteMany({ where: { id: USER_ID } });
-    await prisma.program.deleteMany({ where: { id: { in: programIds } } });
-    await prisma.institution.deleteMany({ where: { id: { in: institutionIds } } });
-    if (createdCountryId !== null) {
-      await prisma.country.deleteMany({ where: { id: createdCountryId } });
+    // `finally` : un `deleteMany` qui lève ne doit ni sauter le reste du
+    // nettoyage ni laisser la connexion ouverte (Jest ne se terminerait pas).
+    try {
+      await prisma.match.deleteMany({ where: { userProfileId: USER_ID } });
+      await prisma.eefInterest.deleteMany({ where: { userId: USER_ID } });
+      await prisma.userProfile.deleteMany({ where: { id: USER_ID } });
+      await prisma.program.deleteMany({ where: { id: { in: programIds } } });
+      await prisma.institution.deleteMany({
+        where: { id: { in: institutionIds } },
+      });
+      if (createdCountryId !== null) {
+        await prisma.country.deleteMany({ where: { id: createdCountryId } });
+      }
+    } finally {
+      await prisma.$disconnect();
     }
-    await prisma.$disconnect();
   }, 60_000);
 
   // ── /catalog/* : la surface de TOUTES les builds installées ───────────────
@@ -457,6 +591,9 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       expect(programs).not.toContain(ids.eefProgLive);
       expect(programs).not.toContain(ids.eefProgOrphan);
       expect(programs).not.toContain(ids.eefProgPending);
+      // Créée à la main, active, sous une université de l'import : recommandée,
+      // elle porterait un nom d'école vide (l'école est exclue de ce moteur).
+      expect(programs).not.toContain(ids.manualUnderEef);
     });
 
     it("ne connaît pas un établissement de l'import, même publié et pourvu de formations", async () => {
@@ -480,11 +617,18 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
 
   // ── La file de revérification, le SLA et le compteur ──────────────────────
   describe('la file de revérification, le SLA quotidien et le compteur du tableau de bord', () => {
-    // Six lignes jamais vérifiées entrent dans la file : les trois du partenaire
-    // (l'établissement, la formation, la formation désactivée à la main) et les
-    // trois de l'import qui ont été PUBLIÉES. Les deux lignes en attente
-    // (l'établissement et la formation) n'y entrent pas — huit sans la règle.
-    const EXPECTED_DUE = 6;
+    // Neuf lignes entrent dans la file :
+    //   • sept JAMAIS vérifiées — les trois du partenaire (l'établissement, la
+    //     formation, la formation désactivée à la main) et quatre publiées de
+    //     l'import (établissement, formation, formation sous un parent en
+    //     attente, formation saisie à la main) ;
+    //   • deux vérifiées il y a 400 jours, au-delà de la cadence de 180.
+    // N'y entrent pas : les deux lignes EN ATTENTE de l'import (l'établissement
+    // et la formation — onze sans la règle), et les deux vérifiées il y a 100
+    // jours, DANS la cadence. Ces dernières sont les seules à piloter la coupure :
+    // une coupure dans le mauvais sens, ou à 30 jours au lieu de 180, les ferait
+    // compter.
+    const EXPECTED_DUE = 9;
 
     it('ne comptent que ce qui a été publié, et pas ce que le pipeline a déposé', async () => {
       const queue = await admin.listVerificationDue();
@@ -531,7 +675,7 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
       });
 
       expect(dueInstitutions.map((row) => row.id).sort()).toEqual(
-        [ids.partnerInst, ids.eefInstLive].sort(),
+        [ids.partnerInst, ids.eefInstLive, ids.eefInstStale].sort(),
       );
       expect(duePrograms.map((row) => row.id).sort()).toEqual(
         [
@@ -539,8 +683,50 @@ describePostgres('Provenance EEF — intégration PostgreSQL', () => {
           ids.partnerProgOff,
           ids.eefProgLive,
           ids.eefProgOrphan,
+          ids.manualUnderEef,
+          ids.eefProgStale,
         ].sort(),
       );
+    });
+  });
+
+  // ── La liste vide : « rien », jamais « tout » ─────────────────────────────
+  describe("quand aucun établissement n'est publié", () => {
+    // Prouvé DIRECTEMENT, et non déduit de l'état d'une base : sur une base neuve
+    // la liste est vide, mais aucune ligne n'existe alors, donc « rien » et « pas
+    // de filtre » donnent tous deux zéro ; sur une base semée elle ne l'est jamais
+    // (les établissements partenaires sont actifs). Ici les lignes existent, la
+    // liste est vide, et la base doit répondre zéro.
+    it('la recherche ne sert aucune ligne, alors que les lignes existent', async () => {
+      const params = parseEefSearchInput({ q: sfx });
+
+      const withNone = await prisma.program.count({
+        where: buildEefSearchWhere(params, franceId, []) as never,
+      });
+      // Le témoin : la même requête, l'établissement publié dans la liste.
+      const withLive = await prisma.program.count({
+        where: buildEefSearchWhere(params, franceId, [ids.eefInstLive]) as never,
+      });
+
+      expect(withNone).toBe(0);
+      expect(withLive).toBe(1);
+    });
+
+    it('la shortlist ne sert aucune ligne, alors que les lignes existent', async () => {
+      const where = (publishedInstitutionIds: string[]) =>
+        buildShortlistWhere({
+          path: 'master',
+          countryId: franceId,
+          declaredFieldIds: [FIELD],
+          tier: 'securite',
+          stratum: 'any',
+          publishedInstitutionIds,
+        }) as never;
+
+      expect(await prisma.program.count({ where: where([]) })).toBe(0);
+      expect(
+        await prisma.program.count({ where: where([ids.eefInstLive]) }),
+      ).toBeGreaterThanOrEqual(1);
     });
   });
 });

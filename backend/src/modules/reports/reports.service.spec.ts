@@ -177,17 +177,10 @@ describe('ReportsService — compteur « Action immédiate requise »', () => {
     });
   });
 
-  it('utilise la MÊME règle de cadence que la file admin', async () => {
-    // Deux copies de la règle finissent par diverger. Ici, la clause de cadence
-    // est celle que `verification-due.ts` construit pour les deux services.
-    const { db, wheres } = dashboardDb({});
-    await new ReportsService(prismaFor(db)).getDashboardActivation();
-    const clause = (wheres.program[0] as { AND: Record<string, unknown>[] }).AND[0];
-    expect(clause.OR).toEqual([
-      { lastVerifiedAt: null },
-      { lastVerifiedAt: { lt: expect.any(Date) } },
-    ]);
-  });
+  // « Utilise la MÊME règle que la file admin » ne se prouve pas ici : on ne voit
+  // que ce service. La comparaison des deux, catégorie par catégorie, sur une
+  // horloge figée, vit dans `admin-catalog/verification-due.consumers.spec.ts` —
+  // là où les deux services sont sous les yeux du même test.
 });
 
 function prismaFor(client: object): PrismaService {

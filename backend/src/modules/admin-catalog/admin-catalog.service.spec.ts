@@ -315,13 +315,20 @@ describe('AdminCatalogService — file de revérification et import EEF', () => 
     };
   }
 
-  function makeService(rows: { programs?: unknown[]; institutions?: unknown[] } = {}) {
+  function makeService(
+    rows: {
+      programs?: unknown[];
+      institutions?: unknown[];
+      countries?: unknown[];
+      scholarships?: unknown[];
+    } = {},
+  ) {
     const wheres: Record<string, unknown[]> = {
       institution: [],
       program: [],
     };
     const client = {
-      country: { findMany: async () => [] },
+      country: { findMany: async () => rows.countries ?? [] },
       institution: {
         findMany: async (args: { where: unknown }) => {
           wheres.institution.push(args.where);
@@ -334,7 +341,7 @@ describe('AdminCatalogService — file de revérification et import EEF', () => 
           return rows.programs ?? [];
         },
       },
-      scholarship: { findMany: async () => [] },
+      scholarship: { findMany: async () => rows.scholarships ?? [] },
       $transaction: async (ps: Promise<unknown>[]) => Promise.all(ps),
     };
     const prisma = {
@@ -375,11 +382,21 @@ describe('AdminCatalogService — file de revérification et import EEF', () => 
 
   it('applique la même exclusion au calcul du SLA de 07 h', async () => {
     // Le SLA se calcule sur la file : si la file exclut les lignes en attente,
-    // l'alerte aussi — c'est ce qui l'empêche d'annoncer 10 5xx lignes.
+    // l'alerte aussi — c'est ce qui l'empêche d'annoncer 10 5xx lignes. La
+    // clause EXACTE, pas une sous-chaîne : `toContain('eef-prog-')` serait vrai
+    // d'une clause qui n'exclurait rien.
     const { service, wheres } = makeService();
     await service.verificationSlaSummary();
-    expect(JSON.stringify(wheres.program[0])).toContain('eef-prog-');
-    expect(JSON.stringify(wheres.institution[0])).toContain('eef-univ-');
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
   });
 
   describe('plafond de la réponse', () => {
@@ -425,6 +442,106 @@ describe('AdminCatalogService — file de revérification et import EEF', () => 
         fresh.map((row) => row.id),
       );
       expect(queue.truncated).toBe(true);
+    });
+
+    it('ne dit « tronqué » qu’AU-DELÀ du plafond : exactement 500 tient', async () => {
+      // La frontière, des deux côtés. Un `>=` à la place du `>` annoncerait
+      // « il en reste » pour une file de 500 qui s'affiche en entier.
+      const exactly = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const full = await exactly.service.listVerificationDue();
+      expect(full.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(full.total).toBe(VERIFICATION_QUEUE_LIMIT);
+      expect(full.truncated).toBe(false);
+
+      const over = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 1 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const cut = await over.service.listVerificationDue();
+      expect(cut.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(cut.total).toBe(VERIFICATION_QUEUE_LIMIT + 1);
+      expect(cut.truncated).toBe(true);
+    });
+
+    it('ne laisse pas 800 formations jamais vérifiées chasser les bourses en retard', async () => {
+      // Deux universités publiées par `PATCH { isActive: true }` : `updateProgram`
+      // ne pose pas `lastVerifiedAt`, donc plus de 800 formations « jamais
+      // vérifiées ». Elles passent devant toutes les fiches vérifiées, dont les
+      // bourses en retard — seule catégorie qui périme en 30 jours, et que cette
+      // page sert à revérifier chaque mois.
+      const DAY = 24 * 60 * 60 * 1000;
+      const { service } = makeService({
+        programs: Array.from({ length: 830 }, (_, i) => neverVerifiedProgram(i)),
+        scholarships: [1, 2, 3].map((n) => ({
+          id: `bourse-${n}`,
+          nameFr: `Bourse ${n}`,
+          nameEn: `Scholarship ${n}`,
+          countryId: 'fra',
+          deadlineLabelFr: 'Juin',
+          lastVerifiedAt: new Date(Date.now() - 45 * DAY),
+          verifiedByName: 'Amina',
+          sourceUrl: null,
+        })),
+        countries: [
+          {
+            id: 'pays-1',
+            nameFr: 'Maroc',
+            nameEn: 'Morocco',
+            lastVerifiedAt: new Date(Date.now() - 60 * DAY),
+            verifiedByName: 'Amina',
+            sourceUrl: null,
+          },
+        ],
+      });
+
+      const queue = await service.listVerificationDue();
+      const shown = new Set(queue.items.map((item) => item.id));
+
+      expect(queue.truncated).toBe(true);
+      expect(queue.total).toBe(834);
+      for (const id of ['bourse-1', 'bourse-2', 'bourse-3', 'pays-1']) {
+        expect(shown.has(id)).toBe(true);
+      }
+      expect(queue.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+    });
+
+    it('trie les vérifiées par ÉCHÉANCE : la bourse en retard de 70 jours avant la formation en retard d’un jour', async () => {
+      const DAY = 24 * 60 * 60 * 1000;
+      const { service } = makeService({
+        programs: [
+          {
+            ...neverVerifiedProgram(1),
+            id: 'formation-181-jours',
+            lastVerifiedAt: new Date(Date.now() - 181 * DAY),
+            verifiedByName: 'Amina',
+          },
+        ],
+        scholarships: [
+          {
+            id: 'bourse-100-jours',
+            nameFr: 'Bourse',
+            nameEn: 'Scholarship',
+            countryId: 'fra',
+            deadlineLabelFr: 'Juin',
+            lastVerifiedAt: new Date(Date.now() - 100 * DAY),
+            verifiedByName: 'Amina',
+            sourceUrl: null,
+          },
+        ],
+      });
+
+      const queue = await service.listVerificationDue();
+
+      // L'âge brut (181 > 100) mettait la formation devant.
+      expect(queue.items.map((item) => item.id)).toEqual([
+        'bourse-100-jours',
+        'formation-181-jours',
+      ]);
     });
 
     it('calcule le SLA sur la file COMPLÈTE, pas sur la version plafonnée', async () => {

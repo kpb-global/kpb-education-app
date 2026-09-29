@@ -55,7 +55,33 @@ export function isEefInstitutionId(id: string): boolean {
 }
 
 /**
- * La formation n'a PAS été créée par l'import EEF.
+ * La formation appartient à l'import EEF : son identifiant porte le préfixe de
+ * l'import, OU son établissement le porte.
+ *
+ * Le second critère ferme le cas d'une formation créée À LA MAIN sous une
+ * université de l'import : elle reçoit un identifiant généré (`cuid`), et
+ * `isActive` vaut `true` par défaut. Avec le seul préfixe d'identifiant, elle
+ * serait servie par le catalogue général — sur une carte sans établissement,
+ * puisque l'établissement, lui, en est exclu — et recommandée par le moteur avec
+ * un nom d'école vide. Une formation qui a pour parent une université de l'import
+ * est de l'import, quelle que soit la façon dont elle est arrivée.
+ *
+ * Réservé à l'ADMIN en pratique (`createProgram` / `updateProgram` acceptent un
+ * `institutionId` quelconque) ; la liste déroulante de l'interface ne propose
+ * plus ces universités, donc il faut un appel direct à l'API. Rare, mais la
+ * garde coûte une ligne.
+ */
+export function eefProgramWhere(): Prisma.ProgramWhereInput {
+  return {
+    OR: [
+      { id: { startsWith: EEF_PROGRAM_ID_PREFIX } },
+      { institutionId: { startsWith: EEF_INSTITUTION_ID_PREFIX } },
+    ],
+  };
+}
+
+/**
+ * La formation n'appartient PAS à l'import EEF (voir [eefProgramWhere]).
  *
  * À poser sur toute lecture du catalogue GÉNÉRAL. Ce n'est jamais un filtre
  * optionnel : il ne dépend d'aucun paramètre de requête, pour qu'aucun appel
@@ -66,7 +92,7 @@ export function isEefInstitutionId(id: string): boolean {
  * entre deux requêtes est le genre d'aliasing qu'on ne relit jamais.
  */
 export function notEefProgram(): Prisma.ProgramWhereInput {
-  return { NOT: { id: { startsWith: EEF_PROGRAM_ID_PREFIX } } };
+  return { NOT: eefProgramWhere() };
 }
 
 /** L'établissement n'a PAS été créé par l'import EEF. Voir [notEefProgram]. */
@@ -80,8 +106,9 @@ export function notEefInstitution(): Prisma.InstitutionWhereInput {
  * Pour la file de revérification, le SLA quotidien et le compteur du tableau de
  * bord — qui sont des files de RE-vérification : des fiches publiées dont la
  * cadence est échue. Une ligne importée et inactive n'y a pas sa place : elle
- * n'a jamais été publiée, sa revue est le flux de PUBLICATION, avec son
- * propre outil.
+ * n'a jamais été publiée, sa revue est le flux de PUBLICATION, qui demande un
+ * outil dédié (À CONSTRUIRE : valider une ligne dans la file ne pose que le
+ * tampon de vérification, jamais `isActive`).
  *
  * Sans cette clause, le premier import ajoutait 10 500 lignes « jamais
  * vérifiées » à la file (donc une page admin qui rend un champ par ligne), et

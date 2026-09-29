@@ -28,9 +28,12 @@ import { Prisma } from '@prisma/client';
 import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  capFairly,
+  compareVerificationItems,
+  countryVerificationDueWhere,
   institutionVerificationDueWhere,
   programVerificationDueWhere,
-  verificationDueWhere,
+  scholarshipVerificationDueWhere,
 } from './verification-due';
 
 /// Clean canonical degree label. Mirror of the Flutter referential.
@@ -426,13 +429,14 @@ export class AdminCatalogService {
   }
 
   /// La file de revérification telle que l'ADMIN la reçoit : les éléments les
-  /// plus urgents d'abord, au plus [VERIFICATION_QUEUE_LIMIT]. `total` est le
-  /// compte COMPLET et `truncated` dit s'il en reste : une page qui n'en montre
-  /// que la moitié sans l'écrire ferait croire que la file est vide de l'autre.
+  /// plus urgents d'abord, au plus [VERIFICATION_QUEUE_LIMIT], SANS qu'une
+  /// catégorie n'en chasse une autre (`capFairly`). `total` est le compte COMPLET
+  /// et `truncated` dit s'il en reste : une page qui n'en montre que la moitié
+  /// sans l'écrire ferait croire que la file est vide de l'autre.
   async listVerificationDue() {
     const { items, policies } = await this.collectVerificationDue();
     return {
-      items: items.slice(0, VERIFICATION_QUEUE_LIMIT),
+      items: capFairly(items, VERIFICATION_QUEUE_LIMIT),
       total: items.length,
       truncated: items.length > VERIFICATION_QUEUE_LIMIT,
       policies,
@@ -446,15 +450,21 @@ export class AdminCatalogService {
     this.assertDb();
     const result = await this.prisma.execute((db) =>
       db.$transaction([
+        // Les `orderBy` ne décident PAS de l'ordre de la file (le tri se fait en
+        // mémoire, `compareVerificationItems`) : ils la rendent déterministe et
+        // disent la même chose. Postgres range les NULL en DERNIER en tri
+        // croissant — sans `nulls: 'first'`, un futur `take:` ajouté pour économiser
+        // la mémoire couperait justement les jamais-vérifiés.
         db.country.findMany({
-          where: {
-            isActive: true,
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.countryVisa.cadenceDays,
-              now,
-            ),
-          } as Prisma.CountryWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { displayOrder: 'asc' }],
+          where: countryVerificationDueWhere(
+            VERIFICATION_POLICIES.countryVisa.cadenceDays,
+            now,
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { displayOrder: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -469,7 +479,11 @@ export class AdminCatalogService {
             VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
             now,
           ),
-          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { nameFr: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -485,7 +499,11 @@ export class AdminCatalogService {
             VERIFICATION_POLICIES.programScolarite.cadenceDays,
             now,
           ),
-          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { nameFr: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -498,15 +516,15 @@ export class AdminCatalogService {
           },
         }),
         db.scholarship.findMany({
-          where: {
-            isActive: true,
-            moderationStatus: 'approved',
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
-              now,
-            ),
-          } as Prisma.ScholarshipWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { deadlineAt: 'asc' }],
+          where: scholarshipVerificationDueWhere(
+            VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+            now,
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { deadlineAt: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -575,14 +593,7 @@ export class AdminCatalogService {
           now,
         }),
       ),
-    ].sort((a, b) => {
-      if (a.lastVerifiedAt == null && b.lastVerifiedAt != null) return -1;
-      if (a.lastVerifiedAt != null && b.lastVerifiedAt == null) return 1;
-      return (
-        (b.daysSinceVerification ?? Number.MAX_SAFE_INTEGER) -
-        (a.daysSinceVerification ?? Number.MAX_SAFE_INTEGER)
-      );
-    });
+    ].sort(compareVerificationItems);
 
     return { items, policies: Object.values(VERIFICATION_POLICIES) };
   }

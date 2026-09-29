@@ -96,6 +96,19 @@ describe('CatalogService — la barrière relu / non relu', () => {
     execute: jest.fn(),
   };
 
+  // Ce que le catalogue général exclut de l'import « Études en France » (voir
+  // `common/eef-provenance.ts`). Une formation est « de l'import » si son
+  // identifiant OU celui de son établissement porte le préfixe : une formation
+  // créée à la main sous une université de l'import (identifiant généré, active
+  // par défaut) en est aussi.
+  const EXCLUDES_EEF_PROGRAMS = {
+    OR: [
+      { id: { startsWith: 'eef-prog-' } },
+      { institutionId: { startsWith: 'eef-univ-' } },
+    ],
+  };
+  const EXCLUDES_EEF_INSTITUTIONS = { id: { startsWith: 'eef-univ-' } };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     const moduleRef = await Test.createTestingModule({
@@ -113,8 +126,15 @@ describe('CatalogService — la barrière relu / non relu', () => {
       op(fakePrisma(captured)),
     );
 
+    // La clause EXACTE de l'appel sans filtre : rien d'autre que le drapeau et la
+    // frontière de l'import. Toute clause parasite (un `countryId` par défaut, un
+    // `isPartner`…) doit faire rougir — `toBe(true)` sur `isActive` seul ne la
+    // verrait pas.
     await service.getPrograms();
-    expect((captured.programs as Record<string, unknown>).isActive).toBe(true);
+    expect(captured.programs).toEqual({
+      isActive: true,
+      NOT: EXCLUDES_EEF_PROGRAMS,
+    });
 
     await service.getPrograms({ fieldId: 'd07', countryId: 'france', q: 'droit' });
     expect((captured.programs as Record<string, unknown>).isActive).toBe(true);
@@ -127,7 +147,10 @@ describe('CatalogService — la barrière relu / non relu', () => {
     );
 
     await service.getInstitutions();
-    expect((captured.institutions as Record<string, unknown>).isActive).toBe(true);
+    expect(captured.institutions).toEqual({
+      isActive: true,
+      NOT: EXCLUDES_EEF_INSTITUTIONS,
+    });
 
     await service.getInstitutions({ countryId: 'france', partnerOnly: true });
     expect((captured.institutions as Record<string, unknown>).isActive).toBe(true);
@@ -143,8 +166,6 @@ describe('CatalogService — la barrière relu / non relu', () => {
   //
   // Ces tests regardent la clause envoyée à Prisma, pour chaque combinaison de
   // filtres : l'exclusion ne doit dépendre d'aucun paramètre de requête.
-  const EXCLUDES_EEF_PROGRAMS = { id: { startsWith: 'eef-prog-' } };
-  const EXCLUDES_EEF_INSTITUTIONS = { id: { startsWith: 'eef-univ-' } };
 
   it('n’envoie au catalogue général aucune formation de l’import EEF', async () => {
     const captured: Captured = {};

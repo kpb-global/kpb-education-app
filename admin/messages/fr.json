@@ -756,7 +756,9 @@
     "never": "Jamais",
     "notProvided": "Non renseigné",
     "tableNote": "Frais, deadlines et infos programmes sont recontrôlés selon la cadence définie par catégorie ci-dessus.",
-    "truncatedNotice": "La file est longue : {shown} lignes sur {total} sont affichées, les plus urgentes d'abord. Validez-en, puis rechargez la page pour voir les suivantes."
+    "truncatedNotice": "La file est longue. Lignes affichées : {shown} sur {total}, les plus urgentes d'abord. Validez-en, puis rechargez la page pour voir les suivantes.",
+    "batchDone": "Les lignes affichées sont traitées. Rechargez la file pour voir les suivantes.",
+    "reloadCta": "Recharger la file"
   },
   "scholarships": {
     "title": "Modération des bourses",
