@@ -521,41 +521,180 @@ describe('POST /counsellors/:id/reviews', () => {
 // ─── La fiche publique ───────────────────────────────────────────────────────
 
 describe('GET /counsellors/:id — ce que la fiche publique sert des avis', () => {
-  // Sans `select`, Prisma rend TOUTES les colonnes d'un avis : `reviewerUserId`,
-  // la clé de rattachement au profil, et `caseId` sortaient sur cette route
-  // publique. Tant que l'auteur restait NULL, la première ne pouvait rien
-  // révéler ; il est renseigné désormais. La preuve sur base réelle vit dans
-  // `counsellors.reviews.postgres.spec.ts` — mais elle est sautée tant que la CI
-  // unitaire est rouge : celle-ci tient toujours.
-  async function capturedSelect() {
-    let captured: { select: { reviews: Record<string, unknown> } } | null = null;
+  // Deux défauts gardés ici, l'un après l'autre :
+  //
+  //  1. Sans `select`, Prisma rend TOUTES les colonnes d'un avis : `reviewerUserId`,
+  //     la clé de rattachement au profil, et `caseId` sortaient sur cette route
+  //     publique. Tant que l'auteur restait NULL, la première ne pouvait rien
+  //     révéler ; il est renseigné désormais.
+  //  2. La fiche servait `reviewerName` — le nom civil du profil — dès que la
+  //     modération avait posé `isPublished`, sans regarder aucun reçu de
+  //     consentement, alors que `/impact/reviews` exige un reçu
+  //     `public_testimonial` actif. Deux portes, une seule gardée.
+  //
+  // La preuve sur base réelle vit dans `counsellors.reviews.postgres.spec.ts` —
+  // mais elle est sautée tant que la CI unitaire est rouge : celle-ci tient
+  // toujours.
+  const NOW = new Date('2026-09-29T12:00:00.000Z');
+  beforeAll(() => {
+    jest.useFakeTimers({ now: NOW, doNotFake: [
+      'hrtime', 'nextTick', 'performance', 'queueMicrotask',
+      'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback',
+      'cancelIdleCallback', 'setImmediate', 'clearImmediate', 'setInterval',
+      'clearInterval', 'setTimeout', 'clearTimeout',
+    ] });
+  });
+  afterAll(() => jest.useRealTimers());
+
+  type Candidate = {
+    id: string;
+    counsellorId: string;
+    reviewerUserId: string | null;
+    reviewerName: string;
+    rating: number;
+    body: string;
+    createdAt: Date;
+    caseId?: string;
+  };
+
+  const candidate = (id: string, reviewerUserId: string | null, i = 0): Candidate => ({
+    id,
+    counsellorId: 'counsellor-1',
+    reviewerUserId,
+    reviewerName: `Nom civil de ${id}`,
+    rating: 5,
+    body: `Texte de ${id}`,
+    // Du plus récent au plus ancien, comme `orderBy: createdAt desc`.
+    createdAt: new Date(NOW.getTime() - i * 60_000),
+    caseId: `case-of-${id}`,
+  });
+
+  /** Un reçu `public_testimonial` valide pour un adulte, accordé en janvier. */
+  const receipt = (
+    userId: string,
+    overrides: Record<string, unknown> = {},
+  ) => ({
+    userId,
+    purpose: 'public_testimonial',
+    grantedAt: new Date('2026-01-01T00:00:00.000Z'),
+    revokedAt: null,
+    user: { birthDate: new Date('1990-01-01T00:00:00.000Z') },
+    notice: {
+      purpose: 'public_testimonial',
+      effectiveAt: new Date('2025-12-01T00:00:00.000Z'),
+      retiredAt: null,
+    },
+    guardianAuthorization: null,
+    ...overrides,
+  });
+
+  function publicPage(opts: {
+    counsellor?: Record<string, unknown> | null;
+    candidates?: Candidate[];
+    receipts?: Array<ReturnType<typeof receipt>>;
+  }) {
+    const seen: {
+      counsellor: Record<string, any> | null;
+      reviews: Record<string, any> | null;
+      receipts: Record<string, any> | null;
+    } = { counsellor: null, reviews: null, receipts: null };
+    const client = {
+      counsellor: {
+        findFirst: async (args: Record<string, unknown>) => {
+          seen.counsellor = args;
+          return opts.counsellor === undefined
+            ? { id: 'counsellor-1', fullName: 'Kofi Mensah' }
+            : opts.counsellor;
+        },
+      },
+      counsellorReview: {
+        findMany: async (args: Record<string, unknown>) => {
+          seen.reviews = args;
+          return opts.candidates ?? [];
+        },
+      },
+      consentReceipt: {
+        findMany: async (args: Record<string, unknown>) => {
+          seen.receipts = args;
+          return opts.receipts ?? [];
+        },
+      },
+    };
     const prisma = {
       isEnabled: true,
-      execute: async (operation: (client: unknown) => Promise<unknown>) =>
-        operation({
-          counsellor: {
-            findFirst: async (args: {
-              select: { reviews: Record<string, unknown> };
-            }) => {
-              captured = args;
-              return { id: 'counsellor-1', reviews: [] };
-            },
-          },
-        }),
+      execute: async (operation: (c: typeof client) => Promise<unknown>) =>
+        operation(client),
     };
-    await new CounsellorsService(prisma as unknown as PrismaService).getPublic(
-      'counsellor-1',
-    );
-    return captured!.select.reviews as {
-      where: Record<string, unknown>;
-      select: Record<string, boolean>;
+    const service = new CounsellorsService(prisma as unknown as PrismaService);
+    return {
+      seen,
+      get: () =>
+        service.getPublic('counsellor-1') as Promise<{
+          reviews: Array<Record<string, unknown>>;
+        }>,
     };
   }
 
-  it('ne lit que les colonnes publiques des avis', async () => {
-    const reviews = await capturedSelect();
+  it('ne sert que les avis dont l’auteur a un reçu de témoignage public actif', async () => {
+    const page = publicPage({
+      candidates: [
+        candidate('avec-reçu', 'user-1', 0),
+        candidate('sans-reçu', 'user-2', 1),
+        candidate('notice-retirée', 'user-3', 2),
+      ],
+      receipts: [
+        receipt('user-1'),
+        receipt('user-3', {
+          notice: {
+            purpose: 'public_testimonial',
+            effectiveAt: new Date('2025-12-01T00:00:00.000Z'),
+            // Retirée avant aujourd'hui : le consentement ne vaut plus.
+            retiredAt: new Date('2026-06-01T00:00:00.000Z'),
+          },
+        }),
+      ],
+    });
 
-    expect(Object.keys(reviews.select).sort()).toEqual([
+    const detail = await page.get();
+
+    expect(detail.reviews.map((r) => r.id)).toEqual(['avec-reçu']);
+  });
+
+  it('ne sert aucun avis à un mineur sans autorisation parentale vérifiée', async () => {
+    const minor = { birthDate: new Date('2012-03-03T00:00:00.000Z') };
+    const page = publicPage({
+      candidates: [candidate('mineur', 'user-1')],
+      receipts: [receipt('user-1', { user: minor })],
+    });
+    expect((await page.get()).reviews).toEqual([]);
+
+    const authorised = publicPage({
+      candidates: [candidate('mineur', 'user-1')],
+      receipts: [
+        receipt('user-1', {
+          user: minor,
+          guardianAuthorization: {
+            minorUserId: 'user-1',
+            status: 'verified',
+            verifiedAt: new Date('2025-12-15T00:00:00.000Z'),
+            expiresAt: null,
+            revokedAt: null,
+          },
+        }),
+      ],
+    });
+    expect((await authorised.get()).reviews.map((r) => r.id)).toEqual(['mineur']);
+  });
+
+  it('ne sert que les colonnes publiques : ni l’auteur ni le dossier', async () => {
+    const page = publicPage({
+      candidates: [candidate('avis-1', 'user-1')],
+      receipts: [receipt('user-1')],
+    });
+
+    const detail = await page.get();
+
+    expect(Object.keys(detail.reviews[0]).sort()).toEqual([
       'body',
       'counsellorId',
       'createdAt',
@@ -563,14 +702,78 @@ describe('GET /counsellors/:id — ce que la fiche publique sert des avis', () =
       'rating',
       'reviewerName',
     ]);
-    expect(reviews.select).not.toHaveProperty('reviewerUserId');
-    expect(reviews.select).not.toHaveProperty('caseId');
-    expect(reviews.select).not.toHaveProperty('isPublished');
+    const serialized = JSON.stringify(detail);
+    expect(serialized).not.toContain('user-1');
+    expect(serialized).not.toContain('case-of-avis-1');
   });
 
-  it('ne sert que les avis publiés', async () => {
-    const reviews = await capturedSelect();
-    expect(reviews.where).toEqual({ isPublished: true });
+  it('ne lit que les avis PUBLIÉS d’un auteur connu, en nombre borné', async () => {
+    const page = publicPage({});
+    await page.get();
+
+    expect(page.seen.reviews).toMatchObject({
+      where: {
+        counsellorId: 'counsellor-1',
+        isPublished: true,
+        reviewerUserId: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    });
+    // Le `select` rend la clé d'auteur — nécessaire pour juger le consentement —
+    // mais jamais le dossier ni le drapeau de publication.
+    expect(page.seen.reviews!.select).not.toHaveProperty('caseId');
+    expect(page.seen.reviews!.select).not.toHaveProperty('isPublished');
+  });
+
+  it('ne lit les reçus que des auteurs de CES avis, sans doublon', async () => {
+    const page = publicPage({
+      candidates: [
+        candidate('a', 'user-1', 0),
+        candidate('b', 'user-1', 1),
+        candidate('c', 'user-2', 2),
+      ],
+    });
+    await page.get();
+
+    expect(page.seen.receipts!.where.userId).toEqual({ in: ['user-1', 'user-2'] });
+    expect(page.seen.receipts!.where).toMatchObject({
+      purpose: 'public_testimonial',
+      revokedAt: null,
+    });
+  });
+
+  it('ne lit aucun reçu quand aucun avis n’est candidat', async () => {
+    const page = publicPage({ candidates: [] });
+
+    expect((await page.get()).reviews).toEqual([]);
+    // Une liste d'auteurs vide ne doit jamais se lire « tous les reçus ».
+    expect(page.seen.receipts).toBeNull();
+  });
+
+  it('garde les 20 plus récents, dans l’ordre', async () => {
+    const candidates = Array.from({ length: 30 }, (_, i) =>
+      candidate(`avis-${String(i).padStart(2, '0')}`, `user-${i}`, i),
+    );
+    const page = publicPage({
+      candidates,
+      receipts: candidates.map((c) => receipt(c.reviewerUserId!)),
+    });
+
+    const detail = await page.get();
+
+    expect(detail.reviews).toHaveLength(20);
+    expect(detail.reviews.map((r) => r.id)).toEqual(
+      candidates.slice(0, 20).map((c) => c.id),
+    );
+  });
+
+  it('répond 404 sans lire aucun avis quand le conseiller n’est pas publié', async () => {
+    const page = publicPage({ counsellor: null });
+
+    await expect(page.get()).rejects.toThrow('Counsellor counsellor-1 not available.');
+    expect(page.seen.reviews).toBeNull();
+    expect(page.seen.receipts).toBeNull();
   });
 });
 

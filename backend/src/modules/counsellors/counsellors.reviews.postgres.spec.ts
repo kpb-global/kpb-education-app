@@ -34,7 +34,10 @@ import { CounsellorsService } from './counsellors.service';
  * `GET /counsellors/:id` sert les avis publiés. Tant que l'auteur restait nul, la
  * clé de rattachement au profil ne pouvait pas en sortir. Il est renseigné
  * désormais : la fiche ne doit servir que ce que le carrousel d'accueil
- * (`/impact/reviews`) sert déjà.
+ * (`/impact/reviews`) sert déjà — et par la MÊME porte : un avis publié dont
+ * l'auteur n'a pas de reçu `public_testimonial` actif n'y figure pas, même
+ * modéré, même signé. Les reçus sont de vraies lignes ici (notice, reçu,
+ * révocation), pas des objets simulés.
  *
  * ## Les avis d'AVANT l'auteur-par-jeton
  *
@@ -74,6 +77,8 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
     legacyOwn: `rev-legacy-own-${sfx}`,
     legacyStranger: `rev-legacy-stranger-${sfx}`,
     strangerAuthored: `rev-stranger-authored-${sfx}`,
+    testimonialNotice: `rev-notice-${sfx}`,
+    testimonialReceipt: `rev-receipt-${sfx}`,
   };
   const STUDENT_NAME = 'Étudiante Adjovi';
 
@@ -89,9 +94,10 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
   const student = { id: ids.student, fullName: STUDENT_NAME };
 
   /** Le minimum que le schéma exige, pour que le test porte sur l'avis. */
-  const profile = (id: string, fullName: string) => ({
+  const profile = (id: string, fullName: string, birthDate?: Date) => ({
     id,
     accountType: AccountType.student,
+    ...(birthDate ? { birthDate } : {}),
     preferredLanguage: 'fr',
     fullName,
     email: `${id}@example.test`,
@@ -133,7 +139,8 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
   beforeAll(async () => {
     await prisma.userProfile.createMany({
       data: [
-        profile(ids.student, STUDENT_NAME),
+        // Adulte : un reçu de témoignage public n'exige alors pas de tuteur.
+        profile(ids.student, STUDENT_NAME, new Date('1998-05-05T00:00:00.000Z')),
         profile(ids.stranger, 'Autre Étudiant'),
       ],
     });
@@ -194,6 +201,12 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
 
   afterAll(async () => {
     const counsellorIds = [ids.counsellorA, ids.counsellorB];
+    await prisma.consentReceipt.deleteMany({
+      where: { noticeId: ids.testimonialNotice },
+    });
+    await prisma.consentNotice.deleteMany({
+      where: { id: ids.testimonialNotice },
+    });
     await prisma.counsellorReview.deleteMany({
       where: { counsellorId: { in: counsellorIds } },
     });
@@ -296,13 +309,43 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
     ).toBe(1);
   });
 
-  it("ne sert, sur la fiche publique, ni l'auteur ni le dossier de l'avis publié", async () => {
+  it("ne sert, sur la fiche publique, que l'avis publié dont l'auteur a consenti — sans son auteur ni son dossier", async () => {
     await service.setReviewPublished(reviewId, true);
+    const page = async (counsellorId: string) =>
+      (await service.getPublic(counsellorId)) as unknown as {
+        reviews: Array<Record<string, unknown>>;
+      };
 
-    const detail = (await service.getPublic(ids.counsellorA)) as unknown as {
-      reviews: Array<Record<string, unknown>>;
-    };
+    // Publié par la modération, mais AUCUN reçu : le nom civil ne sort pas.
+    expect((await page(ids.counsellorA)).reviews).toEqual([]);
+    // B a deux avis publiés — l'un sans auteur (hérité), l'autre signé par un
+    // étudiant qui n'a rien accordé — et n'en sert aucun.
+    expect((await page(ids.counsellorB)).reviews).toEqual([]);
 
+    // L'étudiant accorde le témoignage public : une vraie notice, un vrai reçu.
+    await prisma.consentNotice.create({
+      data: {
+        id: ids.testimonialNotice,
+        purpose: 'public_testimonial',
+        version: `rev-${sfx}`,
+        languageCode: 'fr',
+        contentHash: `hash-${sfx}`,
+        effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+      },
+    });
+    await prisma.consentReceipt.create({
+      data: {
+        id: ids.testimonialReceipt,
+        userId: ids.student,
+        purpose: 'public_testimonial',
+        noticeId: ids.testimonialNotice,
+        languageCode: 'fr',
+        channel: 'test',
+        grantedAt: new Date('2026-02-01T00:00:00.000Z'),
+      },
+    });
+
+    const detail = await page(ids.counsellorA);
     expect(detail.reviews).toHaveLength(1);
     // Exactement ce que `/impact/reviews` sert déjà — et rien de plus. Une clé de
     // plus ici est une clé de rattachement au profil publiée à tout le monde.
@@ -318,6 +361,20 @@ describePostgres('Avis conseiller — intégration PostgreSQL', () => {
     );
     expect(JSON.stringify(detail)).not.toContain(ids.student);
     expect(JSON.stringify(detail)).not.toContain(ids.caseDone);
+    // Le consentement de l'étudiant ne rend pas publics les avis des AUTRES.
+    expect((await page(ids.counsellorB)).reviews).toEqual([]);
+
+    // Il retire son accord : l'avis disparaît de la fiche, sans toucher à la
+    // modération.
+    await prisma.consentReceipt.update({
+      where: { id: ids.testimonialReceipt },
+      data: { revokedAt: new Date() },
+    });
+    expect((await page(ids.counsellorA)).reviews).toEqual([]);
+    expect(
+      (await prisma.counsellorReview.findUniqueOrThrow({ where: { id: reviewId } }))
+        .isPublished,
+    ).toBe(true);
   });
 
   const storage = {

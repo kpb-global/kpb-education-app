@@ -6,7 +6,19 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 
+import {
+  eligiblePublicTestimonialUserIds,
+  loadPublicTestimonialReceipts,
+} from '../impact/public-testimonial-consent';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** Avis affichés sur la fiche publique d'un conseiller. */
+const PUBLIC_REVIEWS_SHOWN = 20;
+/**
+ * Avis publiés examinés pour en garder `PUBLIC_REVIEWS_SHOWN` : le travail reste
+ * borné même si le conseiller en a des milliers. Les plus récents d'abord.
+ */
+const PUBLIC_REVIEW_CANDIDATES = 200;
 
 /// Aucune base configurée : on ne prétend pas avoir enregistré l'avis.
 function reviewsUnavailable(): ServiceUnavailableException {
@@ -83,8 +95,9 @@ export class CounsellorsService {
   }
 
   async getPublic(id: string) {
-    const counsellor = await this.prismaService.execute((prisma) =>
-      prisma.counsellor.findFirst({
+    const now = new Date();
+    const counsellor = await this.prismaService.execute(async (prisma) => {
+      const found = await prisma.counsellor.findFirst({
         where: { id, isActive: true, kycStatus: 'approved' },
         // Explicit select: the public detail view must never leak the
         // counsellor's personal contact details (email/phone/whatsApp) or
@@ -101,31 +114,78 @@ export class CounsellorsService {
           hourlyRateXOF: true,
           avgRating: true,
           reviewCount: true,
-          reviews: {
-            where: { isPublished: true },
-            orderBy: { createdAt: 'desc' },
-            take: 20,
-            // Ce que `/impact/reviews` sert déjà, et rien de plus. Sans `select`,
-            // Prisma rend TOUTES les colonnes — `reviewerUserId`, la clé de
-            // rattachement au profil, et `caseId` sortaient donc sur cette route
-            // publique. Tant que l'auteur restait nul (l'app ne l'envoyait pas),
-            // la première ne pouvait rien révéler ; il est renseigné désormais.
-            select: {
-              id: true,
-              counsellorId: true,
-              reviewerName: true,
-              rating: true,
-              body: true,
-              createdAt: true,
-            },
-          },
         },
-      }),
-    );
+      });
+      if (!found) return null;
+      return {
+        ...found,
+        reviews: await this.consentedPublishedReviews(prisma, id, now),
+      };
+    });
     if (!counsellor) {
       throw new NotFoundException(`Counsellor ${id} not available.`);
     }
     return counsellor;
+  }
+
+  /**
+   * Les avis PUBLIÉS dont l'auteur a un reçu `public_testimonial` actif — la
+   * porte de `/impact/reviews`, et non la seule modération.
+   *
+   * Avant, la fiche servait `reviewerName` (le nom civil du profil) dès que
+   * `isPublished` valait `true` : la modération suffisait. Un avis sans auteur
+   * — tous ceux d'avant la reprise, ou dont le dossier a disparu — ne peut pas
+   * franchir cette porte, et ne doit pas : personne n'a consenti à ce qu'il soit
+   * montré. Aucune colonne de rattachement (`reviewerUserId`, `caseId`) ne sort :
+   * on lit la clé pour juger le consentement, puis on la retire.
+   */
+  private async consentedPublishedReviews(
+    prisma: Parameters<Parameters<PrismaService['execute']>[0]>[0],
+    counsellorId: string,
+    now: Date,
+  ) {
+    const candidates = await prisma.counsellorReview.findMany({
+      where: {
+        counsellorId,
+        isPublished: true,
+        reviewerUserId: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: PUBLIC_REVIEW_CANDIDATES,
+      select: {
+        id: true,
+        counsellorId: true,
+        reviewerUserId: true,
+        reviewerName: true,
+        rating: true,
+        body: true,
+        createdAt: true,
+      },
+    });
+    const authorIds = Array.from(
+      new Set(
+        candidates.flatMap((review) =>
+          review.reviewerUserId ? [review.reviewerUserId] : [],
+        ),
+      ),
+    );
+    const receipts = await loadPublicTestimonialReceipts(prisma, now, authorIds);
+    const consenting = new Set(eligiblePublicTestimonialUserIds(receipts, now));
+
+    return candidates
+      .filter(
+        (review) =>
+          review.reviewerUserId !== null && consenting.has(review.reviewerUserId),
+      )
+      .slice(0, PUBLIC_REVIEWS_SHOWN)
+      .map((review) => ({
+        id: review.id,
+        counsellorId: review.counsellorId,
+        reviewerName: review.reviewerName,
+        rating: review.rating,
+        body: review.body,
+        createdAt: review.createdAt,
+      }));
   }
 
   /** Admin list — includes pending/rejected for the KYC queue. */
@@ -267,11 +327,11 @@ export class CounsellorsService {
    * qu'à ce moment-là. Un dossier introuvable ET un dossier d'un autre répondent
    * la même chose (404) : on ne confirme pas l'existence du dossier d'autrui.
    *
-   * Honnêtement : « terminé » n'est pas une preuve. `PATCH /cases/:id` laisse le
-   * propriétaire fixer lui-même le `status` de son dossier (aucun client de l'app
-   * ne le fait). Ce contrôle écarte les avis incohérents, pas un utilisateur qui
-   * le veut ; les défenses réelles sont la propriété du dossier et la modération
-   * (un avis naît non publié).
+   * « Terminé » est posé par l'ÉQUIPE : il n'existe plus de `PATCH /cases/:id`
+   * côté étudiant (il laissait le propriétaire se déclarer « terminé » lui-même ;
+   * aucun client de l'app ne l'appelait). Ce n'est pas pour autant une preuve de
+   * qualité du parcours — un conseiller ou un admin peut terminer un dossier — et
+   * la modération reste la défense de fond (un avis naît non publié).
    *
    * ## Un avis par dossier
    *
